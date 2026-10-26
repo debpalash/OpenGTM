@@ -43,3 +43,11 @@ ON CONFLICT (workspace_id) DO UPDATE SET
 -- name: OutreachInboundScheduleDisable :exec
 UPDATE outreach_inbound_schedules SET enabled = false, next_poll_at = NULL, updated_at = now()
 WHERE workspace_id = sqlc.arg(workspace_id)::text;
+
+-- name: OutreachInboundRecipientsForSend :many
+-- Recipients already recorded for one send and kind (breaker de-dup, plan 09 final M1). Bounded.
+SELECT COALESCE(recipient, '')::text AS recipient
+FROM outreach_inbound_messages
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND matched_send_id = sqlc.arg(matched_send_id)::int
+  AND kind = sqlc.arg(kind)::text
+ORDER BY id LIMIT 500;

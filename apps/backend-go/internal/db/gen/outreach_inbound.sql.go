@@ -22,6 +22,41 @@ func (q *Queries) OutreachInboundCount(ctx context.Context, workspaceID string) 
 	return column_1, err
 }
 
+const outreachInboundRecipientsForSend = `-- name: OutreachInboundRecipientsForSend :many
+SELECT COALESCE(recipient, '')::text AS recipient
+FROM outreach_inbound_messages
+WHERE workspace_id = $1::text AND matched_send_id = $2::int
+  AND kind = $3::text
+ORDER BY id LIMIT 500
+`
+
+type OutreachInboundRecipientsForSendParams struct {
+	WorkspaceID   string
+	MatchedSendID int32
+	Kind          string
+}
+
+// Recipients already recorded for one send and kind (breaker de-dup, plan 09 final M1). Bounded.
+func (q *Queries) OutreachInboundRecipientsForSend(ctx context.Context, arg OutreachInboundRecipientsForSendParams) ([]string, error) {
+	rows, err := q.db.Query(ctx, outreachInboundRecipientsForSend, arg.WorkspaceID, arg.MatchedSendID, arg.Kind)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var recipient string
+		if err := rows.Scan(&recipient); err != nil {
+			return nil, err
+		}
+		items = append(items, recipient)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const outreachInboundRecord = `-- name: OutreachInboundRecord :one
 
 WITH ins AS (

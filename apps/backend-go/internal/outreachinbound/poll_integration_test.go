@@ -1069,3 +1069,52 @@ func TestNULBytesStrippedBeforeLedgerInsert(t *testing.T) {
 		t.Errorf("matched NUL message not applied")
 	}
 }
+
+// Plan 09 final security M1: anyone who saw one email knows its Message-ID. Repeated or forged
+// DSN/ARF mail citing it must not move the sequence's circuit-breaker counters more than once.
+func TestRepeatedHardBounceForSameSendCountsOnce(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	ws := newWS(t, pool)
+	s := seedSend(t, pool, ws, "gone@example.com", "<ours-m1a@sender.example>", 1)
+	for i := 1; i <= 3; i++ {
+		raw := dsn(fmt.Sprintf("<forged-%d@mx.example>", i), "<ours-m1a@sender.example>", "gone@example.com", "5.1.1", "550 user unknown")
+		process(t, pool, ws, strconv.Itoa(i), raw)
+	}
+	if b, _ := seqCounts(t, pool, ws, s.seq); b != 1 {
+		t.Fatalf("bounce_count %d, want 1", b)
+	}
+}
+
+func TestRepeatedComplaintForSameSendCountsOnce(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	ws := newWS(t, pool)
+	s := seedSend(t, pool, ws, "ann@example.com", "<orig-0015@contract.example.com>", 1)
+	raw, err := os.ReadFile("../../testdata/dsn/arf_abuse_original_rcpt.eml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i := 1; i <= 3; i++ {
+		forged := strings.Replace(string(raw), "<arf-0015@isp.example.net>", fmt.Sprintf("<arf-forged-%d@isp.example.net>", i), 1)
+		process(t, pool, ws, strconv.Itoa(20+i), []byte(forged))
+	}
+	if _, c := seqCounts(t, pool, ws, s.seq); c != 1 {
+		t.Fatalf("complaint_count %d, want 1", c)
+	}
+}
+
+// A DSN whose recipient is not the send's recipient is never counted by the breaker.
+func TestBounceForOtherRecipientNotCounted(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	ws := newWS(t, pool)
+	s := seedSend(t, pool, ws, "gone@example.com", "<ours-m1c@sender.example>", 1)
+	raw := dsn("<forged-other@mx.example>", "<ours-m1c@sender.example>", "someone-else@example.org", "5.1.1", "550 user unknown")
+	process(t, pool, ws, "31", raw)
+	if b, _ := seqCounts(t, pool, ws, s.seq); b != 0 {
+		t.Fatalf("bounce_count %d, want 0 for a mismatched recipient", b)
+	}
+	// the genuine bounce afterwards still counts, once
+	process(t, pool, ws, "32", dsn("<real@mx.example>", "<ours-m1c@sender.example>", "Gone@Example.com", "5.1.1", "550 user unknown"))
+	if b, _ := seqCounts(t, pool, ws, s.seq); b != 1 {
+		t.Fatalf("bounce_count %d, want 1", b)
+	}
+}

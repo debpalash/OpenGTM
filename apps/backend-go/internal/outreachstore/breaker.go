@@ -9,6 +9,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailnorm"
 )
 
 // Thresholds are the circuit-breaker and soft-bounce settings
@@ -71,9 +72,12 @@ type BounceApply struct {
 	SequenceID   string
 	EnrollmentID *int
 	ToEmail      string
-	Kind         string // hard (default for any other value) | soft | complaint
-	Diagnostic   string
-	Source       string
+	// Recipient is the address the bounce/complaint names; "" means the send's own. A bounce for any
+	// other address is applied but never counted by the breaker (plan 09 final M1).
+	Recipient  string
+	Kind       string // hard (default for any other value) | soft | complaint
+	Diagnostic string
+	Source     string
 }
 
 func orDefault(s, def string) string {
@@ -81,6 +85,36 @@ func orDefault(s, def string) string {
 		return def
 	}
 	return s
+}
+
+func sameMailbox(a, b string) bool {
+	ka := emailnorm.StoreKey(a)
+	return ka != "" && ka == emailnorm.StoreKey(b)
+}
+
+// countsForBreaker reports whether this event may move the circuit-breaker counters: its recipient is
+// the send's recipient, and it is the first ledger row for (send, kind, recipient). Forged or replayed
+// DSN/ARF mail citing one Message-ID therefore counts at most once, so the thresholds see distinct
+// recipients, not events. Call after the ledger insert and after the send row was locked by markSend.
+func countsForBreaker(ctx context.Context, tx pgx.Tx, a BounceApply) (bool, error) {
+	if a.Recipient != "" && !sameMailbox(a.Recipient, a.ToEmail) {
+		return false, nil
+	}
+	if a.SendID == nil {
+		return true, nil
+	}
+	rs, err := gen.New(tx).OutreachInboundRecipientsForSend(ctx, gen.OutreachInboundRecipientsForSendParams{
+		WorkspaceID: a.WorkspaceID, MatchedSendID: *a.SendID, Kind: a.Kind})
+	if err != nil {
+		return false, fmt.Errorf("outreachstore: prior bounces: %w", err)
+	}
+	n := 0
+	for _, r := range rs {
+		if r == "" || sameMailbox(r, a.ToEmail) {
+			n++
+		}
+	}
+	return n <= 1, nil // the caller's own ledger row is one of them
 }
 
 // ApplyBounce is the single bounce/complaint applier. The caller's ledger insert
@@ -112,7 +146,11 @@ func ApplyBounce(ctx context.Context, tx pgx.Tx, a BounceApply, th Thresholds) e
 		if err := advance("complaint"); err != nil {
 			return err
 		}
-		_, err := RecordBounceAndMaybePause(ctx, tx, a.WorkspaceID, a.SequenceID, true, th)
+		count, err := countsForBreaker(ctx, tx, a)
+		if err != nil || !count {
+			return err
+		}
+		_, err = RecordBounceAndMaybePause(ctx, tx, a.WorkspaceID, a.SequenceID, true, th)
 		return err
 	case "soft":
 		if a.EnrollmentID == nil {
@@ -142,7 +180,11 @@ func ApplyBounce(ctx context.Context, tx pgx.Tx, a BounceApply, th Thresholds) e
 		if err := advance("hard_bounce"); err != nil {
 			return err
 		}
-		_, err := RecordBounceAndMaybePause(ctx, tx, a.WorkspaceID, a.SequenceID, false, th)
+		count, err := countsForBreaker(ctx, tx, a)
+		if err != nil || !count {
+			return err
+		}
+		_, err = RecordBounceAndMaybePause(ctx, tx, a.WorkspaceID, a.SequenceID, false, th)
 		return err
 	}
 }

@@ -86,7 +86,7 @@ func Process(ctx context.Context, tx pgx.Tx, wsID, uidValidity, uid string, raw 
 		return nil // already processed
 	}
 	a := outreachstore.BounceApply{WorkspaceID: wsID, SendID: &sendID, SequenceID: matched.SequenceID,
-		ToEmail: matched.ToEmail, Kind: chosen.Kind, Diagnostic: chosen.Diagnostic, Source: "imap"}
+		ToEmail: matched.ToEmail, Recipient: recipient, Kind: chosen.Kind, Diagnostic: chosen.Diagnostic, Source: "imap"}
 	if matched.EnrollmentID != nil {
 		e := int(*matched.EnrollmentID)
 		a.EnrollmentID = &e
