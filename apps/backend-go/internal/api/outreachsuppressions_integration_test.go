@@ -109,8 +109,10 @@ func TestSuppressionRoutesMatchFixtures(t *testing.T) {
 			gb, _ := json.Marshal(gotBody)
 			wb, _ := json.Marshal(wantBody)
 			got := contract.Resp{Status: rec.Code, Headers: map[string]string{}, Body: gb}
-			if v := rec.Header().Get("Content-Type"); v != "" {
-				got.Headers["Content-Type"] = v
+			for _, k := range []string{"Content-Type", "WWW-Authenticate"} {
+				if v := rec.Header().Get(k); v != "" {
+					got.Headers[k] = v
+				}
 			}
 			want := fx.Response
 			want.Body = wb
