@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -59,6 +60,7 @@ type prep struct {
 	cost        float64
 	raced       bool
 	credits     bool
+	existingID  int32 // an in_flight marker being re-attempted
 }
 
 func isNonIdempotent(t string) bool { return autoactions.NonIdempotentTypes[t] }
@@ -100,6 +102,9 @@ func (e *engine) prepare(ctx context.Context, tx pgx.Tx, a actionIn, existing *g
 		cost = 0
 	}
 	pr.cost = cost
+	if existing != nil {
+		pr.existingID = existing.ID
+	}
 
 	if paid && !a.dry {
 		resv, err := autocaps.TryReserve(ctx, tx, a.run.Caps, ws, cost, a.idem, e.d.GlobalDailyUSD)
@@ -124,7 +129,12 @@ func (e *engine) prepare(ctx context.Context, tx pgx.Tx, a actionIn, existing *g
 			return err
 		}
 		if res.IdempotentReplay {
+			// Keep what the first attempt charged so the ledger and the
+			// result row agree (Python recorded 0 here).
 			pr.cost = 0
+			if existing != nil {
+				pr.cost = existing.ChargedUsd
+			}
 		} else {
 			pr.cost = res.ChargedUSD
 		}
@@ -221,6 +231,11 @@ func (e *engine) runOne(ctx context.Context, a actionIn, st *stats) error {
 	st.attempted++
 	if pr.credits {
 		err := tenancy.InWorkspace(ctx, e.d.Pool, ws, func(tx pgx.Tx) error {
+			if pr.existingID != 0 { // an idempotent re-attempt: the marker becomes the refusal
+				return gen.New(tx).AutoRunSettleResult(ctx, gen.AutoRunSettleResultParams{ID: pr.existingID, WorkspaceID: ws,
+					Status: "skipped", SkipReason: pgtype.Text{String: "credits", Valid: true},
+					ResultSummary: pgtype.Text{String: "insufficient credits", Valid: true}})
+			}
 			_, _, err := persistInsert(ctx, gen.New(tx), a, "skipped", "credits", "insufficient credits", "", true, 0)
 			return err
 		})
@@ -242,21 +257,26 @@ func (e *engine) executeAndSettle(ctx context.Context, a actionIn, pr prep, st *
 	if a.dry {
 		return nil // nothing is persisted or charged in a dry run
 	}
-	if cerr := ctx.Err(); cerr != nil && res.Status != "success" {
+	cerr := ctx.Err()
+	if cerr != nil && res.Status != "success" {
 		// A shutdown or cancel is not the action's outcome: leave the marker
 		// in_flight (an idempotent action re-attempts, a webhook is never
 		// re-sent) and stop the run.
 		return fmt.Errorf("%w: %w", errAborted, cerr)
 	}
-	err = tenancy.InWorkspace(ctx, e.d.Pool, ws, func(tx pgx.Tx) error {
+	// A success whose context died meanwhile is still settled: the effect
+	// happened and the debit committed, so the marker must not stay in_flight.
+	sctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
+	defer cancel()
+	err = tenancy.InWorkspace(sctx, e.d.Pool, ws, func(tx pgx.Tx) error {
 		if pr.reservation.OK {
 			var serr error
 			if res.Status == "success" {
-				serr = autocaps.Settle(ctx, tx, pr.reservation)
+				serr = autocaps.Settle(sctx, tx, pr.reservation)
 			} else {
 				// The debit stays committed (refund-on-failure is out of scope);
 				// only the reservation is freed.
-				serr = autocaps.Release(ctx, tx, pr.reservation)
+				serr = autocaps.Release(sctx, tx, pr.reservation)
 			}
 			if serr != nil {
 				return serr
@@ -270,7 +290,7 @@ func (e *engine) executeAndSettle(ctx context.Context, a actionIn, pr prep, st *
 		if res.Error != "" {
 			p.Error = pgtype.Text{String: res.Error, Valid: true}
 		}
-		return gen.New(tx).AutoRunSettleResult(ctx, p)
+		return gen.New(tx).AutoRunSettleResult(sctx, p)
 	})
 	if err != nil {
 		return err
@@ -283,6 +303,9 @@ func (e *engine) executeAndSettle(ctx context.Context, a actionIn, pr prep, st *
 		st.skipped++
 	default:
 		st.failed++
+	}
+	if cerr != nil {
+		return fmt.Errorf("%w: %w", errAborted, cerr)
 	}
 	return nil
 }

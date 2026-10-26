@@ -177,7 +177,7 @@ func (q *Queries) AutoRunMarkReplay(ctx context.Context, arg AutoRunMarkReplayPa
 }
 
 const autoRunResultByIdem = `-- name: AutoRunResultByIdem :one
-SELECT id, status, action_type FROM trigger_action_results
+SELECT id, status, action_type, COALESCE(charged_usd, 0)::float8 AS charged_usd FROM trigger_action_results
 WHERE workspace_id = $1::text AND idempotency_key = $2::text
 `
 
@@ -190,12 +190,18 @@ type AutoRunResultByIdemRow struct {
 	ID         int32
 	Status     pgtype.Text
 	ActionType string
+	ChargedUsd float64
 }
 
 func (q *Queries) AutoRunResultByIdem(ctx context.Context, arg AutoRunResultByIdemParams) (AutoRunResultByIdemRow, error) {
 	row := q.db.QueryRow(ctx, autoRunResultByIdem, arg.WorkspaceID, arg.IdempotencyKey)
 	var i AutoRunResultByIdemRow
-	err := row.Scan(&i.ID, &i.Status, &i.ActionType)
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.ActionType,
+		&i.ChargedUsd,
+	)
 	return i, err
 }
 

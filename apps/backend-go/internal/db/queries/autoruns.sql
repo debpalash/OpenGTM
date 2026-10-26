@@ -51,7 +51,7 @@ ORDER BY created_at ASC, id ASC
 LIMIT sqlc.arg(row_limit)::int4;
 
 -- name: AutoRunResultByIdem :one
-SELECT id, status, action_type FROM trigger_action_results
+SELECT id, status, action_type, COALESCE(charged_usd, 0)::float8 AS charged_usd FROM trigger_action_results
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND idempotency_key = sqlc.arg(idempotency_key)::text;
 
 -- name: AutoRunInsertResult :one

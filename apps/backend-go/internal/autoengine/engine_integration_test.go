@@ -638,3 +638,65 @@ func TestPaidRowsReserveProjectCostOnly(t *testing.T) {
 		t.Fatalf("a free webhook reserved against the caps: %d", n)
 	}
 }
+
+func TestCancelAfterSuccessStillSettles(t *testing.T) {
+	withResearchCost(t)
+	e := newEnv(t)
+	e.defaultSeed(trig{Actions: "[" + actPaid + "]"})
+	ctx, cancel := context.WithCancel(e.ctx)
+	e.d.Execute = func(c context.Context, ws string, a map[string]any, wb, row string, lead *int64, ld map[string]any, cols []autoactions.Column, idem string) autoactions.Result {
+		cancel() // the effect happened, then the job context died
+		return okResult()
+	}
+	err := Handle(ctx, e.d, e.claim(pl("fk1", map[string]any{"targets": []any{e.targetOf("wbA", 0)}})))
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("%v", err)
+	}
+	rs := e.results(ws1)
+	if len(rs) != 1 || rs[0].Status != "success" || rs[0].Charged < 0.0499 {
+		t.Fatalf("marker not settled: %+v", rs)
+	}
+	var held int
+	e.inWS(ws1, func(tx pgx.Tx) error {
+		return tx.QueryRow(e.ctx, `SELECT count(*) FROM trigger_cap_reservations WHERE state='held'`).Scan(&held)
+	})
+	if held != 0 {
+		t.Fatalf("%d reservations still held", held)
+	}
+}
+
+func TestIdempotentReattemptKeepsPriorChargeAndCreditRefusalUpdatesMarker(t *testing.T) {
+	withResearchCost(t)
+	e := newEnv(t)
+	e.defaultSeed(trig{Actions: "[" + actPaid + "]"})
+	e.d.Execute = (&recorder{}).exec
+	tg := map[string]any{"targets": []any{e.targetOf("wbA", 0)}}
+	// first delivery charges, then "crashes" leaving an in_flight marker
+	e.d.Execute = func(context.Context, string, map[string]any, string, string, *int64, map[string]any, []autoactions.Column, string) autoactions.Result {
+		panic("crash")
+	}
+	e.must(e.run(pl("fk1", tg)))
+	e.d.Execute = (&recorder{}).exec
+	e.must(e.run(pl("fk1", tg)))
+	r := e.results(ws1)[0]
+	if r.Status != "success" || r.Charged < 0.0499 || r.Charged > 0.0501 {
+		t.Fatalf("prior charge lost: %+v", r)
+	}
+	// credit refusal on a re-attempt turns the marker into skipped/credits
+	e2 := "fk2"
+	e.d.Execute = func(context.Context, string, map[string]any, string, string, *int64, map[string]any, []autoactions.Column, string) autoactions.Result {
+		panic("crash")
+	}
+	e.inWS(ws1, func(tx pgx.Tx) error {
+		_, err := tx.Exec(e.ctx, `INSERT INTO trigger_action_results (workspace_id, run_id, trigger_id, workbook_id, row_id, action_index, action_type, idempotency_key, status)
+			VALUES ($1,'old','trg-1','wbA',$2,0,'re_enrich',$3,'in_flight')`, ws1, fmt.Sprint(e.rowIDs[1]), fmtKey(ws1, "trg-1", "wbA", e.rowIDs[1], 0, e2))
+		return err
+	})
+	e.credits(ws1, 0)
+	e.must(e.run(pl(e2, map[string]any{"targets": []any{e.targetOf("wbA", 1)}})))
+	for _, x := range e.results(ws1) {
+		if x.Key == fmtKey(ws1, "trg-1", "wbA", e.rowIDs[1], 0, e2) && (x.Status != "skipped" || *x.Skip != "credits") {
+			t.Fatalf("marker left in_flight: %+v", x)
+		}
+	}
+}
