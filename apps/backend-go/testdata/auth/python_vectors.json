@@ -1,0 +1,97 @@
+{
+  "secret": "test-only-secret-for-go-parity-vectors-0123456789",
+  "bcrypt_version": "5.0.0",
+  "far_exp": 4102444800,
+  "tokens": {
+    "access": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsImFtciI6WyJwd2QiXSwiZXhwIjo0MDAwNTE2ODY3LCJ0eXBlIjoiYWNjZXNzIn0.zQu9PrgPkco8fkUcD4dtG-C3QY3cD_sjEzPmXtfCAgc",
+      "python_decodes": true
+    },
+    "refresh": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsImFtciI6WyJwd2QiLCJzc28iXSwiZXhwIjo0MDAwNTE2ODY3LCJ0eXBlIjoicmVmcmVzaCJ9.FctjVchXp_7DWxDbj5_e20LvTVozScApAy83nJC71bo",
+      "python_decodes": true
+    },
+    "no_type": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsImFtciI6WyJwd2QiXSwiZXhwIjo0MTAyNDQ0ODAwfQ.PiVRE8YrlwBi8XfNUT8Ew_17kYps3buEREAQ9FMk_mU",
+      "python_decodes": true
+    },
+    "no_sub": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWNjZXNzIiwiZXhwIjo0MTAyNDQ0ODAwfQ.WsEUoZIn2XAvWdCJl7zJlGYIVL-Bm-t9wmL8LaPDZgQ",
+      "python_decodes": true
+    },
+    "no_exp": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsInR5cGUiOiJhY2Nlc3MifQ.7ecYuydRtTHZv4YmKG1x3fQCd8y-VZKqDHkWk2NOBCM",
+      "python_decodes": true
+    },
+    "expired": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsInR5cGUiOiJhY2Nlc3MiLCJleHAiOjEwMDAwMDAwMDB9.imaF3q-jPEXEk2KCwkIzApc3vFt57aawuEaFNSVqP8E",
+      "python_decodes": false
+    },
+    "hs512": {
+      "token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsInR5cGUiOiJhY2Nlc3MiLCJleHAiOjQxMDI0NDQ4MDB9.xm8nrjpCHC-3w2UAg3hkCs0qLkV6futMKXlhuGWH_q9lFpXZHzTMBlm_tpMH2QNU9OO1cVtCXKlfblfYp7xbeA",
+      "python_decodes": false
+    },
+    "alg_none": {
+      "token": "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiAiYWxpY2UiLCAidHlwZSI6ICJhY2Nlc3MiLCAiZXhwIjogNDEwMjQ0NDgwMH0.",
+      "python_decodes": false
+    },
+    "tampered": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsImFtciI6WyJwd2QiXSwiZXhwIjo0MDAwNTE2ODY3LCJ0eXBlIjoiYWNjZXNzIn0.zQu9PrgPkco8fkUcD4dtG-C3QY3cD_sjEzPmXtfCAAA",
+      "python_decodes": false
+    },
+    "wrong_secret": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsInR5cGUiOiJhY2Nlc3MiLCJleHAiOjQxMDI0NDQ4MDB9.7oLV0iXTErKT2bwjSXC3DzBXdHTXc9qG6SdTNDPGNRk",
+      "python_decodes": false
+    }
+  },
+  "passwords": {
+    "ascii": {
+      "password": "correct horse battery staple",
+      "hash": "$2b$12$Vtjp90Brdczs0hC9mwY0CuGmIgjNgNdKes6m0ntYsdlpOg7SWhyeK",
+      "python_hash_error": null,
+      "python_verify": true,
+      "python_verify_error": null,
+      "python_verify_wrong": false,
+      "python_verify_wrong_error": null
+    },
+    "empty": {
+      "password": "",
+      "hash": "$2b$12$a7VaKUasCEABXtB/CLo5W.8MJCa3bbpsAKRBxayVHQhSZ9Olt6lMy",
+      "python_hash_error": null,
+      "python_verify": true,
+      "python_verify_error": null,
+      "python_verify_wrong": false,
+      "python_verify_wrong_error": null
+    },
+    "non_ascii": {
+      "password": "pässwörd-北京-😀",
+      "hash": "$2b$12$n3sO4i2T5gtTjVvPeaz74.kFZYautXEff9PEjJYS3FuS9YUcPP2Ri",
+      "python_hash_error": null,
+      "python_verify": true,
+      "python_verify_error": null,
+      "python_verify_wrong": false,
+      "python_verify_wrong_error": null
+    },
+    "len72": {
+      "password": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "hash": "$2b$12$sl7/eKREud.g03zzygcvP.GXXh6Cab6fM4kX7D.YJMrH1B09tccFm",
+      "python_hash_error": null,
+      "python_verify": true,
+      "python_verify_error": null,
+      "python_verify_wrong": null,
+      "python_verify_wrong_error": "ValueError"
+    },
+    "len73": {
+      "password": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab",
+      "hash": null,
+      "python_hash_error": "ValueError",
+      "verify_against_len72_hash": null,
+      "verify_against_len72_hash_error": "ValueError"
+    },
+    "len100": {
+      "password": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "hash": null,
+      "python_hash_error": "ValueError"
+    }
+  }
+}
