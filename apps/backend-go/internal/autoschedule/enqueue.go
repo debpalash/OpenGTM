@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 )
@@ -81,7 +80,15 @@ func EnqueueScheduleIfAbsent(ctx context.Context, tx pgx.Tx, t Trigger, next tim
 		return false, fmt.Errorf("autoschedule: executor %q must be go or python", executor)
 	}
 	next = next.UTC()
-	key := FireKey(t.ID, next)
+	var tzName string
+	if err := tx.QueryRow(ctx, `SHOW TimeZone`).Scan(&tzName); err != nil {
+		return false, fmt.Errorf("autoschedule: session timezone: %w", err)
+	}
+	loc, err := time.LoadLocation(tzName)
+	if err != nil {
+		return false, fmt.Errorf("autoschedule: unsupported session TimeZone %q (refusing to schedule): %w", tzName, err)
+	}
+	key := FireKeyIn(t.ID, next, loc)
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)
@@ -97,9 +104,9 @@ func EnqueueScheduleIfAbsent(ctx context.Context, tx pgx.Tx, t Trigger, next tim
 	} else if !errors.Is(err, pgx.ErrNoRows) {
 		return false, fmt.Errorf("autoschedule: look up: %w", err)
 	}
-	_, err := q.InsertScheduleJob(ctx, gen.InsertScheduleJobParams{
+	_, err = q.InsertScheduleJob(ctx, gen.InsertScheduleJobParams{
 		Executor: executor, Payload: bytes.TrimRight(buf.Bytes(), "\n"), WorkspaceID: t.WorkspaceID, FireKey: key,
-		NextRunAt: pgtype.Timestamp{Time: next, Valid: true},
+		NextRunAt: tstz(next),
 	})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return false, nil // lost the unique-index race

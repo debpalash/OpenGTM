@@ -9,12 +9,13 @@ WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: InsertScheduleJob :one
 -- Same row as job_scheduling.enqueue_job_once for a trigger_eval, with the
--- Python next_run_at (the scheduled instant, naive UTC).
+-- Python next_run_at (the scheduled instant; the timestamptz-to-naive cast uses
+-- the session TimeZone exactly as Python's aware-datetime bind does).
 INSERT INTO jobs (executor, type, payload, workspace_id, priority, fire_key, status,
                   created_at, next_run_at, max_retries, retry_count)
 VALUES (sqlc.arg(executor)::text, 'trigger_eval', sqlc.arg(payload)::json,
         NULLIF(sqlc.arg(workspace_id)::text, ''), 1, sqlc.arg(fire_key)::text, 'pending',
-        (now() AT TIME ZONE 'UTC'), sqlc.arg(next_run_at)::timestamp, 3, 0)
+        (now() AT TIME ZONE 'UTC'), (sqlc.arg(next_run_at)::timestamptz)::timestamp, 3, 0)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id;
 

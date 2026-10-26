@@ -400,3 +400,30 @@ func TestBootstrapForTriggerAnchorDefaultsToNow(t *testing.T) {
 		t.Fatalf("jobs %+v", js)
 	}
 }
+
+func TestFireKeyFollowsSessionTimeZone(t *testing.T) {
+	pool, ctx := setup(t)
+	mkTrigger(t, ctx, pool, wsA, "trg-tz", "on_schedule", true, "hourly", &anchor)
+	next := anchor.Add(time.Hour) // 09:00Z
+	err := tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+		if _, err := tx.Exec(ctx, `SET LOCAL TimeZone = 'Asia/Kolkata'`); err != nil {
+			return err
+		}
+		ok, err := autoschedule.EnqueueScheduleIfAbsent(ctx, tx, trig(wsA, "trg-tz"), next, "go")
+		if err == nil && !ok {
+			t.Error("not created")
+		}
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	js := jobsFor(t, ctx, pool, wsA)
+	if len(js) != 1 || js[0].FireKey != "sched:trg-tz:2026-08-29T14:30:00+05:30" {
+		t.Fatalf("jobs %+v", js)
+	}
+	// naive next_run_at is the session-local wall time, as a Python aware bind.
+	if !js[0].NextRunAt.Equal(time.Date(2026, 8, 29, 14, 30, 0, 0, time.UTC)) {
+		t.Errorf("next_run_at %v", js[0].NextRunAt)
+	}
+}

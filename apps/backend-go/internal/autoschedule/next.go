@@ -36,16 +36,26 @@ func NextRun(anchor time.Time, interval string, now time.Time) time.Time {
 
 // isoformat renders t like Python's datetime.isoformat() for a UTC-aware
 // datetime: microseconds only when non-zero, then "+00:00".
-func isoformat(t time.Time) string {
-	t = t.UTC()
+func isoformat(t time.Time) string { return isoformatIn(t, time.UTC) }
+
+// isoformatIn renders t in loc like Python's isoformat for an aware datetime
+// whose tzinfo is that zone (psycopg reads timestamptz in the session TimeZone).
+func isoformatIn(t time.Time, loc *time.Location) string {
+	t = t.In(loc)
 	s := t.Format("2006-01-02T15:04:05")
 	if us := t.Nanosecond() / 1000; us != 0 {
 		s += fmt.Sprintf(".%06d", us)
 	}
-	return s + "+00:00"
+	return s + t.Format("-07:00")
 }
 
 // FireKey is the schedule fire key, sched:<trigger id>:<next.isoformat()>.
 func FireKey(triggerID string, next time.Time) string {
 	return "sched:" + triggerID + ":" + isoformat(next)
+}
+
+// FireKeyIn is FireKey with the instant rendered in loc, the Postgres session
+// TimeZone Python's driver reads timestamptz in.
+func FireKeyIn(triggerID string, next time.Time, loc *time.Location) string {
+	return "sched:" + triggerID + ":" + isoformatIn(next, loc)
 }
