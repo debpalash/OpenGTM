@@ -127,7 +127,7 @@ func tokNewCRM(t *testing.T, id string) {
 	t.Helper()
 	_, err := audOwner(t).Exec(context.Background(), `INSERT INTO audience_destinations
 	  (id, workspace_id, audience_id, name, destination_type, enabled, config, field_map, health_status, created_at, updated_at)
-	  SELECT $1, workspace_id, audience_id, 'T20 ' || $1, destination_type, enabled, config, field_map, health_status, created_at, updated_at
+	  SELECT $1::text, workspace_id, audience_id, 'T20 ' || $1::text, destination_type, enabled, config, field_map, health_status, created_at, updated_at
 	  FROM audience_destinations WHERE id = 'dst-act-hubspot'`, id)
 	if err != nil {
 		t.Fatal(err)
@@ -172,8 +172,12 @@ func TestRotateReturnsPlaintextOnce(t *testing.T) {
 	}
 	// Only the digest is stored; nothing else ever returns the token.
 	var hash, prefix string
-	if err := audOwner(t).QueryRow(context.Background(), `SELECT token_hash, prefix FROM destination_inbound_tokens WHERE destination_id='t20-crm' AND revoked_at IS NULL`).Scan(&hash, &prefix); err != nil {
+	var by int32
+	if err := audOwner(t).QueryRow(context.Background(), `SELECT token_hash, prefix, created_by FROM destination_inbound_tokens WHERE destination_id='t20-crm' AND revoked_at IS NULL`).Scan(&hash, &prefix, &by); err != nil {
 		t.Fatal(err)
+	}
+	if alice := e.mustUserByName(t, "alice"); by != alice.ID {
+		t.Fatalf("created_by %d, want %d", by, alice.ID)
 	}
 	if hash != destinbound.HashToken(raw) || prefix != raw[:12] {
 		t.Fatalf("stored hash/prefix wrong: %s %s", hash, prefix)
@@ -444,7 +448,7 @@ func TestTokenFixturesReplay(t *testing.T) {
 	e := newTokEnv(t)
 	crm := "00000000-0000-4000-8000-000000002081" // the recorded id of the destination the recording created
 	tokNewCRM(t, crm)
-	gen := []string{"$.token", "$.prefix", "$.created_at", "$.expires_at", "$.last_used_at"}
+	gen := []string{"$.token", "$.prefix", "$.created_at", "$.expires_at", "$.last_used_at", "$.created_by"} // created_by: the user serial id
 	vol := func(extra ...string) contract.Option { return contract.IgnorePaths(append(gen, extra...)...) }
 
 	// reads over the seed alone; last_used_at was stamped by the recording's callbacks
