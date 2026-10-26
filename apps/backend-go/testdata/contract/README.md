@@ -534,3 +534,10 @@ Fixtures `connectors/*` (profiles `default`, `catalog_ok` = default minus `contr
 6. Domain stats lower-case with Go `strings.ToLower` (Python `.lower()` differs on a few exotic code points); counting happens in Go over the streamed email column.
 7. CSV export neutralises formula prefixes `= + - @ TAB CR` and a leading LF on name, email, tags and notes with an apostrophe (the plan 04 workbook export guard, `wbcrud.ExportSafeValue`); Python writes them raw (`TestExportNeutralisesFormulaPrefixes`; the Python vector `formula_injection_not_escaped` is compared with the guarded bytes). The guard runs before the notes newline-to-space step.
 8. No row cap on export or list `limit` (as Python); the route may cap `limit`.
+
+## HubSpot routes (plan 07 Task 16): deviations
+
+- D4: `POST /api/crm/hubspot/sync` `limit` above 1000 answers 422 (`less_than_equal`) and below 0 answers 422 (`greater_than_equal`; Python 500s on `LIMIT -1`). `limit` 0 is Python's 200 "No leads with emails to sync". `lead_ids` with more than 1000 items answers 422 (`too_long`, ctx key order field_type, max_length, actual_length as pydantic). Recorded fixtures `sync_limit_100000` (200) and `sync_limit_negative` (500) therefore answer 422.
+- D4: `GET /api/crm/hubspot/contacts` `limit` above 1000 answers 422 (`less_than_equal`; fixture `contacts_limit_100000` was 200). `limit` 0 and negatives reach HubSpot, which rejects them, and the route answers 200 with an empty list, as Python.
+- Contacts are passed through exactly as HubSpot sent them (key order and non-object elements), as Python.
+- Security: the HubSpot token lookup fails closed. A secret-store or decryption error means "not connected" and no request is sent; Python falls back to the `HUBSPOT_TOKEN` environment variable on any error.
