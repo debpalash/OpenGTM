@@ -131,7 +131,7 @@ func (e pbEnv) seedRuns(t *testing.T) {
 		}
 	}
 	// the explicit ids above must not collide with what the engine inserts later
-	e.exec(t, `SELECT setval(pg_get_serial_sequence('playbook_results','id'), 1000)`)
+	e.exec(t, `SELECT setval(pg_get_serial_sequence('playbook_results','id'), GREATEST(1000, (SELECT last_value FROM playbook_results_id_seq), (SELECT coalesce(max(id), 0) FROM playbook_results)))`)
 }
 
 type runCase struct{ name, who, ws string }
