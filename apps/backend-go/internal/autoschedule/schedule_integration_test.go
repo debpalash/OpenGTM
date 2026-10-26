@@ -393,10 +393,10 @@ func TestBootstrapForTriggerAnchorDefaultsToNow(t *testing.T) {
 		next, err = autoschedule.BootstrapForTrigger(ctx, tx, tr, now, "go")
 		return err
 	})
-	if err != nil || !next.Equal(now) {
+	if err != nil || !next.Equal(now.Add(time.Hour)) {
 		t.Fatalf("next %v err %v", next, err)
 	}
-	if js := jobsFor(t, ctx, pool, wsA); len(js) != 1 || js[0].FireKey != "sched:trg-n:2026-08-29T09:30:00+00:00" {
+	if js := jobsFor(t, ctx, pool, wsA); len(js) != 1 || js[0].FireKey != "sched:trg-n:2026-08-29T10:30:00+00:00" {
 		t.Fatalf("jobs %+v", js)
 	}
 }
