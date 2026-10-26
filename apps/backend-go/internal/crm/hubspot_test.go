@@ -632,3 +632,21 @@ func TestSecretLookupErrorFailsClosed(t *testing.T) {
 		t.Fatalf("requests sent with a fallback token: %v", seen)
 	}
 }
+
+// Contacts pass through exactly as HubSpot sent them: key order kept, non-object elements kept.
+func TestGetContactsPassesResultsThroughRaw(t *testing.T) {
+	st := newStore()
+	res, env := newResolver(t, st, nil)
+	withWorkspaceToken(t, env, st, "ws-a", "tok")
+	body := `{"results":[{"id":"1","properties":{"zeta":1,"alpha":null},"createdAt":"c","archived":false},5,"x",[1]],"paging":{}}`
+	h := &HubSpot{HTTP: &http.Client{Transport: authHeaderRT(new([]string), 200, body)}, Secrets: res}
+	c, err := h.GetContacts(context.Background(), "ws-a", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, _ := json.Marshal(c)
+	want := `[{"id":"1","properties":{"zeta":1,"alpha":null},"createdAt":"c","archived":false},5,"x",[1]]`
+	if string(b) != want {
+		t.Fatalf("got  %s\nwant %s", b, want)
+	}
+}
