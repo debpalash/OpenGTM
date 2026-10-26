@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"log/slog"
@@ -15,6 +16,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/runstart"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
@@ -47,6 +49,14 @@ func RegisterWorkbookRows(r *httpx.Router, d Deps) {
 			return wbcrud.PerfValues{RowConcurrency: p.RowConcurrency, ProviderWorkers: p.ProviderWorkers,
 				ProviderTimeout: p.ProviderTimeout, MaxProviders: p.MaxProviders, RetryPasses: p.RetryPasses}, err
 		}
+	}
+	if d.Config.BillingEnabled && d.Flags.GoRunRoutesEnabled {
+		// With platform billing the recompute is the run route's plan, debit and enqueue (T31).
+		runs := newRunRoutes(d)
+		rr.rec.Run = runstart.Recompute(runstart.RecomputeDeps{BillingEnabled: true, Config: runs.config,
+			Enqueue: func(ctx context.Context, tx pgx.Tx, ws, executor string, payload json.RawMessage) (int64, error) {
+				return runEnqueue(ctx, tx, ws, executor, payload)
+			}})
 	}
 	mws := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity),
 		identity.RequireRole("tables.write", "editor", "admin")}

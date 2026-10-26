@@ -17,11 +17,11 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/billing"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/runplan"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/runstart"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
@@ -32,22 +32,11 @@ import (
 // names at most the workbook's rows, a few hundred KB for 10^4 ids).
 const maxRunBody = 4 << 20
 
-// runDebitReason is check_and_debit's default reason.
-const runDebitReason = "run_debit"
-
 // Test seams: the enqueue of the run job and the run id generator.
 var (
-	runEnqueue = enqueueRunJob
+	runEnqueue = runstart.EnqueueRunJob
 	runNewID   func() string // nil: runplan generates a uuid4 hex
 )
-
-// enqueueRunJob inserts the run_workbook job with the planned executor inside tx.
-func enqueueRunJob(ctx context.Context, tx pgx.Tx, ws, executor string, payload json.RawMessage) (int64, error) {
-	id, err := gen.New(tx).EnqueueRunWorkbookJob(ctx, gen.EnqueueRunWorkbookJobParams{
-		Executor: executor, Payload: string(payload), WorkspaceID: ws,
-	})
-	return int64(id), err
-}
 
 // registerWorkbookRun registers POST /api/workbooks/{workbook_id}/run (Task 24,
 // routers/workbooks.py run_workbook): require_editor, 20/minute.
@@ -62,17 +51,24 @@ func registerWorkbookRun(r *httpx.Router, d Deps) {
 	if d.Pool == nil {
 		return
 	}
-	h := &runRoutes{d: d, svc: &wbcrud.Service{Pool: d.Pool, Leads: wbcrud.PGLeads{}}, index: newManifestIndexer(d.getenv())}
-	if d.Registry != nil && d.Envelope != nil {
-		app := &settings.App{Store: secrets.NewPgStore(d.Pool), Env: d.Envelope, Secret: d.Registry.SecretSet(), Getenv: d.getenv()}
-		h.perf = &settings.Perf{App: app, Reg: d.Registry}
-	}
+	h := newRunRoutes(d)
 	mws := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity),
 		identity.RequireRole("tables.write", "editor", "admin")}
 	if d.Limiter != nil { // slowapi runs after the dependencies: authentication and the role gate come first
 		mws = append(mws, d.Limiter.Limit("20/minute"))
 	}
 	r.Handle("POST /api/workbooks/{workbook_id}/run", http.HandlerFunc(h.run), mws...)
+}
+
+// newRunRoutes builds the run handler state (also the plan configuration the
+// reactive recompute under billing uses).
+func newRunRoutes(d Deps) *runRoutes {
+	h := &runRoutes{d: d, svc: &wbcrud.Service{Pool: d.Pool, Leads: wbcrud.PGLeads{}}, index: newManifestIndexer(d.getenv())}
+	if d.Registry != nil && d.Envelope != nil {
+		app := &settings.App{Store: secrets.NewPgStore(d.Pool), Env: d.Envelope, Secret: d.Registry.SecretSet(), Getenv: d.getenv()}
+		h.perf = &settings.Perf{App: app, Reg: d.Registry}
+	}
+	return h
 }
 
 type runRoutes struct {
@@ -123,32 +119,17 @@ func (h *runRoutes) run(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return err
 		}
-		plan, err := runplan.Build(ctx, tx, wb, req, cfg)
+		out, err := runstart.Start(ctx, tx, runstart.Input{
+			WS: ws, Workbook: wb, Req: req, Cfg: cfg, BillingEnabled: h.d.Config.BillingEnabled, Enqueue: runEnqueue,
+			OnPlan: func(plan runplan.Plan) { audit.SetMetadata(ctx, runAuditMetadata(wbID, plan, req)) },
+		})
 		if err != nil {
 			return err
 		}
+		plan, jobID := out.Plan, out.JobID
 		if plan.Skipped {
 			resp = runResponse{Status: "skipped", Message: plan.Message}
 			return nil
-		}
-		audit.SetMetadata(ctx, runAuditMetadata(wbID, plan, req))
-
-		// Billing: a no-op (and no ledger access at all) unless BILLING_ENABLED and something is platform billed.
-		if h.d.Config.BillingEnabled && plan.ProjectedUSD > 0 {
-			if _, err := billing.CheckAndDebit(ctx, tx, true, ws, plan.ProjectedUSD, plan.RunID, runDebitReason); err != nil {
-				return err
-			}
-		}
-		q := gen.New(tx)
-		if err := q.StartWorkbookRun(ctx, gen.StartWorkbookRunParams{TotalRows: int32(plan.MatchedRows), WorkbookID: wbID, WorkspaceID: ws}); err != nil {
-			return err
-		}
-		if err := q.CancelActiveRunJobs(ctx, wbID); err != nil {
-			return err
-		}
-		jobID, err := runEnqueue(ctx, tx, ws, plan.Executor, plan.Payload)
-		if err != nil {
-			return err
 		}
 		runID := plan.RunID
 		resp = runResponse{Status: "started", TotalJobs: plan.TotalJobs, Message: plan.Message, JobID: &jobID, RunID: &runID}
