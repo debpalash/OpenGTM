@@ -284,6 +284,8 @@ services:
       - "${PORT:-3000}:80"
     volumes:
       - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./infra/nginx/go-split.conf:/etc/nginx/go-split.conf:ro
+      - ./infra/nginx/go-routes.conf:/etc/nginx/go-routes.conf:ro
       - frontend_dist:/usr/share/nginx/html:ro  # Serve built frontend from API build
     depends_on:
       api:
