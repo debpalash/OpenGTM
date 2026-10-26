@@ -15,6 +15,9 @@ type IMAP struct {
 	Password config.Secret
 	Folder   string
 	UseSSL   bool
+	// Global marks a mailbox whose host and port come from the global/env settings: every workspace without
+	// IMAP settings of its own resolves to this same mailbox (plan 09 final-fix follow-up M2).
+	Global bool
 }
 
 // Configured mirrors is_imap_configured.
@@ -47,6 +50,7 @@ func LoadIMAP(ctx context.Context, r *secrets.Resolver, workspaceID string) IMAP
 		Password: config.Secret(pw),
 		Folder:   g.get("IMAP_FOLDER", "INBOX"),
 		UseSSL:   g.get("IMAP_USE_SSL", "1") == "1",
+		Global:   host != "" && !hostWS && !portWS,
 	}
 	if g.bad {
 		return IMAP{}

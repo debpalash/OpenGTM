@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net"
 	"os"
@@ -1150,5 +1151,87 @@ func TestBreakerDedupeSurvivesLedgerFlood(t *testing.T) {
 	}
 	if b, _ := seqCounts(t, pool, ws, s.seq); b != 1 {
 		t.Fatalf("bounce_count %d, want 1", b)
+	}
+}
+
+// ---- global mailbox shared by several workspaces (final-fix follow-up M2)
+
+// globalHandler resolves IMAP from the global/env settings (no per-workspace IMAP keys), like every workspace
+// that never configured its own mailbox.
+func globalHandler(t *testing.T, pool *pgxpool.Pool, fc *fakeClient) *outreachinbound.Handler {
+	t.Helper()
+	e, err := secrets.NewEnvelope(secrets.Config{MasterKey: "t18-master", AppEnv: "dev"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	env := imapKV()
+	r := secrets.NewResolver(e, &fakeSecrets{ws: map[string]string{}}, func(k string) string { return env[k] })
+	return &outreachinbound.Handler{
+		Pool: pool, Secrets: r, Automations: true, Outreach: settings(),
+		NewClient: func(outreachcfg.IMAP) imapclient.Client { return fc },
+		Now:       func() time.Time { return now0 },
+		Log:       slog.New(slog.NewTextHandler(io.Discard, nil)),
+	}
+}
+
+func TestGlobalMailboxRoutesEachMessageToItsOwnerWorkspace(t *testing.T) {
+	pool := testpg.NewAppPool(t, 6)
+	a, b := newWS(t, pool), newWS(t, pool)
+	sa := seedSend(t, pool, a, "gone-a@example.com", "<ours-ga@sender.example>", 1)
+	sb := seedSend(t, pool, b, "gone-b@example.com", "<ours-gb@sender.example>", 1)
+	fc := &fakeClient{uids: []string{"1", "2", "3"}, msgs: map[string][]byte{
+		"1": dsn("<d1@mx.example>", "<ours-gb@sender.example>", "gone-b@example.com", "5.1.1", "550 user unknown"),
+		"2": dsn("<d2@mx.example>", "<ours-ga@sender.example>", "gone-a@example.com", "5.1.1", "550 user unknown"),
+		"3": dsn("<d3@mx.example>", "<nobody@sender.example>", "x@example.com", "5.1.1", "550 user unknown"),
+	}}
+	tick(t, globalHandler(t, pool, fc), a) // only A's poll runs: B has no poll of its own this tick
+	if r, _, ok := suppression(t, pool, b, "gone-b@example.com"); !ok || r != "bounce" {
+		t.Fatalf("B's bounce lost: %q %v", r, ok)
+	}
+	if r, _, ok := suppression(t, pool, a, "gone-a@example.com"); !ok || r != "bounce" {
+		t.Fatalf("A's bounce lost: %q %v", r, ok)
+	}
+	if bc, _ := seqCounts(t, pool, b, sb.seq); bc != 1 {
+		t.Fatalf("B bounce_count %d", bc)
+	}
+	if bc, _ := seqCounts(t, pool, a, sa.seq); bc != 1 {
+		t.Fatalf("A bounce_count %d", bc)
+	}
+	if st, _ := enrStatus(t, pool, b, sb.enr); st != "bounced" {
+		t.Fatalf("B enrollment %s", st)
+	}
+	// the ledger rows live in the owning workspace; the unmatched one in the poller's
+	if rows := ledger(t, pool, b); len(rows) != 1 || rows[0].Matched == nil || *rows[0].Matched != sb.sendID {
+		t.Fatalf("B ledger %+v", rows)
+	}
+	if rows := ledger(t, pool, a); len(rows) != 2 {
+		t.Fatalf("A ledger %+v", rows)
+	}
+	if len(fc.seen) != 3 {
+		t.Fatalf("marked seen %v", fc.seen)
+	}
+}
+
+// One poll of the shared mailbox at a time: a second workspace's tick while the lease is held does not even connect.
+func TestGlobalMailboxPollIsSingleFlight(t *testing.T) {
+	pool := testpg.NewAppPool(t, 6)
+	a := newWS(t, pool)
+	fc := &fakeClient{}
+	h := globalHandler(t, pool, fc)
+	ctx := context.Background()
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Release()
+	if _, err := conn.Exec(ctx, `SELECT pg_advisory_lock(hashtext($1))`, outreachinbound.GlobalLeaseKey(outreachcfg.IMAP{Host: "imap.test.invalid", Port: 993, User: "bounces@sender.example"})); err != nil {
+		t.Fatal(err)
+	}
+	tick(t, h, a)
+	if fc.connects != 0 {
+		t.Fatalf("polled while another workspace holds the mailbox lease (%d connects)", fc.connects)
+	}
+	if s := sched(t, pool, a); s == nil || !s.Enabled || s.ConsecutiveFailures != 0 {
+		t.Fatalf("a skipped tick must reschedule as a success: %+v", s)
 	}
 }

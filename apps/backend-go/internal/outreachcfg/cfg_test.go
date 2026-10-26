@@ -236,3 +236,16 @@ func TestLoadIMAPWorkspaceHostNeverGetsGlobalCreds(t *testing.T) {
 		t.Fatalf("workspace fallback: %+v", c)
 	}
 }
+
+func TestLoadIMAPGlobalFlag(t *testing.T) {
+	r := newRes(t, newStore(), map[string]string{"IMAP_HOST": "imap.platform.example", "IMAP_USER": "u", "IMAP_PASSWORD": "pw-1234"})
+	if c := LoadIMAP(context.Background(), r, "w1"); !c.Global || !c.Configured() {
+		t.Fatalf("global mailbox: %+v", c)
+	}
+	set(t, r, "w1", "IMAP_HOST", "imap.own.example")
+	set(t, r, "w1", "IMAP_USER", "own")
+	set(t, r, "w1", "IMAP_PASSWORD", "own-pw-1")
+	if c := LoadIMAP(context.Background(), r, "w1"); c.Global || !c.Configured() {
+		t.Fatalf("workspace mailbox: %+v", c)
+	}
+}

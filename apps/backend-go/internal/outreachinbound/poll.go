@@ -8,12 +8,14 @@ import (
 	"io"
 	"log/slog"
 	"net"
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/dsnparse"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/imapclient"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachcfg"
@@ -96,6 +98,9 @@ func (h *Handler) Handle(ctx context.Context, c *queue.Claim) error {
 	}
 
 	uidValidity, err := h.poll(ctx, ws, cfg)
+	if errors.Is(err, errLeaseBusy) { // another workspace is draining the shared mailbox: nothing to do this tick
+		return Reschedule(ctx, h.Pool, ws, false, nil, h.now(), ScheduleConfig{Outreach: h.Outreach, Executor: h.Executor})
+	}
 	failed := err != nil
 	var uv *string
 	if failed {
@@ -126,6 +131,23 @@ func isConnErr(err error) bool {
 // always logout. A message-level error does not stop the batch; the tick is
 // reported failed once the batch is done.
 func (h *Handler) poll(ctx context.Context, ws string, cfg outreachcfg.IMAP) (string, error) {
+	if cfg.Global { // one poller per shared mailbox at a time (session advisory lock, released with the connection)
+		conn, err := h.Pool.Acquire(ctx)
+		if err != nil {
+			return "", err
+		}
+		defer conn.Release()
+		var got bool
+		if err := conn.QueryRow(ctx, `SELECT pg_try_advisory_lock(hashtext($1))`, GlobalLeaseKey(cfg)).Scan(&got); err != nil {
+			return "", err
+		}
+		if !got {
+			return "", errLeaseBusy
+		}
+		defer func() {
+			_, _ = conn.Exec(context.WithoutCancel(ctx), `SELECT pg_advisory_unlock(hashtext($1))`, GlobalLeaseKey(cfg))
+		}()
+	}
 	cl, err := h.client(cfg)
 	if err != nil {
 		return "", err
@@ -203,8 +225,17 @@ func (h *Handler) poll(ctx context.Context, ws string, cfg outreachcfg.IMAP) (st
 		if len(raw) == 0 {
 			continue
 		}
-		perr := tenancy.InWorkspace(ctx, h.Pool, ws, func(tx pgx.Tx) error {
-			return Process(ctx, tx, ws, uidValidity, uid, raw, th)
+		target := ws
+		if cfg.Global { // a shared mailbox: the send's Message-ID names the owning workspace
+			if owner, err := h.owner(ctx, raw); err != nil {
+				note(fmt.Errorf("route uid %s: %w", uid, err))
+				continue
+			} else if owner != "" {
+				target = owner
+			}
+		}
+		perr := tenancy.InWorkspace(ctx, h.Pool, target, func(tx pgx.Tx) error {
+			return Process(ctx, tx, target, uidValidity, uid, raw, th)
 		})
 		if perr != nil {
 			note(fmt.Errorf("process uid %s: %w", uid, perr))
@@ -213,4 +244,31 @@ func (h *Handler) poll(ctx context.Context, ws string, cfg outreachcfg.IMAP) (st
 		markSeen(uid)
 	}
 	return uidValidity, firstErr
+}
+
+var errLeaseBusy = errors.New("outreachinbound: shared mailbox is being polled by another workspace")
+
+// GlobalLeaseKey names the advisory lock that serialises polls of one shared (global) mailbox.
+func GlobalLeaseKey(cfg outreachcfg.IMAP) string {
+	return "imap-global:" + cfg.Host + "|" + strconv.Itoa(cfg.Port) + "|" + cfg.User
+}
+
+// owner is the workspace owning the first of raw's cited Message-IDs that matches a send (the same
+// cross-tenant lookup as the bounce webhook, which returns only the routing tuple); "" when none does,
+// and the message is then recorded as unmatched in the polling workspace as before.
+func (h *Handler) owner(ctx context.Context, raw []byte) (string, error) {
+	for _, r := range dsnparse.Parse(raw) {
+		mid := stripNUL(r.OriginalMessageID)
+		if mid == "" {
+			continue
+		}
+		ref, err := outreachstore.LookupSendAnyWorkspace(ctx, h.Pool, mid)
+		if err != nil {
+			return "", err
+		}
+		if ref != nil {
+			return ref.WorkspaceID, nil
+		}
+	}
+	return "", nil
 }
