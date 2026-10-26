@@ -5,7 +5,8 @@
 // first ({field} placeholders and quoted literals are atomic), cell values are
 // bound as plain strings afterwards, and every parse or operand failure is a
 // false result with a reason. Deviations from Python (D4): the condition is
-// bounded to 4 KiB and 64 tokens and every resolved operand to 64 KiB; over
+// bounded to 16 KiB and 1024 tokens, every resolved operand to 1 MiB and all
+// operands of one evaluation to 8 MiB; over
 // the bound fails closed. Python is unbounded.
 package safecond
 
@@ -18,9 +19,10 @@ import (
 )
 
 const (
-	maxConditionBytes = 4096
-	maxTokens         = 64
-	maxOperandLen     = 64 * 1024
+	maxConditionBytes = 16384
+	maxTokens         = 1024
+	maxOperandLen     = 1 << 20
+	maxTotalOperands  = 8 << 20 // cumulative resolved bytes per evaluation
 )
 
 // ConditionError is a parse or operand failure; its text is the structured

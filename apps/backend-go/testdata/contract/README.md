@@ -643,3 +643,8 @@ Profiles: `default` (signature policy optional, full manifest dir), `catalog_ok`
   cohort's eligible runs beyond the listed types. `WORKBOOK_RUN_CONCURRENCY` that is not a positive integer falls back to 12.
 - `cmd/api` calls `api.WireRunPlan` (`runplan.Wire`: vendor catalog, research flag, billing cost catalog) once before routes register.
 - Not covered by a fixture replay: `run_v1_legacy` (needs the lead plane; planner-level test in `internal/runplan`).
+
+## Safe condition evaluator (plan 08 Task 4): deviations
+- D4 bounds (Python is unbounded): condition at most 16384 bytes and 1024 tokens (the recorded corpus peaks at 243 tokens / 1091 bytes), one resolved operand at most 1 MiB, and all operands resolved in one evaluation at most 8 MiB. Over a bound `Evaluate` returns false with reason `condition too long (more than 16384 bytes)`, `condition too complex (more than 1024 tokens)`, `operand too long (more than 1048576 bytes)` or `operands too large (more than 8388608 bytes resolved)`; `Validate` rejects the first two. Before cutover count the longest stored condition in `automation_rules`.
+- Naive ISO timestamps (`older_than`) are read in the process local zone, as Python does: the Go process `TZ` must equal the Python process `TZ` in every deployment (DST-gap handling is not replicated). Recorded vectors use `TZ=UTC`.
+- Cell keys have no insertion order in Go: `Evaluate` orders them like PostgreSQL jsonb (length, then bytewise); use `EvaluateOrdered` only with the real key order. A panic inside `Validate` or `Evaluate` fails closed (`evaluator error: internal`).
