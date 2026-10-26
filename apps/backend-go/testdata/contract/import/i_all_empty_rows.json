@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "Company": ""
+        },
+        {
+          "a": null
+        },
+        {}
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/import"
+  },
+  "response": {
+    "body": {
+      "detail": "CSV has no importable rows"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

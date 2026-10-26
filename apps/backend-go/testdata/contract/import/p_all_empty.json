@@ -1,0 +1,45 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "Company": ""
+        },
+        {}
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/import/preview"
+  },
+  "response": {
+    "body": {
+      "collisions": [],
+      "columns_created": [
+        "Company"
+      ],
+      "custom_columns": [],
+      "detection_reason": "none",
+      "headers": [
+        "Company"
+      ],
+      "importable_rows": 0,
+      "input_rows": 2,
+      "mapped_standard": [
+        "Company"
+      ],
+      "mapping": {
+        "Company": "company"
+      },
+      "skipped_columns": [],
+      "source_system": "generic"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "E-mail": "c@x.io",
+          "Email": "a@x.io",
+          "Work Email": "b@x.io",
+          "email_address": ""
+        }
+      ],
+      "source_system": "clay"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/import/preview"
+  },
+  "response": {
+    "body": {
+      "collisions": [
+        {
+          "headers": [
+            "Email",
+            "Work Email",
+            "email_address"
+          ],
+          "target": "email"
+        }
+      ],
+      "columns_created": [
+        "Email",
+        "E-mail"
+      ],
+      "custom_columns": [
+        "E-mail"
+      ],
+      "detection_reason": "explicit",
+      "headers": [
+        "Email",
+        "Work Email",
+        "E-mail",
+        "email_address"
+      ],
+      "importable_rows": 1,
+      "input_rows": 1,
+      "mapped_standard": [
+        "Email",
+        "Work Email",
+        "email_address"
+      ],
+      "mapping": {
+        "E-mail": "e_mail",
+        "Email": "email",
+        "Work Email": "email",
+        "email_address": "email"
+      },
+      "skipped_columns": [],
+      "source_system": "clay"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "request": {
+    "body": {
+      "mapping": [
+        "a"
+      ],
+      "rows": [
+        {
+          "a": 1
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/import/preview"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": [
+            "a"
+          ],
+          "loc": [
+            "body",
+            "mapping"
+          ],
+          "msg": "Input should be a valid dictionary",
+          "type": "dict_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

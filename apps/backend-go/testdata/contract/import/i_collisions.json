@@ -1,0 +1,76 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "Business Email": "c2@collide.example",
+          "Company": "Collide Co",
+          "Email": "c1@collide.example",
+          "Work Email": ""
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/import"
+  },
+  "response": {
+    "body": {
+      "added": 1,
+      "analysis": {
+        "collisions": [
+          {
+            "headers": [
+              "Email",
+              "Work Email",
+              "Business Email"
+            ],
+            "target": "email"
+          }
+        ],
+        "columns_created": [],
+        "custom_columns": [],
+        "detection_reason": "none",
+        "headers": [
+          "Email",
+          "Work Email",
+          "Business Email",
+          "Company"
+        ],
+        "importable_rows": 1,
+        "input_rows": 1,
+        "mapped_standard": [
+          "Business Email",
+          "Company",
+          "Email",
+          "Work Email"
+        ],
+        "mapping": {
+          "Business Email": "email",
+          "Company": "company",
+          "Email": "email",
+          "Work Email": "email"
+        },
+        "skipped_columns": [],
+        "source_system": "generic"
+      },
+      "columns_added": [],
+      "created": 1,
+      "mapping": {
+        "Business Email": "email",
+        "Company": "company",
+        "Email": "email",
+        "Work Email": "email"
+      },
+      "skipped_duplicates": 0,
+      "total_rows": 30
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "Claygent": "x"
+        }
+      ],
+      "source_system": "generic"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/import/preview"
+  },
+  "response": {
+    "body": {
+      "collisions": [],
+      "columns_created": [
+        "Claygent"
+      ],
+      "custom_columns": [
+        "Claygent"
+      ],
+      "detection_reason": "explicit",
+      "headers": [
+        "Claygent"
+      ],
+      "importable_rows": 1,
+      "input_rows": 1,
+      "mapped_standard": [],
+      "mapping": {
+        "Claygent": "claygent"
+      },
+      "skipped_columns": [],
+      "source_system": "generic"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

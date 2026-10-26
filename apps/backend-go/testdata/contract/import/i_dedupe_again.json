@@ -1,0 +1,96 @@
+{
+  "request": {
+    "body": {
+      "file_name": "again.csv",
+      "rows": [
+        {
+          "Company": "Newco One",
+          "Custom Field": "x",
+          "Email": "a@newco-one.io",
+          "Notes": "first",
+          "Score": 1.5,
+          "Tags": [
+            "a",
+            {
+              "b": null
+            }
+          ],
+          "Website": "https://www.newco-one.io/about"
+        },
+        {
+          "Company": "Brand New Co",
+          "Custom Field": "n"
+        },
+        {
+          "Company": "Brand New Co"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/import"
+  },
+  "response": {
+    "body": {
+      "added": 1,
+      "analysis": {
+        "collisions": [],
+        "columns_created": [],
+        "custom_columns": [
+          "Custom Field",
+          "Tags"
+        ],
+        "detection_reason": "none",
+        "headers": [
+          "Company",
+          "Website",
+          "Email",
+          "Notes",
+          "Custom Field",
+          "Score",
+          "Tags"
+        ],
+        "importable_rows": 3,
+        "input_rows": 3,
+        "mapped_standard": [
+          "Company",
+          "Email",
+          "Notes",
+          "Score",
+          "Website"
+        ],
+        "mapping": {
+          "Company": "company",
+          "Custom Field": "custom_field",
+          "Email": "email",
+          "Notes": "notes",
+          "Score": "score",
+          "Tags": "tags",
+          "Website": "website"
+        },
+        "skipped_columns": [],
+        "source_system": "generic"
+      },
+      "columns_added": [],
+      "created": 1,
+      "mapping": {
+        "Company": "company",
+        "Custom Field": "custom_field",
+        "Email": "email",
+        "Notes": "notes",
+        "Score": "score",
+        "Tags": "tags",
+        "Website": "website"
+      },
+      "skipped_duplicates": 2,
+      "total_rows": 8
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "request": {
+    "body": {
+      "mapping": {
+        "Bio": "description",
+        "Mobile": "phone",
+        "Org": "Company",
+        "Skip": null
+      },
+      "rows": [
+        {
+          "Bio": "long text",
+          "Extra Col": "e",
+          "Mobile": "123",
+          "Org": "Mapped Org",
+          "Skip": "zzz"
+        },
+        {
+          "Bio": "b2",
+          "Extra Col": "",
+          "Mobile": "",
+          "Org": "Mapped Two",
+          "Skip": ""
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/import"
+  },
+  "response": {
+    "body": {
+      "added": 2,
+      "analysis": {
+        "collisions": [],
+        "columns_created": [
+          "Extra Col",
+          "Description"
+        ],
+        "custom_columns": [
+          "Extra Col"
+        ],
+        "detection_reason": "none",
+        "headers": [
+          "Org",
+          "Mobile",
+          "Skip",
+          "Extra Col",
+          "Bio"
+        ],
+        "importable_rows": 2,
+        "input_rows": 2,
+        "mapped_standard": [
+          "Bio",
+          "Mobile",
+          "Org"
+        ],
+        "mapping": {
+          "Bio": "description",
+          "Extra Col": "extra_col",
+          "Mobile": "phone",
+          "Org": "company",
+          "Skip": null
+        },
+        "skipped_columns": [
+          "Skip"
+        ],
+        "source_system": "generic"
+      },
+      "columns_added": [
+        "Extra Col",
+        "Description"
+      ],
+      "created": 2,
+      "mapping": {
+        "Bio": "description",
+        "Extra Col": "extra_col",
+        "Mobile": "phone",
+        "Org": "company",
+        "Skip": null
+      },
+      "skipped_duplicates": 0,
+      "total_rows": 29
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "request": {
+    "body": {
+      "file_name": "first.csv",
+      "rows": [
+        {
+          "Company": "Newco One",
+          "Custom Field": "x",
+          "Email": "a@newco-one.io",
+          "Notes": "first",
+          "Score": 1.5,
+          "Tags": [
+            "a",
+            {
+              "b": null
+            }
+          ],
+          "Website": "https://www.newco-one.io/about"
+        },
+        {
+          "Company": "Newco Two",
+          "Custom Field": 0,
+          "Email": "",
+          "Notes": "",
+          "Score": 2,
+          "Website": ""
+        },
+        {
+          "Company": "",
+          "Custom Field": "",
+          "Email": "",
+          "Notes": "",
+          "Score": "",
+          "Website": ""
+        },
+        {
+          "Company": "Newco Three, Inc.",
+          "Custom Field": false,
+          "Email": "t@newco-three.io",
+          "Website": "newco-three.io"
+        },
+        {
+          "Company": "newco three llc",
+          "Custom Field": "dup by name"
+        },
+        {
+          "Custom Field": "dup by domain",
+          "Website": "http://newco-one.io"
+        },
+        {
+          "Notes": "no identity a"
+        },
+        {
+          "Notes": "no identity b"
+        },
+        {
+          "Company": "Caf\u00e9 M\u00fcnch GmbH",
+          "Custom Field": "unicode"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/import"
+  },
+  "response": {
+    "body": {
+      "added": 7,
+      "analysis": {
+        "collisions": [],
+        "columns_created": [
+          "Company",
+          "Website",
+          "Email",
+          "Notes",
+          "Custom Field",
+          "Score",
+          "Tags"
+        ],
+        "custom_columns": [
+          "Custom Field",
+          "Tags"
+        ],
+        "detection_reason": "none",
+        "headers": [
+          "Company",
+          "Website",
+          "Email",
+          "Notes",
+          "Custom Field",
+          "Score",
+          "Tags"
+        ],
+        "importable_rows": 8,
+        "input_rows": 9,
+        "mapped_standard": [
+          "Company",
+          "Email",
+          "Notes",
+          "Score",
+          "Website"
+        ],
+        "mapping": {
+          "Company": "company",
+          "Custom Field": "custom_field",
+          "Email": "email",
+          "Notes": "notes",
+          "Score": "score",
+          "Tags": "tags",
+          "Website": "website"
+        },
+        "skipped_columns": [],
+        "source_system": "generic"
+      },
+      "columns_added": [
+        "Company",
+        "Website",
+        "Email",
+        "Notes",
+        "Custom Field",
+        "Score",
+        "Tags"
+      ],
+      "created": 7,
+      "mapping": {
+        "Company": "company",
+        "Custom Field": "custom_field",
+        "Email": "email",
+        "Notes": "notes",
+        "Score": "score",
+        "Tags": "tags",
+        "Website": "website"
+      },
+      "skipped_duplicates": 1,
+      "total_rows": 7
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
