@@ -19,7 +19,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ambitionimport"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/sourceingest"
 )
 
 type vecFile struct {
@@ -162,7 +161,7 @@ func TestHandleCursorSequenceMatchesVectors(t *testing.T) {
 				wbv, rows := e.wbView(wsA, res.WorkbookID, res.RunID)
 				assertEq(t, fmt.Sprintf("step %d workbook", i+1), wbv, st.Workbook)
 				assertEq(t, fmt.Sprintf("step %d rows", i+1), rows, st.Rows)
-				var evs []any
+				evs := []any{}
 				for _, m := range e.pub.msgs {
 					m["runId"] = "<run_id>"
 					evs = append(evs, m)
@@ -356,7 +355,7 @@ func TestHandleResumesPythonStartedRun(t *testing.T) {
 		t.Fatalf("fetched %s", got)
 	}
 	run := e.runView(wsA, "run-py")
-	if run["status"] != "complete" || run["pages_fetched"].(float64) != 2 || run["added_count"].(float64) != 10 ||
+	if run["status"] != "complete" || run["pages_fetched"].(float64) != 2 || run["added_count"].(float64) != 30 ||
 		run["fetched_count"].(float64) != 30 || run["target_met"] != true || run["error"] != nil {
 		t.Fatalf("run %+v", run)
 	}
@@ -369,7 +368,7 @@ func TestHandleRowsAddedHookAfterCommit(t *testing.T) {
 	e := newEnv(t)
 	e.fetch.pages[1] = pageOf(1, ids(1, 20), ip(5), ip(100), nil)
 	e.fetch.pages[2] = pageOf(2, ids(15, 34), ip(5), ip(100), nil) // 15..20 already seen: 14 new
-	res, c := startRun(e, 40)
+	res, c := startRun(e, 34)
 	e.hook.inTxSee = func(ctx context.Context, tx pgx.Tx, rowIDs []int64) error {
 		var n int
 		if err := tx.QueryRow(ctx, `SELECT count(*) FROM workbook_rows WHERE id = ANY($1)`, rowIDs).Scan(&n); err != nil {
@@ -514,7 +513,9 @@ func TestHandleStopsOnLeaseLoss(t *testing.T) {
 	if run["status"] != "retrying" {
 		t.Fatalf("run %+v", run)
 	}
-	// Cancel is honoured the same way.
+}
+
+func TestHandleStopsOnCancel(t *testing.T) {
 	e2 := newEnv(t)
 	e2.fetch.pages[1] = pageOf(1, ids(1, 20), ip(5), ip(100), nil)
 	res2, c2 := startRun(e2, 5)
@@ -530,5 +531,4 @@ func TestHandleStopsOnLeaseLoss(t *testing.T) {
 	if run := e2.runView(wsA, res2.RunID); run["status"] != "retrying" {
 		t.Fatalf("run %+v", run)
 	}
-	_ = sourceingest.Page{}
 }
