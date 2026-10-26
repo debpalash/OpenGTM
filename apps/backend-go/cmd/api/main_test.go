@@ -18,7 +18,7 @@ import (
 
 func mustRouter(t *testing.T, cfg config.APIConfig) http.Handler {
 	t.Helper()
-	r, err := buildRouter(cfg, telemetry.NewLogger(io.Discard), nil)
+	r, err := buildRouter(cfg, telemetry.NewLogger(io.Discard), nil, context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}

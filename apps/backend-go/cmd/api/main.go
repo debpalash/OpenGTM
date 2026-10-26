@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/api"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
@@ -93,12 +94,16 @@ func run() error {
 		log.Error("CRITICAL: database role is superuser/BYPASSRLS; Row-Level Security is inert (PG_RLS_REQUIRE_SAFE_ROLE=false)")
 	}
 
-	router, err := buildRouter(cfg, log, pool)
+	// Cancelled when shutdown starts so open SSE streams end instead of pinning Shutdown.
+	streamCtx, endStreams := context.WithCancel(context.Background())
+	defer endStreams()
+	router, err := buildRouter(cfg, log, pool, streamCtx)
 	if err != nil {
 		return err
 	}
 	handler := router.Handler()
 	srv := newServer(cfg.Addr, handler)
+	srv.RegisterOnShutdown(endStreams)
 	errc := make(chan error, 1)
 	go func() { errc <- srv.ListenAndServe() }()
 	log.Info("api listening", "addr", cfg.Addr)
@@ -151,7 +156,7 @@ func newServer(addr string, h http.Handler) *http.Server {
 
 // buildRouter assembles the global middleware chain and routes. pool may be nil
 // in tests that only exercise routes that do not touch the database.
-func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool) (*httpx.Router, error) {
+func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool, streamCtx context.Context) (*httpx.Router, error) {
 	r := httpx.NewRouter()
 	// Outermost first. audit.Middleware sits after RequestID (it needs the id)
 	// and inside CORS/Gzip; it owns the holder identity.Workspace fills.
@@ -189,8 +194,27 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool) (*h
 		}
 		deps.Registry, deps.Envelope, deps.Egress = sd.Registry, sd.Envelope, sd.Egress
 	}
+	if err := applySSE(&deps, cfg, streamCtx); err != nil {
+		return nil, err
+	}
 	api.RegisterAll(r, deps)
 	return r, nil
+}
+
+// applySSE wires the events route: Redis (nil without REDIS_URL = heartbeat-only), stream
+// caps, max lifetime and the shutdown context. A bad REDIS_URL fails startup without echoing it.
+func applySSE(d *api.Deps, cfg config.APIConfig, streamCtx context.Context) error {
+	d.SSEMaxStreams, d.SSEMaxPerUser, d.SSEMaxPerWorkspace = cfg.SSEMaxStreams, cfg.SSEMaxPerUser, cfg.SSEMaxPerWorkspace
+	d.SSEMaxLifetime, d.ShutdownCtx = cfg.SSEMaxLifetime, streamCtx
+	if cfg.RedisURL == "" {
+		return nil
+	}
+	opt, err := redis.ParseURL(cfg.RedisURL)
+	if err != nil {
+		return errors.New("parse REDIS_URL: invalid connection string")
+	}
+	d.Redis = redis.NewClient(opt)
+	return nil
 }
 
 // newSettingsDeps builds the settings registry, secrets envelope and egress
