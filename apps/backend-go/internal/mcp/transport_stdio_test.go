@@ -344,7 +344,7 @@ func TestStdioRevalidationIsRateLimitedAndRefreshesCtx(t *testing.T) {
 	e.calls = nil
 	e.resolv = func(_ string, n int) (Ctx, error) {
 		c := stdioCtx()
-		if n > 1 {
+		if n > 2 { // start, first revalidation keep the grant; the second drops it
 			c.Capabilities = map[string]bool{}
 		}
 		return c, nil
@@ -363,7 +363,7 @@ func TestStdioRevalidationDBErrorDoesNotKillSession(t *testing.T) {
 	e := newStdioEnv(t)
 	tickingClock()
 	e.resolv = func(_ string, n int) (Ctx, error) {
-		if n == 2 {
+		if n == 3 {
 			return Ctx{}, errors.New("connection refused host=10.0.0.5 password=hunter2")
 		}
 		return stdioCtx(), nil
@@ -373,7 +373,7 @@ func TestStdioRevalidationDBErrorDoesNotKillSession(t *testing.T) {
 		t.Fatal(err)
 	}
 	b := parseFrames(t, got)
-	if len(b) != 3 || !strings.Contains(b[1], `"code": -32603`) || strings.Contains(got, "hunter2") || !strings.Contains(b[2], `"tools"`) {
+	if len(b) != 3 || !strings.Contains(b[0], `"tools"`) || !strings.Contains(b[1], `"code": -32603`) || strings.Contains(got, "hunter2") || !strings.Contains(b[2], `"tools"`) {
 		t.Fatalf("got %q", got)
 	}
 }
