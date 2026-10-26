@@ -311,4 +311,3 @@ func TestAuditRoutesTenantIsolation(t *testing.T) {
 		t.Errorf("alice into beta: %d", rec.Code)
 	}
 }
-
