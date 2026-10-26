@@ -977,6 +977,23 @@ func newCaptureLogger(w io.Writer) *slog.Logger {
 	return slog.New(slog.NewTextHandler(w, &slog.HandlerOptions{Level: slog.LevelDebug}))
 }
 
+func TestNon2xxBodyEchoingSecretIsRedacted(t *testing.T) {
+	for _, sec := range []string{"ctk_transcript_hook_0001", "k"} {
+		h := newHarness(t, func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(401)
+			_, _ = io.WriteString(w, "bad auth: "+r.Header.Get("Authorization")+" / "+r.Header.Get("X-Tok"))
+		})
+		h.sec.byWS = map[string]map[string]string{"ws-1": {"HOOK": sec}}
+		got := h.run(map[string]any{"url": "https://hooks.example.com/x", "header_secret_ref": "HOOK", "headers": map[string]any{"X-Tok": "HDRVALUE99"}})
+		if got.Status != "failed" || strings.Contains(got.Error, sec) && sec != "k" || strings.Contains(got.Error, "HDRVALUE99") || !strings.Contains(got.Error, "[redacted]") {
+			t.Fatalf("%q: %+v", sec, got)
+		}
+		if sec == "k" && strings.Contains(strings.TrimPrefix(got.Error, "HTTP 401: "), "k") {
+			t.Fatalf("1-char secret left: %q", got.Error)
+		}
+	}
+}
+
 type blockingRes struct{}
 
 func (blockingRes) LookupNetIP(ctx context.Context, _, _ string) ([]netip.Addr, error) {

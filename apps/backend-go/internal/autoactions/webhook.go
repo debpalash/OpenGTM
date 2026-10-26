@@ -422,7 +422,11 @@ func Webhook(ctx context.Context, d WebhookDeps, ws string, cfg map[string]any, 
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return Result{Status: "success", Summary: summary}
 	}
-	text := truncRunes(strings.ToValidUTF8(string(raw), "\uFFFD"), bodyPrefix)
+	text := strings.ToValidUTF8(string(raw), "\uFFFD")
+	for _, r := range redact { // a hostile endpoint may echo the credential back
+		text = strings.ReplaceAll(text, r, "[redacted]")
+	}
+	text = truncRunes(text, bodyPrefix)
 	return Result{Status: "failed", Summary: summary, Error: "HTTP " + strconv.Itoa(resp.StatusCode) + ": " + text}
 }
 
