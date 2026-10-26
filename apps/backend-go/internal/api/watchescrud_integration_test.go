@@ -739,3 +739,41 @@ func wcrudTopKeys(t *testing.T, raw string) []string {
 	}
 	return keys
 }
+
+// Go hardening (final review sec M2): creating an automation rule through the
+// watches API needs the same automations.manage permission as the automation
+// routes. An editor (signals.write) may still create plain watches. Python
+// lets the editor through (documented deviation).
+func TestWatchCreateWebhookRuleNeedsAutomationsManage(t *testing.T) {
+	e := newWcrudEnv(t, "default")
+	body := `{"kind":"feed","target":"https://feeds.example.com/editor.xml","create_webhook_rule":true,"webhook_url":"https://hooks.example.com/x","webhook_secret_ref":"AUTOMATION_HOOK_SECRET"}`
+	rules, watches := e.count(t, `SELECT count(*) FROM triggers`), e.count(t, `SELECT count(*) FROM watch_subscriptions`)
+	code, m, raw := e.as("erin", "POST", "/api/watches", body)
+	if code != 403 || m["detail"] != "Workspace permission denied: automations.manage" {
+		t.Fatalf("editor with create_webhook_rule: %d %s", code, raw)
+	}
+	if e.count(t, `SELECT count(*) FROM triggers`) != rules || e.count(t, `SELECT count(*) FROM watch_subscriptions`) != watches {
+		t.Error("a forbidden create left a rule or watch behind")
+	}
+	if code, _, raw := e.as("erin", "POST", "/api/watches", `{"kind":"funding","target":"Editor Plain Co"}`); code != 200 {
+		t.Errorf("editor plain watch: %d %s", code, raw)
+	}
+	if code, _, raw := e.as("alice", "POST", "/api/watches", body); code != 200 {
+		t.Errorf("admin with rule: %d %s", code, raw)
+	}
+}
+
+// Final review M4: a create refused on its lead pin must not leave the
+// enabled on_signal webhook rule behind.
+func TestWatchCreateForeignLeadWithRuleLeavesNoOrphanRule(t *testing.T) {
+	e := newWcrudEnv(t, "default")
+	before := e.count(t, `SELECT count(*) FROM triggers`)
+	code, m, raw := e.as("alice", "POST", "/api/watches",
+		`{"kind":"feed","target":"https://feeds.example.com/pin.xml","lead_id":17,"create_webhook_rule":true,"webhook_url":"https://hooks.example.com/x","webhook_secret_ref":"AUTOMATION_HOOK_SECRET"}`)
+	if code != 422 || m["detail"] != "lead_id 17 not found in this workspace" {
+		t.Fatalf("%d %s", code, raw)
+	}
+	if after := e.count(t, `SELECT count(*) FROM triggers`); after != before {
+		t.Errorf("orphan webhook rule left: %d new rules", after-before)
+	}
+}
