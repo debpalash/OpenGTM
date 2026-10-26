@@ -75,3 +75,32 @@ func TestConfigRejectsBadInterval(t *testing.T) {
 		}
 	}
 }
+
+// The worker Config carries the plan 08 settings (Flags.Automations and the flags the executors read).
+func TestWorkerLoadsAutomationSettings(t *testing.T) {
+	c, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := c.Flags.Automations
+	if a.MaxRowsPerEval != 500 || a.PollerDefaultInterval != "daily" || a.GoExecutorTriggerEval || a.GoExecutorWatchPoll ||
+		c.Flags.IntentPollerEnabled || !c.Flags.PGLeadStore || c.Flags.AutomationsAllowLegacyOutreach || c.BillingEnabled {
+		t.Fatalf("defaults: %+v billing=%v", c.Flags, c.BillingEnabled)
+	}
+	c, err = load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "GO_EXECUTOR_TRIGGER_EVAL": "true", "GO_EXECUTOR_WATCH_POLL": "1",
+		"AUTOMATIONS_MAX_ROWS_PER_EVAL": "7", "INTENT_POLLER_ENABLED": "true", "PG_LEAD_STORE": "false", "BILLING_ENABLED": "true",
+		"AUTOMATIONS_ALLOW_LEGACY_OUTREACH": "true"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	a = c.Flags.Automations
+	if !a.GoExecutorTriggerEval || !a.GoExecutorWatchPoll || a.MaxRowsPerEval != 7 || !c.Flags.IntentPollerEnabled ||
+		c.Flags.PGLeadStore || !c.BillingEnabled || !c.Flags.AutomationsAllowLegacyOutreach {
+		t.Fatalf("set: %+v", c.Flags)
+	}
+	for _, k := range []string{"GO_EXECUTOR_WATCH_POLL", "INTENT_POLLER_ENABLED", "BILLING_ENABLED", "AUTOMATIONS_MAX_ROWS_PER_EVAL"} {
+		if _, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, k: "maybe"})); err == nil {
+			t.Errorf("%s: invalid value must be rejected", k)
+		}
+	}
+}
