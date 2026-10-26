@@ -127,3 +127,31 @@ func TestApplySSEWiresConfigRedisAndShutdown(t *testing.T) {
 		t.Fatalf("bad REDIS_URL must fail without leaking: %v", err)
 	}
 }
+
+// Plan 12: chat streams and /api/events draw on one SSE_MAX_STREAMS semaphore.
+func TestApplySSEChatSharesEventsPool(t *testing.T) {
+	cfg := config.APIConfig{SSEMaxStreams: 5}
+	cfg.Flags.Copilot.MaxStreamsPerUser = 2
+	var d api.Deps
+	if err := applySSE(&d, cfg, context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if d.ChatStreams == nil || d.SSEStreamSem == nil || cap(d.SSEStreamSem) != 5 {
+		t.Fatalf("chat caps %v sem %v", d.ChatStreams, d.SSEStreamSem)
+	}
+	rel, err := d.ChatStreams.Acquire(context.Background(), "ws", 7)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(d.SSEStreamSem) != 1 {
+		t.Fatalf("a chat stream must hold a slot of the events semaphore, len=%d", len(d.SSEStreamSem))
+	}
+	rel()
+	if len(d.SSEStreamSem) != 0 {
+		t.Fatal("slot not released")
+	}
+	var def api.Deps
+	if err := applySSE(&def, config.APIConfig{}, context.Background()); err != nil || cap(def.SSEStreamSem) != 1000 || def.ChatStreams == nil {
+		t.Fatalf("defaults: %v cap=%d", err, cap(def.SSEStreamSem))
+	}
+}
