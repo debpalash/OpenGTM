@@ -19,7 +19,7 @@ func TestParseToolCallsNormalisesArguments(t *testing.T) {
 	if len(calls) != 5 {
 		t.Fatalf("calls %d", len(calls))
 	}
-	for i, wantArgs := range []string{`{}`, `{}`, `{}`, `{"lead_id": 1.0, "s": "é"}`, `{}`} {
+	for i, wantArgs := range []string{`{}`, `{}`, `{}`, `{"lead_id": 1.0, "s": "\u00e9"}`, `{}`} {
 		if got := string(calls[i].ArgsJSON); got != wantArgs {
 			t.Errorf("call %d args %q want %q", i, got, wantArgs)
 		}
@@ -74,7 +74,7 @@ func TestToolResultFrameValue(t *testing.T) {
 		`plain`:             `{"raw": "plain"}`,
 		``:                  `{"raw": ""}`,
 		`{"a": NaN}`:        `{"raw": "{\"a\": NaN}"}`,
-		"{\"a\": \"\xff\"}": `{"raw": "{\"a\": \"�\"}"}`,
+		"{\"a\": \"\xff\"}": `{"a": "\ufffd"}`,
 	} {
 		if got := string(toolResultValue(in)); got != want {
 			t.Errorf("%q -> %q want %q", in, got, want)

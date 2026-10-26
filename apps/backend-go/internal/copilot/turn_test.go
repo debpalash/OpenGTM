@@ -90,6 +90,10 @@ func newFakePy(t *testing.T, rounds ...[]string) *fakePy {
 		}
 		w.Header().Set("Content-Type", "application/x-ndjson")
 		for _, l := range f.rounds[n] {
+			var cb bytes.Buffer
+			if json.Compact(&cb, []byte(l)) == nil {
+				l = cb.String()
+			}
 			_, _ = io.WriteString(w, l+"\n")
 			w.(http.Flusher).Flush()
 		}
@@ -185,7 +189,7 @@ func TestPlainAnswerStreamsContent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := frame(`{"content": "Hi"}`) + frame(`{"content": " thére"}`) + done
+	want := frame(`{"content": "Hi"}`) + frame(`{"content": " th\u00e9re"}`) + done
 	if body != want {
 		t.Fatalf("got %q want %q", body, want)
 	}
@@ -244,7 +248,7 @@ func TestSafeToolCallRoundTrip(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := frame(`{"tool_call": {"name": "search_leads", "args": {"query": "acme", "limit": 3}}}`) +
-		frame(`{"tool_result": {"name": "search_leads", "result": {"leads": [{"id": 1, "x": "é"}], "count": 1}}}`) +
+		frame(`{"tool_result": {"name": "search_leads", "result": {"leads": [{"id": 1, "x": "\u00e9"}], "count": 1}}}`) +
 		frame(`{"content": "Found."}`) + done
 	if body != want {
 		t.Fatalf("got %q\nwant %q", body, want)
@@ -453,7 +457,7 @@ func TestUnknownPythonToolAnswers404AsUnknownTool(t *testing.T) {
 func TestNonJSONToolOutputBecomesRaw(t *testing.T) {
 	f := newFakePy(t, []string{toolRound("search_leads", 0)}, []string{`{"t":"done","cursor":0}`})
 	body, _ := runTurn(t, newTurn(f, nativeConst("plain text é")), userMsgs())
-	if !strings.Contains(body, `{"tool_result": {"name": "search_leads", "result": {"raw": "plain text é"}}}`) {
+	if !strings.Contains(body, `{"tool_result": {"name": "search_leads", "result": {"raw": "plain text \u00e9"}}}`) {
 		t.Fatalf("body %q", body)
 	}
 	if !strings.HasSuffix(body, done) {
@@ -627,8 +631,7 @@ func TestSlotReleasedAfterPanicAndCancel(t *testing.T) {
 		t.Fatalf("active after panic: %d", caps.Active())
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-	run(ctx, func(*Turn) {})
+	run(ctx, func(*Turn) { cancel() })
 	if caps.Active() != 0 {
 		t.Fatalf("active after cancel: %d", caps.Active())
 	}

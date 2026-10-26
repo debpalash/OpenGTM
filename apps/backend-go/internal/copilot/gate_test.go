@@ -110,7 +110,7 @@ func TestConfirmationEventKeyOrder(t *testing.T) {
 		t.Fatalf("approvals %v", rows)
 	}
 	id := rows[0].ID
-	want := frame(`{"confirmation_required": {"confirmation_id": "`+id+`", "tool_call": {"id": "`+id+`", "type": "function", "function": {"name": "update_lead_status", "arguments": "{\"lead_id\": 4, \"status\": \"contacted\"}"}}, "name": "update_lead_status", "args": {"lead_id": 4, "status": "contacted"}, "description": "Changes → x", "level": "medium", "label": "📝 Update Lead Status"}}`) +
+	want := frame(`{"confirmation_required": {"confirmation_id": "`+id+`", "tool_call": {"id": "`+id+`", "type": "function", "function": {"name": "update_lead_status", "arguments": "{\"lead_id\": 4, \"status\": \"contacted\"}"}}, "name": "update_lead_status", "args": {"lead_id": 4, "status": "contacted"}, "description": "Changes \u2192 x", "level": "medium", "label": "\ud83d\udcdd Update Lead Status"}}`) +
 		frame(`{"awaiting_confirmation": true}`) + done
 	if body != want {
 		t.Fatalf("got  %q\nwant %q", body, want)
@@ -170,7 +170,7 @@ func TestDescribeFailureFallsBackToLabelAndReason(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(body, `"description": "📝 Update Lead Status\nChanges the pipeline status of a lead."`) {
+	if !strings.Contains(body, `"description": "\ud83d\udcdd Update Lead Status\nChanges the pipeline status of a lead."`) {
 		t.Fatalf("body %q", body)
 	}
 }
