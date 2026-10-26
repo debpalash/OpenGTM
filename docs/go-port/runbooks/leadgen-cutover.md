@@ -12,14 +12,15 @@ The step that moves data is the **collection ledger cutover** (`collection_jobs`
 
 1. Plans 01-06 are cut over (auth and workspaces, settings and secrets, workbooks, leads and signals, enrichment jobs with `PY_WORKER_URL` / `PY_WORKER_TOKEN`). The Alembic revision
    `c9d2e4f6a8b1` (collection ledger tables) or later is applied, and **every Python replica (API, worker, scheduler) runs a release that contains it** (the ledger is chosen by
-   `SQLITE_STORES_BACKEND`; an older replica would keep writing SQLite). Go's `RequiredGoSchemaRevision` matches the head; `api-go` refuses to start otherwise.
+   `SQLITE_STORES_BACKEND` **and** the `__collection_ledger_backend` marker: deploying the release changes nothing by itself, the ledger stays on SQLite until step 2 writes the marker
+   and the processes restart; an older replica would keep writing SQLite after that, so the whole fleet must run the release first). Go's `RequiredGoSchemaRevision` matches the head; `api-go` refuses to start otherwise.
 2. `PG_LEAD_STORE=true` on `api-go` (Go supports the Postgres lead store only) and Redis reachable from API and worker (`REDIS_URL`; progress events and `/jobs/{id}/events`; without Redis
    events fall back to the in-process deque, so Go and Python replicas would each show only their own).
 3. `PY_WORKER_URL` and `PY_WORKER_TOKEN` reachable from `api-go` (`GET /api/system-stats`, `POST /api/leads/domain-intel` does not need it) and from the Go worker (source health probes).
    Without them system-stats answers 200 with zeros and `X-Stats-Source: degraded` (D5).
 4. The stores cutover marker is set (`uv run python -m apps.api.cli mark-cutover`, see `sqlite-to-postgres.md`). It makes every Python process with `SQLITE_STORES_BACKEND=sqlite` refuse to
-   start, which is the only guard that stops a stale replica from running collections against a SQLite ledger Go no longer reads. (The ledger marker below gates **Go**; Python has no
-   ledger-specific guard.)
+   start (the same guard also refuses on the ledger marker), so no replica can run collections against a SQLite ledger after the cutover. Every Python process must run with
+   `SQLITE_STORES_BACKEND=postgres` already; the ledger marker below is the real switch for **both** Python (`ledger_for`) and Go (`LoadCollectionLedgerBackend`).
 5. `TZ` of API, worker and scheduler containers is identical (`UTC` recommended; the ledger stores isoformat text and `source_health.updated_at` uses the session time zone).
 6. nginx contains `# ===== BEGIN plan 14: leadgen collection` in `go-routes.conf` and `scripts/nginx-routing-check.sh` passes (0%, 50%, 100%). Both knobs in `go-split.conf` (`$go_bucket`,
    `$go_ws_bucket`) carry the **same** percentage.
@@ -28,7 +29,8 @@ The step that moves data is the **collection ledger cutover** (`collection_jobs`
 
 ### 1. Quiesce
 
-No new collection and no running one while the ledger moves.
+No new collection and no running one from the start of step 2 **until every process has restarted in step 3**. Python reads the marker once per process, so a process started before the
+marker keeps writing the SQLite ledger; the window must therefore stay closed until the restart is finished.
 
 1. Stop new collects for the window. Add a temporary include **before** `go-routes.conf` in the `server` block (not committed), then `nginx -t && nginx -s reload`:
    ```
@@ -46,7 +48,7 @@ No new collection and no running one while the ledger moves.
    `--force`; do not use `--force` while rows are active.
 3. Stop the Python scheduler's collection producers if you run any (`apps.api.cli collect` and `eval_pipeline` still write the SQLite ledger, see "Known leftovers").
 
-### 2. Backfill and verify
+### 2. Backfill, verify, set the marker
 
 From `legacy/python` (database URL in `DATABASE_URL`, data dir = the workspace SQLite files):
 
@@ -57,13 +59,17 @@ COLLECTION_LEDGER_CONFIRM=yes uv run python scripts/migrate_collection_ledger.py
 
 `cutover` = quiesce check, backfill (idempotent: jobs `ON CONFLICT (id) DO NOTHING`, stages deduplicated by `(job_id, stage, started_at)`), `verify` (job ids, stage counts and **column
 content** per workspace) and, only when verify reports **zero mismatches**, the marker `app_settings('__collection_ledger_backend') = 'postgres'` written **last**. If `verify` reports
-anything, there is no marker: fix and re-run (it is safe to repeat). `uv run python scripts/migrate_collection_ledger.py verify --data-dir data` re-checks at any time.
+anything, there is no marker: fix and re-run (it is safe to repeat). `uv run python scripts/migrate_collection_ledger.py verify --data-dir data` re-checks at any time, but only
+**before** the first post-cutover write (after it Postgres legitimately differs from the frozen SQLite files).
 
-### 3. Flip the backend (API and Python worker together)
+Check the marker: `SELECT value FROM app_settings WHERE key = '__collection_ledger_backend';` returns `postgres`. Nothing has switched yet: running processes keep their cached choice.
 
-Set `SQLITE_STORES_BACKEND=postgres` for the Python API, the Python worker and the scheduler **in the same deploy**, and restart them. Then **restart `api-go`**: it reads the ledger marker
-once at startup (`LoadCollectionLedgerBackend`, fail closed: a missing marker or an unreadable one leaves the leadgen routes unregistered, with a startup error log line). Remove the
-temporary 503 include and reload nginx. Check the `api-go` startup log has **no** `leadgen routes not registered` line.
+### 3. Restart API, workers and scheduler (this is the flip)
+
+Restart **all** Python processes (API, worker, scheduler; `SQLITE_STORES_BACKEND=postgres` unchanged) and then `api-go`. Python reads the marker once at first use and picks the Postgres
+ledger; `api-go` reads it once at startup (`LoadCollectionLedgerBackend`, fail closed: a missing or unreadable marker leaves the leadgen routes unregistered, with a startup error log
+line). A Python process that cannot read the marker raises instead of guessing. Only now remove the temporary 503 include and reload nginx. Check the `api-go` startup log has **no**
+`leadgen routes not registered` line, and that no `collection ledger marker ... is not 'postgres'` warning appears in the Python logs.
 
 ### 4. Route canary
 
@@ -93,7 +99,7 @@ without spending a retry). The Go worker needs `PY_WORKER_URL`/`PY_WORKER_TOKEN`
 | routes (any percentage) | set both `go-split.conf` knobs back to 0% (comment the `go` lines out), reload nginx. Safe at any time: both stacks read the same `collection_jobs` | no |
 | routes, hard | `GO_COLLECTION_ROUTES_ENABLED=false` on `api-go`, restart (Go then registers nothing) | no |
 | source health executor | `GO_EXECUTOR_SOURCE_HEALTH=false` (workers hand claimed jobs back to Python) | no |
-| **ledger** | **No reverse-copy tool exists yet**: `migrate_collection_ledger.py` has `backfill`, `verify` and `cutover` only (Task 4 left the reverse direction out). Rows written to Postgres after the cutover are **not** copied back. To roll back anyway: quiesce again (step 1), set `SQLITE_STORES_BACKEND=sqlite` on all Python processes, `DELETE FROM app_settings WHERE key IN ('__collection_ledger_backend')` (and `__stores_backend` only if the whole stores cutover is rolled back), restart everything. Jobs created after the cutover stay in Postgres and disappear from the UI; the SQLite files still hold the pre-cutover history. A reverse subcommand (`--reverse`) is an open follow-up; until it exists do not roll the ledger back after more than 24 h without a fresh `pg_dump` of `collection_jobs` and `collection_job_stages` | yes (loses post-cutover rows) |
+| **ledger** | Quiesce again (step 1: the 503 include, empty queue). `pg_dump -t collection_jobs -t collection_job_stages` first if you want to keep post-cutover rows. Then `DELETE FROM app_settings WHERE key = '__collection_ledger_backend';` and restart API, workers, scheduler and `api-go` (Python then picks the SQLite ledger again; `api-go` leaves the leadgen routes unregistered, so nginx must be at 0% / `GO_COLLECTION_ROUTES_ENABLED=false` first). `SQLITE_STORES_BACKEND` and `__stores_backend` stay untouched. **There is no reverse-copy tool** (`migrate_collection_ledger.py` has `backfill`, `verify` and `cutover` only): jobs and stages written to Postgres after the cutover are not copied back and disappear from the UI, the SQLite files still hold the pre-cutover history. To cut over again later, run step 2 again (the backfill is idempotent; Postgres-only rows make `verify` report mismatches, so clear or export them first) | yes (loses post-cutover rows unless exported) |
 
 ## What to watch
 
@@ -101,7 +107,7 @@ without spending a retry). The Go worker needs `PY_WORKER_URL`/`PY_WORKER_TOKEN`
 |---|---|---|
 | collect 5xx | gateway/access log for `POST /api/collect` (503 `Collection queue unavailable` is Go's enqueue failure: nothing was written; 500 is a DB error) | any sustained 5xx |
 | ledger rows stuck `running` | `SELECT workspace_id, id, started_at FROM collection_jobs WHERE status = 'running' AND started_at <> '' AND started_at::timestamptz < now() - interval '20 minutes';` (collect timeout is 600 s, retries re-queue) | rows older than the queue timeout plus one retry |
-| queue rows without a ledger row | `SELECT j.id, j.workspace_id, j.payload->>'job_id' AS job FROM jobs j LEFT JOIN collection_jobs c ON c.id = j.payload->>'job_id' WHERE j.type = 'collect' AND j.status IN ('pending','processing') AND c.id IS NULL;` | any row (the worker fails with `not found in workspace ledger`; mis-set `SQLITE_STORES_BACKEND` on a Python replica is the usual cause) |
+| queue rows without a ledger row | `SELECT j.id, j.workspace_id, j.payload->>'job_id' AS job FROM jobs j LEFT JOIN collection_jobs c ON c.id = j.payload->>'job_id' WHERE j.type = 'collect' AND j.status IN ('pending','processing') AND c.id IS NULL;` | any row (the worker fails with `not found in workspace ledger`; a Python replica that was not restarted after the marker (step 3) is the usual cause) |
 | ledger rows without a queue row | `SELECT c.workspace_id, c.id, c.status, c.created_at FROM collection_jobs c WHERE c.status IN ('pending','running') AND NOT EXISTS (SELECT 1 FROM jobs j WHERE j.type = 'collect' AND j.fire_key = 'collect:' \|\| c.workspace_id \|\| ':' \|\| c.id AND j.status IN ('pending','processing'));` | any row older than a few minutes (a crash between ledger insert and enqueue cannot happen from Go: both are one transaction; Python's two-step enqueue can leave one) |
 | degraded stats | `X-Stats-Source: degraded` on `GET /api/system-stats` | persistently (Python worker unreachable) |
 | source health | `GET /api/settings/sources/health`: `degraded`/`auto_disabled` counts, `updated_at` age; the worker log `source_health_check` | many sources flip at once (outage run guard should prevent it) |
