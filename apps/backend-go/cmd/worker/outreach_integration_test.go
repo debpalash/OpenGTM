@@ -44,14 +44,14 @@ func (f *fakeMailer) count() int { f.mu.Lock(); defer f.mu.Unlock(); return f.n 
 
 type fakeIMAP struct{ connects int }
 
-func (f *fakeIMAP) Connect(context.Context) error                { f.connects++; return nil }
+func (f *fakeIMAP) Connect(context.Context) error                  { f.connects++; return nil }
 func (f *fakeIMAP) Select(context.Context, string) (string, error) { return "42", nil }
 func (f *fakeIMAP) SearchUnseen(context.Context, time.Time, int) ([]string, error) {
 	return nil, nil
 }
 func (f *fakeIMAP) Fetch(context.Context, string) ([]byte, error) { return nil, nil }
 func (f *fakeIMAP) MarkSeen(context.Context, string) error        { return nil }
-func (f *fakeIMAP) Logout()                                        {}
+func (f *fakeIMAP) Logout()                                       {}
 
 type memSecrets struct{ ws map[string]string }
 
