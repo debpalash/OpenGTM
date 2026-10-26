@@ -198,3 +198,43 @@ func TestDetailHeadersAndJSONNoHTMLEscape(t *testing.T) {
 		t.Fatalf("got %d %v %q", rec.Code, rec.Header(), rec.Body.String())
 	}
 }
+
+func TestTrailingSlashPatternIsExact(t *testing.T) {
+	r := NewRouter()
+	r.Handle("GET /prefix/", http.HandlerFunc(ok))
+	r.Handle("POST /prefix/", http.HandlerFunc(ok))
+	h := r.Handler()
+	if rec := do(h, "GET", "/prefix/", nil); rec.Code != 200 {
+		t.Fatalf("exact: %d", rec.Code)
+	}
+	if rec := do(h, "GET", "/prefix/anything", nil); rec.Code != 404 {
+		t.Fatalf("subtree leaked: %d", rec.Code)
+	}
+	rec := do(h, "DELETE", "/prefix/", nil)
+	if rec.Code != 405 || rec.Header().Get("Allow") != "GET, POST" {
+		t.Fatalf("405: %d %v", rec.Code, rec.Header())
+	}
+	// bare root pattern must not swallow everything
+	r.Handle("GET /", http.HandlerFunc(ok))
+	if rec := do(r.Handler(), "GET", "/zzz", nil); rec.Code != 404 {
+		t.Fatalf("root swallowed: %d", rec.Code)
+	}
+}
+
+func TestRedirectSlashesBothDirections(t *testing.T) {
+	r := NewRouter()
+	r.Handle("GET /with/", http.HandlerFunc(ok))
+	r.Handle("GET /without", http.HandlerFunc(ok))
+	h := r.Handler()
+	rec := do(h, "GET", "/with?a=1&b=2", nil)
+	if rec.Code != 307 || rec.Header().Get("Location") != "/with/?a=1&b=2" {
+		t.Fatalf("add slash: %d %q", rec.Code, rec.Header().Get("Location"))
+	}
+	rec = do(h, "GET", "/without/", nil)
+	if rec.Code != 307 || rec.Header().Get("Location") != "/without" {
+		t.Fatalf("strip slash: %d %q", rec.Code, rec.Header().Get("Location"))
+	}
+	if rec = do(h, "POST", "/with", nil); rec.Code != 404 {
+		t.Fatalf("other method must not redirect: %d", rec.Code)
+	}
+}

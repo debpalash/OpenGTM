@@ -33,7 +33,22 @@ func (r *Router) Handle(pattern string, h http.Handler, mws ...Middleware) {
 	if strings.HasPrefix(pattern, "HEAD ") {
 		r.explicitHead = true
 	}
-	r.mux.Handle(pattern, chain(h, mws))
+	r.mux.Handle(exactPattern(pattern), chain(h, mws))
+}
+
+// exactPattern turns a trailing-slash pattern into an exact match. ServeMux
+// treats "GET /p/" as a subtree; FastAPI/Starlette match "/p/" only.
+func exactPattern(pattern string) string {
+	if strings.HasSuffix(pattern, "/") {
+		return pattern + "{$}"
+	}
+	return pattern
+}
+
+func (r *Router) matches(method, path, host string) bool {
+	probe := &http.Request{Method: method, URL: &url.URL{Path: path}, Host: host, Header: http.Header{}}
+	_, pat := r.mux.Handler(probe)
+	return pat != "" && pat != "/"
 }
 
 // Use adds global middleware (applied around the whole mux, including 404/405
@@ -52,13 +67,25 @@ func chain(h http.Handler, mws []Middleware) http.Handler {
 
 // fallback runs only for requests no specific pattern matched.
 func (r *Router) fallback(w http.ResponseWriter, req *http.Request) {
+	// Starlette redirect_slashes: retry with the trailing slash toggled.
+	if p := req.URL.Path; p != "/" {
+		toggled := strings.TrimSuffix(p, "/")
+		if toggled == p {
+			toggled = p + "/"
+		}
+		if r.matches(req.Method, toggled, req.Host) {
+			loc := (&url.URL{Path: toggled, RawQuery: req.URL.RawQuery}).String()
+			w.Header().Set("Location", loc)
+			w.WriteHeader(http.StatusTemporaryRedirect)
+			return
+		}
+	}
 	var allowed []string
 	for _, m := range probeMethods {
 		if m == "HEAD" && !r.explicitHead {
 			continue
 		}
-		probe := &http.Request{Method: m, URL: &url.URL{Path: req.URL.Path}, Host: req.Host, Header: http.Header{}}
-		if _, pat := r.mux.Handler(probe); pat != "" && pat != "/" {
+		if r.matches(m, req.URL.Path, req.Host) {
 			allowed = append(allowed, m)
 		}
 	}
