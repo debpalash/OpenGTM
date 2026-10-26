@@ -124,3 +124,14 @@ leads (`collection_job_id` `job-1` twice, `job-2` once) before recording.
   (`TestCreateCsvTruncatesToMaxRows`).
 - Request bodies are limited to 64 MiB (413 `Request body too large`); FastAPI has no limit.
 - Invalid-JSON bodies answer the same simplified `json_invalid` entry as the other Go routes (`loc ["body",0]`, no `ctx`).
+
+## Column routes (Task 11): deviations
+
+Fixtures `columns/*` (cases `legacy/python/scripts/contract_cases/columns.yaml`, FastAPI as a non-superuser role).
+- `DELETE /columns/{id}` with a saved view whose `config` is malformed (null `filters`/`sort`, non-object rule, scalar
+  config): FastAPI raises (500); Go treats it as "no reference" (hardening). Views are listed `created_at, id` (FastAPI:
+  heap order). Covered by `TestDeleteBlockedByView`.
+- Go escapes U+2028/U+2029 in JSON strings (valid, equivalent JSON); Starlette emits them raw.
+- Request bodies over 4 MiB answer 413 `Request body too large` (FastAPI: unbounded).
+- `wbcrud.FastAPIModelErrors` converts `NormalizeRequestColumn` errors to FastAPI's body form (`model_attributes_type`,
+  `ctx` bounds); the create route should apply it too (fixtures `columns/add_column_null`, `add_bad_types`).
