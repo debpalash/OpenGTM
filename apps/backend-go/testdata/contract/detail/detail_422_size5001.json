@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2?page_size=5001"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "le": 5000
+          },
+          "input": "5001",
+          "loc": [
+            "query",
+            "page_size"
+          ],
+          "msg": "Input should be less than or equal to 5000",
+          "type": "less_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

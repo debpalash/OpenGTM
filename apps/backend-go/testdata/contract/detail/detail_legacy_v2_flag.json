@@ -1,0 +1,62 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-5"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "next_cursor": null,
+      "page": 1,
+      "page_size": 100,
+      "query_total_rows": 0,
+      "rows": [],
+      "total_rows": 0,
+      "workbook": {
+        "columns_config": [
+          {
+            "id": "company",
+            "lead_field": "company",
+            "name": "Company",
+            "type": "lead_field",
+            "width": 200
+          },
+          {
+            "id": "score_ai",
+            "input_columns": [
+              "company"
+            ],
+            "name": "Score",
+            "prompt": "x",
+            "type": "ai_formula",
+            "width": 200
+          }
+        ],
+        "completed_rows": 0,
+        "created_at": "2026-08-29T10:00:00",
+        "description": "detail seed",
+        "filter_criteria": {},
+        "id": "wb-alpha-5",
+        "last_run_at": null,
+        "name": "Legacy V2",
+        "source_config": {
+          "row_storage_version": 2
+        },
+        "source_type": "leads_filter",
+        "status": "idle",
+        "sync_to_leads": false,
+        "total_rows": 0,
+        "updated_at": "2026-08-29T10:00:00"
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

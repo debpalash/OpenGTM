@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-7/export.csv"
+  },
+  "response": {
+    "body": "\ufeff\r\n",
+    "headers": {
+      "content-disposition": "attachment; filename=\"workbook.csv\"",
+      "content-type": "text/csv; charset=utf-8"
+    },
+    "status": 200
+  }
+}

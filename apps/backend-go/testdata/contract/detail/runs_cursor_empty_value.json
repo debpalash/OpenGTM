@@ -1,0 +1,234 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/connector-runs?cursor="
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 50,
+      "next_cursor": null,
+      "offset": 0,
+      "runs": [
+        {
+          "added_count": 0,
+          "completed_at": null,
+          "connector": "lusha",
+          "created_at": "2026-09-02T12:00:00+00:00",
+          "cursor": {},
+          "error": null,
+          "exhausted": true,
+          "fetched_count": 0,
+          "id": "run-alpha-8",
+          "pages_fetched": 1,
+          "query": {
+            "z": 1
+          },
+          "requested_count": 1,
+          "skipped_count": 0,
+          "source_total": null,
+          "started_at": null,
+          "status": "pending",
+          "target_met": false,
+          "updated_at": "2026-09-02T12:00:00+00:00",
+          "updated_count": 0,
+          "workbook_id": "wb-alpha-2",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "added_count": 1,
+          "completed_at": null,
+          "connector": "zoominfo",
+          "created_at": "2026-09-01T12:00:00.500000+00:00",
+          "cursor": {
+            "z": 2
+          },
+          "error": null,
+          "exhausted": true,
+          "fetched_count": 1,
+          "id": "run-alpha-7",
+          "pages_fetched": 1,
+          "query": {
+            "z": 1
+          },
+          "requested_count": 1,
+          "skipped_count": 0,
+          "source_total": null,
+          "started_at": null,
+          "status": "completed",
+          "target_met": false,
+          "updated_at": "2026-09-01T12:00:00.500000+00:00",
+          "updated_count": 0,
+          "workbook_id": "wb-alpha-2",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "added_count": 1,
+          "completed_at": null,
+          "connector": "pdl2",
+          "created_at": "2026-08-31T08:00:00+00:00",
+          "cursor": {
+            "b": 1.5
+          },
+          "error": null,
+          "exhausted": true,
+          "fetched_count": 1,
+          "id": "run-alpha-6",
+          "pages_fetched": 1,
+          "query": {
+            "a": [
+              1,
+              2
+            ]
+          },
+          "requested_count": 1,
+          "skipped_count": 0,
+          "source_total": null,
+          "started_at": null,
+          "status": "completed",
+          "target_met": false,
+          "updated_at": "2026-08-31T08:00:00+00:00",
+          "updated_count": 0,
+          "workbook_id": "wb-alpha-2",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "added_count": 1,
+          "completed_at": null,
+          "connector": "pdl",
+          "created_at": "2026-08-31T08:00:00+00:00",
+          "cursor": {
+            "page": 1
+          },
+          "error": null,
+          "exhausted": true,
+          "fetched_count": 1,
+          "id": "run-alpha-5",
+          "pages_fetched": 1,
+          "query": {},
+          "requested_count": 1,
+          "skipped_count": 0,
+          "source_total": null,
+          "started_at": null,
+          "status": "completed",
+          "target_met": false,
+          "updated_at": "2026-08-31T08:00:00+00:00",
+          "updated_count": 0,
+          "workbook_id": "wb-alpha-2",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "added_count": 0,
+          "completed_at": null,
+          "connector": "apollo2",
+          "created_at": "2026-08-30T09:30:00+00:00",
+          "cursor": {},
+          "error": null,
+          "exhausted": true,
+          "fetched_count": 0,
+          "id": "run-alpha-4",
+          "pages_fetched": 1,
+          "query": {},
+          "requested_count": 50,
+          "skipped_count": 0,
+          "source_total": null,
+          "started_at": null,
+          "status": "running",
+          "target_met": false,
+          "updated_at": "2026-08-30T09:30:00+00:00",
+          "updated_count": 0,
+          "workbook_id": "wb-alpha-2",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "added_count": 10,
+          "completed_at": null,
+          "connector": "hunter",
+          "created_at": "2026-08-29T10:00:00.123456+00:00",
+          "cursor": {
+            "page": 3
+          },
+          "error": null,
+          "exhausted": true,
+          "fetched_count": 10,
+          "id": "run-alpha-2",
+          "pages_fetched": 1,
+          "query": {
+            "q": "x"
+          },
+          "requested_count": 10,
+          "skipped_count": 0,
+          "source_total": null,
+          "started_at": null,
+          "status": "completed",
+          "target_met": false,
+          "updated_at": "2026-08-29T10:00:00.123456+00:00",
+          "updated_count": 0,
+          "workbook_id": "wb-alpha-2",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "added_count": 0,
+          "completed_at": null,
+          "connector": "clearbit",
+          "created_at": "2026-08-29T10:00:00+00:00",
+          "cursor": {},
+          "error": "upstream timeout",
+          "exhausted": true,
+          "fetched_count": 2,
+          "id": "run-alpha-3",
+          "pages_fetched": 1,
+          "query": {
+            "q": "y"
+          },
+          "requested_count": 5,
+          "skipped_count": 0,
+          "source_total": null,
+          "started_at": null,
+          "status": "failed",
+          "target_met": false,
+          "updated_at": "2026-08-29T10:00:00+00:00",
+          "updated_count": 0,
+          "workbook_id": "wb-alpha-2",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "added_count": 25,
+          "completed_at": "2026-08-29T10:00:00+00:00",
+          "connector": "apollo",
+          "created_at": "2026-08-29T10:00:00+00:00",
+          "cursor": {
+            "page": 1
+          },
+          "error": null,
+          "exhausted": true,
+          "fetched_count": 25,
+          "id": "run-alpha-1",
+          "pages_fetched": 1,
+          "query": {
+            "industry": "software"
+          },
+          "requested_count": 25,
+          "skipped_count": 0,
+          "source_total": 25,
+          "started_at": "2026-08-29T10:00:00+00:00",
+          "status": "completed",
+          "target_met": true,
+          "updated_at": "2026-08-29T10:00:00+00:00",
+          "updated_count": 0,
+          "workbook_id": "wb-alpha-2",
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

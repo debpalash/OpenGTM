@@ -1,0 +1,1181 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2?cursor_mode=true&page_size=24"
+  },
+  "response": {
+    "body": {
+      "has_more": true,
+      "next_cursor": "WzIzLDI0XQ",
+      "page": 1,
+      "page_size": 24,
+      "query_total_rows": 25,
+      "rows": [
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Austin",
+            "company": "Acme 01",
+            "email": "info@acme01.example.com",
+            "phone": "+1-555-0101",
+            "website": "https://acme01.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found01@acme01.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 01 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Austin",
+            "company": "Acme 01",
+            "email": "info@acme01.example.com",
+            "phone": "+1-555-0101",
+            "website": "https://acme01.example.com"
+          },
+          "lead_id": null,
+          "position": 0,
+          "row_id": 1,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Pune",
+            "company": "Acme 02",
+            "email": "info@acme02.example.com",
+            "phone": "+1-555-0102",
+            "website": "https://acme02.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found02@acme02.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 02 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Pune",
+            "company": "Acme 02",
+            "email": "info@acme02.example.com",
+            "phone": "+1-555-0102",
+            "website": "https://acme02.example.com"
+          },
+          "lead_id": null,
+          "position": 1,
+          "row_id": 2,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Lyon",
+            "company": "Acme 03",
+            "email": "info@acme03.example.com",
+            "phone": "+1-555-0103",
+            "website": "https://acme03.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found03@acme03.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "pending",
+              "value": null,
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Lyon",
+            "company": "Acme 03",
+            "email": "info@acme03.example.com",
+            "phone": "+1-555-0103",
+            "website": "https://acme03.example.com"
+          },
+          "lead_id": null,
+          "position": 2,
+          "row_id": 3,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Oslo",
+            "company": "Acme 04",
+            "email": "info@acme04.example.com",
+            "phone": "+1-555-0104",
+            "website": "https://acme04.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": "no result",
+              "provenance": null,
+              "provider": null,
+              "research": null,
+              "status": "failed",
+              "value": null,
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 04 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Oslo",
+            "company": "Acme 04",
+            "email": "info@acme04.example.com",
+            "phone": "+1-555-0104",
+            "website": "https://acme04.example.com"
+          },
+          "lead_id": null,
+          "position": 3,
+          "row_id": 4,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Berlin",
+            "company": "Acme 05",
+            "email": "info@acme05.example.com",
+            "phone": "+1-555-0105",
+            "website": "https://acme05.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found05@acme05.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 05 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Berlin",
+            "company": "Acme 05",
+            "email": "info@acme05.example.com",
+            "phone": "+1-555-0105",
+            "website": "https://acme05.example.com"
+          },
+          "lead_id": null,
+          "position": 4,
+          "row_id": 5,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Austin",
+            "company": "Acme 06",
+            "email": "info@acme06.example.com",
+            "phone": "+1-555-0106",
+            "website": "https://acme06.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found06@acme06.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "pending",
+              "value": null,
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Austin",
+            "company": "Acme 06",
+            "email": "info@acme06.example.com",
+            "phone": "+1-555-0106",
+            "website": "https://acme06.example.com"
+          },
+          "lead_id": null,
+          "position": 5,
+          "row_id": 6,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Pune",
+            "company": "Acme 07",
+            "email": null,
+            "phone": "+1-555-0107",
+            "website": "https://acme07.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found07@acme07.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 07 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Pune",
+            "company": "Acme 07",
+            "email": null,
+            "phone": "+1-555-0107",
+            "website": "https://acme07.example.com"
+          },
+          "lead_id": null,
+          "position": 6,
+          "row_id": 7,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Lyon",
+            "company": "Acme 08",
+            "email": "info@acme08.example.com",
+            "phone": "+1-555-0108",
+            "website": "https://acme08.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": "no result",
+              "provenance": null,
+              "provider": null,
+              "research": null,
+              "status": "failed",
+              "value": null,
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 08 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Lyon",
+            "company": "Acme 08",
+            "email": "info@acme08.example.com",
+            "phone": "+1-555-0108",
+            "website": "https://acme08.example.com"
+          },
+          "lead_id": null,
+          "position": 7,
+          "row_id": 8,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Oslo",
+            "company": "Acme 09",
+            "email": "info@acme09.example.com",
+            "phone": "+1-555-0109",
+            "website": ""
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found09@acme09.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "pending",
+              "value": null,
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Oslo",
+            "company": "Acme 09",
+            "email": "info@acme09.example.com",
+            "phone": "+1-555-0109",
+            "website": ""
+          },
+          "lead_id": null,
+          "position": 8,
+          "row_id": 9,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Berlin",
+            "company": "Acme 10",
+            "email": "info@acme10.example.com",
+            "phone": "+1-555-0110",
+            "website": "https://acme10.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found10@acme10.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 10 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Berlin",
+            "company": "Acme 10",
+            "email": "info@acme10.example.com",
+            "phone": "+1-555-0110",
+            "website": "https://acme10.example.com"
+          },
+          "lead_id": null,
+          "position": 9,
+          "row_id": 10,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": null,
+            "company": "Acme 11",
+            "email": "info@acme11.example.com",
+            "phone": "+1-555-0111",
+            "website": "https://acme11.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found11@acme11.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 11 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": null,
+            "company": "Acme 11",
+            "email": "info@acme11.example.com",
+            "phone": "+1-555-0111",
+            "website": "https://acme11.example.com"
+          },
+          "lead_id": null,
+          "position": 10,
+          "row_id": 11,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Pune",
+            "company": "Acme 12",
+            "email": "info@acme12.example.com",
+            "phone": "+1-555-0112",
+            "website": "https://acme12.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": "no result",
+              "provenance": null,
+              "provider": null,
+              "research": null,
+              "status": "failed",
+              "value": null,
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "pending",
+              "value": null,
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Pune",
+            "company": "Acme 12",
+            "email": "info@acme12.example.com",
+            "phone": "+1-555-0112",
+            "website": "https://acme12.example.com"
+          },
+          "lead_id": null,
+          "position": 11,
+          "row_id": 12,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Lyon",
+            "company": "Acme 13",
+            "email": "info@acme13.example.com",
+            "phone": "+1-555-0113",
+            "website": "https://acme13.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found13@acme13.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 13 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Lyon",
+            "company": "Acme 13",
+            "email": "info@acme13.example.com",
+            "phone": "+1-555-0113",
+            "website": "https://acme13.example.com"
+          },
+          "lead_id": null,
+          "position": 12,
+          "row_id": 13,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Oslo",
+            "company": "Acme 14",
+            "email": null,
+            "phone": "+1-555-0114",
+            "website": "https://acme14.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found14@acme14.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 14 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Oslo",
+            "company": "Acme 14",
+            "email": null,
+            "phone": "+1-555-0114",
+            "website": "https://acme14.example.com"
+          },
+          "lead_id": null,
+          "position": 13,
+          "row_id": 14,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Berlin",
+            "company": "Acme 15",
+            "email": "info@acme15.example.com",
+            "phone": "+1-555-0115",
+            "website": "https://acme15.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found15@acme15.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "pending",
+              "value": null,
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Berlin",
+            "company": "Acme 15",
+            "email": "info@acme15.example.com",
+            "phone": "+1-555-0115",
+            "website": "https://acme15.example.com"
+          },
+          "lead_id": null,
+          "position": 14,
+          "row_id": 15,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Austin",
+            "company": "Acme 16",
+            "email": "info@acme16.example.com",
+            "phone": "+1-555-0116",
+            "website": "https://acme16.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": "no result",
+              "provenance": null,
+              "provider": null,
+              "research": null,
+              "status": "failed",
+              "value": null,
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 16 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Austin",
+            "company": "Acme 16",
+            "email": "info@acme16.example.com",
+            "phone": "+1-555-0116",
+            "website": "https://acme16.example.com"
+          },
+          "lead_id": null,
+          "position": 15,
+          "row_id": 16,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Pune",
+            "company": "Acme 17",
+            "email": "info@acme17.example.com",
+            "phone": "+1-555-0117",
+            "website": "https://acme17.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found17@acme17.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 17 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Pune",
+            "company": "Acme 17",
+            "email": "info@acme17.example.com",
+            "phone": "+1-555-0117",
+            "website": "https://acme17.example.com"
+          },
+          "lead_id": null,
+          "position": 16,
+          "row_id": 17,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Lyon",
+            "company": "Acme 18",
+            "email": "info@acme18.example.com",
+            "phone": "+1-555-0118",
+            "website": ""
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found18@acme18.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "pending",
+              "value": null,
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Lyon",
+            "company": "Acme 18",
+            "email": "info@acme18.example.com",
+            "phone": "+1-555-0118",
+            "website": ""
+          },
+          "lead_id": null,
+          "position": 17,
+          "row_id": 18,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Oslo",
+            "company": "Acme 19",
+            "email": "info@acme19.example.com",
+            "phone": "+1-555-0119",
+            "website": "https://acme19.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found19@acme19.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 19 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Oslo",
+            "company": "Acme 19",
+            "email": "info@acme19.example.com",
+            "phone": "+1-555-0119",
+            "website": "https://acme19.example.com"
+          },
+          "lead_id": null,
+          "position": 18,
+          "row_id": 19,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Berlin",
+            "company": "Acme 20",
+            "email": "info@acme20.example.com",
+            "phone": "+1-555-0120",
+            "website": "https://acme20.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": "no result",
+              "provenance": null,
+              "provider": null,
+              "research": null,
+              "status": "failed",
+              "value": null,
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 20 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Berlin",
+            "company": "Acme 20",
+            "email": "info@acme20.example.com",
+            "phone": "+1-555-0120",
+            "website": "https://acme20.example.com"
+          },
+          "lead_id": null,
+          "position": 19,
+          "row_id": 20,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Austin",
+            "company": "Acme 21",
+            "email": null,
+            "phone": "+1-555-0121",
+            "website": "https://acme21.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found21@acme21.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "pending",
+              "value": null,
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Austin",
+            "company": "Acme 21",
+            "email": null,
+            "phone": "+1-555-0121",
+            "website": "https://acme21.example.com"
+          },
+          "lead_id": null,
+          "position": 20,
+          "row_id": 21,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": null,
+            "company": "Acme 22",
+            "email": "info@acme22.example.com",
+            "phone": "+1-555-0122",
+            "website": "https://acme22.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found22@acme22.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 22 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": null,
+            "company": "Acme 22",
+            "email": "info@acme22.example.com",
+            "phone": "+1-555-0122",
+            "website": "https://acme22.example.com"
+          },
+          "lead_id": null,
+          "position": 21,
+          "row_id": 22,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Lyon",
+            "company": "Acme 23",
+            "email": "info@acme23.example.com",
+            "phone": "+1-555-0123",
+            "website": "https://acme23.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": null,
+              "provenance": null,
+              "provider": "hunter",
+              "research": null,
+              "status": "complete",
+              "value": "found23@acme23.example.com",
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "complete",
+              "value": "Acme 23 sells widgets.",
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Lyon",
+            "company": "Acme 23",
+            "email": "info@acme23.example.com",
+            "phone": "+1-555-0123",
+            "website": "https://acme23.example.com"
+          },
+          "lead_id": null,
+          "position": 22,
+          "row_id": 23,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        },
+        {
+          "canonical_entity_id": null,
+          "corroboration_count": null,
+          "data": {
+            "city": "Oslo",
+            "company": "Acme 24",
+            "email": "info@acme24.example.com",
+            "phone": "+1-555-0124",
+            "website": "https://acme24.example.com"
+          },
+          "enrichments": {
+            "email_wf": {
+              "error": "no result",
+              "provenance": null,
+              "provider": null,
+              "research": null,
+              "status": "failed",
+              "value": null,
+              "verify_status": null
+            },
+            "summary": {
+              "error": null,
+              "provenance": null,
+              "provider": "llm",
+              "research": null,
+              "status": "pending",
+              "value": null,
+              "verify_status": null
+            }
+          },
+          "lead": {
+            "city": "Oslo",
+            "company": "Acme 24",
+            "email": "info@acme24.example.com",
+            "phone": "+1-555-0124",
+            "website": "https://acme24.example.com"
+          },
+          "lead_id": null,
+          "position": 23,
+          "row_id": 24,
+          "source_fetched_at": null,
+          "source_provider": null,
+          "source_rank": null,
+          "source_record_id": null
+        }
+      ],
+      "total_rows": 25,
+      "workbook": {
+        "columns_config": [
+          {
+            "id": "company",
+            "lead_field": "company",
+            "name": "Company",
+            "type": "lead_field",
+            "width": 200
+          },
+          {
+            "id": "website",
+            "lead_field": "website",
+            "name": "Website",
+            "type": "lead_field",
+            "width": 200
+          },
+          {
+            "id": "email",
+            "lead_field": "email",
+            "name": "Email",
+            "type": "lead_field",
+            "width": 220
+          },
+          {
+            "id": "city",
+            "lead_field": "city",
+            "name": "City",
+            "type": "lead_field",
+            "width": 150
+          },
+          {
+            "id": "phone",
+            "lead_field": "phone",
+            "name": "Phone",
+            "type": "lead_field",
+            "width": 150
+          },
+          {
+            "id": "email_wf",
+            "name": "Email Finder",
+            "target_field": "email",
+            "type": "waterfall",
+            "verify": true,
+            "waterfall": [
+              "hunter",
+              "apollo"
+            ],
+            "width": 220
+          },
+          {
+            "id": "summary",
+            "input_columns": [
+              "company"
+            ],
+            "name": "Summary",
+            "prompt": "Summarize {Company} in one sentence",
+            "type": "ai_formula",
+            "width": 300
+          }
+        ],
+        "completed_rows": 0,
+        "created_at": "2026-08-29T10:00:00",
+        "description": "25 seeded rows",
+        "filter_criteria": {},
+        "id": "wb-alpha-2",
+        "last_run_at": null,
+        "name": "Alpha Leads",
+        "source_config": {},
+        "source_type": "manual",
+        "status": "idle",
+        "sync_to_leads": false,
+        "total_rows": 25,
+        "updated_at": "2026-08-29T10:00:00"
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-3/export.csv"
+  },
+  "response": {
+    "body": "\ufeffCompany,Note,Tags,Amount,\"R\u00e9sum\u00e9, \"\"Q1\"\"\",noname,Mail,AI Out,Research\r\n'=SUM(A1),'+1 555,\"[\"\"a\"\",\"\"b\"\"]\",12,,,'-x@y.z,'@handle,\r\n'-5 dash,'@user,\"{\"\"k\"\":\"\"v\"\",\"\"n\"\":null,\"\"f\"\":1.5}\",1.0,,,,,\r\n'\tTabbed,\"line1\nline2\",[],'-0.5,\"'\rCR\",,,plain scalar,\r\n\"He said \"\"hi\"\", ok\",,\"[\"\"\u00e9\"\",{\"\"z\"\":1.0}]\",1e+20,Caf\u00e9 \u00fcn\u00ef \u2603 \u2028 sep,,,,\r\n,,,0,,,,,\r\n lead space,,12345678901234567890,True,\"a,b\",,,\"{\"\"x\"\":[1,2.5,null],\"\"y\"\":\"\"z\"\"}\",\r\nResearch one,,,,,,,,R\r\nResearch two,,,,,,,,other\r\nResearch three,,,,,,,,R3\r\nExtras,,,,,,,3.0,\r\nSourced,,,,,,s@x.test,v,\r\n",
+    "headers": {
+      "content-disposition": "attachment; filename=\"Detail_Export.csv\"",
+      "content-type": "text/csv; charset=utf-8"
+    },
+    "status": 200
+  }
+}

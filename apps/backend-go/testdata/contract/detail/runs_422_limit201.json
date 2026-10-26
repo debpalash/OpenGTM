@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/connector-runs?limit=201"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "le": 200
+          },
+          "input": "201",
+          "loc": [
+            "query",
+            "limit"
+          ],
+          "msg": "Input should be less than or equal to 200",
+          "type": "less_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

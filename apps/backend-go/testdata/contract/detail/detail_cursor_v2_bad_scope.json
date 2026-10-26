@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2?view_id=view-alpha-3&cursor=eyJ2IjoyLCJyb3ciOjQsInNjb3BlIjoieCIsImRpZ2VzdCI6InkifQ"
+  },
+  "response": {
+    "body": {
+      "detail": "Invalid workbook row cursor; restart pagination"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

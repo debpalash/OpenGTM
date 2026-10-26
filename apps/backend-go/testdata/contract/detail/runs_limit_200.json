@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/connector-runs?limit=200&offset=100000"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 200,
+      "next_cursor": null,
+      "offset": 100000,
+      "runs": []
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

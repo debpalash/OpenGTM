@@ -1,0 +1,50 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/connector-runs?limit=1"
+  },
+  "response": {
+    "body": {
+      "has_more": true,
+      "limit": 1,
+      "next_cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0wOS0wMlQxMjowMDowMCswMDowMCIsInJ1bi1hbHBoYS04Il19",
+      "offset": 0,
+      "runs": [
+        {
+          "added_count": 0,
+          "completed_at": null,
+          "connector": "lusha",
+          "created_at": "2026-09-02T12:00:00+00:00",
+          "cursor": {},
+          "error": null,
+          "exhausted": true,
+          "fetched_count": 0,
+          "id": "run-alpha-8",
+          "pages_fetched": 1,
+          "query": {
+            "z": 1
+          },
+          "requested_count": 1,
+          "skipped_count": 0,
+          "source_total": null,
+          "started_at": null,
+          "status": "pending",
+          "target_met": false,
+          "updated_at": "2026-09-02T12:00:00+00:00",
+          "updated_count": 0,
+          "workbook_id": "wb-alpha-2",
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
