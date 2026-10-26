@@ -58,7 +58,12 @@ func newStatsWorker(t *testing.T) *statsWorker {
 // newStatsEnv is newJobsEnv with a pyworker client (nil: no worker) and the RPC timeout in seconds.
 func newStatsEnv(t *testing.T, py *pyworker.Client, timeoutS int) jobsEnv {
 	t.Helper()
-	e := newJobsEnv(t, nil)
+	return newJobsEnv(t, nil).withWorker(py, timeoutS)
+}
+
+// withWorker re-registers the jobs routes on the same pool with another worker client (one env per test: NewAppPool
+// holds an advisory lock for the whole test).
+func (e jobsEnv) withWorker(py *pyworker.Client, timeoutS int) jobsEnv {
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(e.pool, nil))
 	d := Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Config: config.APIConfig{}, PyWorker: py,
@@ -204,22 +209,23 @@ func assertDegraded(t *testing.T, e jobsEnv) {
 
 func TestPyWorkerDownDegradedShape(t *testing.T) {
 	// no worker configured, connection refused, 5xx, garbage and a wrong shape all degrade (jobs stay real)
-	assertDegraded(t, newStatsEnv(t, nil, 3))
+	e := newStatsEnv(t, nil, 3)
+	assertDegraded(t, e)
 	dead := httptest.NewServer(http.NotFoundHandler())
 	url := dead.URL
 	dead.Close()
-	assertDegraded(t, newStatsEnv(t, pyworker.New(url, statsToken, nil), 3))
+	assertDegraded(t, e.withWorker(pyworker.New(url, statsToken, nil), 3))
 	for _, c := range []struct {
 		code int
 		body string
 	}{{500, `{}`}, {200, `not json`}, {200, `{"proxy_pool": 1, "rate_limiter": {}}`}, {200, `{"proxy_pool": {}}`}, {200, `[]`}} {
 		w := newStatsWorker(t)
 		w.code, w.body = c.code, c.body
-		assertDegraded(t, newStatsEnv(t, pyworker.New(w.srv.URL, statsToken, nil), 3))
+		assertDegraded(t, e.withWorker(pyworker.New(w.srv.URL, statsToken, nil), 3))
 	}
-	// a worker that rejects the token (401) degrades and the token never reaches the response
+	// a worker that rejects the token (401) degrades
 	bad := newStatsWorker(t)
-	rec, _ := newStatsEnv(t, pyworker.New(bad.srv.URL, "wrong-token", nil), 3).statsGet("alice", "")
+	rec, _ := e.withWorker(pyworker.New(bad.srv.URL, "wrong-token", nil), 3).statsGet("alice", "")
 	if rec.Header().Get("X-Stats-Source") != "degraded" || rec.Code != 200 {
 		t.Errorf("401 from worker: %d", rec.Code)
 	}
