@@ -87,3 +87,46 @@ SELECT count(*)::int AS n FROM jobs
 WHERE type = 'watch_poll' AND workspace_id = sqlc.arg(workspace_id)::text
   AND fire_key LIKE 'watch:%:pollnow:' || sqlc.arg(day)::text
   AND status IN ('pending', 'processing');
+
+-- plan 08 task 15: watch_poll handler (internal/poller/engine.go). Tenant
+-- statements run inside tenancy.InWorkspace.
+
+-- name: PollEngineGet :one
+-- Unlocked snapshot of the fields a poll reads (a fetch must not hold the row lock).
+SELECT id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, config, "cursor", enabled
+FROM watch_subscriptions
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
+
+-- name: PollEngineLock :one
+-- Row-locked read of the mutable poll state, taken only to apply a source's result.
+SELECT resolved_cik, "cursor", last_error, enabled
+FROM watch_subscriptions
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text
+FOR UPDATE;
+
+-- name: PollEngineLeadCompanies :many
+SELECT id, company FROM leads WHERE workspace_id = sqlc.arg(workspace_id)::text;
+
+-- name: PollEngineLeadWebsite :one
+SELECT website FROM leads WHERE id = sqlc.arg(id)::int4 AND workspace_id = sqlc.arg(workspace_id)::text;
+
+-- name: PollEngineSaveSource :exec
+-- One source's outcome: merged cursor, resolved_cik and last_error (all computed
+-- from the locked row), written in the same transaction as the emitted signals.
+UPDATE watch_subscriptions
+SET "cursor" = sqlc.arg(poll_cursor)::json, resolved_cik = sqlc.narg(resolved_cik)::text,
+    last_error = sqlc.narg(last_error)::text
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
+
+-- name: PollEngineSaveCursor :exec
+UPDATE watch_subscriptions SET "cursor" = sqlc.arg(poll_cursor)::json
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
+
+-- name: PollEngineSetPolled :exec
+UPDATE watch_subscriptions SET last_polled_at = sqlc.arg(polled_at)::timestamptz
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
+
+-- name: PollEngineMirrorDelete :exec
+-- mirror_delete scoped to the job's workspace: a job naming a watch of another
+-- workspace must not drop that watch's schedule row (the mirror is not RLS).
+DELETE FROM watch_schedules WHERE watch_id = sqlc.arg(watch_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;

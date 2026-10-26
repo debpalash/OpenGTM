@@ -11,6 +11,205 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const pollEngineGet = `-- name: PollEngineGet :one
+
+SELECT id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, config, "cursor", enabled
+FROM watch_subscriptions
+WHERE id = $1::text AND workspace_id = $2::text
+`
+
+type PollEngineGetParams struct {
+	ID          string
+	WorkspaceID string
+}
+
+type PollEngineGetRow struct {
+	ID          string
+	WorkspaceID string
+	Kind        string
+	Target      string
+	ResolvedCik pgtype.Text
+	LeadID      pgtype.Int4
+	SignalTypes []byte
+	Config      []byte
+	Cursor      []byte
+	Enabled     bool
+}
+
+// plan 08 task 15: watch_poll handler (internal/poller/engine.go). Tenant
+// statements run inside tenancy.InWorkspace.
+// Unlocked snapshot of the fields a poll reads (a fetch must not hold the row lock).
+func (q *Queries) PollEngineGet(ctx context.Context, arg PollEngineGetParams) (PollEngineGetRow, error) {
+	row := q.db.QueryRow(ctx, pollEngineGet, arg.ID, arg.WorkspaceID)
+	var i PollEngineGetRow
+	err := row.Scan(
+		&i.ID,
+		&i.WorkspaceID,
+		&i.Kind,
+		&i.Target,
+		&i.ResolvedCik,
+		&i.LeadID,
+		&i.SignalTypes,
+		&i.Config,
+		&i.Cursor,
+		&i.Enabled,
+	)
+	return i, err
+}
+
+const pollEngineLeadCompanies = `-- name: PollEngineLeadCompanies :many
+SELECT id, company FROM leads WHERE workspace_id = $1::text
+`
+
+type PollEngineLeadCompaniesRow struct {
+	ID      int32
+	Company string
+}
+
+func (q *Queries) PollEngineLeadCompanies(ctx context.Context, workspaceID string) ([]PollEngineLeadCompaniesRow, error) {
+	rows, err := q.db.Query(ctx, pollEngineLeadCompanies, workspaceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []PollEngineLeadCompaniesRow
+	for rows.Next() {
+		var i PollEngineLeadCompaniesRow
+		if err := rows.Scan(&i.ID, &i.Company); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const pollEngineLeadWebsite = `-- name: PollEngineLeadWebsite :one
+SELECT website FROM leads WHERE id = $1::int4 AND workspace_id = $2::text
+`
+
+type PollEngineLeadWebsiteParams struct {
+	ID          int32
+	WorkspaceID string
+}
+
+func (q *Queries) PollEngineLeadWebsite(ctx context.Context, arg PollEngineLeadWebsiteParams) (pgtype.Text, error) {
+	row := q.db.QueryRow(ctx, pollEngineLeadWebsite, arg.ID, arg.WorkspaceID)
+	var website pgtype.Text
+	err := row.Scan(&website)
+	return website, err
+}
+
+const pollEngineLock = `-- name: PollEngineLock :one
+SELECT resolved_cik, "cursor", last_error, enabled
+FROM watch_subscriptions
+WHERE id = $1::text AND workspace_id = $2::text
+FOR UPDATE
+`
+
+type PollEngineLockParams struct {
+	ID          string
+	WorkspaceID string
+}
+
+type PollEngineLockRow struct {
+	ResolvedCik pgtype.Text
+	Cursor      []byte
+	LastError   pgtype.Text
+	Enabled     bool
+}
+
+// Row-locked read of the mutable poll state, taken only to apply a source's result.
+func (q *Queries) PollEngineLock(ctx context.Context, arg PollEngineLockParams) (PollEngineLockRow, error) {
+	row := q.db.QueryRow(ctx, pollEngineLock, arg.ID, arg.WorkspaceID)
+	var i PollEngineLockRow
+	err := row.Scan(
+		&i.ResolvedCik,
+		&i.Cursor,
+		&i.LastError,
+		&i.Enabled,
+	)
+	return i, err
+}
+
+const pollEngineMirrorDelete = `-- name: PollEngineMirrorDelete :exec
+DELETE FROM watch_schedules WHERE watch_id = $1::text AND workspace_id = $2::text
+`
+
+type PollEngineMirrorDeleteParams struct {
+	WatchID     string
+	WorkspaceID string
+}
+
+// mirror_delete scoped to the job's workspace: a job naming a watch of another
+// workspace must not drop that watch's schedule row (the mirror is not RLS).
+func (q *Queries) PollEngineMirrorDelete(ctx context.Context, arg PollEngineMirrorDeleteParams) error {
+	_, err := q.db.Exec(ctx, pollEngineMirrorDelete, arg.WatchID, arg.WorkspaceID)
+	return err
+}
+
+const pollEngineSaveCursor = `-- name: PollEngineSaveCursor :exec
+UPDATE watch_subscriptions SET "cursor" = $1::json
+WHERE id = $2::text AND workspace_id = $3::text
+`
+
+type PollEngineSaveCursorParams struct {
+	PollCursor  []byte
+	ID          string
+	WorkspaceID string
+}
+
+func (q *Queries) PollEngineSaveCursor(ctx context.Context, arg PollEngineSaveCursorParams) error {
+	_, err := q.db.Exec(ctx, pollEngineSaveCursor, arg.PollCursor, arg.ID, arg.WorkspaceID)
+	return err
+}
+
+const pollEngineSaveSource = `-- name: PollEngineSaveSource :exec
+UPDATE watch_subscriptions
+SET "cursor" = $1::json, resolved_cik = $2::text,
+    last_error = $3::text
+WHERE id = $4::text AND workspace_id = $5::text
+`
+
+type PollEngineSaveSourceParams struct {
+	PollCursor  []byte
+	ResolvedCik pgtype.Text
+	LastError   pgtype.Text
+	ID          string
+	WorkspaceID string
+}
+
+// One source's outcome: merged cursor, resolved_cik and last_error (all computed
+// from the locked row), written in the same transaction as the emitted signals.
+func (q *Queries) PollEngineSaveSource(ctx context.Context, arg PollEngineSaveSourceParams) error {
+	_, err := q.db.Exec(ctx, pollEngineSaveSource,
+		arg.PollCursor,
+		arg.ResolvedCik,
+		arg.LastError,
+		arg.ID,
+		arg.WorkspaceID,
+	)
+	return err
+}
+
+const pollEngineSetPolled = `-- name: PollEngineSetPolled :exec
+UPDATE watch_subscriptions SET last_polled_at = $1::timestamptz
+WHERE id = $2::text AND workspace_id = $3::text
+`
+
+type PollEngineSetPolledParams struct {
+	PolledAt    pgtype.Timestamptz
+	ID          string
+	WorkspaceID string
+}
+
+func (q *Queries) PollEngineSetPolled(ctx context.Context, arg PollEngineSetPolledParams) error {
+	_, err := q.db.Exec(ctx, pollEngineSetPolled, arg.PolledAt, arg.ID, arg.WorkspaceID)
+	return err
+}
+
 const watchSvcActiveScheduledJobs = `-- name: WatchSvcActiveScheduledJobs :many
 SELECT id, fire_key FROM jobs
 WHERE type = 'watch_poll' AND starts_with(fire_key, $1::text) AND status IN ('pending', 'processing')
