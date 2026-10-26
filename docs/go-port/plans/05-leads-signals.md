@@ -330,3 +330,12 @@ Tasks in a wave touch disjoint files and may run concurrently (up to 6 agents at
 ## User decisions
 
 (none yet; the defaults above apply until the user objects)
+
+## User decisions (2026-10-26) — defaults applied under the standing rules (harden security/crash bugs as documented deviations, otherwise parity; scrapers stay a Python worker)
+
+- D1: collection, `/api/jobs*` and enrich routes stay on Python until the job ledger moves to Postgres.
+- D2: crash-class inputs answer 422 (non-integer merge ids 400 with the same detail); `/api/leads` limit capped at 10,000; documented deviations.
+- D3: `SSE_MAX_STREAMS=1000` (503 when full); Redis required for real events, heartbeats only without it.
+- D4: dedup merge is atomic (one transaction).
+- D5: Unicode-correct dedup matching Python, verified by Python-generated vectors.
+- D6: signal counts sorted by type name (documented).
