@@ -241,3 +241,36 @@ func TestPyWorkerSlowTimesOut(t *testing.T) {
 		t.Errorf("took %v, the RPC budget is 1 s", d)
 	}
 }
+
+// TestSystemStatsHidesTrippedDomains: the worker's rate limiter is process-global, so tripped_domains names domains
+// scraped for any tenant. Only a global admin sees them; everyone else gets [] (key kept, tracked_domains kept).
+func TestSystemStatsHidesTrippedDomains(t *testing.T) {
+	w := newStatsWorker(t)
+	w.body = `{"proxy_pool": {"total": 0, "http": 0, "socks5": 0, "socks4": 0, "blocked": 0, "domain_assignments": 0}, "rate_limiter": {"tracked_domains": 2, "tripped_domains": ["tenant-b-target.example"]}}`
+	e := newStatsEnv(t, pyworker.New(w.srv.URL, statsToken, nil), 3)
+	erin := e.mustUserByName(t, "erin")
+	e.member(t, "ws-beta", erin.ID, "admin") // workspace admin, not a global admin
+	for _, c := range []struct {
+		who, ws string
+		want    string
+	}{
+		{"bob", "ws-alpha", `[]`},                    // viewer
+		{"erin", "ws-alpha", `[]`},                   // editor
+		{"erin", "ws-beta", `[]`},                    // workspace admin
+		{"alice", "", `["tenant-b-target.example"]`}, // global admin
+	} {
+		rec, _ := e.statsGet(c.who, c.ws)
+		var b struct {
+			RL struct {
+				Tracked int             `json:"tracked_domains"`
+				Tripped json.RawMessage `json:"tripped_domains"`
+			} `json:"rate_limiter"`
+		}
+		if err := json.Unmarshal(rec.Body.Bytes(), &b); err != nil || rec.Code != 200 {
+			t.Fatalf("%s: %d %s", c.who, rec.Code, rec.Body)
+		}
+		if string(b.RL.Tripped) != c.want || b.RL.Tracked != 2 {
+			t.Errorf("%s/%s: tripped %s tracked %d, want %s", c.who, c.ws, b.RL.Tripped, b.RL.Tracked, c.want)
+		}
+	}
+}
