@@ -21,7 +21,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ambitionbox"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ambitionimport"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/autoactions"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/credentials"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
@@ -63,6 +63,7 @@ func run() error {
 	}
 	log := telemetry.NewLogger(os.Stdout)
 	log.Info("starting worker", "config", cfg)
+	logAutomationFlags(log, cfg)
 
 	rootCtx, stop := context.WithCancel(context.Background())
 	defer stop()
@@ -167,6 +168,8 @@ func jobLimit(cfg config.Config, jobType string) time.Duration {
 		return 900 * time.Second
 	case jobSignalScan:
 		return 300 * time.Second
+	case jobTriggerEval, jobWatchPoll:
+		return automationTimeout
 	}
 	return cfg.JobTimeout
 }
@@ -371,11 +374,15 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 		prog = pub
 		closeFn = func() { _ = pub.Close() }
 	}
+	// One emitter for every Go write site: run-end on_rows_changed, poller signals, ambitionbox
+	// rows and signal scan all enqueue trigger_eval for the executor the cohort names (F7).
+	emitter := automationEmitter(cfg, log)
+	deps.Emitter = emitter
 	handle := workbook.Handler(deps)
 	// ambitionbox_import: the client is built on the SSRF-guarded egress client;
 	// the failure hook reconciles run and workbook after a persisted failure.
 	abDeps := ambitionimport.Deps{Pool: pool, Fetcher: ambitionbox.NewEgress(cfg.AppEnv, cfg.EgressAllowHosts),
-		Hook: automationhook.New(cfg.Flags.AutomationsEnabled, log), Progress: prog, Log: log}
+		Hook: emitter, Progress: prog, Log: log}
 	queue.AllowJobType(ambitionimport.JobType)
 	ambitionimport.RegisterFailureHook(abDeps)
 	block := time.Duration(0)
@@ -404,6 +411,13 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 			return refresh.Handle(ctx, d, c)
 		},
 		jobSignalScan: func(ctx context.Context, c *queue.Claim) error { return signalscan.HandleScan(ctx, ssDeps, c) },
+	}
+	var sec autoactions.SecretGetter = apiSecrets{api}
+	if localSecrets != nil {
+		sec = localSecrets
+	}
+	for typ, h := range buildAutomations(cfg, pool, log, deps, sec, localSecrets, pyRPC, emitter) {
+		handlers[typ] = h
 	}
 	route := dispatch(handlers)
 	return func(ctx context.Context, c *queue.Claim) error {
