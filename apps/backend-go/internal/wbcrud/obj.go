@@ -79,14 +79,42 @@ func (o *Obj) MarshalJSON() ([]byte, error) {
 }
 
 func writeString(buf *bytes.Buffer, s string) error {
-	var b bytes.Buffer
-	enc := json.NewEncoder(&b)
-	enc.SetEscapeHTML(false)
-	if err := enc.Encode(s); err != nil {
-		return err
-	}
-	buf.Write(bytes.TrimRight(b.Bytes(), "\n"))
+	pyJSONString(buf, s)
 	return nil
+}
+
+// pyJSONString writes s as json.dumps(s, ensure_ascii=False) does: only the
+// quote, the backslash and control characters are escaped (U+2028/2029, DEL
+// and <>& stay raw, which encoding/json would not do).
+func pyJSONString(buf *bytes.Buffer, s string) {
+	const hex = "0123456789abcdef"
+	buf.WriteByte('"')
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		switch {
+		case c == '"':
+			buf.WriteString(`\"`)
+		case c == '\\':
+			buf.WriteString(`\\`)
+		case c == '\n':
+			buf.WriteString(`\n`)
+		case c == '\r':
+			buf.WriteString(`\r`)
+		case c == '\t':
+			buf.WriteString(`\t`)
+		case c == '\b':
+			buf.WriteString(`\b`)
+		case c == '\f':
+			buf.WriteString(`\f`)
+		case c < 0x20:
+			buf.WriteString(`\u00`)
+			buf.WriteByte(hex[c>>4])
+			buf.WriteByte(hex[c&0xf])
+		default:
+			buf.WriteByte(c)
+		}
+	}
+	buf.WriteByte('"')
 }
 
 // writeValue emits v as compact JSON without HTML escaping, matching the text
