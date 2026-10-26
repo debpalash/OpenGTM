@@ -150,8 +150,9 @@ func destView(d deststore.Destination) destJSON {
 	if len(fm) == 0 || fm[0] != '{' { // `self.field_map or {}`: a stored JSON null answers {}
 		fm = []byte(`{}`)
 	}
+	fm = pyJSONText(string(fm), `{}`) // decode + re-dump like FastAPI
 	return destJSON{ID: d.ID, AudienceID: d.AudienceID, Name: d.Name, DestinationType: d.Type, Enabled: d.Enabled,
-		Config: d.SafeConfig(), FieldMap: fm, HealthStatus: d.HealthStatus, LastError: d.LastError,
+		Config: pyJSONText(string(d.SafeConfig()), `{}`), FieldMap: fm, HealthStatus: d.HealthStatus, LastError: d.LastError,
 		LastSuccessAt: destISOPtr(d.LastSuccessAt), CreatedAt: destISO(d.CreatedAt), UpdatedAt: destISO(d.UpdatedAt)}
 }
 

@@ -1,10 +1,8 @@
 package api
 
 import (
-	"bytes"
 	"context"
 	"crypto/rand"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -147,10 +145,7 @@ func audISO(t pgtype.Timestamp) *string {
 
 // audJSON is Audience.to_api(): its key order is the audiencerefresh.Audience field order.
 func audJSON(a gen.Audience) audiencerefresh.Audience {
-	filters := json.RawMessage(a.Filters)
-	if t := bytes.TrimSpace(filters); len(t) == 0 || string(t) == "null" || string(t) == "{}" {
-		filters = json.RawMessage(`{}`)
-	}
+	filters := pyJSONText(string(a.Filters), `{}`) // decode + re-dump like FastAPI; falsy -> {}
 	out := audiencerefresh.Audience{ID: a.ID, Name: a.Name, Description: a.Description, Filters: filters, MemberCount: int(a.MemberCount),
 		CreatedAt: audISO(a.CreatedAt), UpdatedAt: audISO(a.UpdatedAt), RefreshedAt: audISO(a.RefreshedAt),
 		RefreshEnabled: a.RefreshEnabled, RefreshIntervalMinutes: int(a.RefreshIntervalMinutes), NextRefreshAt: audISO(a.NextRefreshAt),
