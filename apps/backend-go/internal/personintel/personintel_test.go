@@ -211,7 +211,7 @@ func TestExtractVectors(t *testing.T) {
 		p := NewProfile("")
 		p.Username = c.Username
 		ExtractArticlesAndMentions(p, c.Articles, c.General)
-		g, _ := json.Marshal([]any{p.Articles, p.Mentions})
+		g, _ := json.Marshal([]any{nz(p.Articles), nz(p.Mentions)})
 		w, _ := json.Marshal([]any{nz(c.OutA), nz(c.OutM)})
 		if string(g) != string(w) {
 			t.Errorf("am/%s:\n got %s\nwant %s", c.Name, g, w)
@@ -316,8 +316,12 @@ func TestGitHubEnrichVectors(t *testing.T) {
 			var hdrs []http.Header
 			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				mu.Lock()
-				calls = append(calls, r.URL.RequestURI())
-				hdrs = append(hdrs, r.Header.Clone())
+				// net/http transparently retries an idempotent GET whose
+				// connection was cut; record each request once.
+				if n := len(calls); n == 0 || calls[n-1] != r.URL.RequestURI() {
+					calls = append(calls, r.URL.RequestURI())
+					hdrs = append(hdrs, r.Header.Clone())
+				}
 				mu.Unlock()
 				isRepos := strings.HasSuffix(r.URL.Path, "/repos")
 				if c.Options.RaiseOn != "" && strings.Contains(r.URL.Path, c.Options.RaiseOn) {
@@ -352,6 +356,9 @@ func TestGitHubEnrichVectors(t *testing.T) {
 			if !reflect.DeepEqual(profileJSON(t, p), normalize(t, c.Profile)) {
 				t.Errorf("got %v\nwant %s", profileJSON(t, p), c.Profile)
 			}
+			srv.Close() // drain in-flight handlers before reading calls
+			mu.Lock()
+			defer mu.Unlock()
 			if len(calls) != len(c.Calls) {
 				t.Fatalf("calls %v want %d", calls, len(c.Calls))
 			}
