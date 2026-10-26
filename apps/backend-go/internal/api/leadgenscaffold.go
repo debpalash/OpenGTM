@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -22,8 +23,12 @@ func LoadCollectionLedgerBackend(ctx context.Context, pool *pgxpool.Pool) (strin
 	if errors.Is(err, pgx.ErrNoRows) {
 		return "", nil
 	}
-	return v, err
+	return normalizeLedgerMarker(v), err
 }
+
+// normalizeLedgerMarker mirrors Python's job_ledger._ledger_marker (strip + lower), so both
+// stacks read the same marker value the same way.
+func normalizeLedgerMarker(v string) string { return strings.ToLower(strings.TrimSpace(v)) }
 
 // leadgenRoutesEnabled reports whether the leadgen routes may register: GO_COLLECTION_ROUTES_ENABLED
 // and PG_LEAD_STORE on and the ledger marker "postgres". Otherwise nothing registers (requests fall

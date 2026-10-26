@@ -109,3 +109,12 @@ func TestLeadgenRoutePatterns(t *testing.T) {
 	// Whole group at once: no duplicate pattern panic against the other registered groups.
 	registerLeadgen(httpx.NewRouter(), d)
 }
+
+// The Python side reads the same marker with strip().lower(); both stacks must agree on the value.
+func TestNormalizeLedgerMarkerMatchesPython(t *testing.T) {
+	for in, want := range map[string]string{"postgres": "postgres", " Postgres\n": "postgres", "POSTGRES": "postgres", "sqlite": "sqlite", "": ""} {
+		if got := normalizeLedgerMarker(in); got != want {
+			t.Errorf("normalizeLedgerMarker(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
