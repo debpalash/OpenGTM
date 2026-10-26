@@ -157,7 +157,7 @@ func TestSanitizeMessagesMatchesPython(t *testing.T) {
 		{"role":"function","content":"no name"},
 		{"content":"no role"}
 	]`)
-	got := sanitizeMessages(in)
+	got := chatSanitize(in)
 	want := chatMsgs(`[
 		{"role":"system","content":"S"},
 		{"role":"user","content":""},
@@ -174,20 +174,21 @@ func TestSanitizeMessagesMatchesPython(t *testing.T) {
 	}
 }
 
-func TestLazyHeadersHoldFirstWriteOnly(t *testing.T) {
+func TestLazyStartsOnFirstWrite(t *testing.T) {
 	rec := httptest.NewRecorder()
 	l := newLazyRW(rec)
+	if l.Started() || rec.Header().Get("Content-Type") != "" || rec.Body.Len() != 0 {
+		t.Fatal("nothing may reach the response before the first write")
+	}
+	l.Flush() // a flush before the first write must not start the response either
+	if rec.Flushed {
+		t.Fatal("flushed before the first write")
+	}
 	if _, err := l.Write([]byte("one")); err != nil {
 		t.Fatal(err)
 	}
 	l.Flush()
-	if l.Started() || rec.Body.Len() != 0 || rec.Flushed {
-		t.Fatal("the first write must be held back")
-	}
-	if _, err := l.Write([]byte("two")); err != nil {
-		t.Fatal(err)
-	}
-	if !l.Started() || rec.Body.String() != "onetwo" || rec.Code != http.StatusOK {
+	if !l.Started() || rec.Body.String() != "one" || rec.Code != http.StatusOK || !rec.Flushed {
 		t.Fatalf("started=%v body=%q code=%d", l.Started(), rec.Body.String(), rec.Code)
 	}
 	if ct := rec.Header().Get("Content-Type"); ct != "text/event-stream; charset=utf-8" {
@@ -196,30 +197,8 @@ func TestLazyHeadersHoldFirstWriteOnly(t *testing.T) {
 	if rec.Header().Get("X-Accel-Buffering") != "no" || rec.Header().Get("Cache-Control") != "no-cache" {
 		t.Fatalf("headers %v", rec.Header())
 	}
-}
-
-func TestLazyCommitFlushesHeldBytes(t *testing.T) {
-	rec := httptest.NewRecorder()
-	l := newLazyRW(rec)
-	_, _ = l.Write([]byte("one"))
-	l.Commit()
-	if !l.Started() || rec.Body.String() != "one" || !rec.Flushed {
-		t.Fatalf("started=%v body=%q", l.Started(), rec.Body.String())
-	}
-	l.Commit() // idempotent
-	if rec.Body.String() != "one" {
-		t.Fatal("commit twice wrote twice")
-	}
-}
-
-func TestLazyDiscardLeavesResponseUntouched(t *testing.T) {
-	rec := httptest.NewRecorder()
-	l := newLazyRW(rec)
-	_, _ = l.Write([]byte("one"))
-	if l.Started() {
-		t.Fatal("started")
-	}
-	if rec.Header().Get("Content-Type") != "" {
-		t.Fatal("stream headers leaked before commit")
+	_, _ = l.Write([]byte("two"))
+	if rec.Body.String() != "onetwo" {
+		t.Fatalf("body %q", rec.Body.String())
 	}
 }
