@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -244,6 +245,9 @@ func (s *Service) AddColumn(ctx context.Context, ws, wbID string, col Column) (W
 		}
 		if len(findColumn(w.Columns, id)) > 0 {
 			return guard(409, "Column identity already exists. Refresh before adding another column.")
+		}
+		if len(w.Columns) >= CurrentLimits().MaxColumns {
+			return guard(422, fmt.Sprintf("Workbook is limited to %d columns", CurrentLimits().MaxColumns))
 		}
 		cols := append(cloneAll(w.Columns), col)
 		if g := ValidateNewCycles(w.Columns, cols); g != nil {

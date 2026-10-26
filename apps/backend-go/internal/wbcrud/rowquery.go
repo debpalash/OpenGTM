@@ -356,7 +356,7 @@ func LoadView(ctx context.Context, db DB, workbookID, viewID string) (*QueryView
 	cfg := ViewConfig{}
 	if len(raw) > 0 && string(raw) != "null" {
 		var perr []httpx.FieldError
-		cfg, perr = ParseViewConfig(raw)
+		cfg, perr = ParseStoredViewConfig(raw)
 		if perr != nil {
 			return nil, &GuardError{Status: 409, Detail: "Saved view references a missing filter column. Repair the view before continuing."}, nil
 		}

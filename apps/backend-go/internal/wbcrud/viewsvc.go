@@ -35,7 +35,7 @@ func emptyViewConfig() ViewConfig {
 func viewFromRow(r gen.WorkbookView) View {
 	cfg := emptyViewConfig()
 	if len(r.Config) > 0 && string(bytes.TrimSpace(r.Config)) != "null" {
-		if c, errs := ParseViewConfig(r.Config); errs == nil {
+		if c, errs := ParseStoredViewConfig(r.Config); errs == nil {
 			cfg = c
 		}
 	}

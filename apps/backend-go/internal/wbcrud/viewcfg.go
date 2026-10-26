@@ -36,6 +36,11 @@ var filterOps = map[string]bool{"equals": true, "not_equals": true, "contains": 
 // ParseViewConfig validates like ViewConfig.model_validate (defaults applied,
 // unknown keys dropped). Error locs start with prefix (e.g. "body","config").
 func ParseViewConfig(raw json.RawMessage, prefix ...any) (ViewConfig, []httpx.FieldError) {
+	return parseViewConfig(raw, true, prefix)
+}
+
+func parseViewConfig(raw json.RawMessage, capped bool, prefix []any) (ViewConfig, []httpx.FieldError) {
+	lim := CurrentLimits()
 	cfg := ViewConfig{Filters: []ViewFilter{}, Sort: []ViewSort{}, HiddenColumns: []string{}}
 	doc, err := decodeDocument(raw, false)
 	if err != nil {
@@ -50,6 +55,9 @@ func ParseViewConfig(raw json.RawMessage, prefix ...any) (ViewConfig, []httpx.Fi
 		arr, isArr := v.([]any)
 		if !isArr {
 			errs = append(errs, fe("list_type", "Input should be a valid list", pl(prefix, "filters"), v)...)
+		}
+		if capped && len(arr) > lim.MaxViewFilters {
+			return ViewConfig{}, tooLong("List", lim.MaxViewFilters, len(arr), pl(prefix, "filters"))
 		}
 		for i, e := range arr {
 			loc := pl(prefix, "filters", i)
@@ -77,6 +85,9 @@ func ParseViewConfig(raw json.RawMessage, prefix ...any) (ViewConfig, []httpx.Fi
 		arr, isArr := v.([]any)
 		if !isArr {
 			errs = append(errs, fe("list_type", "Input should be a valid list", pl(prefix, "sort"), v)...)
+		}
+		if capped && len(arr) > lim.MaxViewSorts {
+			return ViewConfig{}, tooLong("List", lim.MaxViewSorts, len(arr), pl(prefix, "sort"))
 		}
 		for i, e := range arr {
 			loc := pl(prefix, "sort", i)
@@ -182,5 +193,5 @@ func pl(prefix []any, rest ...any) []any {
 // ParseStoredViewConfig parses a config already in the database; unlike
 // ParseViewConfig it applies no request-shape caps.
 func ParseStoredViewConfig(raw json.RawMessage, prefix ...any) (ViewConfig, []httpx.FieldError) {
-	return ParseViewConfig(raw, prefix...)
+	return parseViewConfig(raw, false, prefix)
 }

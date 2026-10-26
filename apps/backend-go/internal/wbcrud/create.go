@@ -217,6 +217,9 @@ func parseColumnList(v any, at []any) ([]Column, []httpx.FieldError) {
 	if !ok {
 		return nil, fe("list_type", "Input should be a valid list", at, v)
 	}
+	if max := CurrentLimits().MaxColumns; len(arr) > max {
+		return nil, tooLong("List", max, len(arr), at)
+	}
 	cols := make([]Column, 0, len(arr))
 	var errs []httpx.FieldError
 	for i, e := range arr {
