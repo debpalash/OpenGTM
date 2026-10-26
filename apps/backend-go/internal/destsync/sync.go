@@ -244,8 +244,8 @@ func (e *Engine) Handle(ctx context.Context, c *queue.Claim) error {
 		buf = warehouse.NewBuffer(rs.runID, rs.ws, rs.ref, e.d.WarehouseMaxMemory)
 		defer buf.Close()
 	}
-	if rs.ads || rs.wh {
-		return errors.New("destsync: ad and warehouse destinations are not implemented yet")
+	if rs.wh {
+		return errors.New("destsync: warehouse destinations are not implemented yet")
 	}
 	return e.stream(ctx, rs, buf)
 }
@@ -334,6 +334,7 @@ func (e *Engine) memberPage(ctx context.Context, rs *runState, after int32) ([]m
 
 // stream is the member loop and everything after it.
 func (e *Engine) stream(ctx context.Context, rs *runState, buf *warehouse.Buffer) error {
+	var adAdd []adCand
 	memberCount := 0
 	var after int32
 	for {
@@ -351,10 +352,26 @@ func (e *Engine) stream(ctx context.Context, rs *runState, buf *warehouse.Buffer
 				return err
 			}
 			if cand != nil {
-				_ = cand // ad batches land with the ad sync commit
+				adAdd = append(adAdd, *cand)
+				if len(adAdd) >= e.d.AdBatchSize {
+					if stop, err := e.flushAds(ctx, rs, "add", adAdd); err != nil || stop {
+						return err
+					}
+					adAdd = adAdd[:0]
+				}
 			}
 		}
 		after = page[len(page)-1].id
+	}
+	if len(adAdd) > 0 {
+		if stop, err := e.flushAds(ctx, rs, "add", adAdd); err != nil || stop {
+			return err
+		}
+	}
+	if rs.ads {
+		if stop, err := e.reconcileExits(ctx, rs); err != nil || stop {
+			return err
+		}
 	}
 	return e.finish(ctx, rs, memberCount)
 }
