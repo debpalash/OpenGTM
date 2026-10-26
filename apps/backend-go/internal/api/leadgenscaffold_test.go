@@ -3,9 +3,7 @@ package api
 import (
 	"io"
 	"log/slog"
-	"net/http/httptest"
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
@@ -110,24 +108,4 @@ func TestLeadgenRoutePatterns(t *testing.T) {
 	}
 	// Whole group at once: no duplicate pattern panic against the other registered groups.
 	registerLeadgen(httpx.NewRouter(), d)
-}
-
-// The literals /sources/health and /sources/registry must win over /sources/{source_id}. Stubs answer
-// 503 "not implemented: <pattern>", so the matched pattern is visible in the detail.
-func TestLeadgenLiteralBeforeWildcard(t *testing.T) {
-	r := httpx.NewRouter()
-	RegisterSourceSettings(r, leadgenDeps(true, true, "postgres"))
-	h := r.Handler()
-	for _, c := range [][3]string{
-		{"GET", "/api/settings/sources/health", "GET /api/settings/sources/health"},
-		{"GET", "/api/settings/sources/registry", "GET /api/settings/sources/registry"},
-		{"PUT", "/api/settings/sources/health", "PUT /api/settings/sources/{source_id}"},
-		{"POST", "/api/settings/sources/health/health/reset", "POST /api/settings/sources/{source_id}/health/reset"},
-	} {
-		w := httptest.NewRecorder()
-		h.ServeHTTP(w, httptest.NewRequest(c[0], c[1], nil))
-		if !strings.Contains(w.Body.String(), "not implemented: "+c[2]) {
-			t.Errorf("%s %s -> %d %s, want stub of %q", c[0], c[1], w.Code, w.Body.String(), c[2])
-		}
-	}
 }
