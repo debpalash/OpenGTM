@@ -304,6 +304,14 @@ Fixtures `analytics/*` (cases `legacy/python/scripts/contract_cases/analytics.ya
 - The master update and all deletes run in one transaction (D4); Python wrote and deleted in separate statements, so a failure left a half-merged state.
 - Dedup run fixtures are compared order-insensitively (cluster id sets, unordered pair digests): Python's tie ordering depends on `PYTHONHASHSEED`.
 
+## Bulk enrich (plan 05 Task 14 and final fix): deviations
+- `POST /api/leads/bulk-enrich`: a JSON `NaN`/`Infinity` literal answers 422 `json_invalid` (Python parses it and answers 422 `finite_number`); a number such as `1E400` answers 422 `finite_number` with `input: null` (Python echoes the value). All are 422.
+- Final-review hardening: a lead id outside int4 (for example `2147483648`, `1e10`, a 30-digit integer or a numeric string) answers 422 `value_error` ("Value error, lead id out of range", loc `body.lead_ids.<i>`, input not echoed) and nothing is enqueued. Python accepts any size, enqueues it verbatim, and the worker's Postgres lookup 500s; huge digit strings also bloated `jobs.payload`. Over-long digit strings are rejected before they are parsed.
+
+## Signals mark-read (plan 05 Task 15): deviations
+- `POST /api/signals/mark-read`: a `lead_id` outside int32 answers 422 (Python lets Postgres 500).
+- Request bodies over 4 MiB answer 413 `Request body too large` (Python: unbounded).
+
 ## Contract coverage (plan 04 Task 23)
 
 - `internal/api/workbookcrud_contract_test.go`: `TestEveryMigratedWorkbookRouteHasAFixture` (every plan 04
