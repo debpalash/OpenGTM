@@ -60,7 +60,7 @@ type Client struct {
 func (c *Client) Send(ctx context.Context, cfg Config, from, to string, msg []byte) (string, error) {
 	id, err := c.send(ctx, cfg, from, to, msg)
 	if err != nil {
-		return "", redact(err, cfg.Password)
+		return "", redactAuth(err, cfg.Email, cfg.Password)
 	}
 	return id, nil
 }
@@ -287,13 +287,26 @@ func (r *redactedError) Unwrap() error { return r.err }
 // minRedactLen: shorter passwords would corrupt unrelated error text.
 const minRedactLen = 4
 
-func redact(err error, password string) error {
-	if len(password) < minRedactLen { // too short to match safely without mangling text
-		return err
+func redact(err error, password string) error { return redactAuth(err, "", password) }
+
+// ScrubAuth removes the password from s in every form it can take on the wire: raw, base64, and the
+// AUTH PLAIN blob (base64 of \0user\0pass, or of user\0pass for IMAP AUTHENTICATE). Passwords shorter
+// than minRedactLen are left alone so unrelated text is not mangled.
+func ScrubAuth(s, user, password string) string {
+	if len(password) < minRedactLen {
+		return s
 	}
+	b64 := base64.StdEncoding.EncodeToString
+	for _, secret := range []string{b64([]byte("\x00" + user + "\x00" + password)), b64([]byte(user + "\x00" + password)),
+		b64([]byte(password)), password} {
+		s = strings.ReplaceAll(s, secret, "[redacted]")
+	}
+	return s
+}
+
+func redactAuth(err error, user, password string) error {
 	msg := err.Error()
-	scrubbed := strings.ReplaceAll(msg, password, "[redacted]")
-	scrubbed = strings.ReplaceAll(scrubbed, base64.StdEncoding.EncodeToString([]byte(password)), "[redacted]")
+	scrubbed := ScrubAuth(msg, user, password)
 	if scrubbed == msg {
 		return err
 	}

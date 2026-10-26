@@ -8,7 +8,6 @@ import (
 	"io"
 	"log/slog"
 	"net"
-	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -21,6 +20,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachstore"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/smtpclient"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
 
@@ -85,6 +85,9 @@ func (h *Handler) Handle(ctx context.Context, c *queue.Claim) error {
 		return nil
 	}
 	ws := p.WorkspaceID
+	if c.WorkspaceID != "" && c.WorkspaceID != ws { // as the send handler: the job row's workspace is authoritative
+		return &queue.PermanentError{Err: errors.New("outreachinbound: payload workspace does not match the job's workspace")}
+	}
 
 	cfg := outreachcfg.LoadIMAP(ctx, h.Secrets, ws)
 	if !cfg.Configured() {
@@ -105,11 +108,7 @@ func (h *Handler) Handle(ctx context.Context, c *queue.Claim) error {
 
 // scrub removes the mailbox password from an error text before it is logged.
 func scrub(err error, cfg outreachcfg.IMAP) string {
-	s := err.Error()
-	if pw := string(cfg.Password); pw != "" {
-		s = strings.ReplaceAll(s, pw, "[redacted]")
-	}
-	return s
+	return smtpclient.ScrubAuth(err.Error(), cfg.User, cfg.Password.Reveal())
 }
 
 // isConnErr is true only for real transport failures; a server NO/BAD reply

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"net"
@@ -327,5 +328,21 @@ func TestEHLOUsesLocalFQDN(t *testing.T) {
 	}
 	if got := ehloName(); got != want {
 		t.Fatalf("ehloName = %q, want %q", got, want)
+	}
+}
+
+// Plan 09 final security L4: the AUTH PLAIN blob (base64 of \0user\0pass) is scrubbed too.
+func TestScrubAuthRemovesPlainBlob(t *testing.T) {
+	user, pw := "me@x.co", "s3cret-pw"
+	blob := base64.StdEncoding.EncodeToString([]byte("\x00" + user + "\x00" + pw))
+	blob2 := base64.StdEncoding.EncodeToString([]byte(user + "\x00" + pw))
+	for _, in := range []string{"echo " + blob, "AUTHENTICATE PLAIN " + blob2 + " failed", "pw " + pw} {
+		got := ScrubAuth(in, user, pw)
+		if strings.Contains(got, blob) || strings.Contains(got, blob2) || strings.Contains(got, pw) {
+			t.Errorf("not scrubbed: %q -> %q", in, got)
+		}
+	}
+	if got := ScrubAuth("abc", "u", "a"); got != "abc" {
+		t.Errorf("short password mangled text: %q", got)
 	}
 }
