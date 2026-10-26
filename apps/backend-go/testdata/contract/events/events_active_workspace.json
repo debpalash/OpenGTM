@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/events?token=<redacted>"
+  },
+  "response": {
+    "body": "data: {\"type\": \"heartbeat\"}\n\n",
+    "headers": {
+      "cache-control": "no-cache",
+      "content-type": "text/event-stream; charset=utf-8",
+      "x-accel-buffering": "no"
+    },
+    "status": 200
+  }
+}

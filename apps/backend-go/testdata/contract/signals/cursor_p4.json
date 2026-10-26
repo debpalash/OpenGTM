@@ -1,0 +1,99 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals?limit=4&cursor=WzE3ODc5OTY0MDAuMCwic2lnLWEtMDQiXQ"
+  },
+  "response": {
+    "body": {
+      "counts": {
+        "funding": 6,
+        "growth": 6,
+        "hiring": 6,
+        "news": 6,
+        "tech_change": 6,
+        "total": 30,
+        "unread": 20
+      },
+      "has_more": true,
+      "limit": 4,
+      "next_cursor": "WzE3ODc5MTM2MDAuMCwic2lnLWEtMTMiXQ",
+      "offset": null,
+      "signal_types": {
+        "funding": "Funding",
+        "growth": "Growth Signal",
+        "hiring": "Hiring",
+        "job_change": "Job Change",
+        "news": "News Mention",
+        "social_activity": "Social Activity",
+        "tech_change": "Tech Change",
+        "website_change": "Website Update"
+      },
+      "signals": [
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787992800.0,
+          "description": "Seeded funding event #11 for contract fixtures",
+          "id": "sig-a-11",
+          "lead_id": 6,
+          "read": 0,
+          "signal_type": "funding",
+          "source": "crunchbase",
+          "source_url": "https://signals.example.com/a/11",
+          "title": "funding signal 11",
+          "weight": 12,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1787992800.0,
+          "description": "Seeded hiring event #10 for contract fixtures",
+          "id": "sig-a-10",
+          "lead_id": 14,
+          "read": 0,
+          "signal_type": "hiring",
+          "source": "newsapi",
+          "source_url": "https://signals.example.com/a/10",
+          "title": "hiring signal 10",
+          "weight": 9,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1787992800.0,
+          "description": "Seeded growth event #9 for contract fixtures",
+          "id": "sig-a-09",
+          "lead_id": 14,
+          "read": 1,
+          "signal_type": "growth",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/a/9",
+          "title": "growth signal 9",
+          "weight": 7,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787913600.0,
+          "description": "Seeded news event #13 for contract fixtures",
+          "id": "sig-a-13",
+          "lead_id": 6,
+          "read": 0,
+          "signal_type": "news",
+          "source": "newsapi",
+          "source_url": "https://signals.example.com/a/13",
+          "title": "news signal 13",
+          "weight": 6,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

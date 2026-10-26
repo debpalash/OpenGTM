@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "duplicate_ids": [
+        7
+      ],
+      "master_id": 6
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/dedup/merge"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: tables.write"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

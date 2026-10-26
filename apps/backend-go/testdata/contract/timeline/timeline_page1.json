@@ -1,0 +1,74 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/lead/14/timeline?limit=4"
+  },
+  "response": {
+    "body": {
+      "items": [
+        {
+          "description": "Seeded news event #8 for contract fixtures",
+          "id": "signal:sig-a-08",
+          "kind": "signal",
+          "metadata": {
+            "source": "crunchbase",
+            "source_url": "https://signals.example.com/a/8",
+            "weight": 7
+          },
+          "occurred_at": 1788018000.5,
+          "status": "news",
+          "title": "news signal 8"
+        },
+        {
+          "description": "Seeded tech_change event #7 for contract fixtures",
+          "id": "signal:sig-a-07",
+          "kind": "signal",
+          "metadata": {
+            "source": "newsapi",
+            "source_url": "https://signals.example.com/a/7",
+            "weight": 7
+          },
+          "occurred_at": 1788010800.0,
+          "status": "tech_change",
+          "title": "tech_change"
+        },
+        {
+          "description": "Seeded funding event #6 for contract fixtures",
+          "id": "signal:sig-a-06",
+          "kind": "signal",
+          "metadata": {
+            "source": "jobspy",
+            "source_url": "https://signals.example.com/a/6",
+            "weight": 10
+          },
+          "occurred_at": 1788010800.0,
+          "status": "funding",
+          "title": "funding signal 6"
+        },
+        {
+          "description": "Seeded news event #3 for contract fixtures",
+          "id": "signal:sig-a-03",
+          "kind": "signal",
+          "metadata": {
+            "source": "jobspy",
+            "source_url": "https://signals.example.com/a/3",
+            "weight": 5
+          },
+          "occurred_at": 1788000000.0,
+          "status": "news",
+          "title": "news signal 3"
+        }
+      ],
+      "next_before": 1788000000.0,
+      "next_before_id": "signal:sig-a-03"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

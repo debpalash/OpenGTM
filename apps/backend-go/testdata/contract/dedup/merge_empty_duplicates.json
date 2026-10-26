@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "duplicate_ids": [],
+      "master_id": 6
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/dedup/merge"
+  },
+  "response": {
+    "body": {
+      "detail": "master_id and duplicate_ids required"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

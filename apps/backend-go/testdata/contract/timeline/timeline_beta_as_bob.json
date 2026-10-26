@@ -1,0 +1,117 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/lead/17/timeline"
+  },
+  "response": {
+    "body": {
+      "items": [
+        {
+          "description": "beta tenant signal",
+          "id": "signal:sig-b-01",
+          "kind": "signal",
+          "metadata": {
+            "source": "jobspy",
+            "source_url": "https://signals.example.com/b/1",
+            "weight": 10
+          },
+          "occurred_at": 1787998200.0,
+          "status": "funding",
+          "title": "beta funding 1"
+        },
+        {
+          "description": "beta tenant signal",
+          "id": "signal:sig-b-03",
+          "kind": "signal",
+          "metadata": {
+            "source": "jobspy",
+            "source_url": "https://signals.example.com/b/3",
+            "weight": 5
+          },
+          "occurred_at": 1787994600.0,
+          "status": "news",
+          "title": "beta news 3"
+        },
+        {
+          "description": "beta tenant signal",
+          "id": "signal:sig-b-05",
+          "kind": "signal",
+          "metadata": {
+            "source": "jobspy",
+            "source_url": "https://signals.example.com/b/5",
+            "weight": 8
+          },
+          "occurred_at": 1787991000.0,
+          "status": "hiring",
+          "title": "beta hiring 5"
+        },
+        {
+          "description": "Beta push",
+          "id": "activation:4",
+          "kind": "activation",
+          "metadata": {
+            "destination_id": "dest-beta-1",
+            "destination_type": "webhook",
+            "operation": "upsert"
+          },
+          "occurred_at": 1787747400.0,
+          "status": "delivered",
+          "title": "Activated to Beta Webhook"
+        },
+        {
+          "description": "Sequence step 1",
+          "id": "outreach:4",
+          "kind": "outreach",
+          "metadata": {
+            "sequence_id": "seq-beta-1",
+            "step_number": 0
+          },
+          "occurred_at": 1787734800.0,
+          "status": "sent",
+          "title": "Beta intro"
+        },
+        {
+          "description": "Audience membership entered",
+          "id": "audience:5",
+          "kind": "audience",
+          "metadata": {
+            "audience_id": "aud-beta-1",
+            "audience_name": "Beta list"
+          },
+          "occurred_at": 1787655600.0,
+          "status": "entered",
+          "title": "Entered Beta list"
+        },
+        {
+          "description": "",
+          "id": "lead:updated",
+          "kind": "lead",
+          "metadata": {},
+          "occurred_at": 1787542200.0,
+          "status": "updated",
+          "title": "Lead updated"
+        },
+        {
+          "description": "",
+          "id": "lead:created",
+          "kind": "lead",
+          "metadata": {},
+          "occurred_at": 1787542200.0,
+          "status": "created",
+          "title": "Lead created"
+        }
+      ],
+      "next_before": null,
+      "next_before_id": null
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

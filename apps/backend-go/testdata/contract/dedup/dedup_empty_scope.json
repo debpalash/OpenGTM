@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/dedup?city=Nowhere"
+  },
+  "response": {
+    "body": {
+      "clusters": {},
+      "pairs": [],
+      "scanned": 0,
+      "stats": {
+        "duplicates_found": 0,
+        "total_leads": 0
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

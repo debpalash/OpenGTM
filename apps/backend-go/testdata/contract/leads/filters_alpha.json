@@ -1,0 +1,46 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/filters"
+  },
+  "response": {
+    "body": {
+      "cities": [
+        "Austin",
+        "Berlin",
+        "Delhi",
+        "\u0130stanbul",
+        "Mumbai",
+        "Pune",
+        "\u6771\u4eac"
+      ],
+      "sources": [
+        "contract",
+        "import",
+        "scrape"
+      ],
+      "statuses": [
+        "new",
+        "contacted",
+        "qualified",
+        "negotiating",
+        "converted",
+        "dead"
+      ],
+      "tiers": [
+        "hot",
+        "warm",
+        "cold",
+        "unqualified"
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

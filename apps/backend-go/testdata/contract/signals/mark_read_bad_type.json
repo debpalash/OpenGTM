@@ -1,0 +1,45 @@
+{
+  "request": {
+    "body": {
+      "signal_ids": [
+        1,
+        2
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/signals/mark-read"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 1,
+          "loc": [
+            "body",
+            "signal_ids",
+            0
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        },
+        {
+          "input": 2,
+          "loc": [
+            "body",
+            "signal_ids",
+            1
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

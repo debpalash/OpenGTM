@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "duplicate_ids": [
+        7
+      ],
+      "master_id": 9999
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/dedup/merge"
+  },
+  "response": {
+    "body": {
+      "detail": "Master lead 9999 not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

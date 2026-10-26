@@ -1,0 +1,99 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals?limit=4"
+  },
+  "response": {
+    "body": {
+      "counts": {
+        "funding": 6,
+        "growth": 6,
+        "hiring": 6,
+        "news": 6,
+        "tech_change": 6,
+        "total": 30,
+        "unread": 20
+      },
+      "has_more": true,
+      "limit": 4,
+      "next_cursor": "WzE3ODgwMTA4MDAuMCwic2lnLWEtMDciXQ",
+      "offset": 0,
+      "signal_types": {
+        "funding": "Funding",
+        "growth": "Growth Signal",
+        "hiring": "Hiring",
+        "job_change": "Job Change",
+        "news": "News Mention",
+        "social_activity": "Social Activity",
+        "tech_change": "Tech Change",
+        "website_change": "Website Update"
+      },
+      "signals": [
+        {
+          "company": "Quantum Foods",
+          "created_at": 1788043200.0,
+          "description": "Seeded funding event #21 for contract fixtures",
+          "id": "sig-a-21",
+          "lead_id": 10,
+          "read": 1,
+          "signal_type": "funding",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/a/21",
+          "title": "",
+          "weight": 10,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Quantum Foods",
+          "created_at": 1788043200.0,
+          "description": "Seeded hiring event #20 for contract fixtures",
+          "id": "sig-a-20",
+          "lead_id": 10,
+          "read": 0,
+          "signal_type": "hiring",
+          "source": "crunchbase",
+          "source_url": "https://signals.example.com/a/20",
+          "title": "hiring signal 20",
+          "weight": 10,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1788018000.5,
+          "description": "Seeded news event #8 for contract fixtures",
+          "id": "sig-a-08",
+          "lead_id": 14,
+          "read": 0,
+          "signal_type": "news",
+          "source": "crunchbase",
+          "source_url": "https://signals.example.com/a/8",
+          "title": "news signal 8",
+          "weight": 7,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1788010800.0,
+          "description": "Seeded tech_change event #7 for contract fixtures",
+          "id": "sig-a-07",
+          "lead_id": 14,
+          "read": 0,
+          "signal_type": "tech_change",
+          "source": "newsapi",
+          "source_url": "https://signals.example.com/a/7",
+          "title": "",
+          "weight": 7,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

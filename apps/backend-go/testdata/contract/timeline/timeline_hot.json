@@ -1,0 +1,277 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/lead/14/timeline"
+  },
+  "response": {
+    "body": {
+      "items": [
+        {
+          "description": "Seeded news event #8 for contract fixtures",
+          "id": "signal:sig-a-08",
+          "kind": "signal",
+          "metadata": {
+            "source": "crunchbase",
+            "source_url": "https://signals.example.com/a/8",
+            "weight": 7
+          },
+          "occurred_at": 1788018000.5,
+          "status": "news",
+          "title": "news signal 8"
+        },
+        {
+          "description": "Seeded tech_change event #7 for contract fixtures",
+          "id": "signal:sig-a-07",
+          "kind": "signal",
+          "metadata": {
+            "source": "newsapi",
+            "source_url": "https://signals.example.com/a/7",
+            "weight": 7
+          },
+          "occurred_at": 1788010800.0,
+          "status": "tech_change",
+          "title": "tech_change"
+        },
+        {
+          "description": "Seeded funding event #6 for contract fixtures",
+          "id": "signal:sig-a-06",
+          "kind": "signal",
+          "metadata": {
+            "source": "jobspy",
+            "source_url": "https://signals.example.com/a/6",
+            "weight": 10
+          },
+          "occurred_at": 1788010800.0,
+          "status": "funding",
+          "title": "funding signal 6"
+        },
+        {
+          "description": "Seeded news event #3 for contract fixtures",
+          "id": "signal:sig-a-03",
+          "kind": "signal",
+          "metadata": {
+            "source": "jobspy",
+            "source_url": "https://signals.example.com/a/3",
+            "weight": 5
+          },
+          "occurred_at": 1788000000.0,
+          "status": "news",
+          "title": "news signal 3"
+        },
+        {
+          "description": "Seeded tech_change event #2 for contract fixtures",
+          "id": "signal:sig-a-02",
+          "kind": "signal",
+          "metadata": {
+            "source": "crunchbase",
+            "source_url": "https://signals.example.com/a/2",
+            "weight": 8
+          },
+          "occurred_at": 1788000000.0,
+          "status": "tech_change",
+          "title": "tech_change signal 2"
+        },
+        {
+          "description": "Seeded funding event #1 for contract fixtures",
+          "id": "signal:sig-a-01",
+          "kind": "signal",
+          "metadata": {
+            "source": "newsapi",
+            "source_url": "https://signals.example.com/a/1",
+            "weight": 11
+          },
+          "occurred_at": 1788000000.0,
+          "status": "funding",
+          "title": "funding signal 1"
+        },
+        {
+          "description": "Seeded hiring event #5 for contract fixtures",
+          "id": "signal:sig-a-05",
+          "kind": "signal",
+          "metadata": {
+            "source": "crunchbase",
+            "source_url": "https://signals.example.com/a/5",
+            "weight": 10
+          },
+          "occurred_at": 1787996400.0,
+          "status": "hiring",
+          "title": "hiring signal 5"
+        },
+        {
+          "description": "Seeded growth event #4 for contract fixtures",
+          "id": "signal:sig-a-04",
+          "kind": "signal",
+          "metadata": {
+            "source": "newsapi",
+            "source_url": "https://signals.example.com/a/4",
+            "weight": 8
+          },
+          "occurred_at": 1787996400.0,
+          "status": "growth",
+          "title": "growth signal 4"
+        },
+        {
+          "description": "Seeded hiring event #10 for contract fixtures",
+          "id": "signal:sig-a-10",
+          "kind": "signal",
+          "metadata": {
+            "source": "newsapi",
+            "source_url": "https://signals.example.com/a/10",
+            "weight": 9
+          },
+          "occurred_at": 1787992800.0,
+          "status": "hiring",
+          "title": "hiring signal 10"
+        },
+        {
+          "description": "Seeded growth event #9 for contract fixtures",
+          "id": "signal:sig-a-09",
+          "kind": "signal",
+          "metadata": {
+            "source": "jobspy",
+            "source_url": "https://signals.example.com/a/9",
+            "weight": 7
+          },
+          "occurred_at": 1787992800.0,
+          "status": "growth",
+          "title": "growth signal 9"
+        },
+        {
+          "description": "Sequence step 3",
+          "id": "outreach:3",
+          "kind": "outreach",
+          "metadata": {
+            "sequence_id": "seq-alpha-1",
+            "step_number": 2
+          },
+          "occurred_at": 1787904000.0,
+          "status": "queued",
+          "title": "Outreach email"
+        },
+        {
+          "description": "Sequence step 2",
+          "id": "outreach:2",
+          "kind": "outreach",
+          "metadata": {
+            "sequence_id": "seq-alpha-1",
+            "step_number": 1
+          },
+          "occurred_at": 1787823000.0,
+          "status": "opened",
+          "title": "Following up"
+        },
+        {
+          "description": "HTTP 500 from webhook",
+          "id": "activation:2",
+          "kind": "activation",
+          "metadata": {
+            "destination_id": "dest-alpha-1",
+            "destination_type": "webhook",
+            "operation": "upsert"
+          },
+          "occurred_at": 1787742000.0,
+          "status": "failed",
+          "title": "Activated to Contract Webhook"
+        },
+        {
+          "description": "Sequence step 1",
+          "id": "outreach:1",
+          "kind": "outreach",
+          "metadata": {
+            "sequence_id": "seq-alpha-1",
+            "step_number": 0
+          },
+          "occurred_at": 1787738400.0,
+          "status": "replied",
+          "title": "Quick intro"
+        },
+        {
+          "description": "Pushed 1 contact",
+          "id": "activation:1",
+          "kind": "activation",
+          "metadata": {
+            "destination_id": "dest-alpha-1",
+            "destination_type": "webhook",
+            "operation": "upsert"
+          },
+          "occurred_at": 1787738400.0,
+          "status": "delivered",
+          "title": "Activated to Contract Webhook"
+        },
+        {
+          "description": "Audience membership entered",
+          "id": "audience:3",
+          "kind": "audience",
+          "metadata": {
+            "audience_id": "aud-alpha-1",
+            "audience_name": "Hot accounts"
+          },
+          "occurred_at": 1787734800.0,
+          "status": "entered",
+          "title": "Entered Hot accounts"
+        },
+        {
+          "description": "Audience membership exited",
+          "id": "audience:2",
+          "kind": "audience",
+          "metadata": {
+            "audience_id": "aud-alpha-1",
+            "audience_name": "Hot accounts"
+          },
+          "occurred_at": 1787734800.0,
+          "status": "exited",
+          "title": "Exited Hot accounts"
+        },
+        {
+          "description": "",
+          "id": "lead:updated",
+          "kind": "lead",
+          "metadata": {},
+          "occurred_at": 1787711400.0,
+          "status": "updated",
+          "title": "Lead updated"
+        },
+        {
+          "description": "Audience membership entered",
+          "id": "audience:1",
+          "kind": "audience",
+          "metadata": {
+            "audience_id": "aud-alpha-1",
+            "audience_name": "Hot accounts"
+          },
+          "occurred_at": 1787648400.0,
+          "status": "entered",
+          "title": "Entered Hot accounts"
+        },
+        {
+          "description": "",
+          "id": "lead:enriched",
+          "kind": "lead",
+          "metadata": {},
+          "occurred_at": 1787625000.0,
+          "status": "enriched",
+          "title": "Lead enriched"
+        },
+        {
+          "description": "",
+          "id": "lead:created",
+          "kind": "lead",
+          "metadata": {},
+          "occurred_at": 1787452200.0,
+          "status": "created",
+          "title": "Lead created"
+        }
+      ],
+      "next_before": null,
+      "next_before_id": null
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

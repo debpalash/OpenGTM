@@ -1,0 +1,57 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/stats"
+  },
+  "response": {
+    "body": {
+      "by_city": {
+        "": 1,
+        "Austin": 3,
+        "Berlin": 3,
+        "Delhi": 1,
+        "Mumbai": 4,
+        "Pune": 1,
+        "\u0130stanbul": 1,
+        "\u6771\u4eac": 1
+      },
+      "by_source": {
+        "contract": 7,
+        "import": 5,
+        "scrape": 3
+      },
+      "by_status": {
+        "contacted": 2,
+        "dead": 1,
+        "negotiating": 1,
+        "new": 10,
+        "qualified": 1
+      },
+      "by_tier": {
+        "cold": 5,
+        "hot": 3,
+        "null": 2,
+        "unqualified": 1,
+        "warm": 4
+      },
+      "enrichment": {
+        "avg_score": 57.3,
+        "total": 15,
+        "with_contact": 4,
+        "with_email": 10,
+        "with_linkedin": 3,
+        "with_phone": 6,
+        "with_website": 13
+      },
+      "total": 15
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

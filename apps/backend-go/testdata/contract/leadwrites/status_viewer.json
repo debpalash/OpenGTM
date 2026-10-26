@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "status": "new"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/lead/14/status"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: tables.write"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

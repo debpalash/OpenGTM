@@ -1,0 +1,65 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals/analytics?days=7"
+  },
+  "response": {
+    "body": {
+      "by_source": [],
+      "by_type": [],
+      "period_days": 7,
+      "summary": {
+        "active_accounts": 0,
+        "momentum_pct": null,
+        "total": 0,
+        "weighted_score": 0
+      },
+      "top_accounts": [],
+      "trend": [
+        {
+          "count": 0,
+          "date": "2026-10-20",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-21",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-22",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-23",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-24",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-25",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-26",
+          "weight": 0
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

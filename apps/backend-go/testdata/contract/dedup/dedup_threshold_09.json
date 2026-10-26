@@ -1,0 +1,101 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/dedup?threshold=0.9"
+  },
+  "response": {
+    "body": {
+      "clusters": {
+        "6": [
+          7,
+          6,
+          9,
+          8
+        ]
+      },
+      "merge_suggestions": [
+        {
+          "confidence": 0.92,
+          "duplicate_companies": [
+            "Zenith Robotics",
+            "Zenith Robotics Solutions",
+            "Zenith Robotics Private Limited"
+          ],
+          "duplicate_ids": [
+            8,
+            9,
+            7
+          ],
+          "master_company": "Zenith Robotics Pvt Ltd",
+          "master_id": 6
+        }
+      ],
+      "pairs": [
+        {
+          "field_scores": {
+            "city": 1.0,
+            "company": 1.0,
+            "domain": 0.0,
+            "email": 1.0,
+            "phone": 1.0
+          },
+          "lead_a_id": 6,
+          "lead_b_id": 8,
+          "score": 0.92
+        },
+        {
+          "field_scores": {
+            "city": 1.0,
+            "company": 1.0,
+            "domain": 1.0,
+            "email": 0.0,
+            "phone": 0.0
+          },
+          "lead_a_id": 7,
+          "lead_b_id": 6,
+          "score": 0.9
+        },
+        {
+          "field_scores": {
+            "city": 1.0,
+            "company": 1.0,
+            "domain": 1.0,
+            "email": 0.0,
+            "phone": 0.0
+          },
+          "lead_a_id": 7,
+          "lead_b_id": 9,
+          "score": 0.9
+        },
+        {
+          "field_scores": {
+            "city": 1.0,
+            "company": 1.0,
+            "domain": 1.0,
+            "email": 0.0,
+            "phone": 0.0
+          },
+          "lead_a_id": 6,
+          "lead_b_id": 9,
+          "score": 0.9
+        }
+      ],
+      "scanned": 15,
+      "stats": {
+        "clusters": 1,
+        "duplicates_found": 3,
+        "pairs_compared": 6,
+        "total_leads": 15,
+        "unique_leads": 12
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

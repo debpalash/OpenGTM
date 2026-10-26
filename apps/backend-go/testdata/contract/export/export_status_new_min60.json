@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/export/csv?status=new&score_min=60"
+  },
+  "response": {
+    "body": "Company,Website,Email,Phone,City,State,Address,Specialization,Description,Industry Tags,Score,Tier,Status,Source,LinkedIn,Contact Person,Company Size,Employee Count,Founded Year,Technologies,Funding Stage,Revenue Range,Glassdoor Rating,Decision Makers,Secondary Emails,Secondary Phones,Notes\r\n\u00c9co Solutions Pvt Ltd,https://eco.example.com,info@eco.example.com,+91 20 5550 0004,Pune,,,Sustainability consulting,Non-ASCII company name,,80,hot,new,contract,https://linkedin.com/company/eco,Isha Rao,11-50,,,,,,,,,,\r\nBerlin Bakery,https://berlinbakery.example.com,hi@berlinbakery.example.com,,Berlin,,,Food,,,65,warm,new,import,,,1-10,,,,,,,,,,\r\nZenith Robotics Private Limited,https://www.zenithrobotics.example.com,,,Mumbai,,,,,,65,warm,new,import,,,,,,,,,,,,,\r\n",
+    "headers": {
+      "content-type": "text/csv; charset=utf-8"
+    },
+    "status": 200
+  }
+}

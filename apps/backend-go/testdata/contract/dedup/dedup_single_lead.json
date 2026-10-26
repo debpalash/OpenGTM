@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/dedup?city=Pune"
+  },
+  "response": {
+    "body": {
+      "clusters": {},
+      "merge_suggestions": [],
+      "pairs": [],
+      "scanned": 1,
+      "stats": {
+        "duplicates": 0,
+        "total": 1,
+        "unique": 1
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

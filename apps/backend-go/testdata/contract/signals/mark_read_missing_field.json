@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/signals/mark-read"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {},
+          "loc": [
+            "body",
+            "signal_ids"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

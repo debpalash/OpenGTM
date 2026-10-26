@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/dedup?threshold=1.01"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "le": 1.0
+          },
+          "input": "1.01",
+          "loc": [
+            "query",
+            "threshold"
+          ],
+          "msg": "Input should be less than or equal to 1",
+          "type": "less_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

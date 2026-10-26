@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/lead/14/similar"
+  },
+  "response": {
+    "body": {
+      "count": 0,
+      "reference": "Hot Pursuit Labs",
+      "similar_leads": []
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

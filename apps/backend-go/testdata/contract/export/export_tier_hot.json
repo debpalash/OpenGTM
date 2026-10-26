@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/export/csv?tier=hot"
+  },
+  "response": {
+    "body": "Company,Website,Email,Phone,City,State,Address,Specialization,Description,Industry Tags,Score,Tier,Status,Source,LinkedIn,Contact Person,Company Size,Employee Count,Founded Year,Technologies,Funding Stage,Revenue Range,Glassdoor Rating,Decision Makers,Secondary Emails,Secondary Phones,Notes\r\nHot Pursuit Labs,https://hotpursuit.example.com,ceo@hotpursuit.example.com,+1 512 555 0014,Austin,,,Analytics,Our best account,,95,hot,negotiating,contract,https://linkedin.com/company/hotpursuit,Sam Lee,51-200,,,,,,,,,,priority\r\nNordlicht GmbH,https://nordlicht.example.com,kontakt@nordlicht.example.com,,,,,Lighting,Empty city is a real key,,80,hot,contacted,import,,,51-200,,,,,,,,,,\r\n\u00c9co Solutions Pvt Ltd,https://eco.example.com,info@eco.example.com,+91 20 5550 0004,Pune,,,Sustainability consulting,Non-ASCII company name,,80,hot,new,contract,https://linkedin.com/company/eco,Isha Rao,11-50,,,,,,,,,,\r\n",
+    "headers": {
+      "content-type": "text/csv; charset=utf-8"
+    },
+    "status": 200
+  }
+}

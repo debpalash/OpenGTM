@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "duplicate_ids": [
+        9998,
+        9999
+      ],
+      "master_id": 6
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/dedup/merge"
+  },
+  "response": {
+    "body": {
+      "detail": "No valid duplicate leads found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

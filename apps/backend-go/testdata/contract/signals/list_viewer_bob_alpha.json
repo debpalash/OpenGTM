@@ -1,0 +1,72 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals?limit=2"
+  },
+  "response": {
+    "body": {
+      "counts": {
+        "funding": 6,
+        "growth": 6,
+        "hiring": 6,
+        "news": 6,
+        "tech_change": 6,
+        "total": 30,
+        "unread": 20
+      },
+      "has_more": true,
+      "limit": 2,
+      "next_cursor": "WzE3ODgwNDMyMDAuMCwic2lnLWEtMjAiXQ",
+      "offset": 0,
+      "signal_types": {
+        "funding": "Funding",
+        "growth": "Growth Signal",
+        "hiring": "Hiring",
+        "job_change": "Job Change",
+        "news": "News Mention",
+        "social_activity": "Social Activity",
+        "tech_change": "Tech Change",
+        "website_change": "Website Update"
+      },
+      "signals": [
+        {
+          "company": "Quantum Foods",
+          "created_at": 1788043200.0,
+          "description": "Seeded funding event #21 for contract fixtures",
+          "id": "sig-a-21",
+          "lead_id": 10,
+          "read": 1,
+          "signal_type": "funding",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/a/21",
+          "title": "",
+          "weight": 10,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Quantum Foods",
+          "created_at": 1788043200.0,
+          "description": "Seeded hiring event #20 for contract fixtures",
+          "id": "sig-a-20",
+          "lead_id": 10,
+          "read": 0,
+          "signal_type": "hiring",
+          "source": "crunchbase",
+          "source_url": "https://signals.example.com/a/20",
+          "title": "hiring signal 20",
+          "weight": 10,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

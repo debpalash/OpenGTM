@@ -1,0 +1,311 @@
+{
+ "csv_safe": [
+  {
+   "in": "=1+1",
+   "type": "str",
+   "out": "'=1+1"
+  },
+  {
+   "in": "=HYPERLINK(\"http://x\")",
+   "type": "str",
+   "out": "'=HYPERLINK(\"http://x\")"
+  },
+  {
+   "in": "+cmd|' /C calc'!A0",
+   "type": "str",
+   "out": "'+cmd|' /C calc'!A0"
+  },
+  {
+   "in": "-2+3",
+   "type": "str",
+   "out": "'-2+3"
+  },
+  {
+   "in": "@SUM(A1)",
+   "type": "str",
+   "out": "'@SUM(A1)"
+  },
+  {
+   "in": "\tcmd",
+   "type": "str",
+   "out": "'\tcmd"
+  },
+  {
+   "in": "\rcmd",
+   "type": "str",
+   "out": "'\rcmd"
+  },
+  {
+   "in": "+91 (22) 123-4567",
+   "type": "str",
+   "out": "+91 (22) 123-4567"
+  },
+  {
+   "in": "+91 22 5550 1001",
+   "type": "str",
+   "out": "+91 22 5550 1001"
+  },
+  {
+   "in": "-5",
+   "type": "str",
+   "out": "-5"
+  },
+  {
+   "in": "-1.5",
+   "type": "str",
+   "out": "-1.5"
+  },
+  {
+   "in": "+1",
+   "type": "str",
+   "out": "+1"
+  },
+  {
+   "in": "1e3",
+   "type": "str",
+   "out": "1e3"
+  },
+  {
+   "in": "+",
+   "type": "str",
+   "out": "'+"
+  },
+  {
+   "in": "-",
+   "type": "str",
+   "out": "'-"
+  },
+  {
+   "in": "=",
+   "type": "str",
+   "out": "'="
+  },
+  {
+   "in": "- 5",
+   "type": "str",
+   "out": "'- 5"
+  },
+  {
+   "in": " =x",
+   "type": "str",
+   "out": " =x"
+  },
+  {
+   "in": "=\n",
+   "type": "str",
+   "out": "'=\n"
+  },
+  {
+   "in": "plain",
+   "type": "str",
+   "out": "plain"
+  },
+  {
+   "in": "",
+   "type": "str",
+   "out": ""
+  },
+  {
+   "in": "0",
+   "type": "str",
+   "out": "0"
+  },
+  {
+   "in": "00123",
+   "type": "str",
+   "out": "00123"
+  },
+  {
+   "in": "+91-22-5550-1001",
+   "type": "str",
+   "out": "+91-22-5550-1001"
+  },
+  {
+   "in": "(555) 123",
+   "type": "str",
+   "out": "(555) 123"
+  },
+  {
+   "in": ".5",
+   "type": "str",
+   "out": ".5"
+  },
+  {
+   "in": "+.5",
+   "type": "str",
+   "out": "'+.5"
+  },
+  {
+   "in": "+1 2 3 x",
+   "type": "str",
+   "out": "'+1 2 3 x"
+  },
+  {
+   "in": "-١٢",
+   "type": "str",
+   "out": "'-١٢"
+  },
+  {
+   "in": "=東京",
+   "type": "str",
+   "out": "'=東京"
+  },
+  {
+   "in": "@",
+   "type": "str",
+   "out": "'@"
+  },
+  {
+   "in": "+1\n",
+   "type": "str",
+   "out": "+1\n"
+  },
+  {
+   "in": "+1\t",
+   "type": "str",
+   "out": "'+1\t"
+  },
+  {
+   "in": null,
+   "type": "None",
+   "out": ""
+  },
+  {
+   "in": 0,
+   "type": "int",
+   "out_repr": "0",
+   "out_str": "0"
+  },
+  {
+   "in": 5,
+   "type": "int",
+   "out_repr": "5",
+   "out_str": "5"
+  },
+  {
+   "in": -3,
+   "type": "int",
+   "out_repr": "-3",
+   "out_str": "-3"
+  },
+  {
+   "in": 1.5,
+   "type": "float",
+   "out_repr": "1.5",
+   "out_str": "1.5"
+  },
+  {
+   "in": -0.0,
+   "type": "float",
+   "out_repr": "-0.0",
+   "out_str": "-0.0"
+  },
+  {
+   "in": 1e+22,
+   "type": "float",
+   "out_repr": "1e+22",
+   "out_str": "1e+22"
+  },
+  {
+   "in": true,
+   "type": "bool",
+   "out_repr": "True",
+   "out_str": "True"
+  },
+  {
+   "in": false,
+   "type": "bool",
+   "out_repr": "False",
+   "out_str": "False"
+  },
+  {
+   "in": 1e-05,
+   "type": "float",
+   "out_repr": "1e-05",
+   "out_str": "1e-05"
+  },
+  {
+   "in": 123456789.5,
+   "type": "float",
+   "out_repr": "123456789.5",
+   "out_str": "123456789.5"
+  }
+ ],
+ "rows": [
+  {
+   "values": [
+    "Acme, Inc.",
+    "He said \"hi\"",
+    "line1\nline2",
+    " leading space",
+    "trailing ",
+    "",
+    null,
+    5,
+    1.5,
+    "é東京",
+    "\\",
+    "a\rb",
+    "=x",
+    "x;y",
+    "a\tb"
+   ],
+   "line": "\"Acme, Inc.\",\"He said \"\"hi\"\"\",\"line1\nline2\", leading space,trailing ,,,5,1.5,é東京,\\,\"a\rb\",'=x,x;y,a\tb\r\n"
+  },
+  {
+   "values": [
+    "plain",
+    "o'neil",
+    "\"",
+    ",",
+    "\n",
+    "\r\n",
+    " ",
+    "  ",
+    "ünï",
+    "-1",
+    "+91 (22) 123-4567"
+   ],
+   "line": "plain,o'neil,\"\"\"\",\",\",\"\n\",\"'\r\n\", ,  ,ünï,-1,+91 (22) 123-4567\r\n"
+  },
+  {
+   "values": [
+    "",
+    "",
+    ""
+   ],
+   "line": ",,\r\n"
+  }
+ ],
+ "header": [
+  "Company",
+  "Website",
+  "Email",
+  "Phone",
+  "City",
+  "State",
+  "Address",
+  "Specialization",
+  "Description",
+  "Industry Tags",
+  "Score",
+  "Tier",
+  "Status",
+  "Source",
+  "LinkedIn",
+  "Contact Person",
+  "Company Size",
+  "Employee Count",
+  "Founded Year",
+  "Technologies",
+  "Funding Stage",
+  "Revenue Range",
+  "Glassdoor Rating",
+  "Decision Makers",
+  "Secondary Emails",
+  "Secondary Phones",
+  "Notes"
+ ],
+ "header_line": "Company,Website,Email,Phone,City,State,Address,Specialization,Description,Industry Tags,Score,Tier,Status,Source,LinkedIn,Contact Person,Company Size,Employee Count,Founded Year,Technologies,Funding Stage,Revenue Range,Glassdoor Rating,Decision Makers,Secondary Emails,Secondary Phones,Notes\r\n",
+ "note": "csv.writer quoting (QUOTE_MINIMAL, CRLF terminator): Python does not quote a field with a leading space, Go's encoding/csv does; the export route must use a custom writer or post-process to match these lines."
+}

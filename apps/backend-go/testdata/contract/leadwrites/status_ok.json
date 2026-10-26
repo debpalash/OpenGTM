@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "note": "closed won",
+      "status": "converted"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/lead/14/status"
+  },
+  "response": {
+    "body": {
+      "ok": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

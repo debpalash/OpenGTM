@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/leads?search=zzzznomatch"
+  },
+  "response": {
+    "body": [],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

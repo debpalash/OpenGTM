@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "city": "Oslo"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/lead"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "city": "Oslo"
+          },
+          "loc": [
+            "body",
+            "company"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

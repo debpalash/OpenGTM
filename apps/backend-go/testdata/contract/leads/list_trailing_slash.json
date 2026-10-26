@@ -1,0 +1,15 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/leads/"
+  },
+  "response": {
+    "body": null,
+    "headers": {},
+    "status": 307
+  }
+}
