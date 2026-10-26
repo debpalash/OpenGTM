@@ -200,3 +200,29 @@ func TestAutomationsEnabledStrictParse(t *testing.T) {
 		t.Fatalf("got %v, %v", c.Flags, err)
 	}
 }
+
+func TestExecutorSettings(t *testing.T) {
+	c, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	e := c.Executor
+	if e.Enabled || e.RefreshExecutor("w") != "python" || e.SignalScanExecutor() != "python" ||
+		e.SignalHotLeads != 50 || e.SignalWarmLeads != 30 || e.SignalPerWorkspace != 20 || e.SignalGlobal != 500 ||
+		e.PyWorkerURL != "" || e.PyWorkerToken != goodTok {
+		t.Fatalf("defaults: %+v", e)
+	}
+	c, err = load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "GO_EXECUTOR_ENABLED": "True", "GO_EXECUTOR_WORKSPACES": " a, b ,",
+		"GO_EXECUTOR_SIGNAL_SCAN": "1", "SIGNAL_SCAN_MAX_HOT_LEADS": "7", "SIGNAL_SCAN_GLOBAL_MAX_LEADS": "0", "PY_WORKER_URL": " http://py ", "PY_WORKER_TOKEN": "tok"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	e = c.Executor
+	if e.RefreshExecutor("a") != "go" || e.RefreshExecutor("b") != "go" || e.RefreshExecutor("c") != "python" || e.RefreshExecutor("") != "python" ||
+		e.SignalScanExecutor() != "go" || e.SignalHotLeads != 7 || e.SignalGlobal != 0 || e.PyWorkerURL != "http://py" || e.PyWorkerToken != "tok" {
+		t.Fatalf("set: %+v", e)
+	}
+	if _, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "SIGNAL_SCAN_MAX_HOT_LEADS": "x"})); err == nil {
+		t.Fatal("bad int accepted")
+	}
+}

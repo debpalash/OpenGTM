@@ -54,6 +54,8 @@ type Config struct {
 	EgressAllowHosts      []string
 	// Flags carries only AutomationsEnabled on the worker (strict-parsed).
 	Flags Flags
+	// Executor carries the go_executor cohort flags, scan caps and the Python worker RPC endpoint.
+	Executor ExecutorSettings
 
 	// CredentialsSource is "http" (Python internal endpoint, default) or
 	// "local" (resolve in-process from PostgreSQL via internal/secrets).
@@ -132,6 +134,9 @@ func load(get func(string) string) (Config, error) {
 		}
 	}
 	if c.Flags.AutomationsEnabled, err = boolVar(get, "AUTOMATIONS_ENABLED", false); err != nil {
+		return Config{}, err
+	}
+	if c.Executor, err = loadExecutor(get, c.InternalServiceToken); err != nil {
 		return Config{}, err
 	}
 	if c.InternalServiceToken == "" {
@@ -233,7 +238,7 @@ func (c Config) redacted() Config {
 	if c.InternalServiceToken != "" {
 		c.InternalServiceToken = "[redacted]"
 	}
-	for _, p := range []*string{&c.SecretKey, &c.SecretsMasterKey, &c.VaultToken} {
+	for _, p := range []*string{&c.Executor.PyWorkerToken, &c.SecretKey, &c.SecretsMasterKey, &c.VaultToken} {
 		if *p != "" {
 			*p = "[redacted]"
 		}
