@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"runtime/debug"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -18,6 +19,9 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ambitionbox"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ambitionimport"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/credentials"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
@@ -173,6 +177,16 @@ func guarded(ctx context.Context, log *slog.Logger, rn runner, c *queue.Claim) (
 	return rn(ctx, c)
 }
 
+// envBool reads a Python-style boolean flag (default false); the worker's
+// config does not carry AUTOMATIONS_ENABLED.
+func envBool(name string) bool {
+	switch strings.ToLower(strings.TrimSpace(os.Getenv(name))) {
+	case "1", "true", "yes", "on", "t", "y":
+		return true
+	}
+	return false
+}
+
 func hostname() string {
 	h, err := os.Hostname()
 	if err != nil || h == "" {
@@ -239,7 +253,11 @@ func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log 
 		}
 	}()
 
-	runErr := runWithDeadline(jctx, log, rn, c, cfg.JobTimeout)
+	limit := cfg.JobTimeout
+	if c.Type == ambitionimport.JobType {
+		limit = ambitionimport.JobTimeout // JOB_TIMEOUTS["ambitionbox_import"]
+	}
+	runErr := runWithDeadline(jctx, log, rn, c, limit)
 	cancel(nil)
 	wg.Wait()
 
@@ -260,7 +278,8 @@ func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log 
 	}
 	out := queue.Outcome{Status: "completed"}
 	if runErr != nil {
-		out = queue.Outcome{Status: "failed", Error: runErr.Error()}
+		// A permanent failure (e.g. run not found) skips the retry budget.
+		out = queue.Outcome{Status: "failed", Error: runErr.Error(), NoRetry: queue.IsPermanent(runErr)}
 	}
 	fctx, fcancel := context.WithTimeout(context.WithoutCancel(ctx), finalizeTimeout)
 	defer fcancel()
@@ -303,15 +322,23 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 		deps.Creds = credentials.NewLocal(secrets.NewResolver(env, secrets.NewPgStore(pool), os.Getenv), allow.Allowed, nil)
 	}
 	closeFn := func() {}
+	var prog progress.Publisher
 	if cfg.RedisURL != "" {
 		pub, err := progress.NewRedis(cfg.RedisURL, log)
 		if err != nil {
 			return nil, nil, err
 		}
 		deps.Progress = pub
+		prog = pub
 		closeFn = func() { _ = pub.Close() }
 	}
 	handle := workbook.Handler(deps)
+	// ambitionbox_import: the client is built on the SSRF-guarded egress client;
+	// the failure hook reconciles run and workbook after a persisted failure.
+	abDeps := ambitionimport.Deps{Pool: pool, Fetcher: ambitionbox.NewEgress(cfg.AppEnv, cfg.EgressAllowHosts),
+		Hook: automationhook.New(envBool("AUTOMATIONS_ENABLED"), log), Progress: prog, Log: log}
+	queue.AllowJobType(ambitionimport.JobType)
+	ambitionimport.RegisterFailureHook(abDeps)
 	block := time.Duration(0)
 	if cfg.AppEnv == "test" {
 		if s, err := strconv.Atoi(os.Getenv("GO_WORKER_TEST_BLOCK_SECONDS")); err == nil && s > 0 {
@@ -325,6 +352,9 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 				return ctx.Err()
 			case <-time.After(block):
 			}
+		}
+		if c.Type == ambitionimport.JobType {
+			return ambitionimport.Handle(ctx, abDeps, c)
 		}
 		return handle(ctx, c)
 	}, closeFn, nil

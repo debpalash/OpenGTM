@@ -126,3 +126,25 @@ func TestReconcileRegisteredAsFailureHook(t *testing.T) {
 		t.Fatalf("run %+v", run)
 	}
 }
+
+// A run that does not exist is a permanent failure: the worker finalizes it
+// without spending retries (no retry storm).
+func TestPermanentFailureSkipsRetries(t *testing.T) {
+	e := newEnv(t)
+	c := e.claimPayload(wsA, `{"workspace_id":"`+wsA+`","workbook_id":"nope","run_id":"nope"}`)
+	err := ambitionimport.Handle(e.ctx, e.d, c)
+	if !queue.IsPermanent(err) {
+		t.Fatalf("got %v", err)
+	}
+	if _, err := queue.FinalizeAndNotify(e.ctx, e.pool, nil, c, queue.Outcome{Status: "failed", Error: err.Error(), NoRetry: queue.IsPermanent(err)}); err != nil {
+		t.Fatal(err)
+	}
+	var status, msg string
+	var retries int
+	if err := e.owner.QueryRow(e.ctx, `SELECT status, retry_count, error FROM jobs WHERE id=$1`, c.ID).Scan(&status, &retries, &msg); err != nil {
+		t.Fatal(err)
+	}
+	if status != "failed" || retries != 0 || msg != "Final Failure: connector run or workbook not found" {
+		t.Fatalf("job %s %d %q", status, retries, msg)
+	}
+}

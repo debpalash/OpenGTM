@@ -14,6 +14,9 @@ import (
 type Outcome struct {
 	Status string // "completed" or "failed"
 	Error  string
+	// NoRetry sends a failed outcome straight to its final state (a
+	// PermanentError from the handler).
+	NoRetry bool
 }
 
 const defaultMaxRetries = 3
@@ -65,7 +68,7 @@ func FinalizeNotify(ctx context.Context, pool *pgxpool.Pool, c *Claim, o Outcome
 		if row.MaxRetries.Valid {
 			limit = int(row.MaxRetries.Int32)
 		}
-		if retries < limit {
+		if retries < limit && !o.NoRetry {
 			willRetry = true
 			// Python increments first, then backs off 2^(new-1) minutes,
 			// i.e. 2^(retry_count before increment).

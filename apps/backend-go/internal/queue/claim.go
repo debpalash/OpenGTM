@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -23,6 +24,39 @@ const (
 	JobTypeRunWorkbook = "run_workbook"
 	maxCapRetries      = 100
 )
+
+var (
+	allowMu      sync.RWMutex
+	allowedTypes = map[string]bool{}
+)
+
+// AllowJobType lets this worker claim jobs of an additional type (the binary
+// registers a handler for it); unregistered Go-executor types are still failed
+// explicitly by ClaimNext.
+func AllowJobType(jobType string) {
+	allowMu.Lock()
+	defer allowMu.Unlock()
+	allowedTypes[jobType] = true
+}
+
+func jobTypeAllowed(jobType string) bool {
+	allowMu.RLock()
+	defer allowMu.RUnlock()
+	return allowedTypes[jobType]
+}
+
+// PermanentError marks a failure that retrying cannot fix; the worker
+// finalizes the job as failed without spending retries.
+type PermanentError struct{ Err error }
+
+func (e *PermanentError) Error() string { return e.Err.Error() }
+func (e *PermanentError) Unwrap() error { return e.Err }
+
+// IsPermanent reports whether err is (or wraps) a PermanentError.
+func IsPermanent(err error) bool {
+	var p *PermanentError
+	return errors.As(err, &p)
+}
 
 // Claim is a leased job.
 type Claim struct {
@@ -54,7 +88,7 @@ func ClaimNext(ctx context.Context, pool *pgxpool.Pool, workerID string, tenantC
 		if c == nil {
 			return nil, nil
 		}
-		if c.Type != JobTypeRunWorkbook {
+		if c.Type != JobTypeRunWorkbook && !jobTypeAllowed(c.Type) {
 			// Each iteration removes one pending row, so this terminates.
 			if _, err := gen.New(pool).FailUnsupported(ctx, gen.FailUnsupportedParams{
 				ID: int32(c.ID), WorkerID: c.WorkerID, LockedAt: c.lockedAt(), LeaseToken: c.LeaseToken,
