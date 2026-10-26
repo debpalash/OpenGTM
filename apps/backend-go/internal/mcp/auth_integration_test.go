@@ -72,7 +72,7 @@ func (e *authEnv) workspace(t *testing.T, name string, owner *int32, slug string
 		slug = id
 	}
 	if _, err := e.pool.Exec(context.Background(),
-		`INSERT INTO workspaces (id, name, slug, owner_id) VALUES ($1,$1,$2,$3)`, id, slug, owner); err != nil {
+		`INSERT INTO workspaces (id, name, slug, owner_id) VALUES ($1::varchar,$1::text,$2::text,$3::int)`, id, slug, owner); err != nil {
 		t.Fatal(err)
 	}
 	return id
@@ -160,17 +160,8 @@ func TestResolveRevokedExpiredNonMember(t *testing.T) {
 	e.token(t, "removed", "ycp_removed_"+e.sfx, ws, other, []string{"leads:read"}, nil, nil)
 	_, err = Resolve(ctx, e.d, "ycp_removed_"+e.sfx)
 	wantAuthErr(t, err, "MCP token user is no longer a workspace member")
-
-	// A workspace row is gone but membership exists is impossible via FK-less
-	// schema: remove the workspace, keep the member row -> member true, slug missing.
-	ws3 := e.workspace(t, "ws3", nil, "")
-	e.member(t, ws3, other, "member")
-	e.token(t, "noslug", "ycp_noslug_"+e.sfx, ws3, other, []string{"leads:read"}, nil, nil)
-	if _, err = e.pool.Exec(ctx, `DELETE FROM workspaces WHERE id=$1`, ws3); err != nil {
-		t.Fatal(err)
-	}
-	_, err = Resolve(ctx, e.d, "ycp_noslug_"+e.sfx)
-	wantAuthErr(t, err, "MCP token workspace not found")
+	// "MCP token workspace not found" is unreachable here: the workspace_members
+	// foreign key means a live membership implies the workspace row (kept as a guard).
 }
 
 func TestResolveTouchesLastUsed(t *testing.T) {
@@ -215,7 +206,9 @@ func TestResolveKeylessReadOnlyMainWorkspace(t *testing.T) {
 		ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value`, ws); err != nil {
 		t.Fatal(err)
 	}
-	t.Cleanup(func() { _, _ = e.pool.Exec(context.Background(), `DELETE FROM app_settings WHERE key='ACTIVE_WORKSPACE'`) })
+	t.Cleanup(func() {
+		_, _ = e.pool.Exec(context.Background(), `DELETE FROM app_settings WHERE key='ACTIVE_WORKSPACE'`)
+	})
 	c, err := Resolve(ctx, d, "ignored-token")
 	if err != nil {
 		t.Fatal(err)
@@ -308,7 +301,7 @@ func TestRequireRoleVectorsAgainstDatabase(t *testing.T) {
 		t.Fatal(err)
 	}
 	var rows []struct {
-		Role    string   `json:"role"`
+		Role    *string  `json:"role"`
 		Roles   []string `json:"roles"`
 		Allowed bool     `json:"allowed"`
 		Error   *string  `json:"error"`
@@ -319,16 +312,16 @@ func TestRequireRoleVectorsAgainstDatabase(t *testing.T) {
 	ws := e.workspace(t, "wsv", nil, "")
 	for i, r := range rows {
 		c := Ctx{WorkspaceID: ws}
-		if !strings.HasPrefix(r.Role, "<") {
+		if r.Role == nil || !strings.HasPrefix(*r.Role, "<") {
 			uid := e.user(t, fmt.Sprintf("v%d", i))
-			if r.Role != "" && r.Role != "<none>" {
-				e.member(t, ws, uid, r.Role)
+			if r.Role != nil {
+				e.member(t, ws, uid, *r.Role)
 			}
 			c.UserID = &uid
 		}
 		err := RequireRole(ctx, e.d, c, r.Roles...)
 		if r.Allowed != (err == nil) {
-			t.Errorf("role %q roles %v: allowed=%v err=%v", r.Role, r.Roles, r.Allowed, err)
+			t.Errorf("role %v roles %v: allowed=%v err=%v", r.Role, r.Roles, r.Allowed, err)
 		}
 		if err != nil && r.Error != nil {
 			wantAuthErr(t, err, *r.Error)
