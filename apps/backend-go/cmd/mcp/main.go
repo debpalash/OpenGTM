@@ -19,6 +19,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/mcp"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
@@ -117,14 +118,7 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 		return nil, err
 	}
 	py := pyworker.New(get("PY_WORKER_URL"), get("PY_WORKER_TOKEN"), nil)
-	verify := emailverify.NewLive(emailverify.LiveConfig{
-		Pool:         pool,
-		AppEnv:       get("APP_ENV"),
-		Py:           py,
-		SMTPDisabled: get("LEADGEN_SMTP_VERIFY") == "0",
-		HeloHost:     get("LEADGEN_SMTP_HELO"),
-		MailFrom:     get("LEADGEN_SMTP_MAIL_FROM"),
-	})
+	verify := emailverify.NewLive(liveConfig(pool, get, py))
 	deps := mcp.NewProductionDeps(cfg, pool, py, verify)
 	var reg mcp.Registry
 	if err := func() (e error) {
@@ -139,6 +133,42 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 		return nil, err
 	}
 	return &runtime{deps: deps, srv: mcp.NewServer(deps, reg), close: pool.Close}, nil
+}
+
+// liveConfig is the email cascade wiring. Reacher settings, API keys and the
+// egress allow-list are OPERATOR config read from the environment, never from a
+// workspace: a tenant must not be able to aim REACHER_URL at an internal host.
+// The HTTP client is the operator egress client (EGRESS_ALLOW_HOSTS exact
+// host[:port] entries skip the private-IP block; everything else is vetted).
+func liveConfig(pool *pgxpool.Pool, get func(string) string, py *pyworker.Client) emailverify.LiveConfig {
+	var allow []string
+	for _, h := range strings.Split(get("EGRESS_ALLOW_HOSTS"), ",") {
+		if h = strings.TrimSpace(h); h != "" {
+			allow = append(allow, h)
+		}
+	}
+	return emailverify.LiveConfig{
+		Pool:        pool,
+		AppEnv:      get("APP_ENV"),
+		EgressAllow: allow,
+		HTTP:        egress.NewOperatorClient(allow),
+		Py:          py,
+		Keys: func(_ context.Context, _, envVar string) (string, error) {
+			return get(envVar), nil
+		},
+		ReacherSettings: func(context.Context, string) map[string]any {
+			out := map[string]any{}
+			for _, k := range []string{"REACHER_URL", "REACHER_ENABLED", "REACHER_TIMEOUT"} {
+				if v := get(k); v != "" {
+					out[k] = v
+				}
+			}
+			return out
+		},
+		SMTPDisabled: get("LEADGEN_SMTP_VERIFY") == "0",
+		HeloHost:     get("LEADGEN_SMTP_HELO"),
+		MailFrom:     get("LEADGEN_SMTP_MAIL_FROM"),
+	}
 }
 
 // redactErr keeps connection details (host, user, password) out of messages.
