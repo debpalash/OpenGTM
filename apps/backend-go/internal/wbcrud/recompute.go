@@ -27,14 +27,23 @@ var DefaultPerf = PerfValues{RowConcurrency: 12, ProviderWorkers: 8, ProviderTim
 // ONE durable run_workbook job for its DB-polling worker; so does this port,
 // in the caller's transaction, with executor 'python'.
 //
-// Not ported (plan 05, retained /run): the platform-credit debit when billing
-// is enabled (BillingEnabled makes Start report "unavailable" instead of
-// running unmetered) and Python's Go-executor eligibility (a cohort workspace
-// would be routed to the Go executor; this path always uses 'python').
+// With BILLING_ENABLED the run is planned, debited and enqueued by Run (the
+// run route's code, internal/runstart, injected because runplan imports this
+// package): the platform-credit debit and Python's Go-executor eligibility
+// apply as in /run. Without a Run (GO_RUN_ROUTES_ENABLED off) Start reports
+// "unavailable" rather than running unmetered. With billing off this path is
+// unchanged: it always enqueues with executor 'python'.
 type Recomputer struct {
 	Perf           func(context.Context) (PerfValues, error) // nil: defaults
 	BillingEnabled bool
+	Run            RunStarter // used only when BillingEnabled; nil: Unavailable
 }
+
+// RunStarter starts a run for columnIDs over rowIDs (rowColumns: exact cells
+// per row, nil for every selected column) and answers the recompute result,
+// like Start. An insufficient-credits refusal is a result ("blocked"), not an
+// error: the row edit has already been committed.
+type RunStarter func(ctx context.Context, tx pgx.Tx, ws string, w Workbook, columnIDs []any, rowIDs []int64, rowColumns *Obj) (*Obj, *GuardError, error)
 
 // Unavailable is the recompute result reported when a run cannot be started here.
 func Unavailable() *Obj {
@@ -50,7 +59,10 @@ func Unavailable() *Obj {
 // HTTPException Python would raise (422 cycle, 409 rows changed).
 func (r *Recomputer) Start(ctx context.Context, tx pgx.Tx, ws string, w Workbook, columnIDs []any, rowIDs []int64, rowColumns *Obj) (*Obj, *GuardError, error) {
 	if r.BillingEnabled {
-		return Unavailable(), nil, nil
+		if r.Run == nil {
+			return Unavailable(), nil, nil
+		}
+		return r.Run(ctx, tx, ws, w, columnIDs, rowIDs, rowColumns)
 	}
 	var cols []Column
 	for _, c := range w.Columns {
@@ -211,7 +223,11 @@ func sameIDSet(a, b []int64) bool {
 	return true
 }
 
-// runResponse is RunWorkbookResponse.model_dump().
+// RunResponse is RunWorkbookResponse.model_dump().
+func RunResponse(status string, total int, message string, jobID *int64, runID string) *Obj {
+	return runResponse(status, total, message, jobID, runID)
+}
+
 func runResponse(status string, total int, message string, jobID *int64, runID string) *Obj {
 	o := NewObj()
 	o.Set("status", status)

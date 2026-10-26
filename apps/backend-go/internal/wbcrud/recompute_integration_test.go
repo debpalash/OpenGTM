@@ -3,6 +3,7 @@
 package wbcrud_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -148,10 +149,13 @@ func TestRecomputeInsufficientCreditsResult(t *testing.T) {
 	e := newRecEnv(t)
 	e.credit(0.0001)
 	res := e.start(e.recomputer(true))
-	got, err := json.Marshal(res)
-	if err != nil {
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf) // the API's encoder: no HTML escaping, like FastAPI
+	enc.SetEscapeHTML(false)
+	if err := enc.Encode(res); err != nil {
 		t.Fatal(err)
 	}
+	got := bytes.TrimRight(buf.Bytes(), "\n")
 	// workbooks.py: HTTPException 402 -> {"status": "blocked", "detail": exc.detail}
 	want := fmt.Sprintf(`{"status":"blocked","detail":{"message":%q,"balance_usd":0.0001,"required_usd":%s}}`,
 		(&billing.InsufficientCreditsError{BalanceUSD: 0.0001, RequiredUSD: e.cost}).Error(), wbcrud.PyFloatRepr(e.cost))
