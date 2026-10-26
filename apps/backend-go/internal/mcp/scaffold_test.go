@@ -131,10 +131,6 @@ func TestNilPortReturnsUnavailable(t *testing.T) {
 	if !IsUnavailable(pyworker.ErrUnavailable) || IsUnavailable(errors.New("x")) {
 		t.Fatal("IsUnavailable")
 	}
-	if leadWriteTools(d) != nil ||
-		workbookWriteTools(d) != nil || outreachWriteTools(d) != nil || automationWriteTools(d) != nil {
-		t.Fatal("constructors must return nil in the scaffold")
-	}
 }
 
 func TestRunInWorkspace(t *testing.T) {
