@@ -1,0 +1,39 @@
+package config
+
+import (
+	"reflect"
+	"testing"
+)
+
+func TestGovernanceConfigDefaultsMatchPython(t *testing.T) {
+	g, err := loadGovernance(func(string) string { return "" })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(g, GovernanceSettings{}) { // SSO_ALLOWED_ISSUER_HOSTS defaults to "" in core/config.py
+		t.Fatalf("defaults %#v", g)
+	}
+}
+
+func TestGovernanceSettingsParseAndReject(t *testing.T) {
+	env := map[string]string{"GO_GOVERNANCE_ROUTES_ENABLED": "true", "GO_PLAYBOOK_ROUTES_ENABLED": "1",
+		"GO_EXECUTOR_RETENTION": "yes", "GO_EXECUTOR_PLAYBOOKS": "on", "SSO_ALLOWED_ISSUER_HOSTS": " a.com,B.com "}
+	g, err := loadGovernance(func(k string) string { return env[k] })
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := GovernanceSettings{true, true, true, true, " a.com,B.com "}
+	if g != want {
+		t.Fatalf("got %#v want %#v", g, want)
+	}
+	for _, k := range []string{"GO_GOVERNANCE_ROUTES_ENABLED", "GO_PLAYBOOK_ROUTES_ENABLED", "GO_EXECUTOR_RETENTION", "GO_EXECUTOR_PLAYBOOKS"} {
+		if _, err := loadGovernance(func(x string) string {
+			if x == k {
+				return "maybe"
+			}
+			return ""
+		}); err == nil {
+			t.Errorf("%s=maybe accepted", k)
+		}
+	}
+}
