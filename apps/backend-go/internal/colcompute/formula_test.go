@@ -191,3 +191,42 @@ func TestFormulaNodeBudget(t *testing.T) {
 		t.Fatalf("expired deadline: %v", err)
 	}
 }
+
+// Node kinds whose children the parser does not rebuild must be rejected outright (fail
+// closed), exactly as Python rejects them, even when a forbidden call/attribute/name hides
+// inside. Python's BFS walk reports the container before anything nested in it.
+func TestFormulaFailsClosedOnOpaqueNodes(t *testing.T) {
+	cases := map[string]string{
+		`{}`:                                  "disallowed expression element: Dict",
+		`[x for x in ().__class__.__bases__]`: "disallowed expression element: ListComp",
+		`(__import__("os") for _ in [1])`:     "disallowed expression element: GeneratorExp",
+		`(lambda: __import__("os"))`:          "disallowed expression element: Lambda",
+		`f"{__import__('os')}"`:               "disallowed expression element: JoinedStr",
+		`[*__import__("os").listdir()]`:       "disallowed expression element: Starred",
+		`len(*[__import__("os")])`:            "disallowed expression element: Starred",
+		`(x := __import__("os"))`:             "disallowed expression element: NamedExpr",
+		`await __import__("os")`:              "disallowed expression element: Await",
+		`(yield __import__("os"))`:            "disallowed expression element: Yield",
+		`len(a=__import__("os"))`:             "disallowed expression element: keyword",
+		`1 if 1 else (lambda: 1)`:             "disallowed expression element: Lambda",
+	}
+	for expr, want := range cases {
+		_, err := EvalFormula(expr, nil)
+		if err == nil || err.Error() != want {
+			t.Errorf("%q: got %v, want %q", expr, err, want)
+		}
+	}
+	// {...} with content is a column reference, so dict/set literals with names inside are
+	// plain references and never reach the parser as containers.
+	for _, e := range []string{`{__import__}`, `{1, __import__}`, `{"a": eval}`} {
+		if v, err := EvalFormula(e, nil); err != nil || v != "" {
+			t.Errorf("%q: %v %v", e, v, err)
+		}
+	}
+	// Guard: every kind the parser builds without children is outside the whitelist.
+	for _, k := range []string{"JoinedStr", "Dict", "Set", "Starred", "ListComp", "SetComp", "DictComp", "GeneratorExp", "Lambda", "NamedExpr", "Await", "Yield", "keyword"} {
+		if allowedKinds[k] {
+			t.Errorf("%s must not be whitelisted", k)
+		}
+	}
+}
