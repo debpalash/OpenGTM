@@ -41,8 +41,12 @@ type lockedBuf struct {
 	b  bytes.Buffer
 }
 
-func (l *lockedBuf) Write(p []byte) (int, error) { l.mu.Lock(); defer l.mu.Unlock(); return l.b.Write(p) }
-func (l *lockedBuf) String() string              { l.mu.Lock(); defer l.mu.Unlock(); return l.b.String() }
+func (l *lockedBuf) Write(p []byte) (int, error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.b.Write(p)
+}
+func (l *lockedBuf) String() string { l.mu.Lock(); defer l.mu.Unlock(); return l.b.String() }
 
 type wbSockEnv struct {
 	mcpEnv
@@ -60,7 +64,7 @@ func newWBSockEnv(t *testing.T, mod func(*Deps)) *wbSockEnv {
 	pool := testpg.NewAppPool(t, 8)
 	st := identity.NewStore(pool)
 	logs := &lockedBuf{}
-	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Flags: config.Flags{PGLeadStore: true},
+	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Flags: config.Flags{PGLeadStore: true, GoRunRoutesEnabled: true},
 		Log: slog.New(slog.NewTextHandler(logs, &slog.HandlerOptions{Level: slog.LevelDebug}))}
 	if mod != nil {
 		mod(&d)
@@ -154,6 +158,34 @@ func readText(t *testing.T, c *websocket.Conn, within time.Duration) (string, bo
 		return "", false
 	}
 	return string(b), true
+}
+
+// pump reads frames on its own goroutine: a coder/websocket Read whose context expires closes the
+// connection, so "expect nothing for a while" checks must not use a short-lived read context.
+type pump struct{ ch chan string }
+
+func newPump(c *websocket.Conn) *pump {
+	p := &pump{ch: make(chan string, 64)}
+	go func() {
+		defer close(p.ch)
+		for {
+			_, b, err := c.Read(context.Background())
+			if err != nil {
+				return
+			}
+			p.ch <- string(b)
+		}
+	}()
+	return p
+}
+
+func (p *pump) next(within time.Duration) (string, bool) {
+	select {
+	case m, ok := <-p.ch:
+		return m, ok
+	case <-time.After(within):
+		return "", false
+	}
 }
 
 func sendText(t *testing.T, c *websocket.Conn, s string) {
@@ -296,7 +328,8 @@ func TestWSRelaysRedisPayloadsVerbatim(t *testing.T) {
 			t.Fatalf("msg %d = %v %q %v, want text %q", i, typ, b, err, want)
 		}
 	}
-	if got, ok := readText(t, c, 300*time.Millisecond); ok {
+	pm := newPump(c)
+	if got, ok := pm.next(300 * time.Millisecond); ok {
 		t.Fatalf("unexpected extra frame %q", got)
 	}
 }
@@ -555,6 +588,7 @@ func TestWSMatchesFixtures(t *testing.T) {
 				t.Fatalf("dial: %v", err)
 			}
 			defer c.CloseNow()
+			pm := newPump(c)
 			// Documented deviation: FastAPI drops the socket (1006) on invalid JSON in echo mode; Go ignores
 			// the frame and keeps serving, so the following ping is answered.
 			want := fx.Response.Steps
@@ -562,6 +596,11 @@ func TestWSMatchesFixtures(t *testing.T) {
 				want = []struct {
 					Received []string `json:"received"`
 				}{{Received: []string{}}, {Received: []string{`{"type":"pong"}`}}}
+			}
+			if name == "ws_redis_bad_json_then_ping" {
+				// Python's invalid-JSON exception also drops the Redis relay (it falls into echo mode, so the
+				// later publish is lost); Go keeps relaying.
+				want[2].Received = []string{`{"type":"cell_update","workbook_id":"` + e.wb1 + `","row_id":101,"column_id":"calc_len","value":"6"}`}
 			}
 			for i, step := range fx.Request.Steps {
 				if m, ok := step["send"].(string); ok {
@@ -574,7 +613,7 @@ func TestWSMatchesFixtures(t *testing.T) {
 				}
 				got := []string{}
 				for {
-					m, ok := readText(t, c, 250*time.Millisecond)
+					m, ok := pm.next(250 * time.Millisecond)
 					if !ok {
 						break
 					}
