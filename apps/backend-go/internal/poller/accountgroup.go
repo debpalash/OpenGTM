@@ -39,6 +39,7 @@ const (
 	partnershipWeight   = 8
 	pricingWeight       = 8
 	maxPartnershipIDs   = 500
+	maxPricingRedirects = 6 // guarded_get max_redirects
 )
 
 var partnershipTerms = []string{
@@ -135,29 +136,52 @@ func PartnershipJobs(ctx context.Context, d PyDeps, w PyWatch, idx int, company 
 
 // FetchPricing is _fetch_pricing: GET the pricing page over the pinned egress
 // client and fingerprint its visible text. Deviations from Python, all
-// hardening (plan 08 D4): redirects are never followed (a 3xx is
-// pricing_http_<code>), the body is read up to 1 MiB (the rest is ignored), and
+// hardening (plan 08 D4): the body is read up to 1 MiB (the rest is ignored), and
 // the 12 s deadline covers the whole request.
 func FetchPricing(ctx context.Context, d PyDeps, rawURL string) agObservation {
-	if err := egress.CheckURLFor(d.AppEnv, d.EgressAllowHosts, rawURL, true); err != nil || numericHost(rawURL) {
-		return agFail("pricing_url_blocked")
-	}
 	rctx, cancel := context.WithTimeout(ctx, pricingTimeout)
 	defer cancel()
-	req, err := http.NewRequestWithContext(rctx, http.MethodGet, rawURL, nil)
-	if err != nil {
-		return agFail("pricing_url_blocked")
-	}
-	req.Header.Set("User-Agent", pricingUA)
 	c := *d.client()
 	c.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
-	resp, err := c.Do(req)
-	if err != nil {
-		return agFail(pricingTransportClass(err))
+	current := rawURL
+	var resp *http.Response
+	for hop := 0; ; hop++ {
+		// Every hop is vetted before the request and again at dial time.
+		if err := egress.CheckURLFor(d.AppEnv, d.EgressAllowHosts, current, true); err != nil || numericHost(current) {
+			return agFail("pricing_url_blocked")
+		}
+		req, err := http.NewRequestWithContext(rctx, http.MethodGet, current, nil)
+		if err != nil {
+			return agFail("pricing_url_blocked")
+		}
+		req.Header.Set("User-Agent", pricingUA)
+		r, err := c.Do(req)
+		if err != nil {
+			return agFail(pricingTransportClass(err))
+		}
+		loc := r.Header.Get("Location")
+		switch r.StatusCode {
+		case 301, 302, 303, 307, 308:
+			if loc != "" {
+				r.Body.Close()
+				if hop >= maxPricingRedirects {
+					return agFail("pricing_url_blocked") // too many redirects
+				}
+				base, perr := url.Parse(current)
+				ref, rerr := url.Parse(loc)
+				if perr != nil || rerr != nil {
+					return agFail("pricing_url_blocked")
+				}
+				current = base.ResolveReference(ref).String()
+				continue
+			}
+		}
+		resp = r
+		break
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusNotFound {
-		return agObservation{OK: true, URL: rawURL, Fingerprint: "missing"}
+		return agObservation{OK: true, URL: normalizedURL(current), Fingerprint: "missing"}
 	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		return agFail(fmt.Sprintf("pricing_http_%d", resp.StatusCode))
@@ -170,7 +194,7 @@ func FetchPricing(ctx context.Context, d PyDeps, rawURL string) agObservation {
 	if err != nil {
 		return agFail(pricingTransportClass(err))
 	}
-	return agObservation{OK: true, URL: normalizedURL(rawURL), Fingerprint: FingerprintHTML(decodePricingBody(body, ct))}
+	return agObservation{OK: true, URL: normalizedURL(current), Fingerprint: FingerprintHTML(decodePricingBody(body, ct))}
 }
 
 func pricingTransportClass(err error) string {
