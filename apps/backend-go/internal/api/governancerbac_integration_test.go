@@ -682,3 +682,96 @@ func TestRbacPathAndBodyErrorsCombine(t *testing.T) {
 		}
 	}
 }
+
+// restrictedManager makes erin a delegated manager (governance.manage allow) restricted by an admin-set
+// tables.write deny, and dave an editor peer carrying the same deny.
+func (e rbEnv) restrictedManager(t *testing.T) {
+	t.Helper()
+	e.override(t, "ws-alpha", "erin", "governance.manage", "allow")
+	e.override(t, "ws-alpha", "erin", "tables.write", "deny")
+	if _, err := e.pool.Exec(context.Background(), `INSERT INTO workspace_members (workspace_id,user_id,role,created_at) VALUES ('ws-alpha',$1,'editor',1788000005)`, e.ids["dave"]); err != nil {
+		t.Fatal(err)
+	}
+	e.override(t, "ws-alpha", "dave", "tables.write", "deny")
+}
+
+func (e rbEnv) effectOf(t *testing.T, who, perm string) string {
+	t.Helper()
+	var eff string
+	ctx := context.Background()
+	err := tenancy.InWorkspace(ctx, e.pool, "ws-alpha", func(tx pgx.Tx) error {
+		err := tx.QueryRow(ctx, `SELECT effect FROM workspace_member_permissions WHERE workspace_id='ws-alpha' AND user_id=$1 AND permission=$2`, e.ids[who], perm).Scan(&eff)
+		if err == pgx.ErrNoRows {
+			eff = ""
+			return nil
+		}
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return eff
+}
+
+func TestRbacNullEffectDenyCannotBeLiftedByDelegatedEditor(t *testing.T) {
+	e := newRBEnv(t)
+	e.restrictedManager(t)
+	for _, target := range []string{"erin", "dave"} { // themselves and a peer
+		for _, body := range []string{`{"effect":null}`, `{}`, `{"effect":"allow"}`} {
+			rec, _ := e.call("erin", "ws-alpha", "PUT", fmt.Sprintf("/api/governance/rbac/%d/tables.write", e.ids[target]), body)
+			if rec.Code != 403 {
+				t.Errorf("%s %s: %d %s", target, body, rec.Code, rec.Body.String())
+			}
+			if got := e.effectOf(t, target, "tables.write"); got != "deny" {
+				t.Fatalf("%s: deny was lifted (%q)", target, got)
+			}
+		}
+	}
+	// Clearing an override that grants nothing back (outreach.write is admin-only) stays allowed, as does a deny.
+	e.override(t, "ws-alpha", "dave", "outreach.write", "deny")
+	for _, body := range []string{`{"effect":null}`, `{"effect":"deny"}`} {
+		if rec, _ := e.call("erin", "ws-alpha", "PUT", fmt.Sprintf("/api/governance/rbac/%d/outreach.write", e.ids["dave"]), body); rec.Code != 200 {
+			t.Errorf("%s: %d %s", body, rec.Code, rec.Body.String())
+		}
+	}
+	// Owners keep Python's behaviour: they may clear any deny.
+	if rec, _ := e.call("alice", "ws-alpha", "PUT", fmt.Sprintf("/api/governance/rbac/%d/tables.write", e.ids["dave"]), `{"effect":null}`); rec.Code != 200 {
+		t.Errorf("owner clear: %d", rec.Code)
+	}
+	if e.effectOf(t, "dave", "tables.write") != "" {
+		t.Error("owner clear did not remove the override")
+	}
+	// An admin without any deny does too.
+	e.override(t, "ws-alpha", "dave", "campaigns.write", "deny")
+	if _, err := e.pool.Exec(context.Background(), `UPDATE workspace_members SET role='admin' WHERE workspace_id='ws-alpha' AND user_id=$1`, e.ids["erin"]); err != nil {
+		t.Fatal(err)
+	}
+	e.override(t, "ws-alpha", "erin", "tables.write", "allow") // replace the self deny; an admin is Python-identical
+	if rec, _ := e.call("erin", "ws-alpha", "PUT", fmt.Sprintf("/api/governance/rbac/%d/campaigns.write", e.ids["dave"]), `{"effect":null}`); rec.Code != 200 {
+		t.Errorf("admin clear: %d %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestRbacRoleGrantRespectsActorDenies(t *testing.T) {
+	e := newRBEnv(t)
+	e.restrictedManager(t) // erin: editor, tables.write denied
+	bob := e.ids["bob"]
+	if rec, _ := e.call("erin", "ws-alpha", "PATCH", fmt.Sprintf("/api/governance/members/%d", bob), `{"role":"editor"}`); rec.Code != 403 {
+		t.Errorf("patch to editor: %d %s", rec.Code, rec.Body.String())
+	}
+	if rec, _ := e.call("erin", "ws-alpha", "POST", "/api/governance/members", `{"username":"carol","role":"editor"}`); rec.Code != 403 {
+		t.Errorf("create editor: %d %s", rec.Code, rec.Body.String())
+	}
+	if e.roleOf(t, "ws-alpha", "bob") != "member" || e.roleOf(t, "ws-alpha", "carol") != "" {
+		t.Fatal("state changed")
+	}
+	// Roles that confer nothing the actor is denied remain grantable.
+	for _, c := range []struct{ m, p, b string }{
+		{"POST", "/api/governance/members", `{"username":"carol","role":"viewer"}`},
+		{"PATCH", fmt.Sprintf("/api/governance/members/%d", bob), `{"role":"viewer"}`},
+	} {
+		if rec, _ := e.call("erin", "ws-alpha", c.m, c.p, c.b); rec.Code >= 300 {
+			t.Errorf("%s: %d %s", c.b, rec.Code, rec.Body.String())
+		}
+	}
+}

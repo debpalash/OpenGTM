@@ -2,6 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"io"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -99,5 +102,24 @@ func TestMemberCreateBodyValidation(t *testing.T) {
 	_, _, errs = parseMemberCreate([]byte(`{"role":"owner"}`))
 	if len(errs) != 2 || errs[0].Loc[1] != "username" || errs[1].Loc[1] != "role" {
 		t.Errorf("two errors: %s", rbacErrs(t, errs))
+	}
+}
+
+type failingBody struct{}
+
+func (failingBody) Read([]byte) (int, error) { return 0, io.ErrUnexpectedEOF }
+func (failingBody) Close() error             { return nil }
+
+func TestRbacBodyReadErrorIsNot413(t *testing.T) {
+	h := rbacRoutes{}
+	req := httptest.NewRequest("POST", "/api/governance/members", failingBody{})
+	rec := httptest.NewRecorder()
+	if _, ok := h.body(rec, req); ok || rec.Code != 400 {
+		t.Fatalf("read error: ok=%v status %d %s", ok, rec.Code, rec.Body.String())
+	}
+	big := strings.NewReader(strings.Repeat("a", maxRBACBody+1))
+	rec = httptest.NewRecorder()
+	if _, ok := h.body(rec, httptest.NewRequest("POST", "/x", big)); ok || rec.Code != 413 {
+		t.Fatalf("oversize: ok=%v status %d", ok, rec.Code)
 	}
 }
