@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -193,5 +194,13 @@ func TestCopilotDeviationsDocumented(t *testing.T) {
 	}
 	if _, err := os.Stat("../../../../docs/go-port/runbooks/copilot-cutover.md"); err != nil {
 		t.Errorf("runbook missing: %v", err)
+	}
+}
+
+// The profile save runs after the enrichment and includes waiting for a pool connection under load, so its
+// bound is 30 s (it was 10 s), well above a healthy save and below the client-visible 120 s deadline.
+func TestPersonWSSaveTimeoutCoversPoolWait(t *testing.T) {
+	if personWSSaveTimeout < 30*time.Second || personWSSaveTimeout >= personWSDeadline {
+		t.Fatalf("personWSSaveTimeout = %v", personWSSaveTimeout)
 	}
 }
