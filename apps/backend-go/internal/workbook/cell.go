@@ -213,23 +213,31 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 		rs.markUncertain(ctx, id)
 		return providerCall{}, context.Cause(ctx)
 	}
+	unknown := false
 	if rerr != nil {
-		// The call was dispatched: whatever the runner reports, it may have
-		// reached the vendor, so the attempt stays `uncertain`.
-		rs.markUncertain(ctx, id)
 		if errors.Is(rerr, pyworker.ErrUnknownProvider) {
-			return providerCall{kind: callUnknown}, nil
+			// The runner has no such provider: nothing can have reached a vendor,
+			// so the attempt settles at 0 (confirmed non-billable) below.
+			unknown = true
+			out = providers.Output{Error: "unknown_provider"}
+		} else {
+			// The call was dispatched: whatever the runner reports, it may have
+			// reached the vendor, so the attempt stays `uncertain`.
+			rs.markUncertain(ctx, id)
+			if errors.Is(rerr, pyworker.ErrUnavailable) || errors.Is(rerr, pyworker.ErrUnauthorized) {
+				return providerCall{}, fmt.Errorf("workbook: python worker: %w", rerr)
+			}
+			return providerCall{kind: callException, text: truncRunes(rerr.Error(), maxErrorRunes)}, nil
 		}
-		if errors.Is(rerr, pyworker.ErrUnavailable) || errors.Is(rerr, pyworker.ErrUnauthorized) {
-			return providerCall{}, fmt.Errorf("workbook: python worker: %w", rerr)
-		}
-		return providerCall{kind: callException, text: truncRunes(rerr.Error(), maxErrorRunes)}, nil
 	}
 	if timedOut {
 		rs.markUncertain(ctx, id)
 		return providerCall{kind: callTimeout}, nil
 	}
 	resp := responseDict(name, out)
+	if unknown {
+		resp["billing_evidence"] = map[string]any{"charged_microusd": int64(0), "reference": "unknown_provider"}
+	}
 	env, err := spend.AccountingEnvelope(name, spend.ProviderResponse(resp), exposure)
 	if err != nil {
 		rs.markUncertain(ctx, id)
@@ -259,6 +267,9 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 			}
 		}
 		return providerCall{kind: kind, text: text}, nil
+	}
+	if unknown {
+		return providerCall{kind: callUnknown}, nil
 	}
 	return providerCall{kind: callOK, resp: env.Result}, nil
 }
