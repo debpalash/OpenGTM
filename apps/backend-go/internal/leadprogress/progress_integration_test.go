@@ -168,6 +168,16 @@ func TestRecentMatchesPythonVectors(t *testing.T) {
 					c.RPush(ctx, RecentKey(ws), args...) // list is newest first
 				}
 			}
+			// Events served from the in-process deque carry the rewritten per-test workspace;
+			// events served from the Redis list are returned verbatim (their recorded workspace_id stays).
+			// An undecodable Redis entry makes Recent fall back to the deque (Python's behaviour).
+			fromLocal := v.RedisDown || len(v.List) == 0
+			for _, s := range v.List {
+				var probe map[string]any
+				if json.Unmarshal([]byte(s), &probe) != nil {
+					fromLocal = true
+				}
+			}
 			for _, ev := range v.Local {
 				m := map[string]any{}
 				for k, x := range ev {
@@ -191,7 +201,7 @@ func TestRecentMatchesPythonVectors(t *testing.T) {
 				if _, isObj := x.(map[string]any); !isObj {
 					continue // documented deviation: non-object entries dropped
 				}
-				if m := x.(map[string]any); m["workspace_id"] == v.Workspace {
+				if m := x.(map[string]any); fromLocal && m["workspace_id"] == v.Workspace {
 					m["workspace_id"] = ws
 				}
 				want = append(want, x)
@@ -260,7 +270,7 @@ func TestEmittedEventReadableByPlan05SSERelay(t *testing.T) {
 	}
 	got := buf.String()
 	if !strings.HasPrefix(got, `data: {"type": "stage_start", "ts": `) ||
-		!strings.HasSuffix(got, fmt.Sprintf(`, "job_id": "j1", "message": "café", "workspace_id": %q}`+"\n\n", ws)) {
+		!strings.HasSuffix(got, fmt.Sprintf(`, "job_id": "j1", "message": "caf%su00e9", "workspace_id": %q}`+"\n\n", "\\", ws)) {
 		t.Fatalf("relay frame %q", got)
 	}
 }
