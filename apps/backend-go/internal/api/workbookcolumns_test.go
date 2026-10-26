@@ -31,6 +31,7 @@ func newColEnv(t *testing.T) colEnv {
 	st := identity.NewStore(pool)
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
+	RegisterWorkbooks(r, Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Flags: config.Flags{PGLeadStore: true}})
 	RegisterWorkbookColumns(r, Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Flags: config.Flags{PGLeadStore: true}})
 	e := colEnv{mcpEnv{env: env{h: r.Handler(), st: st}, pool: pool}}
 	e.purge()
@@ -305,6 +306,7 @@ var columnReplay = []struct{ name, who, ws string }{
 	{"delete_ok_by_erin", "alice", "ws-alpha"},
 	{"delete_from_empty", "alice", "ws-alpha"},
 	{"get_after_delete", "alice", "ws-alpha"},
+	{"create_column_body_errors", "alice", "ws-alpha"},
 }
 
 func TestColumnsMatchFixtures(t *testing.T) {

@@ -222,11 +222,11 @@ func parseColumnList(v any, at []any) ([]Column, []httpx.FieldError) {
 	for i, e := range arr {
 		raw, err := json.Marshal(e)
 		if err != nil {
-			return nil, fe("model_type", "Input should be a valid dictionary or instance of ColumnConfig", loc(at, i), e)
+			return nil, FastAPIModelErrors(fe("model_type", "Input should be a valid dictionary or instance of ColumnConfig", loc(at, i), e))
 		}
 		c, cerrs := NormalizeRequestColumn(raw, loc(at, i)...)
 		if len(cerrs) > 0 {
-			errs = append(errs, cerrs...)
+			errs = append(errs, FastAPIModelErrors(cerrs)...)
 			continue
 		}
 		cols = append(cols, c)

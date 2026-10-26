@@ -1,0 +1,82 @@
+{
+  "request": {
+    "body": {
+      "columns_config": [
+        null,
+        {
+          "cell_budget_usd": -1,
+          "id": "a",
+          "max_tokens": 0,
+          "name": "A",
+          "policy": 5
+        }
+      ],
+      "name": "Bad Columns"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": null,
+          "loc": [
+            "body",
+            "columns_config",
+            0
+          ],
+          "msg": "Input should be a valid dictionary or object to extract fields from",
+          "type": "model_attributes_type"
+        },
+        {
+          "ctx": {
+            "ge": 0.0
+          },
+          "input": -1,
+          "loc": [
+            "body",
+            "columns_config",
+            1,
+            "cell_budget_usd"
+          ],
+          "msg": "Input should be greater than or equal to 0",
+          "type": "greater_than_equal"
+        },
+        {
+          "ctx": {
+            "gt": 0
+          },
+          "input": 0,
+          "loc": [
+            "body",
+            "columns_config",
+            1,
+            "max_tokens"
+          ],
+          "msg": "Input should be greater than 0",
+          "type": "greater_than"
+        },
+        {
+          "input": 5,
+          "loc": [
+            "body",
+            "columns_config",
+            1,
+            "policy"
+          ],
+          "msg": "Input should be a valid dictionary or object to extract fields from",
+          "type": "model_attributes_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}
