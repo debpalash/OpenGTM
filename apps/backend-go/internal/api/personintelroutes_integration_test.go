@@ -472,3 +472,45 @@ func TestPersonRecordIDNotInteger422(t *testing.T) {
 		t.Errorf("%d rows", n)
 	}
 }
+
+// Deep scrape needs the caller's workspace: the worker rejects an empty workspace_id.
+func TestPersonEnrichPassesCallerWorkspace(t *testing.T) {
+	var got []string
+	e := newPersonEnv(t, func(p *personRoutes) {
+		p.enrich = func(_ context.Context, pd personintel.Deps, u string, _ bool) (personintel.Profile, error) {
+			got = append(got, pd.WorkspaceID)
+			pr := personintel.NewProfile(u)
+			pr.Username = "x"
+			pr.Status = "completed"
+			return *pr, nil
+		}
+	})
+	body := `{"linkedin_url":"https://www.linkedin.com/in/x","deep":true}`
+	call := func(hdr map[string]string) int {
+		h := bearer("alice")
+		for k, v := range hdr {
+			h[k] = v
+		}
+		rec, _ := e.do("POST", "/api/person/enrich", "application/json", body, h)
+		return rec.Code
+	}
+	call(nil)                                             // alice's active workspace
+	call(map[string]string{"X-Workspace-Id": "ws-alpha"}) // explicit, a member
+	call(map[string]string{"X-Workspace-Id": "ws-beta"})  // not a member: never forwarded
+	if len(got) != 3 || got[0] != "ws-alpha" || got[1] != "ws-alpha" || got[2] != "ws-alpha" {
+		t.Errorf("workspace ids %v, want ws-alpha x3", got)
+	}
+	if w := personintel.DefaultWorkspaceID; w == "" {
+		t.Error("empty default workspace")
+	}
+}
+
+func TestPersonWorkspaceIDFallsBackToSentinel(t *testing.T) {
+	e := newPersonEnv(t, nil)
+	ownerExec(t, `DELETE FROM workspace_members WHERE user_id = (SELECT id FROM users WHERE username = 'alice')`)
+	ownerExec(t, `UPDATE workspaces SET owner_id = NULL WHERE owner_id = (SELECT id FROM users WHERE username = 'alice')`)
+	u := e.mustUserByName(t, "alice")
+	if got := PersonIntelWorkspaceID(context.Background(), Deps{Identity: e.st}, u.ID, ""); got != personintel.DefaultWorkspaceID {
+		t.Errorf("no workspace: %q", got)
+	}
+}

@@ -417,3 +417,26 @@ func TestDeepKeepsPageFinishingAtBudgetExpiry(t *testing.T) {
 		t.Fatalf("err %v calls %d emails %v", err, len(fc.calls), p.Emails)
 	}
 }
+
+// The Python worker rejects an empty workspace_id with 422 (Field(min_length=1)), which silently skipped every
+// deep page: an unset Deps.WorkspaceID must still send a non-empty id, and a given one is sent as is.
+func TestDeepScrapeCarriesWorkspace(t *testing.T) {
+	for _, tc := range []struct{ in, want string }{{"", DefaultWorkspaceID}, {"ws-alpha", "ws-alpha"}} {
+		fastDeep(t)
+		c := withPipelineStubs(t, func(rw http.ResponseWriter, r *http.Request) { _, _ = rw.Write([]byte(ddgHTMLFor(manyURLs(2)))) })
+		fc := &fakeCaller{fn: func(context.Context, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+			return okOutput("t", nil, 1), nil
+		}}
+		if _, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, WorkspaceID: tc.in}, "https://www.linkedin.com/in/jane-doe", true, nil); err != nil {
+			t.Fatal(err)
+		}
+		if len(fc.calls) == 0 {
+			t.Fatal("no deep calls")
+		}
+		for _, call := range fc.calls {
+			if call.WorkspaceID != tc.want || call.WorkspaceID == "" {
+				t.Errorf("workspace_id %q, want %q", call.WorkspaceID, tc.want)
+			}
+		}
+	}
+}
