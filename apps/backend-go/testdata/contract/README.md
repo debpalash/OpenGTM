@@ -454,3 +454,13 @@ Parity is pinned by `internal/colcompute/testdata/{formula,template,http}_vector
 9. `PROVENANCE_TRACKING_ENABLED` stamping is a `Deps.Provenance` hook (off by default); no licenses port.
 10. Classification lower-casing uses Go `strings.ToLower` (differs from Python `.lower()` on a few exotic code points).
 11. `enrichment_waterfall`: existing entries are preserved byte-for-byte; only the new `email_finder` entry is rendered in `json.dumps` style.
+
+## Source ingest (plan 07 Task 8): deviations
+
+`internal/sourceingest` ports `upsert_source_records` (vectors: `internal/sourceingest/testdata/source_ingest.json`). Deviations from Python:
+
+1. Workbook pre-check: `Upsert` first requires the workbook to exist in the caller's workspace and returns `ErrWorkbookNotFound` otherwise (before the advisory lock). Python trusts its caller; a cross-workspace workbook id is an error in Go, never a write.
+2. Static batch caps (Python has none): at most 50,000 records (plan 04 `wbcrud` MaxRows) and 64 MiB of encoded row data (plan 04 import body cap) per call, else `ErrBatchTooLarge`. The shared `IMPORT_MEMORY_BUDGET_MB` byte semaphore is unexported in `internal/api`, so it is not drawn on; TODO revisit if it is exported (connector pages are small).
+3. `Record.Data` is an insertion-ordered `*wbcrud.Obj`: new rows keep the connector's key order with `_source` last (or in place when Data already carries it); updates keep the stored key order and append new keys, as `{**old, **new}`. Connectors must build Data in Python field order.
+4. JSON text is compact (`{"a":1,"b":2}`), Python writes `", "`/`": "` separators; the column is `json`, so the text is stored as given. Readers see the same keys in the same order.
+5. `UpsertNotify` enqueues the `on_row_added` `trigger_eval` jobs inside the caller's transaction (savepoint in `automationhook`); Python emits after the page commit. The jobs therefore commit atomically with the rows and cursor (no lost event on a crash, no worker seeing uncommitted rows). The hook swallows and logs its own errors like `emit_row_added`.
