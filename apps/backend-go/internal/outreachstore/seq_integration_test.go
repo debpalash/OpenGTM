@@ -555,11 +555,15 @@ func TestTenantIsolation(t *testing.T) {
 		if ok, err := outreachstore.DeleteSequence(e.ctx, tx, wsB, seq.ID); err != nil || ok {
 			t.Fatalf("delete: %v %v", ok, err)
 		}
-		// the same lead and sequence id in B's own tenant cannot reach A's sequence either
-		if _, _, err := outreachstore.Enroll(e.ctx, tx, wsA, seq.ID, 1, "a@example.com", "", time.Time{}); err == nil {
-			t.Fatal("cross-workspace enroll must be refused by RLS")
-		}
 	})
+	// RLS WITH CHECK refuses an enrollment stamped with A's workspace from B's tx.
+	err := tenancy.InWorkspace(e.ctx, e.pool, wsB, func(tx pgx.Tx) error {
+		_, _, err := outreachstore.Enroll(e.ctx, tx, wsA, seq.ID, 1, "a@example.com", "", time.Time{})
+		return err
+	})
+	if err == nil {
+		t.Fatal("cross-workspace enroll must be refused by RLS")
+	}
 	e.in(wsA, func(tx pgx.Tx) {
 		g, _ := outreachstore.GetSequence(e.ctx, tx, wsA, seq.ID)
 		en, _ := outreachstore.GetEnrollment(e.ctx, tx, enr)
