@@ -404,6 +404,7 @@ func (e jwEnv) betaLeadFor(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	advanceSeq(t, "leads")
 }
 
 func TestDeleteKeepLeadsFalseRemovesLeads(t *testing.T) {

@@ -50,6 +50,7 @@ func newCrossEnv(t *testing.T) crossEnv {
 	e := collectEnv{mcpEnv{env: env{h: r.Handler(), st: st}, pool: pool}}
 	e.purge(t)
 	ownerExec(t, `DELETE FROM collection_job_stages WHERE workspace_id IN ('ws-alpha','ws-beta')`)
+	advanceSeq(t, "collection_job_stages") // sequence-drawn ids stay above other tests' explicit low ids
 	t.Cleanup(func() {
 		e.purge(t)
 		collectNewID, collectEnqueue, collectBus = nil, nil, nil

@@ -43,7 +43,23 @@ func setup(t *testing.T, conns int32) (*pgxpool.Pool, context.Context) {
 	}
 	clean()
 	t.Cleanup(clean)
+	advanceStageSeq(t) // sequence-drawn stage ids stay above other packages' explicit low ids
 	return pool, ctx
+}
+
+// advanceStageSeq moves the stage id sequence to GREATEST(1000, max(id), current): never backwards.
+func advanceStageSeq(t *testing.T) {
+	t.Helper()
+	ctx := context.Background()
+	c, err := pgx.Connect(ctx, os.Getenv("TEST_DATABASE_URL"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close(ctx)
+	if _, err := c.Exec(ctx, `SELECT setval(pg_get_serial_sequence('collection_job_stages','id'),
+		GREATEST(1000, (SELECT COALESCE(max(id), 0) FROM collection_job_stages), (SELECT last_value FROM collection_job_stages_id_seq)))`); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func in(t *testing.T, ctx context.Context, pool *pgxpool.Pool, ws string, fn func(tx pgx.Tx) error) {
@@ -236,6 +252,11 @@ func TestJobJSONMatchesFixtures(t *testing.T) {
 	// detail: job columns then stages, parsed JSON, unicode intact.
 	det := read("job_detail_done_unicode.json").(map[string]any)
 	det["workspace_id"] = wsA
+	// The fixture's stage ids (7, 8) collide with api tests' explicit ids 1..N: use a disjoint range.
+	for _, st := range det["stages"].([]any) {
+		sm := st.(map[string]any)
+		sm["id"] = sm["id"].(float64) + 5_000_000
+	}
 	in(t, ctx, pool, wsA, func(tx pgx.Tx) error {
 		iraw, _ := json.Marshal(det["intent_details"])
 		_, err := tx.Exec(ctx, `INSERT INTO collection_jobs (id, workspace_id, query, intent, intent_details, status, tier, attempts, max_attempts,

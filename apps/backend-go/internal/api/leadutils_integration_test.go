@@ -136,6 +136,7 @@ func (e *utilsEnv) seedLeads(t *testing.T) {
 			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'new','contract','2026-08-29T10:00:00','2026-08-29T10:00:00')`,
 			r.id, r.ws, r.company, r.city, r.site, r.mail, r.phone, r.person, r.spec, r.size, r.desc, r.linkedin)
 	}
+	advanceSeq(t, "leads")
 }
 
 func (e *utilsEnv) post(who, ws, path, body string) *httptest.ResponseRecorder {
