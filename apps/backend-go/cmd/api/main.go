@@ -25,6 +25,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
@@ -200,6 +201,10 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool, str
 		}
 		deps.Registry, deps.Envelope, deps.Egress = sd.Registry, sd.Envelope, sd.Egress
 	}
+	// Rate limits (slowapi parity); plan 06 routes (run 20/min ...) are unlimited without it.
+	deps.Limiter = ratelimit.New(nil)
+	// Vendor catalog, research flag and billing cost catalog for run planning: once, before serving.
+	api.WireRunPlan(deps)
 	if err := applySSE(&deps, cfg, streamCtx); err != nil {
 		return nil, err
 	}
