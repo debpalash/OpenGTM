@@ -315,3 +315,78 @@ func TestListOrderedByUpdatedAtDesc(t *testing.T) {
 		t.Fatalf("after touch %v want [%s %s]", got, a, b)
 	}
 }
+
+func TestUpdateIfChanged(t *testing.T) {
+	s, ctx := setup(t)
+	id := insert(t, s, ctx, wsA, "a", "empty", `{}`, `{}`)
+	str := func(v string) *string { return &v }
+	cols := func(c ...wbcrud.Column) *[]wbcrud.Column { return &c }
+	run := func(p wbcrud.UpdatePatch) (wbcrud.Workbook, bool) {
+		var out wbcrud.Workbook
+		var changed bool
+		if err := s.WithTx(ctx, wsA, func(tx pgx.Tx) error {
+			w, err := s.Owned(ctx, tx, wsA, id, true)
+			if err != nil {
+				return err
+			}
+			out, changed, err = s.UpdateIfChanged(ctx, tx, wsA, w, p)
+			return err
+		}); err != nil {
+			t.Fatal(err)
+		}
+		return out, changed
+	}
+	stamp := func() time.Time {
+		var u time.Time
+		_ = s.WithTx(ctx, wsA, func(tx pgx.Tx) error {
+			w, _ := s.Owned(ctx, tx, wsA, id, false)
+			u = *w.UpdatedAt
+			return nil
+		})
+		return u
+	}
+	c1 := wbcrud.MakeColumn("id", "c1", "name", "X", "type", "lead_field", "width", 200)
+	// Seed columns so later equal-value patches are no-ops.
+	time.Sleep(15 * time.Millisecond)
+	if _, ch := run(wbcrud.UpdatePatch{Columns: cols(c1)}); !ch {
+		t.Fatal("columns change not written")
+	}
+	base := stamp()
+	unchanged := map[string]wbcrud.UpdatePatch{
+		"empty body":       {},
+		"same name":        {Name: str("a")},
+		"same status":      {Status: str("draft")},
+		"same description": {Description: str("")},
+		"same columns":     {Columns: cols(c1.Clone())},
+		"same filter {}":   {SetFilterCriteria: true, FilterCriteria: map[string]any{}},
+	}
+	for name, p := range unchanged {
+		time.Sleep(15 * time.Millisecond)
+		if _, ch := run(p); ch {
+			t.Errorf("%s: reported changed", name)
+		}
+		if got := stamp(); !got.Equal(base) {
+			t.Errorf("%s: updated_at stamped (%v -> %v)", name, base, got)
+		}
+	}
+	changed := map[string]wbcrud.UpdatePatch{
+		"name":    {Name: str("b")},
+		"status":  {Status: str("paused")},
+		"filter":  {SetFilterCriteria: true, FilterCriteria: map[string]any{"city": "Paris"}},
+		"columns": {Columns: cols()},
+	}
+	prev := base
+	for _, name := range []string{"name", "status", "filter", "columns"} {
+		time.Sleep(15 * time.Millisecond)
+		w, ch := run(changed[name])
+		if !ch {
+			t.Fatalf("%s: not written", name)
+		}
+		if got := stamp(); !got.After(prev) {
+			t.Errorf("%s: updated_at not advanced", name)
+		} else {
+			prev = got
+		}
+		_ = w
+	}
+}

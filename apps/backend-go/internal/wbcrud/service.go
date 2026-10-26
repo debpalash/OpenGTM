@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -290,4 +291,91 @@ func savepoint(ctx context.Context, tx pgx.Tx, fn func(pgx.Tx) error) error {
 		return err
 	}
 	return sp.Commit(ctx)
+}
+
+// UpdatePatch is the set of assignments update_workbook may make. Nil/false
+// fields are not assigned.
+type UpdatePatch struct {
+	Name, Description, Status *string
+	SetFilterCriteria         bool
+	FilterCriteria            any // value to store (marshalled); only when SetFilterCriteria
+	Columns                   *[]Column
+}
+
+// jsonEqual compares two JSON documents like Python dict/list equality: key
+// order ignored, 1 == 1.0.
+func jsonEqual(a, b []byte) bool {
+	var x, y any
+	if json.Unmarshal(a, &x) != nil || json.Unmarshal(b, &y) != nil {
+		return false
+	}
+	return reflect.DeepEqual(x, y)
+}
+
+// UpdateIfChanged applies patch to w, writing (and stamping updated_at) only
+// for fields whose value really differs: SQLAlchemy emits no UPDATE, hence no
+// onupdate stamp, for no-op assignments. Returns the current workbook and
+// whether anything was written. Call inside the workspace tx that locked w.
+func (s *Service) UpdateIfChanged(ctx context.Context, tx pgx.Tx, ws string, w Workbook, p UpdatePatch) (Workbook, bool, error) {
+	q := gen.New(tx)
+	meta := gen.UpdateWorkbookMetaParams{WorkbookID: w.ID, WorkspaceID: ws}
+	metaChanged := false
+	if p.Name != nil && *p.Name != w.Name {
+		meta.Name = pgtype.Text{String: *p.Name, Valid: true}
+		metaChanged = true
+	}
+	if p.Description != nil && *p.Description != w.Description {
+		meta.Description = pgtype.Text{String: *p.Description, Valid: true}
+		metaChanged = true
+	}
+	if p.Status != nil && *p.Status != w.Status {
+		meta.Status = pgtype.Text{String: *p.Status, Valid: true}
+		metaChanged = true
+	}
+	if p.SetFilterCriteria {
+		nb, err := json.Marshal(p.FilterCriteria)
+		if err != nil {
+			return w, false, err
+		}
+		ob, _ := json.Marshal(w.FilterCriteria)
+		if !jsonEqual(ob, nb) {
+			meta.SetFilterCriteria, meta.FilterCriteria = true, nb
+			metaChanged = true
+		}
+	}
+	var colsJSON []byte
+	colsChanged := false
+	if p.Columns != nil {
+		var err error
+		if colsJSON, err = json.Marshal(*p.Columns); err != nil {
+			return w, false, err
+		}
+		cur := w.Columns
+		if cur == nil {
+			cur = []Column{}
+		}
+		ob, _ := json.Marshal(cur)
+		colsChanged = !jsonEqual(ob, colsJSON)
+	}
+	if !metaChanged && !colsChanged {
+		return w, false, nil
+	}
+	var row gen.Workbook
+	var err error
+	if metaChanged {
+		if row, err = q.UpdateWorkbookMeta(ctx, meta); err != nil {
+			return w, false, err
+		}
+	}
+	if colsChanged {
+		if row, err = q.UpdateWorkbookColumns(ctx, gen.UpdateWorkbookColumnsParams{ColumnsConfig: colsJSON, WorkbookID: w.ID, WorkspaceID: ws}); err != nil {
+			return w, false, err
+		}
+	}
+	out, err := FromRow(row)
+	if err != nil {
+		return w, false, err
+	}
+	out.TotalRows = w.TotalRows
+	return out, true, nil
 }
