@@ -401,3 +401,19 @@ func TestEventJSONOrderAndNoHTMLEscape(t *testing.T) {
 		t.Fatalf("%s", b)
 	}
 }
+
+func TestDeepKeepsPageFinishingAtBudgetExpiry(t *testing.T) {
+	fastDeep(t)
+	old := deepBudget
+	deepBudget = 50 * time.Millisecond
+	t.Cleanup(func() { deepBudget = old })
+	c := withPipelineStubs(t, func(rw http.ResponseWriter, r *http.Request) { _, _ = rw.Write([]byte(ddgHTMLFor(manyURLs(3)))) })
+	fc := &fakeCaller{fn: func(ctx context.Context, _ pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+		<-ctx.Done() // the answer lands as the budget expires
+		return okOutput("late page", []string{"late@acme.io"}, 3), nil
+	}}
+	p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc}, "https://www.linkedin.com/in/jane-doe", true, nil)
+	if err != nil || len(fc.calls) != 1 || !contains(p.Emails, "late@acme.io") {
+		t.Fatalf("err %v calls %d emails %v", err, len(fc.calls), p.Emails)
+	}
+}
