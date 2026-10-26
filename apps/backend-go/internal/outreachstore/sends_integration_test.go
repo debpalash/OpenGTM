@@ -19,7 +19,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
-func newWS(t *testing.T, pool *pgxpool.Pool) string {
+func sndNewWS(t *testing.T, pool *pgxpool.Pool) string {
 	t.Helper()
 	b := make([]byte, 6)
 	_, _ = rand.Read(b)
@@ -37,22 +37,20 @@ func newWS(t *testing.T, pool *pgxpool.Pool) string {
 	return ws
 }
 
-func in(ws, seq, idem, to string) outreachstore.SendIn {
+func sndIn(ws, seq, idem, to string) outreachstore.SendIn {
 	return outreachstore.SendIn{WorkspaceID: ws, SequenceID: seq, StepNumber: 1, ToEmail: to, Subject: "hi", IdempotencyKey: idem}
 }
 
-func inWS(t *testing.T, pool *pgxpool.Pool, ws string, fn func(tx pgx.Tx) error) {
+func sndInWS(t *testing.T, pool *pgxpool.Pool, ws string, fn func(tx pgx.Tx) error) {
 	t.Helper()
 	if err := tenancy.InWorkspace(context.Background(), pool, ws, fn); err != nil {
 		t.Fatalf("tx: %v", err)
 	}
 }
 
-func i32(v int32) *int32 { return &v }
-
 func TestInsertInFlightUniqueIdem(t *testing.T) {
 	pool := testpg.NewAppPool(t, 20)
-	ws := newWS(t, pool)
+	ws := sndNewWS(t, pool)
 	var created atomic.Int32
 	var wg sync.WaitGroup
 	for i := 0; i < 16; i++ {
@@ -60,7 +58,7 @@ func TestInsertInFlightUniqueIdem(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			err := tenancy.InWorkspace(context.Background(), pool, ws, func(tx pgx.Tx) error {
-				ok, err := outreachstore.InsertInFlight(context.Background(), tx, in(ws, "seq-1", "seq:"+ws+":seq-1:1:1", "a@example.com"))
+				ok, err := outreachstore.InsertInFlight(context.Background(), tx, sndIn(ws, "seq-1", "seq:"+ws+":seq-1:1:1", "a@example.com"))
 				if ok {
 					created.Add(1)
 				}
@@ -75,7 +73,7 @@ func TestInsertInFlightUniqueIdem(t *testing.T) {
 	if created.Load() != 1 {
 		t.Fatalf("created=%d, want exactly 1", created.Load())
 	}
-	inWS(t, pool, ws, func(tx pgx.Tx) error {
+	sndInWS(t, pool, ws, func(tx pgx.Tx) error {
 		var n int
 		_ = tx.QueryRow(context.Background(), "SELECT count(*) FROM outreach_sends WHERE workspace_id=$1", ws).Scan(&n)
 		if n != 1 {
@@ -94,11 +92,11 @@ func TestInsertInFlightUniqueIdem(t *testing.T) {
 
 func TestFinalizeOnlySetsGivenFields(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
-	ws := newWS(t, pool)
+	ws := sndNewWS(t, pool)
 	idem := "k1"
-	inWS(t, pool, ws, func(tx pgx.Tx) error {
+	sndInWS(t, pool, ws, func(tx pgx.Tx) error {
 		ctx := context.Background()
-		if ok, err := outreachstore.InsertInFlight(ctx, tx, in(ws, "s", idem, "a@example.com")); !ok || err != nil {
+		if ok, err := outreachstore.InsertInFlight(ctx, tx, sndIn(ws, "s", idem, "a@example.com")); !ok || err != nil {
 			t.Fatalf("insert %v %v", ok, err)
 		}
 		// first finalize: error + status only
@@ -138,13 +136,13 @@ func TestFinalizeOnlySetsGivenFields(t *testing.T) {
 
 func TestTerminalIgnoresExistingIdem(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
-	ws := newWS(t, pool)
-	inWS(t, pool, ws, func(tx pgx.Tx) error {
+	ws := sndNewWS(t, pool)
+	sndInWS(t, pool, ws, func(tx pgx.Tx) error {
 		ctx := context.Background()
-		if err := outreachstore.InsertTerminal(ctx, tx, in(ws, "s", "t1", "a@example.com"), "skipped", "suppressed", ""); err != nil {
+		if err := outreachstore.InsertTerminal(ctx, tx, sndIn(ws, "s", "t1", "a@example.com"), "skipped", "suppressed", ""); err != nil {
 			t.Fatal(err)
 		}
-		if err := outreachstore.InsertTerminal(ctx, tx, in(ws, "s", "t1", "b@example.com"), "failed", "", "SMTP not configured"); err != nil {
+		if err := outreachstore.InsertTerminal(ctx, tx, sndIn(ws, "s", "t1", "b@example.com"), "failed", "", "SMTP not configured"); err != nil {
 			t.Fatalf("second terminal must not error: %v", err)
 		}
 		s, _ := outreachstore.GetSendByIdem(ctx, tx, ws, "t1")
@@ -152,14 +150,14 @@ func TestTerminalIgnoresExistingIdem(t *testing.T) {
 			t.Errorf("existing row changed: %+v", s)
 		}
 		// empty recipient defaults like Python _record_terminal
-		if err := outreachstore.InsertTerminal(ctx, tx, in(ws, "", "t2", ""), "skipped", "no_email", ""); err != nil {
+		if err := outreachstore.InsertTerminal(ctx, tx, sndIn(ws, "", "t2", ""), "skipped", "no_email", ""); err != nil {
 			t.Fatal(err)
 		}
 		s, _ = outreachstore.GetSendByIdem(ctx, tx, ws, "t2")
 		if s.ToEmail != "unknown@unknown" || s.SequenceID != "" || s.Status != "skipped" || s.SkipReason != "no_email" {
 			t.Errorf("t2: %+v", s)
 		}
-		if err := outreachstore.InsertTerminal(ctx, tx, in(ws, "s", "t3", "a@example.com"), "failed", "", "SMTP not configured"); err != nil {
+		if err := outreachstore.InsertTerminal(ctx, tx, sndIn(ws, "s", "t3", "a@example.com"), "failed", "", "SMTP not configured"); err != nil {
 			t.Fatal(err)
 		}
 		s, _ = outreachstore.GetSendByIdem(ctx, tx, ws, "t3")
@@ -173,7 +171,7 @@ func TestTerminalIgnoresExistingIdem(t *testing.T) {
 	})
 }
 
-func seedSent(t *testing.T, tx pgx.Tx, ws, seq, idem, to, msgID, status string, sentAt time.Time) {
+func sndSeed(t *testing.T, tx pgx.Tx, ws, seq, idem, to, msgID, status string, sentAt time.Time) {
 	t.Helper()
 	_, err := tx.Exec(context.Background(), `INSERT INTO outreach_sends
 	  (workspace_id, sequence_id, step_number, to_email, subject, status, message_id, idempotency_key, sent_at, created_at)
@@ -185,18 +183,18 @@ func seedSent(t *testing.T, tx pgx.Tx, ws, seq, idem, to, msgID, status string, 
 
 func TestMessageIDLookupWorkspaceScoped(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
-	a, b := newWS(t, pool), newWS(t, pool)
+	a, b := sndNewWS(t, pool), sndNewWS(t, pool)
 	now := time.Now().UTC()
-	inWS(t, pool, a, func(tx pgx.Tx) error {
-		seedSent(t, tx, a, "s", "a1", "x@example.com", "<dup@x>", "sent", now.Add(-2*time.Minute))
-		seedSent(t, tx, a, "s", "a2", "x@example.com", "<dup@x>", "sent", now.Add(-time.Minute))
+	sndInWS(t, pool, a, func(tx pgx.Tx) error {
+		sndSeed(t, tx, a, "s", "a1", "x@example.com", "<dup@x>", "sent", now.Add(-2*time.Minute))
+		sndSeed(t, tx, a, "s", "a2", "x@example.com", "<dup@x>", "sent", now.Add(-time.Minute))
 		return nil
 	})
-	inWS(t, pool, b, func(tx pgx.Tx) error {
-		seedSent(t, tx, b, "s", "b1", "y@example.com", "<only-b@x>", "sent", now)
+	sndInWS(t, pool, b, func(tx pgx.Tx) error {
+		sndSeed(t, tx, b, "s", "b1", "y@example.com", "<only-b@x>", "sent", now)
 		return nil
 	})
-	inWS(t, pool, a, func(tx pgx.Tx) error {
+	sndInWS(t, pool, a, func(tx pgx.Tx) error {
 		ctx := context.Background()
 		r, err := outreachstore.GetSendByMessageID(ctx, tx, a, "  <dup@x> ")
 		if err != nil || r == nil {
@@ -222,10 +220,10 @@ func TestMessageIDLookupWorkspaceScoped(t *testing.T) {
 
 func TestGlobalLookupReturnsOnlyRoutingTuple(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4) // non-superuser NOBYPASSRLS, no GUC set
-	a := newWS(t, pool)
+	a := sndNewWS(t, pool)
 	var sendID int32
-	inWS(t, pool, a, func(tx pgx.Tx) error {
-		seedSent(t, tx, a, "seq-g", "g1", "Victim@Example.com", "<glob@x>", "sent", time.Now())
+	sndInWS(t, pool, a, func(tx pgx.Tx) error {
+		sndSeed(t, tx, a, "seq-g", "g1", "Victim@Example.com", "<glob@x>", "sent", time.Now())
 		_, _ = tx.Exec(context.Background(), "UPDATE outreach_sends SET enrollment_id=7 WHERE workspace_id=$1", a)
 		return tx.QueryRow(context.Background(), "SELECT id FROM outreach_sends WHERE workspace_id=$1", a).Scan(&sendID)
 	})
@@ -256,26 +254,26 @@ func TestGlobalLookupUnknownIsNil(t *testing.T) {
 
 func TestCountsWindowBoundaries(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
-	ws := newWS(t, pool)
+	ws := sndNewWS(t, pool)
 	now := time.Date(2026, 8, 29, 10, 40, 0, 0, time.UTC)
 	restore := outreachstore.SetSendsClockForTest(func() time.Time { return now })
 	defer restore()
-	inWS(t, pool, ws, func(tx pgx.Tx) error {
-		seedSent(t, tx, ws, "s1", "c1", "a@x.com", "<1>", "sent", now.Add(-time.Hour))                // exactly on cutoff: counted (>=)
-		seedSent(t, tx, ws, "s1", "c2", "a@x.com", "<2>", "sent", now.Add(-time.Hour-time.Second))    // outside hour
-		seedSent(t, tx, ws, "s1", "c3", "a@x.com", "<3>", "sent", now.Add(-24*time.Hour))             // exactly 24h: counted
-		seedSent(t, tx, ws, "s1", "c4", "a@x.com", "<4>", "sent", now.Add(-24*time.Hour-time.Second)) // outside day
-		seedSent(t, tx, ws, "s2", "c5", "a@x.com", "<5>", "sent", now.Add(-time.Minute))              // other sequence
-		seedSent(t, tx, ws, "s1", "c6", "a@x.com", "<6>", "bounced", now.Add(-time.Minute))           // not 'sent'
-		seedSent(t, tx, ws, "s1", "c7", "a@x.com", "<7>", "in_flight", now.Add(-time.Minute))
+	sndInWS(t, pool, ws, func(tx pgx.Tx) error {
+		sndSeed(t, tx, ws, "s1", "c1", "a@x.com", "<1>", "sent", now.Add(-time.Hour))                // exactly on cutoff: counted (>=)
+		sndSeed(t, tx, ws, "s1", "c2", "a@x.com", "<2>", "sent", now.Add(-time.Hour-time.Second))    // outside hour
+		sndSeed(t, tx, ws, "s1", "c3", "a@x.com", "<3>", "sent", now.Add(-24*time.Hour))             // exactly 24h: counted
+		sndSeed(t, tx, ws, "s1", "c4", "a@x.com", "<4>", "sent", now.Add(-24*time.Hour-time.Second)) // outside day
+		sndSeed(t, tx, ws, "s2", "c5", "a@x.com", "<5>", "sent", now.Add(-time.Minute))              // other sequence
+		sndSeed(t, tx, ws, "s1", "c6", "a@x.com", "<6>", "bounced", now.Add(-time.Minute))           // not 'sent'
+		sndSeed(t, tx, ws, "s1", "c7", "a@x.com", "<7>", "in_flight", now.Add(-time.Minute))
 		ctx := context.Background()
 		h, err := outreachstore.SentCountLastHour(ctx, tx, ws)
 		if err != nil || h != 2 { // c1 + c5
 			t.Errorf("hour=%d err=%v want 2", h, err)
 		}
 		d, err := outreachstore.SentCountToday(ctx, tx, ws, "s1")
-		if err != nil || d != 2 { // c1 + c3 (rolling 24h as Python sent_count_today)
-			t.Errorf("today=%d err=%v want 2", d, err)
+		if err != nil || d != 3 { // c1 + c2 + c3 (rolling 24h as Python sent_count_today)
+			t.Errorf("today=%d err=%v want 3", d, err)
 		}
 		return nil
 	})
@@ -283,9 +281,9 @@ func TestCountsWindowBoundaries(t *testing.T) {
 
 func TestStatsMatchFixtures(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
-	ws := newWS(t, pool)
+	ws := sndNewWS(t, pool)
 	now := time.Now().UTC()
-	inWS(t, pool, ws, func(tx pgx.Tx) error {
+	sndInWS(t, pool, ws, func(tx pgx.Tx) error {
 		ctx := context.Background()
 		// unknown sequence: only enrollment/sends zero-fill, no counter keys
 		st, err := outreachstore.SequenceStats(ctx, tx, ws, "ghost")
@@ -294,7 +292,7 @@ func TestStatsMatchFixtures(t *testing.T) {
 		}
 		want := map[string]int{"pending": 0, "scheduled": 0, "sent": 0, "opened": 0, "replied": 0, "bounced": 0,
 			"failed": 0, "skipped": 0, "suppressed": 0, "completed": 0, "total": 0, "emails_sent": 0}
-		assertStats(t, st, want)
+		sndAssertStats(t, st, want)
 
 		_, err = tx.Exec(ctx, `INSERT INTO outreach_sequences (id, workspace_id, name, steps, status, bounce_count, complaint_count, auto_paused)
 		  VALUES ('s1',$1,'n','[]','paused',3,1,true)`, ws)
@@ -307,10 +305,10 @@ func TestStatsMatchFixtures(t *testing.T) {
 				t.Fatal(err)
 			}
 		}
-		seedSent(t, tx, ws, "s1", "e1", "a@x.com", "<a>", "sent", now.Add(-100*time.Hour))
-		seedSent(t, tx, ws, "s1", "e2", "a@x.com", "<b>", "sent", now)
-		seedSent(t, tx, ws, "s1", "e3", "a@x.com", "<c>", "bounced", now)
-		seedSent(t, tx, ws, "s9", "e4", "a@x.com", "<d>", "sent", now)
+		sndSeed(t, tx, ws, "s1", "e1", "a@x.com", "<a>", "sent", now.Add(-100*time.Hour))
+		sndSeed(t, tx, ws, "s1", "e2", "a@x.com", "<b>", "sent", now)
+		sndSeed(t, tx, ws, "s1", "e3", "a@x.com", "<c>", "bounced", now)
+		sndSeed(t, tx, ws, "s9", "e4", "a@x.com", "<d>", "sent", now)
 		st, err = outreachstore.SequenceStats(ctx, tx, ws, "s1")
 		if err != nil {
 			t.Fatal(err)
@@ -319,12 +317,12 @@ func TestStatsMatchFixtures(t *testing.T) {
 		want["total"] = 6 // sums every status including unknown ones
 		want["emails_sent"] = 2
 		want["bounce_count"], want["complaint_count"], want["auto_paused"] = 3, 1, 1
-		assertStats(t, st, want)
+		sndAssertStats(t, st, want)
 		return nil
 	})
 }
 
-func assertStats(t *testing.T, got, want map[string]int) {
+func sndAssertStats(t *testing.T, got, want map[string]int) {
 	t.Helper()
 	if len(got) != len(want) {
 		t.Errorf("keys: got %v want %v", got, want)
@@ -338,13 +336,13 @@ func assertStats(t *testing.T, got, want map[string]int) {
 
 func TestListSendsOrderAndLimit(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
-	ws := newWS(t, pool)
+	ws := sndNewWS(t, pool)
 	base := time.Now().UTC().Add(-time.Hour)
-	inWS(t, pool, ws, func(tx pgx.Tx) error {
+	sndInWS(t, pool, ws, func(tx pgx.Tx) error {
 		ctx := context.Background()
-		seedSent(t, tx, ws, "s1", "l1", "a@x.com", "<1>", "sent", base)
-		seedSent(t, tx, ws, "s1", "l2", "b@x.com", "<2>", "sent", base.Add(time.Minute))
-		seedSent(t, tx, ws, "s2", "l3", "c@x.com", "<3>", "sent", base.Add(2*time.Minute))
+		sndSeed(t, tx, ws, "s1", "l1", "a@x.com", "<1>", "sent", base)
+		sndSeed(t, tx, ws, "s1", "l2", "b@x.com", "<2>", "sent", base.Add(time.Minute))
+		sndSeed(t, tx, ws, "s2", "l3", "c@x.com", "<3>", "sent", base.Add(2*time.Minute))
 		all, err := outreachstore.ListSends(ctx, tx, ws, "", 200)
 		if err != nil || len(all) != 3 || all[0].ToEmail != "c@x.com" || all[2].ToEmail != "a@x.com" {
 			t.Fatalf("all: %v %+v", err, all)
@@ -363,12 +361,12 @@ func TestListSendsOrderAndLimit(t *testing.T) {
 
 func TestRecentSendToAndMarkBounced(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
-	ws := newWS(t, pool)
+	ws := sndNewWS(t, pool)
 	now := time.Now().UTC()
-	inWS(t, pool, ws, func(tx pgx.Tx) error {
+	sndInWS(t, pool, ws, func(tx pgx.Tx) error {
 		ctx := context.Background()
-		seedSent(t, tx, ws, "s", "r1", "bob@example.com", "<1>", "sent", now.Add(-time.Hour))
-		seedSent(t, tx, ws, "s", "r2", "bob@example.com", "<2>", "failed", now)
+		sndSeed(t, tx, ws, "s", "r1", "bob@example.com", "<1>", "sent", now.Add(-time.Hour))
+		sndSeed(t, tx, ws, "s", "r2", "bob@example.com", "<2>", "failed", now)
 		r, err := outreachstore.GetRecentSendTo(ctx, tx, ws, "  BOB@Example.com ")
 		if err != nil || r == nil || r.Status != "sent" { // live status preferred over newer failed
 			t.Fatalf("recent: %v %+v", err, r)
@@ -403,21 +401,21 @@ func TestRecentSendToAndMarkBounced(t *testing.T) {
 	})
 }
 
-func TestTenantIsolation(t *testing.T) {
+func TestSendsTenantIsolation(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
-	a, b := newWS(t, pool), newWS(t, pool)
-	inWS(t, pool, a, func(tx pgx.Tx) error {
+	a, b := sndNewWS(t, pool), sndNewWS(t, pool)
+	sndInWS(t, pool, a, func(tx pgx.Tx) error {
 		ctx := context.Background()
-		if ok, err := outreachstore.InsertInFlight(ctx, tx, in(a, "s", "shared-key", "x@example.com")); !ok || err != nil {
+		if ok, err := outreachstore.InsertInFlight(ctx, tx, sndIn(a, "s", "shared-key", "x@example.com")); !ok || err != nil {
 			t.Fatalf("a insert %v %v", ok, err)
 		}
-		seedSent(t, tx, a, "s", "a-sent", "x@example.com", "<iso@x>", "sent", time.Now())
+		sndSeed(t, tx, a, "s", "a-sent", "x@example.com", "<iso@x>", "sent", time.Now())
 		return nil
 	})
-	inWS(t, pool, b, func(tx pgx.Tx) error {
+	sndInWS(t, pool, b, func(tx pgx.Tx) error {
 		ctx := context.Background()
 		// same idem key in another workspace is a distinct row
-		if ok, err := outreachstore.InsertInFlight(ctx, tx, in(b, "s", "shared-key", "y@example.com")); !ok || err != nil {
+		if ok, err := outreachstore.InsertInFlight(ctx, tx, sndIn(b, "s", "shared-key", "y@example.com")); !ok || err != nil {
 			t.Fatalf("b insert %v %v", ok, err)
 		}
 		// B asking for A's workspace id under B's GUC sees nothing (RLS)
@@ -443,7 +441,7 @@ func TestTenantIsolation(t *testing.T) {
 		}
 		return nil
 	})
-	inWS(t, pool, a, func(tx pgx.Tx) error {
+	sndInWS(t, pool, a, func(tx pgx.Tx) error {
 		s, _ := outreachstore.GetSendByIdem(context.Background(), tx, a, "shared-key")
 		if s == nil || s.Status != "in_flight" {
 			t.Errorf("a row altered: %+v", s)
