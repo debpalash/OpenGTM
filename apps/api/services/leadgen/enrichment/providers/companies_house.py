@@ -140,6 +140,7 @@ class CompaniesHouseProvider(EnrichmentProvider):
         try:
             # Companies House uses HTTP Basic auth: key as username, blank password.
             async with httpx.AsyncClient(
+                trust_env=False,
                 base_url=_BASE,
                 timeout=_TIMEOUT,
                 auth=(api_key, ""),

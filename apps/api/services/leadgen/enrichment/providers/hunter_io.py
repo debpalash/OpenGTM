@@ -61,7 +61,7 @@ class HunterProvider(EnrichmentProvider):
 
         t0 = time.time()
         try:
-            async with httpx.AsyncClient(timeout=15) as client:
+            async with httpx.AsyncClient(trust_env=False, timeout=15) as client:
                 # If we have a contact person, use email-finder (more precise)
                 if lead.contact_person:
                     parts = lead.contact_person.strip().split(None, 1)

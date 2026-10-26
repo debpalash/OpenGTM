@@ -53,7 +53,7 @@ class ProspeoProvider(EnrichmentProvider):
         t0 = time.time()
 
         try:
-            async with httpx.AsyncClient(timeout=15) as client:
+            async with httpx.AsyncClient(trust_env=False, timeout=15) as client:
                 headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
                 fields = {}
 

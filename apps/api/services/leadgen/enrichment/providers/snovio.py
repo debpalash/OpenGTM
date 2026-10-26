@@ -77,7 +77,7 @@ class SnovioProvider(EnrichmentProvider):
         t0 = time.time()
 
         try:
-            async with httpx.AsyncClient(timeout=15) as client:
+            async with httpx.AsyncClient(trust_env=False, timeout=15) as client:
                 token = await _get_access_token(client)
                 if not token:
                     return EnrichmentResult(

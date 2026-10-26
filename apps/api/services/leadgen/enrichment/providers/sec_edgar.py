@@ -133,7 +133,7 @@ class SecEdgarProvider(EnrichmentProvider):
         if not company:
             return EnrichmentResult(provider=self.name, success=False, error="no_company")
         try:
-            async with httpx.AsyncClient(timeout=_HTTP_TIMEOUT, headers=_HEADERS,
+            async with httpx.AsyncClient(trust_env=False, timeout=_HTTP_TIMEOUT, headers=_HEADERS,
                                          follow_redirects=True) as client:
                 cik = await self._resolve_cik(client, company)
                 if not cik:
@@ -245,7 +245,7 @@ class SecEdgarProvider(EnrichmentProvider):
         # A bare numeric CIK.
         if re.fullmatch(r"\d{1,10}", s):
             return _pad_cik(s)
-        async with httpx.AsyncClient(timeout=_HTTP_TIMEOUT, headers=_HEADERS,
+        async with httpx.AsyncClient(trust_env=False, timeout=_HTTP_TIMEOUT, headers=_HEADERS,
                                      follow_redirects=True) as client:
             return await self._resolve_cik(client, s)
 
@@ -268,7 +268,7 @@ class SecEdgarProvider(EnrichmentProvider):
         cursor = (since_accession or "").replace("-", "")
         out: List[FormDFiling] = []
         try:
-            async with httpx.AsyncClient(timeout=_HTTP_TIMEOUT, headers=_HEADERS,
+            async with httpx.AsyncClient(trust_env=False, timeout=_HTTP_TIMEOUT, headers=_HEADERS,
                                          follow_redirects=True) as client:
                 data = await self._get_json(client, _SUBMISSIONS_URL.format(cik=cik))
                 if not data:

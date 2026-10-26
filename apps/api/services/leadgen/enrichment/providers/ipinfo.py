@@ -60,7 +60,7 @@ class IPInfoProvider(EnrichmentProvider):
             return EnrichmentResult(success=False, error=f"Could not resolve {website}")
 
         try:
-            async with httpx.AsyncClient(timeout=10) as client:
+            async with httpx.AsyncClient(trust_env=False, timeout=10) as client:
                 resp = await client.get(
                     f"https://ipinfo.io/{ip}",
                     headers={"Authorization": f"Bearer {token}"},

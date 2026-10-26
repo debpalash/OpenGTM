@@ -56,6 +56,7 @@ async def _scrape_page(url: str, timeout: int = 12) -> Optional[str]:
     import httpx
     try:
         async with httpx.AsyncClient(
+            trust_env=False,
             timeout=timeout,
             follow_redirects=False,
             headers={

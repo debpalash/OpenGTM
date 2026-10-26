@@ -146,7 +146,7 @@ class AtsHiringProvider(EnrichmentProvider):
         if not slugs:
             return EnrichmentResult(success=False, error="no_slug")
 
-        async with httpx.AsyncClient(follow_redirects=True) as client:
+        async with httpx.AsyncClient(trust_env=False, follow_redirects=True) as client:
             for slug in slugs:
                 for fetch in (_try_greenhouse, _try_lever, _try_ashby):
                     titles = await fetch(client, slug)

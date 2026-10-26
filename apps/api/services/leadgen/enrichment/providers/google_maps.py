@@ -65,7 +65,7 @@ class GoogleMapsProvider(EnrichmentProvider):
             )
 
         try:
-            async with httpx.AsyncClient(timeout=15) as client:
+            async with httpx.AsyncClient(trust_env=False, timeout=15) as client:
                 # Step 1: Text Search to find the business
                 search_query = f"{company}"
                 if city:

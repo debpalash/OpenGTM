@@ -131,7 +131,7 @@ class MCARegistryProvider(EnrichmentProvider):
         # DATA_GOV_IN_KEY for consistent sub-second responses in production.
         headers = {"User-Agent": "curl/8.4.0", "Accept": "application/json"}
         try:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(4.0, connect=4.0),
+            async with httpx.AsyncClient(trust_env=False, timeout=httpx.Timeout(4.0, connect=4.0),
                                          headers=headers) as client:
                 r = await client.get(_API, params=params)
             if r.status_code != 200:

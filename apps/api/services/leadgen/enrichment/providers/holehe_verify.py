@@ -35,7 +35,7 @@ async def _check_email_holehe(email: str) -> Dict:
         import importlib
 
         # Get all holehe modules
-        client = httpx.AsyncClient(timeout=10)
+        client = httpx.AsyncClient(trust_env=False, timeout=10)
 
         modules = []
         for importer, modname, ispkg in pkgutil.walk_packages(

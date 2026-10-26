@@ -437,6 +437,7 @@ class DeepScraperProvider(EnrichmentProvider):
             }
 
             async with httpx.AsyncClient(
+                trust_env=False,
                 timeout=self.timeout,
                 follow_redirects=False,
                 headers=headers,

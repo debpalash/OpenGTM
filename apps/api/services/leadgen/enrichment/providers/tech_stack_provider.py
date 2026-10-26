@@ -284,6 +284,7 @@ async def _safe_get(url: str) -> Tuple[Dict[str, str], str, List[str]]:
 
     cur = url
     async with httpx.AsyncClient(
+        trust_env=False,
         timeout=_FETCH_TIMEOUT,
         follow_redirects=False,
         verify=verify,

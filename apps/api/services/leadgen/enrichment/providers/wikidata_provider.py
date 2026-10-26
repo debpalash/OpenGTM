@@ -92,7 +92,7 @@ class WikidataProvider(EnrichmentProvider):
         company = (company or "").strip()
         if not company:
             return {"status": "not_found", "canonical_domain": ""}
-        async with httpx.AsyncClient(timeout=12, headers={"User-Agent": _UA}) as client:
+        async with httpx.AsyncClient(trust_env=False, timeout=12, headers={"User-Agent": _UA}) as client:
             response = await client.get(_API, params={
                 "action": "wbsearchentities",
                 "search": company,
@@ -137,7 +137,7 @@ class WikidataProvider(EnrichmentProvider):
         if not company:
             return EnrichmentResult(provider=self.name, success=False, error="no_company")
         try:
-            async with httpx.AsyncClient(timeout=12, headers={"User-Agent": _UA}) as client:
+            async with httpx.AsyncClient(trust_env=False, timeout=12, headers={"User-Agent": _UA}) as client:
                 qid = await self._resolve_entity(client, company)
                 if not qid:
                     return EnrichmentResult(provider=self.name, success=False, error="not_on_wikidata")

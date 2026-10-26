@@ -53,7 +53,7 @@ def _searx_search(query: str, max_results: int) -> Optional[List[Dict]]:
     ]
     for url, params in attempts:
         try:
-            with httpx.Client(timeout=_TIMEOUT) as c:
+            with httpx.Client(trust_env=False, timeout=_TIMEOUT) as c:
                 resp = c.get(url, params=params)
             if resp.status_code != 200:
                 continue

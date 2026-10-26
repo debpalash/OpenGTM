@@ -230,7 +230,7 @@ class ReacherClient:
         headers = {"Content-Type": "application/json"}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
+        async with httpx.AsyncClient(trust_env=False, timeout=self.timeout) as client:
             resp = await client.post(
                 f"{self.url}/v0/check_email",
                 json={"to_email": email},

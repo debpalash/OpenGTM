@@ -136,7 +136,7 @@ class DeclarativeProvider(EnrichmentProvider):
             return EnrichmentResult(provider=self.name, success=False, error=f"blocked_url: {str(e)[:60]}")
 
         try:
-            async with httpx.AsyncClient(timeout=req.timeout) as client:
+            async with httpx.AsyncClient(timeout=req.timeout, trust_env=False) as client:
                 resp = await client.request(
                     req.method.upper(), url, headers=headers or None,
                     params=params or None, json=body if body is not None else None,

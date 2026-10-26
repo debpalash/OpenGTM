@@ -234,6 +234,7 @@ class JsonLdFirmographicsProvider(EnrichmentProvider):
 
             url = normalize_website_url(lead.website)
             async with httpx.AsyncClient(
+                trust_env=False,
                 timeout=self.timeout, follow_redirects=False,
                 headers={
                     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "

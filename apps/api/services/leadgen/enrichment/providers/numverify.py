@@ -49,7 +49,7 @@ class NumVerifyProvider(EnrichmentProvider):
         clean_phone = phone.strip().replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
 
         try:
-            async with httpx.AsyncClient(timeout=15) as client:
+            async with httpx.AsyncClient(trust_env=False, timeout=15) as client:
                 resp = await client.get(
                     "http://apilayer.net/api/validate",
                     params={

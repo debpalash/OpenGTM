@@ -75,7 +75,7 @@ def _http_get_json(url: str, params: Dict, headers: Optional[Dict] = None) -> Op
     try:
         import httpx
 
-        with httpx.Client(timeout=_ENGINE_TIMEOUT) as client:
+        with httpx.Client(trust_env=False, timeout=_ENGINE_TIMEOUT) as client:
             resp = client.get(url, params=params, headers=headers or {})
         if resp.status_code != 200:
             logger.debug("search engine %s returned HTTP %s", url, resp.status_code)

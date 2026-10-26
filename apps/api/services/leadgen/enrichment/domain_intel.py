@@ -249,7 +249,7 @@ async def get_crtsh_subdomains(domain: str, timeout: float = 12.0) -> Dict:
     rows = None
     # crt.sh frequently 502s under load — retry briefly before giving up.
     try:
-        async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+        async with httpx.AsyncClient(trust_env=False, timeout=timeout, follow_redirects=True) as client:
             for attempt in range(3):
                 try:
                     resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})

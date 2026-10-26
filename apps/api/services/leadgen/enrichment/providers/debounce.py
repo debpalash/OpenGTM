@@ -56,7 +56,7 @@ class DebounceProvider(EnrichmentProvider):
         t0 = time.time()
 
         try:
-            async with httpx.AsyncClient(timeout=15) as client:
+            async with httpx.AsyncClient(trust_env=False, timeout=15) as client:
                 resp = await client.get(
                     "https://api.debounce.io/v1/",
                     params={"api": api_key, "email": email},

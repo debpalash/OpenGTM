@@ -236,6 +236,7 @@ def _new_plain_client(proxy: str | None):
         follow_redirects=False,
         proxy=proxy or None,
         verify=True,
+        trust_env=False,
         # Pass the raw CookieJar: httpx copies an ``httpx.Cookies`` argument into
         # a fresh default-policy jar, which would silently drop the policy.
         cookies=http.cookiejar.CookieJar(policy=_RejectAllCookiesPolicy()),

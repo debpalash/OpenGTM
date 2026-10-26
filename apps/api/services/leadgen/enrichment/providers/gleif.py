@@ -121,7 +121,7 @@ class GleifProvider(EnrichmentProvider):
         if not company:
             return EnrichmentResult(provider=self.name, success=False, error="no_company")
         try:
-            async with httpx.AsyncClient(timeout=_HTTP_TIMEOUT, headers=_HEADERS,
+            async with httpx.AsyncClient(trust_env=False, timeout=_HTTP_TIMEOUT, headers=_HEADERS,
                                          follow_redirects=True) as client:
                 record = await self._resolve_record(client, company)
                 if not record:
