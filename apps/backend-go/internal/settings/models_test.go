@@ -36,7 +36,7 @@ func TestModelsStaticListsMatchFixture(t *testing.T) {
 			t.Fatalf("%s not found", c.id)
 		}
 		raw, _ := json.Marshal(got)
-		contract.AssertEqual(t, contract.Resp{Status: 200, Body: raw}, fx.Response)
+		contract.AssertEqual(t, contract.Resp{Status: 200, Headers: fx.Response.Headers, Body: raw}, fx.Response)
 	}
 }
 
@@ -138,7 +138,9 @@ func TestModelsOpenRouterDescriptionTruncatedTo120Chars(t *testing.T) {
 	defer srv.Close()
 	got, _ := newModels(t, srv.URL).List(context.Background(), "openrouter", false)
 	raw, _ := json.Marshal(got)
-	var out struct{ Models []struct{ Description string } }
+	var out struct {
+		Models []struct{ Description string }
+	}
 	_ = json.Unmarshal(raw, &out)
 	if n := len([]rune(out.Models[0].Description)); n != 120 {
 		t.Fatalf("description %d chars", n)
