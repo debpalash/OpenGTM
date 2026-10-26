@@ -124,32 +124,7 @@ func chainName(v any) (string, error) {
 // empty), else the single provider, else the target's default waterfall.
 func providerChain(c colgraph.Col) ([]string, error) {
 	if wf, ok := c.Lookup("waterfall"); ok && wf != nil {
-		switch x := wf.(type) {
-		case []any:
-			out := make([]string, 0, len(x))
-			for _, e := range x {
-				n, err := chainName(e)
-				if err != nil {
-					return nil, err
-				}
-				out = append(out, n)
-			}
-			return out, nil
-		case string: // list("abc")
-			out := make([]string, 0, len(x))
-			for _, r := range x {
-				out = append(out, string(r))
-			}
-			return out, nil
-		case map[string]any: // list(dict) is its keys
-			out := make([]string, 0, len(x))
-			for k := range x {
-				out = append(out, k)
-			}
-			sort.Strings(out)
-			return out, nil
-		}
-		return nil, errors.New("runplan: waterfall is not iterable")
+		return WaterfallNames(wf)
 	}
 	if p := c.Get("provider"); truthy(p) {
 		n, err := chainName(p)
@@ -159,6 +134,38 @@ func providerChain(c colgraph.Col) ([]string, error) {
 		return []string{n}, nil
 	}
 	return workbook.DefaultWaterfall(target(c)), nil
+}
+
+// WaterfallNames is list(waterfall) as Python iterates it: a list's entries, a string's
+// characters, a dict's keys. A list entry that is not a string maps to a name no provider
+// has; an unhashable entry or a non-iterable value is an error. Estimate reuses it.
+func WaterfallNames(wf any) ([]string, error) {
+	switch x := wf.(type) {
+	case []any:
+		out := make([]string, 0, len(x))
+		for _, e := range x {
+			n, err := chainName(e)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, n)
+		}
+		return out, nil
+	case string: // list("abc")
+		out := make([]string, 0, len(x))
+		for _, r := range x {
+			out = append(out, string(r))
+		}
+		return out, nil
+	case map[string]any: // list(dict) is its keys
+		out := make([]string, 0, len(x))
+		for k := range x {
+			out = append(out, k)
+		}
+		sort.Strings(out)
+		return out, nil
+	}
+	return nil, errors.New("runplan: waterfall is not iterable")
 }
 
 // Eligible is go_executor.go_eligibility over the selected columns (every

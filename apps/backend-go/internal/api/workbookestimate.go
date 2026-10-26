@@ -12,6 +12,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/runplan"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/vendorcatalog"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
@@ -90,17 +91,17 @@ func estimateChains(cols []wbcrud.Column) (map[string][]string, []string, error)
 		}
 		var chain []string
 		if wf, present := c.Lookup("waterfall"); present && wf != nil {
-			list, ok := wf.([]any)
-			if !ok {
-				return nil, nil, errors.New("estimate: waterfall is not a list")
+			// Python iterates whatever it is: list entries, a string's characters, a dict's keys.
+			if o, isObj := wf.(*wbcrud.Obj); isObj {
+				wf = map[string]any{}
+				chain = o.Keys() // insertion order, like a Python dict
 			}
-			chain = make([]string, 0, len(list))
-			for _, e := range list {
-				s, ok := e.(string)
-				if !ok {
-					return nil, nil, errors.New("estimate: waterfall entry is not a string")
+			if chain == nil {
+				names, err := runplan.WaterfallNames(wf)
+				if err != nil {
+					return nil, nil, err
 				}
-				chain = append(chain, s)
+				chain = names
 			}
 		} else if p, ok := truthyString(c.Get("provider")); ok {
 			chain = []string{p}
