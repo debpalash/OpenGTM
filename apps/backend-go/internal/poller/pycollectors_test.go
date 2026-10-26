@@ -1298,9 +1298,6 @@ func TestPricingTranscripts(t *testing.T) {
 	if len(files) < 23 {
 		t.Fatalf("pricing transcripts = %d", len(files))
 	}
-	// Python follows redirects hop by hop; Go never follows one (plan 08 D4), so a
-	// 3xx is that status as the error class.
-	redirects := map[string]bool{"redirect_followed_manually": true, "redirect_relative_location": true, "redirect_loop_too_many": true, "redirect_to_private_blocked": true}
 	for _, f := range files {
 		var tr struct {
 			Scenario  string         `json:"scenario"`
@@ -1365,11 +1362,65 @@ func TestPricingTranscripts(t *testing.T) {
 				got["error_class"] = o.ErrorClass
 			}
 			want := tr.Result
-			if redirects[tr.Scenario] {
-				want = map[string]any{"ok": false, "error_class": fmt.Sprintf("pricing_http_%d", int(seq[0].Response["status"].(float64)))}
-			}
 			pcEq(t, tr.Scenario, pcNorm(t, got), pcNorm(t, want))
 		})
+	}
+}
+
+func TestPricingRedirectToLoopbackRefused(t *testing.T) {
+	hits := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { hits++ }))
+	defer srv.Close()
+	for _, loc := range []string{srv.URL + "/x", "http://localhost/x", "http://127.1/x", "http://[::1]/x", "ftp://example.com/x"} {
+		d := pcDeps(nil)
+		d.AppEnv = "production"
+		d.Client = &http.Client{Transport: pcRT(func(r *http.Request) (*http.Response, error) {
+			if r.URL.Host != "acme.example.com" {
+				t.Errorf("followed to %s", r.URL)
+			}
+			return &http.Response{StatusCode: 302, Header: http.Header{"Location": {loc}}, Body: io.NopCloser(strings.NewReader("")), Request: r}, nil
+		})}
+		if o := FetchPricing(context.Background(), d, "https://acme.example.com/pricing"); o.OK || o.ErrorClass != "pricing_url_blocked" {
+			t.Errorf("%s: %+v", loc, o)
+		}
+	}
+	if hits != 0 {
+		t.Errorf("loopback reached %d times", hits)
+	}
+}
+
+func TestPricingRedirectHopLimit(t *testing.T) {
+	n := 0
+	d := pcDeps(nil)
+	d.Client = &http.Client{Transport: pcRT(func(r *http.Request) (*http.Response, error) {
+		n++
+		return &http.Response{StatusCode: 301, Header: http.Header{"Location": {fmt.Sprintf("/p%d", n)}}, Body: io.NopCloser(strings.NewReader("")), Request: r}, nil
+	})}
+	if o := FetchPricing(context.Background(), d, "https://acme.example.com/pricing"); o.ErrorClass != "pricing_url_blocked" || n != 7 {
+		t.Errorf("%+v requests=%d (Python: 7 requests, then too many redirects)", o, n)
+	}
+}
+
+func TestPcIntFloatJSONNumber(t *testing.T) {
+	if n, ok := pcInt(json.Number("42")); !ok || n != 42 {
+		t.Errorf("pcInt(42) = %d %v", n, ok)
+	}
+	if n, ok := pcInt(json.Number("2.9")); !ok || n != 2 {
+		t.Errorf("pcInt(2.9) = %d %v", n, ok)
+	}
+	if _, ok := pcInt(json.Number("1e400")); ok {
+		t.Error("pcInt(1e400) must fail")
+	}
+	if f := pcFloat(json.Number("1788000000.5")); f != 1788000000.5 {
+		t.Errorf("pcFloat = %v", f)
+	}
+	cur := map[string]any{JobChangeStateKey: map[string]any{"a": map[string]any{"last_checked_at": json.Number("300")}, "b": map[string]any{"last_checked_at": json.Number("100")}}}
+	var order []string
+	search := func(_ context.Context, q string) ([]SearchResult, error) { order = append(order, q); return nil, nil }
+	cs := []Contact{{Name: "A", Key: "a"}, {Name: "B", Key: "b"}}
+	_, _, _ = fetchJobChangesWith(context.Background(), cur, nil, 50, cs, time.Unix(1788000000, 0), search)
+	if len(order) != 2 || !strings.HasPrefix(order[0], `"B"`) {
+		t.Errorf("LRU order with json.Number cursors: %v", order)
 	}
 }
 
