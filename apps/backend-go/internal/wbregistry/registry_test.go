@@ -130,20 +130,26 @@ func TestPresetsFilterByCategory(t *testing.T) {
 func TestRecipeSummaryKeysMatchFixture(t *testing.T) {
 	r := mustLoad(t)
 	all, _ := r.Recipes("")
-	s := RecipeSummary(all[0])
+	out, err := json.Marshal(RecipeSummary(all[0]))
+	if err != nil {
+		t.Fatal(err)
+	}
 	var keys []string
-	for k := range s {
-		keys = append(keys, k)
+	if err := orderedKeys(out, &keys); err != nil {
+		t.Fatal(err)
 	}
-	sort.Strings(keys)
-	want := []string{"category", "column_types", "columns_count", "description", "icon", "name", "slug"}
+	want := []string{"slug", "name", "description", "category", "icon", "columns_count", "column_types"}
 	if !reflect.DeepEqual(keys, want) {
-		t.Errorf("keys = %v", keys)
+		t.Errorf("key order = %v, want %v", keys, want)
 	}
-	b, err := json.Marshal(s["column_types"])
-	if err != nil || len(b) < 3 {
-		t.Errorf("column_types marshal %s %v", b, err)
+	var ct map[string]int
+	var full struct {
+		ColumnTypes map[string]int `json:"column_types"`
 	}
+	if err := json.Unmarshal(out, &full); err != nil || len(full.ColumnTypes) == 0 {
+		t.Errorf("column_types %s %v", out, err)
+	}
+	_ = ct
 	if _, ok := r.Recipes("bogus"); ok {
 		t.Error("unknown recipe category must report false")
 	}

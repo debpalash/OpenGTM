@@ -217,10 +217,20 @@ func (c typeCounts) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// RecipeSummary is the gallery-card view (keys of Python recipe_summary).
-// The caller must serialise in the order slug,name,description,category,icon,
-// columns_count,column_types; column_types itself marshals in first-seen order.
-func RecipeSummary(rc Recipe) map[string]any {
+// RecipeSummaryView is the gallery-card view; fields marshal in the key order
+// of Python recipe_summary.
+type RecipeSummaryView struct {
+	Slug         string     `json:"slug"`
+	Name         string     `json:"name"`
+	Description  string     `json:"description"`
+	Category     string     `json:"category"`
+	Icon         string     `json:"icon"`
+	ColumnsCount int        `json:"columns_count"`
+	ColumnTypes  typeCounts `json:"column_types"`
+}
+
+// RecipeSummary is the Python recipe_summary view of a recipe.
+func RecipeSummary(rc Recipe) RecipeSummaryView {
 	var wb struct {
 		Columns []struct {
 			Type string `json:"type"`
@@ -234,14 +244,10 @@ func RecipeSummary(rc Recipe) map[string]any {
 		}
 		tc.counts[c.Type]++
 	}
-	return map[string]any{
-		"slug":          rc.Slug,
-		"name":          rc.Name,
-		"description":   rc.Description,
-		"category":      rc.Category,
-		"icon":          rc.Icon,
-		"columns_count": len(wb.Columns),
-		"column_types":  tc,
+	return RecipeSummaryView{
+		Slug: rc.Slug, Name: rc.Name, Description: rc.Description,
+		Category: rc.Category, Icon: rc.Icon,
+		ColumnsCount: len(wb.Columns), ColumnTypes: tc,
 	}
 }
 
