@@ -311,3 +311,36 @@ func TestRefreshSkipsChainWhenAnotherActiveRefreshExists(t *testing.T) {
 		t.Errorf("a second chain was started: %d refresh jobs", n)
 	}
 }
+
+func TestRefreshLowestProcessingJobChains(t *testing.T) {
+	pool, ctx := setupPool(t)
+	seedStaleWorkbook(t, ctx, pool, wsA, "w1", refreshCols, `{"enabled":true,"interval":"daily"}`)
+	var lo, hi int64
+	err := tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+		ins := `INSERT INTO jobs (executor, type, payload, workspace_id, priority, status, next_run_at, max_retries, retry_count)
+			VALUES ('go','refresh_workbook', '{"workbook_id":"w1","workspace_id":"ws-p06t16-a"}'::json, $1, 1, 'processing', now() at time zone 'utc', 3, 0) RETURNING id`
+		if err := tx.QueryRow(ctx, ins, wsA).Scan(&lo); err != nil {
+			return err
+		}
+		return tx.QueryRow(ctx, ins, wsA).Scan(&hi)
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The higher id yields to the lower one; the lower id must still chain, so
+	// two concurrent refreshes never both skip and lose the schedule.
+	for _, id := range []int64{hi, lo} {
+		if err := refresh.Handle(ctx, deps(pool), claim(id, wsA, map[string]any{"workbook_id": "w1", "workspace_id": wsA})); err != nil {
+			t.Fatal(err)
+		}
+	}
+	var next int
+	for _, j := range ofType(jobs(t, ctx, pool, wsA), "refresh_workbook") {
+		if j.FireKey != "" {
+			next++
+		}
+	}
+	if next != 1 {
+		t.Errorf("want exactly one chained next job, got %d", next)
+	}
+}
