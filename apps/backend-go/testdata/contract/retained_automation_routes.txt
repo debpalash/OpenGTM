@@ -1,0 +1,7 @@
+# Automation and watch routes that stay on FastAPI (plan 08, Task 21). One "METHOD /path/{param}" per line.
+# None: all 18 in-scope routes are ported (automations 11, watches 7), so no route line follows.
+# Not routes, and not listed as routes, but they stay on Python after this plan (job level):
+#   - legacy outreach actions (`sequencer`, `send_email`): the Go worker hands the whole trigger_eval job back (D2, AUTOMATIONS_ALLOW_LEGACY_OUTREACH)
+#   - re_enrich over column types the Go worker cannot run (agent columns, columns with a condition, enrichment/waterfall email targets without verify:false): handed back whole (D8)
+#   - hiring/tech detection (JobSpy), job-change search (DDG) and account-group partnership collectors: run through the pyworker ProviderCall RPC (D1)
+#   - the scheduler: the Python scheduler stays the only scheduler (D3); Go ships the bootstrap functions as libraries
