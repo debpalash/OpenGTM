@@ -8,11 +8,13 @@ import (
 )
 
 // Gzip compresses responses of at least minSize bytes for clients that accept
-// gzip. It skips text/event-stream and responses that set Content-Encoding.
+// gzip. It skips text/event-stream, protocol upgrades and responses that set Content-Encoding.
 func Gzip(minSize int) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+			// A protocol upgrade (WebSocket) hijacks the connection: never wrap its writer, the buffered
+			// 101 would be written after the hijack. Browsers do send Accept-Encoding on the handshake.
+			if r.Header.Get("Upgrade") != "" || !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 				next.ServeHTTP(w, r)
 				return
 			}

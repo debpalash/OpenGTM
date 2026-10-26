@@ -276,3 +276,16 @@ func TestRouterPatternsListsRegisteredRoutes(t *testing.T) {
 		t.Fatalf("patterns = %q", got)
 	}
 }
+
+func TestGzipDoesNotWrapProtocolUpgrades(t *testing.T) {
+	var seen http.ResponseWriter
+	h := Gzip(1)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { seen = w }))
+	req := httptest.NewRequest("GET", "/ws", nil)
+	req.Header.Set("Accept-Encoding", "gzip")
+	req.Header.Set("Upgrade", "websocket")
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	if _, wrapped := seen.(interface{ Unwrap() http.ResponseWriter }); wrapped {
+		t.Fatal("upgrade request got a gzip writer")
+	}
+}
