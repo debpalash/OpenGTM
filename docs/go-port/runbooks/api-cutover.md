@@ -25,7 +25,7 @@ http-level only, so it lives in its own file. Responses on Go-eligible routes ca
    `e1f5a9b3d7c2`; api-go refuses to start on any other revision. Run the Python migration first.
 3. `SECRET_KEY` identical on `api` and `api-go` (tokens must cross over), not the insecure default
    outside dev `APP_ENV`.
-4. Compose must mount the new files into nginx (`docker-compose.yml` is owned elsewhere):
+4. The two nginx mounts below are ALREADY in `docker-compose.yml` (nginx would not start without them, since `default.conf` includes both files). The `api-go` service is not added yet; use this snippet:
 
 ```yaml
   nginx:
