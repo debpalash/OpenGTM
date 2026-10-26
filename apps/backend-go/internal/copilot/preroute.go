@@ -86,7 +86,7 @@ func (t *Turn) PreRoute(ctx context.Context, w *ssestream.Writer, lastUserMsg st
 			if err := w.Keepalive(); err != nil {
 				return true, err
 			}
-			wrote = true
+			// a keepalive is an SSE comment, not output: a slow "none" must still fall through to the LLM
 		case it := <-items:
 			if it.err != nil {
 				if ctx.Err() != nil {
