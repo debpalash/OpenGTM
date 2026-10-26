@@ -68,12 +68,21 @@ func findLeads(ctx context.Context, d Deps, c Ctx, a Args) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if err := checkLen("query", query, maxSearchArgLen); err != nil {
+		return "", err
+	}
 	city, _, err := a.String("city")
 	if err != nil {
 		return "", err
 	}
+	if err := checkLen("city", city, maxSearchArgLen); err != nil {
+		return "", err
+	}
 	tier, _, err := a.String("tier")
 	if err != nil {
+		return "", err
+	}
+	if err := checkLen("tier", tier, maxSearchArgLen); err != nil {
 		return "", err
 	}
 	limit := int64(findLeadsDefaultLimit)

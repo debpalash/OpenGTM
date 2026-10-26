@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log/slog"
 	"time"
+	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5"
 
@@ -92,6 +93,17 @@ func requireString(a Args, key string, max int) (string, error) {
 		return "", &ArgError{Field: key, Want: "at most " + itoa(max) + " characters"}
 	}
 	return s, nil
+}
+
+// maxSearchArgLen bounds find_leads query, city and tier (D3).
+const maxSearchArgLen = 255
+
+// checkLen refuses a string over max code points with the D3 argument text.
+func checkLen(field, s string, max int) error {
+	if utf8.RuneCountInString(s) > max {
+		return &ArgError{Field: field, Want: "at most " + itoa(max) + " characters"}
+	}
+	return nil
 }
 
 func itoa(n int) string {

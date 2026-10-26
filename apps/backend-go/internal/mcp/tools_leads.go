@@ -4,6 +4,7 @@ import (
 	"context"
 	"sort"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5"
 
@@ -20,6 +21,25 @@ var leadWriteAllowlist = []string{
 	"status", "source",
 }
 
+// Per-field bounds (D3): generous against real data, far below the 4 MiB frame.
+const (
+	maxLeadNameLen = 320   // identifiers and short values (company, email, city, ...)
+	maxLeadURLLen  = 2048  // website and social URLs
+	maxLeadTextLen = 10000 // free text (address, description, notes, tags)
+)
+
+var leadTextFields = map[string]bool{"address": true, "description": true, "notes": true, "industry_tags": true}
+
+func leadFieldMax(k string) int {
+	switch {
+	case leadTextFields[k]:
+		return maxLeadTextLen
+	case k == "website" || strings.HasSuffix(k, "_url"):
+		return maxLeadURLLen
+	}
+	return maxLeadNameLen
+}
+
 // leadWriteFields is _lead_write_fields: allowlisted keys with a non-null value.
 // workspace_id and unknown keys are never read. A non-string value returns the
 // client-facing message as errMsg.
@@ -33,6 +53,9 @@ func leadWriteFields(a Args) (f LeadFields, errMsg string) {
 		s, isStr := v.(string)
 		if !isStr {
 			return nil, k + " must be a string"
+		}
+		if utf8.RuneCountInString(s) > leadFieldMax(k) {
+			return nil, k + " must be at most " + itoa(leadFieldMax(k)) + " characters"
 		}
 		f[k] = s
 	}

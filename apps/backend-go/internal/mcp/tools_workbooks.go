@@ -13,6 +13,8 @@ import (
 
 const (
 	maxWorkbookIDLen    = 64
+	maxWorkbookNameLen  = 255
+	maxWorkbookDescLen  = 10000
 	defaultNamePrefix   = "MCP — "
 	defaultNameRunes    = 40
 	msgWorkbookIDLength = "workbook_id must be at most 64 characters"
@@ -49,6 +51,12 @@ func createWorkbook(ctx context.Context, tx pgx.Tx, d Deps, c Ctx, a Args) (stri
 	name, _, err := a.String("name")
 	if err != nil {
 		return "", err
+	}
+	if utf8.RuneCountInString(description) > maxWorkbookDescLen {
+		return errorText("description must be at most " + itoa(maxWorkbookDescLen) + " characters"), nil
+	}
+	if utf8.RuneCountInString(name) > maxWorkbookNameLen {
+		return errorText("name must be at most " + itoa(maxWorkbookNameLen) + " characters"), nil
 	}
 	if name == "" { // Python: arguments.get("name") or default
 		name = defaultNamePrefix + firstRunes(description, defaultNameRunes)
