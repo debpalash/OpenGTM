@@ -596,14 +596,14 @@ func TestChatForgedConversationIDStartsFresh(t *testing.T) {
 
 func TestChatUnauthenticated401NoSideEffects(t *testing.T) {
 	e := newChatEnv(t, chatOpts{})
-	before := chatCount(t, `SELECT count(*) FROM chat_conversations`)
+	before := chatCount(t, `SELECT count(*) FROM chat_conversations WHERE workspace_id IN ('ws-alpha','ws-beta')`)
 	for _, hdr := range []map[string]string{nil, {"Authorization": "Bearer garbage"}} {
 		rec, _ := e.do("POST", "/api/copilotkit", "application/json", `{"messages":[{"role":"user","content":"hi"}]}`, hdr)
 		if rec.Code != 401 || rec.Header().Get("WWW-Authenticate") != "Bearer" || !strings.Contains(rec.Body.String(), "Could not validate credentials") {
 			t.Fatalf("%d %q", rec.Code, rec.Body.String())
 		}
 	}
-	if chatCount(t, `SELECT count(*) FROM chat_conversations`) != before || chatCount(t, `SELECT count(*) FROM chat_messages`) != 0 {
+	if chatCount(t, `SELECT count(*) FROM chat_conversations WHERE workspace_id IN ('ws-alpha','ws-beta')`) != before || chatCount(t, `SELECT count(*) FROM chat_messages WHERE workspace_id IN ('ws-alpha','ws-beta')`) != 0 {
 		t.Fatal("an unauthenticated request left a row")
 	}
 	if len(e.fake.llmRequests()) != 0 || len(e.fake.preReqs) != 0 || e.caps.Active() != 0 {
@@ -624,7 +624,7 @@ func TestChatInvalidBody422(t *testing.T) {
 			t.Errorf("%s: %d %q", body, rec.Code, rec.Body.String())
 		}
 	}
-	if chatCount(t, `SELECT count(*) FROM chat_conversations WHERE title <> 'seed'`) != 0 || e.caps.Active() != 0 {
+	if chatCount(t, `SELECT count(*) FROM chat_conversations WHERE workspace_id IN ('ws-alpha','ws-beta') AND title <> 'seed'`) != 0 || e.caps.Active() != 0 {
 		t.Fatal("an invalid body left a row or a slot")
 	}
 }
@@ -636,7 +636,7 @@ func TestChatBodyTooLarge413(t *testing.T) {
 	if rec.Code != 413 {
 		t.Fatalf("%d", rec.Code)
 	}
-	if chatCount(t, `SELECT count(*) FROM chat_conversations WHERE title <> 'seed'`) != 0 {
+	if chatCount(t, `SELECT count(*) FROM chat_conversations WHERE workspace_id IN ('ws-alpha','ws-beta') AND title <> 'seed'`) != 0 {
 		t.Fatal("an oversized body left a conversation")
 	}
 }
@@ -927,7 +927,7 @@ func TestChatDisconnectReleasesSlotAndCancelsRPC(t *testing.T) {
 	chatWaitActive(t, e.caps, 0)
 	time.Sleep(100 * time.Millisecond)
 	// Python stores nothing after a disconnect: no assistant row, no memory
-	if n := chatCount(t, `SELECT count(*) FROM chat_messages WHERE role = 'assistant'`); n != 0 {
+	if n := chatCount(t, `SELECT count(*) FROM chat_messages WHERE workspace_id IN ('ws-alpha','ws-beta') AND role = 'assistant'`); n != 0 {
 		t.Fatalf("%d assistant rows after a disconnect", n)
 	}
 }

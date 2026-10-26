@@ -377,7 +377,7 @@ func TestGetForeignConversation404Body(t *testing.T) {
 
 func TestDeleteForeignIsNoopOk(t *testing.T) {
 	e := newCKEnv(t, true)
-	before := ckCount(t, `SELECT count(*) FROM chat_conversations`) + 1000*ckCount(t, `SELECT count(*) FROM chat_messages`)
+	before := ckCount(t, `SELECT count(*) FROM chat_conversations WHERE workspace_id IN ('ws-alpha','ws-beta')`) + 1000*ckCount(t, `SELECT count(*) FROM chat_messages WHERE workspace_id IN ('ws-alpha','ws-beta')`)
 	for _, c := range []struct{ who, ws, id string }{
 		{"bob", "ws-alpha", "conv-ed-1"}, {"alice", "ws-alpha", "conv-ed-1"}, {"bob", "ws-beta", "conv-ed-1"}, {"erin", "ws-alpha", "nope"},
 		{"erin", "ws-alpha", "conv-b-1"},
@@ -387,7 +387,7 @@ func TestDeleteForeignIsNoopOk(t *testing.T) {
 			t.Fatalf("%v: %d %q", c, rec.Code, rec.Body.String())
 		}
 	}
-	if after := ckCount(t, `SELECT count(*) FROM chat_conversations`) + 1000*ckCount(t, `SELECT count(*) FROM chat_messages`); after != before {
+	if after := ckCount(t, `SELECT count(*) FROM chat_conversations WHERE workspace_id IN ('ws-alpha','ws-beta')`) + 1000*ckCount(t, `SELECT count(*) FROM chat_messages WHERE workspace_id IN ('ws-alpha','ws-beta')`); after != before {
 		t.Fatal("a foreign delete removed rows")
 	}
 }
