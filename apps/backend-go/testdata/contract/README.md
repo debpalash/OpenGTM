@@ -774,3 +774,11 @@ turned into an SSRF. A domain that resolves only to a private address still prod
   so the next `bootstrap_watch_schedules` re-enqueues it: re-poll latency is up to one bootstrap interval. The worker must run a heartbeat goroutine
   (a single long fetch otherwise outlives the lease).
 - `emitted`/`dupe` in the log line are real insert/conflict counts (Python's dupe is always 0).
+
+## Automation engine (plan 08 Task 14): deviations (`internal/autoengine`)
+
+- A reservation stays held after a panic or error following the `in_flight` marker, and after a cancel/shutdown abort (marker left `in_flight`). This is Python parity (a recorded vector asserts it) and money-conservative: releasing would make an idempotent retry refused, because a released key is never reserved again. A successful action whose context died is still settled (detached short-timeout transaction) before the run stops.
+- Hand-back is stricter than Python: legacy outreach actions always, and `re_enrich` over agent columns, columns with a `condition`, or an enrichment/waterfall email target without `verify:false`. Python runs all of those after the hand-back, so no behaviour is lost.
+- Lease heartbeat and cancel probe run between actions, not during one; a long `re_enrich` notices a cancel late (non-idempotent actions stay at-most-once through the marker).
+- A dry run executes the actions exactly like Python (nothing is persisted, reserved or charged, no `last_fired_at`); activity rows are still written.
+- On an idempotent re-attempt the result row keeps the first attempt's `charged_usd` (Python recorded 0), so the ledger and the row agree. Non-integer target row ids are dropped instead of crashing (D4).
