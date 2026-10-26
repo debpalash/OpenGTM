@@ -1,6 +1,7 @@
 package signals_test
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"math"
 	"os"
@@ -89,5 +90,22 @@ func TestCursorRoundTrip(t *testing.T) {
 	// missing padding accepted (encoder never pads), padded input accepted
 	if _, _, err := signals.DecodeCursor(c + "=="); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestCursorRejectsNulAndLoneSurrogate(t *testing.T) {
+	enc := func(payload string) string { return base64.RawURLEncoding.EncodeToString([]byte(payload)) }
+	for name, p := range map[string]string{
+		"nul":          `[1.5,"a\u0000b"]`,
+		"lone_high":    `[1.5,"a\ud800b"]`,
+		"lone_low":     `[1.5,"\udc00"]`,
+		"nbsp_padding": "[1.5,\u00a0\"a\"]",
+	} {
+		if _, _, err := signals.DecodeCursor(enc(p)); err != signals.ErrBadCursor {
+			t.Errorf("%s: err = %v", name, err)
+		}
+	}
+	if _, id, err := signals.DecodeCursor(enc(`[1.5,"a\ud83d\ude00"]`)); err != nil || id != "a\U0001F600" {
+		t.Errorf("valid surrogate pair: %q %v", id, err)
 	}
 }

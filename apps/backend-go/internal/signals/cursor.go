@@ -20,6 +20,9 @@ import (
 // to 422 {"detail": "invalid signal cursor"}.
 var ErrBadCursor = errors.New("invalid signal cursor")
 
+// ErrBadLimit is returned by Page for limit < 1.
+var ErrBadLimit = errors.New("limit must be positive")
+
 // EncodeCursor is base64.urlsafe_b64encode(json.dumps([created_at, id],
 // separators=(",", ":"))) without padding. NaN/Infinity render as Python's
 // json.dumps does (allow_nan default).
@@ -35,9 +38,14 @@ func EncodeCursor(createdAt float64, id string) string {
 	default:
 		ts, _ = canonjson.FloatRepr(createdAt)
 	}
+	return encodeCursor(ts, id)
+}
+
+// encodeCursor takes the already-rendered timestamp literal.
+func encodeCursor(ts, id string) string {
 	idJSON, err := canonjson.Marshal(id, false)
 	if err != nil { // invalid UTF-8 cannot come out of Postgres text
-		idJSON, _ = json.Marshal(strings.ToValidUTF8(id, "�"))
+		idJSON, _ = json.Marshal(strings.ToValidUTF8(id, "\ufffd"))
 	}
 	payload := "[" + ts + "," + string(idJSON) + "]"
 	return base64.RawURLEncoding.EncodeToString([]byte(payload))
@@ -59,6 +67,11 @@ func DecodeCursor(cursor string) (float64, string, error) {
 	}
 	var id string
 	if err := json.Unmarshal(elems[1], &id); err != nil || !bytes.HasPrefix(elems[1], []byte(`"`)) {
+		return 0, "", ErrBadCursor
+	}
+	// Postgres text cannot hold NUL, and a lone surrogate escape (decoded to
+	// U+FFFD here) crashes Python's driver: reject both instead of a 500.
+	if strings.ContainsRune(id, 0) || (strings.ContainsRune(id, '\ufffd') && !bytes.Contains(elems[1], []byte("\xef\xbf\xbd"))) {
 		return 0, "", ErrBadCursor
 	}
 	ts, ok := pyFloat(elems[0])
@@ -93,6 +106,10 @@ func pyB64Decode(s string) ([]byte, bool) {
 		return nil, false
 	}
 	return out, true
+}
+
+func trimJSON(b []byte) []byte {
+	return bytes.TrimFunc(b, func(r rune) bool { return r < 128 && isJSONSpace(byte(r)) })
 }
 
 func isJSONSpace(c byte) bool { return c == ' ' || c == '\t' || c == '\n' || c == '\r' }
@@ -131,7 +148,7 @@ func splitTopArray(raw []byte) ([][]byte, bool) {
 			}
 		case ',':
 			if depth == 0 {
-				elems = append(elems, bytes.TrimSpace(b[start:i]))
+				elems = append(elems, trimJSON(b[start:i]))
 				start = i + 1
 			}
 		}
@@ -139,7 +156,7 @@ func splitTopArray(raw []byte) ([][]byte, bool) {
 	if inStr || depth != 0 {
 		return nil, false
 	}
-	last := bytes.TrimSpace(b[start:])
+	last := trimJSON(b[start:])
 	if len(last) == 0 && len(elems) == 0 {
 		return nil, true // "[]"
 	}
