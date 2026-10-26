@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/billing"
@@ -21,6 +22,14 @@ type WireDeps struct {
 	AppSetting func(ctx context.Context, key, def string) (string, error)
 }
 
+var wired atomic.Bool
+
+// Wired reports whether Wire ran in this process (startup tests assert it).
+func Wired() bool { return wired.Load() }
+
+// ResetWiredForTest clears the Wired flag (tests only).
+func ResetWiredForTest() { wired.Store(false) }
+
 // researchSettingTimeout bounds the settings read behind each research cost lookup.
 const researchSettingTimeout = 2 * time.Second
 
@@ -29,6 +38,7 @@ const researchSettingTimeout = 2 * time.Second
 // it only `research` is platform billed). Call it once at startup, before
 // serving; it replaces the package-level hooks of vendorcatalog and billing.
 func Wire(d WireDeps) {
+	wired.Store(true)
 	vendorcatalog.SetDeclaredCost(func(name string) (float64, bool) {
 		if d.Index == nil {
 			return 0, false
