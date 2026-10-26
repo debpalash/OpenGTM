@@ -33,7 +33,7 @@ func (d Deps) destRoutesEnabled(area string) bool {
 	return true
 }
 
-// RegisterAudiences registers the 8 /api/audiences routes (Tasks 15-17).
+// RegisterAudiences registers the 9 /api/audiences routes (Tasks 15-17).
 func RegisterAudiences(r *httpx.Router, d Deps) {
 	if !d.audienceRoutesEnabled("audiences") {
 		return
@@ -43,7 +43,7 @@ func RegisterAudiences(r *httpx.Router, d Deps) {
 	registerAudiencesAccounts(r, d)
 }
 
-// RegisterDestinations registers the 15 /api/audience-destinations routes (Tasks 18-21).
+// RegisterDestinations registers the 16 /api/audience-destinations routes (Tasks 18-21).
 func RegisterDestinations(r *httpx.Router, d Deps) {
 	if !d.destRoutesEnabled("destinations") {
 		return

@@ -6,6 +6,8 @@ import (
 	"context"
 	"fmt"
 	"strings"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/crmpush"
 )
 
 // Result is the typed form of the Python return map {"success", "summary", "error"}.
@@ -15,41 +17,54 @@ type Result struct {
 	Error   string
 }
 
-// Request payloads. Secrets travel as values for one call and are never logged.
+// Request payloads. Every request names its workspace (secret resolution and tenant rows are
+// per workspace); secrets travel as values for one call and are never logged. Shapes for the
+// not-yet-ported connectors are minimal.
 type (
-	// WebhookRequest posts a payload to a webhook or Slack destination.
+	// WebhookRequest posts a payload to a webhook or Slack destination. Slack resolves
+	// config.webhook_secret_ref through Ports.Secrets.
+	// TODO(plan10 T20): finalize with the delivery engine.
 	WebhookRequest struct {
+		WorkspaceID     string
 		DestinationType string // webhook | slack
 		Config          map[string]any
 		Payload         map[string]any
+		LeadID          int64
 		IdempotencyKey  string
 	}
-	// CRMRequest upserts one lead into HubSpot or Salesforce.
-	CRMRequest struct {
-		DestinationType string // hubspot | salesforce
-		Config          map[string]any
-		FieldMap        map[string]any
-		Payload         map[string]any
-	}
 	// CampaignRequest adds one lead to an Instantly or Smartlead campaign.
+	// TODO(plan10 T20): finalize with the delivery engine.
 	CampaignRequest struct {
-		Config  map[string]any
-		Payload map[string]any
+		WorkspaceID string
+		Config      map[string]any
+		Payload     map[string]any
+		LeadID      int64
 	}
 	// RowUpsert upserts one row or record (Google Sheets, Airtable).
+	// TODO(plan10 T20): finalize with the delivery engine.
 	RowUpsert struct {
-		Config  map[string]any
-		Payload map[string]any
+		WorkspaceID string
+		Config      map[string]any
+		Payload     map[string]any
+		LeadID      int64
 	}
 )
+
+// CRMPusher mirrors crmpush.Push (HubSpot/Salesforce; field_map travels inside cfg).
+// crmpush.Result carries Value, not Summary.
+type CRMPusher interface {
+	Push(ctx context.Context, ws string, cfg, leadData map[string]any, workbookID string, leadID int64) crmpush.Result
+}
+
+// SecretResolver resolves workspace secrets by name (*secrets.Resolver satisfies it).
+type SecretResolver interface {
+	Get(ctx context.Context, ws, key string) (value, source string, err error)
+}
 
 // Ports the Python integrations (plans 07/08) behind Go seams.
 type (
 	WebhookSender interface {
 		Send(ctx context.Context, r WebhookRequest) (Result, error)
-	}
-	CRMPusher interface {
-		Push(ctx context.Context, r CRMRequest) (Result, error)
 	}
 	CampaignAdder interface {
 		AddLead(ctx context.Context, r CampaignRequest) (Result, error)
@@ -64,6 +79,7 @@ type (
 
 // Ports are the delivery seams; a nil port means that destination type is unsupported in Go.
 type Ports struct {
+	Secrets   SecretResolver // webhook_secret_ref, ad platform tokens
 	Webhook   WebhookSender
 	CRM       CRMPusher
 	Instantly CampaignAdder
