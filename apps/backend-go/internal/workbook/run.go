@@ -11,11 +11,13 @@ import (
 	"log/slog"
 	"runtime/debug"
 	"sort"
+	"strconv"
 	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
@@ -616,7 +618,43 @@ func (rs *runState) finalize(ctx context.Context, res *Result, runErr error, nLe
 		owns = false
 	}
 	if owns {
+		rs.flushChanges(fctx)
 		rs.publish(fctx, map[string]any{"type": "workbook_status", "status": status,
 			"completed": res.Completed, "errors": res.Errors, "total": res.Total})
+	}
+}
+
+// queueChange records a committed cell's delta for the run-end flush.
+func (rs *runState) queueChange(c *rowChange) {
+	if c == nil || rs.deps.Emitter == nil {
+		return
+	}
+	rs.changeMu.Lock()
+	rs.changes = append(rs.changes, *c)
+	rs.changeMu.Unlock()
+}
+
+// flushChanges is flush_row_change_emits: after the run's writes committed, one RowsChanged per
+// workbook carrying every queued delta (cell_version = epoch milliseconds). The emitter swallows
+// its own failures; this never fails the run.
+func (rs *runState) flushChanges(ctx context.Context) {
+	rs.changeMu.Lock()
+	pending := rs.changes
+	rs.changes = nil
+	rs.changeMu.Unlock()
+	if len(pending) == 0 || rs.deps.Emitter == nil {
+		return
+	}
+	version := strconv.FormatInt(time.Now().UnixMilli(), 10)
+	changes := make([]automationhook.Change, len(pending))
+	for i, c := range pending {
+		changes[i] = automationhook.Change{RowID: c.rowID, Field: c.field, Old: c.old, New: c.new, CellVersion: version}
+	}
+	err := tenancy.InWorkspace(ctx, rs.deps.Pool, rs.p.WorkspaceID, func(tx pgx.Tx) error {
+		_, err := rs.deps.Emitter.RowsChanged(ctx, tx, rs.p.WorkspaceID, rs.p.WorkbookID, changes)
+		return err
+	})
+	if err != nil {
+		rs.log.Warn("on_rows_changed flush failed", "err", err)
 	}
 }

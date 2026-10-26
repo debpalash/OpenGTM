@@ -8,8 +8,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
@@ -50,8 +52,16 @@ type Deps struct {
 	Py PyCaller
 	// AIBatch configures the ai_formula batch prepass (off by default).
 	AIBatch BatchConfig
+	// Emitter receives the run-end on_row_changed deltas (automationhook.Emitter; nil: none).
+	// AUTOMATIONS_ENABLED is the emitter's own switch.
+	Emitter RowChangeEmitter
 	// StopCheckInterval throttles the pause/cancel probe (Python: ~2s).
 	StopCheckInterval time.Duration
+}
+
+// RowChangeEmitter is the on_row_changed slice of automationhook.Emitter.
+type RowChangeEmitter interface {
+	RowsChanged(ctx context.Context, tx pgx.Tx, workspaceID, workbookID string, changes []automationhook.Change) (int, error)
 }
 
 // PyCaller is the Python worker RPC (pyworker.Client).
@@ -97,6 +107,8 @@ type runState struct {
 	// client is the caller of an in-request cell run: its cancellation stops the run only
 	// until the first paid dispatch (the run itself is detached from it).
 	client       context.Context
+	changeMu     sync.Mutex
+	changes      []rowChange // pending on_row_changed deltas, flushed after the run commits
 	noRetryMu    sync.Mutex
 	noRetry      map[cellKey]bool // cells whose RPC timed out: no automatic retry
 	cols         []column         // every configured column (name aliases for {column} references)

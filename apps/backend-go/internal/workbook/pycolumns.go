@@ -313,12 +313,17 @@ func (rs *runState) aiBatchPrepass(ctx context.Context, items []workItem) (map[b
 			RowID: int32(k.row), ColumnID: k.col, Status: "complete", Value: &text}
 		prov := "ai"
 		w.Provider = &prov
-		err := tenancy.InWorkspace(ctx, rs.deps.Pool, rs.p.WorkspaceID, func(tx pgx.Tx) error {
+		var change *rowChange
+		err := tenancy.InWorkspace(ctx, rs.deps.Pool, rs.p.WorkspaceID, func(tx pgx.Tx) (err error) {
 			if err := fence(ctx, tx, rs.claim, rs.p.WorkbookID); err != nil {
 				return err
 			}
-			return setEnrichment(ctx, tx, w)
+			change, err = setEnrichmentChange(ctx, tx, w)
+			return err
 		})
+		if err == nil {
+			rs.queueChange(change)
+		}
 		if err != nil {
 			if a := abortErr(ctx, err); a != nil {
 				return handled, completed, a

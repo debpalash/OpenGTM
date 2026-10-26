@@ -149,6 +149,32 @@ func (q *Queries) GetProviderStat(ctx context.Context, arg GetProviderStatParams
 	return i, err
 }
 
+const getRowOverlayCell = `-- name: GetRowOverlayCell :one
+SELECT COALESCE((enrichments::jsonb -> $1::text)::text, 'null')::text AS cell FROM workbook_rows
+WHERE id = $2::int AND workbook_id = $3::text AND workspace_id = $4::text
+`
+
+type GetRowOverlayCellParams struct {
+	ColumnID    string
+	RowID       int32
+	WorkbookID  string
+	WorkspaceID string
+}
+
+// Prior overlay cell (enrichments[column_id]) as JSON text, 'null' when absent: the old value of
+// an on_row_changed delta, read in the same transaction before MergeRowOverlay.
+func (q *Queries) GetRowOverlayCell(ctx context.Context, arg GetRowOverlayCellParams) (string, error) {
+	row := q.db.QueryRow(ctx, getRowOverlayCell,
+		arg.ColumnID,
+		arg.RowID,
+		arg.WorkbookID,
+		arg.WorkspaceID,
+	)
+	var cell string
+	err := row.Scan(&cell)
+	return cell, err
+}
+
 const getWorkbookForRun = `-- name: GetWorkbookForRun :one
 
 SELECT id, status, columns_config, source_type, source_config, budget_max_usd, budget_spent_usd

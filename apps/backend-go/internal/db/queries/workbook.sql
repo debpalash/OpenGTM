@@ -62,6 +62,12 @@ ON CONFLICT (workbook_id, lead_id, column_id) DO UPDATE SET
   value = EXCLUDED.value, status = EXCLUDED.status, provider = EXCLUDED.provider,
   error = EXCLUDED.error, cell_metadata = EXCLUDED.cell_metadata, updated_at = now();
 
+-- name: GetRowOverlayCell :one
+-- Prior overlay cell (enrichments[column_id]) as JSON text, 'null' when absent: the old value of
+-- an on_row_changed delta, read in the same transaction before MergeRowOverlay.
+SELECT COALESCE((enrichments::jsonb -> sqlc.arg(column_id)::text)::text, 'null')::text AS cell FROM workbook_rows
+WHERE id = sqlc.arg(row_id)::int AND workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
+
 -- name: MergeRowOverlay :execrows
 -- Mirror of _set_enrichment's WorkbookRow.enrichments[column_id] = cell. The
 -- merge is a single statement so concurrent cells of one row cannot lose writes.

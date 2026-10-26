@@ -764,15 +764,18 @@ func (rs *runState) commitCell(ctx context.Context, col column, rowID, leadID in
 			bErr = r.Err // Python broadcasts result_error, which may be None
 		}
 	}
-	err := tenancy.InWorkspace(ctx, rs.deps.Pool, ws, func(tx pgx.Tx) error {
+	var change *rowChange
+	err := tenancy.InWorkspace(ctx, rs.deps.Pool, ws, func(tx pgx.Tx) (err error) {
 		if err := fence(ctx, tx, rs.claim, wb); err != nil {
 			return err
 		}
-		return setEnrichment(ctx, tx, w)
+		change, err = setEnrichmentChange(ctx, tx, w)
+		return err
 	})
 	if err != nil {
 		return cellOutcome{}, err
 	}
+	rs.queueChange(change)
 
 	var bProvider any
 	status := "error"

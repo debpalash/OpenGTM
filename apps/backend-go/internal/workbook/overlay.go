@@ -1,12 +1,15 @@
 package workbook
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 )
 
@@ -74,7 +77,60 @@ func (w cellWrite) overlayCell() map[string]any {
 // overlay row and mirror the cell into the workbook row's enrichments JSON.
 // The caller owns the transaction (and the lease re-check that precedes it).
 func setEnrichment(ctx context.Context, tx pgx.Tx, w cellWrite) error {
+	_, err := setEnrichmentChange(ctx, tx, w)
+	return err
+}
+
+// rowChange is one on_row_changed delta: a complete cell whose prior overlay value differs.
+type rowChange struct {
+	rowID    int64
+	field    string
+	old, new any
+}
+
+// decodeNumber decodes JSON with UseNumber so integers beyond 2^53 and the int/float
+// distinction survive (Python's json keeps them).
+func decodeNumber(raw []byte) (any, error) {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber()
+	var v any
+	if err := dec.Decode(&v); err != nil {
+		return nil, err
+	}
+	return v, nil
+}
+
+// priorCellValue is `_prev.get("value") if isinstance(_prev, dict) else _prev`.
+func priorCellValue(ctx context.Context, q *gen.Queries, w cellWrite) (any, error) {
+	cell, err := q.GetRowOverlayCell(ctx, gen.GetRowOverlayCellParams{
+		ColumnID: w.ColumnID, RowID: w.RowID, WorkbookID: w.WorkbookID, WorkspaceID: w.WorkspaceID})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	prev, err := decodeNumber([]byte(cell))
+	if err != nil {
+		return nil, nil // unreadable prior cell: treated as absent, like Python's broad except
+	}
+	if m, ok := prev.(map[string]any); ok {
+		return m["value"], nil
+	}
+	return prev, nil
+}
+
+// setEnrichmentChange is setEnrichment that also reports the on_row_changed delta (status
+// complete and str(old) != str(new)); nil when there is none or the row no longer exists.
+func setEnrichmentChange(ctx context.Context, tx pgx.Tx, w cellWrite) (*rowChange, error) {
 	q := gen.New(tx)
+	var old any
+	if w.Status == "complete" {
+		var err error
+		if old, err = priorCellValue(ctx, q, w); err != nil {
+			return nil, err
+		}
+	}
 	var meta []byte
 	if len(w.Skipped) > 0 || len(w.Meta) > 0 {
 		m := make(map[string]any, len(w.Meta)+1)
@@ -86,7 +142,7 @@ func setEnrichment(ctx context.Context, tx pgx.Tx, w cellWrite) error {
 		}
 		var err error
 		if meta, err = json.Marshal(m); err != nil {
-			return err
+			return nil, err
 		}
 	}
 	if err := q.UpsertEnrichment(ctx, gen.UpsertEnrichmentParams{
@@ -94,16 +150,28 @@ func setEnrichment(ctx context.Context, tx pgx.Tx, w cellWrite) error {
 		Value: textOf(w.Value), Status: w.Status, Provider: textOf(w.Provider), Error: textOf(w.Error),
 		CellMetadata: meta,
 	}); err != nil {
-		return err
+		return nil, err
 	}
 	cell, err := json.Marshal(w.overlayCell())
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// Zero rows affected (row deleted mid-run) is silent, like Python's
 	// `if wr is not None`.
-	_, err = q.MergeRowOverlay(ctx, gen.MergeRowOverlayParams{
+	n, err := q.MergeRowOverlay(ctx, gen.MergeRowOverlayParams{
 		ColumnID: w.ColumnID, Cell: cell, RowID: w.RowID, WorkbookID: w.WorkbookID, WorkspaceID: w.WorkspaceID,
 	})
-	return err
+	if err != nil || n == 0 || w.Status != "complete" {
+		return nil, err
+	}
+	var nv any
+	if w.HasRaw {
+		nv = w.Raw
+	} else if w.Value != nil {
+		nv = *w.Value
+	}
+	if automationhook.PyStr(old) == automationhook.PyStr(nv) {
+		return nil, nil
+	}
+	return &rowChange{rowID: int64(w.RowID), field: w.ColumnID, old: old, new: nv}, nil
 }

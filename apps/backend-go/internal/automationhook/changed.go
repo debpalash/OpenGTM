@@ -143,6 +143,9 @@ func pyStr(v any) string {
 	return pyRepr(v)
 }
 
+// PyStr is pyStr for callers that compare old and new cell values like Python's str().
+func PyStr(v any) string { return pyStr(v) }
+
 func pyRepr(v any) string {
 	switch x := v.(type) {
 	case nil:
