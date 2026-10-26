@@ -30,5 +30,6 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterUsers(r, d)
 	RegisterWorkspaces(r, d)
 	RegisterMCPTokens(r, d)
+	RegisterSCIM(r, d)
 	// Task 12+: ...
 }

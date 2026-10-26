@@ -81,6 +81,7 @@ func (e scimEnv) workspaceTok(t *testing.T, id string, createdAt, expiresAt floa
 			_, _ = tx.Exec(c, `DELETE FROM workspace_member_permissions WHERE workspace_id=$1`, id)
 			return nil
 		})
+		_, _ = e.pool.Exec(c, `DELETE FROM workspace_oidc_identities WHERE workspace_id=$1`, id)
 		_, _ = e.pool.Exec(c, `DELETE FROM workspace_scim_tokens WHERE workspace_id=$1`, id)
 		_, _ = e.pool.Exec(c, `DELETE FROM workspace_members WHERE workspace_id=$1`, id)
 		_, _ = e.pool.Exec(c, `DELETE FROM workspaces WHERE id=$1`, id)
@@ -363,8 +364,8 @@ func TestPatchDeactivateRemovesMembership(t *testing.T) {
 	_, u := e.create(t, "t13-pd", hdr, `{"userName":"t13-pd-u"}`)
 	id := u["id"].(string)
 	// capability overrides and OIDC identities go with the membership
-	if _, err := e.pool.Exec(context.Background(), `INSERT INTO workspace_oidc_identities (workspace_id, user_id, issuer, subject) VALUES ('t13-pd', $1::int, 'iss', 'sub')`, id); err != nil {
-		t.Skipf("oidc identity insert not supported by schema: %v", err)
+	if _, err := e.pool.Exec(context.Background(), `INSERT INTO workspace_oidc_identities (workspace_id, issuer, subject, user_id, created_at) VALUES ('t13-pd', 'iss', 'sub', $1::int, 0)`, id); err != nil {
+		t.Fatal(err)
 	}
 	code, m := e.patch("t13-pd", id, `[{"op":"Replace","path":"active","value":false}]`, hdr)
 	if code != 200 || m["active"] != false {
