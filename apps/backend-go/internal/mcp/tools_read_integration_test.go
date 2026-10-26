@@ -198,7 +198,10 @@ func (e *readEnv) replay(t *testing.T, pattern string) int {
 			args["lead_id"] = e.ids[int(v)-1]
 		}
 		got := e.call(t, e.ctxFor(fx.Token), fx.Request.Params.Name, args)
-		if want := e.norm(fx.Response.Result.Content[0].Text); got != want {
+		want := e.norm(fx.Response.Result.Content[0].Text)
+		if fx.Request.Params.Name == "get_pipeline_stats" {
+			assertStatsEqual(t, filepath.Base(f), got, want)
+		} else if got != want {
 			t.Errorf("%s:\n got %s\nwant %s", filepath.Base(f), got, want)
 		}
 		n++
@@ -270,5 +273,39 @@ func TestReadToolsRunScopedToTokenWorkspace(t *testing.T) {
 	var n int
 	if err := e.pool.QueryRow(ctx, `SELECT count(*) FROM leads`).Scan(&n); err != nil || n != 0 {
 		t.Fatalf("unscoped read saw %d rows (%v)", n, err)
+	}
+}
+
+// assertStatsEqual compares get_pipeline_stats payloads. Python builds the by_*
+// dicts in the unspecified GROUP BY order of its database (a hash-aggregate
+// artifact); Go uses plan 05's deterministic order (key, or count desc then
+// city). So the group buckets compare as maps while everything else, the
+// top-level and enrichment key order and every scalar's text, is exact.
+func assertStatsEqual(t *testing.T, name, got, want string) {
+	t.Helper()
+	groups := []string{"by_status", "by_tier", "by_city", "by_source"}
+	strip := func(s string) (map[string]any, string) {
+		var m map[string]any
+		if err := json.Unmarshal([]byte(s), &m); err != nil {
+			t.Fatalf("%s: %v in %s", name, err, s)
+		}
+		sub := map[string]any{}
+		for _, g := range groups {
+			sub[g] = m[g]
+		}
+		// blank each group's body so only the key order and scalars remain
+		for _, g := range groups {
+			re := regexp.MustCompile(`(?s)("` + g + `": )\{.*?\}`)
+			s = re.ReplaceAllString(s, "${1}{}")
+		}
+		return sub, s
+	}
+	gm, gs := strip(got)
+	wm, ws := strip(want)
+	if gs != ws {
+		t.Errorf("%s: shape differs:\n got %s\nwant %s", name, gs, ws)
+	}
+	if fmt.Sprint(gm) != fmt.Sprint(wm) { // fmt prints maps in sorted key order
+		t.Errorf("%s: buckets differ:\n got %v\nwant %v", name, gm, wm)
 	}
 }
