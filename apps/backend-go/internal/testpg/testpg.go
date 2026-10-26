@@ -8,7 +8,9 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -60,7 +62,7 @@ func NewAppPool(t testing.TB, maxConns int32) *pgxpool.Pool {
 		`GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ` + AppLoginRole,
 	}
 	for _, s := range stmts {
-		if _, err := owner.Exec(ctx, s); err != nil {
+		if err := execRetrying(ctx, owner, s); err != nil {
 			t.Fatalf("setup %q: %v", s, err)
 		}
 	}
@@ -80,4 +82,22 @@ func NewAppPool(t testing.TB, maxConns int32) *pgxpool.Pool {
 	}
 	t.Cleanup(pool.Close)
 	return pool
+}
+
+// execRetrying runs a cluster-global catalog statement (ALTER ROLE, GRANT role).
+// The advisory lock above is per database, so suites running against different
+// databases of one cluster can update the same pg_authid row at once and one gets
+// "tuple concurrently updated" (XX000). That is transient: retry with a short backoff.
+func execRetrying(ctx context.Context, owner *pgxpool.Pool, sql string) error {
+	var err error
+	for attempt := 0; attempt < 30; attempt++ {
+		if _, err = owner.Exec(ctx, sql); err == nil {
+			return nil
+		}
+		if !strings.Contains(err.Error(), "tuple concurrently updated") {
+			return err
+		}
+		time.Sleep(time.Duration(20+attempt*10) * time.Millisecond)
+	}
+	return err
 }
