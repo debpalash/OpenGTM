@@ -85,6 +85,10 @@ func truthy(v any) bool {
 		return t
 	case string:
 		return t != ""
+	case int64:
+		return t != 0
+	case float64:
+		return t != 0
 	case json.Number:
 		f, err := t.Float64()
 		return err != nil || f != 0
@@ -314,34 +318,4 @@ func industrySlug(value string) string {
 		return a
 	}
 	return s
-}
-
-// toNative converts an ordered decoded tree to plain maps/slices/numbers for
-// sourceingest.Record.Data (key order is carried separately by the *Obj).
-func toNative(v any) any {
-	switch t := v.(type) {
-	case *Obj:
-		m := make(map[string]any, t.Len())
-		for _, k := range t.Keys() {
-			x, _ := t.Get(k)
-			m[k] = toNative(x)
-		}
-		return m
-	case []any:
-		out := make([]any, len(t))
-		for i, e := range t {
-			out[i] = toNative(e)
-		}
-		return out
-	case json.Number:
-		s := string(t)
-		if !strings.ContainsAny(s, ".eE") {
-			if n, err := strconv.ParseInt(s, 10, 64); err == nil {
-				return n
-			}
-		}
-		f, _ := t.Float64()
-		return f
-	}
-	return v
 }

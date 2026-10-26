@@ -496,7 +496,7 @@ func scriptedClient(t *testing.T, scripted []json.RawMessage, calls *[]map[strin
 		_ = json.Unmarshal(raw, &sp)
 		recs := make([]sourceingest.Record, len(sp.IDs))
 		for k, id := range sp.IDs {
-			recs[k] = sourceingest.Record{Provider: "ambitionbox", RecordID: itoa(id), Rank: (p.Page-1)*20 + k, Data: map[string]any{"company_id": id}}
+			recs[k] = sourceingest.Record{Provider: "ambitionbox", RecordID: itoa(id), Rank: (p.Page-1)*20 + k, Data: obj1("company_id", id)}
 		}
 		return sourceingest.NewPage("ambitionbox", recs, p.Page, 20, sp.SourceTotal, sp.TotalPages), nil
 	}
@@ -609,7 +609,7 @@ func TestCollectSummaryMatchesVector(t *testing.T) {
 		t.Errorf("summary\n got %s\nwant %s", b, want)
 	}
 	// with records the summary appends "records": [data dicts]
-	col.Dicts = []*wbcrud.Obj{mustObj(t, []byte(`{"company_id":1,"name":"A"}`))}
+	col.Records = []sourceingest.Record{{Data: mustObj(t, []byte(`{"company_id":1,"name":"A"}`))}}
 	b, _ = col.Summary(true).MarshalJSON()
 	if !strings.HasSuffix(string(b), `"warnings":[],"records":[{"company_id":1,"name":"A"}]}`) {
 		t.Errorf("summary with records: %s", b)
@@ -728,4 +728,10 @@ func TestRedirectRefusedAndTyped4xx(t *testing.T) {
 	if !errors.As(err, &ue) || ue.Status != 302 || hit != 1 {
 		t.Errorf("err=%v hit=%d", err, hit)
 	}
+}
+
+func obj1(k string, v any) *wbcrud.Obj {
+	o := wbcrud.NewObj()
+	o.Set(k, v)
+	return o
 }
