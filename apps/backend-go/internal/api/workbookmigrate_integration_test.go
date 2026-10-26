@@ -94,6 +94,8 @@ func (e *migrateEnv) seedWorkbooks(t *testing.T) {
 	for k := 0; k < 6; k++ {
 		ownerExec(t, `INSERT INTO workbook_rows (id, workbook_id, "position", data, enrichments, workspace_id) VALUES ($1,'wb-enrich-1',$2,'{"company":"x"}'::json,'{}'::json,'ws-alpha')`, 101+k, k)
 	}
+	// Explicit ids do not advance the sequence; move it past them so migrated rows don't collide.
+	ownerExec(t, `SELECT setval(pg_get_serial_sequence('workbook_rows','id'), GREATEST(1000, (SELECT max(id) FROM workbook_rows)))`)
 }
 
 func migActor(name string) (who, ws string) {
