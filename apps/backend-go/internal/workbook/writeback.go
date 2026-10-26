@@ -93,7 +93,7 @@ func (rs *runState) writeBackFields(ctx context.Context, lead map[string]any, fi
 			if a := abortErr(ctx, err); a != nil {
 				return a
 			}
-			rs.log.Warn("failed to write back to lead", "lead", leadID, "field", w.field)
+			rs.log.Warn("failed to write back to lead", "lead", leadID, "field", w.field, "err", err)
 		}
 	}
 	return nil

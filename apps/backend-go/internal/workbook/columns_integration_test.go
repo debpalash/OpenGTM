@@ -235,6 +235,9 @@ func TestStructuredFieldsWriteBack(t *testing.T) {
 	ids := e.seed(wsA, "wb-struct", `[{"id":"c1","type":"enrichment","name":"C1","target_field":"contact_title","waterfall":["rp"]}]`, 1, 10)
 	var leadID int32
 	e.inWS(wsA, func(tx pgx.Tx) error {
+		if _, err := tx.Exec(e.ctx, `DELETE FROM leads`); err != nil { // (company, city) is unique per workspace
+			return err
+		}
 		if err := tx.QueryRow(e.ctx, `INSERT INTO leads (workspace_id, company) VALUES ($1,'Acme 0') RETURNING id`, wsA).Scan(&leadID); err != nil {
 			return err
 		}
@@ -262,6 +265,7 @@ func TestStructuredFieldsWriteBack(t *testing.T) {
 	if get("decision_makers") != `[{"name":"Ada"}]` || get("secondary_emails") != "a@x.com" || get("city") != "Pune" {
 		t.Fatalf("write-back missing: %q %q %q", get("decision_makers"), get("secondary_emails"), get("city"))
 	}
+	t.Cleanup(func() { e.inWS(wsA, func(tx pgx.Tx) error { _, err := tx.Exec(e.ctx, `DELETE FROM leads`); return err }) })
 	if get("contact_title") != "" {
 		t.Fatalf("the target field must stay a cell value, lead has %q", get("contact_title"))
 	}
