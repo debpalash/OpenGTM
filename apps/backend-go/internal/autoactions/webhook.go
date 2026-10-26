@@ -360,6 +360,11 @@ func Webhook(ctx context.Context, d WebhookDeps, ws string, cfg map[string]any, 
 		if err != nil {
 			return failed("webhook secret lookup failed")
 		}
+		if val != "" && src == secrets.SourceAPI {
+			// Fail closed and loud: dropping the header and reporting success
+			// would let an unauthenticated receiver accept the call.
+			return failed("webhook secret unavailable on this worker (requires CREDENTIALS_SOURCE=local)")
+		}
 		if val != "" && src == secrets.SourceWorkspace { // own workspace only, never global/env
 			redact = append(redact, val)
 			name := "Authorization"
