@@ -15,6 +15,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -208,6 +209,17 @@ func (e *engine) handle(ctx context.Context, c *queue.Claim) error {
 	g := &guard{d: d, c: c}
 rows:
 	for _, cand := range cands {
+		// Python expires its rows at every action commit: judge the row on what
+		// it holds now, and skip one deleted (or moved) since the sweep began.
+		fresh, ok, err := e.rereadRow(ctx, ws, cand)
+		if err != nil {
+			e.closeRun(ctx, run, dry, matched, st)
+			return err
+		}
+		if !ok {
+			continue
+		}
+		cand = fresh
 		cells := rowCells(cand.row)
 		cond := ""
 		if trig.Condition.Valid {
@@ -252,6 +264,36 @@ rows:
 	}
 
 	return e.finalize(ctx, run, fireSource, dry, matched, st, cands)
+}
+
+// rereadRow reloads a candidate's row in its own transaction. ok is false when
+// the row no longer exists in the workspace or left its workbook.
+func (e *engine) rereadRow(ctx context.Context, ws string, cand candidate) (out candidate, ok bool, err error) {
+	id, perr := strconv.ParseInt(cand.rowID, 10, 32)
+	if perr != nil {
+		return cand, true, nil
+	}
+	err = tenancy.InWorkspace(ctx, e.d.Pool, ws, func(tx pgx.Tx) error {
+		row, qerr := gen.New(tx).AutoRunRowByID(ctx, gen.AutoRunRowByIDParams{ID: int32(id), WorkspaceID: ws})
+		if errors.Is(qerr, pgx.ErrNoRows) {
+			return nil
+		}
+		if qerr != nil {
+			return qerr
+		}
+		if row.WorkbookID != cand.workbookID {
+			return nil
+		}
+		var lead pgLead
+		if row.LeadID.Valid {
+			lead = pgLead{Int32: row.LeadID.Int32, Valid: true}
+		}
+		out = cand
+		out.row = toRowRec(row.ID, lead, row.Data, row.Enrichments)
+		ok = true
+		return nil
+	})
+	return out, ok, err
 }
 
 // closeRun finalises the run row of a cancelled or aborted sweep (status
