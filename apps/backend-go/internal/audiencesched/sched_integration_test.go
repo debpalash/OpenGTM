@@ -336,7 +336,7 @@ func TestScheduleNextMatchesVectors(t *testing.T) {
 		now := parseTS(t, nowS)
 		// Python's key carries now's own offset (or none for a naive clock); the real
 		// callers always pass an aware UTC clock, which is the only shape Go models.
-		if !strings.HasSuffix(nowS, "+00:00") {
+		if _, bad := c["raises"]; bad || !strings.HasSuffix(nowS, "+00:00") {
 			skipped++
 			continue
 		}
@@ -374,7 +374,7 @@ func TestScheduleNextMatchesVectors(t *testing.T) {
 	if ran < 25 {
 		t.Fatalf("only %d vector cases ran (%d skipped)", ran, skipped)
 	}
-	t.Logf("ran %d vector cases, skipped %d (non-UTC or naive clocks)", ran, skipped)
+	t.Logf("ran %d vector cases, skipped %d (Python type errors, non-UTC or naive clocks)", ran, skipped)
 }
 
 func TestScheduleNextCancelsPendingOnly(t *testing.T) {
@@ -382,7 +382,11 @@ func TestScheduleNextCancelsPendingOnly(t *testing.T) {
 	mkAudience(t, ctx, pool, audRow{ID: idPfx + "a", WS: wsVec, Enabled: true, Interval: 60})
 	old := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	ws := func(w string) string { return fmt.Sprintf(`{"workspace_id":%q}`, w) }
-	k := func(id string) string { return "audience_refresh:" + id + ":2026-02-01T00:00:00+00:00" }
+	n := 0
+	k := func(id string) string { // distinct occurrences: active keys are unique
+		n++
+		return fmt.Sprintf("audience_refresh:%s:2026-02-%02dT00:00:00+00:00", id, n)
+	}
 	seed := []jobRow{
 		{FireKey: k(idPfx + "a"), Status: "pending", Payload: ws(wsVec)},                // 0: cancelled
 		{FireKey: k(idPfx + "a"), Status: "processing", Payload: ws(wsVec)},             // 1: active, untouched
@@ -585,10 +589,10 @@ func TestRemoveScheduleDeletesMirror(t *testing.T) {
 	setMirror(t, ctx, pool, idPfx+"r1", wsVec, &old, true)
 	setMirror(t, ctx, pool, idPfx+"r2", wsVec, &old, true)
 	setMirror(t, ctx, pool, idPfx+"r3", wsOther, &old, true) // another tenant's row
-	k := func(id string) string { return "audience_refresh:" + id + ":2026-02-01T00:00:00+00:00" }
-	insertJob(t, ctx, pool, jobRow{FireKey: k(idPfx + "r1"), Status: "pending", NextRunAt: &old})
-	insertJob(t, ctx, pool, jobRow{FireKey: k(idPfx + "r1"), Status: "processing", NextRunAt: &old})
-	insertJob(t, ctx, pool, jobRow{FireKey: k(idPfx + "r2"), Status: "pending", NextRunAt: &old})
+	k := func(id, day string) string { return "audience_refresh:" + id + ":2026-02-" + day + "T00:00:00+00:00" }
+	insertJob(t, ctx, pool, jobRow{FireKey: k(idPfx+"r1", "01"), Status: "pending", NextRunAt: &old})
+	insertJob(t, ctx, pool, jobRow{FireKey: k(idPfx+"r1", "02"), Status: "processing", NextRunAt: &old})
+	insertJob(t, ctx, pool, jobRow{FireKey: k(idPfx+"r2", "01"), Status: "pending", NextRunAt: &old})
 	err := tenancy.InWorkspace(ctx, pool, wsVec, func(tx pgx.Tx) error {
 		return audiencesched.RemoveSchedule(ctx, tx, idPfx+"r1")
 	})
