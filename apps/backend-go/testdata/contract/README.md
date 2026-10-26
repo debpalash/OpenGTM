@@ -13,8 +13,9 @@ values are stored as `"<redacted>"`; response headers are limited to
 
 ## Record procedure
 
-Needs the Postgres test container on 127.0.0.1:55480 and a database whose name contains
-`contract` (the seed script refuses anything else; it TRUNCATES users and identity tables).
+Needs the Postgres test container on 127.0.0.1:55480 and a throwaway database. The seed script
+TRUNCATEs users and identity tables (CASCADE) and refuses unless the host is loopback or a unix
+socket, the database name matches `^opengtm_contract(_[a-z0-9]+)?$`, and `CONTRACT_SEED_CONFIRM=yes`.
 
 ```sh
 docker exec opengtm-go-test-pg psql -U postgres -c "CREATE DATABASE opengtm_contract"   # once
@@ -23,7 +24,7 @@ export DATABASE_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:55480/openg
        SQLITE_STORES_BACKEND=postgres SECRET_KEY=<test-only-value> APP_ENV=test \
        PG_RLS_REQUIRE_SAFE_ROLE=false   # test DB role is a superuser; FastAPI refuses it otherwise
 uv run alembic upgrade head
-uv run python scripts/contract_seed.py        # fixed users alice/bob/carol(inactive), ws-alpha/ws-beta
+CONTRACT_SEED_CONFIRM=yes uv run python scripts/contract_seed.py   # fixed users alice/bob/carol(inactive), ws-alpha/ws-beta
 uv run uvicorn apps.api.main:app --port 18000 &
 python3 scripts/contract_record.py --base http://127.0.0.1:18000 \
     --out ../../apps/backend-go/testdata/contract --cases scripts/contract_cases/auth.yaml
