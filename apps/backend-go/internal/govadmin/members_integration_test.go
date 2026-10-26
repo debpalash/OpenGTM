@@ -103,7 +103,7 @@ func TestOverviewUsernameFallback(t *testing.T) {
 		t.Fatalf("order/fallback: %+v", r.Members)
 	}
 	b, _ := json.Marshal(r.Members[3])
-	if string(b) != `{"user_id":987654,"role":"viewer","created_at":4,"username":"User 987654","overrides":{}}` {
+	if string(b) != `{"user_id":987654,"role":"viewer","created_at":4.0,"username":"User 987654","overrides":{}}` {
 		t.Fatalf("json: %s", b)
 	}
 }

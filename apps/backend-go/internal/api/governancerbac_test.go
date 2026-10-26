@@ -16,7 +16,7 @@ func rbacErrs(t *testing.T, errs []httpx.FieldError) string {
 	return string(b)
 }
 
-const roleExpected = `"ctx":{"expected":"'viewer', 'member', 'editor' or 'admin'"}`
+const roleExpectedCtx = `"ctx":{"expected":"'viewer', 'member', 'editor' or 'admin'"}`
 
 func TestRbacPutEffectInvalid422(t *testing.T) {
 	for _, c := range []struct{ body, want string }{
@@ -46,7 +46,7 @@ func TestRbacPutEffectInvalid422(t *testing.T) {
 }
 
 func TestMemberRoleEnumRejectsOwner422(t *testing.T) {
-	want := `[{"type":"literal_error","loc":["body","role"],"msg":"Input should be 'viewer', 'member', 'editor' or 'admin'","input":"owner",` + roleExpected + `}]`
+	want := `[{"type":"literal_error","loc":["body","role"],"msg":"Input should be 'viewer', 'member', 'editor' or 'admin'","input":"owner",` + roleExpectedCtx + `}]`
 	if _, errs := parseMemberRoleUpdate([]byte(`{"role":"owner"}`)); rbacErrs(t, errs) != want {
 		t.Errorf("patch: %s", rbacErrs(t, errs))
 	}

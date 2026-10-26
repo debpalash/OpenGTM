@@ -282,6 +282,9 @@ func TestDeleteMember204EmptyBody(t *testing.T) {
 	if rec.Code != 204 || rec.Body.Len() != 0 {
 		t.Fatalf("%d %q", rec.Code, rec.Body.String())
 	}
+	if ct := rec.Header().Get("Content-Type"); ct != "application/json" {
+		t.Errorf("content-type %q", ct)
+	}
 	if rec.Header().Get("Content-Length") != "" && rec.Header().Get("Content-Length") != "0" {
 		t.Errorf("content-length %q", rec.Header().Get("Content-Length"))
 	}
@@ -648,5 +651,34 @@ func TestMemberWriteLocksActorRow(t *testing.T) {
 		}
 	case <-time.After(5 * time.Second):
 		t.Fatal("demotion never completed")
+	}
+}
+
+func TestRbacPathAndBodyErrorsCombine(t *testing.T) {
+	e := newRBEnv(t)
+	rec, _ := e.call("alice", "ws-alpha", "PUT", "/api/governance/rbac/abc/tables.write", `{"effect":"maybe"}`)
+	var b struct{ Detail []struct{ Loc []any } }
+	if err := json.Unmarshal(rec.Body.Bytes(), &b); err != nil || rec.Code != 422 || len(b.Detail) != 2 || b.Detail[0].Loc[0] != "path" || b.Detail[1].Loc[0] != "body" {
+		t.Fatalf("%d %s", rec.Code, rec.Body.String())
+	}
+	for _, p := range []string{"/api/governance/members/abc", "/api/governance/members/1.5", "/api/governance/members/"} {
+		for _, m := range []string{"PATCH", "DELETE"} {
+			rec, _ := e.call("alice", "ws-alpha", m, p, `{"role":"viewer"}`)
+			if rec.Code != 422 && rec.Code != 404 && rec.Code != 405 {
+				t.Errorf("%s %s: %d", m, p, rec.Code)
+			}
+		}
+	}
+	// Ids Postgres cannot hold are unknown members (Python: 500), never a 500 here.
+	for _, id := range []string{"99999999999", "-1", "2147483648", "99999999999999999999999"} {
+		for _, c := range []struct{ m, path, body string }{
+			{"PATCH", "/api/governance/members/" + id, `{"role":"viewer"}`},
+			{"DELETE", "/api/governance/members/" + id, ``},
+			{"PUT", "/api/governance/rbac/" + id + "/tables.write", `{"effect":"allow"}`},
+		} {
+			if rec, _ := e.call("alice", "ws-alpha", c.m, c.path, c.body); rec.Code != 404 {
+				t.Errorf("%s %s: %d %s", c.m, c.path, rec.Code, rec.Body.String())
+			}
+		}
 	}
 }
