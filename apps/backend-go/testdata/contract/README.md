@@ -469,3 +469,20 @@ Parity is pinned by `internal/colcompute/testdata/{formula,template,http}_vector
 - `SALESFORCE_INSTANCE_URL` is user-typed and unguarded in Python (concatenated into every request URL). Go (`internal/crm/salesforce.go`) validates it on EVERY call, before any request: scheme `https`, no userinfo, default port (443), bare origin (no path, query or fragment), host on an allowed Salesforce suffix (`*.salesforce.com`, `*.my.salesforce.com`, `*.force.com`, `*.cloudforce.com`; the bare apex is refused), and not a private/blocked address (`egress.CheckURL(raw, false)`, which also catches IPv4-mapped IPv6 and integer/hex IP encodings). The default HTTP client is the `egress` client, which re-vets the resolved address at dial time (DNS rebinding) and never follows redirects. Python has no suffix allowlist; a custom-domain or on-prem instance URL outside these suffixes is refused with `{"success": false, "error": "blocked url: <reason>"}` (a per-run error, never a 500). Widen `sfAllowedSuffixes` if a vendor domain is missing.
 - `nextRecordsUrl` from a query page must be a path under `/services/data/` (no `//`, `@`, backslash or whitespace) or the fetch fails with `invalid nextRecordsUrl from Salesforce` (Python concatenates it onto the instance URL unchecked, so `@host` could redirect the next page). Paging is capped at 1000 pages. Path segments (`sobject`, record id) are percent-escaped. Response bodies are capped at 1 MiB; the access token is scrubbed from every error and echoed upstream body.
 - Exported names: Go cannot hold two `DefaultFieldMap`/`UpdateResult`/`PushResult` in package `crm`, so Salesforce uses `SalesforceDefaultFieldMap`, `SalesforceUpdateResult`, `SalesforcePushResult` (HubSpot keeps the short names). `UpdateRecord` takes an ordered `FieldMap` (body field order = Python dict order), not a Go map.
+
+## Connector catalog (plan 07 Task 12): deviations
+Fixtures `connectors/*` (profiles `default`, `catalog_ok` = default minus `contract_badname.yaml`, `required`).
+- D4: a loadable manifest whose name is not a certifiable subject (`Bad-Name`) made FastAPI answer **500** on
+  `GET /api/connectors/catalog` (`certification subject is unknown`, fixture `catalog_optional_badname_crash_alice`).
+  Go answers **422** (`connectors.ErrUnknownConnectorSubject`, `UnknownSubjectStatus`) without echoing the name; the 200 shape is
+  pinned by the `catalog_ok` fixtures (`catalog_optional_*`). `/compatibility` still lists the name as an error entry (200).
+- D4: the manifest directory is walked without following symlinks. A symlinked manifest or directory, or a `..` element in the
+  directory path, becomes an error entry in `/compatibility` (Python would follow or load it); the catalog never loads through one.
+  A manifest over 1 MiB is an error entry.
+- `/compatibility` error `path` is `str(path)` of the served directory. Fixtures carry `../../apps/backend-go/internal/connectors/`
+  in front of `testdata/manifests/...`; tests strip that prefix before comparing.
+- A duplicated manifest name is listed twice in `/catalog` and reported once as `duplicate provider id` by `/compatibility` (Python
+  behaviour, kept). `package_sha256` is `manifest.Entry.SHA256` of the reviewed manifest and feeds the certification build map;
+  an unreviewed (rejected by the report) manifest renders `signature: {"status":"unknown"}` and `package_sha256: null`.
+- Error texts that carry library messages (pydantic, YAML, base64, JSON) are not byte-portable; `connector_report.json` flags them
+  with `error_is_portable` and tests compare paths and counts for those.
