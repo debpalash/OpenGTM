@@ -23,6 +23,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
@@ -183,6 +184,11 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool, str
 		Flags:    cfg.Flags,
 		DataDir:  cfg.DataDir,
 		Log:      log,
+	}
+	// Python provider RPC (plan 06 D8): nil when PY_WORKER_URL is unset, so
+	// callers hand jobs back to Python.
+	if cfg.PyWorkerURL != "" {
+		deps.PyWorker = pyworker.New(cfg.PyWorkerURL, cfg.PyWorkerToken, nil)
 	}
 	// Settings routes need the registry, the secrets envelope and the guarded
 	// egress client; without a pool they stay unregistered (route tests). With a
