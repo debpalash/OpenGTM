@@ -157,7 +157,8 @@
  {
   "url": "http://100.64.0.1/",
   "allow_http": true,
-  "blocked": false
+  "blocked": false,
+  "go_only_blocked": true
  },
  {
   "url": "http://192.0.0.1/",

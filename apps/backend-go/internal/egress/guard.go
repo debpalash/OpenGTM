@@ -56,6 +56,11 @@ var (
 		"240.0.0.0/4", "255.255.255.255/32")
 	v4PrivateExceptions = prefixes("192.0.0.9/32", "192.0.0.10/32")
 	v4Multicast         = prefixes("224.0.0.0/4")
+	// Go-only deviation from Python's is_private: CGNAT 100.64.0.0/10 (Alibaba metadata
+	// 100.100.100.200, Tailscale, carrier NAT, some k8s ranges) and NAT64 64:ff9b::/96 (a
+	// gateway can translate to 169.254.169.254). Operators needing a CGNAT host use EGRESS_ALLOW_HOSTS.
+	v4GoOnly = prefixes("100.64.0.0/10")
+	v6GoOnly = prefixes("64:ff9b::/96")
 
 	v6Private = prefixes("::1/128", "::/128", "::ffff:0:0/96", "64:ff9b:1::/48",
 		"100::/64", "2001::/23", "2001:db8::/32", "2002::/16", "3fff::/20",
@@ -87,9 +92,10 @@ func IsBlockedIP(ip netip.Addr) bool {
 		return true
 	}
 	if ip.Is4() {
-		return (inAny(v4Private, ip) && !inAny(v4PrivateExceptions, ip)) || inAny(v4Multicast, ip)
+		return (inAny(v4Private, ip) && !inAny(v4PrivateExceptions, ip)) || inAny(v4Multicast, ip) ||
+			inAny(v4GoOnly, ip)
 	}
-	return (inAny(v6Private, ip) && !inAny(v6PrivateExceptions, ip)) ||
+	return (inAny(v6Private, ip) && !inAny(v6PrivateExceptions, ip)) || inAny(v6GoOnly, ip) ||
 		inAny(v6Reserved, ip) || inAny(v6Multicast, ip)
 }
 

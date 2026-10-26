@@ -1,0 +1,9 @@
+[
+ {"url": "http://100.64.0.1/", "allow_http": true, "blocked": true, "go_only": "CGNAT 100.64.0.0/10"},
+ {"url": "http://100.100.100.200/latest/meta-data", "allow_http": true, "blocked": true, "go_only": "Alibaba metadata, CGNAT"},
+ {"url": "http://100.127.255.255/", "allow_http": true, "blocked": true, "go_only": "CGNAT upper edge"},
+ {"url": "http://[::ffff:100.64.0.1]/", "allow_http": true, "blocked": true, "go_only": "v4-mapped CGNAT"},
+ {"url": "http://[64:ff9b::a9fe:a9fe]/", "allow_http": true, "blocked": true, "go_only": "NAT64 of 169.254.169.254"},
+ {"url": "http://100.63.255.255/", "allow_http": true, "blocked": false, "go_only": "just below CGNAT"},
+ {"url": "http://100.128.0.1/", "allow_http": true, "blocked": false, "go_only": "just above CGNAT"}
+]
