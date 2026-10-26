@@ -167,3 +167,28 @@ func TestAutomationJobHeartbeatsWhileHandlerBlocks(t *testing.T) {
 		t.Fatalf("heartbeat did not advance during the handler: first=%v last=%v status=%s", first, last, status)
 	}
 }
+
+// A python-executor row is never claimed by the Go worker, flags on or not.
+func TestPythonExecutorRowNotClaimedWithFlagOn(t *testing.T) {
+	pool, ctx := autoSetup(t)
+	cfg := autoCfg(true)
+	_, closeFn, err := buildRunner(cfg, pool, telemetry.NewLogger(io.Discard))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer closeFn()
+	for _, typ := range []string{"trigger_eval", "watch_poll"} {
+		if _, err := pool.Exec(ctx, `INSERT INTO jobs (type, payload, status, priority, created_at, retry_count, max_retries, workspace_id, executor)
+			VALUES ($1,'{}','pending',0,now() AT TIME ZONE 'UTC',0,3,$2,'python')`, typ, wsAuto); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if c, err := claimNext(ctx, pool, cfg, "w"); err != nil || c != nil {
+		t.Fatalf("claimed %v err %v", c, err)
+	}
+	var n int
+	_ = pool.QueryRow(ctx, `SELECT count(*) FROM jobs WHERE status='pending' AND executor='python'`).Scan(&n)
+	if n != 2 {
+		t.Fatalf("python rows touched: %d pending", n)
+	}
+}

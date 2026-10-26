@@ -60,6 +60,9 @@ func logAutomationFlags(log *slog.Logger, cfg config.Config) {
 		"go_executor_watch_poll", a.GoExecutorWatchPoll,
 		"allow_legacy_outreach", cfg.Flags.AutomationsAllowLegacyOutreach,
 		"billing_enabled", cfg.BillingEnabled)
+	// safecond reads naive timestamps in the process-local zone (Python does too): both stacks
+	// must run with the same TZ.
+	log.Info("process timezone", "tz", time.Local.String())
 	if cfg.Flags.AutomationsAllowLegacyOutreach {
 		log.Warn("AUTOMATIONS_ALLOW_LEGACY_OUTREACH is on: Python keeps the legacy outreach surface; this worker hands such trigger_eval jobs back")
 	}
@@ -77,6 +80,19 @@ func handBackInert(pool *pgxpool.Pool, why string) runner {
 			return workbook.ErrLeaseLost
 		}
 		return fmt.Errorf("%w: %s", workbook.ErrHandedBack, why)
+	}
+}
+
+// crmPushGuard fails push_crm closed when the Go trigger_eval executor is on but the worker has no
+// secret resolver (CREDENTIALS_SOURCE=http): the CRM clients would silently use env-only tokens
+// and reach the wrong account. It returns nil when no guard is needed, and logs once at startup.
+func crmPushGuard(local *secrets.Resolver, evalOn bool, log *slog.Logger) autoactions.PushFunc {
+	if local != nil || !evalOn {
+		return nil
+	}
+	log.Warn("push_crm will fail closed: no secret resolver; set CREDENTIALS_SOURCE=local to run push_crm actions on the Go worker")
+	return func(context.Context, string, map[string]any, map[string]any, string, int64) crmpush.Result {
+		return crmpush.Result{Error: "crm credentials unavailable on this worker (requires CREDENTIALS_SOURCE=local)"}
 	}
 }
 
@@ -114,7 +130,7 @@ func buildAutomations(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, w
 	evalDeps := autoengine.Deps{Pool: pool, Log: log, Enabled: cfg.Flags.AutomationsEnabled, BillingEnabled: cfg.BillingEnabled,
 		MaxRowsPerEval: a.MaxRowsPerEval, GlobalDailyUSD: a.GlobalDailyUSD,
 		Actions: autoactions.Deps{Webhook: autoactions.NewWebhookDeps(cfg.AppEnv, cfg.EgressAllowHosts, a, sec, log),
-			CRM: crmDeps, RunRows: autoactions.WorkbookRowRunner(wbDeps)},
+			CRM: crmDeps, Push: crmPushGuard(local, a.GoExecutorTriggerEval, log), RunRows: autoactions.WorkbookRowRunner(wbDeps)},
 		ExecFor: triggerEvalExecutor(cfg), Emitter: emitter, PyColumns: pyRPC != nil}
 
 	handlers := map[string]runner{
