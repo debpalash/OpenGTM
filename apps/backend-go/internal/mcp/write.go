@@ -84,11 +84,6 @@ func (s *Server) executeWrite(ctx context.Context, c Ctx, name string, args Args
 		}
 		key = k
 	}
-	if !s.acquireWriteSlot(c.WorkspaceID) {
-		return denied(s, ctx, c, name, args, "too many concurrent writes")
-	}
-	defer s.releaseWriteSlot(c.WorkspaceID)
-
 	if wt.Gate != nil {
 		if reason := wt.Gate(s.d.Cfg); reason != "" {
 			return denied(s, ctx, c, name, args, reason)
@@ -102,6 +97,12 @@ func (s *Server) executeWrite(ctx context.Context, c Ctx, name string, args Args
 		Record(ctx, s.d, c, name, args, AuditOutcome{Status: "error", Error: errCause(ctx, err)})
 		return errorText(errCause(ctx, err))
 	}
+
+	// Taken after the gate and role checks: denied calls must not consume it.
+	if !s.acquireWriteSlot(c.WorkspaceID) {
+		return denied(s, ctx, c, name, args, "too many concurrent writes")
+	}
+	defer s.releaseWriteSlot(c.WorkspaceID)
 
 	var (
 		outcome writeOutcome
