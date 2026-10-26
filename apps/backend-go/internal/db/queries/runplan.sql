@@ -1,0 +1,2 @@
+-- Queries for internal/runplan (Task 19). Intentionally empty: the scaffold
+-- reserves the file so Task 19 owns it exclusively.

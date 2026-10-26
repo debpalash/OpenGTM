@@ -13,20 +13,20 @@ import (
 // (Task 17) register. Stubs register nothing until their task lands, so the
 // registered set must always be a subset of this table.
 var enrichPatterns = map[string]bool{
-	"GET /api/workbooks/{workbook_id}/run/estimate":                       true,
-	"POST /api/workbooks/{workbook_id}/stop":                              true,
-	"GET /api/workbooks/meta/provider-stats":                              true,
-	"POST /api/workbooks/{workbook_id}/run":                               true,
-	"POST /api/workbooks/{workbook_id}/rows/{row_id}/cells/{col_id}/run":  true,
-	"POST /api/workbooks/{workbook_id}/sources":                           true,
-	"POST /api/workbooks/{workbook_id}/sources/{col_id}/run":              true,
-	"PUT /api/workbooks/{workbook_id}/refresh-policy":                     true,
-	"POST /api/workbooks/{workbook_id}/refresh":                           true,
-	"POST /api/workbooks/{workbook_id}/migrate":                           true,
-	"GET /api/workbooks/{workbook_id}/ws":                                 true,
-	"POST /api/v2/workbooks/{workbook_id}/ingest-token":                   true,
-	"POST /api/v2/workbooks/{workbook_id}/rows/ingest":                    true,
-	"GET /api/signals/sources":                                            true,
+	"GET /api/workbooks/{workbook_id}/run/estimate":                      true,
+	"POST /api/workbooks/{workbook_id}/stop":                             true,
+	"GET /api/workbooks/meta/provider-stats":                             true,
+	"POST /api/workbooks/{workbook_id}/run":                              true,
+	"POST /api/workbooks/{workbook_id}/rows/{row_id}/cells/{col_id}/run": true,
+	"POST /api/workbooks/{workbook_id}/sources":                          true,
+	"POST /api/workbooks/{workbook_id}/sources/{col_id}/run":             true,
+	"PUT /api/workbooks/{workbook_id}/refresh-policy":                    true,
+	"POST /api/workbooks/{workbook_id}/refresh":                          true,
+	"POST /api/workbooks/{workbook_id}/migrate":                          true,
+	"GET /api/workbooks/{workbook_id}/ws":                                true,
+	"POST /api/v2/workbooks/{workbook_id}/ingest-token":                  true,
+	"POST /api/v2/workbooks/{workbook_id}/rows/ingest":                   true,
+	"GET /api/signals/sources":                                           true,
 }
 
 // retainedEnrichRoutes stay on FastAPI and must never register here.

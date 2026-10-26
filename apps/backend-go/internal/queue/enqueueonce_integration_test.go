@@ -70,7 +70,10 @@ func TestEnqueueOnceRowShapeMatchesPython(t *testing.T) {
 	pool, ctx := setup(t)
 	before := time.Now().UTC().Add(-2 * time.Second)
 	tx, _ := pool.Begin(ctx)
-	id, ok, err := queue.EnqueueOnce(ctx, tx, "signal_scan", "ws-1", map[string]any{"b": "<x>&", "a": 1}, "scan:1", "go")
+	id, ok, err := queue.EnqueueOnce(ctx, tx, "signal_scan", "ws-1", struct {
+		B string `json:"b"`
+		A int    `json:"a"`
+	}{"<x>&", 1}, "scan:1", "go")
 	if err != nil || !ok || id == 0 {
 		t.Fatalf("id=%d ok=%v err=%v", id, ok, err)
 	}

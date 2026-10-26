@@ -297,6 +297,11 @@ type APIConfig struct {
 	StripeWebhookSecret string
 	StripeAPIBase       string // STRIPE_API_BASE; honoured only when APP_ENV is "test"
 
+	// Enrichment jobs (plan 06). PyWorkerToken is a secret: redacted, never logged.
+	PyWorkerURL       string // PY_WORKER_URL
+	PyWorkerToken     string // PY_WORKER_TOKEN
+	WSMaxMessageBytes int    // WS_MAX_MESSAGE_BYTES (default 65536)
+
 	// Workbook CRUD (plan 04).
 	Flags   Flags
 	DataDir string // DATA_DIR; default <cwd>/data
@@ -326,6 +331,7 @@ type Flags struct {
 	// import costs roughly ten times its body size.
 	ImportMemoryBudgetMB           int
 	PGLeadStore                    bool // PG_LEAD_STORE (default true); Go supports only the Postgres lead store
+	GoRunRoutesEnabled             bool // GO_RUN_ROUTES_ENABLED (default false): enrichment run/ingest/ws routes
 	AutomationsEnabled             bool // AUTOMATIONS_ENABLED
 	IntentPollerEnabled            bool // INTENT_POLLER_ENABLED
 	AutomationsAllowLegacyOutreach bool // AUTOMATIONS_ALLOW_LEGACY_OUTREACH
@@ -436,6 +442,14 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 		c.DataDir = "data"
 	}
 	c.RedisURL = strings.TrimSpace(get("REDIS_URL"))
+	if c.Flags.GoRunRoutesEnabled, err = boolVar(get, "GO_RUN_ROUTES_ENABLED", false); err != nil {
+		return APIConfig{}, err
+	}
+	c.PyWorkerURL = strings.TrimSpace(get("PY_WORKER_URL"))
+	c.PyWorkerToken = strings.TrimSpace(get("PY_WORKER_TOKEN"))
+	if c.WSMaxMessageBytes, err = intVar(get, "WS_MAX_MESSAGE_BYTES", 65536, 1, 1<<30); err != nil {
+		return APIConfig{}, err
+	}
 	if c.SSEMaxStreams, err = intVar(get, "SSE_MAX_STREAMS", 1000, 1, 1000000); err != nil {
 		return APIConfig{}, err
 	}
@@ -464,6 +478,9 @@ func (c APIConfig) redacted() APIConfig {
 	}
 	if c.SecretKey != "" {
 		c.SecretKey = "[redacted]"
+	}
+	if c.PyWorkerToken != "" {
+		c.PyWorkerToken = "[redacted]"
 	}
 	return c
 }

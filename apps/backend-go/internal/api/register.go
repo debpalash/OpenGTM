@@ -15,6 +15,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 )
@@ -41,6 +43,12 @@ type Deps struct {
 	// ShutdownCtx is cancelled when the server starts shutting down; SSE streams end then
 	// (nil = never) so http.Server.Shutdown does not wait out its grace on open streams.
 	ShutdownCtx context.Context
+
+	// Enrichment jobs (plan 06). PyWorker may be nil (Python RPC unavailable);
+	// Limiter may be nil (rate limits then not enforced; cmd/api sets it).
+	PyWorker          *pyworker.Client
+	Limiter           *ratelimit.Limiter
+	WSMaxMessageBytes int
 
 	// Settings routes (plan 03). RegisterSettings is a no-op when any is nil.
 	Registry *settings.Registry
@@ -101,4 +109,7 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterLeads(r, d)
 	RegisterSignals(r, d)
 	RegisterEvents(r, d)
+	RegisterWorkbookRuns(r, d)
+	RegisterIngest(r, d)
+	RegisterWorkbookWS(r, d)
 }
