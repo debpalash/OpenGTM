@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -22,6 +23,9 @@ type FailureNotice struct {
 
 // FailureHook reconciles domain state after a failed attempt was persisted.
 type FailureHook func(ctx context.Context, n FailureNotice) error
+
+// hookTimeout bounds one failure hook call.
+var hookTimeout = 30 * time.Second
 
 var (
 	hookMu sync.RWMutex
@@ -69,13 +73,16 @@ func FinalizeAndNotify(ctx context.Context, pool *pgxpool.Pool, log *slog.Logger
 	}
 	n := FailureNotice{JobID: c.ID, JobType: c.Type, WorkspaceID: c.WorkspaceID,
 		Payload: append([]byte(nil), c.Payload...), Reason: reason, WillRetry: willRetry}
+	// The hook gets its own context so a slow or timed-out Finalize cannot starve it.
+	hctx, hcancel := context.WithTimeout(context.WithoutCancel(ctx), hookTimeout)
+	defer hcancel()
 	func() {
 		defer func() {
 			if r := recover(); r != nil {
 				log.Error("failure hook panicked", "job_id", c.ID, "job_type", c.Type, "panic", fmt.Sprint(r))
 			}
 		}()
-		if herr := h(ctx, n); herr != nil {
+		if herr := h(hctx, n); herr != nil {
 			log.Error("failure hook failed", "job_id", c.ID, "job_type", c.Type, "err", herr)
 		}
 	}()

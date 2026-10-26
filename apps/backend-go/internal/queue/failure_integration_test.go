@@ -144,3 +144,25 @@ func TestFinalizeSignatureUnchanged(t *testing.T) {
 	var _ func(context.Context, *pgxpool.Pool, *queue.Claim, queue.Outcome) (bool, bool, error) = queue.FinalizeNotify
 	var _ func(string, queue.FailureHook) = queue.RegisterFailureHook
 }
+
+func TestFailureHookGetsFreshContext(t *testing.T) {
+	pool, ctx := setup(t)
+	fctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	var got error
+	var hasDeadline bool
+	queue.RegisterFailureHook(queue.JobTypeRunWorkbook, func(hc context.Context, _ queue.FailureNotice) error {
+		cancel() // the Finalize context dies; the hook context must not
+		got = hc.Err()
+		_, hasDeadline = hc.Deadline()
+		return nil
+	})
+	t.Cleanup(func() { queue.RegisterFailureHook(queue.JobTypeRunWorkbook, nil) })
+	c, _ := claimed(t, pool, 3, 3)
+	if _, err := queue.FinalizeAndNotify(fctx, pool, quiet, c, failed); err != nil {
+		t.Fatal(err)
+	}
+	if got != nil || !hasDeadline {
+		t.Fatalf("hook ctx err=%v hasDeadline=%v", got, hasDeadline)
+	}
+}
