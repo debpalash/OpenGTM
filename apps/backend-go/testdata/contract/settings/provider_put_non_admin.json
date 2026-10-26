@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "api_key": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/settings/providers/groq"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authorized"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

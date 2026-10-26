@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "api_key": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/settings/providers/nope"
+  },
+  "response": {
+    "body": {
+      "detail": "Provider 'nope' not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

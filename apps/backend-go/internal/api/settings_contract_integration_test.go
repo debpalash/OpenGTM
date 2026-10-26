@@ -81,17 +81,7 @@ func TestSettingsRoutesMatchRecordedFixtures(t *testing.T) {
 	bob := bearer("ct-bob")
 	ignoreTS := contract.IgnorePaths("$.created_at")
 
-	// providers: stateful, order matters (admin checks, then a write, then the masked list).
 	rp.replay(t, "settings/providers_list", bob, ignoreTS)
-	rp.replay(t, "settings/provider_put_unknown", alice, ignoreTS)
-	rp.replay(t, "settings/provider_put_non_admin", bob, ignoreTS)
-	rp.replay(t, "settings/provider_put_no_auth", nil, ignoreTS)
-	rp.replay(t, "settings/provider_test_unconfigured", alice, ignoreTS)
-	rp.replay(t, "settings/provider_test_unknown", alice, ignoreTS)
-	rp.replay(t, "settings/provider_test_non_admin", bob, ignoreTS)
-	rp.replay(t, "settings/provider_put_ok", alice, ignoreTS)
-	rp.replay(t, "settings/provider_put_short_key", alice, ignoreTS)
-	rp.replay(t, "settings/providers_list_after", bob, ignoreTS)
 
 	// enrichment perf
 	rp.replay(t, "settings/perf_get_defaults", bob, ignoreTS)
@@ -118,6 +108,17 @@ func TestSettingsRoutesMatchRecordedFixtures(t *testing.T) {
 	rp.replay(t, "settings/llm_usage_empty", usage, ignoreTS)
 	rp.replay(t, "settings/llm_usage_with_date", usage, ignoreTS)
 	rp.replay(t, "settings/llm_usage_no_auth", nil, ignoreTS)
+
+	// providers writes run last: set_default changes what /system reports as the default provider.
+	rp.replay(t, "settings/provider_put_unknown", alice, ignoreTS)
+	rp.replay(t, "settings/provider_put_non_admin", bob, ignoreTS)
+	rp.replay(t, "settings/provider_put_no_auth", nil, ignoreTS)
+	rp.replay(t, "settings/provider_test_unconfigured", alice, ignoreTS)
+	rp.replay(t, "settings/provider_test_unknown", alice, ignoreTS)
+	rp.replay(t, "settings/provider_test_non_admin", bob, ignoreTS)
+	rp.replay(t, "settings/provider_put_ok", alice, ignoreTS)
+	rp.replay(t, "settings/provider_put_short_key", alice, ignoreTS)
+	rp.replay(t, "settings/providers_list_after", bob, ignoreTS)
 
 	// global and workspace integrations (its own seeded users and workspace)
 	for _, n := range replayIntegrationFixtures(t, e) {
