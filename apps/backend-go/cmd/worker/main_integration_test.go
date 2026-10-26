@@ -15,9 +15,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
@@ -176,6 +176,9 @@ func TestRefreshJobEndToEnd(t *testing.T) {
 	}
 	ws := "wsr"
 	err := tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
+		if _, err := tx.Exec(ctx, `DELETE FROM workbooks WHERE id='wbr'`); err != nil {
+			return err
+		}
 		if _, err := tx.Exec(ctx, `INSERT INTO workbooks (id, name, workspace_id, columns_config, refresh_policy)
 			VALUES ('wbr','wbr',$1,'[{"id":"email","type":"enrichment"}]'::json,'{"enabled":true,"interval":"daily"}'::json)`, ws); err != nil {
 			return err
