@@ -596,3 +596,39 @@ func TestBatchRealSleepIsContextAware(t *testing.T) {
 		t.Fatalf("cancelled batch did work: %+v", r)
 	}
 }
+
+type failingStore struct{ fakeStore }
+
+func (s *failingStore) WorkspaceSetting(context.Context, string, string) (string, bool, error) {
+	return "", false, errors.New("db down")
+}
+
+// A secret lookup error is not "not found": the token must not fall back to the process
+// environment (fail closed), so no request goes out and the workspace reads as not connected.
+func TestSecretLookupErrorFailsClosed(t *testing.T) {
+	t.Setenv("HUBSPOT_TOKEN", "env-token-must-not-be-used")
+	st := &failingStore{fakeStore{app: map[string]string{}, ws: map[string]string{}}}
+	e, err := secrets.NewEnvelope(secrets.Config{MasterKey: "crm-test-master-key", AppEnv: "dev"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := secrets.NewResolver(e, st, func(string) string { return "env-token-must-not-be-used" })
+	var seen []string
+	h := &HubSpot{HTTP: &http.Client{Transport: authHeaderRT(&seen, 200, `{"portalId":1,"timeZone":"UTC"}`)}, Secrets: res, Sleep: (&sleepRec{}).fn}
+	ctx := context.Background()
+	if h.IsConnected(ctx, "ws-a") {
+		t.Error("IsConnected true on a secret lookup error")
+	}
+	if r := h.TestConnection(ctx, "ws-a"); r["connected"] != false {
+		t.Errorf("TestConnection = %v", r)
+	}
+	if r := h.PushLeadAsContact(ctx, "ws-a", mapLead{"id": int64(1), "email": "a@b.co"}, nil); r.Success {
+		t.Errorf("push succeeded: %v", r)
+	}
+	if c, _ := h.GetContacts(ctx, "ws-a", 5); len(c) != 0 {
+		t.Errorf("contacts = %v", c)
+	}
+	if len(seen) != 0 {
+		t.Fatalf("requests sent with a fallback token: %v", seen)
+	}
+}
