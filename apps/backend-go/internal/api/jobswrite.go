@@ -13,6 +13,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadswrite"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
@@ -25,6 +26,8 @@ var (
 
 const (
 	jobsWriteNotFound = "Job not found"
+	// jobLeadsDeleteLimit is store.get_leads(collection_job_id=..., limit=10_000) in delete_job.
+	jobLeadsDeleteLimit = 10000
 )
 
 var (
@@ -43,13 +46,19 @@ func registerJobsWrite(r *httpx.Router, d Deps) {
 	mw := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity),
 		identity.RequireRole("tables.write", "editor", "admin")}
 	r.Handle("POST /api/jobs/{job_id}/cancel", http.HandlerFunc(h.cancel), mw...)
-	r.Handle("DELETE /api/jobs/{job_id}", notImplemented("DELETE /api/jobs/{job_id}"), mw...)
+	r.Handle("DELETE /api/jobs/{job_id}", http.HandlerFunc(h.remove), mw...)
 	r.Handle("POST /api/jobs/{job_id}/retry", http.HandlerFunc(h.retry), mw...)
 }
 
 type jobsOKBody struct {
 	OK      bool   `json:"ok"`
 	Message string `json:"message"`
+}
+
+type jobsDeleteBody struct {
+	OK        bool   `json:"ok"`
+	Message   string `json:"message"`
+	LeadsKept bool   `json:"leads_kept"`
 }
 
 type jobsRetryBody struct {
@@ -144,6 +153,40 @@ func (h jobsWriteRoutes) cancel(w http.ResponseWriter, r *http.Request) {
 			return nil, err
 		}
 		return jobsOKBody{OK: true, Message: "Job " + id + " cancelled"}, nil
+	})
+}
+
+// remove: cancel the queue half, delete the job's leads (both attachment forms, workspace-scoped by RLS and the
+// query) unless keep_leads, then the ledger row (its stages cascade), all in one transaction.
+func (h jobsWriteRoutes) remove(w http.ResponseWriter, r *http.Request) {
+	keep, fe := parseKeepLeads(r.URL.Query()["keep_leads"])
+	if fe != nil {
+		httpx.ValidationError(w, *fe)
+		return
+	}
+	id := r.PathValue("job_id")
+	h.run(w, r, "delete", func(ctx context.Context, tx pgx.Tx, ws string) (any, error) {
+		if _, err := getJob(ctx, tx, id); err != nil {
+			return nil, err
+		}
+		if err := cancelQueue(ctx, tx, ws, id); err != nil {
+			return nil, err
+		}
+		if !keep {
+			rows, err := gen.New(tx).LeadsByCollectionJob(ctx, gen.LeadsByCollectionJobParams{JobID: id, PageLimit: jobLeadsDeleteLimit})
+			if err != nil {
+				return nil, err
+			}
+			for _, l := range rows {
+				if _, err := leadswrite.Delete(ctx, tx, int64(l.ID)); err != nil {
+					return nil, err
+				}
+			}
+		}
+		if err := collectledger.Delete(ctx, tx, id); err != nil {
+			return nil, err
+		}
+		return jobsDeleteBody{OK: true, Message: "Job " + id + " deleted", LeadsKept: keep}, nil
 	})
 }
 

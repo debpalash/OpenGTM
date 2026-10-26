@@ -398,7 +398,7 @@ func (e jwEnv) betaLeadFor(t *testing.T) {
 	ctx := context.Background()
 	err := tenancy.InWorkspace(ctx, e.pool, "ws-beta", func(tx pgx.Tx) error {
 		_, err := tx.Exec(ctx, `INSERT INTO leads (id, workspace_id, collection_job_id, company, source, created_at, updated_at)
-			VALUES (107, 'ws-beta', $1, 'Beta Lookalike', 'job:'||$1, '2026-08-28T07:05:00', '2026-08-28T07:05:00')`, jA3)
+			VALUES (107, 'ws-beta', $1::text, 'Beta Lookalike', 'job:'||$1::text, '2026-08-28T07:05:00', '2026-08-28T07:05:00')`, jA3)
 		return err
 	})
 	if err != nil {
