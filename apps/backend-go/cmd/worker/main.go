@@ -457,7 +457,7 @@ func (a apiSecrets) Get(ctx context.Context, ws, key string) (string, string, er
 		return "", "", nil
 	}
 	v, err := a.api.Get(ctx, ws, key)
-	return v, "api", err
+	return v, secrets.SourceAPI, err
 }
 
 // buildProviderRunner wires providerrun.Runner (Go providers in process, the

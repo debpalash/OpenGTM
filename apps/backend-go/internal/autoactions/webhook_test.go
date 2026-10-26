@@ -1048,3 +1048,28 @@ func TestSentBodyCanonicalisesNumbers(t *testing.T) {
 		}
 	}
 }
+
+// Final review (security low): with CREDENTIALS_SOURCE=http the worker's resolver
+// reports source "api". Silently dropping the auth header and recording success
+// hides a misconfiguration (and an unauthenticated receiver would accept the call):
+// the action must fail instead.
+type apiSourceSecrets struct{}
+
+func (apiSourceSecrets) Get(context.Context, string, string) (string, string, error) {
+	return "ctk_api_sourced_secret", secrets.SourceAPI, nil
+}
+
+func TestHeaderSecretFromNonWorkspaceResolverFailsTheAction(t *testing.T) {
+	h := newHarness(t, nil)
+	h.deps.Secrets = apiSourceSecrets{}
+	got := h.run(map[string]any{"url": "https://hooks.example.com/x", "header_secret_ref": "HOOK"})
+	if got.Status != "failed" || !strings.Contains(got.Error, "webhook secret unavailable on this worker") {
+		t.Fatalf("%+v", got)
+	}
+	if strings.Contains(got.Error+got.Summary, "ctk_api_sourced_secret") {
+		t.Fatal("secret in result text")
+	}
+	if h.hits.Load() != 0 {
+		t.Fatal("request sent without its auth header")
+	}
+}

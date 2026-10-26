@@ -44,6 +44,9 @@ const (
 	SourceWorkspace = "workspace"
 	SourceGlobal    = "global"
 	SourceDefault   = "default"
+	// SourceAPI marks a value served by the Python credentials API (worker
+	// CREDENTIALS_SOURCE=http); it is not provably workspace-scoped.
+	SourceAPI = "api"
 )
 
 // Get resolves key for workspace ws (empty ws skips the workspace level).
