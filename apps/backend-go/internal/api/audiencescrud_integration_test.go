@@ -101,6 +101,19 @@ func audLoadSeed(t *testing.T) {
 			}
 		}
 	}
+	// The seed inserts explicit serial ids: move every sequence past them so generated ids never collide.
+	for _, tbl := range audSeedTables {
+		var seq *string
+		if err := c.QueryRow(ctx, `SELECT CASE WHEN EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = $1 AND column_name = 'id' AND table_schema = 'public') THEN pg_get_serial_sequence($1, 'id') END`, tbl).Scan(&seq); err != nil {
+			t.Fatal(err)
+		}
+		if seq == nil {
+			continue
+		}
+		if _, err := c.Exec(ctx, fmt.Sprintf(`SELECT setval($1, GREATEST(1000, (SELECT coalesce(max(id), 0) FROM %s)))`, tbl), *seq); err != nil {
+			t.Fatalf("setval %s: %v", tbl, err)
+		}
+	}
 }
 
 func newAudEnv(t *testing.T, vars ...map[string]string) audEnv {
@@ -621,6 +634,9 @@ func TestValidation422Shapes(t *testing.T) {
 		{"min_score float", `{"name":"x","filters":{"min_score":5.0}}`, "value_error", "filters", "Value error, min_score must be an integer"},
 		{"interval text", `{"name":"x","refresh_interval_minutes":"abc"}`, "int_parsing", "refresh_interval_minutes", "Input should be a valid integer, unable to parse string as an integer"},
 		{"interval float", `{"name":"x","refresh_interval_minutes":30.5}`, "int_from_float", "refresh_interval_minutes", "Input should be a valid integer, got a number with a fractional part"},
+		{"interval 1e400", `{"name":"x","refresh_interval_minutes":1e400}`, "finite_number", "refresh_interval_minutes", "Input should be a finite number"},
+		{"interval string float", `{"name":"x","refresh_interval_minutes":"20.5"}`, "int_parsing", "refresh_interval_minutes", "Input should be a valid integer, unable to parse string as an integer"},
+		{"interval double underscore", `{"name":"x","refresh_interval_minutes":"2__0"}`, "int_parsing", "refresh_interval_minutes", "Input should be a valid integer, unable to parse string as an integer"},
 		{"interval too big", `{"name":"x","refresh_interval_minutes":10081}`, "less_than_equal", "refresh_interval_minutes", "Input should be less than or equal to 10080"},
 		{"description null", `{"name":"x","description":null}`, "string_type", "description", "Input should be a valid string"},
 		{"filters null", `{"name":"x","filters":null}`, "dict_type", "filters", "Input should be a valid dictionary"},
@@ -670,6 +686,11 @@ func TestValidation422Shapes(t *testing.T) {
 	m = e.mustCreate(t, `{"name":"Lax","refresh_interval_minutes":"30","name":"Lax2","description":"a","description":"b"}`)
 	if m["name"] != "Lax2" || m["description"] != "b" || m["refresh_interval_minutes"] != float64(30) {
 		t.Errorf("%v", m)
+	}
+	for i, v := range []string{`"20.0"`, `"2_0"`, `" +20.00 "`, `20.0`} {
+		if m := e.mustCreate(t, fmt.Sprintf(`{"name":"Int%d","refresh_interval_minutes":%s}`, i, v)); m["refresh_interval_minutes"] != float64(20) {
+			t.Errorf("%s: %v", v, m["refresh_interval_minutes"])
+		}
 	}
 	m = e.mustCreate(t, fmt.Sprintf(`{"name":%q}`, strings.Repeat("é", 200)))
 	if m["name"] != strings.Repeat("é", 200) {
