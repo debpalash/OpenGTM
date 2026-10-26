@@ -3,6 +3,7 @@ package autoactions
 import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/billing"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
@@ -15,24 +16,72 @@ var (
 
 // configOf is `action.get("config") or {}`: a falsy or non-object config is
 // empty. Ordered objects (colgraph.Col, *wbcrud.Obj) are read through their
-// own accessors but their nested values stay ordered.
+// own accessors and every nested value is normalised by plain, so the
+// executors only ever see map[string]any, colgraph.Col, []any and scalars.
 func configOf(v any) map[string]any {
 	switch m := v.(type) {
 	case map[string]any:
-		return m
+		out := make(map[string]any, len(m))
+		for k, e := range m {
+			out[k] = plain(e)
+		}
+		return out
 	case Column:
-		return m.Vals
-	case interface {
-		Keys() []string
-		Get(string) (any, bool)
-	}:
+		out := make(map[string]any, len(m.Vals))
+		for k, e := range m.Vals {
+			out[k] = plain(e)
+		}
+		return out
+	case *wbcrud.Obj:
 		out := map[string]any{}
+		if m == nil {
+			return out
+		}
 		for _, k := range m.Keys() {
-			out[k], _ = m.Get(k)
+			e, _ := m.Get(k)
+			out[k] = plain(e)
 		}
 		return out
 	}
 	return map[string]any{}
+}
+
+// plain normalises a decoded config value: *wbcrud.Obj becomes an ordered
+// colgraph.Col (key order kept, as Python's dict keeps it), and containers are
+// walked recursively. Scalars pass through.
+func plain(v any) any {
+	switch t := v.(type) {
+	case *wbcrud.Obj:
+		if t == nil {
+			return nil
+		}
+		keys := t.Keys()
+		out := Column{Keys: keys, Vals: make(map[string]any, len(keys))}
+		for _, k := range keys {
+			e, _ := t.Get(k)
+			out.Vals[k] = plain(e)
+		}
+		return out
+	case Column:
+		out := Column{Keys: append([]string(nil), t.Keys...), Vals: make(map[string]any, len(t.Vals))}
+		for k, e := range t.Vals {
+			out.Vals[k] = plain(e)
+		}
+		return out
+	case map[string]any:
+		out := make(map[string]any, len(t))
+		for k, e := range t {
+			out[k] = plain(e)
+		}
+		return out
+	case []any:
+		out := make([]any, len(t))
+		for i, e := range t {
+			out[i] = plain(e)
+		}
+		return out
+	}
+	return v
 }
 
 func colID(c Column) (string, bool) {
