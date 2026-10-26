@@ -127,12 +127,12 @@ check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
 check_workbook_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
   local want="$1" r
   echo "== workbook CRUD split ($1) =="
-  for r in "POST /api/workbooks/7/run" "POST /api/workbooks/7/stop" "POST /api/workbooks/7/rows/3/cells/c1/run" \
-           "POST /api/workbooks/7/sources" "POST /api/workbooks/7/sources/c1/run" "GET /api/workbooks/7/sources/c1/preview" \
-           "POST /api/workbooks/7/refresh" "PUT /api/workbooks/7/refresh-policy" "GET /api/workbooks/7/run/estimate" \
-           "POST /api/workbooks/7/migrate" "GET /api/workbooks/meta/provider-stats" "GET /api/workbooks/meta/provider-accuracy" \
-           "GET /api/workbooks/7/ws" "POST /api/workbooks/7/run/" \
-           "POST /api/v2/workbooks/7/generate-column" "POST /api/v2/workbooks/7/ingest-token" "POST /api/v2/workbooks/7/rows/ingest"; do
+  # Plan 06 retained routes and trailing-slash variants of the ported ones: always Python.
+  for r in "GET /api/workbooks/7/sources/c1/preview" "GET /api/workbooks/meta/provider-accuracy" \
+           "POST /api/v2/workbooks/7/generate-column" "POST /api/v2/workbooks/7/generate-column/" \
+           "POST /api/workbooks/7/run/" "POST /api/workbooks/7/stop/" "POST /api/workbooks/7/rows/3/cells/c1/run/" \
+           "POST /api/workbooks/7/refresh/" "GET /api/workbooks/7/ws/" "POST /api/v2/workbooks/7/ingest-token/" \
+           "POST /api/v2/workbooks/7/rows/ingest/"; do
     set -- $r
     expect "retained $r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
     expect "retained $r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
@@ -152,27 +152,71 @@ check_workbook_matrix() { # $1 = expected upstream for Go-eligible routes (py|go
   # Lookalikes that must NOT be captured by the Go block.
   expect "GET /api/system-stats X-Stub" "$(hdr GET /api/system-stats X-Stub)" py
   expect "GET /api/workbooksx X-Stub" "$(hdr GET /api/workbooksx X-Stub)" py
-  # WebSocket upgrade must reach Python on the retained /ws location.
-  local ws; ws="$(curl -s -D- -o /dev/null -H 'Upgrade: websocket' -H 'Connection: Upgrade' "http://127.0.0.1:$PORT/api/workbooks/7/ws" | tr -d '\r')"
-  expect "ws upstream HTTP version" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-proto"{print $2}')" "HTTP/1.1"
-  expect "ws Connection to upstream" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-conn"{print $2}')" upgrade
-  expect "ws Upgrade to upstream" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-upgrade"{print $2}')" websocket
   # Order: every retained regex location precedes the first Go regex location in the effective config.
   local T n_ret n_go; T="$(docker exec "$RUN-gw" nginx -T 2>/dev/null)"
-  n_ret="$(printf '%s\n' "$T" | grep -n 'location ~ \^/api/workbooks/(meta' | head -1 | cut -d: -f1)"
+  n_ret="$(printf '%s\n' "$T" | grep -n 'location ~ \^/api/workbooks/(meta/provider-accuracy' | head -1 | cut -d: -f1)"
   n_go="$(printf '%s\n' "$T" | grep -n 'location ~ \^/api/workbooks(/|\$)' | head -1 | cut -d: -f1)"
   if [ -n "$n_ret" ] && [ -n "$n_go" ] && [ "$n_ret" -lt "$n_go" ]; then echo "  ok   retained regex precedes Go regex"; else echo "  FAIL retained regex must precede Go regex ($n_ret vs $n_go)"; FAIL=1; fi
   # Timeouts/buffering of every plan 04 location equal `location /api/`.
   blk() { printf '%s\n' "$T" | awk -v pat="$1" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f' | grep -E 'proxy_(read_timeout|send_timeout|buffering|http_version)' | sed 's/^[[:space:]]*//' | sort; }
   local l
-  for l in '~ ^/api/workbooks/(meta/provider-(stats|accuracy)|[^/]+/(run(/estimate)?|stop|sources(/.*)?|refresh(-policy)?|migrate|ws)|[^/]+/rows/[^/]+/cells/[^/]+/run)/?$' \
-           '~ ^/api/v2/workbooks/[^/]+/(generate-column|ingest-token|rows/ingest)/?$' \
+  for l in '~ ^/api/workbooks/(meta/provider-accuracy|[^/]+/sources/[^/]+/preview)$' \
            '~ ^/api/workbooks(/|$)' '~ ^/api/v2/workbooks/[^/]+/views(/|$)' '^~ /api/templates' '^~ /api/functions' \
            '^~ /api/entities' '^~ /api/analytics' '= /api/me/context' '= /api/flags' '= /api/system/stats' '^~ /api/files/'; do
     expect "timeouts/buffering of '$l' == '/api/'" "$(blk "$l")" "$(blk "/api/")"
   done
 }
 # ===== end plan 04 =====
+
+# ===== plan 06: enrichment routes (17 ported follow the bucket, 3 retained stay on py; see check_workbook_matrix) =====
+check_enrichment_matrix() { # $1 = expected upstream for ported routes (py|go)
+  local want="$1" r
+  echo "== enrichment split ($1) =="
+  for r in "POST /api/workbooks/7/run" "POST /api/workbooks/7/rows/3/cells/c1/run" \
+           "GET /api/workbooks/7/run/estimate" "POST /api/workbooks/7/stop" "GET /api/workbooks/meta/provider-stats" \
+           "POST /api/workbooks/7/sources" "POST /api/workbooks/7/sources/c1/run" \
+           "POST /api/workbooks/7/refresh" "PUT /api/workbooks/7/refresh-policy" "POST /api/workbooks/7/migrate" \
+           "GET /api/workbooks/7/ws" "GET /api/workbooks/7/ws?token=T&workspace_id=ws-1" \
+           "POST /api/v2/workbooks/7/ingest-token" "POST /api/v2/workbooks/7/rows/ingest"; do
+    set -- $r
+    expect "ported $r X-Upstream" "$(hdr "$1" "$2" X-Upstream)" "$want"
+    expect "ported $r X-Stub" "$(hdr "$1" "$2" X-Stub)" "$want"
+    expect "ported $r X-Seen-Uri" "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+  done
+  # Run and cell run are keyed per workspace: same workspace -> same bucket whatever the client; header absent -> client key.
+  local a b
+  a="$(curl -s -D- -o /dev/null -X POST -H 'X-Workspace-Id: ws-1' -H 'Authorization: Bearer one' "http://127.0.0.1:$PORT/api/workbooks/7/run" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}')"
+  b="$(curl -s -D- -o /dev/null -X POST -H 'X-Workspace-Id: ws-1' -H 'Authorization: Bearer two' "http://127.0.0.1:$PORT/api/workbooks/7/rows/3/cells/c1/run" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}')"
+  expect "run X-Upstream (workspace header)" "$a" "$want"
+  expect "cell run X-Upstream (workspace header, other client)" "$b" "$want"
+  # WebSocket upgrade headers reach the upstream.
+  local ws; ws="$(curl -s -D- -o /dev/null -H 'Upgrade: websocket' -H 'Connection: Upgrade' "http://127.0.0.1:$PORT/api/workbooks/7/ws" | tr -d '\r')"
+  expect "ws upstream HTTP version" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-proto"{print $2}')" "HTTP/1.1"
+  expect "ws Connection to upstream" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-conn"{print $2}')" upgrade
+  expect "ws Upgrade to upstream" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-upgrade"{print $2}')" websocket
+  # Retained routes: py at every percentage, no X-Upstream.
+  for r in "GET /api/workbooks/7/sources/c1/preview" "GET /api/workbooks/meta/provider-accuracy" "POST /api/v2/workbooks/7/generate-column"; do
+    set -- $r
+    expect "retained $r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
+    expect "retained $r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
+  done
+  # Order and proxy settings of every plan 06 location.
+  local T n_ret n_go; T="$(docker exec "$RUN-gw" nginx -T 2>/dev/null)"
+  n_ret="$(printf '%s\n' "$T" | grep -n 'location ~ \^/api/workbooks/\[^/\]+/(run|rows' | head -1 | cut -d: -f1)"
+  n_go="$(printf '%s\n' "$T" | grep -n 'location ~ \^/api/workbooks(/|\$)' | head -1 | cut -d: -f1)"
+  if [ -n "$n_ret" ] && [ -n "$n_go" ] && [ "$n_ret" -lt "$n_go" ]; then echo "  ok   plan 06 regexes precede the plan 04 Go regex"; else echo "  FAIL plan 06 regexes must precede plan 04 Go regex ($n_ret vs $n_go)"; FAIL=1; fi
+  blk() { printf '%s\n' "$T" | awk -v pat="$1" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f' | grep -E 'proxy_(read_timeout|send_timeout|buffering|http_version)' | sed 's/^[[:space:]]*//' | sort; }
+  local l
+  for l in '~ ^/api/workbooks/(meta/provider-accuracy|[^/]+/sources/[^/]+/preview)$' '~ ^/api/v2/workbooks/[^/]+/(generate-column/?|ingest-token/|rows/ingest/)$' \
+           '~ ^/api/workbooks/[^/]+/(run|rows/[^/]+/cells/[^/]+/run)$' \
+           '~ ^/api/workbooks/(meta/provider-stats|[^/]+/(run/estimate|stop|sources(/[^/]+/run)?|refresh(-policy)?|migrate))$' \
+           '~ ^/api/v2/workbooks/[^/]+/(ingest-token|rows/ingest)$'; do
+    expect "timeouts/buffering of '$l' == '/api/'" "$(blk "$l")" "$(blk "/api/")"
+  done
+  local w; w="$(blk '~ ^/api/workbooks/[^/]+/ws$')"
+  case "$w" in *"proxy_read_timeout 1h;"*"proxy_send_timeout 1h;"*|*"proxy_read_timeout 1h;"*) echo "  ok   ws location has proxy_read_timeout 1h";; *) echo "  FAIL ws location lacks proxy_read_timeout 1h: $w"; FAIL=1;; esac
+}
+# ===== end plan 06 =====
 
 # ===== plan 07: connectors, HubSpot, /api/data, AmbitionBox (all 19 routes ported, none retained) =====
 check_connectors_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
@@ -216,11 +260,13 @@ start_gateway 0
 if docker exec "$RUN-gw" nginx -t 2>&1; then echo "  ok   nginx -t"; else echo "  FAIL nginx -t"; FAIL=1; fi
 check_matrix py 0%
 check_workbook_matrix py
+check_enrichment_matrix py
 check_connectors_matrix py
 start_gateway 100
 docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @100%"; FAIL=1; }
 check_matrix go 100%
 check_workbook_matrix go
+check_enrichment_matrix go
 check_connectors_matrix go
 
 [ "$FAIL" = 0 ] && echo "ALL PASS" || { echo "FAILED"; exit 1; }
