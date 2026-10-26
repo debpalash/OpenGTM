@@ -359,6 +359,7 @@ type Flags struct {
 	BuildSHA                       string // OPENGTM_BUILD_SHA
 	CRMImportEnabled               bool   // CRM_IMPORT_ENABLED (read-only mirror; crm_import stays on Python)
 	AutomationsEnabled             bool   // AUTOMATIONS_ENABLED
+	IngestAPIEnabled               bool   // INGEST_API_ENABLED (default false): inbound-rows API (ingest-token, rows/ingest)
 	IntentPollerEnabled            bool   // INTENT_POLLER_ENABLED
 	AutomationsAllowLegacyOutreach bool   // AUTOMATIONS_ALLOW_LEGACY_OUTREACH
 	FilesAPIMode                   string
@@ -480,6 +481,9 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	c.Flags.CertificationKey = Secret(strings.TrimSpace(get("OPENGTM_INTEGRATION_CERTIFICATION_KEY")))
 	c.Flags.BuildSHA = strings.TrimSpace(get("OPENGTM_BUILD_SHA"))
 	if c.Flags.AutomationsEnabled, err = boolVar(get, "AUTOMATIONS_ENABLED", false); err != nil {
+		return APIConfig{}, err
+	}
+	if c.Flags.IngestAPIEnabled, err = boolVar(get, "INGEST_API_ENABLED", false); err != nil {
 		return APIConfig{}, err
 	}
 	if c.Flags.Automations, err = loadAutomations(get); err != nil {
