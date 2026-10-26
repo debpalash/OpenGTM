@@ -22,6 +22,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
 )
 
 // Deps is everything a route group may need. cmd/api builds it once.
@@ -71,6 +72,9 @@ type Deps struct {
 	// (nil: they do not register, D5); DestPorts are the provider delivery seams.
 	AudienceEvents audiencerefresh.Emitter
 	DestPorts      destdeliver.Ports
+
+	// ChatStreams caps concurrent copilot chat streams (plan 12). Nil: chat routes are not mounted.
+	ChatStreams *ssestream.Caps
 }
 
 func (d Deps) getenv() func(string) string {
