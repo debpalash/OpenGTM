@@ -3,6 +3,7 @@ package govadmin
 import (
 	"context"
 	"errors"
+	"slices"
 
 	"github.com/jackc/pgx/v5"
 
@@ -76,6 +77,24 @@ func CheckAddMember(ctx context.Context, tx pgx.Tx, ws string, actor int32, role
 	if validRole(role) && rank(role) > rank(actorRole) {
 		return ErrEscalation
 	}
+	return actorHoldsRole(ctx, tx, ws, actor, role)
+}
+
+// actorHoldsRole refuses a role grant that would confer a permission the actor does not effectively hold (for
+// example one an admin denied them). Owners hold everything.
+func actorHoldsRole(ctx context.Context, tx pgx.Tx, ws string, actor int32, role string) error {
+	for _, p := range Permissions {
+		if !slices.Contains(p.DefaultRoles, role) {
+			continue
+		}
+		held, err := identity.HasPermissionTx(ctx, tx, ws, actor, p.Key, RolesFor(p.Key)...)
+		if err != nil {
+			return err
+		}
+		if !held {
+			return ErrEscalation
+		}
+	}
 	return nil
 }
 
@@ -87,6 +106,9 @@ func CheckSetRole(ctx context.Context, tx pgx.Tx, ws string, actor, target int32
 	}
 	if !canManage(actorRole, targetRole) || (validRole(role) && targetRole != "" && targetRole != "owner" && rank(role) > rank(actorRole)) {
 		return ErrEscalation
+	}
+	if validRole(role) && targetRole != role {
+		return actorHoldsRole(ctx, tx, ws, actor, role)
 	}
 	return nil
 }
@@ -117,7 +139,10 @@ func CheckSetOverride(ctx context.Context, tx pgx.Tx, ws string, actor, target i
 	if !canManage(actorRole, targetRole) {
 		return ErrEscalation
 	}
-	if effect != nil && *effect == "allow" {
+	// Allowing grants the permission; clearing grants it back when the target's role carries it by default, which
+	// would lift a deny the actor could not have created. Both need the actor to hold it.
+	grants := effect != nil && *effect == "allow" || effect == nil && slices.Contains(RolesFor(permission), targetRole)
+	if grants {
 		held, err := identity.HasPermissionTx(ctx, tx, ws, actor, permission, RolesFor(permission)...)
 		if err != nil {
 			return err

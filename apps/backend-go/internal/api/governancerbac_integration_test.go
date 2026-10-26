@@ -531,7 +531,9 @@ func TestMemberRoutesBlockPrivilegeEscalation(t *testing.T) {
 	if e.roleOf(t, "ws-alpha", "bob") != "member" || e.roleOf(t, "ws-alpha", "erin") != "editor" || e.roleOf(t, "ws-alpha", "dave") != "admin" || e.roleOf(t, "ws-alpha", "carol") != "" {
 		t.Fatal("an escalation attempt changed state")
 	}
-	// Within their own level they can still work (no regression for delegated managers).
+	// Within their own level they can still work (no regression for delegated managers). erin's seeded
+	// activation.write deny would, by design, stop her granting editor, so lift it first.
+	e.override(t, "ws-alpha", "erin", "activation.write", "allow")
 	for _, c := range []struct{ name, method, path, body string }{
 		{"grant editor on create", "POST", "/api/governance/members", `{"username":"carol","role":"editor"}`},
 		{"promote member to editor", "PATCH", fmt.Sprintf("/api/governance/members/%d", bob), `{"role":"editor"}`},

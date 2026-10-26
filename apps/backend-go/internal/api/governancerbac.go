@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"io"
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
@@ -73,11 +74,17 @@ func (h rbacRoutes) ctx(w http.ResponseWriter, r *http.Request) (identity.Worksp
 }
 
 func (h rbacRoutes) body(w http.ResponseWriter, r *http.Request) ([]byte, bool) {
-	raw, ok := wbcrud.ReadBody(http.MaxBytesReader(w, r.Body, maxRBACBody))
-	if !ok {
+	raw, err := io.ReadAll(http.MaxBytesReader(w, r.Body, maxRBACBody))
+	var tooBig *http.MaxBytesError
+	switch {
+	case err == nil:
+		return raw, true
+	case errors.As(err, &tooBig):
 		httpx.Detail(w, http.StatusRequestEntityTooLarge, "Request body too large")
+	default: // client abort or a broken stream: FastAPI answers 400
+		httpx.Detail(w, http.StatusBadRequest, "There was an error parsing the body")
 	}
-	return raw, ok
+	return nil, false
 }
 
 // pathUser parses {user_id}; an id Postgres integer cannot hold matches no member (Python answers 500).
