@@ -95,13 +95,13 @@ func TestCacheWorkspaceIsolation(t *testing.T) {
 		if err := enrichcache.PutAt(ctx, tx, a, "k", "email", enrichcache.Hit{Value: "a-secret"}, time.Hour, base); err != nil {
 			return err
 		}
-		return enrichcache.PutEmailAt(ctx, tx, a, "x@y.co", json.RawMessage(`{"status":"valid"}`), time.Hour, base)
+		return enrichcache.PutEmailAt(ctx, tx, a, "x@y.co", "smtp", json.RawMessage(`{"status":"valid"}`), time.Hour, base)
 	})
 	in(t, pool, b, func(tx pgx.Tx) error {
 		if _, ok, err := enrichcache.Get(ctx, tx, b, "k", "email", base); err != nil || ok {
 			t.Errorf("B sees A entry: ok=%v err=%v", ok, err)
 		}
-		if _, ok, err := enrichcache.GetEmail(ctx, tx, b, "x@y.co", base); err != nil || ok {
+		if _, ok, err := enrichcache.GetEmail(ctx, tx, b, "x@y.co", "smtp", base); err != nil || ok {
 			t.Errorf("B sees A email entry: ok=%v err=%v", ok, err)
 		}
 		// B naming A's workspace id is blocked by RLS (read: nothing, write: error).
@@ -187,10 +187,10 @@ func TestEmailCacheRoundTripAndExpiry(t *testing.T) {
 	ctx := context.Background()
 	res := json.RawMessage(`{"status":"valid","source":"reacher","detail":"rcpt_accepted","confidence":0.95}`)
 	in(t, pool, ws, func(tx pgx.Tx) error {
-		if err := enrichcache.PutEmailAt(ctx, tx, ws, " A@B.co ", res, enrichcache.EmailTTL("valid"), base); err != nil {
+		if err := enrichcache.PutEmailAt(ctx, tx, ws, " A@B.co ", "reacher", res, enrichcache.EmailTTL("valid"), base); err != nil {
 			return err
 		}
-		got, ok, err := enrichcache.GetEmail(ctx, tx, ws, "a@b.co", base.Add(time.Hour))
+		got, ok, err := enrichcache.GetEmail(ctx, tx, ws, "A@B.co", "reacher", base.Add(time.Hour))
 		if err != nil || !ok {
 			t.Fatalf("hit: %v %v", ok, err)
 		}
@@ -198,23 +198,32 @@ func TestEmailCacheRoundTripAndExpiry(t *testing.T) {
 		if err := json.Unmarshal(got, &m); err != nil || m["status"] != "valid" || m["confidence"] != 0.95 {
 			t.Errorf("result: %s %v", got, err)
 		}
-		if _, ok, _ := enrichcache.GetEmail(ctx, tx, ws, "a@b.co", base.Add(14*24*time.Hour+time.Second)); ok {
+		if _, ok, _ := enrichcache.GetEmail(ctx, tx, ws, "a@b.co", "reacher", base.Add(14*24*time.Hour+time.Second)); ok {
 			t.Error("expired email row returned")
 		}
 		var h string
-		if err := tx.QueryRow(ctx, `SELECT email_hash FROM email_verify_cache`).Scan(&h); err != nil || h != enrichcache.EmailHash("a@b.co") {
+		if err := tx.QueryRow(ctx, `SELECT email_hash FROM email_verify_cache`).Scan(&h); err != nil || h != enrichcache.EmailKey("a@b.co", "reacher") {
 			t.Errorf("stored hash %q err=%v", h, err)
 		}
-		// Verifier-scoped key (Python email_key) variant.
-		k := enrichcache.EmailKey("a@b.co", "smtp")
-		if err := enrichcache.PutEmailKeyAt(ctx, tx, ws, k, json.RawMessage(`{"status":"unknown"}`), enrichcache.EmailTTL("unknown"), base); err != nil {
+		// The verifier is part of the key: same address, other verifier misses.
+		if _, ok, _ := enrichcache.GetEmail(ctx, tx, ws, "a@b.co", "smtp", base); ok {
+			t.Error("different verifier hit")
+		}
+		if err := enrichcache.PutEmailAt(ctx, tx, ws, "a@b.co", "smtp", json.RawMessage(`{"status":"unknown"}`), enrichcache.EmailTTL("unknown"), base); err != nil {
 			return err
 		}
-		if _, ok, _ := enrichcache.GetEmailKey(ctx, tx, ws, k, base.Add(23*time.Hour)); !ok {
+		if _, ok, _ := enrichcache.GetEmail(ctx, tx, ws, "a@b.co", "smtp", base.Add(23*time.Hour)); !ok {
 			t.Error("unknown within 1d missed")
 		}
-		if _, ok, _ := enrichcache.GetEmailKey(ctx, tx, ws, k, base.Add(25*time.Hour)); ok {
+		if _, ok, _ := enrichcache.GetEmail(ctx, tx, ws, "a@b.co", "smtp", base.Add(25*time.Hour)); ok {
 			t.Error("unknown after 1d hit")
+		}
+		// Python skips empty email or verifier on both get and set.
+		if err := enrichcache.PutEmailAt(ctx, tx, ws, "a@b.co", "", json.RawMessage(`{"status":"valid"}`), time.Hour, base); err != nil {
+			return err
+		}
+		if _, ok, _ := enrichcache.GetEmail(ctx, tx, ws, "a@b.co", "", base); ok {
+			t.Error("empty verifier stored")
 		}
 		return nil
 	})
@@ -374,12 +383,10 @@ func TestCacheSequencesMatchPythonVectors(t *testing.T) {
 				for i, st := range s.Steps {
 					o := st.Op
 					email, verifier := o.str("email"), o.str("verifier")
-					key := enrichcache.EmailKey(email, verifier)
-					valid := email != "" && verifier != ""
 					switch o.str("op") {
 					case "set":
 						status := o.str("status")
-						if !valid || status == "" {
+						if status == "" {
 							continue
 						}
 						ttl := enrichcache.EmailTTL(status)
@@ -388,16 +395,14 @@ func TestCacheSequencesMatchPythonVectors(t *testing.T) {
 						}
 						conf, _ := o.num("confidence")
 						res, _ := json.Marshal(map[string]any{"status": status, "source": o.str("source"), "detail": o.str("detail"), "confidence": conf})
-						if err := enrichcache.PutEmailKeyAt(ctx, tx, ws, key, res, ttl, at(o)); err != nil {
+						if err := enrichcache.PutEmailAt(ctx, tx, ws, email, verifier, res, ttl, at(o)); err != nil {
 							return err
 						}
 					case "get":
 						var got json.RawMessage
 						var ok bool
 						var err error
-						if valid {
-							got, ok, err = enrichcache.GetEmailKey(ctx, tx, ws, key, at(o))
-						}
+						got, ok, err = enrichcache.GetEmail(ctx, tx, ws, email, verifier, at(o))
 						if err != nil {
 							return err
 						}

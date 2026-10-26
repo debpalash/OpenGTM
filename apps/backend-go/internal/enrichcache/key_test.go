@@ -92,15 +92,16 @@ func TestEmailKeyMatchesVectors(t *testing.T) {
 }
 
 func TestEmailCacheKeyLowercasedHash(t *testing.T) {
-	// sha256("a@b.co"); case and surrounding whitespace do not change the hash.
-	const want = "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
+	// sha256("a@b.co") + ":" + verifier; case and surrounding whitespace do not
+	// change the hash, the verifier does.
+	const h = "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
 	for _, in := range []string{"a@b.co", "A@B.CO", "  A@b.Co\t"} {
-		if got := EmailHash(in); got != want {
-			t.Errorf("EmailHash(%q)=%q want %q", in, got, want)
+		if got := EmailKey(in, "reacher"); got != h+":reacher" {
+			t.Errorf("EmailKey(%q)=%q", in, got)
 		}
 	}
-	if EmailHash("x@y.co") == want {
-		t.Fatal("distinct emails share a hash")
+	if EmailKey("a@b.co", "smtp") == EmailKey("a@b.co", "reacher") || EmailKey("x@y.co", "reacher") == h+":reacher" {
+		t.Fatal("key collision")
 	}
 }
 
