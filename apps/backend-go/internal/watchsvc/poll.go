@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 
@@ -217,7 +218,7 @@ func (s *Service) Signals(ctx context.Context, ws, id string, q SignalsQuery) (S
 			p.CursorTs = pgtype.Float8{Float64: ts, Valid: true}
 			p.CursorID = pgtype.Text{String: cid, Valid: true}
 		} else {
-			p.RowOffset = int32(q.Offset)
+			p.RowOffset = int32(min(q.Offset, math.MaxInt32))
 			o := q.Offset
 			pg.Offset = &o
 		}

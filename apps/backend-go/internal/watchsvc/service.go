@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math"
 	"strings"
 	"time"
 
@@ -374,7 +375,7 @@ func (s *Service) List(ctx context.Context, ws string, limit, offset int, cursor
 		p.CursorTs = tstz(ts)
 		p.CursorID = pgtype.Text{String: id, Valid: true}
 	} else {
-		p.RowOffset = int32(offset)
+		p.RowOffset = int32(min(offset, math.MaxInt32))
 		o := offset
 		pg.Offset = &o
 	}

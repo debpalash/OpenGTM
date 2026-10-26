@@ -36,6 +36,8 @@ func manualDryRun(requested bool) bool { return requested }
 // reads, run needs automations.manage.
 func registerAutomationsRun(r *httpx.Router, d Deps) {
 	if d.Pool == nil || d.Identity == nil {
+		// Not silent: preview, run, runs and run-detail would otherwise answer 404 while the CRUD routes stay up.
+		d.logger().Error("automations run routes NOT registered: Deps.Pool and Deps.Identity are required")
 		return
 	}
 	h := autoRunRoutes{d: d, svc: &autosvc.Service{Pool: d.Pool, ExecFor: d.automationExecutor(), Log: d.Log,

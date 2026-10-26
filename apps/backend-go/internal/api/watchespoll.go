@@ -68,7 +68,7 @@ func (p watchPollRoutes) fail(w http.ResponseWriter, what string, err error) {
 		}
 		return
 	}
-	p.d.logger().Error("watches: "+what+" failed", "err", err)
+	p.d.logger().Error("watches: "+what+" failed", "err_type", errTypeName(err))
 	httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
 }
 
