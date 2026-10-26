@@ -12,26 +12,15 @@ func govCfg(ret, pb bool) config.Config {
 	return config.Config{Flags: config.Flags{Governance: config.GovernanceSettings{GoExecutorRetention: ret, GoExecutorPlaybooks: pb}}}
 }
 
-// Each handler is registered only when its executor flag is on.
-func TestGovernanceHandlersFollowFlags(t *testing.T) {
+// Every governance type always has a handler (a hand-back while its flag is off), so the
+// claim never fails a go row as unsupported.
+func TestGovernanceHandlersAlwaysRegistered(t *testing.T) {
 	log := telemetry.NewLogger(io.Discard)
-	cases := []struct {
-		ret, pb bool
-		want    []string
-	}{
-		{false, false, nil},
-		{true, false, []string{"retention_enforce"}},
-		{false, true, []string{"research_playbook_run", "research_playbook_schedule"}},
-		{true, true, []string{"retention_enforce", "research_playbook_run", "research_playbook_schedule"}},
-	}
-	for _, c := range cases {
-		got := governanceHandlers(govCfg(c.ret, c.pb), nil, log, nil, governanceOpts{})
-		if got == nil || len(got) != len(c.want) {
-			t.Fatalf("ret=%v pb=%v: handlers %v, want %v", c.ret, c.pb, got, c.want)
-		}
-		for _, k := range c.want {
+	for _, f := range [][2]bool{{false, false}, {true, false}, {false, true}, {true, true}} {
+		got := governanceHandlers(govCfg(f[0], f[1]), nil, log, nil, governanceOpts{})
+		for _, k := range []string{"retention_enforce", "research_playbook_run", "research_playbook_schedule"} {
 			if got[k] == nil {
-				t.Errorf("ret=%v pb=%v: %s not registered", c.ret, c.pb, k)
+				t.Errorf("flags %v: %s not registered", f, k)
 			}
 		}
 	}
