@@ -294,24 +294,40 @@ func (q *Queries) OutreachSeqList(ctx context.Context, workspaceID string) ([]Ou
 }
 
 const outreachSeqUpdate = `-- name: OutreachSeqUpdate :one
-UPDATE outreach_sequences SET
-  name = CASE WHEN $1::boolean THEN $2::text ELSE name END,
-  description = CASE WHEN $3::boolean THEN $4::text ELSE description END,
-  steps = CASE WHEN $5::boolean THEN $6::text::json ELSE steps END,
-  status = CASE WHEN $7::boolean THEN $8::text ELSE status END,
-  daily_limit = CASE WHEN $9::boolean THEN $10::int ELSE daily_limit END,
-  send_window_start = CASE WHEN $11::boolean THEN $12::int ELSE send_window_start END,
-  send_window_end = CASE WHEN $13::boolean THEN $14::int ELSE send_window_end END,
-  send_window_tz = CASE WHEN $15::boolean THEN $16::text ELSE send_window_tz END,
-  consent_basis = CASE WHEN $17::boolean THEN $18::text ELSE consent_basis END,
-  updated_at = now()
-WHERE workspace_id = $19::text AND id = $20::text
-RETURNING id, workspace_id, name, description, steps::text AS steps, status, daily_limit, send_window_start,
-          send_window_end, send_window_tz, consent_basis, bounce_count, complaint_count, auto_paused,
-          created_at, updated_at
+WITH n AS (
+  SELECT s.id,
+    CASE WHEN $2::boolean THEN $3::text ELSE s.name END AS name,
+    CASE WHEN $4::boolean THEN $5::text ELSE s.description END AS description,
+    CASE WHEN $6::boolean THEN $7::text::json ELSE s.steps END AS steps,
+    CASE WHEN $8::boolean THEN $9::text ELSE s.status END AS status,
+    CASE WHEN $10::boolean THEN $11::int ELSE s.daily_limit END AS daily_limit,
+    CASE WHEN $12::boolean THEN $13::int ELSE s.send_window_start END AS send_window_start,
+    CASE WHEN $14::boolean THEN $15::int ELSE s.send_window_end END AS send_window_end,
+    CASE WHEN $16::boolean THEN $17::text ELSE s.send_window_tz END AS send_window_tz,
+    CASE WHEN $18::boolean THEN $19::text ELSE s.consent_basis END AS consent_basis
+  FROM outreach_sequences s
+  WHERE s.workspace_id = $1::text AND s.id = $20::text
+)
+UPDATE outreach_sequences t SET
+  name = n.name, description = n.description, steps = n.steps, status = n.status,
+  daily_limit = n.daily_limit, send_window_start = n.send_window_start,
+  send_window_end = n.send_window_end, send_window_tz = n.send_window_tz,
+  consent_basis = n.consent_basis,
+  updated_at = CASE WHEN (t.name, t.description, t.steps::jsonb, t.status, t.daily_limit, t.send_window_start,
+                          t.send_window_end, t.send_window_tz, t.consent_basis)
+                       IS DISTINCT FROM
+                       (n.name, n.description, n.steps::jsonb, n.status, n.daily_limit, n.send_window_start,
+                          n.send_window_end, n.send_window_tz, n.consent_basis)
+                    THEN now() ELSE t.updated_at END
+FROM n
+WHERE t.id = n.id AND t.workspace_id = $1::text
+RETURNING t.id, t.workspace_id, t.name, t.description, t.steps::text AS steps, t.status, t.daily_limit,
+          t.send_window_start, t.send_window_end, t.send_window_tz, t.consent_basis, t.bounce_count,
+          t.complaint_count, t.auto_paused, t.created_at, t.updated_at
 `
 
 type OutreachSeqUpdateParams struct {
+	WorkspaceID        string
 	SetName            bool
 	Name               string
 	SetDescription     bool
@@ -330,7 +346,6 @@ type OutreachSeqUpdateParams struct {
 	SendWindowTz       string
 	SetConsentBasis    bool
 	ConsentBasis       string
-	WorkspaceID        string
 	ID                 string
 }
 
@@ -353,10 +368,12 @@ type OutreachSeqUpdateRow struct {
 	UpdatedAt       pgtype.Timestamptz
 }
 
-// Only the fields flagged set_* change (model_dump(exclude_none=True)); updated_at
-// bumps like the ORM onupdate.
+// Only the fields flagged set_* change (model_dump(exclude_none=True)).
+// updated_at bumps only when a column really changes: SQLAlchemy skips an UPDATE
+// whose assigned values equal the loaded ones, so the ORM onupdate never fires.
 func (q *Queries) OutreachSeqUpdate(ctx context.Context, arg OutreachSeqUpdateParams) (OutreachSeqUpdateRow, error) {
 	row := q.db.QueryRow(ctx, outreachSeqUpdate,
+		arg.WorkspaceID,
 		arg.SetName,
 		arg.Name,
 		arg.SetDescription,
@@ -375,7 +392,6 @@ func (q *Queries) OutreachSeqUpdate(ctx context.Context, arg OutreachSeqUpdatePa
 		arg.SendWindowTz,
 		arg.SetConsentBasis,
 		arg.ConsentBasis,
-		arg.WorkspaceID,
 		arg.ID,
 	)
 	var i OutreachSeqUpdateRow

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -78,6 +79,9 @@ func toEnrollment(r gen.OutreachEnrollment) Enrollment {
 	}
 }
 
+// Callers must run SequenceExists first: Enroll does not verify that seqID
+// belongs to wsID (same as Python).
+//
 // Enroll inserts one pending enrollment due now. A duplicate (workspace,
 // sequence, lead) answers created=false with id 0 and leaves the transaction
 // usable. The email is normalized; an empty result is ErrNoEmail. A zero
@@ -118,7 +122,14 @@ func GetEnrollment(ctx context.Context, tx pgx.Tx, id int) (*Enrollment, error) 
 
 // DueEnrollments lists pending/scheduled enrollments whose next_send_at has
 // passed and that have no send row for their current step, oldest first.
+// A limit of zero or less returns no rows.
 func DueEnrollments(ctx context.Context, tx pgx.Tx, seqID string, limit int) ([]Enrollment, error) {
+	if limit <= 0 {
+		return []Enrollment{}, nil
+	}
+	if limit > math.MaxInt32 {
+		limit = math.MaxInt32
+	}
 	rows, err := gen.New(tx).OutreachEnrollmentsDue(ctx, gen.OutreachEnrollmentsDueParams{SequenceID: seqID, RowLimit: int32(limit)})
 	if err != nil {
 		return nil, fmt.Errorf("outreachstore: due enrollments: %w", err)

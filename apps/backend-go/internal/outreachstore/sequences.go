@@ -150,10 +150,22 @@ func CreateSequence(ctx context.Context, tx pgx.Tx, wsID string, in SeqInput) (S
 	if tz == "" {
 		tz = "UTC"
 	}
+	daily, err := asInt32("daily_limit", in.DailyLimit)
+	if err != nil {
+		return Seq{}, err
+	}
+	start, err := asInt32("send_window_start", in.SendWindowStart)
+	if err != nil {
+		return Seq{}, err
+	}
+	end, err := asInt32("send_window_end", in.SendWindowEnd)
+	if err != nil {
+		return Seq{}, err
+	}
 	r, err := gen.New(tx).OutreachSeqCreate(ctx, gen.OutreachSeqCreateParams{
 		ID: uuid.NewString(), WorkspaceID: wsID, Name: in.Name, Description: in.Description, Steps: steps,
-		DailyLimit: int32(in.DailyLimit), SendWindowStart: int32(in.SendWindowStart),
-		SendWindowEnd: int32(in.SendWindowEnd), SendWindowTz: tz, ConsentBasis: in.ConsentBasis,
+		DailyLimit: daily, SendWindowStart: start,
+		SendWindowEnd: end, SendWindowTz: tz, ConsentBasis: in.ConsentBasis,
 	})
 	if err != nil {
 		return Seq{}, fmt.Errorf("outreachstore: create sequence: %w", err)
@@ -249,7 +261,8 @@ func asJSONText(k string, v any) (string, error) {
 
 // UpdateSequence applies only the updatable keys present in updates (Python
 // _UPDATABLE_SEQ_FIELDS over model_dump(exclude_none=True)); other keys are
-// ignored. Returns nil when the sequence is unknown in this workspace. With no
+// ignored. Callers must drop nil values first (model_dump(exclude_none=True));
+// a nil value is a type error, not a stored NULL. Returns nil when the sequence is unknown in this workspace. With no
 // updatable key the row is returned untouched.
 func UpdateSequence(ctx context.Context, tx pgx.Tx, wsID, id string, updates map[string]any) (*Seq, error) {
 	p := gen.OutreachSeqUpdateParams{WorkspaceID: wsID, ID: id}
