@@ -299,14 +299,20 @@ func (c Config) interval(w Watch) string {
 	return c.DefaultInterval
 }
 
-// NextPollFor is the aligned next poll instant for a watch (anchor defaults to
-// now): compute_next_run(anchor, interval, now).
+// NextPollFor is NextPollForIn for a UTC session zone.
 func NextPollFor(w Watch, now time.Time, c Config) time.Time {
-	anchor := now.UTC()
-	if w.Anchor != nil {
-		anchor = w.Anchor.UTC()
+	return NextPollForIn(w, now, c, time.UTC)
+}
+
+// NextPollForIn is the aligned next poll instant for a watch:
+// compute_next_run(anchor, interval) with the anchor read in the Postgres
+// session zone loc (wall-clock arithmetic across DST). A NULL anchor means
+// "now" and Python re-reads the clock, so the result is one interval ahead.
+func NextPollForIn(w Watch, now time.Time, c Config, loc *time.Location) time.Time {
+	if w.Anchor == nil {
+		return now.UTC().Add(autoschedule.IntervalDelta(c.interval(w)))
 	}
-	return autoschedule.NextRun(anchor, c.interval(w), now.UTC())
+	return autoschedule.NextRunIn(*w.Anchor, c.interval(w), now.UTC(), loc)
 }
 
 // RescheduleWatch is _reschedule_watch and persists the result (health columns,
@@ -319,7 +325,11 @@ func NextPollFor(w Watch, now time.Time, c Config) time.Time {
 func RescheduleWatch(ctx context.Context, tx pgx.Tx, w Watch, failed bool, now time.Time, cfg Config, executor string) (Watch, error) {
 	now = now.UTC().Truncate(time.Microsecond)
 	interval := cfg.interval(w)
-	next := NextPollFor(w, now, cfg)
+	loc, err := SessionLocation(ctx, tx)
+	if err != nil {
+		return w, err
+	}
+	next := NextPollForIn(w, now, cfg, loc)
 	if failed {
 		w.ConsecutiveFailures++
 		if w.ConsecutiveFailures >= cfg.MaxConsecutiveFailures {
@@ -340,10 +350,6 @@ func RescheduleWatch(ctx context.Context, tx pgx.Tx, w Watch, failed bool, now t
 	}
 	w.NextPollAt = &next
 	if w.Enabled {
-		loc, err := SessionLocation(ctx, tx)
-		if err != nil {
-			return w, err
-		}
 		if _, err := EnqueuePollIfAbsent(ctx, tx, ScheduledFireKeyIn(w.ID, next, loc), w.WorkspaceID, w.ID, next, false, executor); err != nil {
 			return w, err
 		}

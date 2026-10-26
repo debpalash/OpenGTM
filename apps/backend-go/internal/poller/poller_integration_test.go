@@ -507,6 +507,9 @@ func TestRescheduleBackoffTable(t *testing.T) {
 		t.Fatalf("vectors = %d", len(v.Reschedule))
 	}
 	for i, c := range v.Reschedule {
+		if c.Name == "no_anchor_uses_now" {
+			c = shiftNoAnchorVector(t, c)
+		}
 		anchor := &vAnchor
 		enabled := true
 		before := 0
@@ -590,6 +593,24 @@ func TestRescheduleBackoffTable(t *testing.T) {
 			}
 		}
 	}
+}
+
+// shiftNoAnchorVector adapts the recorded vector, which was captured with a
+// frozen Python clock (anchor == now, so next == now). Real Python reads the
+// clock again inside compute_next_run, so a NULL anchor yields now + one
+// interval (daily here); a due-now result would respin the schedule forever.
+func shiftNoAnchorVector(t *testing.T, c reschedVec) reschedVec {
+	t.Helper()
+	raw, err := json.Marshal(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw = []byte(strings.ReplaceAll(string(raw), "2026-08-29T10:40:00", "2026-08-30T10:40:00"))
+	var out reschedVec
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatal(err)
+	}
+	return out
 }
 
 func deref(s *string) string {
