@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachstore"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/smtpclient"
 )
 
 func TestIdemMatchesPython(t *testing.T) {
@@ -158,13 +157,12 @@ func TestClassifyTextMatchesPythonShape(t *testing.T) {
 	}{
 		{550, "5.1.1 user unknown", true},
 		{554, "5.7.1 rejected", true},
-		{535, "5.7.8 Authentication credentials invalid", false}, // our credentials, never a recipient bounce
+		{535, "5.7.8 Authentication credentials invalid", false},
 		{452, "4.2.2 mailbox full", false},
 		{421, "4.3.2 service shutting down", false},
 	}
 	for _, c := range cases {
-		err := &textproto.Error{Code: c.code, Msg: c.msg}
-		if got := smtpclient.IsHardBounce(classifyText(err, err.Error())); got != c.hard {
+		if _, got := classifySendError(&textproto.Error{Code: c.code, Msg: c.msg}); got != c.hard {
 			t.Errorf("%d %s: hard=%v want %v", c.code, c.msg, got, c.hard)
 		}
 	}

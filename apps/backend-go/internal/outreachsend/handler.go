@@ -3,12 +3,18 @@ package outreachsend
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/textproto"
+	"os"
 	"strconv"
+	"strings"
+	"syscall"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -457,7 +463,7 @@ func (h *Handler) run(ctx context.Context, ws string, j *job, cost float64, paid
 	// 10. SMTP. A cancelled context after the marker is a failed send, not a retry
 	// candidate (the marker would make a retry a replay-skip anyway).
 	var messageID, errText string
-	var sendErr error
+	var hard bool
 	switch {
 	case ctx.Err() != nil:
 		errText = "cancelled before send"
@@ -470,7 +476,7 @@ func (h *Handler) run(ctx context.Context, ws string, j *job, cost float64, paid
 		})
 		id, err := h.Mailer.Send(ctx, MailConfig{Host: cfg.Host, Port: cfg.Port, Email: cfg.Email, Password: string(cfg.Password), UseTLS: cfg.UseTLS}, cfg.Email, to, raw)
 		if err != nil {
-			errText, sendErr = err.Error(), err
+			errText, hard = classifySendError(err)
 		} else if messageID = id; messageID == "" {
 			messageID = composedID
 		}
@@ -483,7 +489,7 @@ func (h *Handler) run(ctx context.Context, ws string, j *job, cost float64, paid
 	if errText == "" {
 		return h.succeed(c, ws, idem, enrollmentID, seq, steps, j.StepNumber, messageID, cost, paid, resv)
 	}
-	if smtpclient.IsHardBounce(classifyText(sendErr, errText)) {
+	if hard {
 		return h.hardBounce(c, ws, idem, to, seqID, enrollmentID, errText, resv)
 	}
 	return h.failTransient(c, ws, idem, enrollmentID, errText, &resv)
@@ -597,16 +603,55 @@ func (h *Handler) failTransient(ctx context.Context, ws, idem string, enrollment
 	return fmt.Errorf("outreach send transient failure: %s", trunc(errText, 160))
 }
 
-// classifyText is the text Python's _is_hard_bounce would have seen. smtplib
-// reports a protocol reply as "(code, b'msg')" (or a dict of them for RCPT), never
-// as "code msg", and the classifier's 5xx gate keys off that shape: a bare
-// "535 ..." (AUTH failure) or "552 ..." must not read as a hard bounce here
-// because Python's did not, and suppressing a recipient for our own bad
-// credentials would be wrong. Non-protocol errors keep their own text.
-func classifyText(err error, text string) string {
+// classifySendError returns the text to store and whether the send hard-bounced.
+// Only SMTP protocol replies can bounce: they are classified on the shape Python's
+// _is_hard_bounce saw, smtplib's "(code, b'msg')", because a bare "535 ..." (AUTH
+// failure, our credentials) or "552 ..." must not read as a recipient bounce and
+// suppress the address (Python parity). Transport failures (refused, timeout, DNS,
+// TLS) are never hard: their Go text carries address and port ("dial tcp
+// 52.1.2.3:587: ...", a 5xx-looking token), so a Python-like address-free text is
+// stored instead and the send fails for the queue retry.
+func classifySendError(err error) (text string, hard bool) {
 	var te *textproto.Error
 	if errors.As(err, &te) {
-		return fmt.Sprintf("(%d, b'%s')", te.Code, te.Msg)
+		verbatim := fmt.Sprintf("%d %s", te.Code, te.Msg)
+		return verbatim, smtpclient.IsHardBounce(fmt.Sprintf("(%d, b'%s')", te.Code, te.Msg))
 	}
-	return text
+	return transportText(err), false
+}
+
+func transportText(err error) string {
+	var (
+		dns   *net.DNSError
+		cert  *tls.CertificateVerificationError
+		alert tls.AlertError
+		rhe   tls.RecordHeaderError
+		ua    x509.UnknownAuthorityError
+		hn    x509.HostnameError
+		ci    x509.CertificateInvalidError
+	)
+	switch {
+	case errors.Is(err, syscall.ECONNREFUSED):
+		return "[Errno 111] Connection refused"
+	case errors.Is(err, context.Canceled):
+		return "cancelled"
+	case errors.Is(err, context.DeadlineExceeded), errors.Is(err, os.ErrDeadlineExceeded), isTimeout(err):
+		return "timed out"
+	case errors.As(err, &dns):
+		return "name resolution failed"
+	case errors.As(err, &cert), errors.As(err, &alert), errors.As(err, &rhe), errors.As(err, &ua), errors.As(err, &hn), errors.As(err, &ci):
+		return "TLS handshake failed"
+	}
+	// Local, address-free failures from smtpclient ("STARTTLS extension not
+	// supported by server.", "smtp: plaintext authentication refused ...") keep
+	// their text; anything carrying digits (addresses, ports, codes) does not.
+	if msg := err.Error(); !strings.ContainsAny(msg, "0123456789") && len(msg) <= 200 {
+		return msg
+	}
+	return "SMTP connection failed"
+}
+
+func isTimeout(err error) bool {
+	var ne net.Error
+	return errors.As(err, &ne) && ne.Timeout()
 }
