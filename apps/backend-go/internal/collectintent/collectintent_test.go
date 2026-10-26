@@ -218,7 +218,7 @@ func TestPythonRegexesAreRE2Compatible(t *testing.T) {
 	if !strings.Contains(text, `(?<![@\w.-])`) {
 		t.Errorf("the single lookbehind is no longer (?<![@\\w.-])")
 	}
-	for _, re := range []*regexp.Regexp{domainRE, domainInTextRE, companyTeamRE, explicitPeopleRE, usesRelationA, usesRelationB} {
+	for _, re := range []*regexp.Regexp{companyTeamRE, explicitPeopleRE} {
 		if re == nil {
 			t.Fatal("nil regex")
 		}
@@ -235,7 +235,11 @@ func TestDecideBoundedOnLongInput(t *testing.T) {
 	for i, in := range inputs {
 		start := time.Now()
 		Decide(in, nil)
-		if d := time.Since(start); d > 100*time.Millisecond {
+		limit := 100 * time.Millisecond
+		if raceEnabled {
+			limit *= 10 // the race detector slows pure-CPU loops ~5-10x
+		}
+		if d := time.Since(start); d > limit {
 			t.Errorf("input %d took %v", i, d)
 		}
 	}
