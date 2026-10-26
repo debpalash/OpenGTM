@@ -16,9 +16,9 @@ import (
 
 type jobRow struct {
 	typ, executor, status, payload string
-	ws                              *string
-	fireKeyNull                     bool
-	priority, maxRetries, retries   int
+	ws                             *string
+	fireKeyNull                    bool
+	priority, maxRetries, retries  int
 }
 
 func (e leadsEnv) jobs(t *testing.T) []jobRow {
@@ -193,12 +193,38 @@ func TestBulkEnrichBodyNotInts422(t *testing.T) {
 	}
 }
 
-func TestBulkEnrichBigIntKept(t *testing.T) {
+// Lead ids outside int4 are rejected with 422 (Python enqueues them verbatim and the worker 500s on
+// the Postgres lookup); nothing is enqueued and huge digit strings are never parsed.
+func TestBulkEnrichIDOutsideInt4Is422(t *testing.T) {
 	e := newLeadsEnv(t)
 	e.clearBulkJobs(t)
-	rec := e.send("alice", "ws-alpha", "POST", "/api/leads/bulk-enrich", `{"lead_ids":[123456789012345678901234567890]}`)
-	if rec.Code != 200 || !strings.Contains(e.jobs(t)[0].payload, "123456789012345678901234567890") {
-		t.Fatalf("%d %s", rec.Code, rec.Body.String())
+	const want = `{"detail":[{"type":"value_error","loc":["body","lead_ids",%d],"msg":"Value error, lead id out of range","input":null}]}`
+	huge := strings.Repeat("9", 200000)
+	cases := []struct {
+		body string
+		idx  int
+	}{
+		{`{"lead_ids":[2147483648]}`, 0},
+		{`{"lead_ids":[1,-2147483649]}`, 1},
+		{`{"lead_ids":[123456789012345678901234567890]}`, 0},
+		{`{"lead_ids":["2147483648"]}`, 0},
+		{`{"lead_ids":[1e10]}`, 0},
+		{`{"lead_ids":[` + huge + `]}`, 0},
+		{`{"lead_ids":["` + huge + `"]}`, 0},
+	}
+	for _, c := range cases {
+		rec := e.send("alice", "ws-alpha", "POST", "/api/leads/bulk-enrich", c.body)
+		if w := fmt.Sprintf(want, c.idx); rec.Code != 422 || rec.Body.String() != w {
+			t.Errorf("%.40s: got %d %.200s", c.body, rec.Code, rec.Body.String())
+		}
+	}
+	for _, ok := range []string{`{"lead_ids":[2147483647]}`, `{"lead_ids":[-2147483648]}`} {
+		if rec := e.send("alice", "ws-alpha", "POST", "/api/leads/bulk-enrich", ok); rec.Code != 200 {
+			t.Errorf("%s = %d %s", ok, rec.Code, rec.Body.String())
+		}
+	}
+	if n := len(e.jobs(t)); n != 2 {
+		t.Errorf("%d jobs enqueued, want 2", n)
 	}
 }
 
