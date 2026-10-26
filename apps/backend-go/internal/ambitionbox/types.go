@@ -298,7 +298,7 @@ var nonSlug = regexp.MustCompile(`[^a-z0-9]+`)
 
 // slugify is _slugify: display name -> gateway filter slug.
 func slugify(value string) string {
-	s := strings.ToLower(providers.PyStrip(value))
+	s := strings.ToLower(dotI.Replace(providers.PyStrip(value)))
 	s = strings.ReplaceAll(s, "&", "and")
 	return strings.Trim(nonSlug.ReplaceAllString(s, "-"), "-")
 }

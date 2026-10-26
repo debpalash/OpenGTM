@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -734,4 +735,28 @@ func obj1(k string, v any) *wbcrud.Obj {
 	o := wbcrud.NewObj()
 	o.Set(k, v)
 	return o
+}
+
+func TestNewEgressPinsGatewayAndGuardsDial(t *testing.T) {
+	c := NewEgress("production", nil)
+	if c.Base != Gateway || c.HTTP == nil || c.HTTP.Transport == nil {
+		t.Fatalf("client %+v", c)
+	}
+	// a loopback target must be refused by the egress dial guard, not reached
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { t.Error("loopback reached") }))
+	defer srv.Close()
+	c.Base = srv.URL
+	c.Sleep = func(context.Context, time.Duration) error { return nil }
+	if _, err := c.GetCompanyDetail(context.Background(), 1); err == nil {
+		t.Fatal("loopback base must fail")
+	}
+}
+
+func TestDottedCapitalIMatchesPython(t *testing.T) {
+	if got := slugify("İstanbul"); got != "i-stanbul" {
+		t.Errorf("slugify=%q", got)
+	}
+	if got := casefold("İstanbul"); got != "i\u0307stanbul" {
+		t.Errorf("casefold=%q", got)
+	}
 }

@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/sourceingest"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
@@ -52,8 +53,12 @@ type Client struct {
 	fetch func(context.Context, PageParams) (sourceingest.Page, error)
 }
 
-// New returns a client for the real gateway over c (nil = a plain client).
-func New(c *http.Client) *Client { return &Client{HTTP: c, Base: Gateway} }
+// NewEgress is the production constructor: the SSRF-safe egress client
+// (dial-time IP guard) and Base pinned to Gateway. A Client{} literal is for
+// tests only.
+func NewEgress(appEnv string, allowHosts []string) *Client {
+	return &Client{HTTP: egress.NewClientForEnv(appEnv, allowHosts), Base: Gateway}
+}
 
 // UpstreamError is a failed gateway call. Status is the last HTTP status seen
 // (0 for a network failure or timeout). Routes map it to 502 (D4).
@@ -581,8 +586,11 @@ func (c *Client) CollectCompaniesWith(ctx context.Context, p CollectParams) (Col
 	return col, nil
 }
 
-var foldExtra = strings.NewReplacer("ß", "ss", "ẞ", "ss", "ς", "σ", "ſ", "s", "ﬀ", "ff", "ﬁ", "fi", "ﬂ", "fl", "ﬃ", "ffi", "ﬄ", "ffl", "ﬅ", "st", "ﬆ", "st", "İ", "i̇")
+var foldExtra = strings.NewReplacer("ß", "ss", "ẞ", "ss", "ς", "σ", "ſ", "s", "ﬀ", "ff", "ﬁ", "fi", "ﬂ", "fl", "ﬃ", "ffi", "ﬄ", "ffl", "ﬅ", "st", "ﬆ", "st")
 
 // casefold is str.casefold for the scripts that differ from lower(): sharp s,
 // final sigma, long s and the Latin ligatures.
-func casefold(s string) string { return foldExtra.Replace(strings.ToLower(s)) }
+func casefold(s string) string { return foldExtra.Replace(strings.ToLower(dotI.Replace(s))) }
+
+// dotI makes Go's ToLower match Python: lower("İ") is "i" + U+0307.
+var dotI = strings.NewReplacer("İ", "i\u0307")
