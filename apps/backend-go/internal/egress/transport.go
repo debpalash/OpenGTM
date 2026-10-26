@@ -132,3 +132,17 @@ func operatorAllowSet(allowHosts []string) map[string]struct{} {
 	}
 	return allow
 }
+
+// Resolver is the DNS lookup the dial-time guard uses (net.DefaultResolver
+// satisfies it); it is exported so callers with extra policy can wrap it.
+type Resolver = resolver
+
+// NewClientWith is NewClientForEnv with an injected resolver and dial function,
+// for callers that add policy around the vetting (the webhook sender refuses
+// CGNAT and *.localhost) and for tests that need a deterministic network. The
+// guard is unchanged: every resolved address is vetted, then the vetted IP
+// literal is dialled through dial. Redirects are never followed and no proxy is
+// used, exactly as NewClient.
+func NewClientWith(appEnv string, allowHosts []string, res Resolver, dial DialContext) *http.Client {
+	return newClient(allowHosts, appEnv, res, dialFunc(dial))
+}
