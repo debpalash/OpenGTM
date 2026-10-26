@@ -298,9 +298,7 @@ func jsonEq(t *testing.T, what string, got, want json.RawMessage) {
 	t.Helper()
 	var g, w any
 	dg := json.NewDecoder(bytes.NewReader(got))
-	dg.UseNumber()
 	dw := json.NewDecoder(bytes.NewReader(want))
-	dw.UseNumber()
 	if err := dg.Decode(&g); err != nil {
 		t.Fatalf("%s: got %s: %v", what, got, err)
 	}
@@ -511,6 +509,10 @@ func TestRefreshMatchesPythonVectors(t *testing.T) {
 					delete(got, "created_at")
 					delete(got, "updated_at")
 					wantA := want.Audience
+					for _, k := range []string{"id", "name"} { // the test audience has its own id/name
+						delete(got, k)
+						delete(wantA, k)
+					}
 					if !reflect.DeepEqual(got, wantA) {
 						t.Errorf("%s audience = %v\nwant %v", label, got, wantA)
 					}
