@@ -46,15 +46,23 @@ func (c Counts) MarshalJSON() ([]byte, error) {
 	return b.Bytes(), nil
 }
 
+// Float1 marshals like a Python float rounded to one decimal: 12 -> 12.0.
+type Float1 float64
+
+func (f Float1) MarshalJSON() ([]byte, error) {
+	b := strconv.AppendFloat(nil, float64(f), 'f', 1, 64)
+	return b, nil
+}
+
 // Enrichment mirrors the "enrichment" object of get_stats.
 type Enrichment struct {
-	Total        int64   `json:"total"`
-	WithEmail    int64   `json:"with_email"`
-	WithPhone    int64   `json:"with_phone"`
-	WithWebsite  int64   `json:"with_website"`
-	WithLinkedin int64   `json:"with_linkedin"`
-	WithContact  int64   `json:"with_contact"`
-	AvgScore     float64 `json:"avg_score"`
+	Total        int64  `json:"total"`
+	WithEmail    int64  `json:"with_email"`
+	WithPhone    int64  `json:"with_phone"`
+	WithWebsite  int64  `json:"with_website"`
+	WithLinkedin int64  `json:"with_linkedin"`
+	WithContact  int64  `json:"with_contact"`
+	AvgScore     Float1 `json:"avg_score"`
 }
 
 // StatsResult mirrors PgLeadStore.get_stats; field order is the Python key order.
@@ -92,7 +100,8 @@ func Stats(ctx context.Context, tx pgx.Tx) (StatsResult, error) {
 	}
 	// Python: round(float(avg or 0), 1); FormatFloat rounds the exact binary
 	// value half-to-even, as Python's round does.
-	res.Enrichment.AvgScore, _ = strconv.ParseFloat(strconv.FormatFloat(t.AvgScore, 'f', 1, 64), 64)
+	avg, _ := strconv.ParseFloat(strconv.FormatFloat(t.AvgScore, 'f', 1, 64), 64)
+	res.Enrichment.AvgScore = Float1(avg)
 
 	st, err := q.LeadCountsByStatus(ctx)
 	if err != nil {

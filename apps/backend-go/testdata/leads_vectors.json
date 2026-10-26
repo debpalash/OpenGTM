@@ -1,4 +1,19 @@
 {
+ "row_json": {
+  "Kappa Zero": "{\"id\":0,\"company\":\"Kappa Zero\",\"website\":\"\",\"email\":\"\",\"email_confidence\":\"\",\"email_provider\":\"\",\"phone\":\"\",\"phone_provider\":\"\",\"contact_person\":\"\",\"contact_title\":\"\",\"city\":\"\",\"state\":\"\",\"address\":\"\",\"specialization\":\"\",\"company_size\":\"\",\"employee_count_exact\":0,\"description\":\"\",\"revenue_range\":\"\",\"founded_year\":\"\",\"industry_tags\":\"\",\"technologies\":\"\",\"technographics\":\"\",\"funding_stage\":\"\",\"company_size_basis\":\"\",\"linkedin_url\":\"\",\"twitter_url\":\"\",\"facebook_url\":\"\",\"secondary_emails\":\"\",\"secondary_phones\":\"\",\"decision_makers\":\"\",\"glassdoor_rating\":\"\",\"hiring_signals\":\"\",\"enrichment_attempts\":0,\"enrichment_waterfall\":\"\",\"field_provenance\":\"\",\"source\":\"\",\"source_url\":\"\",\"collection_job_id\":\"\",\"workspace_id\":\"WS\",\"score\":null,\"score_tier\":\"unqualified\",\"status\":\"new\",\"yupcha_value_prop\":\"\",\"company_need\":\"\",\"notes\":\"\",\"created_at\":\"2026-01-01T00:00:00+00:00\",\"updated_at\":\"2026-10-26T10:11:32.208688+00:00\",\"last_enriched_at\":\"\"}",
+  "Epsilon Search": "{\"id\":0,\"company\":\"Epsilon Search\",\"website\":\"N/A\",\"email\":\"e@eps.io\",\"email_confidence\":\"\",\"email_provider\":\"\",\"phone\":\"999\",\"phone_provider\":\"\",\"contact_person\":\"Eve\",\"contact_title\":\"\",\"city\":\"Mumbai\",\"state\":\"MH\",\"address\":\"\",\"specialization\":\"Executive Search\",\"company_size\":\"500+\",\"employee_count_exact\":0,\"description\":\"\",\"revenue_range\":\"\",\"founded_year\":\"\",\"industry_tags\":\"\",\"technologies\":\"\",\"technographics\":\"\",\"funding_stage\":\"\",\"company_size_basis\":\"\",\"linkedin_url\":\"N/A\",\"twitter_url\":\"\",\"facebook_url\":\"\",\"secondary_emails\":\"\",\"secondary_phones\":\"\",\"decision_makers\":\"\",\"glassdoor_rating\":\"\",\"hiring_signals\":\"\",\"enrichment_attempts\":0,\"enrichment_waterfall\":\"\",\"field_provenance\":\"\",\"source\":\"linkedin\",\"source_url\":\"\",\"collection_job_id\":\"job1\",\"workspace_id\":\"WS\",\"score\":90,\"score_tier\":\"hot\",\"status\":\"qualified\",\"yupcha_value_prop\":\"\",\"company_need\":\"\",\"notes\":\"\",\"created_at\":\"2026-01-01T00:00:00+00:00\",\"updated_at\":\"2026-10-26T10:11:32.175334+00:00\",\"last_enriched_at\":\"\"}",
+  "Acme Staffing": "{\"id\":0,\"company\":\"Acme Staffing\",\"website\":\"https://acme.io\",\"email\":\"a@acme.io\",\"email_confidence\":\"\",\"email_provider\":\"\",\"phone\":\"123\",\"phone_provider\":\"\",\"contact_person\":\"\",\"contact_title\":\"\",\"city\":\"Pune\",\"state\":\"MH\",\"address\":\"\",\"specialization\":\"IT Staffing\",\"company_size\":\"51-200\",\"employee_count_exact\":0,\"description\":\"\",\"revenue_range\":\"\",\"founded_year\":\"\",\"industry_tags\":\"\",\"technologies\":\"\",\"technographics\":\"\",\"funding_stage\":\"\",\"company_size_basis\":\"\",\"linkedin_url\":\"\",\"twitter_url\":\"\",\"facebook_url\":\"\",\"secondary_emails\":\"\",\"secondary_phones\":\"\",\"decision_makers\":\"\",\"glassdoor_rating\":\"\",\"hiring_signals\":\"\",\"enrichment_attempts\":0,\"enrichment_waterfall\":\"\",\"field_provenance\":\"\",\"source\":\"csv_import\",\"source_url\":\"\",\"collection_job_id\":\"\",\"workspace_id\":\"WS\",\"score\":90,\"score_tier\":\"hot\",\"status\":\"new\",\"yupcha_value_prop\":\"\",\"company_need\":\"\",\"notes\":\"key account\",\"created_at\":\"2026-01-01T00:00:00+00:00\",\"updated_at\":\"2026-10-26T10:11:32.131574+00:00\",\"last_enriched_at\":\"\"}",
+  "Iota O'Brien & Sons": "{\"id\":0,\"company\":\"Iota O'Brien & Sons\",\"website\":\"https://iota.ie\",\"email\":\"i@iota.ie\",\"email_confidence\":\"\",\"email_provider\":\"\",\"phone\":\"7\",\"phone_provider\":\"\",\"contact_person\":\"Pat O'Brien\",\"contact_title\":\"\",\"city\":\"Cork\",\"state\":\"IE\",\"address\":\"\",\"specialization\":\"Legal\",\"company_size\":\"51-200\",\"employee_count_exact\":0,\"description\":\"\",\"revenue_range\":\"\",\"founded_year\":\"\",\"industry_tags\":\"\",\"technologies\":\"\",\"technographics\":\"\",\"funding_stage\":\"\",\"company_size_basis\":\"\",\"linkedin_url\":\"\",\"twitter_url\":\"\",\"facebook_url\":\"\",\"secondary_emails\":\"\",\"secondary_phones\":\"\",\"decision_makers\":\"\",\"glassdoor_rating\":\"\",\"hiring_signals\":\"\",\"enrichment_attempts\":0,\"enrichment_waterfall\":\"\",\"field_provenance\":\"\",\"source\":\"referral\",\"source_url\":\"\",\"collection_job_id\":\"\",\"workspace_id\":\"WS\",\"score\":85,\"score_tier\":\"hot\",\"status\":\"converted\",\"yupcha_value_prop\":\"\",\"company_need\":\"\",\"notes\":\"\",\"created_at\":\"2026-01-01T00:00:00+00:00\",\"updated_at\":\"2026-10-26T10:11:32.205410+00:00\",\"last_enriched_at\":\"\"}",
+  "Gamma Talent": "{\"id\":0,\"company\":\"Gamma Talent\",\"website\":\"https://gamma.io\",\"email\":\"g@gamma.io\",\"email_confidence\":\"\",\"email_provider\":\"\",\"phone\":\"\",\"phone_provider\":\"\",\"contact_person\":\"\",\"contact_title\":\"\",\"city\":\"Delhi\",\"state\":\"DL\",\"address\":\"\",\"specialization\":\"IT Staffing\",\"company_size\":\"201-500\",\"employee_count_exact\":0,\"description\":\"boutique recruiter\",\"revenue_range\":\"\",\"founded_year\":\"\",\"industry_tags\":\"\",\"technologies\":\"\",\"technographics\":\"\",\"funding_stage\":\"\",\"company_size_basis\":\"\",\"linkedin_url\":\"\",\"twitter_url\":\"\",\"facebook_url\":\"\",\"secondary_emails\":\"\",\"secondary_phones\":\"\",\"decision_makers\":\"\",\"glassdoor_rating\":\"\",\"hiring_signals\":\"\",\"enrichment_attempts\":0,\"enrichment_waterfall\":\"\",\"field_provenance\":\"\",\"source\":\"job:job2\",\"source_url\":\"\",\"collection_job_id\":\"\",\"workspace_id\":\"WS\",\"score\":70,\"score_tier\":\"warm\",\"status\":\"new\",\"yupcha_value_prop\":\"\",\"company_need\":\"\",\"notes\":\"\",\"created_at\":\"2026-01-01T00:00:00+00:00\",\"updated_at\":\"2026-10-26T10:11:32.163870+00:00\",\"last_enriched_at\":\"\"}",
+  "Beta Recruit": "{\"id\":0,\"company\":\"Beta Recruit\",\"website\":\"\",\"email\":\"\",\"email_confidence\":\"\",\"email_provider\":\"\",\"phone\":\"555\",\"phone_provider\":\"\",\"contact_person\":\"\",\"contact_title\":\"\",\"city\":\"Pune\",\"state\":\"MH\",\"address\":\"\",\"specialization\":\"Executive Search\",\"company_size\":\"1-50\",\"employee_count_exact\":0,\"description\":\"\",\"revenue_range\":\"\",\"founded_year\":\"\",\"industry_tags\":\"\",\"technologies\":\"\",\"technographics\":\"\",\"funding_stage\":\"\",\"company_size_basis\":\"\",\"linkedin_url\":\"\",\"twitter_url\":\"\",\"facebook_url\":\"\",\"secondary_emails\":\"\",\"secondary_phones\":\"\",\"decision_makers\":\"\",\"glassdoor_rating\":\"\",\"hiring_signals\":\"\",\"enrichment_attempts\":0,\"enrichment_waterfall\":\"\",\"field_provenance\":\"\",\"source\":\"google_maps\",\"source_url\":\"\",\"collection_job_id\":\"job1\",\"workspace_id\":\"WS\",\"score\":70,\"score_tier\":\"warm\",\"status\":\"contacted\",\"yupcha_value_prop\":\"\",\"company_need\":\"\",\"notes\":\"\",\"created_at\":\"2026-01-01T00:00:00+00:00\",\"updated_at\":\"2026-10-26T10:11:32.158544+00:00\",\"last_enriched_at\":\"\"}",
+  "Theta Tie 4": "{\"id\":0,\"company\":\"Theta Tie 4\",\"website\":\"https://t4\",\"email\":\"t4@t.io\",\"email_confidence\":\"\",\"email_provider\":\"\",\"phone\":\"4\",\"phone_provider\":\"\",\"contact_person\":\"\",\"contact_title\":\"\",\"city\":\"Tie\",\"state\":\"TT\",\"address\":\"\",\"specialization\":\"Tie\",\"company_size\":\"1-50\",\"employee_count_exact\":0,\"description\":\"\",\"revenue_range\":\"\",\"founded_year\":\"\",\"industry_tags\":\"\",\"technologies\":\"\",\"technographics\":\"\",\"funding_stage\":\"\",\"company_size_basis\":\"\",\"linkedin_url\":\"\",\"twitter_url\":\"\",\"facebook_url\":\"\",\"secondary_emails\":\"\",\"secondary_phones\":\"\",\"decision_makers\":\"\",\"glassdoor_rating\":\"\",\"hiring_signals\":\"\",\"enrichment_attempts\":0,\"enrichment_waterfall\":\"\",\"field_provenance\":\"\",\"source\":\"csv_import\",\"source_url\":\"\",\"collection_job_id\":\"job3\",\"workspace_id\":\"WS\",\"score\":50,\"score_tier\":\"warm\",\"status\":\"new\",\"yupcha_value_prop\":\"\",\"company_need\":\"\",\"notes\":\"\",\"created_at\":\"2026-01-01T00:00:00+00:00\",\"updated_at\":\"2026-10-26T10:11:32.201204+00:00\",\"last_enriched_at\":\"\"}",
+  "Theta Tie 3": "{\"id\":0,\"company\":\"Theta Tie 3\",\"website\":\"https://t3\",\"email\":\"t3@t.io\",\"email_confidence\":\"\",\"email_provider\":\"\",\"phone\":\"3\",\"phone_provider\":\"\",\"contact_person\":\"\",\"contact_title\":\"\",\"city\":\"Tie\",\"state\":\"TT\",\"address\":\"\",\"specialization\":\"Tie\",\"company_size\":\"1-50\",\"employee_count_exact\":0,\"description\":\"\",\"revenue_range\":\"\",\"founded_year\":\"\",\"industry_tags\":\"\",\"technologies\":\"\",\"technographics\":\"\",\"funding_stage\":\"\",\"company_size_basis\":\"\",\"linkedin_url\":\"\",\"twitter_url\":\"\",\"facebook_url\":\"\",\"secondary_emails\":\"\",\"secondary_phones\":\"\",\"decision_makers\":\"\",\"glassdoor_rating\":\"\",\"hiring_signals\":\"\",\"enrichment_attempts\":0,\"enrichment_waterfall\":\"\",\"field_provenance\":\"\",\"source\":\"csv_import\",\"source_url\":\"\",\"collection_job_id\":\"job3\",\"workspace_id\":\"WS\",\"score\":50,\"score_tier\":\"warm\",\"status\":\"new\",\"yupcha_value_prop\":\"\",\"company_need\":\"\",\"notes\":\"\",\"created_at\":\"2026-01-01T00:00:00+00:00\",\"updated_at\":\"2026-10-26T10:11:32.197056+00:00\",\"last_enriched_at\":\"\"}",
+  "Theta Tie 2": "{\"id\":0,\"company\":\"Theta Tie 2\",\"website\":\"https://t2\",\"email\":\"t2@t.io\",\"email_confidence\":\"\",\"email_provider\":\"\",\"phone\":\"2\",\"phone_provider\":\"\",\"contact_person\":\"\",\"contact_title\":\"\",\"city\":\"Tie\",\"state\":\"TT\",\"address\":\"\",\"specialization\":\"Tie\",\"company_size\":\"1-50\",\"employee_count_exact\":0,\"description\":\"\",\"revenue_range\":\"\",\"founded_year\":\"\",\"industry_tags\":\"\",\"technologies\":\"\",\"technographics\":\"\",\"funding_stage\":\"\",\"company_size_basis\":\"\",\"linkedin_url\":\"\",\"twitter_url\":\"\",\"facebook_url\":\"\",\"secondary_emails\":\"\",\"secondary_phones\":\"\",\"decision_makers\":\"\",\"glassdoor_rating\":\"\",\"hiring_signals\":\"\",\"enrichment_attempts\":0,\"enrichment_waterfall\":\"\",\"field_provenance\":\"\",\"source\":\"csv_import\",\"source_url\":\"\",\"collection_job_id\":\"job3\",\"workspace_id\":\"WS\",\"score\":50,\"score_tier\":\"warm\",\"status\":\"new\",\"yupcha_value_prop\":\"\",\"company_need\":\"\",\"notes\":\"\",\"created_at\":\"2026-01-01T00:00:00+00:00\",\"updated_at\":\"2026-10-26T10:11:32.192398+00:00\",\"last_enriched_at\":\"\"}",
+  "Theta Tie 1": "{\"id\":0,\"company\":\"Theta Tie 1\",\"website\":\"https://t1\",\"email\":\"t1@t.io\",\"email_confidence\":\"\",\"email_provider\":\"\",\"phone\":\"1\",\"phone_provider\":\"\",\"contact_person\":\"\",\"contact_title\":\"\",\"city\":\"Tie\",\"state\":\"TT\",\"address\":\"\",\"specialization\":\"Tie\",\"company_size\":\"1-50\",\"employee_count_exact\":0,\"description\":\"\",\"revenue_range\":\"\",\"founded_year\":\"\",\"industry_tags\":\"\",\"technologies\":\"\",\"technographics\":\"\",\"funding_stage\":\"\",\"company_size_basis\":\"\",\"linkedin_url\":\"\",\"twitter_url\":\"\",\"facebook_url\":\"\",\"secondary_emails\":\"\",\"secondary_phones\":\"\",\"decision_makers\":\"\",\"glassdoor_rating\":\"\",\"hiring_signals\":\"\",\"enrichment_attempts\":0,\"enrichment_waterfall\":\"\",\"field_provenance\":\"\",\"source\":\"csv_import\",\"source_url\":\"\",\"collection_job_id\":\"job3\",\"workspace_id\":\"WS\",\"score\":50,\"score_tier\":\"warm\",\"status\":\"new\",\"yupcha_value_prop\":\"\",\"company_need\":\"\",\"notes\":\"\",\"created_at\":\"2026-01-01T00:00:00+00:00\",\"updated_at\":\"2026-10-26T10:11:32.188779+00:00\",\"last_enriched_at\":\"\"}",
+  "Delta HR": "{\"id\":0,\"company\":\"Delta HR\",\"website\":null,\"email\":null,\"email_confidence\":\"\",\"email_provider\":\"\",\"phone\":null,\"phone_provider\":\"\",\"contact_person\":\"\",\"contact_title\":\"\",\"city\":null,\"state\":\"DL\",\"address\":\"\",\"specialization\":\"RPO\",\"company_size\":\"1-50\",\"employee_count_exact\":0,\"description\":\"\",\"revenue_range\":\"\",\"founded_year\":\"\",\"industry_tags\":\"\",\"technologies\":\"\",\"technographics\":\"\",\"funding_stage\":\"\",\"company_size_basis\":\"\",\"linkedin_url\":\"\",\"twitter_url\":\"\",\"facebook_url\":\"\",\"secondary_emails\":\"\",\"secondary_phones\":\"\",\"decision_makers\":\"\",\"glassdoor_rating\":\"\",\"hiring_signals\":\"\",\"enrichment_attempts\":0,\"enrichment_waterfall\":\"\",\"field_provenance\":\"\",\"source\":null,\"source_url\":\"\",\"collection_job_id\":\"job2\",\"workspace_id\":\"WS\",\"score\":10,\"score_tier\":null,\"status\":null,\"yupcha_value_prop\":\"\",\"company_need\":\"\",\"notes\":\"\",\"created_at\":\"2026-01-01T00:00:00+00:00\",\"updated_at\":\"2026-10-26T10:11:32.169797+00:00\",\"last_enriched_at\":\"\"}",
+  "Eta 100% Match": "{\"id\":0,\"company\":\"Eta 100% Match\",\"website\":\"\",\"email\":\"\",\"email_confidence\":\"\",\"email_provider\":\"\",\"phone\":\"\",\"phone_provider\":\"\",\"contact_person\":\"\",\"contact_title\":\"\",\"city\":\"Pune\",\"state\":\"MH\",\"address\":\"\",\"specialization\":\"IT_Staffing\",\"company_size\":\"1-50\",\"employee_count_exact\":0,\"description\":\"\",\"revenue_range\":\"\",\"founded_year\":\"\",\"industry_tags\":\"\",\"technologies\":\"\",\"technographics\":\"\",\"funding_stage\":\"\",\"company_size_basis\":\"\",\"linkedin_url\":\"\",\"twitter_url\":\"\",\"facebook_url\":\"\",\"secondary_emails\":\"\",\"secondary_phones\":\"\",\"decision_makers\":\"\",\"glassdoor_rating\":\"\",\"hiring_signals\":\"\",\"enrichment_attempts\":0,\"enrichment_waterfall\":\"\",\"field_provenance\":\"\",\"source\":\"manual\",\"source_url\":\"\",\"collection_job_id\":\"\",\"workspace_id\":\"WS\",\"score\":5,\"score_tier\":\"cold\",\"status\":\"new\",\"yupcha_value_prop\":\"\",\"company_need\":\"\",\"notes\":\"100% sure\",\"created_at\":\"2026-01-01T00:00:00+00:00\",\"updated_at\":\"2026-10-26T10:11:32.184406+00:00\",\"last_enriched_at\":\"\"}",
+  "Zeta Works": "{\"id\":0,\"company\":\"Zeta Works\",\"website\":\"\",\"email\":\"N/A\",\"email_confidence\":\"\",\"email_provider\":\"\",\"phone\":\"N/A\",\"phone_provider\":\"\",\"contact_person\":\"\",\"contact_title\":\"\",\"city\":\"Mumbai\",\"state\":\"MH\",\"address\":\"\",\"specialization\":\"Payroll\",\"company_size\":\"\",\"employee_count_exact\":0,\"description\":\"\",\"revenue_range\":\"\",\"founded_year\":\"\",\"industry_tags\":\"\",\"technologies\":\"\",\"technographics\":\"\",\"funding_stage\":\"\",\"company_size_basis\":\"\",\"linkedin_url\":\"https://li/z\",\"twitter_url\":\"\",\"facebook_url\":\"\",\"secondary_emails\":\"\",\"secondary_phones\":\"\",\"decision_makers\":\"\",\"glassdoor_rating\":\"\",\"hiring_signals\":\"\",\"enrichment_attempts\":0,\"enrichment_waterfall\":\"\",\"field_provenance\":\"\",\"source\":\"manual\",\"source_url\":\"\",\"collection_job_id\":\"\",\"workspace_id\":\"WS\",\"score\":0,\"score_tier\":\"unqualified\",\"status\":\"new\",\"yupcha_value_prop\":\"\",\"company_need\":\"\",\"notes\":\"\",\"created_at\":\"2026-01-01T00:00:00+00:00\",\"updated_at\":\"2026-10-26T10:11:32.179595+00:00\",\"last_enriched_at\":\"\"}"
+ },
  "key_order": [
   "id",
   "company",
@@ -95,7 +110,7 @@
    "company_need": "",
    "notes": "key account",
    "created_at": "2026-01-01T00:00:00+00:00",
-   "updated_at": "2026-10-26T10:08:21.284001+00:00",
+   "updated_at": "2026-10-26T10:11:32.131574+00:00",
    "last_enriched_at": ""
   },
   {
@@ -143,7 +158,7 @@
    "company_need": "",
    "notes": "",
    "created_at": "2026-01-01T00:00:00+00:00",
-   "updated_at": "2026-10-26T10:08:21.306958+00:00",
+   "updated_at": "2026-10-26T10:11:32.158544+00:00",
    "last_enriched_at": ""
   },
   {
@@ -191,7 +206,7 @@
    "company_need": "",
    "notes": "",
    "created_at": "2026-01-01T00:00:00+00:00",
-   "updated_at": "2026-10-26T10:08:21.316194+00:00",
+   "updated_at": "2026-10-26T10:11:32.169797+00:00",
    "last_enriched_at": ""
   },
   {
@@ -239,7 +254,7 @@
    "company_need": "",
    "notes": "",
    "created_at": "2026-01-01T00:00:00+00:00",
-   "updated_at": "2026-10-26T10:08:21.320892+00:00",
+   "updated_at": "2026-10-26T10:11:32.175334+00:00",
    "last_enriched_at": ""
   },
   {
@@ -287,7 +302,7 @@
    "company_need": "",
    "notes": "100% sure",
    "created_at": "2026-01-01T00:00:00+00:00",
-   "updated_at": "2026-10-26T10:08:21.329674+00:00",
+   "updated_at": "2026-10-26T10:11:32.184406+00:00",
    "last_enriched_at": ""
   },
   {
@@ -335,7 +350,7 @@
    "company_need": "",
    "notes": "",
    "created_at": "2026-01-01T00:00:00+00:00",
-   "updated_at": "2026-10-26T10:08:21.311353+00:00",
+   "updated_at": "2026-10-26T10:11:32.163870+00:00",
    "last_enriched_at": ""
   },
   {
@@ -383,7 +398,7 @@
    "company_need": "",
    "notes": "",
    "created_at": "2026-01-01T00:00:00+00:00",
-   "updated_at": "2026-10-26T10:08:21.349018+00:00",
+   "updated_at": "2026-10-26T10:11:32.205410+00:00",
    "last_enriched_at": ""
   },
   {
@@ -431,7 +446,7 @@
    "company_need": "",
    "notes": "",
    "created_at": "2026-01-01T00:00:00+00:00",
-   "updated_at": "2026-10-26T10:08:21.352578+00:00",
+   "updated_at": "2026-10-26T10:11:32.208688+00:00",
    "last_enriched_at": ""
   },
   {
@@ -479,7 +494,7 @@
    "company_need": "",
    "notes": "",
    "created_at": "2026-01-01T00:00:00+00:00",
-   "updated_at": "2026-10-26T10:08:21.334487+00:00",
+   "updated_at": "2026-10-26T10:11:32.188779+00:00",
    "last_enriched_at": ""
   },
   {
@@ -527,7 +542,7 @@
    "company_need": "",
    "notes": "",
    "created_at": "2026-01-01T00:00:00+00:00",
-   "updated_at": "2026-10-26T10:08:21.337675+00:00",
+   "updated_at": "2026-10-26T10:11:32.192398+00:00",
    "last_enriched_at": ""
   },
   {
@@ -575,7 +590,7 @@
    "company_need": "",
    "notes": "",
    "created_at": "2026-01-01T00:00:00+00:00",
-   "updated_at": "2026-10-26T10:08:21.341884+00:00",
+   "updated_at": "2026-10-26T10:11:32.197056+00:00",
    "last_enriched_at": ""
   },
   {
@@ -623,7 +638,7 @@
    "company_need": "",
    "notes": "",
    "created_at": "2026-01-01T00:00:00+00:00",
-   "updated_at": "2026-10-26T10:08:21.345185+00:00",
+   "updated_at": "2026-10-26T10:11:32.201204+00:00",
    "last_enriched_at": ""
   },
   {
@@ -671,7 +686,7 @@
    "company_need": "",
    "notes": "",
    "created_at": "2026-01-01T00:00:00+00:00",
-   "updated_at": "2026-10-26T10:08:21.325100+00:00",
+   "updated_at": "2026-10-26T10:11:32.179595+00:00",
    "last_enriched_at": ""
   }
  ],

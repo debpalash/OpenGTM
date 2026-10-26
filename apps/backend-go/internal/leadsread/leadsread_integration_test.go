@@ -3,6 +3,7 @@
 package leadsread_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -22,12 +23,13 @@ import (
 
 // vectors mirrors testdata/leads_vectors.json (legacy/python/scripts/gen_leads_vectors.py).
 type vectors struct {
-	KeyOrder []string         `json:"key_order"`
-	Seed     []map[string]any `json:"seed"`
-	Cases    []vectorCase     `json:"cases"`
-	Stats    map[string]any   `json:"stats"`
-	Options  map[string]any   `json:"filter_options"`
-	Other    string           `json:"other_tenant_company"`
+	KeyOrder []string          `json:"key_order"`
+	RowJSON  map[string]string `json:"row_json"`
+	Seed     []map[string]any  `json:"seed"`
+	Cases    []vectorCase      `json:"cases"`
+	Stats    map[string]any    `json:"stats"`
+	Options  map[string]any    `json:"filter_options"`
+	Other    string            `json:"other_tenant_company"`
 }
 
 type vectorCase struct {
@@ -117,10 +119,10 @@ func (e *env) in(t *testing.T, ws string, fn func(tx pgx.Tx)) {
 	}
 }
 
-func companies(rows []map[string]any) []string {
+func companies(rows []leadsread.Lead) []string {
 	out := make([]string, len(rows))
 	for i, r := range rows {
-		out[i], _ = r["company"].(string)
+		out[i] = r.Company
 	}
 	return out
 }
@@ -146,9 +148,6 @@ func (e *env) filterFor(t *testing.T, raw json.RawMessage) leadsread.Filter {
 
 func TestQueryLeadsMatchesPythonVectors(t *testing.T) {
 	e := setup(t)
-	if !reflect.DeepEqual(leadsread.LeadKeys, e.v.KeyOrder) {
-		t.Fatalf("LeadKeys = %v\nwant %v", leadsread.LeadKeys, e.v.KeyOrder)
-	}
 	if len(e.v.Cases) < 100 {
 		t.Fatalf("too few vector cases: %d", len(e.v.Cases))
 	}
@@ -166,18 +165,21 @@ func TestQueryLeadsMatchesPythonVectors(t *testing.T) {
 				t.Errorf("case %d %s p%d/%d:\n got %v\nwant %v", i, c.Filter, c.Page, c.PageSize, got, c.Companies)
 			}
 			for _, r := range rows {
-				co := r["company"].(string)
-				if r["id"] != e.idByCo[co] && fmt.Sprint(r["id"]) != fmt.Sprint(e.idByCo[co]) {
-					t.Fatalf("id mismatch for %s: %v", co, r["id"])
+				co := r.Company
+				if r.ID != e.idByCo[co] {
+					t.Fatalf("id mismatch for %s: %v", co, r.ID)
 				}
-				if r["workspace_id"] != e.wsA {
-					t.Fatalf("workspace_id %v", r["workspace_id"])
+				if r.WorkspaceID != e.wsA {
+					t.Fatalf("workspace_id %v", r.WorkspaceID)
 				}
-				if len(r) != len(e.v.KeyOrder) {
-					t.Fatalf("row has %d keys want %d", len(r), len(e.v.KeyOrder))
+				if len(r.Values()) != len(e.v.KeyOrder) {
+					t.Fatalf("row has %d keys want %d", len(r.Values()), len(e.v.KeyOrder))
 				}
 				for k, want := range e.seedByCo[co] {
-					got := r[k]
+					got, ok := r.Get(k)
+					if !ok {
+						t.Fatalf("Get(%q) unknown", k)
+					}
 					if w, ok := want.(float64); ok {
 						if fmt.Sprint(got) != fmt.Sprint(int64(w)) {
 							t.Fatalf("%s.%s = %v want %v", co, k, got, want)
@@ -187,6 +189,17 @@ func TestQueryLeadsMatchesPythonVectors(t *testing.T) {
 					if got != want {
 						t.Fatalf("%s.%s = %#v want %#v", co, k, got, want)
 					}
+				}
+				// Byte-for-byte JSON parity with Python json.dumps (key order included).
+				r.ID, r.WorkspaceID = 0, "WS"
+				var buf bytes.Buffer
+				enc := json.NewEncoder(&buf)
+				enc.SetEscapeHTML(false)
+				if err := enc.Encode(r); err != nil {
+					t.Fatal(err)
+				}
+				if got := strings.TrimSuffix(buf.String(), "\n"); got != e.v.RowJSON[co] {
+					t.Fatalf("json for %s\n got %s\nwant %s", co, got, e.v.RowJSON[co])
 				}
 			}
 		}
@@ -256,7 +269,7 @@ func TestLeadsByIDs(t *testing.T) {
 		if got := companies(rows); len(got) != 2 {
 			t.Fatalf("rows %v", got)
 		}
-		if rows[0]["id"] == nil || len(rows[0]) != len(e.v.KeyOrder) {
+		if rows[0].ID == 0 || len(rows[0].Values()) != len(e.v.KeyOrder) {
 			t.Fatalf("row shape %v", rows[0])
 		}
 	})
@@ -309,7 +322,7 @@ func TestLeadsTenantIsolation(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if total != 1 || len(rows) != 1 || rows[0]["company"] != e.otherCo {
+		if total != 1 || len(rows) != 1 || rows[0].Company != e.otherCo {
 			t.Fatalf("ws B sees %d rows: %v", total, companies(rows))
 		}
 		byID, err := leadsread.LeadsByIDs(context.Background(), tx, []int64{e.idByCo["Acme Staffing"]})
