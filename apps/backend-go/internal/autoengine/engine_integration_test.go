@@ -481,8 +481,8 @@ func TestCancelStopsBeforeNextAction(t *testing.T) {
 	if n != 1 {
 		t.Fatalf("%d actions ran after the cancel", n)
 	}
-	if r := e.runs(ws1)[0]; r.Status != "running" || r.Finished {
-		t.Fatalf("run row must stay running for the reaper: %+v", r)
+	if r := e.runs(ws1)[0]; r.Status != "failed" || !r.Finished {
+		t.Fatalf("a cancelled run must be finalised (no reaper exists): %+v", r)
 	}
 	if _, st := e.job(c.ID); st != "cancelled" {
 		t.Fatalf("job %s", st)
@@ -536,8 +536,8 @@ func TestContextCancelAfterMarkerIsNotTerminal(t *testing.T) {
 	if len(rs) != 1 || rs[0].Status != "in_flight" {
 		t.Fatalf("a cancel must not become a terminal failure: %+v", rs)
 	}
-	if r := e.runs(ws1)[0]; r.Status != "running" {
-		t.Fatalf("%+v", r)
+	if r := e.runs(ws1)[0]; r.Status != "failed" || !r.Finished {
+		t.Fatalf("an aborted run must be finalised on a detached context: %+v", r)
 	}
 }
 
