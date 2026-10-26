@@ -93,3 +93,15 @@ func TestIssuerErrorIsValueError(t *testing.T) {
 		t.Fatalf("want *ValueError, got %T %v", err, err)
 	}
 }
+
+// Python: "gİthub.com".lower() == "gi̇thub.com" != "github.com"; Go's
+// strings.ToLower would map U+0130 to ASCII i and approve it.
+func TestIssuerHostLoweringIsASCIIOnly(t *testing.T) {
+	t.Setenv("SSO_ALLOWED_ISSUER_HOSTS", "github.com")
+	if got, err := ValidateIssuer("https://gİthub.com"); err == nil {
+		t.Fatalf("non-ASCII look-alike host approved: %q", got)
+	}
+	if _, err := ValidateIssuer("https://GITHUB.com"); err != nil {
+		t.Fatalf("ASCII upper-case host must match: %v", err)
+	}
+}

@@ -278,3 +278,23 @@ func capture(t *testing.T) *bytes.Buffer {
 	t.Cleanup(func() { slog.SetDefault(old) })
 	return &buf
 }
+
+// Python reads json.loads exactly: keys are case-sensitive and a wrongly typed
+// value never raises (it is passed through), so Go keeps the default instead of failing.
+func TestGetConfigExactKeysAndTolerantTypes(t *testing.T) {
+	e := setup(t)
+	ctx := context.Background()
+	e.in(t, e.ws, func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx, `INSERT INTO workspace_settings (workspace_id,key,value) VALUES ($1,'OIDC_CONFIG',$2)`, e.ws,
+			`{"Enabled":true,"ISSUER":"https://x","enforce_sso":"yes","client_id":"cid","allowed_domains":"a.com","default_role":"member"}`)
+		return err
+	})
+	var cfg OIDCConfig
+	e.in(t, e.ws, func(tx pgx.Tx) error { var err error; cfg, err = GetConfig(ctx, tx, e.ws); return err })
+	if cfg.Enabled || cfg.Issuer != "" {
+		t.Fatalf("case-insensitive key match: %+v", cfg)
+	}
+	if cfg.ClientID != "cid" || cfg.DefaultRole != "member" || cfg.EnforceSSO || cfg.AllowedDomains == nil || len(cfg.AllowedDomains) != 0 {
+		t.Fatalf("exact keys / wrong-typed values: %+v", cfg)
+	}
+}
