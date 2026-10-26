@@ -1,0 +1,5130 @@
+{
+ "key_order": [
+  "id",
+  "company",
+  "website",
+  "email",
+  "email_confidence",
+  "email_provider",
+  "phone",
+  "phone_provider",
+  "contact_person",
+  "contact_title",
+  "city",
+  "state",
+  "address",
+  "specialization",
+  "company_size",
+  "employee_count_exact",
+  "description",
+  "revenue_range",
+  "founded_year",
+  "industry_tags",
+  "technologies",
+  "technographics",
+  "funding_stage",
+  "company_size_basis",
+  "linkedin_url",
+  "twitter_url",
+  "facebook_url",
+  "secondary_emails",
+  "secondary_phones",
+  "decision_makers",
+  "glassdoor_rating",
+  "hiring_signals",
+  "enrichment_attempts",
+  "enrichment_waterfall",
+  "field_provenance",
+  "source",
+  "source_url",
+  "collection_job_id",
+  "workspace_id",
+  "score",
+  "score_tier",
+  "status",
+  "yupcha_value_prop",
+  "company_need",
+  "notes",
+  "created_at",
+  "updated_at",
+  "last_enriched_at"
+ ],
+ "seed": [
+  {
+   "company": "Acme Staffing",
+   "website": "https://acme.io",
+   "email": "a@acme.io",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "123",
+   "phone_provider": "",
+   "contact_person": "",
+   "contact_title": "",
+   "city": "Pune",
+   "state": "MH",
+   "address": "",
+   "specialization": "IT Staffing",
+   "company_size": "51-200",
+   "employee_count_exact": 0,
+   "description": "",
+   "revenue_range": "",
+   "founded_year": "",
+   "industry_tags": "",
+   "technologies": "",
+   "technographics": "",
+   "funding_stage": "",
+   "company_size_basis": "",
+   "linkedin_url": "",
+   "twitter_url": "",
+   "facebook_url": "",
+   "secondary_emails": "",
+   "secondary_phones": "",
+   "decision_makers": "",
+   "glassdoor_rating": "",
+   "hiring_signals": "",
+   "enrichment_attempts": 0,
+   "enrichment_waterfall": "",
+   "field_provenance": "",
+   "source": "csv_import",
+   "source_url": "",
+   "collection_job_id": "",
+   "score": 90,
+   "score_tier": "hot",
+   "status": "new",
+   "yupcha_value_prop": "",
+   "company_need": "",
+   "notes": "key account",
+   "created_at": "2026-01-01T00:00:00+00:00",
+   "updated_at": "2026-10-26T10:08:21.284001+00:00",
+   "last_enriched_at": ""
+  },
+  {
+   "company": "Beta Recruit",
+   "website": "",
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "555",
+   "phone_provider": "",
+   "contact_person": "",
+   "contact_title": "",
+   "city": "Pune",
+   "state": "MH",
+   "address": "",
+   "specialization": "Executive Search",
+   "company_size": "1-50",
+   "employee_count_exact": 0,
+   "description": "",
+   "revenue_range": "",
+   "founded_year": "",
+   "industry_tags": "",
+   "technologies": "",
+   "technographics": "",
+   "funding_stage": "",
+   "company_size_basis": "",
+   "linkedin_url": "",
+   "twitter_url": "",
+   "facebook_url": "",
+   "secondary_emails": "",
+   "secondary_phones": "",
+   "decision_makers": "",
+   "glassdoor_rating": "",
+   "hiring_signals": "",
+   "enrichment_attempts": 0,
+   "enrichment_waterfall": "",
+   "field_provenance": "",
+   "source": "google_maps",
+   "source_url": "",
+   "collection_job_id": "job1",
+   "score": 70,
+   "score_tier": "warm",
+   "status": "contacted",
+   "yupcha_value_prop": "",
+   "company_need": "",
+   "notes": "",
+   "created_at": "2026-01-01T00:00:00+00:00",
+   "updated_at": "2026-10-26T10:08:21.306958+00:00",
+   "last_enriched_at": ""
+  },
+  {
+   "company": "Delta HR",
+   "website": null,
+   "email": null,
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": null,
+   "phone_provider": "",
+   "contact_person": "",
+   "contact_title": "",
+   "city": null,
+   "state": "DL",
+   "address": "",
+   "specialization": "RPO",
+   "company_size": "1-50",
+   "employee_count_exact": 0,
+   "description": "",
+   "revenue_range": "",
+   "founded_year": "",
+   "industry_tags": "",
+   "technologies": "",
+   "technographics": "",
+   "funding_stage": "",
+   "company_size_basis": "",
+   "linkedin_url": "",
+   "twitter_url": "",
+   "facebook_url": "",
+   "secondary_emails": "",
+   "secondary_phones": "",
+   "decision_makers": "",
+   "glassdoor_rating": "",
+   "hiring_signals": "",
+   "enrichment_attempts": 0,
+   "enrichment_waterfall": "",
+   "field_provenance": "",
+   "source": null,
+   "source_url": "",
+   "collection_job_id": "job2",
+   "score": 10,
+   "score_tier": null,
+   "status": null,
+   "yupcha_value_prop": "",
+   "company_need": "",
+   "notes": "",
+   "created_at": "2026-01-01T00:00:00+00:00",
+   "updated_at": "2026-10-26T10:08:21.316194+00:00",
+   "last_enriched_at": ""
+  },
+  {
+   "company": "Epsilon Search",
+   "website": "N/A",
+   "email": "e@eps.io",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "999",
+   "phone_provider": "",
+   "contact_person": "Eve",
+   "contact_title": "",
+   "city": "Mumbai",
+   "state": "MH",
+   "address": "",
+   "specialization": "Executive Search",
+   "company_size": "500+",
+   "employee_count_exact": 0,
+   "description": "",
+   "revenue_range": "",
+   "founded_year": "",
+   "industry_tags": "",
+   "technologies": "",
+   "technographics": "",
+   "funding_stage": "",
+   "company_size_basis": "",
+   "linkedin_url": "N/A",
+   "twitter_url": "",
+   "facebook_url": "",
+   "secondary_emails": "",
+   "secondary_phones": "",
+   "decision_makers": "",
+   "glassdoor_rating": "",
+   "hiring_signals": "",
+   "enrichment_attempts": 0,
+   "enrichment_waterfall": "",
+   "field_provenance": "",
+   "source": "linkedin",
+   "source_url": "",
+   "collection_job_id": "job1",
+   "score": 90,
+   "score_tier": "hot",
+   "status": "qualified",
+   "yupcha_value_prop": "",
+   "company_need": "",
+   "notes": "",
+   "created_at": "2026-01-01T00:00:00+00:00",
+   "updated_at": "2026-10-26T10:08:21.320892+00:00",
+   "last_enriched_at": ""
+  },
+  {
+   "company": "Eta 100% Match",
+   "website": "",
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "phone_provider": "",
+   "contact_person": "",
+   "contact_title": "",
+   "city": "Pune",
+   "state": "MH",
+   "address": "",
+   "specialization": "IT_Staffing",
+   "company_size": "1-50",
+   "employee_count_exact": 0,
+   "description": "",
+   "revenue_range": "",
+   "founded_year": "",
+   "industry_tags": "",
+   "technologies": "",
+   "technographics": "",
+   "funding_stage": "",
+   "company_size_basis": "",
+   "linkedin_url": "",
+   "twitter_url": "",
+   "facebook_url": "",
+   "secondary_emails": "",
+   "secondary_phones": "",
+   "decision_makers": "",
+   "glassdoor_rating": "",
+   "hiring_signals": "",
+   "enrichment_attempts": 0,
+   "enrichment_waterfall": "",
+   "field_provenance": "",
+   "source": "manual",
+   "source_url": "",
+   "collection_job_id": "",
+   "score": 5,
+   "score_tier": "cold",
+   "status": "new",
+   "yupcha_value_prop": "",
+   "company_need": "",
+   "notes": "100% sure",
+   "created_at": "2026-01-01T00:00:00+00:00",
+   "updated_at": "2026-10-26T10:08:21.329674+00:00",
+   "last_enriched_at": ""
+  },
+  {
+   "company": "Gamma Talent",
+   "website": "https://gamma.io",
+   "email": "g@gamma.io",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "phone_provider": "",
+   "contact_person": "",
+   "contact_title": "",
+   "city": "Delhi",
+   "state": "DL",
+   "address": "",
+   "specialization": "IT Staffing",
+   "company_size": "201-500",
+   "employee_count_exact": 0,
+   "description": "boutique recruiter",
+   "revenue_range": "",
+   "founded_year": "",
+   "industry_tags": "",
+   "technologies": "",
+   "technographics": "",
+   "funding_stage": "",
+   "company_size_basis": "",
+   "linkedin_url": "",
+   "twitter_url": "",
+   "facebook_url": "",
+   "secondary_emails": "",
+   "secondary_phones": "",
+   "decision_makers": "",
+   "glassdoor_rating": "",
+   "hiring_signals": "",
+   "enrichment_attempts": 0,
+   "enrichment_waterfall": "",
+   "field_provenance": "",
+   "source": "job:job2",
+   "source_url": "",
+   "collection_job_id": "",
+   "score": 70,
+   "score_tier": "warm",
+   "status": "new",
+   "yupcha_value_prop": "",
+   "company_need": "",
+   "notes": "",
+   "created_at": "2026-01-01T00:00:00+00:00",
+   "updated_at": "2026-10-26T10:08:21.311353+00:00",
+   "last_enriched_at": ""
+  },
+  {
+   "company": "Iota O'Brien & Sons",
+   "website": "https://iota.ie",
+   "email": "i@iota.ie",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "7",
+   "phone_provider": "",
+   "contact_person": "Pat O'Brien",
+   "contact_title": "",
+   "city": "Cork",
+   "state": "IE",
+   "address": "",
+   "specialization": "Legal",
+   "company_size": "51-200",
+   "employee_count_exact": 0,
+   "description": "",
+   "revenue_range": "",
+   "founded_year": "",
+   "industry_tags": "",
+   "technologies": "",
+   "technographics": "",
+   "funding_stage": "",
+   "company_size_basis": "",
+   "linkedin_url": "",
+   "twitter_url": "",
+   "facebook_url": "",
+   "secondary_emails": "",
+   "secondary_phones": "",
+   "decision_makers": "",
+   "glassdoor_rating": "",
+   "hiring_signals": "",
+   "enrichment_attempts": 0,
+   "enrichment_waterfall": "",
+   "field_provenance": "",
+   "source": "referral",
+   "source_url": "",
+   "collection_job_id": "",
+   "score": 85,
+   "score_tier": "hot",
+   "status": "converted",
+   "yupcha_value_prop": "",
+   "company_need": "",
+   "notes": "",
+   "created_at": "2026-01-01T00:00:00+00:00",
+   "updated_at": "2026-10-26T10:08:21.349018+00:00",
+   "last_enriched_at": ""
+  },
+  {
+   "company": "Kappa Zero",
+   "website": "",
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "phone_provider": "",
+   "contact_person": "",
+   "contact_title": "",
+   "city": "",
+   "state": "",
+   "address": "",
+   "specialization": "",
+   "company_size": "",
+   "employee_count_exact": 0,
+   "description": "",
+   "revenue_range": "",
+   "founded_year": "",
+   "industry_tags": "",
+   "technologies": "",
+   "technographics": "",
+   "funding_stage": "",
+   "company_size_basis": "",
+   "linkedin_url": "",
+   "twitter_url": "",
+   "facebook_url": "",
+   "secondary_emails": "",
+   "secondary_phones": "",
+   "decision_makers": "",
+   "glassdoor_rating": "",
+   "hiring_signals": "",
+   "enrichment_attempts": 0,
+   "enrichment_waterfall": "",
+   "field_provenance": "",
+   "source": "",
+   "source_url": "",
+   "collection_job_id": "",
+   "score": null,
+   "score_tier": "unqualified",
+   "status": "new",
+   "yupcha_value_prop": "",
+   "company_need": "",
+   "notes": "",
+   "created_at": "2026-01-01T00:00:00+00:00",
+   "updated_at": "2026-10-26T10:08:21.352578+00:00",
+   "last_enriched_at": ""
+  },
+  {
+   "company": "Theta Tie 1",
+   "website": "https://t1",
+   "email": "t1@t.io",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "1",
+   "phone_provider": "",
+   "contact_person": "",
+   "contact_title": "",
+   "city": "Tie",
+   "state": "TT",
+   "address": "",
+   "specialization": "Tie",
+   "company_size": "1-50",
+   "employee_count_exact": 0,
+   "description": "",
+   "revenue_range": "",
+   "founded_year": "",
+   "industry_tags": "",
+   "technologies": "",
+   "technographics": "",
+   "funding_stage": "",
+   "company_size_basis": "",
+   "linkedin_url": "",
+   "twitter_url": "",
+   "facebook_url": "",
+   "secondary_emails": "",
+   "secondary_phones": "",
+   "decision_makers": "",
+   "glassdoor_rating": "",
+   "hiring_signals": "",
+   "enrichment_attempts": 0,
+   "enrichment_waterfall": "",
+   "field_provenance": "",
+   "source": "csv_import",
+   "source_url": "",
+   "collection_job_id": "job3",
+   "score": 50,
+   "score_tier": "warm",
+   "status": "new",
+   "yupcha_value_prop": "",
+   "company_need": "",
+   "notes": "",
+   "created_at": "2026-01-01T00:00:00+00:00",
+   "updated_at": "2026-10-26T10:08:21.334487+00:00",
+   "last_enriched_at": ""
+  },
+  {
+   "company": "Theta Tie 2",
+   "website": "https://t2",
+   "email": "t2@t.io",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "2",
+   "phone_provider": "",
+   "contact_person": "",
+   "contact_title": "",
+   "city": "Tie",
+   "state": "TT",
+   "address": "",
+   "specialization": "Tie",
+   "company_size": "1-50",
+   "employee_count_exact": 0,
+   "description": "",
+   "revenue_range": "",
+   "founded_year": "",
+   "industry_tags": "",
+   "technologies": "",
+   "technographics": "",
+   "funding_stage": "",
+   "company_size_basis": "",
+   "linkedin_url": "",
+   "twitter_url": "",
+   "facebook_url": "",
+   "secondary_emails": "",
+   "secondary_phones": "",
+   "decision_makers": "",
+   "glassdoor_rating": "",
+   "hiring_signals": "",
+   "enrichment_attempts": 0,
+   "enrichment_waterfall": "",
+   "field_provenance": "",
+   "source": "csv_import",
+   "source_url": "",
+   "collection_job_id": "job3",
+   "score": 50,
+   "score_tier": "warm",
+   "status": "new",
+   "yupcha_value_prop": "",
+   "company_need": "",
+   "notes": "",
+   "created_at": "2026-01-01T00:00:00+00:00",
+   "updated_at": "2026-10-26T10:08:21.337675+00:00",
+   "last_enriched_at": ""
+  },
+  {
+   "company": "Theta Tie 3",
+   "website": "https://t3",
+   "email": "t3@t.io",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "3",
+   "phone_provider": "",
+   "contact_person": "",
+   "contact_title": "",
+   "city": "Tie",
+   "state": "TT",
+   "address": "",
+   "specialization": "Tie",
+   "company_size": "1-50",
+   "employee_count_exact": 0,
+   "description": "",
+   "revenue_range": "",
+   "founded_year": "",
+   "industry_tags": "",
+   "technologies": "",
+   "technographics": "",
+   "funding_stage": "",
+   "company_size_basis": "",
+   "linkedin_url": "",
+   "twitter_url": "",
+   "facebook_url": "",
+   "secondary_emails": "",
+   "secondary_phones": "",
+   "decision_makers": "",
+   "glassdoor_rating": "",
+   "hiring_signals": "",
+   "enrichment_attempts": 0,
+   "enrichment_waterfall": "",
+   "field_provenance": "",
+   "source": "csv_import",
+   "source_url": "",
+   "collection_job_id": "job3",
+   "score": 50,
+   "score_tier": "warm",
+   "status": "new",
+   "yupcha_value_prop": "",
+   "company_need": "",
+   "notes": "",
+   "created_at": "2026-01-01T00:00:00+00:00",
+   "updated_at": "2026-10-26T10:08:21.341884+00:00",
+   "last_enriched_at": ""
+  },
+  {
+   "company": "Theta Tie 4",
+   "website": "https://t4",
+   "email": "t4@t.io",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "4",
+   "phone_provider": "",
+   "contact_person": "",
+   "contact_title": "",
+   "city": "Tie",
+   "state": "TT",
+   "address": "",
+   "specialization": "Tie",
+   "company_size": "1-50",
+   "employee_count_exact": 0,
+   "description": "",
+   "revenue_range": "",
+   "founded_year": "",
+   "industry_tags": "",
+   "technologies": "",
+   "technographics": "",
+   "funding_stage": "",
+   "company_size_basis": "",
+   "linkedin_url": "",
+   "twitter_url": "",
+   "facebook_url": "",
+   "secondary_emails": "",
+   "secondary_phones": "",
+   "decision_makers": "",
+   "glassdoor_rating": "",
+   "hiring_signals": "",
+   "enrichment_attempts": 0,
+   "enrichment_waterfall": "",
+   "field_provenance": "",
+   "source": "csv_import",
+   "source_url": "",
+   "collection_job_id": "job3",
+   "score": 50,
+   "score_tier": "warm",
+   "status": "new",
+   "yupcha_value_prop": "",
+   "company_need": "",
+   "notes": "",
+   "created_at": "2026-01-01T00:00:00+00:00",
+   "updated_at": "2026-10-26T10:08:21.345185+00:00",
+   "last_enriched_at": ""
+  },
+  {
+   "company": "Zeta Works",
+   "website": "",
+   "email": "N/A",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "N/A",
+   "phone_provider": "",
+   "contact_person": "",
+   "contact_title": "",
+   "city": "Mumbai",
+   "state": "MH",
+   "address": "",
+   "specialization": "Payroll",
+   "company_size": "",
+   "employee_count_exact": 0,
+   "description": "",
+   "revenue_range": "",
+   "founded_year": "",
+   "industry_tags": "",
+   "technologies": "",
+   "technographics": "",
+   "funding_stage": "",
+   "company_size_basis": "",
+   "linkedin_url": "https://li/z",
+   "twitter_url": "",
+   "facebook_url": "",
+   "secondary_emails": "",
+   "secondary_phones": "",
+   "decision_makers": "",
+   "glassdoor_rating": "",
+   "hiring_signals": "",
+   "enrichment_attempts": 0,
+   "enrichment_waterfall": "",
+   "field_provenance": "",
+   "source": "manual",
+   "source_url": "",
+   "collection_job_id": "",
+   "score": 0,
+   "score_tier": "unqualified",
+   "status": "new",
+   "yupcha_value_prop": "",
+   "company_need": "",
+   "notes": "",
+   "created_at": "2026-01-01T00:00:00+00:00",
+   "updated_at": "2026-10-26T10:08:21.325100+00:00",
+   "last_enriched_at": ""
+  }
+ ],
+ "cases": [
+  {
+   "filter": {},
+   "page": 1,
+   "page_size": 100,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons",
+    "Gamma Talent",
+    "Beta Recruit",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1",
+    "Delta HR",
+    "Eta 100% Match",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {},
+   "page": 1,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {},
+   "page": 2,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Iota O'Brien & Sons",
+    "Gamma Talent",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {},
+   "page": 5,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {},
+   "page": 99,
+   "page_size": 3,
+   "total": 13,
+   "companies": []
+  },
+  {
+   "filter": {},
+   "page": 0,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {},
+   "page": -2,
+   "page_size": 2,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {},
+   "page": 1,
+   "page_size": 0,
+   "total": 13,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {},
+   "page": 2,
+   "page_size": 1,
+   "total": 13,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {},
+   "page": 1,
+   "page_size": -5,
+   "total": 13,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Pune"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Beta Recruit",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Pune"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Beta Recruit",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Pune"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Pune"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Pune"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Pune"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Beta Recruit",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Pune"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Pune"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 3,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Pune"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 3,
+   "companies": [
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Pune"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 3,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 5,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Beta Recruit",
+    "Eta 100% Match",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 5,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 5,
+   "companies": [
+    "Eta 100% Match",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 5,
+   "companies": []
+  },
+  {
+   "filter": {
+    "state": "MH"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 5,
+   "companies": []
+  },
+  {
+   "filter": {
+    "state": "MH"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 5,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 5,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 5,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 5,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 5,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "score_tier": "warm"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 6,
+   "companies": [
+    "Gamma Talent",
+    "Beta Recruit",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1"
+   ]
+  },
+  {
+   "filter": {
+    "score_tier": "warm"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 6,
+   "companies": [
+    "Gamma Talent",
+    "Beta Recruit",
+    "Theta Tie 4"
+   ]
+  },
+  {
+   "filter": {
+    "score_tier": "warm"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 6,
+   "companies": [
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1"
+   ]
+  },
+  {
+   "filter": {
+    "score_tier": "warm"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 6,
+   "companies": []
+  },
+  {
+   "filter": {
+    "score_tier": "warm"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 6,
+   "companies": []
+  },
+  {
+   "filter": {
+    "score_tier": "warm"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 6,
+   "companies": [
+    "Gamma Talent",
+    "Beta Recruit",
+    "Theta Tie 4"
+   ]
+  },
+  {
+   "filter": {
+    "score_tier": "warm"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 6,
+   "companies": [
+    "Gamma Talent",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "score_tier": "warm"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 6,
+   "companies": [
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "score_tier": "warm"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 6,
+   "companies": [
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "score_tier": "warm"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 6,
+   "companies": [
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "status": "new"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 9,
+   "companies": [
+    "Kappa Zero",
+    "Acme Staffing",
+    "Gamma Talent",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1",
+    "Eta 100% Match",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "status": "new"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 9,
+   "companies": [
+    "Kappa Zero",
+    "Acme Staffing",
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "status": "new"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 9,
+   "companies": [
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2"
+   ]
+  },
+  {
+   "filter": {
+    "status": "new"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 9,
+   "companies": []
+  },
+  {
+   "filter": {
+    "status": "new"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 9,
+   "companies": []
+  },
+  {
+   "filter": {
+    "status": "new"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 9,
+   "companies": [
+    "Kappa Zero",
+    "Acme Staffing",
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "status": "new"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 9,
+   "companies": [
+    "Kappa Zero",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "status": "new"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 9,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "status": "new"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 9,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "status": "new"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 9,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "source": "csv_import"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 5,
+   "companies": [
+    "Acme Staffing",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1"
+   ]
+  },
+  {
+   "filter": {
+    "source": "csv_import"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 5,
+   "companies": [
+    "Acme Staffing",
+    "Theta Tie 4",
+    "Theta Tie 3"
+   ]
+  },
+  {
+   "filter": {
+    "source": "csv_import"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 5,
+   "companies": [
+    "Theta Tie 2",
+    "Theta Tie 1"
+   ]
+  },
+  {
+   "filter": {
+    "source": "csv_import"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 5,
+   "companies": []
+  },
+  {
+   "filter": {
+    "source": "csv_import"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 5,
+   "companies": []
+  },
+  {
+   "filter": {
+    "source": "csv_import"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 5,
+   "companies": [
+    "Acme Staffing",
+    "Theta Tie 4",
+    "Theta Tie 3"
+   ]
+  },
+  {
+   "filter": {
+    "source": "csv_import"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 5,
+   "companies": [
+    "Acme Staffing",
+    "Theta Tie 4"
+   ]
+  },
+  {
+   "filter": {
+    "source": "csv_import"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 5,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "source": "csv_import"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 5,
+   "companies": [
+    "Theta Tie 4"
+   ]
+  },
+  {
+   "filter": {
+    "source": "csv_import"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 5,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "company_size": "1-50"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 7,
+   "companies": [
+    "Beta Recruit",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1",
+    "Delta HR",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "company_size": "1-50"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 7,
+   "companies": [
+    "Beta Recruit",
+    "Theta Tie 4",
+    "Theta Tie 3"
+   ]
+  },
+  {
+   "filter": {
+    "company_size": "1-50"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 7,
+   "companies": [
+    "Theta Tie 2",
+    "Theta Tie 1",
+    "Delta HR"
+   ]
+  },
+  {
+   "filter": {
+    "company_size": "1-50"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 7,
+   "companies": []
+  },
+  {
+   "filter": {
+    "company_size": "1-50"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 7,
+   "companies": []
+  },
+  {
+   "filter": {
+    "company_size": "1-50"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 7,
+   "companies": [
+    "Beta Recruit",
+    "Theta Tie 4",
+    "Theta Tie 3"
+   ]
+  },
+  {
+   "filter": {
+    "company_size": "1-50"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 7,
+   "companies": [
+    "Beta Recruit",
+    "Theta Tie 4"
+   ]
+  },
+  {
+   "filter": {
+    "company_size": "1-50"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 7,
+   "companies": [
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "company_size": "1-50"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 7,
+   "companies": [
+    "Theta Tie 4"
+   ]
+  },
+  {
+   "filter": {
+    "company_size": "1-50"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 7,
+   "companies": [
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1"
+    ]
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 2,
+   "companies": [
+    "Epsilon Search",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1"
+    ]
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 2,
+   "companies": [
+    "Epsilon Search",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1"
+    ]
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 2,
+   "companies": []
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1"
+    ]
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 2,
+   "companies": []
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1"
+    ]
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 2,
+   "companies": []
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1"
+    ]
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 2,
+   "companies": [
+    "Epsilon Search",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1"
+    ]
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 2,
+   "companies": [
+    "Epsilon Search",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1"
+    ]
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 2,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1"
+    ]
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 2,
+   "companies": [
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1"
+    ]
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 2,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1",
+     "job2"
+    ]
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 4,
+   "companies": [
+    "Epsilon Search",
+    "Gamma Talent",
+    "Beta Recruit",
+    "Delta HR"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1",
+     "job2"
+    ]
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 4,
+   "companies": [
+    "Epsilon Search",
+    "Gamma Talent",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1",
+     "job2"
+    ]
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 4,
+   "companies": [
+    "Delta HR"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1",
+     "job2"
+    ]
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 4,
+   "companies": []
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1",
+     "job2"
+    ]
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 4,
+   "companies": []
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1",
+     "job2"
+    ]
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 4,
+   "companies": [
+    "Epsilon Search",
+    "Gamma Talent",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1",
+     "job2"
+    ]
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 4,
+   "companies": [
+    "Epsilon Search",
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1",
+     "job2"
+    ]
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 4,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1",
+     "job2"
+    ]
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 4,
+   "companies": [
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job1",
+     "job2"
+    ]
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 4,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": []
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons",
+    "Gamma Talent",
+    "Beta Recruit",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1",
+    "Delta HR",
+    "Eta 100% Match",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": []
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": []
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Iota O'Brien & Sons",
+    "Gamma Talent",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": []
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": []
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 13,
+   "companies": []
+  },
+  {
+   "filter": {
+    "job_ids": []
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": []
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": []
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 13,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": []
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 13,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": []
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 13,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "staff"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Gamma Talent",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "staff"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Gamma Talent",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "staff"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "specialization": "staff"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "specialization": "staff"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "specialization": "staff"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Gamma Talent",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "staff"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "staff"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 3,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "staff"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 3,
+   "companies": [
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "staff"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 3,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "IT_Staffing"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Gamma Talent",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "IT_Staffing"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Gamma Talent",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "IT_Staffing"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "specialization": "IT_Staffing"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "specialization": "IT_Staffing"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "specialization": "IT_Staffing"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Gamma Talent",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "IT_Staffing"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "IT_Staffing"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 3,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "IT_Staffing"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 3,
+   "companies": [
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "IT_Staffing"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 3,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "%"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons",
+    "Gamma Talent",
+    "Beta Recruit",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1",
+    "Delta HR",
+    "Eta 100% Match",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "%"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "%"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Iota O'Brien & Sons",
+    "Gamma Talent",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "%"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "%"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 13,
+   "companies": []
+  },
+  {
+   "filter": {
+    "specialization": "%"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "%"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "%"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 13,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "%"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 13,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "specialization": "%"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 13,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": true
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 9,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons",
+    "Gamma Talent",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": true
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 9,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": true
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 9,
+   "companies": [
+    "Gamma Talent",
+    "Theta Tie 4",
+    "Theta Tie 3"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": true
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 9,
+   "companies": []
+  },
+  {
+   "filter": {
+    "has_email": true
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 9,
+   "companies": []
+  },
+  {
+   "filter": {
+    "has_email": true
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 9,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": true
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 9,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": true
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 9,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": true
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 9,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": true
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 9,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": false
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 4,
+   "companies": [
+    "Kappa Zero",
+    "Beta Recruit",
+    "Delta HR",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": false
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 4,
+   "companies": [
+    "Kappa Zero",
+    "Beta Recruit",
+    "Delta HR"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": false
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 4,
+   "companies": [
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": false
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 4,
+   "companies": []
+  },
+  {
+   "filter": {
+    "has_email": false
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 4,
+   "companies": []
+  },
+  {
+   "filter": {
+    "has_email": false
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 4,
+   "companies": [
+    "Kappa Zero",
+    "Beta Recruit",
+    "Delta HR"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": false
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 4,
+   "companies": [
+    "Kappa Zero",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": false
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 4,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": false
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 4,
+   "companies": [
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "has_email": false
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 4,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": true
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 9,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons",
+    "Beta Recruit",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": true
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 9,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": true
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 9,
+   "companies": [
+    "Beta Recruit",
+    "Theta Tie 4",
+    "Theta Tie 3"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": true
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 9,
+   "companies": []
+  },
+  {
+   "filter": {
+    "has_phone": true
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 9,
+   "companies": []
+  },
+  {
+   "filter": {
+    "has_phone": true
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 9,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": true
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 9,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": true
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 9,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": true
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 9,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": true
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 9,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": false
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 4,
+   "companies": [
+    "Kappa Zero",
+    "Gamma Talent",
+    "Delta HR",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": false
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 4,
+   "companies": [
+    "Kappa Zero",
+    "Gamma Talent",
+    "Delta HR"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": false
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 4,
+   "companies": [
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": false
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 4,
+   "companies": []
+  },
+  {
+   "filter": {
+    "has_phone": false
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 4,
+   "companies": []
+  },
+  {
+   "filter": {
+    "has_phone": false
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 4,
+   "companies": [
+    "Kappa Zero",
+    "Gamma Talent",
+    "Delta HR"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": false
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 4,
+   "companies": [
+    "Kappa Zero",
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": false
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 4,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": false
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 4,
+   "companies": [
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "has_phone": false
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 4,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": true
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 8,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons",
+    "Gamma Talent",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": true
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 8,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": true
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 8,
+   "companies": [
+    "Gamma Talent",
+    "Theta Tie 4",
+    "Theta Tie 3"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": true
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 8,
+   "companies": []
+  },
+  {
+   "filter": {
+    "has_website": true
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 8,
+   "companies": []
+  },
+  {
+   "filter": {
+    "has_website": true
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 8,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": true
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 8,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": true
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 8,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": true
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 8,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": true
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 8,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": false
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 5,
+   "companies": [
+    "Kappa Zero",
+    "Beta Recruit",
+    "Delta HR",
+    "Eta 100% Match",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": false
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 5,
+   "companies": [
+    "Kappa Zero",
+    "Beta Recruit",
+    "Delta HR"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": false
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 5,
+   "companies": [
+    "Eta 100% Match",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": false
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 5,
+   "companies": []
+  },
+  {
+   "filter": {
+    "has_website": false
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 5,
+   "companies": []
+  },
+  {
+   "filter": {
+    "has_website": false
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 5,
+   "companies": [
+    "Kappa Zero",
+    "Beta Recruit",
+    "Delta HR"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": false
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 5,
+   "companies": [
+    "Kappa Zero",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": false
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 5,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": false
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 5,
+   "companies": [
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "has_website": false
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 5,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 50
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 9,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons",
+    "Gamma Talent",
+    "Beta Recruit",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 50
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 9,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 50
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 9,
+   "companies": [
+    "Gamma Talent",
+    "Beta Recruit",
+    "Theta Tie 4"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 50
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 9,
+   "companies": []
+  },
+  {
+   "filter": {
+    "min_score": 50
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 9,
+   "companies": []
+  },
+  {
+   "filter": {
+    "min_score": 50
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 9,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 50
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 9,
+   "companies": [
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 50
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 9,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 50
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 9,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 50
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 9,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "max_score": 50
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 7,
+   "companies": [
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1",
+    "Delta HR",
+    "Eta 100% Match",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "max_score": 50
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 7,
+   "companies": [
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2"
+   ]
+  },
+  {
+   "filter": {
+    "max_score": 50
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 7,
+   "companies": [
+    "Theta Tie 1",
+    "Delta HR",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "max_score": 50
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 7,
+   "companies": []
+  },
+  {
+   "filter": {
+    "max_score": 50
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 7,
+   "companies": []
+  },
+  {
+   "filter": {
+    "max_score": 50
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 7,
+   "companies": [
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2"
+   ]
+  },
+  {
+   "filter": {
+    "max_score": 50
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 7,
+   "companies": [
+    "Theta Tie 4",
+    "Theta Tie 3"
+   ]
+  },
+  {
+   "filter": {
+    "max_score": 50
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 7,
+   "companies": [
+    "Theta Tie 4"
+   ]
+  },
+  {
+   "filter": {
+    "max_score": 50
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 7,
+   "companies": [
+    "Theta Tie 3"
+   ]
+  },
+  {
+   "filter": {
+    "max_score": 50
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 7,
+   "companies": [
+    "Theta Tie 4"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 10,
+    "max_score": 70
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 7,
+   "companies": [
+    "Gamma Talent",
+    "Beta Recruit",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1",
+    "Delta HR"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 10,
+    "max_score": 70
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 7,
+   "companies": [
+    "Gamma Talent",
+    "Beta Recruit",
+    "Theta Tie 4"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 10,
+    "max_score": 70
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 7,
+   "companies": [
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 10,
+    "max_score": 70
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 7,
+   "companies": []
+  },
+  {
+   "filter": {
+    "min_score": 10,
+    "max_score": 70
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 7,
+   "companies": []
+  },
+  {
+   "filter": {
+    "min_score": 10,
+    "max_score": 70
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 7,
+   "companies": [
+    "Gamma Talent",
+    "Beta Recruit",
+    "Theta Tie 4"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 10,
+    "max_score": 70
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 7,
+   "companies": [
+    "Gamma Talent",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 10,
+    "max_score": 70
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 7,
+   "companies": [
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 10,
+    "max_score": 70
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 7,
+   "companies": [
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 10,
+    "max_score": 70
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 7,
+   "companies": [
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 0,
+    "max_score": 0
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 1,
+   "companies": [
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 0,
+    "max_score": 0
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 1,
+   "companies": [
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 0,
+    "max_score": 0
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "min_score": 0,
+    "max_score": 0
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "min_score": 0,
+    "max_score": 0
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "min_score": 0,
+    "max_score": 0
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 1,
+   "companies": [
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 0,
+    "max_score": 0
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 1,
+   "companies": [
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 0,
+    "max_score": 0
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 1,
+   "companies": [
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "min_score": 0,
+    "max_score": 0
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "min_score": 0,
+    "max_score": 0
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 1,
+   "companies": [
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "search": "acme"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 1,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "search": "acme"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 1,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "search": "acme"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "acme"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "acme"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "acme"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 1,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "search": "acme"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 1,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "search": "acme"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 1,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "search": "acme"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "acme"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 1,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "search": "recruiter"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 2,
+   "companies": [
+    "Gamma Talent",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "search": "recruiter"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 2,
+   "companies": [
+    "Gamma Talent",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "search": "recruiter"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 2,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "recruiter"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 2,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "recruiter"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 2,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "recruiter"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 2,
+   "companies": [
+    "Gamma Talent",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "search": "recruiter"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 2,
+   "companies": [
+    "Gamma Talent",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "search": "recruiter"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 2,
+   "companies": [
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "search": "recruiter"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 2,
+   "companies": [
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "search": "recruiter"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 2,
+   "companies": [
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "search": "100%"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 1,
+   "companies": [
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "search": "100%"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 1,
+   "companies": [
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "search": "100%"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "100%"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "100%"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "100%"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 1,
+   "companies": [
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "search": "100%"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 1,
+   "companies": [
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "search": "100%"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 1,
+   "companies": [
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "search": "100%"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "100%"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 1,
+   "companies": [
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "search": "staffing"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Gamma Talent",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "search": "staffing"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Gamma Talent",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "search": "staffing"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "staffing"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "staffing"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "staffing"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Gamma Talent",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "search": "staffing"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "search": "staffing"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 3,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "search": "staffing"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 3,
+   "companies": [
+    "Gamma Talent"
+   ]
+  },
+  {
+   "filter": {
+    "search": "staffing"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 3,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "search": "O'Brien"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 1,
+   "companies": [
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "search": "O'Brien"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 1,
+   "companies": [
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "search": "O'Brien"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "O'Brien"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "O'Brien"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "O'Brien"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 1,
+   "companies": [
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "search": "O'Brien"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 1,
+   "companies": [
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "search": "O'Brien"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 1,
+   "companies": [
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "search": "O'Brien"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "O'Brien"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 1,
+   "companies": [
+    "Iota O'Brien & Sons"
+   ]
+  },
+  {
+   "filter": {
+    "search": "pun"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Beta Recruit",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "search": "pun"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Beta Recruit",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "search": "pun"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "pun"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "pun"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 3,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "pun"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Beta Recruit",
+    "Eta 100% Match"
+   ]
+  },
+  {
+   "filter": {
+    "search": "pun"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 3,
+   "companies": [
+    "Acme Staffing",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "search": "pun"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 3,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "search": "pun"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 3,
+   "companies": [
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "search": "pun"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 3,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "search": "\"exec search\""
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "\"exec search\""
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "\"exec search\""
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "\"exec search\""
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "\"exec search\""
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "\"exec search\""
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "\"exec search\""
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "\"exec search\""
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "\"exec search\""
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": "\"exec search\""
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "",
+    "status": ""
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons",
+    "Gamma Talent",
+    "Beta Recruit",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1",
+    "Delta HR",
+    "Eta 100% Match",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "city": "",
+    "status": ""
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "city": "",
+    "status": ""
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Iota O'Brien & Sons",
+    "Gamma Talent",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "city": "",
+    "status": ""
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "city": "",
+    "status": ""
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 13,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "",
+    "status": ""
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "city": "",
+    "status": ""
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "city": "",
+    "status": ""
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 13,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "city": "",
+    "status": ""
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 13,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "city": "",
+    "status": ""
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 13,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "search": ""
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing",
+    "Iota O'Brien & Sons",
+    "Gamma Talent",
+    "Beta Recruit",
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1",
+    "Delta HR",
+    "Eta 100% Match",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "search": ""
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "search": ""
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Iota O'Brien & Sons",
+    "Gamma Talent",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "search": ""
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "search": ""
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 13,
+   "companies": []
+  },
+  {
+   "filter": {
+    "search": ""
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search",
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "search": ""
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 13,
+   "companies": [
+    "Kappa Zero",
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "search": ""
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 13,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "search": ""
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 13,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "search": ""
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 13,
+   "companies": [
+    "Kappa Zero"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Pune",
+    "score_tier": "hot",
+    "has_email": true,
+    "min_score": 10
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 1,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Pune",
+    "score_tier": "hot",
+    "has_email": true,
+    "min_score": 10
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 1,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Pune",
+    "score_tier": "hot",
+    "has_email": true,
+    "min_score": 10
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Pune",
+    "score_tier": "hot",
+    "has_email": true,
+    "min_score": 10
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Pune",
+    "score_tier": "hot",
+    "has_email": true,
+    "min_score": 10
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Pune",
+    "score_tier": "hot",
+    "has_email": true,
+    "min_score": 10
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 1,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Pune",
+    "score_tier": "hot",
+    "has_email": true,
+    "min_score": 10
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 1,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Pune",
+    "score_tier": "hot",
+    "has_email": true,
+    "min_score": 10
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 1,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Pune",
+    "score_tier": "hot",
+    "has_email": true,
+    "min_score": 10
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 1,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Pune",
+    "score_tier": "hot",
+    "has_email": true,
+    "min_score": 10
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 1,
+   "companies": [
+    "Acme Staffing"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH",
+    "has_phone": true,
+    "search": "search",
+    "max_score": 95
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 2,
+   "companies": [
+    "Epsilon Search",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH",
+    "has_phone": true,
+    "search": "search",
+    "max_score": 95
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 2,
+   "companies": [
+    "Epsilon Search",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH",
+    "has_phone": true,
+    "search": "search",
+    "max_score": 95
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 2,
+   "companies": []
+  },
+  {
+   "filter": {
+    "state": "MH",
+    "has_phone": true,
+    "search": "search",
+    "max_score": 95
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 2,
+   "companies": []
+  },
+  {
+   "filter": {
+    "state": "MH",
+    "has_phone": true,
+    "search": "search",
+    "max_score": 95
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 2,
+   "companies": []
+  },
+  {
+   "filter": {
+    "state": "MH",
+    "has_phone": true,
+    "search": "search",
+    "max_score": 95
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 2,
+   "companies": [
+    "Epsilon Search",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH",
+    "has_phone": true,
+    "search": "search",
+    "max_score": 95
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 2,
+   "companies": [
+    "Epsilon Search",
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH",
+    "has_phone": true,
+    "search": "search",
+    "max_score": 95
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 2,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH",
+    "has_phone": true,
+    "search": "search",
+    "max_score": 95
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 2,
+   "companies": [
+    "Beta Recruit"
+   ]
+  },
+  {
+   "filter": {
+    "state": "MH",
+    "has_phone": true,
+    "search": "search",
+    "max_score": 95
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 2,
+   "companies": [
+    "Epsilon Search"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job3"
+    ],
+    "has_website": true,
+    "specialization": "tie"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 4,
+   "companies": [
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2",
+    "Theta Tie 1"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job3"
+    ],
+    "has_website": true,
+    "specialization": "tie"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 4,
+   "companies": [
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job3"
+    ],
+    "has_website": true,
+    "specialization": "tie"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 4,
+   "companies": [
+    "Theta Tie 1"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job3"
+    ],
+    "has_website": true,
+    "specialization": "tie"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 4,
+   "companies": []
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job3"
+    ],
+    "has_website": true,
+    "specialization": "tie"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 4,
+   "companies": []
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job3"
+    ],
+    "has_website": true,
+    "specialization": "tie"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 4,
+   "companies": [
+    "Theta Tie 4",
+    "Theta Tie 3",
+    "Theta Tie 2"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job3"
+    ],
+    "has_website": true,
+    "specialization": "tie"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 4,
+   "companies": [
+    "Theta Tie 4",
+    "Theta Tie 3"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job3"
+    ],
+    "has_website": true,
+    "specialization": "tie"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 4,
+   "companies": [
+    "Theta Tie 4"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job3"
+    ],
+    "has_website": true,
+    "specialization": "tie"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 4,
+   "companies": [
+    "Theta Tie 3"
+   ]
+  },
+  {
+   "filter": {
+    "job_ids": [
+     "job3"
+    ],
+    "has_website": true,
+    "specialization": "tie"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 4,
+   "companies": [
+    "Theta Tie 4"
+   ]
+  },
+  {
+   "filter": {
+    "city": "Nowhere"
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Nowhere"
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Nowhere"
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Nowhere"
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Nowhere"
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Nowhere"
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Nowhere"
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Nowhere"
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Nowhere"
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "city": "Nowhere"
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "lead_ids": []
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "lead_ids": []
+   },
+   "page": 1,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "lead_ids": []
+   },
+   "page": 2,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "lead_ids": []
+   },
+   "page": 5,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "lead_ids": []
+   },
+   "page": 99,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "lead_ids": []
+   },
+   "page": 0,
+   "page_size": 3,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "lead_ids": []
+   },
+   "page": -2,
+   "page_size": 2,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "lead_ids": []
+   },
+   "page": 1,
+   "page_size": 0,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "lead_ids": []
+   },
+   "page": 2,
+   "page_size": 1,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "lead_ids": []
+   },
+   "page": 1,
+   "page_size": -5,
+   "total": 0,
+   "companies": []
+  },
+  {
+   "filter": {
+    "lead_ids_companies": [
+     "Acme Staffing",
+     "Zeta Works"
+    ]
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 2,
+   "companies": [
+    "Acme Staffing",
+    "Zeta Works"
+   ]
+  },
+  {
+   "filter": {
+    "lead_ids_companies": [
+     "Kappa Zero"
+    ]
+   },
+   "page": 1,
+   "page_size": 100,
+   "total": 1,
+   "companies": [
+    "Kappa Zero"
+   ]
+  }
+ ],
+ "stats": {
+  "total": 13,
+  "by_status": {
+   "contacted": 1,
+   "converted": 1,
+   "new": 9,
+   "qualified": 1,
+   "null": 1
+  },
+  "by_tier": {
+   "cold": 1,
+   "hot": 3,
+   "unqualified": 2,
+   "warm": 6,
+   "null": 1
+  },
+  "by_city": {
+   "Tie": 4,
+   "Pune": 3,
+   "Mumbai": 2,
+   "": 1,
+   "Delhi": 1,
+   "Cork": 1,
+   "null": 1
+  },
+  "by_source": {
+   "": 1,
+   "csv_import": 5,
+   "google_maps": 1,
+   "job:job2": 1,
+   "linkedin": 1,
+   "manual": 2,
+   "referral": 1,
+   "null": 1
+  },
+  "enrichment": {
+   "total": 13,
+   "with_email": 8,
+   "with_phone": 8,
+   "with_website": 7,
+   "with_linkedin": 1,
+   "with_contact": 2,
+   "avg_score": 51.7
+  }
+ },
+ "filter_options": {
+  "cities": [
+   "Cork",
+   "Delhi",
+   "Mumbai",
+   "Pune",
+   "Tie"
+  ],
+  "tiers": [
+   "cold",
+   "hot",
+   "unqualified",
+   "warm"
+  ],
+  "sources": [
+   "csv_import",
+   "google_maps",
+   "job:job2",
+   "linkedin",
+   "manual",
+   "referral"
+  ],
+  "statuses": [
+   "contacted",
+   "converted",
+   "new",
+   "qualified"
+  ],
+  "specializations": [
+   "Executive Search",
+   "IT Staffing",
+   "IT_Staffing",
+   "Legal",
+   "Payroll",
+   "RPO",
+   "Tie"
+  ],
+  "total_leads": 13
+ },
+ "other_tenant_company": "Other Tenant Co"
+}
