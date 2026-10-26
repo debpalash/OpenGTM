@@ -1,0 +1,6 @@
+From: mailer-daemon@mx.example.net
+Subject: Mail delivery failed
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status
+
+user unknown

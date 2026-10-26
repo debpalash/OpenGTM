@@ -1,0 +1,41 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/drafts"
+  },
+  "response": {
+    "body": {
+      "drafts": [
+        {
+          "body_text": "Hi Beta.",
+          "company": "Initech Two",
+          "contact_status": "verified",
+          "created_at": "2026-08-29T08:00:00+00:00",
+          "generic_inbox": false,
+          "id": "d-out-b-1",
+          "is_role_address": false,
+          "person_id": "person-b1",
+          "person_name": "Beta Person",
+          "risky_approved": false,
+          "send_performed": false,
+          "sent_at": null,
+          "state": "draft",
+          "subject": "Beta draft",
+          "title": "",
+          "to_email": "p@initech2.example.com",
+          "updated_at": "2026-08-29T08:00:00+00:00"
+        }
+      ],
+      "limit": 50,
+      "offset": 0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

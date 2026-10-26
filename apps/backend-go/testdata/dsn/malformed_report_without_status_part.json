@@ -1,0 +1,13 @@
+{
+  "name": "malformed_report_without_status_part",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "heuristic plain-text bounce",
+      "kind": "hard",
+      "original_message_id": "",
+      "recipient": "ghost@example.org"
+    }
+  ],
+  "source_message_id": ""
+}

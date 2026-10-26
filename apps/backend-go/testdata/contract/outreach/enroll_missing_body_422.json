@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/sequences/seq-out-a-02/enroll"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {},
+          "loc": [
+            "body",
+            "lead_ids"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

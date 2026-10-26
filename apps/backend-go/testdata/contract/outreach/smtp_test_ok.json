@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "to_email": "test@example.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/smtp/test"
+  },
+  "response": {
+    "body": {
+      "message": "Test email sent to test@example.com",
+      "status": "ok"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

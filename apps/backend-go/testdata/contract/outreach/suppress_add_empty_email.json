@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "email": ""
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/suppressions"
+  },
+  "response": {
+    "body": {
+      "added": false,
+      "status": "ok"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

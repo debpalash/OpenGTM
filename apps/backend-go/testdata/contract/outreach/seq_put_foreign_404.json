@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/outreach/sequences/seq-out-b-01"
+  },
+  "response": {
+    "body": {
+      "detail": "Sequence not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

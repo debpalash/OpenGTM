@@ -1,0 +1,13 @@
+{
+  "name": "heuristic_bounce_marker_without_hard_token",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "heuristic plain-text bounce",
+      "kind": "unknown",
+      "original_message_id": "",
+      "recipient": "ann@example.org"
+    }
+  ],
+  "source_message_id": "<plain-0001@mx.example.net>"
+}

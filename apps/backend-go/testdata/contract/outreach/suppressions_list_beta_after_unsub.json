@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/suppressions"
+  },
+  "response": {
+    "body": {
+      "suppressions": [
+        {
+          "created_at": "2026-10-26T14:15:11.890486+00:00",
+          "email": "unsub-beta@example.com",
+          "id": 17,
+          "locked": true,
+          "reason": "unsubscribe",
+          "source": "seq-out-b-01"
+        },
+        {
+          "created_at": "2026-08-29T08:07:00+00:00",
+          "email": "beta-suppressed@example.com",
+          "id": 7,
+          "locked": false,
+          "reason": "manual",
+          "source": "manual"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

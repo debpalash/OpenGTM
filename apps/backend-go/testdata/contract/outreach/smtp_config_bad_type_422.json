@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "smtp_port": "abc"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/outreach/smtp/config"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "abc",
+          "loc": [
+            "body",
+            "smtp_port"
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "daily_limit": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/outreach/sequences/00000000-0000-4000-8000-000000001000"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "x",
+          "loc": [
+            "body",
+            "daily_limit"
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/sequences/seq-out-a-01/stats"
+  },
+  "response": {
+    "body": {
+      "auto_paused": 0,
+      "bounce_count": 2,
+      "bounced": 1,
+      "complaint_count": 0,
+      "completed": 1,
+      "emails_sent": 6,
+      "failed": 1,
+      "opened": 1,
+      "pending": 1,
+      "replied": 1,
+      "scheduled": 1,
+      "sent": 1,
+      "skipped": 1,
+      "suppressed": 1,
+      "total": 10
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

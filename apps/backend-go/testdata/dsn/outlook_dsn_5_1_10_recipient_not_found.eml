@@ -1,0 +1,40 @@
+From: Microsoft Outlook <postmaster@outlook.example.net>
+To: sender@contract.example.com
+Subject: Undeliverable: Hi Ann
+Message-ID: <dsn-0005@mx.example.net>
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status; boundary="BND-dsn-1"
+
+--BND-dsn-1
+Content-Type: text/plain; charset=utf-8
+
+Delivery has failed to these recipients or groups:
+
+nobody@example.net
+The email address you entered couldn't be found.
+
+--BND-dsn-1
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; EX01.example.net
+Arrival-Date: Sat, 29 Aug 2026 10:40:00 +0000
+
+Original-Recipient: rfc822;nobody@example.net
+Final-Recipient: rfc822; nobody@example.net
+Action: failed
+Status: 5.1.10
+Diagnostic-Code: smtp; 550 5.1.10 RESOLVER.ADR.RecipientNotFound; Recipient not found by SMTP address lookup
+
+--BND-dsn-1
+Content-Type: message/rfc822
+
+Message-ID: <orig-0005@contract.example.com>
+From: Contract Sender <sender@contract.example.com>
+To: nobody@example.net
+Subject: Hi Ann
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+Hello Ann.
+
+--BND-dsn-1--

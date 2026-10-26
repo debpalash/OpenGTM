@@ -1,0 +1,13 @@
+{
+  "name": "arf_not_spam_feedback_type",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "arf feedback-type=not-spam",
+      "kind": "complaint",
+      "original_message_id": "<orig-0018@contract.example.com>",
+      "recipient": "ann@example.com"
+    }
+  ],
+  "source_message_id": "<arf-0018@isp.example.net>"
+}

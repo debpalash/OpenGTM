@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "lead_ids": [
+        1
+      ]
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/outreach/sequences/seq-out-a-02/enroll"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

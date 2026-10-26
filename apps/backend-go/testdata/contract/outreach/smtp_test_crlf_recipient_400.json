@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "to_email": "a@example.com\r\nBcc: b@example.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/smtp/test"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid recipient address"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

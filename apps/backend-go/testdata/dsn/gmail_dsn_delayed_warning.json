@@ -1,0 +1,13 @@
+{
+  "name": "gmail_dsn_delayed_warning",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 421 4.4.1 connection timed out",
+      "kind": "soft",
+      "original_message_id": "<orig-0004@contract.example.com>",
+      "recipient": "slow@example.org"
+    }
+  ],
+  "source_message_id": "<dsn-0004@mx.example.net>"
+}

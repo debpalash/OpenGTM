@@ -1,0 +1,19 @@
+From: Mail Delivery System <Mailer-Daemon@exim.example.net>
+To: sender@contract.example.com
+Subject: Mail delivery failed: returning message to sender
+Message-ID: <plain-0001@mx.example.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+This message was created automatically by mail delivery software.
+
+A message that you sent could not be delivered to one or more of its
+recipients. This is a permanent error. The following address(es) failed:
+
+  ghost@example.org
+    550 No such user here
+
+------ This is a copy of the message, including all the headers. ------
+
+Message-ID: <orig-0014@contract.example.com>
+To: ghost@example.org

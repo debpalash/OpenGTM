@@ -1,0 +1,8 @@
+From: postmaster@mx.example.net
+To: sender@contract.example.com
+Subject: Spring sale from Example Shop
+Message-ID: <plain-0001@mx.example.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+Save up to $550 on selected items, today only. info@shop.example.org

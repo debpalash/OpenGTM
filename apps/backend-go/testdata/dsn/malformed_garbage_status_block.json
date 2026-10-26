@@ -1,0 +1,13 @@
+{
+  "name": "malformed_garbage_status_block",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "heuristic plain-text bounce",
+      "kind": "unknown",
+      "original_message_id": "",
+      "recipient": ""
+    }
+  ],
+  "source_message_id": ""
+}

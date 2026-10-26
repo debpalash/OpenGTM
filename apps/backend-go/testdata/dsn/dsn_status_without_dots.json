@@ -1,0 +1,13 @@
+{
+  "name": "dsn_status_without_dots",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "dsn status=permanent action=failed",
+      "kind": "hard",
+      "original_message_id": "<orig-0034@contract.example.com>",
+      "recipient": "odd@example.org"
+    }
+  ],
+  "source_message_id": "<dsn-0034@mx.example.net>"
+}

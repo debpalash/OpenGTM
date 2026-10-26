@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "name": "Created defaults"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/sequences"
+  },
+  "response": {
+    "body": {
+      "id": "00000000-0000-4000-8000-000000001000",
+      "name": "Created defaults",
+      "status": "draft"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "deep_nesting_depth_4",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 550 5.1.1 deep",
+      "kind": "hard",
+      "original_message_id": "<orig-0039@contract.example.com>",
+      "recipient": "deep@example.org"
+    }
+  ],
+  "source_message_id": "<nested-0001@mx.example.net>"
+}

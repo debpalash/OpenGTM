@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "to_email": "test@example.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/smtp/test"
+  },
+  "response": {
+    "body": {
+      "detail": "SMTP not configured"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

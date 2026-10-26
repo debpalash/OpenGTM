@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "smtp_host": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/outreach/smtp/config"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: outreach.write"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

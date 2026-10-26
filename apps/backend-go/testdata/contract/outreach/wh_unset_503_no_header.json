@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": {
+      "message_id": "<x@contract.example.com>"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/outreach/webhooks/bounce"
+  },
+  "response": {
+    "body": {
+      "detail": "bounce webhook not configured"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 503
+  }
+}

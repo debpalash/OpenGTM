@@ -1,0 +1,13 @@
+{
+  "name": "postfix_dsn_original_recipient_only",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 550 5.1.1 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0010@contract.example.com>",
+      "recipient": "orig-only@example.org"
+    }
+  ],
+  "source_message_id": "<dsn-0010@mx.example.net>"
+}

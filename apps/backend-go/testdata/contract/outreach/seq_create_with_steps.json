@@ -1,0 +1,42 @@
+{
+  "request": {
+    "body": {
+      "consent_basis": "consent",
+      "daily_limit": 10,
+      "description": "d",
+      "name": "Created with steps",
+      "send_window_end": 20,
+      "send_window_start": 8,
+      "send_window_tz": "America/New_York",
+      "steps": [
+        {
+          "body_html": "<p>b0</p>",
+          "delay_hours": 0,
+          "step_number": 0,
+          "subject": "S0 {{name}}"
+        },
+        {
+          "body_html": "<p>b1</p>",
+          "step_number": 1,
+          "subject": "S1"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/sequences"
+  },
+  "response": {
+    "body": {
+      "id": "00000000-0000-4000-8000-000000001001",
+      "name": "Created with steps",
+      "status": "draft"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

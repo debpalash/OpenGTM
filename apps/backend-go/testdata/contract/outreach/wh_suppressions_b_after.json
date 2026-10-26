@@ -1,0 +1,52 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/suppressions"
+  },
+  "response": {
+    "body": {
+      "suppressions": [
+        {
+          "created_at": "2026-10-26T14:15:23.786534+00:00",
+          "email": "complaint-target@contract.example.com",
+          "id": 10,
+          "locked": true,
+          "reason": "complaint",
+          "source": "webhook"
+        },
+        {
+          "created_at": "2026-10-26T14:15:23.760445+00:00",
+          "email": "soft-target@contract.example.com",
+          "id": 9,
+          "locked": false,
+          "reason": "bounce",
+          "source": "webhook"
+        },
+        {
+          "created_at": "2026-10-26T14:15:23.675658+00:00",
+          "email": "beta@zenithrobotics.example.com",
+          "id": 8,
+          "locked": false,
+          "reason": "bounce",
+          "source": "webhook"
+        },
+        {
+          "created_at": "2026-08-29T08:07:00+00:00",
+          "email": "beta-suppressed@example.com",
+          "id": 7,
+          "locked": false,
+          "reason": "manual",
+          "source": "manual"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

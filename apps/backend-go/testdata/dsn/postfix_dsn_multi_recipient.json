@@ -1,0 +1,19 @@
+{
+  "name": "postfix_dsn_multi_recipient",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 550 5.1.1 <a@example.org>: Recipient address rejected: User unknown in virtual mailbox table",
+      "kind": "hard",
+      "original_message_id": "<orig-0008@contract.example.com>",
+      "recipient": "a@example.org"
+    },
+    {
+      "diagnostic": "smtp; 450 4.2.0 <b@example.org>: Recipient address rejected: Greylisted",
+      "kind": "soft",
+      "original_message_id": "<orig-0008@contract.example.com>",
+      "recipient": "b@example.org"
+    }
+  ],
+  "source_message_id": "<dsn-0008@mx.example.net>"
+}

@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "to_email": "not an address"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/smtp/test"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid recipient address"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

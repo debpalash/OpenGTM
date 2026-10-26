@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": {
+      "message_id": "<hook-hard-b@contract.example.com>"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/outreach/webhooks/bounce"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid signature"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

@@ -1,0 +1,607 @@
+{
+  "name": "huge_dsn_100_recipients",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 550 5.1.1 user000 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user000@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user001 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user001@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user002 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user002@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user003 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user003@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user004 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user004@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user005 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user005@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user006 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user006@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user007 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user007@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user008 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user008@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user009 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user009@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user010 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user010@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user011 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user011@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user012 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user012@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user013 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user013@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user014 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user014@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user015 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user015@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user016 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user016@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user017 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user017@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user018 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user018@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user019 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user019@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user020 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user020@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user021 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user021@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user022 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user022@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user023 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user023@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user024 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user024@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user025 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user025@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user026 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user026@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user027 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user027@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user028 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user028@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user029 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user029@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user030 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user030@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user031 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user031@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user032 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user032@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user033 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user033@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user034 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user034@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user035 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user035@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user036 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user036@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user037 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user037@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user038 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user038@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user039 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user039@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user040 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user040@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user041 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user041@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user042 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user042@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user043 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user043@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user044 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user044@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user045 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user045@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user046 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user046@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user047 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user047@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user048 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user048@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user049 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user049@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user050 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user050@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user051 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user051@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user052 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user052@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user053 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user053@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user054 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user054@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user055 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user055@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user056 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user056@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user057 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user057@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user058 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user058@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user059 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user059@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user060 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user060@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user061 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user061@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user062 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user062@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user063 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user063@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user064 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user064@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user065 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user065@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user066 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user066@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user067 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user067@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user068 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user068@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user069 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user069@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user070 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user070@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user071 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user071@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user072 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user072@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user073 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user073@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user074 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user074@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user075 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user075@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user076 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user076@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user077 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user077@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user078 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user078@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user079 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user079@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user080 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user080@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user081 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user081@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user082 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user082@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user083 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user083@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user084 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user084@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user085 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user085@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user086 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user086@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user087 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user087@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user088 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user088@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user089 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user089@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user090 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user090@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user091 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user091@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user092 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user092@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user093 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user093@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user094 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user094@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user095 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user095@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user096 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user096@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user097 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user097@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user098 unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user098@example.org"
+    },
+    {
+      "diagnostic": "smtp; 550 5.1.1 user099 unknown",
+      "kind": "soft",
+      "original_message_id": "<orig-0038@contract.example.com>",
+      "recipient": "user099@example.org"
+    }
+  ],
+  "source_message_id": "<dsn-0038@mx.example.net>"
+}

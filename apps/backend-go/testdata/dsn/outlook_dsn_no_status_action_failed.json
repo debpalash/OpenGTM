@@ -1,0 +1,13 @@
+{
+  "name": "outlook_dsn_no_status_action_failed",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; user mailbox gone",
+      "kind": "hard",
+      "original_message_id": "<orig-0007@contract.example.com>",
+      "recipient": "nostatus@example.net"
+    }
+  ],
+  "source_message_id": "<dsn-0007@mx.example.net>"
+}

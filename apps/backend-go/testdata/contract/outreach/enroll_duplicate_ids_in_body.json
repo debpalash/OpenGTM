@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "lead_ids": [
+        5,
+        5
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/sequences/seq-out-a-02/enroll"
+  },
+  "response": {
+    "body": {
+      "enrolled": 1,
+      "skipped": [
+        {
+          "lead_id": 5,
+          "reason": "already_enrolled"
+        }
+      ],
+      "total_lead_ids": 2
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

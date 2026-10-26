@@ -1,0 +1,13 @@
+{
+  "name": "dsn_diagnostic_truncated_500",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 550 very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic text very long diagnostic t",
+      "kind": "hard",
+      "original_message_id": "<orig-0027@contract.example.com>",
+      "recipient": "long@example.org"
+    }
+  ],
+  "source_message_id": "<dsn-0027@mx.example.net>"
+}

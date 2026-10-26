@@ -1,0 +1,13 @@
+{
+  "name": "dsn_folded_diagnostic",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 550-5.1.1 first line\r\n 550 5.1.1 second line\r\n\tthird line",
+      "kind": "hard",
+      "original_message_id": "<orig-0028@contract.example.com>",
+      "recipient": "fold@example.org"
+    }
+  ],
+  "source_message_id": "<dsn-0028@mx.example.net>"
+}

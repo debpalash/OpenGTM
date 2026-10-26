@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": {},
+    "headers": {},
+    "method": "PUT",
+    "path": "/api/outreach/smtp/config"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

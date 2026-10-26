@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "email": "x@example.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/suppressions"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: outreach.write"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

@@ -1,0 +1,10 @@
+From: mailer-daemon@mx.example.net
+Subject: Undeliverable
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status; boundary="B
+
+--B
+Content-Type: text/plain
+
+user unknown
+--B--

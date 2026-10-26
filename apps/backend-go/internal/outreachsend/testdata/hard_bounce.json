@@ -1,0 +1,200 @@
+{
+  "cases": [
+    {
+      "error": "",
+      "expected": false
+    },
+    {
+      "error": null,
+      "expected": false
+    },
+    {
+      "error": "550 5.1.1 user unknown",
+      "expected": true
+    },
+    {
+      "error": "553 mailbox name not allowed",
+      "expected": true
+    },
+    {
+      "error": "554 transaction failed",
+      "expected": true
+    },
+    {
+      "error": "551 user not local",
+      "expected": true
+    },
+    {
+      "error": "Mailbox unavailable",
+      "expected": true
+    },
+    {
+      "error": "MAILBOX UNAVAILABLE",
+      "expected": true
+    },
+    {
+      "error": "User unknown",
+      "expected": true
+    },
+    {
+      "error": "no such user here",
+      "expected": true
+    },
+    {
+      "error": "Recipient rejected",
+      "expected": true
+    },
+    {
+      "error": "recipient address rejected",
+      "expected": false
+    },
+    {
+      "error": "The email account does not exist",
+      "expected": true
+    },
+    {
+      "error": "does not exist",
+      "expected": true
+    },
+    {
+      "error": "421 service not available",
+      "expected": false
+    },
+    {
+      "error": "450 mailbox busy",
+      "expected": false
+    },
+    {
+      "error": "451 local error",
+      "expected": false
+    },
+    {
+      "error": "452 insufficient storage",
+      "expected": false
+    },
+    {
+      "error": "Connection refused",
+      "expected": false
+    },
+    {
+      "error": "[Errno 111] Connection refused",
+      "expected": false
+    },
+    {
+      "error": "timed out",
+      "expected": false
+    },
+    {
+      "error": "(535, b'5.7.8 bad credentials')",
+      "expected": false
+    },
+    {
+      "error": "{'a@b.com': (550, b'5.1.1 <a@b.com>: Recipient address rejected: User unknown')}",
+      "expected": true
+    },
+    {
+      "error": "SMTP not configured",
+      "expected": false
+    },
+    {
+      "error": "invalid recipient address",
+      "expected": false
+    },
+    {
+      "error": "550",
+      "expected": true
+    },
+    {
+      "error": "5500",
+      "expected": true
+    },
+    {
+      "error": "a550b",
+      "expected": true
+    },
+    {
+      "error": "code 550 x",
+      "expected": true
+    },
+    {
+      "error": "x 5xx y",
+      "expected": false
+    },
+    {
+      "error": "error 500 internal",
+      "expected": true
+    },
+    {
+      "error": "502 command not implemented",
+      "expected": true
+    },
+    {
+      "error": "503 bad sequence",
+      "expected": true
+    },
+    {
+      "error": "5.7.1 relay denied",
+      "expected": false
+    },
+    {
+      "error": "dial tcp: 5123",
+      "expected": false
+    },
+    {
+      "error": "port 5432 closed",
+      "expected": false
+    },
+    {
+      "error": "mailbox full 552",
+      "expected": true
+    },
+    {
+      "error": "553-5.1.3 bad",
+      "expected": true
+    },
+    {
+      "error": "(550, b'')",
+      "expected": true
+    },
+    {
+      "error": "Greeting 220 ok",
+      "expected": false
+    },
+    {
+      "error": "Message 4512 queued",
+      "expected": false
+    },
+    {
+      "error": "id 512",
+      "expected": true
+    },
+    {
+      "error": "id 5 12",
+      "expected": false
+    },
+    {
+      "error": "xx 599 yy",
+      "expected": true
+    },
+    {
+      "error": "UNKNOWN USER",
+      "expected": false
+    },
+    {
+      "error": "Does Not Exist",
+      "expected": true
+    },
+    {
+      "error": "TLS error",
+      "expected": false
+    },
+    {
+      "error": "SMTPServerDisconnected('Connection unexpectedly closed')",
+      "expected": false
+    },
+    {
+      "error": "(554, b'5.7.1 Message blocked')",
+      "expected": true
+    }
+  ]
+}

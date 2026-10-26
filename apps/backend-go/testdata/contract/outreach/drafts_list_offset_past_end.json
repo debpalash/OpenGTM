@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/drafts?offset=50"
+  },
+  "response": {
+    "body": {
+      "drafts": [],
+      "limit": 50,
+      "offset": 50
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

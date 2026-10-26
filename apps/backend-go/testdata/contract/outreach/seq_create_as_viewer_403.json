@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/sequences"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: outreach.write"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

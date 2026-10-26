@@ -1,0 +1,164 @@
+{
+  "cases": [
+    {
+      "expected": true,
+      "input": "a@example.com"
+    },
+    {
+      "expected": true,
+      "input": "  a@example.com  "
+    },
+    {
+      "expected": true,
+      "input": "A.B+tag@Example.co.uk"
+    },
+    {
+      "expected": true,
+      "input": "a@b.c"
+    },
+    {
+      "expected": false,
+      "input": "a@b"
+    },
+    {
+      "expected": false,
+      "input": "a@@b.com"
+    },
+    {
+      "expected": false,
+      "input": "a b@example.com"
+    },
+    {
+      "expected": false,
+      "input": "a@exa mple.com"
+    },
+    {
+      "expected": false,
+      "input": "a,b@example.com"
+    },
+    {
+      "expected": false,
+      "input": "a;b@example.com"
+    },
+    {
+      "expected": false,
+      "input": "a@b.com,c@d.com"
+    },
+    {
+      "expected": false,
+      "input": "<a@example.com>"
+    },
+    {
+      "expected": false,
+      "input": "Name <a@example.com>"
+    },
+    {
+      "expected": false,
+      "input": "a@example.com\r\nBcc: x@example.com"
+    },
+    {
+      "expected": false,
+      "input": "a@example.com\nBcc: x"
+    },
+    {
+      "expected": false,
+      "input": "a@example.com\r"
+    },
+    {
+      "expected": true,
+      "input": "a@example.com\t"
+    },
+    {
+      "expected": true,
+      "input": "\ta@example.com"
+    },
+    {
+      "expected": false,
+      "input": ""
+    },
+    {
+      "expected": false,
+      "input": null
+    },
+    {
+      "expected": false,
+      "input": "   "
+    },
+    {
+      "expected": false,
+      "input": "@example.com"
+    },
+    {
+      "expected": false,
+      "input": "a@"
+    },
+    {
+      "expected": false,
+      "input": "a@.com"
+    },
+    {
+      "expected": false,
+      "input": "a@example."
+    },
+    {
+      "expected": true,
+      "input": "a@example..com"
+    },
+    {
+      "expected": true,
+      "input": "ünï@example.com"
+    },
+    {
+      "expected": true,
+      "input": "a@bücher.de"
+    },
+    {
+      "expected": true,
+      "input": "a@example.com."
+    },
+    {
+      "expected": true,
+      "input": "'a'@example.com"
+    },
+    {
+      "expected": true,
+      "input": "a\"b@example.com"
+    },
+    {
+      "expected": true,
+      "input": "a@[127.0.0.1]"
+    },
+    {
+      "expected": true,
+      "input": "a@1.2.3.4"
+    },
+    {
+      "expected": true,
+      "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@example.com"
+    },
+    {
+      "expected": true,
+      "input": "a@xn--bcher-kva.de"
+    },
+    {
+      "expected": true,
+      "input": "user+tag@gmail.com"
+    },
+    {
+      "expected": true,
+      "input": "a%b@example.com"
+    },
+    {
+      "expected": true,
+      "input": "a/b@example.com"
+    },
+    {
+      "expected": false,
+      "input": "a@b@c.com"
+    },
+    {
+      "expected": true,
+      "input": "a\u0000@example.com"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "arf_abuse_original_rcpt",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "arf feedback-type=abuse",
+      "kind": "complaint",
+      "original_message_id": "<orig-0015@contract.example.com>",
+      "recipient": "ann@example.com"
+    }
+  ],
+  "source_message_id": "<arf-0015@isp.example.net>"
+}

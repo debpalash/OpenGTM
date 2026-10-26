@@ -1,0 +1,13 @@
+{
+  "name": "malformed_multipart_without_boundary_param",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "heuristic plain-text bounce",
+      "kind": "hard",
+      "original_message_id": "",
+      "recipient": ""
+    }
+  ],
+  "source_message_id": ""
+}

@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "email": "P.a.t.Lee+news@gmail.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/suppressions"
+  },
+  "response": {
+    "body": {
+      "added": true,
+      "status": "ok"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,13 @@
+From: postmaster@mx.example.net
+To: sender@contract.example.com
+Subject: Undeliverable message
+Message-ID: <b64-0001@mx.example.net>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="BND-b64"
+
+--BND-b64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+NTUwIDUuMS4xIFVzZXIgdW5rbm93biBnaG9zdEBleGFtcGxlLm9yZw==
+--BND-b64--

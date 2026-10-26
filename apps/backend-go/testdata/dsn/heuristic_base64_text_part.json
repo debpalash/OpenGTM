@@ -1,0 +1,13 @@
+{
+  "name": "heuristic_base64_text_part",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "heuristic plain-text bounce",
+      "kind": "hard",
+      "original_message_id": "",
+      "recipient": "ghost@example.org"
+    }
+  ],
+  "source_message_id": "<b64-0001@mx.example.net>"
+}
