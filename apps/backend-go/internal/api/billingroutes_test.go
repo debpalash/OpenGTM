@@ -13,9 +13,9 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/stripe/stripe-go/v87/webhook"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/billing"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -78,8 +78,7 @@ func completedEvent(ws, session, credit, payStatus string) []byte {
 }
 
 func signedHdr(payload []byte) map[string]string {
-	return map[string]string{"Stripe-Signature": webhook.GenerateTestSignedPayload(&webhook.UnsignedPayload{
-		Payload: payload, Secret: whSecret, Timestamp: time.Now()}).Header}
+	return map[string]string{"Stripe-Signature": billing.SignedHeader(payload, whSecret, time.Now())}
 }
 
 func (e mcpEnv) hook(body []byte, hdr map[string]string) (int, map[string]any) {
@@ -140,7 +139,7 @@ func TestBalanceDisabledAndNoToken(t *testing.T) {
 }
 
 func TestBalanceTenantIsolation(t *testing.T) {
-	e := newBillingEnv(t, billingCfg(true, "", ""))
+	e := newBillingEnv(t, billingCfg(true, "sk_test_x", ""))
 	_, hdrA := e.admin(t, "t9-iso-a", "t9-iso-adm-a")
 	_, hdrB := e.admin(t, "t9-iso-b", "t9-iso-adm-b")
 	e.cleanCredits(t, "t9-iso-a", "t9-iso-b")
@@ -263,15 +262,17 @@ func TestStripeAPIBaseIgnoredOutsideTestEnv(t *testing.T) {
 
 // ---- webhook ----
 
-func TestWebhookDisabledAndUnconfigured(t *testing.T) {
+func TestWebhookDisabledIgnored(t *testing.T) {
 	e := newBillingEnv(t, billingCfg(false, "", ""))
 	fx := contract.Load(t, "billing/webhook_disabled")
 	_, got := e.do("POST", "/api/billing/webhook", "application/json", string(fx.Request.Body), map[string]string{"Stripe-Signature": "t=1,v1=00"})
 	contract.AssertEqual(t, got, fx.Response)
+}
 
+func TestWebhookUnconfigured503(t *testing.T) {
 	e2 := newBillingEnv(t, billingCfg(true, "", ""))
-	fx = contract.Load(t, "billing/webhook_unconfigured")
-	_, got = e2.do("POST", "/api/billing/webhook", "application/json", string(fx.Request.Body), map[string]string{"Stripe-Signature": "t=1,v1=00"})
+	fx := contract.Load(t, "billing/webhook_unconfigured")
+	_, got := e2.do("POST", "/api/billing/webhook", "application/json", string(fx.Request.Body), map[string]string{"Stripe-Signature": "t=1,v1=00"})
 	contract.AssertEqual(t, got, fx.Response)
 }
 
@@ -394,8 +395,7 @@ func TestWebhookTamperedAndStaleRejected(t *testing.T) {
 	if code, m := e.hook(tampered, h); code != 400 || m["detail"] != "Invalid webhook signature" {
 		t.Fatalf("tampered: %d %v", code, m)
 	}
-	stale := map[string]string{"Stripe-Signature": webhook.GenerateTestSignedPayload(&webhook.UnsignedPayload{
-		Payload: p, Secret: whSecret, Timestamp: time.Now().Add(-time.Hour)}).Header}
+	stale := map[string]string{"Stripe-Signature": billing.SignedHeader(p, whSecret, time.Now().Add(-time.Hour))}
 	if code, _ := e.hook(p, stale); code != 400 {
 		t.Fatalf("stale: %d", code)
 	}
