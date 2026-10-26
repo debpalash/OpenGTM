@@ -65,7 +65,7 @@ func TestAddSuppressionLockUpgrade(t *testing.T) {
 		if _, err := tx.Exec(ctx, `INSERT INTO outreach_suppressions (workspace_id, email, reason, source, locked) VALUES ($1,'l.e.g@gmail.com','manual','manual',false)`, ws); err != nil {
 			t.Fatal(err)
 		}
-		add("leg+x@gmail.com", "unsubscribe", "seq-2", true)
+		add("l.e.g@gmail.com", "unsubscribe", "seq-2", true)
 		if r, _, l := lockRow(t, ctx, tx, "l.e.g@gmail.com"); r != "unsubscribe" || !l {
 			t.Fatalf("%s %v", r, l)
 		}

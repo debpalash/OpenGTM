@@ -45,21 +45,33 @@ func IsSuppressed(ctx context.Context, tx pgx.Tx, wsID, email string) (bool, err
 
 // AddSuppression inserts the email idempotently under its store key (the collapsed form for gmail addresses, so every
 // dotted or plus variant is blocked, whichever spelling was suppressed) and reports whether a row was added. If any
-// match key is already suppressed (including rows stored dotted before collapsing) nothing is written, so a locked
-// suppression is never downgraded; an email that does not normalize is not added.
+// match key is already suppressed (including rows stored dotted before collapsing) no row is added. A locked suppression
+// is never downgraded, and an explicit opt-out (locked=true: unsubscribe, complaint) upgrades an existing unlocked row to
+// locked (reason and source taken from the opt-out), still reporting added=false; an email that does not normalize is not added.
 func AddSuppression(ctx context.Context, tx pgx.Tx, wsID, email, reason, source string, locked bool) (bool, error) {
 	key := emailnorm.StoreKey(email)
 	if key == "" {
 		return false, nil
 	}
-	if dup, err := IsSuppressed(ctx, tx, wsID, email); err != nil || dup {
+	dup, err := IsSuppressed(ctx, tx, wsID, email)
+	if err != nil {
 		return false, err
 	}
-	added, err := gen.New(tx).OutreachSuppressionAdd(ctx, gen.OutreachSuppressionAddParams{
-		WorkspaceID: wsID, Email: key, Reason: reason, Source: source, Locked: locked,
-	})
-	if err != nil {
-		return false, fmt.Errorf("outreachstore: add suppression: %w", err)
+	q := gen.New(tx)
+	added := false
+	if !dup {
+		if added, err = q.OutreachSuppressionAdd(ctx, gen.OutreachSuppressionAddParams{
+			WorkspaceID: wsID, Email: key, Reason: reason, Source: source, Locked: locked,
+		}); err != nil {
+			return false, fmt.Errorf("outreachstore: add suppression: %w", err)
+		}
+	}
+	if locked && !added { // an existing match, or a concurrent insert that won the ON CONFLICT
+		if _, err := q.OutreachSuppressionLock(ctx, gen.OutreachSuppressionLockParams{
+			WorkspaceID: wsID, Emails: emailnorm.MatchKeys(email), Reason: reason, Source: source,
+		}); err != nil {
+			return false, fmt.Errorf("outreachstore: lock suppression: %w", err)
+		}
 	}
 	return added, nil
 }

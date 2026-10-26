@@ -95,7 +95,7 @@ type OutreachSuppressionAddParams struct {
 	Locked      bool
 }
 
-// ON CONFLICT DO NOTHING: an existing row (locked or not) is never rewritten.
+// ON CONFLICT DO NOTHING: the insert never rewrites an existing row (OutreachSuppressionLock upgrades unlocked ones).
 func (q *Queries) OutreachSuppressionAdd(ctx context.Context, arg OutreachSuppressionAddParams) (bool, error) {
 	row := q.db.QueryRow(ctx, outreachSuppressionAdd,
 		arg.WorkspaceID,
@@ -217,4 +217,33 @@ func (q *Queries) OutreachSuppressionList(ctx context.Context, arg OutreachSuppr
 		return nil, err
 	}
 	return items, nil
+}
+
+const outreachSuppressionLock = `-- name: OutreachSuppressionLock :execrows
+UPDATE outreach_suppressions
+SET locked = true, reason = $1::text, source = $2::text
+WHERE workspace_id = $3::text
+  AND email = ANY($4::text[])
+  AND locked IS NOT TRUE
+`
+
+type OutreachSuppressionLockParams struct {
+	Reason      string
+	Source      string
+	WorkspaceID string
+	Emails      []string
+}
+
+// Explicit opt-out (unsubscribe/complaint): upgrade existing unlocked rows to locked; locked rows keep their reason.
+func (q *Queries) OutreachSuppressionLock(ctx context.Context, arg OutreachSuppressionLockParams) (int64, error) {
+	result, err := q.db.Exec(ctx, outreachSuppressionLock,
+		arg.Reason,
+		arg.Source,
+		arg.WorkspaceID,
+		arg.Emails,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }

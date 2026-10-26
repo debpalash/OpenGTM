@@ -7,7 +7,7 @@ SELECT EXISTS (SELECT 1 FROM outreach_suppressions
                  AND email = ANY(sqlc.arg(emails)::text[]))::boolean;
 
 -- name: OutreachSuppressionAdd :one
--- ON CONFLICT DO NOTHING: an existing row (locked or not) is never rewritten.
+-- ON CONFLICT DO NOTHING: the insert never rewrites an existing row (OutreachSuppressionLock upgrades unlocked ones).
 WITH ins AS (
   INSERT INTO outreach_suppressions (workspace_id, email, reason, source, locked)
   VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(email)::text, sqlc.arg(reason)::text,
@@ -16,6 +16,14 @@ WITH ins AS (
   RETURNING 1
 )
 SELECT EXISTS (SELECT 1 FROM ins)::boolean AS added;
+
+-- name: OutreachSuppressionLock :execrows
+-- Explicit opt-out (unsubscribe/complaint): upgrade existing unlocked rows to locked; locked rows keep their reason.
+UPDATE outreach_suppressions
+SET locked = true, reason = sqlc.arg(reason)::text, source = sqlc.arg(source)::text
+WHERE workspace_id = sqlc.arg(workspace_id)::text
+  AND email = ANY(sqlc.arg(emails)::text[])
+  AND locked IS NOT TRUE;
 
 -- name: OutreachSuppressionList :many
 SELECT id, email, reason, source, locked, created_at
