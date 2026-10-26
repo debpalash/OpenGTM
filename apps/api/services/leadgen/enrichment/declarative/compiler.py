@@ -80,7 +80,12 @@ class DeclarativeProvider(EnrichmentProvider):
         self.capabilities = manifest.all_capabilities()
         self.default_confidence = manifest.default_confidence
         self.cost_per_lookup = manifest.cost_per_lookup
-        self._env = env_resolver or _default_env_resolver
+        raw_env = env_resolver or _default_env_resolver
+        # A manifest may only read the one credential it declares (auth.env_var);
+        # otherwise a template like ${env:DATABASE_URL} would exfiltrate process
+        # env / settings secrets into the outbound request.
+        allowed = {self.manifest.auth.env_var} if self.manifest.auth.env_var else set()
+        self._env = lambda var: raw_env(var) if var in allowed else ""
 
     # ── availability (used by the capability registry) ──
     def is_available(self) -> bool:

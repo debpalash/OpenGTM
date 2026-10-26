@@ -27,3 +27,17 @@ def test_declarative_results_tagged_with_provider():
     assert res.provider == "prov_x"
 
 
+def test_template_cannot_read_undeclared_env(monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", "postgres://secret")
+    seen = {}
+
+    def resolver(var):
+        seen[var] = True
+        return {"PROV_KEY": "k", "DATABASE_URL": "postgres://secret"}.get(var, "")
+
+    p = compile_manifest(_manifest(), env_resolver=resolver)
+    assert p._env("DATABASE_URL") == ""
+    assert p._env("PROV_KEY") == "k"
+    assert "DATABASE_URL" not in seen
+
+
