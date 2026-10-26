@@ -77,8 +77,10 @@ func rowFromInitial(t *testing.T, m map[string]any) *sourcehealth.Row {
 				r.Probes = int(v.(float64))
 			}
 		case "ewma_yield":
-			f := v.(float64)
-			r.EwmaYield = &f
+			if v != nil {
+				f := v.(float64)
+				r.EwmaYield = &f
+			}
 		case "manual_override":
 			r.ManualOverride = v.(bool)
 		case "disabled_at":

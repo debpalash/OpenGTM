@@ -9,9 +9,10 @@ import (
 // worker reads for refresh_workbook and signal_scan, plus the Python worker RPC
 // endpoint. Names and defaults follow core/config.py.
 type ExecutorSettings struct {
-	Enabled    bool            // GO_EXECUTOR_ENABLED
-	Workspaces map[string]bool // GO_EXECUTOR_WORKSPACES (comma separated)
-	SignalScan bool            // GO_EXECUTOR_SIGNAL_SCAN
+	Enabled      bool            // GO_EXECUTOR_ENABLED
+	Workspaces   map[string]bool // GO_EXECUTOR_WORKSPACES (comma separated)
+	SignalScan   bool            // GO_EXECUTOR_SIGNAL_SCAN
+	SourceHealth bool            // GO_EXECUTOR_SOURCE_HEALTH
 
 	SignalHotLeads, SignalWarmLeads, SignalPerWorkspace, SignalGlobal int // SIGNAL_SCAN_MAX_HOT_LEADS, _MAX_WARM_LEADS, _MAX_LEADS_PER_WORKSPACE, _GLOBAL_MAX_LEADS
 
@@ -33,9 +34,10 @@ func pyBool(s string) bool {
 // handlers can resolve a job's executor from the environment per call.
 func ExecutorCohortFrom(get func(string) string) ExecutorSettings {
 	e := ExecutorSettings{
-		Enabled:    pyBool(get("GO_EXECUTOR_ENABLED")),
-		SignalScan: pyBool(get("GO_EXECUTOR_SIGNAL_SCAN")),
-		Workspaces: map[string]bool{},
+		Enabled:      pyBool(get("GO_EXECUTOR_ENABLED")),
+		SignalScan:   pyBool(get("GO_EXECUTOR_SIGNAL_SCAN")),
+		SourceHealth: pyBool(get("GO_EXECUTOR_SOURCE_HEALTH")),
+		Workspaces:   map[string]bool{},
 	}
 	for _, w := range strings.Split(get("GO_EXECUTOR_WORKSPACES"), ",") {
 		if w = strings.TrimSpace(w); w != "" {
@@ -105,4 +107,13 @@ func (e ExecutorSettings) OutreachExecutor(o OutreachSettings, jobType, workspac
 		return "go", nil
 	}
 	return "python", nil
+}
+
+// SourceHealthExecutor is go_executor.source_health_executor: the job is global
+// (no workspace), so "go" needs GO_EXECUTOR_ENABLED and GO_EXECUTOR_SOURCE_HEALTH.
+func (e ExecutorSettings) SourceHealthExecutor() string {
+	if e.Enabled && e.SourceHealth {
+		return "go"
+	}
+	return "python"
 }
