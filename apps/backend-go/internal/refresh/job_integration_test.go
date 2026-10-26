@@ -344,3 +344,56 @@ func TestRefreshLowestProcessingJobChains(t *testing.T) {
 		t.Errorf("want exactly one chained next job, got %d", next)
 	}
 }
+
+// Same-cycle enrichment (Python refresh.py): rows the cycle's own sourcing
+// added get every runnable cell in the same run job, even though the Python
+// source job finishes after the refresh handler enqueued it.
+func TestRefreshEnrichesNewlySourcedRowsSameCycle(t *testing.T) {
+	pool, ctx := setupPool(t)
+	seedStaleWorkbook(t, ctx, pool, wsA, "w1", refreshCols, `{}`)
+	d := deps(pool)
+	d.SourceWait = 20 * time.Second
+	d.SourcePoll = 20 * time.Millisecond
+	done := make(chan error, 1)
+	go func() { // stands in for the Python source_workbook executor
+		for i := 0; i < 500; i++ {
+			time.Sleep(20 * time.Millisecond)
+			var n int
+			_ = tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+				return tx.QueryRow(ctx, `SELECT count(*) FROM jobs WHERE type='source_workbook'`).Scan(&n)
+			})
+			if n == 0 {
+				continue
+			}
+			done <- tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+				if _, err := tx.Exec(ctx, `INSERT INTO workbook_rows (id, workbook_id, workspace_id, data) VALUES (3,'w1',$1,'{}'::json),(4,'w1',$1,'{}'::json)`, wsA); err != nil {
+					return err
+				}
+				_, err := tx.Exec(ctx, `UPDATE jobs SET status='completed' WHERE type='source_workbook'`)
+				return err
+			})
+			return
+		}
+		done <- context.DeadlineExceeded
+	}()
+	if err := refresh.Handle(ctx, d, claim(601, wsA, map[string]any{"workbook_id": "w1", "workspace_id": wsA})); err != nil {
+		t.Fatal(err)
+	}
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+	run := ofType(jobs(t, ctx, pool, wsA), "run_workbook")
+	if len(run) != 1 {
+		t.Fatalf("run jobs: %+v", run)
+	}
+	rc, _ := run[0].Payload["row_columns"].(map[string]any)
+	if len(rc) != 3 || !jsonEq(rc["3"], []any{"email", "note"}) || !jsonEq(rc["4"], []any{"email", "note"}) || !jsonEq(rc["2"], []any{"email", "note"}) {
+		t.Errorf("row_columns %v", rc)
+	}
+	if !jsonEq(run[0].Payload["row_ids"], []any{float64(2), float64(3), float64(4)}) {
+		t.Errorf("row_ids %v", run[0].Payload["row_ids"])
+	}
+	if len(ofType(jobs(t, ctx, pool, wsA), "source_workbook")) != 1 {
+		t.Error("source job duplicated")
+	}
+}
