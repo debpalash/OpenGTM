@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -106,15 +107,17 @@ type runState struct {
 	cell *cellIdentity
 	// client is the caller of an in-request cell run: its cancellation stops the run only
 	// until the first paid dispatch (the run itself is detached from it).
-	client       context.Context
-	changeMu     sync.Mutex
-	changes      []rowChange // pending on_row_changed deltas, flushed after the run commits
-	noRetryMu    sync.Mutex
-	noRetry      map[cellKey]bool // cells whose RPC timed out: no automatic retry
-	cols         []column         // every configured column (name aliases for {column} references)
-	legacy       bool             // no Deps.Runner: only the payload's manifests exist
-	allCols      []colgraph.Col
-	cycleBlocked map[string]bool
+	client context.Context
+	// paidDispatched latches at the first paid dispatch: the client no longer gates the run.
+	paidDispatched atomic.Bool
+	changeMu       sync.Mutex
+	changes        []rowChange // pending on_row_changed deltas, flushed after the run commits
+	noRetryMu      sync.Mutex
+	noRetry        map[cellKey]bool // cells whose RPC timed out: no automatic retry
+	cols           []column         // every configured column (name aliases for {column} references)
+	legacy         bool             // no Deps.Runner: only the payload's manifests exist
+	allCols        []colgraph.Col
+	cycleBlocked   map[string]bool
 }
 
 func (rs *runState) publish(ctx context.Context, msg map[string]any) {

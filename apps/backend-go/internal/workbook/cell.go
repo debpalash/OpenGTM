@@ -156,6 +156,24 @@ func (rs *runState) markUncertain(ctx context.Context, id spend.Identity) {
 	}
 }
 
+// afterReserveHook is a test seam: it runs between a successful reserve and the dispatch fence.
+var afterReserveHook func()
+
+// releaseBeforeDispatch returns the budget hold of an attempt that was reserved but will never
+// be dispatched (client gone, dispatch transaction failed). The transition only applies from
+// `reserved`, so an attempt that did reach `dispatched` is never released.
+func (rs *runState) releaseBeforeDispatch(ctx context.Context, id spend.Identity) {
+	mctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), markUncertainTimeout)
+	defer cancel()
+	err := tenancy.InWorkspace(mctx, rs.deps.Pool, id.WorkspaceID, func(tx pgx.Tx) error {
+		_, e := spend.Transition(mctx, tx, id, "release_before_dispatch")
+		return e
+	})
+	if err != nil {
+		rs.log.Error("could not release reserved spend attempt", "attempt_id", id.AttemptID, "err", err)
+	}
+}
+
 // reservedCall ports execute_reserved_attempt for a paid provider: durable
 // admission, fenced dispatch, the provider call, then settlement. Any failure
 // after dispatch leaves the attempt `uncertain`. No network I/O happens inside
@@ -197,8 +215,12 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 	if adm.Status == "settled" {
 		return rs.replaySettled(ctx, id)
 	}
+	if afterReserveHook != nil {
+		afterReserveHook()
+	}
 	// The last point an in-request run may still be cancelled by its client.
 	if err := rs.clientErr(); err != nil {
+		rs.releaseBeforeDispatch(ctx, id)
 		return providerCall{}, err
 	}
 	var dispatched bool
@@ -208,6 +230,8 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 		return e
 	})
 	if err != nil {
+		// The dispatch transaction rolled back: the attempt is still `reserved`, so give its hold back.
+		rs.releaseBeforeDispatch(ctx, id)
 		if a := abortErr(ctx, err); a != nil {
 			return providerCall{}, a
 		}
@@ -216,6 +240,7 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 	if !dispatched {
 		return providerCall{kind: callReject, text: "attempt_not_dispatchable"}, nil
 	}
+	rs.paidDispatched.Store(true)
 
 	// From here the attempt is dispatched: a panic must leave it `uncertain`
 	// (it may have reached the provider) and fail only this cell.

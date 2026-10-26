@@ -141,8 +141,13 @@ type cellIdentity struct {
 	live  bool   // keyed by a live run_workbook job
 }
 
-// clientErr reports a client that left before dispatch (nil for a queued run).
+// clientErr reports a client that left before dispatch (nil for a queued run). Once any paid
+// call has been dispatched the run is detached from the client: the cell is finished, so no
+// later provider is skipped (and left unpaid-but-half-done) because the caller disconnected.
 func (rs *runState) clientErr() error {
+	if rs.paidDispatched.Load() {
+		return nil
+	}
 	if rs.client != nil && rs.client.Err() != nil {
 		return fmt.Errorf("%w: %v", ErrClientGone, context.Cause(rs.client))
 	}

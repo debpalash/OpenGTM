@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/spend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
@@ -279,5 +280,57 @@ func TestCellRunSentinels(t *testing.T) {
 	}
 	if _, err := workbook.EnrichCell(e.ctx, d, workbook.CellRequest{WorkspaceID: wsOther, WorkbookID: "wb-s", RowID: int64(ids[0]), ColumnID: "c1"}); !errors.Is(err, workbook.ErrWorkbookNotFound) {
 		t.Fatalf("a foreign workspace must not see the workbook: %v", err)
+	}
+}
+
+// A client that leaves between reserve and dispatch releases the hold: no provider call, and the
+// reserved attempt no longer counts against the workbook budget.
+func TestCellRunClientGoneAfterReserveReleasesHold(t *testing.T) {
+	e := setup(t, wsA)
+	ids := e.seed(wsA, "wb-rel", paidCol, 1, 10)
+	fr := paidRunner(0)
+	d := e.deps(newSim(t, nil), nil)
+	d.Runner = fr
+	ctx, cancel := context.WithCancel(e.ctx)
+	defer workbook.SetAfterReserveHook(cancel)()
+	_, err := workbook.EnrichCell(ctx, d, workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-rel", RowID: int64(ids[0]), ColumnID: "c1"})
+	if !errors.Is(err, workbook.ErrClientGone) {
+		t.Fatalf("err %v, want ErrClientGone", err)
+	}
+	if n := fr.callCount(); n != 0 {
+		t.Fatalf("provider called %d times", n)
+	}
+	if st := e.str(wsA, `SELECT status FROM workbook_spend_attempts`); st != "released" {
+		t.Fatalf("attempt %q, want released", st)
+	}
+}
+
+// Once a paid dispatch happened the cell is finished even if the client disconnects: the next
+// provider in the waterfall still runs.
+func TestCellRunFinishesWaterfallAfterClientLeaves(t *testing.T) {
+	e := setup(t, wsA)
+	cols := `[{"id":"c1","type":"waterfall","name":"C1","target_field":"founded_year","waterfall":["hunter_io","apollo_io"]}]`
+	ids := e.seed(wsA, "wb-wf", cols, 1, 10)
+	ctx, cancel := context.WithCancel(e.ctx)
+	var mu sync.Mutex
+	var order []string
+	fr := &fakeRunner{fn: func(_ context.Context, name string, _ providers.Input) (providers.Output, error) {
+		mu.Lock()
+		order = append(order, name)
+		mu.Unlock()
+		if name == "hunter_io" {
+			cancel()                                               // the client leaves while the first paid call is in flight
+			return providers.Output{}, pyworker.ErrUnknownProvider // dispatched, settles at 0, next provider runs
+		}
+		return providers.Output{Confidence: 0.7, Extra: obj("founded_year", "1999")}, nil
+	}}
+	d := e.deps(newSim(t, nil), nil)
+	d.Runner = fr
+	res, err := workbook.EnrichCell(ctx, d, workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-wf", RowID: int64(ids[0]), ColumnID: "c1"})
+	if err != nil || !res.Success || res.Value != "1999" {
+		t.Fatalf("%+v %v (calls %v)", res, err, order)
+	}
+	if len(order) != 2 {
+		t.Fatalf("calls %v, want both providers", order)
 	}
 }
