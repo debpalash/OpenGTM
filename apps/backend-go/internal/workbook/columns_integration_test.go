@@ -265,7 +265,9 @@ func TestStructuredFieldsWriteBack(t *testing.T) {
 	if get("decision_makers") != `[{"name":"Ada"}]` || get("secondary_emails") != "a@x.com" || get("city") != "Pune" {
 		t.Fatalf("write-back missing: %q %q %q", get("decision_makers"), get("secondary_emails"), get("city"))
 	}
-	t.Cleanup(func() { e.inWS(wsA, func(tx pgx.Tx) error { _, err := tx.Exec(e.ctx, `DELETE FROM leads`); return err }) })
+	t.Cleanup(func() {
+		e.inWS(wsA, func(tx pgx.Tx) error { _, err := tx.Exec(e.ctx, `DELETE FROM leads`); return err })
+	})
 	if get("contact_title") != "" {
 		t.Fatalf("the target field must stay a cell value, lead has %q", get("contact_title"))
 	}
