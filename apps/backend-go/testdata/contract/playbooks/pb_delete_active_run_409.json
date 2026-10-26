@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/research-playbooks/pb-gov-sched"
+  },
+  "response": {
+    "body": {
+      "detail": "Cannot delete a playbook with an active run"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

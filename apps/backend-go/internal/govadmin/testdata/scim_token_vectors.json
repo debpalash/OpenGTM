@@ -1,0 +1,1983 @@
+{
+ "note": "token_status/get_scim_token with a frozen clock; created_at/expires_at are epoch seconds",
+ "now": 1788000000.0,
+ "rows": {
+  "none": null,
+  "no_expiry": {
+   "token_prefix": "og_scim_0123abcd",
+   "created_at": 1787913600.0,
+   "expires_at": null,
+   "last_used_at": null,
+   "created_by": 1
+  },
+  "no_expiry_old": {
+   "token_prefix": "og_scim_0123abcd",
+   "created_at": 1753440000.0,
+   "expires_at": null,
+   "last_used_at": 5.5,
+   "created_by": 1
+  },
+  "explicit_future": {
+   "token_prefix": "og_scim_0123abcd",
+   "created_at": 1787000000.0,
+   "expires_at": 4102444800.0,
+   "last_used_at": null,
+   "created_by": 2
+  },
+  "explicit_past": {
+   "token_prefix": "og_scim_0123abcd",
+   "created_at": 1700000000.0,
+   "expires_at": 1787999999.0,
+   "last_used_at": null,
+   "created_by": null
+  },
+  "explicit_equal_now": {
+   "token_prefix": "og_scim_0123abcd",
+   "created_at": 1700000000.0,
+   "expires_at": 1788000000.0,
+   "last_used_at": null,
+   "created_by": 1
+  },
+  "explicit_zero": {
+   "token_prefix": "og_scim_0123abcd",
+   "created_at": 1787999995.0,
+   "expires_at": 0.0,
+   "last_used_at": null,
+   "created_by": 1
+  }
+ },
+ "scenarios": [
+  {
+   "ttl_env": "0",
+   "ttl_seconds": 86400,
+   "row": "none",
+   "status": null,
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha"
+   }
+  },
+  {
+   "ttl_env": "0",
+   "ttl_seconds": 86400,
+   "row": "no_expiry",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "0",
+   "ttl_seconds": 86400,
+   "row": "no_expiry_old",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1753526400.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1753526400.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "0",
+   "ttl_seconds": 86400,
+   "row": "explicit_future",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "0",
+   "ttl_seconds": 86400,
+   "row": "explicit_past",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "0",
+   "ttl_seconds": 86400,
+   "row": "explicit_equal_now",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "0",
+   "ttl_seconds": 86400,
+   "row": "explicit_zero",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1788086395.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1788086395.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "1",
+   "ttl_seconds": 86400,
+   "row": "none",
+   "status": null,
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha"
+   }
+  },
+  {
+   "ttl_env": "1",
+   "ttl_seconds": 86400,
+   "row": "no_expiry",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "1",
+   "ttl_seconds": 86400,
+   "row": "no_expiry_old",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1753526400.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1753526400.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "1",
+   "ttl_seconds": 86400,
+   "row": "explicit_future",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "1",
+   "ttl_seconds": 86400,
+   "row": "explicit_past",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "1",
+   "ttl_seconds": 86400,
+   "row": "explicit_equal_now",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "1",
+   "ttl_seconds": 86400,
+   "row": "explicit_zero",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1788086395.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1788086395.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "400",
+   "ttl_seconds": 31536000,
+   "row": "none",
+   "status": null,
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha"
+   }
+  },
+  {
+   "ttl_env": "400",
+   "ttl_seconds": 31536000,
+   "row": "no_expiry",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1819449600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1819449600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "400",
+   "ttl_seconds": 31536000,
+   "row": "no_expiry_old",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1784976000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1784976000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "400",
+   "ttl_seconds": 31536000,
+   "row": "explicit_future",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "400",
+   "ttl_seconds": 31536000,
+   "row": "explicit_past",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "400",
+   "ttl_seconds": 31536000,
+   "row": "explicit_equal_now",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "400",
+   "ttl_seconds": 31536000,
+   "row": "explicit_zero",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1819535995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1819535995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "abc",
+   "ttl_seconds": 7776000,
+   "row": "none",
+   "status": null,
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha"
+   }
+  },
+  {
+   "ttl_env": "abc",
+   "ttl_seconds": 7776000,
+   "row": "no_expiry",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1795689600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1795689600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "abc",
+   "ttl_seconds": 7776000,
+   "row": "no_expiry_old",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1761216000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1761216000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "abc",
+   "ttl_seconds": 7776000,
+   "row": "explicit_future",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "abc",
+   "ttl_seconds": 7776000,
+   "row": "explicit_past",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "abc",
+   "ttl_seconds": 7776000,
+   "row": "explicit_equal_now",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "abc",
+   "ttl_seconds": 7776000,
+   "row": "explicit_zero",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1795775995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1795775995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "",
+   "ttl_seconds": 7776000,
+   "row": "none",
+   "status": null,
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha"
+   }
+  },
+  {
+   "ttl_env": "",
+   "ttl_seconds": 7776000,
+   "row": "no_expiry",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1795689600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1795689600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "",
+   "ttl_seconds": 7776000,
+   "row": "no_expiry_old",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1761216000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1761216000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "",
+   "ttl_seconds": 7776000,
+   "row": "explicit_future",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "",
+   "ttl_seconds": 7776000,
+   "row": "explicit_past",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "",
+   "ttl_seconds": 7776000,
+   "row": "explicit_equal_now",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "",
+   "ttl_seconds": 7776000,
+   "row": "explicit_zero",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1795775995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1795775995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "-5",
+   "ttl_seconds": 86400,
+   "row": "none",
+   "status": null,
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha"
+   }
+  },
+  {
+   "ttl_env": "-5",
+   "ttl_seconds": 86400,
+   "row": "no_expiry",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "-5",
+   "ttl_seconds": 86400,
+   "row": "no_expiry_old",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1753526400.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1753526400.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "-5",
+   "ttl_seconds": 86400,
+   "row": "explicit_future",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "-5",
+   "ttl_seconds": 86400,
+   "row": "explicit_past",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "-5",
+   "ttl_seconds": 86400,
+   "row": "explicit_equal_now",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "-5",
+   "ttl_seconds": 86400,
+   "row": "explicit_zero",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1788086395.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1788086395.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "365",
+   "ttl_seconds": 31536000,
+   "row": "none",
+   "status": null,
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha"
+   }
+  },
+  {
+   "ttl_env": "365",
+   "ttl_seconds": 31536000,
+   "row": "no_expiry",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1819449600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1819449600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "365",
+   "ttl_seconds": 31536000,
+   "row": "no_expiry_old",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1784976000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1784976000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "365",
+   "ttl_seconds": 31536000,
+   "row": "explicit_future",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "365",
+   "ttl_seconds": 31536000,
+   "row": "explicit_past",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "365",
+   "ttl_seconds": 31536000,
+   "row": "explicit_equal_now",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "365",
+   "ttl_seconds": 31536000,
+   "row": "explicit_zero",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1819535995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1819535995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "366",
+   "ttl_seconds": 31536000,
+   "row": "none",
+   "status": null,
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha"
+   }
+  },
+  {
+   "ttl_env": "366",
+   "ttl_seconds": 31536000,
+   "row": "no_expiry",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1819449600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1819449600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "366",
+   "ttl_seconds": 31536000,
+   "row": "no_expiry_old",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1784976000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1784976000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "366",
+   "ttl_seconds": 31536000,
+   "row": "explicit_future",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "366",
+   "ttl_seconds": 31536000,
+   "row": "explicit_past",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "366",
+   "ttl_seconds": 31536000,
+   "row": "explicit_equal_now",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "366",
+   "ttl_seconds": 31536000,
+   "row": "explicit_zero",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1819535995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1819535995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "90",
+   "ttl_seconds": 7776000,
+   "row": "none",
+   "status": null,
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha"
+   }
+  },
+  {
+   "ttl_env": "90",
+   "ttl_seconds": 7776000,
+   "row": "no_expiry",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1795689600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1795689600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "90",
+   "ttl_seconds": 7776000,
+   "row": "no_expiry_old",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1761216000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1761216000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "90",
+   "ttl_seconds": 7776000,
+   "row": "explicit_future",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "90",
+   "ttl_seconds": 7776000,
+   "row": "explicit_past",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "90",
+   "ttl_seconds": 7776000,
+   "row": "explicit_equal_now",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "90",
+   "ttl_seconds": 7776000,
+   "row": "explicit_zero",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1795775995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1795775995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "1.5",
+   "ttl_seconds": 7776000,
+   "row": "none",
+   "status": null,
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha"
+   }
+  },
+  {
+   "ttl_env": "1.5",
+   "ttl_seconds": 7776000,
+   "row": "no_expiry",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1795689600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1795689600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "1.5",
+   "ttl_seconds": 7776000,
+   "row": "no_expiry_old",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1761216000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1761216000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "1.5",
+   "ttl_seconds": 7776000,
+   "row": "explicit_future",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "1.5",
+   "ttl_seconds": 7776000,
+   "row": "explicit_past",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "1.5",
+   "ttl_seconds": 7776000,
+   "row": "explicit_equal_now",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "1.5",
+   "ttl_seconds": 7776000,
+   "row": "explicit_zero",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1795775995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1795775995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": " 7 ",
+   "ttl_seconds": 604800,
+   "row": "none",
+   "status": null,
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha"
+   }
+  },
+  {
+   "ttl_env": " 7 ",
+   "ttl_seconds": 604800,
+   "row": "no_expiry",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1788518400.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1788518400.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": " 7 ",
+   "ttl_seconds": 604800,
+   "row": "no_expiry_old",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1754044800.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1754044800.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": " 7 ",
+   "ttl_seconds": 604800,
+   "row": "explicit_future",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": " 7 ",
+   "ttl_seconds": 604800,
+   "row": "explicit_past",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": " 7 ",
+   "ttl_seconds": 604800,
+   "row": "explicit_equal_now",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": " 7 ",
+   "ttl_seconds": 604800,
+   "row": "explicit_zero",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1788604795.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1788604795.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "+3",
+   "ttl_seconds": 259200,
+   "row": "none",
+   "status": null,
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha"
+   }
+  },
+  {
+   "ttl_env": "+3",
+   "ttl_seconds": 259200,
+   "row": "no_expiry",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1788172800.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1788172800.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "+3",
+   "ttl_seconds": 259200,
+   "row": "no_expiry_old",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1753699200.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1753699200.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "+3",
+   "ttl_seconds": 259200,
+   "row": "explicit_future",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": "+3",
+   "ttl_seconds": 259200,
+   "row": "explicit_past",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "+3",
+   "ttl_seconds": 259200,
+   "row": "explicit_equal_now",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": "+3",
+   "ttl_seconds": 259200,
+   "row": "explicit_zero",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1788259195.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1788259195.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": null,
+   "ttl_seconds": 7776000,
+   "row": "none",
+   "status": null,
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha"
+   }
+  },
+  {
+   "ttl_env": null,
+   "ttl_seconds": 7776000,
+   "row": "no_expiry",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1795689600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787913600.0,
+    "expires_at": 1795689600.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": null,
+   "ttl_seconds": 7776000,
+   "row": "no_expiry_old",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1761216000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1753440000.0,
+    "expires_at": 1761216000.0,
+    "last_used_at": 5.5,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": null,
+   "ttl_seconds": 7776000,
+   "row": "explicit_future",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787000000.0,
+    "expires_at": 4102444800.0,
+    "last_used_at": null,
+    "created_by": 2,
+    "expired": false
+   }
+  },
+  {
+   "ttl_env": null,
+   "ttl_seconds": 7776000,
+   "row": "explicit_past",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1787999999.0,
+    "last_used_at": null,
+    "created_by": null,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": null,
+   "ttl_seconds": 7776000,
+   "row": "explicit_equal_now",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   },
+   "get_scim_token": {
+    "configured": false,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1700000000.0,
+    "expires_at": 1788000000.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": true
+   }
+  },
+  {
+   "ttl_env": null,
+   "ttl_seconds": 7776000,
+   "row": "explicit_zero",
+   "status": {
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1795775995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   },
+   "get_scim_token": {
+    "configured": true,
+    "base_path": "/scim/v2/alpha",
+    "token_prefix": "og_scim_0123abcd",
+    "created_at": 1787999995.0,
+    "expires_at": 1795775995.0,
+    "last_used_at": null,
+    "created_by": 1,
+    "expired": false
+   }
+  }
+ ],
+ "status_key_order": [
+  "token_prefix",
+  "created_at",
+  "expires_at",
+  "last_used_at",
+  "created_by",
+  "expired"
+ ]
+}

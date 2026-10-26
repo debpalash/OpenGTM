@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "client_id": "cid",
+      "client_secret": "placeholder-oidc-client-secret",
+      "enabled": true
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/sso"
+  },
+  "response": {
+    "body": {
+      "detail": "Enabled OIDC requires issuer, client_id, and client_secret"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

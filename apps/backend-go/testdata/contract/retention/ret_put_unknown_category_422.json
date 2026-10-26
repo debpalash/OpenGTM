@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "enabled": true,
+      "retention_days": {
+        "bogus": 100
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/retention"
+  },
+  "response": {
+    "body": {
+      "detail": "unsupported retention categories: bogus"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

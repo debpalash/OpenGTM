@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "role": "owner",
+      "username": "carol"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/governance/members"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "expected": "'viewer', 'member', 'editor' or 'admin'"
+          },
+          "input": "owner",
+          "loc": [
+            "body",
+            "role"
+          ],
+          "msg": "Input should be 'viewer', 'member', 'editor' or 'admin'",
+          "type": "literal_error"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

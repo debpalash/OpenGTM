@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "enabled": true,
+      "retention_days": {
+        "audit": 3651
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/retention"
+  },
+  "response": {
+    "body": {
+      "detail": "audit retention must be 90..3650 days"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "issuer": "http://login.example.test"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/sso"
+  },
+  "response": {
+    "body": {
+      "detail": "OIDC issuer must be a clean HTTPS origin or path"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

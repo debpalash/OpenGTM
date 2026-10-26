@@ -1,0 +1,70 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/audit-events?before=2030-01-02&limit=3"
+  },
+  "response": {
+    "body": {
+      "events": [
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2030-01-01T23:00:00",
+          "id": "11111111-0000-4000-8000-000000000024",
+          "metadata": {
+            "reason": "duplicate"
+          },
+          "method": "POST",
+          "outcome": "error",
+          "request_id": "req-gov-a-024",
+          "resource_path": "/api/research-playbooks",
+          "response_status": 409,
+          "route": "/api/research-playbooks"
+        },
+        {
+          "actor_role": "editor",
+          "actor_user_id": 4,
+          "created_at": "2030-01-01T22:00:00",
+          "id": "11111111-0000-4000-8000-000000000023",
+          "metadata": {},
+          "method": "PUT",
+          "outcome": "error",
+          "request_id": "req-gov-a-023",
+          "resource_path": "/api/governance/rbac/2/tables.write",
+          "response_status": 404,
+          "route": "/api/governance/rbac/{user_id}/{permission}"
+        },
+        {
+          "actor_role": "owner",
+          "actor_user_id": 1,
+          "created_at": "2030-01-01T21:00:00",
+          "id": "11111111-0000-4000-8000-000000000022",
+          "metadata": {
+            "action": "research_playbook.run.retry",
+            "playbook_id": "pb-gov-multi",
+            "previous_failed": 2,
+            "run_id": "run-gov-r3"
+          },
+          "method": "POST",
+          "outcome": "success",
+          "request_id": "req-gov-a-022",
+          "resource_path": "/api/research-playbooks/runs/run-gov-r3/retry",
+          "response_status": 202,
+          "route": "/api/research-playbooks/runs/{run_id}/retry"
+        }
+      ],
+      "has_more": true,
+      "limit": 3,
+      "next_before": "2030-01-01T21:00:00",
+      "next_cursor": "WyIyMDMwLTAxLTAxVDIxOjAwOjAwIiwiMTExMTExMTEtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDIyIl0"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

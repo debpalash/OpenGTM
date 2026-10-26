@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "username": "bob"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/governance/members"
+  },
+  "response": {
+    "body": {
+      "detail": "User is already a workspace member"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "name": "x",
+      "prompt_template": "Describe {company} please."
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: agents.write"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

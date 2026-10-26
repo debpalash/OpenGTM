@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "name": "Xml",
+      "output_format": "xml",
+      "prompt_template": "Describe {company} please."
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks"
+  },
+  "response": {
+    "body": {
+      "detail": "output_format must be text or json"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

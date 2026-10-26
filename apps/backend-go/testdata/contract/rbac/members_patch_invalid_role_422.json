@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "role": "owner"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/governance/members/3"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "expected": "'viewer', 'member', 'editor' or 'admin'"
+          },
+          "input": "owner",
+          "loc": [
+            "body",
+            "role"
+          ],
+          "msg": "Input should be 'viewer', 'member', 'editor' or 'admin'",
+          "type": "literal_error"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks/runs/run-gov-r5/cancel"
+  },
+  "response": {
+    "body": {
+      "attempted": 0,
+      "audience_id": "aud-gov-1",
+      "created_at": "2026-08-27T09:00:00",
+      "error": "Cancelled by user",
+      "failed": 0,
+      "finished_at": "2026-10-26T17:18:44.409988",
+      "id": "run-gov-r5",
+      "max_members": 100,
+      "playbook_id": "pb-gov-sched",
+      "prompt_version": 1,
+      "started_at": null,
+      "status": "cancelled",
+      "succeeded": 0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

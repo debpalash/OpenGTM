@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-gov-1",
+      "max_members": 1001
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks/pb-gov-multi/runs"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "le": 1000
+          },
+          "input": 1001,
+          "loc": [
+            "body",
+            "max_members"
+          ],
+          "msg": "Input should be less than or equal to 1000",
+          "type": "less_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

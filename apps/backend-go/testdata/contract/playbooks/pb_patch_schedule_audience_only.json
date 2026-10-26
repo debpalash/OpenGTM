@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": {
+      "schedule_audience_id": "aud-gov-1",
+      "schedule_interval_minutes": 5000
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/research-playbooks/pb-gov-off"
+  },
+  "response": {
+    "body": {
+      "cell_budget_usd": 0.05,
+      "created_at": "2026-08-22T08:00:00",
+      "description": "",
+      "enabled": false,
+      "id": "pb-gov-off",
+      "max_steps": 1,
+      "name": "Disabled research",
+      "next_run_at": null,
+      "output_format": "json",
+      "prompt_template": "Describe {company} in two sentences.",
+      "schedule_audience_id": "aud-gov-1",
+      "schedule_interval_minutes": 5000,
+      "steps": [],
+      "updated_at": "2026-10-26T17:18:43.709621",
+      "version": 2
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

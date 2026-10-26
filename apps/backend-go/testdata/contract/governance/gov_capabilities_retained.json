@@ -1,0 +1,59 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/capabilities"
+  },
+  "response": {
+    "body": {
+      "capabilities": [
+        {
+          "certification": null,
+          "features": [
+            "issuer_validation",
+            "identity_binding",
+            "jit_provisioning",
+            "access_enforcement"
+          ],
+          "id": "oidc_sso",
+          "maturity": "beta",
+          "required_checks": [
+            "access_enforcement",
+            "external_authentication",
+            "failure_recovery",
+            "identity_binding",
+            "jit_provisioning",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "certification": null,
+          "features": [
+            "user_lifecycle",
+            "group_sync",
+            "token_revocation",
+            "paged_directory"
+          ],
+          "id": "scim_directory",
+          "maturity": "beta",
+          "required_checks": [
+            "external_provisioning",
+            "group_sync",
+            "paged_directory",
+            "tenant_isolation",
+            "token_revocation",
+            "user_lifecycle"
+          ]
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

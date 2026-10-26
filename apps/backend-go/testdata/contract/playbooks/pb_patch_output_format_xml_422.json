@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "output_format": "xml"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/research-playbooks/pb-gov-multi"
+  },
+  "response": {
+    "body": {
+      "detail": "output_format must be text or json"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -798,3 +798,25 @@ Coverage: all 18 routes (11 `/api/automations`, 7 `/api/watches`) are ported and
 - **Dry run:** `POST /triggers/{id}/run` with body `{"dry_run": true}` executes webhook and CRM actions exactly like Python (nothing persisted, reserved or charged); pending a product decision whether a dry run should be side-effect free (a small change in the run path).
 - **safecond total operand budget** (commit `fix(go): safecond total operand budget`): all operands resolved in one evaluation are capped at 8 MiB (`operands too large`), the case-insensitive key lookup is built once per evaluation, and a panic in `Validate` fails closed. Normal inputs are unchanged (the 200 Python vectors pass).
 - **Operations:** the Go worker process `TZ` must equal Python's (naive timestamps in `older_than`; fire keys use the database session TimeZone instead). `push_crm` on the Go worker needs `CREDENTIALS_SOURCE=local`, otherwise it fails closed. The Python scheduler stays the only scheduler (D3). Watch routes stay on Python (nginx at 0%) while `PG_LEAD_STORE` is off. See `docs/go-port/runbooks/automations-cutover.md`.
+
+## Plan 11 (governance, retention, RBAC, SSO, research playbooks): recording profile
+
+26 routes (17 `/api/governance/*` except `/capabilities`, 9 `/api/research-playbooks/*` except `/capabilities`; both retained, D1).
+Cases `legacy/python/scripts/contract_cases/governance.yaml` land in `governance/` (audit list + export.csv), `retention/`, `rbac/` (rbac + members),
+`sso/` (sso + scim-token) and `playbooks/` (`area` per case). Recorded by `legacy/python/scripts/governance_record.sh` (needs a private database
+`opengtm_contract_<x>` migrated to head, a non-superuser role `APP_URL` and the superuser `ADMIN_URL`): re-seeds with
+`CONTRACT_SEED_GOVERNANCE=yes` (do not combine with `CONTRACT_SEED_AUDIENCES`), starts `scripts/governance_contract_server.py` on 8425
+(`TZ=UTC`, `RUN_INLINE_WORKER=0`, `SSO_ALLOWED_ISSUER_HOSTS=login.example.test`; counter uuids and a counter SCIM token source), records, stops it.
+No worker runs, so no retention purge or playbook run executes and the LLM simulator (`scripts/llm_sim.py`) is not needed.
+
+- Seed: 60 audit events in ws-alpha (8 share `created_at` 2030-01-02 06:30:00.123456; one row is from 2020), 4 in ws-beta; one retention policy (alpha, minimum days),
+  3 `retention_runs` (two share a `created_at`); per retention category one old (2020-01-01) and one new (2100-01-01) row in alpha and one old row in beta; audience `aud-gov-1` with
+  5 members; playbooks `pb-gov-multi` (3 steps), `pb-gov-sched` (hourly), `pb-gov-off` (disabled) and beta `pb-gov-b`; 8 runs in alpha (completed, completed_with_errors,
+  failed, cancelled, 2 pending, 2 running) and 12 results; member overrides for bob and erin. Users: alice owner/admin, erin editor, bob plain `member` of ws-alpha
+  (viewer-equivalent) and owner of ws-beta. `bob` + `X-Workspace-Id: ws-alpha` is the viewer for every 403 case.
+- Case ORDER is part of the contract (retries/cancels consume seeded runs; the last cases read back the audit events the writes produced).
+- Volatile (`volatile:` in the case file): DB `now()` stamps of rows a case creates/touches, `next_run_at` of rescheduled policies/playbooks, SCIM `created_at`/`expires_at`,
+  `rbac` `created_at` of members added during the recording (and alice's membership row in ws-beta, created by the earlier `/auth/token` login). Everything else re-records byte-identically.
+- `/__contract/jobs` and `/__contract/schedules` are launcher-only routes (not API): queue rows (dates in fire keys masked as `<ts>`) and the retention/playbook schedule mirrors.
+- Recorded quirks: `PATCH` a playbook with `name: null` answers 500 (D3, `pb_patch_name_null_500`); the retention-job `workspace_id` column is NULL when enqueued through `queue_service.add_job`.
+- Vectors from `legacy/python/scripts/gen_governance_vectors.py` (`internal/{govaudit,retention,govadmin,govidp,playbooks}/testdata/{governance,normalize_schedule,scim_token,oidc_save}_vectors.json`).

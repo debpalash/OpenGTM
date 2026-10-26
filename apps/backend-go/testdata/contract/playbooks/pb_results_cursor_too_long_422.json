@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/research-playbooks/runs/run-gov-r1/results?cursor=111111111111111111111111111111111"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "max_length": 32
+          },
+          "input": "111111111111111111111111111111111",
+          "loc": [
+            "query",
+            "cursor"
+          ],
+          "msg": "String should have at most 32 characters",
+          "type": "string_too_long"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

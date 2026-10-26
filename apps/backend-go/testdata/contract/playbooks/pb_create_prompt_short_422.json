@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "name": "Short",
+      "prompt_template": "short"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "min_length": 10
+          },
+          "input": "short",
+          "loc": [
+            "body",
+            "prompt_template"
+          ],
+          "msg": "String should have at least 10 characters",
+          "type": "string_too_short"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

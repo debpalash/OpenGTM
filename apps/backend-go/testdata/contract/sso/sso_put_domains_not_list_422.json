@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "allowed_domains": "a.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/sso"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "a.com",
+          "loc": [
+            "body",
+            "allowed_domains"
+          ],
+          "msg": "Input should be a valid list",
+          "type": "list_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

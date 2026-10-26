@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": {
+      "name": "Created minimal",
+      "prompt_template": "Describe {company} in one line."
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks"
+  },
+  "response": {
+    "body": {
+      "cell_budget_usd": 0.1,
+      "created_at": "2026-10-26T17:18:43.055083",
+      "description": "",
+      "enabled": true,
+      "id": "00000000-0000-4000-8000-000000003085",
+      "max_steps": 4,
+      "name": "Created minimal",
+      "next_run_at": null,
+      "output_format": "text",
+      "prompt_template": "Describe {company} in one line.",
+      "schedule_audience_id": null,
+      "schedule_interval_minutes": null,
+      "steps": [],
+      "updated_at": "2026-10-26T17:18:43.055083",
+      "version": 1
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

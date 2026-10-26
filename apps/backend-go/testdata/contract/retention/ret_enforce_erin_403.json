@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "confirmation": "PURGE EXPIRED DATA"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/governance/retention/enforce"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: governance.manage"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

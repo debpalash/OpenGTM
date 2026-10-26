@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "effect": "maybe"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/rbac/2/tables.write"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "expected": "'allow' or 'deny'"
+          },
+          "input": "maybe",
+          "loc": [
+            "body",
+            "effect"
+          ],
+          "msg": "Input should be 'allow' or 'deny'",
+          "type": "literal_error"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

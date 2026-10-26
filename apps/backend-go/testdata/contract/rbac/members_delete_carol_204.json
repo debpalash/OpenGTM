@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/governance/members/3"
+  },
+  "response": {
+    "body": null,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 204
+  }
+}

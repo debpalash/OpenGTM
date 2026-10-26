@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/sso"
+  },
+  "response": {
+    "body": {
+      "allowed_domains": [
+        "a.com",
+        "b.com"
+      ],
+      "auto_provision": true,
+      "client_id": "cid",
+      "client_secret_configured": true,
+      "default_role": "editor",
+      "enabled": true,
+      "enforce_sso": false,
+      "issuer": "https://login.example.test/realm",
+      "owner_password_fallback": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

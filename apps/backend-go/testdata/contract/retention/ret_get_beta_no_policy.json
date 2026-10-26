@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/retention"
+  },
+  "response": {
+    "body": {
+      "enabled": false,
+      "legal_hold": false,
+      "next_run_at": null,
+      "retention_days": {
+        "activation": 180,
+        "agent_results": 180,
+        "audience_history": 365,
+        "audit": 365,
+        "llm_usage": 365,
+        "outreach_history": 365,
+        "signals": 365
+      },
+      "updated_by": null,
+      "workspace_id": "ws-beta"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

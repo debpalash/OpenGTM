@@ -1,0 +1,44 @@
+{
+  "request": {
+    "body": {
+      "name": "BadKey",
+      "prompt_template": "Describe {company} please.",
+      "steps": [
+        {
+          "key": "Bad-Key",
+          "name": "A",
+          "prompt_template": "Step text here."
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "pattern": "^[a-z][a-z0-9_]{0,39}$"
+          },
+          "input": "Bad-Key",
+          "loc": [
+            "body",
+            "steps",
+            0,
+            "key"
+          ],
+          "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+          "type": "string_pattern_mismatch"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

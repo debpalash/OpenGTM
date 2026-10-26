@@ -1,0 +1,37 @@
+{
+  "request": {
+    "body": {
+      "confirmation": "PURGE EXPIRED DATA"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/governance/retention/enforce"
+  },
+  "response": {
+    "body": {
+      "created_at": "2026-10-26T17:18:41.011335",
+      "deleted_counts": {},
+      "error": null,
+      "finished_at": null,
+      "id": "00000000-0000-4000-8000-000000003024",
+      "policy_snapshot": {
+        "activation": 180,
+        "agent_results": 180,
+        "audience_history": 365,
+        "audit": 365,
+        "llm_usage": 365,
+        "outreach_history": 365,
+        "signals": 365
+      },
+      "requested_by": "1",
+      "started_at": null,
+      "status": "pending"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 202
+  }
+}

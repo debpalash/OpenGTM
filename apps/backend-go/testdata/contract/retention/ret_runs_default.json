@@ -1,0 +1,84 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/retention/runs"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 20,
+      "next_cursor": null,
+      "offset": 0,
+      "runs": [
+        {
+          "created_at": "2026-08-27T08:00:00",
+          "deleted_counts": {},
+          "error": "Legal hold enabled during retention enforcement",
+          "finished_at": "2026-08-27T08:01:00",
+          "id": "run-ret-3",
+          "policy_snapshot": {
+            "activation": 30,
+            "agent_results": 30,
+            "audience_history": 30,
+            "audit": 90,
+            "llm_usage": 30,
+            "outreach_history": 30,
+            "signals": 30
+          },
+          "requested_by": "4",
+          "started_at": null,
+          "status": "cancelled"
+        },
+        {
+          "created_at": "2026-08-20T10:00:00",
+          "deleted_counts": {},
+          "error": "Final failure: worker killed",
+          "finished_at": "2026-08-20T10:00:30",
+          "id": "run-ret-2",
+          "policy_snapshot": {
+            "activation": 30,
+            "agent_results": 30,
+            "audience_history": 30,
+            "audit": 90,
+            "llm_usage": 30,
+            "outreach_history": 30,
+            "signals": 30
+          },
+          "requested_by": "scheduler",
+          "started_at": "2026-08-20T10:00:00",
+          "status": "failed"
+        },
+        {
+          "created_at": "2026-08-20T10:00:00",
+          "deleted_counts": {
+            "audit": 3,
+            "signals": 1
+          },
+          "error": null,
+          "finished_at": "2026-08-20T10:00:09",
+          "id": "run-ret-1",
+          "policy_snapshot": {
+            "activation": 30,
+            "agent_results": 30,
+            "audience_history": 30,
+            "audit": 90,
+            "llm_usage": 30,
+            "outreach_history": 30,
+            "signals": 30
+          },
+          "requested_by": "1",
+          "started_at": "2026-08-20T10:00:00",
+          "status": "completed"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

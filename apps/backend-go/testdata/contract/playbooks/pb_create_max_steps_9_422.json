@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": {
+      "max_steps": 9,
+      "name": "Nine",
+      "prompt_template": "Describe {company} please."
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "le": 8
+          },
+          "input": 9,
+          "loc": [
+            "body",
+            "max_steps"
+          ],
+          "msg": "Input should be less than or equal to 8",
+          "type": "less_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

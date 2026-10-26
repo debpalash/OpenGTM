@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "role": "editor",
+      "username": " carol "
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/governance/members"
+  },
+  "response": {
+    "body": {
+      "overrides": {},
+      "role": "editor",
+      "user_id": 3,
+      "username": "carol"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

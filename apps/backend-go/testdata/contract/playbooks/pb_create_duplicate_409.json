@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "name": "Created minimal",
+      "prompt_template": "Describe {company} in one line."
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks"
+  },
+  "response": {
+    "body": {
+      "detail": "A playbook with this name already exists"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/research-playbooks/pb-gov-multi"
+  },
+  "response": {
+    "body": {
+      "cell_budget_usd": 0.3,
+      "created_at": "2026-08-20T08:00:00",
+      "description": "three chained steps",
+      "enabled": true,
+      "id": "pb-gov-multi",
+      "max_steps": 4,
+      "name": "Multi step research v2",
+      "next_run_at": null,
+      "output_format": "text",
+      "prompt_template": "Research {company} and summarise.",
+      "schedule_audience_id": null,
+      "schedule_interval_minutes": null,
+      "steps": [
+        {
+          "key": "research",
+          "name": "Research",
+          "output_format": "text",
+          "prompt_template": "Research {company} and summarise what they sell."
+        },
+        {
+          "key": "fit",
+          "name": "Fit score",
+          "output_format": "json",
+          "prompt_template": "Given {research}, rate fit for {company} as JSON."
+        },
+        {
+          "key": "opener",
+          "name": "Opener",
+          "output_format": "text",
+          "prompt_template": "Write a one line opener for {company} using {fit}."
+        }
+      ],
+      "updated_at": "2026-10-26T17:18:43.364466",
+      "version": 3
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

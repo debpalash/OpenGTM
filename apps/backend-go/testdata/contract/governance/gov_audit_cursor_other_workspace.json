@@ -1,0 +1,50 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/audit-events?limit=2&cursor=WyIyMDMwLTAxLTAyVDA2OjMwOjAwLjEyMzQ1NiIsIjExMTExMTExLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDA1NyJd"
+  },
+  "response": {
+    "body": {
+      "events": [
+        {
+          "actor_role": "owner",
+          "actor_user_id": 2,
+          "created_at": "2030-01-02T00:00:00",
+          "id": "22222222-0000-4000-8000-000000000003",
+          "metadata": {},
+          "method": "POST",
+          "outcome": "denied",
+          "request_id": "req-gov-b-003",
+          "resource_path": "/api/audiences",
+          "response_status": 403,
+          "route": "/api/audiences"
+        },
+        {
+          "actor_role": "owner",
+          "actor_user_id": 2,
+          "created_at": "2030-01-01T00:00:00",
+          "id": "22222222-0000-4000-8000-000000000002",
+          "metadata": {},
+          "method": "POST",
+          "outcome": "success",
+          "request_id": "req-gov-b-002",
+          "resource_path": "/api/audiences",
+          "response_status": 201,
+          "route": "/api/audiences"
+        }
+      ],
+      "has_more": true,
+      "limit": 2,
+      "next_before": "2030-01-01T00:00:00",
+      "next_cursor": "WyIyMDMwLTAxLTAxVDAwOjAwOjAwIiwiMjIyMjIyMjItMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIl0"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

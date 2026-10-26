@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "schedule_audience_id": "nope"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/research-playbooks/pb-gov-sched"
+  },
+  "response": {
+    "body": {
+      "detail": "Scheduled audience not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "effect": "allow"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/rbac/1/tables.write"
+  },
+  "response": {
+    "body": {
+      "detail": "Owner permissions cannot be overridden"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

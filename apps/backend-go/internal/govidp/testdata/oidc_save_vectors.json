@@ -1,0 +1,557 @@
+{
+ "allowed_hosts": " Login.Example.com , idp.corp.io,[::1],127.0.0.1 ",
+ "saves": [
+  {
+   "name": "defaults",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":false,\"enforce_sso\":false,\"issuer\":\"\",\"client_id\":\"\",\"allowed_domains\":[],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": false
+  },
+  {
+   "name": "domains_lower_sorted_dedup",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [
+     "B.com",
+     " a.com ",
+     "b.com",
+     "",
+     "  ",
+     "C.COM"
+    ],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "allowed_domains": [
+     "a.com",
+     "b.com",
+     "c.com"
+    ],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":false,\"enforce_sso\":false,\"issuer\":\"\",\"client_id\":\"\",\"allowed_domains\":[\"a.com\",\"b.com\",\"c.com\"],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": false
+  },
+  {
+   "name": "issuer_trailing_slash",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "https://login.example.com/",
+    "client_id": "c",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "https://login.example.com",
+    "client_id": "c",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":false,\"enforce_sso\":false,\"issuer\":\"https://login.example.com\",\"client_id\":\"c\",\"allowed_domains\":[],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": false
+  },
+  {
+   "name": "issuer_two_trailing_slashes",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "https://login.example.com//",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "https://login.example.com",
+    "client_id": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":false,\"enforce_sso\":false,\"issuer\":\"https://login.example.com\",\"client_id\":\"\",\"allowed_domains\":[],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": false
+  },
+  {
+   "name": "issuer_padded_upper_host",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": " https://LOGIN.example.com/realm/x/ ",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "https://LOGIN.example.com/realm/x",
+    "client_id": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":false,\"enforce_sso\":false,\"issuer\":\"https://LOGIN.example.com/realm/x\",\"client_id\":\"\",\"allowed_domains\":[],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": false
+  },
+  {
+   "name": "default_role_member",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "member"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "member"
+   },
+   "stored": "{\"enabled\":false,\"enforce_sso\":false,\"issuer\":\"\",\"client_id\":\"\",\"allowed_domains\":[],\"auto_provision\":false,\"default_role\":\"member\"}",
+   "secret_written": false
+  },
+  {
+   "name": "default_role_editor",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "editor"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "editor"
+   },
+   "stored": "{\"enabled\":false,\"enforce_sso\":false,\"issuer\":\"\",\"client_id\":\"\",\"allowed_domains\":[],\"auto_provision\":false,\"default_role\":\"editor\"}",
+   "secret_written": false
+  },
+  {
+   "name": "default_role_admin_rejected",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "admin"
+   },
+   "existing_secret": false,
+   "error": "OIDC default role must be viewer, member, or editor",
+   "stored": null,
+   "secret_written": false
+  },
+  {
+   "name": "default_role_owner_rejected",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "owner"
+   },
+   "existing_secret": false,
+   "error": "OIDC default role must be viewer, member, or editor",
+   "stored": null,
+   "secret_written": false
+  },
+  {
+   "name": "default_role_empty_rejected",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": ""
+   },
+   "existing_secret": false,
+   "error": "OIDC default role must be viewer, member, or editor",
+   "stored": null,
+   "secret_written": false
+  },
+  {
+   "name": "enabled_full",
+   "input": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://login.example.com/",
+    "client_id": " cid ",
+    "client_secret": "<set>",
+    "allowed_domains": [
+     "B.com",
+     " a.com ",
+     "b.com",
+     ""
+    ],
+    "auto_provision": true,
+    "default_role": "editor"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://login.example.com",
+    "client_id": "cid",
+    "allowed_domains": [
+     "a.com",
+     "b.com"
+    ],
+    "auto_provision": true,
+    "default_role": "editor"
+   },
+   "stored": "{\"enabled\":true,\"enforce_sso\":false,\"issuer\":\"https://login.example.com\",\"client_id\":\"cid\",\"allowed_domains\":[\"a.com\",\"b.com\"],\"auto_provision\":true,\"default_role\":\"editor\"}",
+   "secret_written": true
+  },
+  {
+   "name": "enabled_existing_secret",
+   "input": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io",
+    "client_id": "c",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": true,
+   "config": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io",
+    "client_id": "c",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":true,\"enforce_sso\":false,\"issuer\":\"https://idp.corp.io\",\"client_id\":\"c\",\"allowed_domains\":[],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": false
+  },
+  {
+   "name": "enabled_no_secret",
+   "input": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io",
+    "client_id": "c",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "Enabled OIDC requires issuer, client_id, and client_secret",
+   "stored": null,
+   "secret_written": false
+  },
+  {
+   "name": "enabled_blank_secret",
+   "input": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io",
+    "client_id": "c",
+    "client_secret": "   ",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "Enabled OIDC requires issuer, client_id, and client_secret",
+   "stored": null,
+   "secret_written": false
+  },
+  {
+   "name": "enabled_no_issuer",
+   "input": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "c",
+    "client_secret": "<set>",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "Enabled OIDC requires issuer, client_id, and client_secret",
+   "stored": null,
+   "secret_written": false
+  },
+  {
+   "name": "enabled_no_client_id",
+   "input": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io",
+    "client_id": "",
+    "client_secret": "<set>",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "Enabled OIDC requires issuer, client_id, and client_secret",
+   "stored": null,
+   "secret_written": false
+  },
+  {
+   "name": "enforce_without_enabled",
+   "input": {
+    "enabled": false,
+    "enforce_sso": true,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "SSO enforcement requires OIDC to be enabled",
+   "stored": null,
+   "secret_written": false
+  },
+  {
+   "name": "enforce_and_enabled",
+   "input": {
+    "enabled": true,
+    "enforce_sso": true,
+    "issuer": "https://idp.corp.io",
+    "client_id": "c",
+    "client_secret": "<set>",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": true,
+    "enforce_sso": true,
+    "issuer": "https://idp.corp.io",
+    "client_id": "c",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":true,\"enforce_sso\":true,\"issuer\":\"https://idp.corp.io\",\"client_id\":\"c\",\"allowed_domains\":[],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": true
+  },
+  {
+   "name": "bad_issuer_http",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "http://idp.corp.io",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "OIDC issuer must be a clean HTTPS origin or path",
+   "stored": null,
+   "secret_written": false
+  },
+  {
+   "name": "bad_issuer_host",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "https://evil.com",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "OIDC issuer host is not approved by SSO_ALLOWED_ISSUER_HOSTS",
+   "stored": null,
+   "secret_written": false
+  },
+  {
+   "name": "bad_issuer_query",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io?x=1",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "OIDC issuer must be a clean HTTPS origin or path",
+   "stored": null,
+   "secret_written": false
+  },
+  {
+   "name": "secret_only_disabled",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "<set>",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":false,\"enforce_sso\":false,\"issuer\":\"\",\"client_id\":\"\",\"allowed_domains\":[],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": true
+  },
+  {
+   "name": "role_checked_before_enforce",
+   "input": {
+    "enabled": false,
+    "enforce_sso": true,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "bogus"
+   },
+   "existing_secret": false,
+   "error": "OIDC default role must be viewer, member, or editor",
+   "stored": null,
+   "secret_written": false
+  },
+  {
+   "name": "issuer_checked_before_role",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "http://x",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "bogus"
+   },
+   "existing_secret": false,
+   "error": "OIDC issuer must be a clean HTTPS origin or path",
+   "stored": null,
+   "secret_written": false
+  },
+  {
+   "name": "unicode_domains",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [
+     "Ünï.com",
+     " x.org ",
+     "a b",
+     "<&>",
+     "😀.io"
+    ],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "allowed_domains": [
+     "<&>",
+     "a b",
+     "x.org",
+     "ünï.com",
+     "😀.io"
+    ],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":false,\"enforce_sso\":false,\"issuer\":\"\",\"client_id\":\"\",\"allowed_domains\":[\"<&>\",\"a b\",\"x.org\",\"\\u00fcn\\u00ef.com\",\"\\ud83d\\ude00.io\"],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": false
+  }
+ ]
+}

@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/governance/scim-token"
+  },
+  "response": {
+    "body": {
+      "base_path": "/scim/v2/alpha",
+      "created_at": 1793035122.3591843,
+      "created_by": 1,
+      "expired": false,
+      "expires_at": 1800811122.3591843,
+      "last_used_at": null,
+      "token": "<redacted>",
+      "token_prefix": "og_scim_00000001",
+      "warning": "Copy this token now; it cannot be retrieved again."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

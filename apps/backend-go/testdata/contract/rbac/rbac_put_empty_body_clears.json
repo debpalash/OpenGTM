@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/rbac/2/audiences.write"
+  },
+  "response": {
+    "body": {
+      "effect": null,
+      "effective": false,
+      "permission": "audiences.write",
+      "user_id": 2
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

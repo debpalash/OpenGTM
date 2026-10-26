@@ -1,0 +1,917 @@
+{
+ "clock": "2026-10-26T12:34:56.789012+00:00",
+ "default_days": {
+  "audit": 365,
+  "llm_usage": 365,
+  "signals": 365,
+  "activation": 180,
+  "audience_history": 365,
+  "agent_results": 180,
+  "outreach_history": 365
+ },
+ "min_days": {
+  "audit": 90,
+  "llm_usage": 30,
+  "signals": 30,
+  "activation": 30,
+  "audience_history": 30,
+  "agent_results": 30,
+  "outreach_history": 30
+ },
+ "normalized_days": [
+  {
+   "name": "defaults_empty",
+   "input": {},
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "defaults_none",
+   "input": null,
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "min_audit",
+   "input": {
+    "audit": 90
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 90,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "below_min_audit",
+   "input": {
+    "audit": 89
+   },
+   "result": {
+    "ok": false,
+    "error": "audit retention must be 90..3650 days"
+   }
+  },
+  {
+   "name": "max_audit",
+   "input": {
+    "audit": 3650
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 3650,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "over_max_audit",
+   "input": {
+    "audit": 3651
+   },
+   "result": {
+    "ok": false,
+    "error": "audit retention must be 90..3650 days"
+   }
+  },
+  {
+   "name": "min_llm_usage",
+   "input": {
+    "llm_usage": 30
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 30,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "below_min_llm_usage",
+   "input": {
+    "llm_usage": 29
+   },
+   "result": {
+    "ok": false,
+    "error": "llm_usage retention must be 30..3650 days"
+   }
+  },
+  {
+   "name": "max_llm_usage",
+   "input": {
+    "llm_usage": 3650
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 3650,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "over_max_llm_usage",
+   "input": {
+    "llm_usage": 3651
+   },
+   "result": {
+    "ok": false,
+    "error": "llm_usage retention must be 30..3650 days"
+   }
+  },
+  {
+   "name": "min_signals",
+   "input": {
+    "signals": 30
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 365,
+     "signals": 30,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "below_min_signals",
+   "input": {
+    "signals": 29
+   },
+   "result": {
+    "ok": false,
+    "error": "signals retention must be 30..3650 days"
+   }
+  },
+  {
+   "name": "max_signals",
+   "input": {
+    "signals": 3650
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 365,
+     "signals": 3650,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "over_max_signals",
+   "input": {
+    "signals": 3651
+   },
+   "result": {
+    "ok": false,
+    "error": "signals retention must be 30..3650 days"
+   }
+  },
+  {
+   "name": "min_activation",
+   "input": {
+    "activation": 30
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 30,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "below_min_activation",
+   "input": {
+    "activation": 29
+   },
+   "result": {
+    "ok": false,
+    "error": "activation retention must be 30..3650 days"
+   }
+  },
+  {
+   "name": "max_activation",
+   "input": {
+    "activation": 3650
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 3650,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "over_max_activation",
+   "input": {
+    "activation": 3651
+   },
+   "result": {
+    "ok": false,
+    "error": "activation retention must be 30..3650 days"
+   }
+  },
+  {
+   "name": "min_audience_history",
+   "input": {
+    "audience_history": 30
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 30,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "below_min_audience_history",
+   "input": {
+    "audience_history": 29
+   },
+   "result": {
+    "ok": false,
+    "error": "audience_history retention must be 30..3650 days"
+   }
+  },
+  {
+   "name": "max_audience_history",
+   "input": {
+    "audience_history": 3650
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 3650,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "over_max_audience_history",
+   "input": {
+    "audience_history": 3651
+   },
+   "result": {
+    "ok": false,
+    "error": "audience_history retention must be 30..3650 days"
+   }
+  },
+  {
+   "name": "min_agent_results",
+   "input": {
+    "agent_results": 30
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 30,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "below_min_agent_results",
+   "input": {
+    "agent_results": 29
+   },
+   "result": {
+    "ok": false,
+    "error": "agent_results retention must be 30..3650 days"
+   }
+  },
+  {
+   "name": "max_agent_results",
+   "input": {
+    "agent_results": 3650
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 3650,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "over_max_agent_results",
+   "input": {
+    "agent_results": 3651
+   },
+   "result": {
+    "ok": false,
+    "error": "agent_results retention must be 30..3650 days"
+   }
+  },
+  {
+   "name": "min_outreach_history",
+   "input": {
+    "outreach_history": 30
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 30
+    }
+   }
+  },
+  {
+   "name": "below_min_outreach_history",
+   "input": {
+    "outreach_history": 29
+   },
+   "result": {
+    "ok": false,
+    "error": "outreach_history retention must be 30..3650 days"
+   }
+  },
+  {
+   "name": "max_outreach_history",
+   "input": {
+    "outreach_history": 3650
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 365,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 3650
+    }
+   }
+  },
+  {
+   "name": "over_max_outreach_history",
+   "input": {
+    "outreach_history": 3651
+   },
+   "result": {
+    "ok": false,
+    "error": "outreach_history retention must be 30..3650 days"
+   }
+  },
+  {
+   "name": "all_min",
+   "input": {
+    "audit": 90,
+    "llm_usage": 30,
+    "signals": 30,
+    "activation": 30,
+    "audience_history": 30,
+    "agent_results": 30,
+    "outreach_history": 30
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 90,
+     "llm_usage": 30,
+     "signals": 30,
+     "activation": 30,
+     "audience_history": 30,
+     "agent_results": 30,
+     "outreach_history": 30
+    }
+   }
+  },
+  {
+   "name": "all_max",
+   "input": {
+    "audit": 3650,
+    "llm_usage": 3650,
+    "signals": 3650,
+    "activation": 3650,
+    "audience_history": 3650,
+    "agent_results": 3650,
+    "outreach_history": 3650
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 3650,
+     "llm_usage": 3650,
+     "signals": 3650,
+     "activation": 3650,
+     "audience_history": 3650,
+     "agent_results": 3650,
+     "outreach_history": 3650
+    }
+   }
+  },
+  {
+   "name": "unknown_category",
+   "input": {
+    "bogus": 100
+   },
+   "result": {
+    "ok": false,
+    "error": "unsupported retention categories: bogus"
+   }
+  },
+  {
+   "name": "two_unknown_sorted",
+   "input": {
+    "zzz": 1,
+    "aaa": 2
+   },
+   "result": {
+    "ok": false,
+    "error": "unsupported retention categories: aaa, zzz"
+   }
+  },
+  {
+   "name": "known_and_unknown",
+   "input": {
+    "audit": 100,
+    "x": 1
+   },
+   "result": {
+    "ok": false,
+    "error": "unsupported retention categories: x"
+   }
+  },
+  {
+   "name": "non_integer_str",
+   "input": {
+    "audit": "abc"
+   },
+   "result": {
+    "ok": false,
+    "error": "invalid literal for int() with base 10: 'abc'"
+   }
+  },
+  {
+   "name": "numeric_str",
+   "input": {
+    "audit": "100"
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 100,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "float_frac",
+   "input": {
+    "audit": 100.5
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 100,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "float_whole",
+   "input": {
+    "audit": 100.0
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 100,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "bool_true",
+   "input": {
+    "audit": true
+   },
+   "result": {
+    "ok": false,
+    "error": "audit retention must be 90..3650 days"
+   }
+  },
+  {
+   "name": "none_value",
+   "input": {
+    "audit": null
+   },
+   "result": {
+    "ok": false,
+    "error": "PANIC TypeError: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'"
+   }
+  },
+  {
+   "name": "negative",
+   "input": {
+    "audit": -5
+   },
+   "result": {
+    "ok": false,
+    "error": "audit retention must be 90..3650 days"
+   }
+  },
+  {
+   "name": "zero",
+   "input": {
+    "audit": 0
+   },
+   "result": {
+    "ok": false,
+    "error": "audit retention must be 90..3650 days"
+   }
+  },
+  {
+   "name": "str_padded",
+   "input": {
+    "audit": " 100 "
+   },
+   "result": {
+    "ok": true,
+    "days": {
+     "audit": 100,
+     "llm_usage": 365,
+     "signals": 365,
+     "activation": 180,
+     "audience_history": 365,
+     "agent_results": 180,
+     "outreach_history": 365
+    }
+   }
+  },
+  {
+   "name": "list_value",
+   "input": {
+    "audit": [
+     1
+    ]
+   },
+   "result": {
+    "ok": false,
+    "error": "PANIC TypeError: int() argument must be a string, a bytes-like object or a real number, not 'list'"
+   }
+  }
+ ],
+ "cutoffs": [
+  {
+   "name": "defaults",
+   "days": {
+    "audit": 365,
+    "llm_usage": 365,
+    "signals": 365,
+    "activation": 180,
+    "audience_history": 365,
+    "agent_results": 180,
+    "outreach_history": 365
+   },
+   "cutoffs": [
+    {
+     "table": "governance_audit_events",
+     "value": "2025-10-26T12:34:56.789012+00:00"
+    },
+    {
+     "table": "llm_usage_daily",
+     "value": "2025-10-26"
+    },
+    {
+     "table": "signals",
+     "value": 1761482096.789012
+    },
+    {
+     "table": "destination_deliveries",
+     "value": "2026-04-29T12:34:56.789012+00:00"
+    },
+    {
+     "table": "destination_inbound_receipts",
+     "value": "2026-04-29T12:34:56.789012+00:00"
+    },
+    {
+     "table": "audience_membership_events",
+     "value": "2025-10-26T12:34:56.789012+00:00"
+    },
+    {
+     "table": "playbook_results",
+     "value": "2026-04-29T12:34:56.789012+00:00"
+    },
+    {
+     "table": "outreach_sends",
+     "value": "2025-10-26T12:34:56.789012+00:00"
+    }
+   ]
+  },
+  {
+   "name": "minimums",
+   "days": {
+    "audit": 90,
+    "llm_usage": 30,
+    "signals": 30,
+    "activation": 30,
+    "audience_history": 30,
+    "agent_results": 30,
+    "outreach_history": 30
+   },
+   "cutoffs": [
+    {
+     "table": "governance_audit_events",
+     "value": "2026-07-28T12:34:56.789012+00:00"
+    },
+    {
+     "table": "llm_usage_daily",
+     "value": "2026-09-26"
+    },
+    {
+     "table": "signals",
+     "value": 1790426096.789012
+    },
+    {
+     "table": "destination_deliveries",
+     "value": "2026-09-26T12:34:56.789012+00:00"
+    },
+    {
+     "table": "destination_inbound_receipts",
+     "value": "2026-09-26T12:34:56.789012+00:00"
+    },
+    {
+     "table": "audience_membership_events",
+     "value": "2026-09-26T12:34:56.789012+00:00"
+    },
+    {
+     "table": "playbook_results",
+     "value": "2026-09-26T12:34:56.789012+00:00"
+    },
+    {
+     "table": "outreach_sends",
+     "value": "2026-09-26T12:34:56.789012+00:00"
+    }
+   ]
+  },
+  {
+   "name": "max",
+   "days": {
+    "audit": 3650,
+    "llm_usage": 3650,
+    "signals": 3650,
+    "activation": 3650,
+    "audience_history": 3650,
+    "agent_results": 3650,
+    "outreach_history": 3650
+   },
+   "cutoffs": [
+    {
+     "table": "governance_audit_events",
+     "value": "2016-10-28T12:34:56.789012+00:00"
+    },
+    {
+     "table": "llm_usage_daily",
+     "value": "2016-10-28"
+    },
+    {
+     "table": "signals",
+     "value": 1477658096.789012
+    },
+    {
+     "table": "destination_deliveries",
+     "value": "2016-10-28T12:34:56.789012+00:00"
+    },
+    {
+     "table": "destination_inbound_receipts",
+     "value": "2016-10-28T12:34:56.789012+00:00"
+    },
+    {
+     "table": "audience_membership_events",
+     "value": "2016-10-28T12:34:56.789012+00:00"
+    },
+    {
+     "table": "playbook_results",
+     "value": "2016-10-28T12:34:56.789012+00:00"
+    },
+    {
+     "table": "outreach_sends",
+     "value": "2016-10-28T12:34:56.789012+00:00"
+    }
+   ]
+  }
+ ],
+ "schedule_policy": [
+  {
+   "name": "enabled",
+   "enabled": true,
+   "legal_hold": false,
+   "mirror_existed": false,
+   "next_run_at": "2026-10-27T12:34:56.789012+00:00",
+   "policy_next_run_at": "2026-10-27T12:34:56.789012+00:00",
+   "mirror": {
+    "workspace_id": "ws-x",
+    "enabled": true,
+    "next_run_at": "2026-10-27T12:34:56.789012+00:00"
+   },
+   "mirror_created": true,
+   "pending_jobs_cancelled": true,
+   "enqueued": [
+    {
+     "job_type": "retention_enforce",
+     "payload": {
+      "workspace_id": "ws-x"
+     },
+     "fire_key": "retention:ws-x:2026-10-27",
+     "next_run_at": "2026-10-27T12:34:56.789012+00:00",
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "name": "enabled_existing_mirror",
+   "enabled": true,
+   "legal_hold": false,
+   "mirror_existed": true,
+   "next_run_at": "2026-10-27T12:34:56.789012+00:00",
+   "policy_next_run_at": "2026-10-27T12:34:56.789012+00:00",
+   "mirror": {
+    "workspace_id": "ws-x",
+    "enabled": true,
+    "next_run_at": "2026-10-27T12:34:56.789012+00:00"
+   },
+   "mirror_created": false,
+   "pending_jobs_cancelled": true,
+   "enqueued": [
+    {
+     "job_type": "retention_enforce",
+     "payload": {
+      "workspace_id": "ws-x"
+     },
+     "fire_key": "retention:ws-x:2026-10-27",
+     "next_run_at": "2026-10-27T12:34:56.789012+00:00",
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "name": "disabled",
+   "enabled": false,
+   "legal_hold": false,
+   "mirror_existed": false,
+   "next_run_at": null,
+   "policy_next_run_at": null,
+   "mirror": {
+    "workspace_id": "ws-x",
+    "enabled": false,
+    "next_run_at": null
+   },
+   "mirror_created": true,
+   "pending_jobs_cancelled": true,
+   "enqueued": []
+  },
+  {
+   "name": "legal_hold",
+   "enabled": true,
+   "legal_hold": true,
+   "mirror_existed": false,
+   "next_run_at": null,
+   "policy_next_run_at": null,
+   "mirror": {
+    "workspace_id": "ws-x",
+    "enabled": false,
+    "next_run_at": null
+   },
+   "mirror_created": true,
+   "pending_jobs_cancelled": true,
+   "enqueued": []
+  },
+  {
+   "name": "disabled_and_hold",
+   "enabled": false,
+   "legal_hold": true,
+   "mirror_existed": true,
+   "next_run_at": null,
+   "policy_next_run_at": null,
+   "mirror": {
+    "workspace_id": "ws-x",
+    "enabled": false,
+    "next_run_at": null
+   },
+   "mirror_created": false,
+   "pending_jobs_cancelled": true,
+   "enqueued": []
+  }
+ ],
+ "fire_key_boundaries": [
+  {
+   "fire_key": "retention:ws-x:2027-01-01",
+   "next_run_at": "2027-01-01T23:59:59+00:00"
+  },
+  {
+   "fire_key": "retention:ws-x:2028-02-29",
+   "next_run_at": "2028-02-29T00:00:00+00:00"
+  },
+  {
+   "fire_key": "retention:ws-x:2026-10-27",
+   "next_run_at": "2026-10-27T23:30:00+05:30"
+  }
+ ]
+}

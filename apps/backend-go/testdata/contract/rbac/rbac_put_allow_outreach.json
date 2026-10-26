@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "effect": "allow"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/rbac/4/outreach.write"
+  },
+  "response": {
+    "body": {
+      "effect": "allow",
+      "effective": true,
+      "permission": "outreach.write",
+      "user_id": 4
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

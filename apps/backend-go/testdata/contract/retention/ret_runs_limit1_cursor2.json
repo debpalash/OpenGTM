@@ -1,0 +1,46 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/retention/runs?limit=1&cursor=WyIyMDI2LTA4LTIwVDEwOjAwOjAwIiwicnVuLXJldC0yIl0"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 1,
+      "next_cursor": null,
+      "offset": null,
+      "runs": [
+        {
+          "created_at": "2026-08-20T10:00:00",
+          "deleted_counts": {
+            "audit": 3,
+            "signals": 1
+          },
+          "error": null,
+          "finished_at": "2026-08-20T10:00:09",
+          "id": "run-ret-1",
+          "policy_snapshot": {
+            "activation": 30,
+            "agent_results": 30,
+            "audience_history": 30,
+            "audit": 90,
+            "llm_usage": 30,
+            "outreach_history": 30,
+            "signals": 30
+          },
+          "requested_by": "1",
+          "started_at": "2026-08-20T10:00:00",
+          "status": "completed"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
