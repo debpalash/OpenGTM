@@ -1,0 +1,386 @@
+{
+  "providers": {
+    "anthropic": {
+      "name": "Anthropic (Claude)",
+      "env_key": "ANTHROPIC_API_KEY",
+      "env_url": "ANTHROPIC_BASE_URL",
+      "env_model": "ANTHROPIC_MODEL",
+      "default_url": "https://api.anthropic.com",
+      "default_model": "claude-opus-4-8",
+      "docs": "https://console.anthropic.com/settings/keys",
+      "free_tier": "Paid (Opus 4.8: $5 / $25 per 1M tok)",
+      "icon": "🪄",
+      "openai_compatible": false
+    },
+    "openrouter": {
+      "name": "OpenRouter",
+      "env_key": "OPENROUTER_API_KEY",
+      "env_url": "OPENROUTER_BASE_URL",
+      "env_model": "OPENROUTER_MODEL",
+      "default_url": "https://openrouter.ai/api/v1",
+      "default_model": "meta-llama/llama-3.3-70b-instruct:free",
+      "docs": "https://openrouter.ai/keys",
+      "free_tier": "20 RPM, 50 RPD (1K with $10 topup)",
+      "icon": "🌐",
+      "openai_compatible": true
+    },
+    "google_ai": {
+      "name": "Google AI Studio",
+      "env_key": "GOOGLE_AI_API_KEY",
+      "env_url": "GOOGLE_AI_BASE_URL",
+      "env_model": "GOOGLE_AI_MODEL",
+      "default_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+      "default_model": "gemini-2.5-flash",
+      "docs": "https://aistudio.google.com/app/apikey",
+      "free_tier": "10 RPM, 1500 RPD",
+      "icon": "🔷",
+      "openai_compatible": true
+    },
+    "nvidia": {
+      "name": "NVIDIA NIM",
+      "env_key": "NVIDIA_API_KEY",
+      "env_url": "NVIDIA_BASE_URL",
+      "env_model": "NVIDIA_MODEL",
+      "default_url": "https://integrate.api.nvidia.com/v1",
+      "default_model": "meta/llama-3.3-70b-instruct",
+      "docs": "https://build.nvidia.com/explore/discover",
+      "free_tier": "40 RPM (phone verification)",
+      "icon": "💚",
+      "openai_compatible": true
+    },
+    "groq": {
+      "name": "Groq",
+      "env_key": "GROQ_API_KEY",
+      "env_url": "GROQ_BASE_URL",
+      "env_model": "GROQ_MODEL",
+      "default_url": "https://api.groq.com/openai/v1",
+      "default_model": "llama-3.3-70b-versatile",
+      "docs": "https://console.groq.com/keys",
+      "free_tier": "30 RPM, 1K RPD",
+      "icon": "⚡",
+      "openai_compatible": true
+    },
+    "cerebras": {
+      "name": "Cerebras",
+      "env_key": "CEREBRAS_API_KEY",
+      "env_url": "CEREBRAS_BASE_URL",
+      "env_model": "CEREBRAS_MODEL",
+      "default_url": "https://api.cerebras.ai/v1",
+      "default_model": "llama-3.3-70b",
+      "docs": "https://cloud.cerebras.ai/",
+      "free_tier": "30 RPM, 14,400 RPD",
+      "icon": "🧠",
+      "openai_compatible": true
+    },
+    "mistral": {
+      "name": "Mistral AI",
+      "env_key": "MISTRAL_API_KEY",
+      "env_url": "MISTRAL_BASE_URL",
+      "env_model": "MISTRAL_MODEL",
+      "default_url": "https://api.mistral.ai/v1",
+      "default_model": "mistral-small-latest",
+      "docs": "https://console.mistral.ai/api-keys",
+      "free_tier": "1 req/s, 1B tok/month",
+      "icon": "🔮",
+      "openai_compatible": true
+    },
+    "cohere": {
+      "name": "Cohere",
+      "env_key": "COHERE_API_KEY",
+      "env_url": "COHERE_BASE_URL",
+      "env_model": "COHERE_MODEL",
+      "default_url": "https://api.cohere.ai/v2",
+      "default_model": "command-a-03-2025",
+      "docs": "https://dashboard.cohere.com/api-keys",
+      "free_tier": "20 RPM, 1K/month",
+      "icon": "🐚",
+      "openai_compatible": false
+    },
+    "github_models": {
+      "name": "GitHub Models",
+      "env_key": "GITHUB_MODELS_API_KEY",
+      "env_url": "GITHUB_MODELS_BASE_URL",
+      "env_model": "GITHUB_MODELS_MODEL",
+      "default_url": "https://models.inference.ai.azure.com",
+      "default_model": "gpt-4o",
+      "docs": "https://github.com/marketplace/models",
+      "free_tier": "10-15 RPM, 50-150 RPD",
+      "icon": "🐙",
+      "openai_compatible": true
+    },
+    "cloudflare": {
+      "name": "Cloudflare Workers AI",
+      "env_key": "CLOUDFLARE_API_KEY",
+      "env_url": "",
+      "env_model": "CLOUDFLARE_MODEL",
+      "default_url": "",
+      "default_model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "docs": "https://dash.cloudflare.com/profile/api-tokens",
+      "free_tier": "10K neurons/day",
+      "icon": "☁️",
+      "openai_compatible": true
+    },
+    "huggingface": {
+      "name": "HuggingFace",
+      "env_key": "HUGGINGFACE_API_KEY",
+      "env_url": "",
+      "env_model": "HUGGINGFACE_MODEL",
+      "default_url": "https://api-inference.huggingface.co",
+      "default_model": "meta-llama/Llama-3.3-70B-Instruct",
+      "docs": "https://huggingface.co/settings/tokens",
+      "free_tier": "$0.10/month credits",
+      "icon": "🤗",
+      "openai_compatible": false
+    },
+    "sambanova": {
+      "name": "SambaNova Cloud",
+      "env_key": "SAMBANOVA_API_KEY",
+      "env_url": "SAMBANOVA_BASE_URL",
+      "env_model": "SAMBANOVA_MODEL",
+      "default_url": "https://api.sambanova.ai/v1",
+      "default_model": "Meta-Llama-3.3-70B-Instruct",
+      "docs": "https://sambanova.ai/",
+      "free_tier": "$5 trial credits",
+      "icon": "🔥",
+      "openai_compatible": true
+    },
+    "siliconflow": {
+      "name": "SiliconFlow",
+      "env_key": "SILICONFLOW_API_KEY",
+      "env_url": "SILICONFLOW_BASE_URL",
+      "env_model": "SILICONFLOW_MODEL",
+      "default_url": "https://api.siliconflow.cn/v1",
+      "default_model": "Qwen/Qwen3-8B",
+      "docs": "https://cloud.siliconflow.cn/account/ak",
+      "free_tier": "1K RPM, 50K TPM",
+      "icon": "🌊",
+      "openai_compatible": true
+    }
+  },
+  "enrichment_providers": {
+    "hunter_io": {
+      "name": "Hunter.io",
+      "env_key": "HUNTER_API_KEY",
+      "capability": "Email Finder + Verifier",
+      "free_tier": "25 lookups/mo",
+      "docs": "https://hunter.io/api-documentation/v2",
+      "icon": "🎯"
+    },
+    "apollo_io": {
+      "name": "Apollo.io",
+      "env_key": "APOLLO_API_KEY",
+      "capability": "People + Company Enrichment",
+      "free_tier": "50 credits/mo",
+      "docs": "https://apolloio.github.io/apollo-api-docs/",
+      "icon": "🚀"
+    },
+    "abstract_api": {
+      "name": "AbstractAPI",
+      "env_key": "ABSTRACT_API_KEY",
+      "capability": "Email Validation + Deliverability",
+      "free_tier": "100/mo",
+      "docs": "https://www.abstractapi.com/api/email-verification-validation-api",
+      "icon": "📧"
+    },
+    "numverify": {
+      "name": "NumVerify",
+      "env_key": "NUMVERIFY_API_KEY",
+      "capability": "Phone Number Validation",
+      "free_tier": "100/mo",
+      "docs": "https://numverify.com/documentation",
+      "icon": "📱"
+    },
+    "ipinfo": {
+      "name": "IPInfo",
+      "env_key": "IPINFO_TOKEN",
+      "capability": "Company Data from Domain",
+      "free_tier": "50K/mo",
+      "docs": "https://ipinfo.io/developers",
+      "icon": "🌍"
+    }
+  },
+  "integrations": [
+    {
+      "id": "hubspot",
+      "name": "HubSpot CRM",
+      "icon": "hubspot",
+      "description": "Push leads as HubSpot contacts (output column → CRM).",
+      "fields": [
+        {
+          "key": "HUBSPOT_TOKEN",
+          "label": "Private App Token",
+          "secret": true,
+          "placeholder": "pat-na1-..."
+        }
+      ]
+    },
+    {
+      "id": "salesforce",
+      "name": "Salesforce",
+      "icon": "salesforce",
+      "description": "Push leads as Salesforce Lead records (upsert by email).",
+      "fields": [
+        {
+          "key": "SALESFORCE_INSTANCE_URL",
+          "label": "Instance URL",
+          "secret": false,
+          "placeholder": "https://your.my.salesforce.com"
+        },
+        {
+          "key": "SALESFORCE_ACCESS_TOKEN",
+          "label": "Access Token",
+          "secret": true,
+          "placeholder": "00D..."
+        }
+      ]
+    },
+    {
+      "id": "airtable",
+      "name": "Airtable",
+      "icon": "airtable",
+      "description": "Append rows to an Airtable base (output column → Airtable).",
+      "fields": [
+        {
+          "key": "AIRTABLE_TOKEN",
+          "label": "Personal Access Token",
+          "secret": true,
+          "placeholder": "pat..."
+        }
+      ]
+    },
+    {
+      "id": "sheets",
+      "name": "Google Sheets",
+      "icon": "sheets",
+      "description": "Append rows to a Google Sheet via an OAuth2 access token.",
+      "fields": [
+        {
+          "key": "GOOGLE_SHEETS_TOKEN",
+          "label": "OAuth2 Access Token",
+          "secret": true,
+          "placeholder": "ya29..."
+        }
+      ]
+    },
+    {
+      "id": "meta_ads",
+      "name": "Meta Ads",
+      "icon": "facebook",
+      "description": "Sync consented, hashed identifiers to Custom Audiences.",
+      "fields": [
+        {
+          "key": "META_ACCESS_TOKEN",
+          "label": "Marketing API Access Token",
+          "secret": true,
+          "placeholder": "EAAB..."
+        }
+      ]
+    },
+    {
+      "id": "google_ads",
+      "name": "Google Ads",
+      "icon": "google",
+      "description": "Sync consented, hashed identifiers with Customer Match.",
+      "fields": [
+        {
+          "key": "GOOGLE_ADS_ACCESS_TOKEN",
+          "label": "OAuth2 Access Token",
+          "secret": true,
+          "placeholder": "ya29..."
+        },
+        {
+          "key": "GOOGLE_ADS_DEVELOPER_TOKEN",
+          "label": "Developer Token",
+          "secret": true,
+          "placeholder": "Developer token"
+        }
+      ]
+    },
+    {
+      "id": "linkedin_ads",
+      "name": "LinkedIn Ads",
+      "icon": "linkedin",
+      "description": "Sync consented, hashed emails to Matched Audiences (approval required).",
+      "fields": [
+        {
+          "key": "LINKEDIN_ACCESS_TOKEN",
+          "label": "Marketing API Access Token",
+          "secret": true,
+          "placeholder": "AQX..."
+        }
+      ]
+    }
+  ],
+  "enrichment_defaults": {
+    "row_concurrency": 12,
+    "provider_workers": 8,
+    "provider_timeout": 10,
+    "max_providers": 8,
+    "retry_passes": 1
+  },
+  "verifier_global_only": [
+    "REACHER_URL"
+  ],
+  "daily_limits": {
+    "cerebras": {
+      "calls": 50,
+      "label": "50 RPD"
+    },
+    "groq": {
+      "calls": 1000,
+      "label": "1K RPD"
+    },
+    "sambanova": {
+      "calls": 1000,
+      "label": "~1K RPD"
+    },
+    "nvidia": {
+      "calls": 1000,
+      "label": "1K RPD"
+    },
+    "mistral": {
+      "calls": 14400,
+      "label": "14.4K RPD"
+    },
+    "openrouter": {
+      "calls": 50,
+      "label": "50 RPD"
+    },
+    "github_models": {
+      "calls": 1000,
+      "label": "1K RPD"
+    },
+    "siliconflow": {
+      "calls": 150,
+      "label": "150 RPD"
+    }
+  },
+  "secret_app_keys": [
+    "ABSTRACT_API_KEY",
+    "AIRTABLE_TOKEN",
+    "ANTHROPIC_API_KEY",
+    "APOLLO_API_KEY",
+    "CEREBRAS_API_KEY",
+    "CLOUDFLARE_API_KEY",
+    "COHERE_API_KEY",
+    "GITHUB_MODELS_API_KEY",
+    "GOOGLE_ADS_ACCESS_TOKEN",
+    "GOOGLE_ADS_DEVELOPER_TOKEN",
+    "GOOGLE_AI_API_KEY",
+    "GOOGLE_SHEETS_TOKEN",
+    "GROQ_API_KEY",
+    "HUBSPOT_TOKEN",
+    "HUGGINGFACE_API_KEY",
+    "HUNTER_API_KEY",
+    "IPINFO_TOKEN",
+    "LINKEDIN_ACCESS_TOKEN",
+    "META_ACCESS_TOKEN",
+    "MISTRAL_API_KEY",
+    "NUMVERIFY_API_KEY",
+    "NVIDIA_API_KEY",
+    "OPENROUTER_API_KEY",
+    "SALESFORCE_ACCESS_TOKEN",
+    "SAMBANOVA_API_KEY",
+    "SILICONFLOW_API_KEY"
+  ]
+}
