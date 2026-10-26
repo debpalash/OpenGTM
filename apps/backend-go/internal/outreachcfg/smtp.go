@@ -21,10 +21,28 @@ type SMTP struct {
 	FromName   string
 	UseTLS     bool
 	MaxPerHour int
+	// Mixed marks a workspace host or port override that has no workspace credentials of its own;
+	// the global username/password are withheld (plan 09 final security H1) and Configured is false.
+	Mixed bool
 }
 
 // Configured mirrors is_smtp_configured.
-func (c SMTP) Configured() bool { return c.Host != "" && c.Email != "" && c.Password != "" }
+func (c SMTP) Configured() bool {
+	return !c.Mixed && c.Host != "" && c.Email != "" && c.Password != ""
+}
+
+// ConfigError is the admin-facing reason a Mixed config is refused ("" otherwise).
+func (c SMTP) ConfigError() string {
+	if c.Mixed {
+		return mixedErr("SMTP")
+	}
+	return ""
+}
+
+func mixedErr(kind string) string {
+	return kind + " host or port is set for this workspace without its own username and password; " +
+		"the platform credentials are never used with a workspace host"
+}
 
 // getter resolves one key with a default (Python get_secret(ws, key, default)).
 // ok=false means the lookup failed; callers return the zero config, like the
@@ -37,15 +55,21 @@ type getter struct {
 }
 
 func (g *getter) get(key, def string) string {
-	v, _, err := g.r.Get(g.ctx, g.ws, key)
+	v, _ := g.getSrc(key, def)
+	return v
+}
+
+// getSrc is get plus whether the value came from the workspace level.
+func (g *getter) getSrc(key, def string) (string, bool) {
+	v, src, err := g.r.Get(g.ctx, g.ws, key)
 	if err != nil {
 		g.bad = true
-		return def
+		return def, false
 	}
 	if v == "" {
-		return def
+		return def, false
 	}
-	return v
+	return v, src == secrets.SourceWorkspace
 }
 
 // num mirrors int(_g(key, def) or def); a parse error poisons the load.
@@ -61,11 +85,23 @@ func (g *getter) num(key, def string) int {
 // then env). Any lookup or parse error yields the zero SMTP{}.
 func LoadSMTP(ctx context.Context, r *secrets.Resolver, workspaceID string) SMTP {
 	g := &getter{ctx: ctx, r: r, ws: workspaceID}
+	host, hostWS := g.getSrc("SMTP_HOST", "")
+	_, portWS := g.getSrc("SMTP_PORT", "587")
+	email, emailWS := g.getSrc("SMTP_EMAIL", "")
+	pw, pwWS := g.getSrc("SMTP_PASSWORD", "")
+	mixed := false
+	if hostWS || portWS {
+		// global credentials only travel to the global host and port
+		if (email != "" && !emailWS) || (pw != "" && !pwWS) {
+			mixed, email, pw = true, "", ""
+		}
+	}
 	c := SMTP{
-		Host:       g.get("SMTP_HOST", ""),
+		Host:       host,
 		Port:       g.num("SMTP_PORT", "587"),
-		Email:      g.get("SMTP_EMAIL", ""),
-		Password:   config.Secret(g.get("SMTP_PASSWORD", "")),
+		Email:      email,
+		Password:   config.Secret(pw),
+		Mixed:      mixed,
 		FromName:   g.get("SMTP_FROM_NAME", "OpenGTM"),
 		UseTLS:     g.get("SMTP_USE_TLS", "1") == "1",
 		MaxPerHour: g.num("SMTP_MAX_PER_HOUR", "50"),

@@ -95,6 +95,11 @@ func (s *memStore) WorkspaceSetting(_ context.Context, ws, k string) (string, bo
 	return v, ok, nil
 }
 
+func (s *memStore) SetWorkspaceSetting(_ context.Context, ws, k, v string) error {
+	s.ws[ws+"/"+k] = v
+	return nil
+}
+
 type fakeCaps struct {
 	mu                     sync.Mutex
 	refuse                 bool
@@ -1016,5 +1021,23 @@ func TestTransportFailureNotBounced(t *testing.T) {
 				}
 			})
 		})
+	}
+}
+
+// Plan 09 final security H1: a workspace-chosen SMTP host never receives the platform's global
+// username/password on the send path; the send fails with a clear error and nothing is dialled.
+func TestSendNeverUsesGlobalCredsWithWorkspaceHost(t *testing.T) {
+	e := newEnv(t, uniqWS(t))
+	e.seedBasic(t)
+	e.setSMTP(map[string]string{"SMTP_EMAIL": "sender@contract.example.com", "SMTP_PASSWORD": "platform-secret-pw"}) // global creds only
+	if err := e.h.Secrets.Set(context.Background(), e.ws, "SMTP_HOST", "mx.attacker.example"); err != nil {
+		t.Fatal(err)
+	}
+	if err := e.h.Handle(context.Background(), e.payload(nil)); err != nil {
+		t.Fatal(err)
+	}
+	s := e.send(t, e.idem(1, 0))
+	if e.mail.n() != 0 || s == nil || s.Status != "failed" || !strings.HasPrefix(s.Error, "SMTP not configured: ") || strings.Contains(s.Error, "platform-secret-pw") {
+		t.Fatalf("calls=%d send=%+v", e.mail.n(), s)
 	}
 }

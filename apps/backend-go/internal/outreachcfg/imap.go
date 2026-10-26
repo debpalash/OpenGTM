@@ -24,16 +24,24 @@ func (c IMAP) Configured() bool { return c.Host != "" && c.User != "" && c.Passw
 // credentials. Any error yields the zero IMAP{}.
 func LoadIMAP(ctx context.Context, r *secrets.Resolver, workspaceID string) IMAP {
 	g := &getter{ctx: ctx, r: r, ws: workspaceID}
-	user := g.get("IMAP_USER", "")
+	user, userWS := g.getSrc("IMAP_USER", "")
 	if user == "" {
-		user = g.get("SMTP_EMAIL", "")
+		user, userWS = g.getSrc("SMTP_EMAIL", "")
 	}
-	pw := g.get("IMAP_PASSWORD", "")
+	pw, pwWS := g.getSrc("IMAP_PASSWORD", "")
 	if pw == "" {
-		pw = g.get("SMTP_PASSWORD", "")
+		pw, pwWS = g.getSrc("SMTP_PASSWORD", "")
+	}
+	host, hostWS := g.getSrc("IMAP_HOST", "")
+	_, portWS := g.getSrc("IMAP_PORT", "993")
+	if hostWS || portWS {
+		// global credentials only travel to the global host and port (plan 09 final security H1)
+		if (user != "" && !userWS) || (pw != "" && !pwWS) {
+			user, pw = "", ""
+		}
 	}
 	c := IMAP{
-		Host:     g.get("IMAP_HOST", ""),
+		Host:     host,
 		Port:     g.num("IMAP_PORT", "993"),
 		User:     user,
 		Password: config.Secret(pw),

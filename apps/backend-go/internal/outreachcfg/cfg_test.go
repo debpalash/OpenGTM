@@ -184,3 +184,55 @@ func TestConfigIsolatesWorkspaces(t *testing.T) {
 		t.Fatalf("wA: %+v", a)
 	}
 }
+
+// Plan 09 final security H1: the global SMTP/IMAP username and password only ever go with the
+// global host and port. A workspace that overrides host or port must bring its own credentials.
+func TestLoadSMTPWorkspaceHostNeverGetsGlobalCreds(t *testing.T) {
+	global := map[string]string{"SMTP_HOST": "smtp.platform.example", "SMTP_EMAIL": "platform@x.co", "SMTP_PASSWORD": "platform-pw"}
+	for _, key := range []string{"SMTP_HOST", "SMTP_PORT"} {
+		r := newRes(t, newStore(), global)
+		set(t, r, "w1", key, map[string]string{"SMTP_HOST": "mx.attacker.tld", "SMTP_PORT": "465"}[key])
+		c := LoadSMTP(context.Background(), r, "w1")
+		if c.Configured() || !c.Mixed || c.Password != "" || c.Email != "" || c.ConfigError() == "" {
+			t.Fatalf("override %s must not inherit global creds: %+v", key, c)
+		}
+	}
+	// only the password is global, the workspace brought a host and an email
+	r := newRes(t, newStore(), map[string]string{"SMTP_PASSWORD": "platform-pw"})
+	set(t, r, "w1", "SMTP_HOST", "mx.attacker.tld")
+	set(t, r, "w1", "SMTP_EMAIL", "me@x.co")
+	if c := LoadSMTP(context.Background(), r, "w1"); c.Configured() || c.Password != "" {
+		t.Fatalf("global password with workspace host: %+v", c)
+	}
+	// own credentials: fine
+	set(t, r, "w1", "SMTP_PASSWORD", "own-pw")
+	if c := LoadSMTP(context.Background(), r, "w1"); !c.Configured() || c.Password.Reveal() != "own-pw" || c.Mixed {
+		t.Fatalf("own creds: %+v", c)
+	}
+	// nothing overridden: global bundle still works; workspace may override only non-routing fields
+	r = newRes(t, newStore(), global)
+	set(t, r, "w1", "SMTP_FROM_NAME", "Acme")
+	if c := LoadSMTP(context.Background(), r, "w1"); !c.Configured() || c.Host != "smtp.platform.example" || c.FromName != "Acme" {
+		t.Fatalf("global bundle: %+v", c)
+	}
+}
+
+func TestLoadIMAPWorkspaceHostNeverGetsGlobalCreds(t *testing.T) {
+	r := newRes(t, newStore(), map[string]string{"IMAP_USER": "pu", "IMAP_PASSWORD": "platform-pw", "SMTP_EMAIL": "p@x.co", "SMTP_PASSWORD": "smtp-pw"})
+	set(t, r, "w1", "IMAP_HOST", "imap.attacker.tld")
+	if c := LoadIMAP(context.Background(), r, "w1"); c.Configured() || c.Password != "" || c.User != "" {
+		t.Fatalf("global IMAP creds with workspace host: %+v", c)
+	}
+	// the SMTP fallback is covered too: global SMTP creds must not reach a workspace IMAP host
+	r = newRes(t, newStore(), map[string]string{"SMTP_EMAIL": "p@x.co", "SMTP_PASSWORD": "smtp-pw"})
+	set(t, r, "w1", "IMAP_HOST", "imap.attacker.tld")
+	if c := LoadIMAP(context.Background(), r, "w1"); c.Configured() || c.Password != "" {
+		t.Fatalf("global SMTP fallback with workspace IMAP host: %+v", c)
+	}
+	// workspace SMTP creds as the fallback are the workspace's own
+	set(t, r, "w1", "SMTP_EMAIL", "me@x.co")
+	set(t, r, "w1", "SMTP_PASSWORD", "own-pw")
+	if c := LoadIMAP(context.Background(), r, "w1"); !c.Configured() || c.Password.Reveal() != "own-pw" || c.User != "me@x.co" {
+		t.Fatalf("workspace fallback: %+v", c)
+	}
+}

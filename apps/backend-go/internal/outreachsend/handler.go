@@ -346,7 +346,11 @@ func (h *Handler) run(ctx context.Context, ws string, j *job, cost float64, paid
 			return nil
 		}
 		if !cfg.Configured() {
-			return outreachstore.InsertTerminal(ctx, tx, in, "failed", "", "SMTP not configured")
+			msg := "SMTP not configured"
+			if why := cfg.ConfigError(); why != "" {
+				msg += ": " + why
+			}
+			return outreachstore.InsertTerminal(ctx, tx, in, "failed", "", msg)
 		}
 		n, err := outreachstore.SentCountLastHourAt(ctx, tx, ws, h.now())
 		if err != nil {

@@ -260,6 +260,10 @@ func (h smtpRoutes) test(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cfg := outreachcfg.LoadSMTP(r.Context(), res, ws)
+	if msg := cfg.ConfigError(); msg != "" { // workspace host without its own credentials: never fall back to the platform's
+		httpx.Detail(w, http.StatusBadRequest, "SMTP not configured: "+msg)
+		return
+	}
 	if !cfg.Configured() {
 		httpx.Detail(w, http.StatusBadRequest, "SMTP not configured")
 		return

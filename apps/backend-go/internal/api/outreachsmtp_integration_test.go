@@ -27,6 +27,9 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testsmtp"
 )
 
+// osmtpEnvVars are the process-environment values the test resolver sees (the platform's global SMTP settings).
+var osmtpEnvVars map[string]string
+
 const osmtpPassword = "fake-password-not-real"
 
 type osmtpEnv struct {
@@ -55,7 +58,9 @@ func newOsmtpEnv(t *testing.T, fake *testsmtp.Server, limiter *ratelimit.Limiter
 	if err != nil {
 		t.Fatal(err)
 	}
-	get := func(string) string { return "" }
+	osmtpEnvVars = nil
+	t.Cleanup(func() { osmtpEnvVars = nil })
+	get := func(k string) string { return osmtpEnvVars[k] }
 	out := &osmtpEnv{t: t, logs: &bytes.Buffer{}}
 	d := Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Envelope: env, Getenv: get, Limiter: limiter,
 		Log:    slog.New(slog.NewTextHandler(out.logs, nil)),
@@ -417,5 +422,34 @@ func TestConfigTenantIsolation(t *testing.T) {
 	// a foreign workspace id is refused outright
 	if code, _, _ := e.as("bob", "ws-alpha-nope", "PUT", "/api/outreach/smtp/config", `{"smtp_host":"x.example"}`); code != 403 && code != 404 {
 		t.Fatalf("foreign workspace: %d", code)
+	}
+}
+
+// Plan 09 final security H1: a workspace admin who points smtp_host at their own server must not
+// have the platform's global SMTP username and password sent there.
+func TestSMTPTestNeverSendsGlobalPasswordToWorkspaceHost(t *testing.T) {
+	srv := testsmtp.New(t, testsmtp.Options{AuthUser: "platform@example.com", AuthPass: "platform-secret-pw"})
+	e := newOsmtpEnv(t, srv, nil)
+	osmtpEnvVars = map[string]string{"SMTP_HOST": "smtp.platform.example", "SMTP_EMAIL": "platform@example.com", "SMTP_PASSWORD": "platform-secret-pw"}
+	code, m, body := e.as("alice", "", "PUT", "/api/outreach/smtp/config", `{"smtp_host":"mx.attacker.example","smtp_port":465}`)
+	if code != 200 {
+		t.Fatalf("%d %s", code, body)
+	}
+	code, m, body = e.as("alice", "", "GET", "/api/outreach/smtp/status", "")
+	if code != 200 || m["configured"] != false {
+		t.Fatalf("status %d %s", code, body)
+	}
+	code, m, body = e.as("alice", "", "POST", "/api/outreach/smtp/test", `{"to_email":"dest@example.com"}`)
+	detail, _ := m["detail"].(string)
+	if code != 400 || !strings.HasPrefix(detail, "SMTP not configured: ") || e.dial.Load() != 0 || len(srv.Messages()) != 0 {
+		t.Fatalf("%d %s dials=%d", code, body, e.dial.Load())
+	}
+	if strings.Contains(body, "platform-secret-pw") || strings.Contains(body, "platform@example.com") {
+		t.Fatalf("platform credentials leaked: %s", body)
+	}
+	// with the workspace's own credentials it works
+	e.set("ws-alpha", map[string]string{"SMTP_HOST": "localhost", "SMTP_PORT": "587", "SMTP_EMAIL": "platform@example.com", "SMTP_PASSWORD": "platform-secret-pw"})
+	if code, _, body = e.as("alice", "", "POST", "/api/outreach/smtp/test", `{"to_email":"dest@example.com"}`); code != 200 {
+		t.Fatalf("own creds: %d %s", code, body)
 	}
 }
