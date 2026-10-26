@@ -45,9 +45,12 @@ them (`TestRetainedWorkbookRoutesNotRegistered`), so a mis-route is visible.
    `GET /api/meta/providers` with static certification/maturity values, Python computes them from env, and
    they are identical only while no certification env is set (`provider-stats` and `accuracy` stay on
    Python, so `meta/providers` is the only exposure).
-8. With `BILLING_ENABLED=true`, keep the Go canary at 0% until plan 06 Task 31 lands. The canary bucket is
-   per client, not per workspace, so a billing deployment would see row-edit recompute answer
-   `unavailable` for the whole canary.
+8. With `BILLING_ENABLED=true`, also set `GO_RUN_ROUTES_ENABLED=true` (with `PG_LEAD_STORE`) before any
+   canary traffic: row-edit recompute then plans, debits and enqueues exactly like `POST /run` (one atomic
+   transaction, one debit per recompute keyed `run:<run_id>` per workspace; insufficient credits answer
+   `{"status":"blocked","detail":{message,balance_usd,required_usd}}` like Python, the edit itself stands).
+   Without `GO_RUN_ROUTES_ENABLED` the recompute still answers `unavailable` under billing, so keep the
+   canary at 0% in that configuration. The canary bucket is per client, not per workspace.
 9. Request-shape and export caps (Go hardening beyond Python, all env-configurable; see the README
    deviations): `WORKBOOK_MAX_ADD_ROWS` (10000), `WORKBOOK_MAX_ROW_KEYS` (2000),
    `WORKBOOK_MAX_VIEW_FILTERS` (50), `WORKBOOK_MAX_VIEW_SORTS` (10), `WORKBOOK_MAX_COLUMNS` (500),
@@ -94,9 +97,10 @@ through Go (columns, enrichment cells and `updated_at` order in the list must ag
 
 ## Documented gaps and deliberate deviations
 
-- `BILLING_ENABLED=true`: row recompute (`PATCH rows` with `recompute`) answers
-  `{"status":"unavailable", ...}` from Go; deployments with billing enabled keep the Go canary at 0% until
-  plan 06 Task 31 lands (prerequisite 8).
+- `BILLING_ENABLED=true`: row recompute (`PATCH rows` with `recompute`) starts a billed run through the
+  run route's code when `GO_RUN_ROUTES_ENABLED` is on (plan 06 Task 31, prerequisite 8); with it off it
+  answers `{"status":"unavailable", ...}`. A billed recompute is routed to the Go executor like `/run`
+  (Python does the same); with billing off it still enqueues for the Python executor.
 - In-flight v2 row cursors issued by Python mid-pagination are decoded by Go; cursors that cannot be
   decoded restart the listing (400 with the exact FastAPI string), so a client paging during the flip may
   need to restart from page 1.
