@@ -1071,3 +1071,72 @@ func TestHandleNoOps(t *testing.T) {
 		t.Errorf("budget spent by a no-op")
 	}
 }
+
+// No transaction (and so no balance row lock or pooled connection) spans a fetch:
+// while a source's fetch is blocked, another debit in the same workspace completes.
+func TestNoLockHeldDuringFetch(t *testing.T) {
+	pool, ctx := eSetup(t)
+	eLead(t, ctx, pool, eWS, 1, "Acme")
+	eWatch{Kind: "funding", Cursor: `{"bootstrapped": true}`}.insert(t, ctx, pool)
+	if err := tenancy.InWorkspace(ctx, pool, eWS, func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx, `INSERT INTO workspace_credits (workspace_id, balance_usd) VALUES ($1, 5.0)
+			ON CONFLICT (workspace_id) DO UPDATE SET balance_usd = 5.0`, eWS)
+		return err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	inFetch, release := make(chan struct{}), make(chan struct{})
+	stub := &eStub{}
+	stub.onCall = func(string) { close(inFetch); <-release }
+	d := eDeps(pool, stub, nil)
+	d.Cfg.FundingCostUSD, d.Cfg.BillingEnabled = 0.5, true
+	done := make(chan error, 1)
+	go func() { done <- poller.Handle(ctx, d, eClaim(t, ctx, pool, eWS, ePayload(eWS, eW))) }()
+	<-inFetch
+	cfgCopy := d.Cfg
+	other := make(chan error, 1)
+	go func() {
+		cctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
+		other <- tenancy.InWorkspace(cctx, pool, eWS, func(tx pgx.Tx) error {
+			ok, err := poller.DebitSource(cctx, tx, cfgCopy, eWS, "funding", "other-poll")
+			if err == nil && !ok {
+				err = errors.New("refused")
+			}
+			return err
+		})
+	}()
+	select {
+	case err := <-other:
+		if err != nil {
+			t.Errorf("concurrent debit blocked or failed during the fetch: %v", err)
+		}
+	case <-time.After(6 * time.Second):
+		t.Error("concurrent debit still blocked")
+	}
+	var idle int
+	_ = pool.QueryRow(ctx, `SELECT count(*) FROM pg_stat_activity WHERE state='idle in transaction' AND datname=current_database()`).Scan(&idle)
+	close(release)
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+	if idle != 0 {
+		t.Errorf("%d idle-in-transaction sessions during the fetch", idle)
+	}
+}
+
+// A cancel that arrives before the first source is honoured.
+func TestCancelBeforeFirstSource(t *testing.T) {
+	pool, ctx := eSetup(t)
+	eLead(t, ctx, pool, eWS, 1, "Acme")
+	eWatch{Kind: "funding", Cursor: `{"bootstrapped": true}`}.insert(t, ctx, pool)
+	c := eClaim(t, ctx, pool, eWS, ePayload(eWS, eW))
+	if _, err := pool.Exec(ctx, `UPDATE jobs SET status='cancelled' WHERE id=$1`, c.ID); err != nil {
+		t.Fatal(err)
+	}
+	stub := &eStub{}
+	run(t, ctx, eDeps(pool, stub, nil), c)
+	if len(stub.calls) != 0 {
+		t.Errorf("sources called: %v", stub.called())
+	}
+}
