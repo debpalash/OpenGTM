@@ -11,8 +11,22 @@ import (
 	"net/http"
 	"net/http/pprof"
 	"runtime"
+	"sync/atomic"
 	"time"
 )
+
+var abandonedProviderCalls atomic.Int64
+
+// ProviderCallAbandoned records a provider goroutine left running past its
+// deadline; call ProviderCallReturned when it finally returns.
+func ProviderCallAbandoned() { abandonedProviderCalls.Add(1) }
+
+// ProviderCallReturned releases one abandoned provider call from the gauge.
+func ProviderCallReturned() { abandonedProviderCalls.Add(-1) }
+
+// AbandonedProviderCalls is the number of provider goroutines still running
+// after their call timed out (exported as provider_calls_abandoned).
+func AbandonedProviderCalls() int64 { return abandonedProviderCalls.Load() }
 
 // DefaultDebugAddr is used when GO_WORKER_DEBUG_ADDR is unset.
 const DefaultDebugAddr = "127.0.0.1:6060"
@@ -50,7 +64,7 @@ func StartDebugServer(ctx context.Context, addr string) (*http.Server, error) {
 	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 	mux.HandleFunc("/metrics", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/plain; version=0.0.4")
-		fmt.Fprintf(w, "go_goroutines %d\nprocess_uptime_seconds %.0f\n", runtime.NumGoroutine(), time.Since(startedAt).Seconds())
+		fmt.Fprintf(w, "go_goroutines %d\nprocess_uptime_seconds %.0f\nprovider_calls_abandoned %d\n", runtime.NumGoroutine(), time.Since(startedAt).Seconds(), AbandonedProviderCalls())
 	})
 	srv := &http.Server{Addr: ln.Addr().String(), Handler: mux, ReadHeaderTimeout: 5 * time.Second}
 	go func() { _ = srv.Serve(ln) }()
