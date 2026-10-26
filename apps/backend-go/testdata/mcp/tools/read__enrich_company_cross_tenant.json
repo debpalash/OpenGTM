@@ -1,0 +1,41 @@
+{
+  "seq": 37,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 36,
+    "method": "tools/call",
+    "params": {
+      "name": "enrich_company",
+      "arguments": {
+        "lead_id": 7
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 36,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"Lead not found\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {},
+  "stubs": {
+    "enrich_company": {
+      "fields": {
+        "email": "found@acme.example.com",
+        "linkedin_url": "https://linkedin.com/company/acme"
+      },
+      "provider": "stub-provider"
+    }
+  },
+  "stub_calls": []
+}

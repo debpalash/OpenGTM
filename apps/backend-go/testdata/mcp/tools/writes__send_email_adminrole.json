@@ -1,0 +1,99 @@
+{
+  "seq": 81,
+  "profile": "writes",
+  "token": "adminrole",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 81,
+    "method": "tools/call",
+    "params": {
+      "name": "send_email",
+      "arguments": {
+        "lead_id": 6,
+        "subject": "S"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 81,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"success\", \"summary\": \"send enqueued\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-adminrole",
+      "user_id": 6,
+      "tool_name": "send_email",
+      "arguments_redacted": {
+        "lead_id": 6,
+        "subject": "S"
+      },
+      "idempotency_key": "mcpw_0000000000004000800000000000008f",
+      "result_status": "ok",
+      "error": null,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 63,
+          "state": "settled",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_0000000000004000800000000000008f",
+          "reserved_actions": 1
+        }
+      ]
+    },
+    "jobs": {
+      "added": [
+        {
+          "id": 3,
+          "type": "send",
+          "error": null,
+          "status": "pending",
+          "payload": {
+            "lead_id": 6,
+            "subject": "S",
+            "to_email": "hi@tokyo.example.com",
+            "body_html": "",
+            "variables": {
+              "city": "東京",
+              "email": "hi@tokyo.example.com",
+              "phone": "",
+              "company": "東京テック",
+              "website": "https://tokyo.example.com",
+              "contact_person": ""
+            },
+            "sequence_id": null,
+            "step_number": 0,
+            "workspace_id": "ws-alpha",
+            "enrollment_id": null,
+            "idempotency_key": "trig:ws-alpha:adhoc:6:0"
+          },
+          "executor": "python",
+          "fire_key": null,
+          "priority": 1,
+          "worker_id": null,
+          "lease_token": 0,
+          "max_retries": 3,
+          "retry_count": 0,
+          "workspace_id": "ws-alpha",
+          "last_heartbeat": null
+        }
+      ]
+    }
+  }
+}

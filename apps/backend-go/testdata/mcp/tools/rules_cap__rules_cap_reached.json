@@ -1,0 +1,61 @@
+{
+  "seq": 2,
+  "profile": "rules_cap",
+  "token": "admin",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/call",
+    "params": {
+      "name": "create_automation",
+      "arguments": {
+        "name": "two",
+        "trigger_type": "on_signal"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"max rules per workspace reached (1)\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-admin",
+      "user_id": 1,
+      "tool_name": "create_automation",
+      "arguments_redacted": {
+        "name": "two",
+        "trigger_type": "on_signal"
+      },
+      "idempotency_key": null,
+      "result_status": "error",
+      "error": "max rules per workspace reached (1)",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 2,
+          "state": "released",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_00000000000040008000000000000004",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

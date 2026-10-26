@@ -1,0 +1,31 @@
+{
+  "seq": 16,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 15,
+    "method": "tools/call",
+    "params": {
+      "name": "find_leads",
+      "arguments": {
+        "query": "東京"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 15,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"leads\": [\n    {\n      \"id\": 6,\n      \"company\": \"\\u6771\\u4eac\\u30c6\\u30c3\\u30af\",\n      \"city\": \"\\u6771\\u4eac\",\n      \"email\": \"hi@tokyo.example.com\",\n      \"phone\": \"\",\n      \"score\": 55,\n      \"tier\": \"warm\",\n      \"status\": \"qualified\",\n      \"website\": \"https://tokyo.example.com\",\n      \"specialization\": \"Software\",\n      \"company_size\": \"11-50\",\n      \"contact_person\": \"\"\n    }\n  ],\n  \"count\": 1\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

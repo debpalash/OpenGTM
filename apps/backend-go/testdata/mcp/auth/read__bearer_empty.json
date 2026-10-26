@@ -1,0 +1,30 @@
+{
+  "seq": 57,
+  "profile": "read",
+  "token": null,
+  "request": {
+    "method": "POST",
+    "path": "/message",
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 56,
+      "method": "ping"
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "body": {
+      "error": "unauthorized",
+      "detail": "missing MCP token"
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

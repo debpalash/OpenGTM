@@ -1,0 +1,59 @@
+{
+  "seq": 21,
+  "profile": "writes",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 21,
+    "method": "tools/call",
+    "params": {
+      "name": "update_lead",
+      "arguments": {
+        "notes": "x"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 21,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"lead_id is required\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "update_lead",
+      "arguments_redacted": {
+        "notes": "x"
+      },
+      "idempotency_key": null,
+      "result_status": "error",
+      "error": "lead_id is required",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 15,
+          "state": "released",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_0000000000004000800000000000001d",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "seq": 48,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 47,
+    "method": "tools/call",
+    "params": {}
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 47,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"Unknown tool: \"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

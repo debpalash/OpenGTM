@@ -1,0 +1,31 @@
+{
+  "seq": 22,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 21,
+    "method": "tools/call",
+    "params": {
+      "name": "get_lead_detail",
+      "arguments": {
+        "lead_id": 1
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 21,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"id\": 1,\n  \"company\": \"Acme Robotics\",\n  \"website\": \"https://acme.example.com\",\n  \"email\": \"info@acme.example.com\",\n  \"email_confidence\": null,\n  \"email_provider\": null,\n  \"phone\": \"+49 30 555 0101\",\n  \"phone_provider\": null,\n  \"contact_person\": \"Ada Lovelace\",\n  \"contact_title\": null,\n  \"city\": \"Berlin\",\n  \"state\": null,\n  \"address\": null,\n  \"specialization\": \"Robotics\",\n  \"company_size\": \"51-200\",\n  \"employee_count_exact\": null,\n  \"description\": null,\n  \"revenue_range\": null,\n  \"founded_year\": null,\n  \"industry_tags\": null,\n  \"technologies\": null,\n  \"technographics\": null,\n  \"funding_stage\": null,\n  \"company_size_basis\": \"\",\n  \"linkedin_url\": null,\n  \"twitter_url\": null,\n  \"facebook_url\": null,\n  \"secondary_emails\": null,\n  \"secondary_phones\": null,\n  \"decision_makers\": [\n    {\n      \"name\": \"Sam Lee\",\n      \"title\": \"CEO\"\n    }\n  ],\n  \"glassdoor_rating\": null,\n  \"hiring_signals\": null,\n  \"enrichment_attempts\": null,\n  \"enrichment_waterfall\": null,\n  \"field_provenance\": null,\n  \"source\": \"mcp-seed\",\n  \"source_url\": null,\n  \"collection_job_id\": null,\n  \"workspace_id\": \"ws-alpha\",\n  \"score\": 80,\n  \"score_tier\": \"hot\",\n  \"status\": \"new\",\n  \"yupcha_value_prop\": null,\n  \"company_need\": null,\n  \"notes\": null,\n  \"created_at\": \"2026-08-29T10:00:00\",\n  \"updated_at\": \"2026-08-29T10:00:00\",\n  \"last_enriched_at\": null\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

@@ -1,0 +1,31 @@
+{
+  "seq": 7,
+  "profile": "capped",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 7,
+    "method": "tools/call",
+    "params": {
+      "name": "find_leads",
+      "arguments": {
+        "query": "cap"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 7,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"leads\": [\n    {\n      \"id\": 10,\n      \"company\": \"Cap Two\",\n      \"city\": \"B\",\n      \"email\": \"\",\n      \"phone\": \"\",\n      \"score\": 0,\n      \"tier\": \"unqualified\",\n      \"status\": \"new\",\n      \"website\": \"\",\n      \"specialization\": \"\",\n      \"company_size\": \"\",\n      \"contact_person\": \"\"\n    },\n    {\n      \"id\": 9,\n      \"company\": \"Cap One\",\n      \"city\": \"A\",\n      \"email\": \"\",\n      \"phone\": \"\",\n      \"score\": 0,\n      \"tier\": \"unqualified\",\n      \"status\": \"new\",\n      \"website\": \"\",\n      \"specialization\": \"\",\n      \"company_size\": \"\",\n      \"contact_person\": \"\"\n    }\n  ],\n  \"count\": 2\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

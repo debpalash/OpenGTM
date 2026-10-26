@@ -1,0 +1,30 @@
+{
+  "seq": 61,
+  "profile": "read",
+  "token": "removed_member",
+  "request": {
+    "method": "POST",
+    "path": "/message",
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 60,
+      "method": "ping"
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "body": {
+      "error": "unauthorized",
+      "detail": "MCP token user is no longer a workspace member"
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

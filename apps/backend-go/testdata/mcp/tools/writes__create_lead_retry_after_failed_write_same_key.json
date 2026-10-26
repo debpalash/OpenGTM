@@ -1,0 +1,50 @@
+{
+  "seq": 7,
+  "profile": "writes",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 7,
+    "method": "tools/call",
+    "params": {
+      "name": "create_lead",
+      "arguments": {
+        "company": "Retry Co",
+        "city": "R",
+        "idempotency_key": "k-fail-1"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 7,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"mcp write cap exceeded\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "create_lead",
+      "arguments_redacted": {
+        "company": "Retry Co",
+        "city": "R",
+        "idempotency_key": "k-fail-1"
+      },
+      "idempotency_key": null,
+      "result_status": "capped",
+      "error": "daily MCP write cap exceeded",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {},
+  "deviation": "D5: Python commits the reservation first and then answers 'mcp write cap exceeded' to a retry of a key whose first attempt failed (the released key is refused); Go frees the slot in the same transaction and applies the retry"
+}

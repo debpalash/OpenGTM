@@ -1,0 +1,31 @@
+{
+  "seq": 33,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 32,
+    "method": "tools/call",
+    "params": {
+      "name": "score_lead",
+      "arguments": {
+        "lead_id": 999
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 32,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"Lead not found\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

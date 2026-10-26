@@ -1,0 +1,47 @@
+{
+  "seq": 35,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 34,
+    "method": "tools/call",
+    "params": {
+      "name": "enrich_company",
+      "arguments": {
+        "lead_id": 1
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 34,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"enriched_fields\": {\n    \"email\": \"found@acme.example.com\",\n    \"linkedin_url\": \"https://linkedin.com/company/acme\"\n  },\n  \"provider\": \"stub-provider\"\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {},
+  "stubs": {
+    "enrich_company": {
+      "fields": {
+        "email": "found@acme.example.com",
+        "linkedin_url": "https://linkedin.com/company/acme"
+      },
+      "provider": "stub-provider"
+    }
+  },
+  "stub_calls": [
+    {
+      "stub": "enrich_company",
+      "lead_id": 1,
+      "company": "Acme Robotics"
+    }
+  ]
+}

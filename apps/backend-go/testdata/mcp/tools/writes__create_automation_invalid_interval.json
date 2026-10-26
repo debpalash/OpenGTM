@@ -1,0 +1,67 @@
+{
+  "seq": 65,
+  "profile": "writes",
+  "token": "admin",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 65,
+    "method": "tools/call",
+    "params": {
+      "name": "create_automation",
+      "arguments": {
+        "name": "x",
+        "trigger_type": "on_schedule",
+        "trigger_config": {
+          "interval": "yearly"
+        }
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 65,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"invalid schedule interval 'yearly'\", \"status_code\": 422}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-admin",
+      "user_id": 1,
+      "tool_name": "create_automation",
+      "arguments_redacted": {
+        "name": "x",
+        "trigger_type": "on_schedule",
+        "trigger_config": {
+          "interval": "yearly"
+        }
+      },
+      "idempotency_key": null,
+      "result_status": "error",
+      "error": "invalid schedule interval 'yearly'",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 48,
+          "state": "released",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_0000000000004000800000000000006f",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

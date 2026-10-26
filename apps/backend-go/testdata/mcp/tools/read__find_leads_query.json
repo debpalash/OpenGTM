@@ -1,0 +1,31 @@
+{
+  "seq": 12,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 11,
+    "method": "tools/call",
+    "params": {
+      "name": "find_leads",
+      "arguments": {
+        "query": "acme"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 11,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"leads\": [\n    {\n      \"id\": 1,\n      \"company\": \"Acme Robotics\",\n      \"city\": \"Berlin\",\n      \"email\": \"info@acme.example.com\",\n      \"phone\": \"+49 30 555 0101\",\n      \"score\": 80,\n      \"tier\": \"hot\",\n      \"status\": \"new\",\n      \"website\": \"https://acme.example.com\",\n      \"specialization\": \"Robotics\",\n      \"company_size\": \"51-200\",\n      \"contact_person\": \"Ada Lovelace\"\n    }\n  ],\n  \"count\": 1\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

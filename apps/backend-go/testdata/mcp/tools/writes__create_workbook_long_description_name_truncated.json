@@ -1,0 +1,118 @@
+{
+  "seq": 32,
+  "profile": "writes",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 32,
+    "method": "tools/call",
+    "params": {
+      "name": "create_workbook",
+      "arguments": {
+        "description": "Founders and VPs of engineering at fintech startups, location: London, with social profiles"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 32,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"created\", \"workbook_id\": \"00000000-0000-4000-8000-000000000034\", \"name\": \"MCP \\u2014 Founders and VPs of engineering at finte\", \"columns\": [\"Company\", \"LinkedIn\", \"Contact\", \"Title\", \"City\", \"Email\"]}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "create_workbook",
+      "arguments_redacted": {
+        "description": "Founders and VPs of engineering at fintech startups, location: London, with social profiles"
+      },
+      "idempotency_key": "mcpw_00000000000040008000000000000033",
+      "result_status": "ok",
+      "error": null,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "workbooks": {
+      "added": [
+        {
+          "id": "00000000-0000-4000-8000-000000000034",
+          "name": "MCP — Founders and VPs of engineering at finte",
+          "status": "draft",
+          "total_rows": 0,
+          "description": "Founders and VPs of engineering at fintech startups, location: London, with social profiles",
+          "source_type": "empty",
+          "workspace_id": "ws-alpha",
+          "source_config": {},
+          "sync_to_leads": true,
+          "budget_max_usd": 0,
+          "columns_config": [
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company"
+            },
+            {
+              "id": "linkedin_url",
+              "name": "LinkedIn",
+              "type": "lead_field",
+              "lead_field": "linkedin_url"
+            },
+            {
+              "id": "contact_person",
+              "name": "Contact",
+              "type": "lead_field",
+              "lead_field": "contact_person"
+            },
+            {
+              "id": "contact_title",
+              "name": "Title",
+              "type": "lead_field",
+              "lead_field": "contact_title"
+            },
+            {
+              "id": "city",
+              "name": "City",
+              "type": "lead_field",
+              "lead_field": "city"
+            },
+            {
+              "id": "email",
+              "name": "Email",
+              "type": "lead_field",
+              "lead_field": "email"
+            }
+          ],
+          "completed_rows": 0,
+          "refresh_policy": {},
+          "filter_criteria": {},
+          "budget_spent_usd": 0,
+          "action_idempotency_key": null
+        }
+      ]
+    },
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 25,
+          "state": "settled",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_00000000000040008000000000000033",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

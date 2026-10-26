@@ -1,0 +1,47 @@
+{
+  "seq": 37,
+  "profile": "writes",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 37,
+    "method": "tools/call",
+    "params": {
+      "name": "create_workbook",
+      "arguments": {
+        "description": "x",
+        "idempotency_key": "k-wb-1"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 37,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"duplicate\", \"idempotency_key\": \"k-wb-1\", \"message\": \"already applied (idempotent replay)\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "create_workbook",
+      "arguments_redacted": {
+        "description": "x",
+        "idempotency_key": "k-wb-1"
+      },
+      "idempotency_key": null,
+      "result_status": "ok",
+      "error": "idempotent_replay",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

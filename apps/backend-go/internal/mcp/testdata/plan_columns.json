@@ -1,0 +1,438 @@
+[
+  {
+    "description": "",
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      }
+    ]
+  },
+  {
+    "description": "SaaS CTOs in SF with email and LinkedIn",
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      },
+      {
+        "id": "linkedin_url",
+        "name": "LinkedIn",
+        "type": "lead_field",
+        "lead_field": "linkedin_url"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      },
+      {
+        "id": "contact_title",
+        "name": "Title",
+        "type": "lead_field",
+        "lead_field": "contact_title"
+      }
+    ]
+  },
+  {
+    "description": "call plant managers by phone in the city",
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "phone",
+        "name": "Phone",
+        "type": "lead_field",
+        "lead_field": "phone"
+      },
+      {
+        "id": "city",
+        "name": "City",
+        "type": "lead_field",
+        "lead_field": "city"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      }
+    ]
+  },
+  {
+    "description": "CEO and founder",
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      },
+      {
+        "id": "contact_title",
+        "name": "Title",
+        "type": "lead_field",
+        "lead_field": "contact_title"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      }
+    ]
+  },
+  {
+    "description": "social location contact",
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      },
+      {
+        "id": "linkedin_url",
+        "name": "LinkedIn",
+        "type": "lead_field",
+        "lead_field": "linkedin_url"
+      },
+      {
+        "id": "city",
+        "name": "City",
+        "type": "lead_field",
+        "lead_field": "city"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      }
+    ]
+  },
+  {
+    "description": "東京の CEO — title & contact ünïcode",
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      },
+      {
+        "id": "contact_title",
+        "name": "Title",
+        "type": "lead_field",
+        "lead_field": "contact_title"
+      }
+    ]
+  },
+  {
+    "description": "VP of sales, vp ops",
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      },
+      {
+        "id": "contact_title",
+        "name": "Title",
+        "type": "lead_field",
+        "lead_field": "contact_title"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      }
+    ]
+  },
+  {
+    "description": "Cold callers (phone) in Berlin",
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "phone",
+        "name": "Phone",
+        "type": "lead_field",
+        "lead_field": "phone"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      }
+    ]
+  },
+  {
+    "description": "EMAIL PHONE LINKEDIN TITLE CITY",
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      },
+      {
+        "id": "phone",
+        "name": "Phone",
+        "type": "lead_field",
+        "lead_field": "phone"
+      },
+      {
+        "id": "linkedin_url",
+        "name": "LinkedIn",
+        "type": "lead_field",
+        "lead_field": "linkedin_url"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      },
+      {
+        "id": "contact_title",
+        "name": "Title",
+        "type": "lead_field",
+        "lead_field": "contact_title"
+      },
+      {
+        "id": "city",
+        "name": "City",
+        "type": "lead_field",
+        "lead_field": "city"
+      }
+    ]
+  },
+  {
+    "description": "nothing relevant here",
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      }
+    ]
+  },
+  {
+    "description": "recall the lifecycle",
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "phone",
+        "name": "Phone",
+        "type": "lead_field",
+        "lead_field": "phone"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      }
+    ]
+  },
+  {
+    "description": "linkedin only",
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "linkedin_url",
+        "name": "LinkedIn",
+        "type": "lead_field",
+        "lead_field": "linkedin_url"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      }
+    ]
+  },
+  {
+    "description": "decoy: callous, ceo-ish, vpn, locations",
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "phone",
+        "name": "Phone",
+        "type": "lead_field",
+        "lead_field": "phone"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      },
+      {
+        "id": "contact_title",
+        "name": "Title",
+        "type": "lead_field",
+        "lead_field": "contact_title"
+      },
+      {
+        "id": "city",
+        "name": "City",
+        "type": "lead_field",
+        "lead_field": "city"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      }
+    ]
+  },
+  {
+    "description": null,
+    "columns": [
+      {
+        "id": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "lead_field": "company"
+      },
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "lead_field",
+        "lead_field": "email"
+      },
+      {
+        "id": "contact_person",
+        "name": "Contact",
+        "type": "lead_field",
+        "lead_field": "contact_person"
+      }
+    ]
+  }
+]

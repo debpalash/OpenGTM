@@ -1,0 +1,47 @@
+{
+  "seq": 42,
+  "profile": "read",
+  "token": "workspace_b",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 41,
+    "method": "tools/call",
+    "params": {
+      "name": "verify_email",
+      "arguments": {
+        "email": "b@x.example.com",
+        "workspace_id": "ws-alpha"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 41,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"email\": \"b@x.example.com\",\n  \"status\": \"valid\",\n  \"valid\": true,\n  \"deliverable\": true,\n  \"confidence\": 0.97,\n  \"source\": \"stub-verifier\",\n  \"detail\": \"mailbox exists\"\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {},
+  "stubs": {
+    "verify_email": {
+      "status": "valid",
+      "source": "stub-verifier",
+      "confidence": 0.97,
+      "detail": "mailbox exists"
+    }
+  },
+  "stub_calls": [
+    {
+      "stub": "verify_email",
+      "email": "b@x.example.com",
+      "workspace_id": "ws-beta"
+    }
+  ]
+}

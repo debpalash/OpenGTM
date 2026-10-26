@@ -1,0 +1,45 @@
+{
+  "seq": 55,
+  "profile": "writes",
+  "token": "viewer",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 55,
+    "method": "tools/call",
+    "params": {
+      "name": "create_workbook",
+      "arguments": {
+        "description": "x"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 55,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"insufficient workspace role\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-viewer",
+      "user_id": 3,
+      "tool_name": "create_workbook",
+      "arguments_redacted": {
+        "description": "x"
+      },
+      "idempotency_key": null,
+      "result_status": "denied",
+      "error": "insufficient workspace role",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

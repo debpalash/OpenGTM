@@ -1,0 +1,53 @@
+{
+  "seq": 29,
+  "profile": "writes",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 29,
+    "method": "tools/call",
+    "params": {
+      "name": "enroll_leads",
+      "arguments": {
+        "sequence_id": "seq-alpha-1",
+        "lead_ids": [
+          6
+        ],
+        "idempotency_key": "k-enroll-1"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 29,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"duplicate\", \"idempotency_key\": \"k-enroll-1\", \"message\": \"already applied (idempotent replay)\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "enroll_leads",
+      "arguments_redacted": {
+        "sequence_id": "seq-alpha-1",
+        "lead_ids": [
+          6
+        ],
+        "idempotency_key": "k-enroll-1"
+      },
+      "idempotency_key": null,
+      "result_status": "ok",
+      "error": "idempotent_replay",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

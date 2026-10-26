@@ -1,0 +1,45 @@
+{
+  "seq": 52,
+  "profile": "read",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 51,
+    "method": "tools/call",
+    "params": {
+      "name": "create_lead",
+      "arguments": {
+        "company": "Nope"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 51,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"mcp writes disabled\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "create_lead",
+      "arguments_redacted": {
+        "company": "Nope"
+      },
+      "idempotency_key": null,
+      "result_status": "denied",
+      "error": "mcp writes disabled",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

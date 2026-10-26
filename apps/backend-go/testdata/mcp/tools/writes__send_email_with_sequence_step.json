@@ -1,0 +1,106 @@
+{
+  "seq": 77,
+  "profile": "writes",
+  "token": "admin",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 77,
+    "method": "tools/call",
+    "params": {
+      "name": "send_email",
+      "arguments": {
+        "lead_id": 2,
+        "sequence_id": "seq-alpha-1",
+        "step_number": 1,
+        "subject": "Step",
+        "body_html": "<a href=\"https://x.example.com/u?t=FAKE_LINK_TOKEN\">hi</a>"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 77,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"success\", \"summary\": \"send enqueued\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-admin",
+      "user_id": 1,
+      "tool_name": "send_email",
+      "arguments_redacted": {
+        "lead_id": 2,
+        "sequence_id": "seq-alpha-1",
+        "step_number": 1,
+        "subject": "Step",
+        "body_html": "<a href=\"https://x.example.com/u?t=FAKE_LINK_TOKEN\">hi</a>"
+      },
+      "idempotency_key": "mcpw_00000000000040008000000000000087",
+      "result_status": "ok",
+      "error": null,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 59,
+          "state": "settled",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_00000000000040008000000000000087",
+          "reserved_actions": 1
+        }
+      ]
+    },
+    "jobs": {
+      "added": [
+        {
+          "id": 2,
+          "type": "send",
+          "error": null,
+          "status": "pending",
+          "payload": {
+            "lead_id": 2,
+            "subject": "Step",
+            "to_email": "hello@globex.example.com",
+            "body_html": "<a href=\"https://x.example.com/u?t=FAKE_LINK_TOKEN\">hi</a>",
+            "variables": {
+              "city": "Austin",
+              "email": "hello@globex.example.com",
+              "phone": "+1 512 555 0102",
+              "company": "Globex Corp",
+              "website": "https://globex.example.com",
+              "contact_person": "Hank Scorpio"
+            },
+            "sequence_id": "seq-alpha-1",
+            "step_number": 1,
+            "workspace_id": "ws-alpha",
+            "enrollment_id": 2,
+            "idempotency_key": "seq:ws-alpha:seq-alpha-1:2:1"
+          },
+          "executor": "python",
+          "fire_key": null,
+          "priority": 1,
+          "worker_id": null,
+          "lease_token": 0,
+          "max_retries": 3,
+          "retry_count": 0,
+          "workspace_id": "ws-alpha",
+          "last_heartbeat": null
+        }
+      ]
+    }
+  },
+  "deviation": "D6: Python redacts arguments shallowly; Go redacts nested secrets and link tokens"
+}

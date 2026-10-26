@@ -1,0 +1,45 @@
+{
+  "seq": 53,
+  "profile": "read",
+  "token": "admin",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 52,
+    "method": "tools/call",
+    "params": {
+      "name": "delete_workbook",
+      "arguments": {
+        "workbook_id": "wb-alpha-del"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 52,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"mcp writes disabled\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-admin",
+      "user_id": 1,
+      "tool_name": "delete_workbook",
+      "arguments_redacted": {
+        "workbook_id": "wb-alpha-del"
+      },
+      "idempotency_key": null,
+      "result_status": "denied",
+      "error": "mcp writes disabled",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

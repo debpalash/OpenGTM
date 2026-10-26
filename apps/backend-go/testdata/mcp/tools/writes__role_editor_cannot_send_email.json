@@ -1,0 +1,45 @@
+{
+  "seq": 48,
+  "profile": "writes",
+  "token": "all",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 48,
+    "method": "tools/call",
+    "params": {
+      "name": "send_email",
+      "arguments": {
+        "lead_id": 1
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 48,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"insufficient workspace role\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-all",
+      "user_id": 2,
+      "tool_name": "send_email",
+      "arguments_redacted": {
+        "lead_id": 1
+      },
+      "idempotency_key": null,
+      "result_status": "denied",
+      "error": "insufficient workspace role",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

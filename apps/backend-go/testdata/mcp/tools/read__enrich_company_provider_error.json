@@ -1,0 +1,43 @@
+{
+  "seq": 38,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 37,
+    "method": "tools/call",
+    "params": {
+      "name": "enrich_company",
+      "arguments": {
+        "lead_id": 1
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 37,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"provider unavailable\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {},
+  "stubs": {
+    "enrich_company": {
+      "raises": "provider unavailable"
+    }
+  },
+  "stub_calls": [
+    {
+      "stub": "enrich_company",
+      "lead_id": 1,
+      "company": "Acme Robotics"
+    }
+  ]
+}

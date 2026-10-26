@@ -1,0 +1,46 @@
+{
+  "seq": 39,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 38,
+    "method": "tools/call",
+    "params": {
+      "name": "verify_email",
+      "arguments": {
+        "email": "info@acme.example.com"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 38,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"email\": \"info@acme.example.com\",\n  \"status\": \"valid\",\n  \"valid\": true,\n  \"deliverable\": true,\n  \"confidence\": 0.97,\n  \"source\": \"stub-verifier\",\n  \"detail\": \"mailbox exists\"\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {},
+  "stubs": {
+    "verify_email": {
+      "status": "valid",
+      "source": "stub-verifier",
+      "confidence": 0.97,
+      "detail": "mailbox exists"
+    }
+  },
+  "stub_calls": [
+    {
+      "stub": "verify_email",
+      "email": "info@acme.example.com",
+      "workspace_id": "ws-alpha"
+    }
+  ]
+}

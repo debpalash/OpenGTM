@@ -1,0 +1,33 @@
+{
+  "seq": 68,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "method": "POST",
+    "path": "/message",
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 65,
+      "method": "nope/nope"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 65,
+      "error": {
+        "code": -32601,
+        "message": "Method not found: nope/nope"
+      }
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

@@ -1,0 +1,46 @@
+{
+  "seq": 40,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 39,
+    "method": "tools/call",
+    "params": {
+      "name": "verify_email",
+      "arguments": {
+        "email": "x@acme.example.com"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 39,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"email\": \"x@acme.example.com\",\n  \"status\": \"catch_all\",\n  \"valid\": false,\n  \"deliverable\": true,\n  \"confidence\": 0.5,\n  \"source\": \"stub-verifier\",\n  \"detail\": \"accepts any\"\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {},
+  "stubs": {
+    "verify_email": {
+      "status": "catch_all",
+      "source": "stub-verifier",
+      "confidence": 0.5,
+      "detail": "accepts any"
+    }
+  },
+  "stub_calls": [
+    {
+      "stub": "verify_email",
+      "email": "x@acme.example.com",
+      "workspace_id": "ws-alpha"
+    }
+  ]
+}

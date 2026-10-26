@@ -1,0 +1,49 @@
+{
+  "seq": 61,
+  "profile": "writes",
+  "token": "admin",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 61,
+    "method": "tools/call",
+    "params": {
+      "name": "create_automation",
+      "arguments": {
+        "name": "Hot signal hook",
+        "trigger_type": "on_signal",
+        "idempotency_key": "k-auto-1"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 61,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"duplicate\", \"idempotency_key\": \"k-auto-1\", \"message\": \"already applied (idempotent replay)\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-admin",
+      "user_id": 1,
+      "tool_name": "create_automation",
+      "arguments_redacted": {
+        "name": "Hot signal hook",
+        "trigger_type": "on_signal",
+        "idempotency_key": "k-auto-1"
+      },
+      "idempotency_key": null,
+      "result_status": "ok",
+      "error": "idempotent_replay",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

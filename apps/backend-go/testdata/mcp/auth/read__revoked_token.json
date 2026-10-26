@@ -1,0 +1,30 @@
+{
+  "seq": 60,
+  "profile": "read",
+  "token": "revoked",
+  "request": {
+    "method": "POST",
+    "path": "/message",
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 59,
+      "method": "ping"
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "body": {
+      "error": "unauthorized",
+      "detail": "MCP token revoked"
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

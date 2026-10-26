@@ -1,0 +1,171 @@
+[
+  {
+    "role": "owner",
+    "floor": "write",
+    "roles": [
+      "admin",
+      "member",
+      "editor"
+    ],
+    "allowed": true,
+    "error": null
+  },
+  {
+    "role": "owner",
+    "floor": "admin",
+    "roles": [
+      "admin"
+    ],
+    "allowed": true,
+    "error": null
+  },
+  {
+    "role": "admin",
+    "floor": "write",
+    "roles": [
+      "admin",
+      "member",
+      "editor"
+    ],
+    "allowed": true,
+    "error": null
+  },
+  {
+    "role": "admin",
+    "floor": "admin",
+    "roles": [
+      "admin"
+    ],
+    "allowed": true,
+    "error": null
+  },
+  {
+    "role": "member",
+    "floor": "write",
+    "roles": [
+      "admin",
+      "member",
+      "editor"
+    ],
+    "allowed": true,
+    "error": null
+  },
+  {
+    "role": "member",
+    "floor": "admin",
+    "roles": [
+      "admin"
+    ],
+    "allowed": false,
+    "error": "insufficient workspace role"
+  },
+  {
+    "role": "editor",
+    "floor": "write",
+    "roles": [
+      "admin",
+      "member",
+      "editor"
+    ],
+    "allowed": true,
+    "error": null
+  },
+  {
+    "role": "editor",
+    "floor": "admin",
+    "roles": [
+      "admin"
+    ],
+    "allowed": false,
+    "error": "insufficient workspace role"
+  },
+  {
+    "role": "viewer",
+    "floor": "write",
+    "roles": [
+      "admin",
+      "member",
+      "editor"
+    ],
+    "allowed": false,
+    "error": "insufficient workspace role"
+  },
+  {
+    "role": "viewer",
+    "floor": "admin",
+    "roles": [
+      "admin"
+    ],
+    "allowed": false,
+    "error": "insufficient workspace role"
+  },
+  {
+    "role": null,
+    "floor": "write",
+    "roles": [
+      "admin",
+      "member",
+      "editor"
+    ],
+    "allowed": false,
+    "error": "insufficient workspace role"
+  },
+  {
+    "role": null,
+    "floor": "admin",
+    "roles": [
+      "admin"
+    ],
+    "allowed": false,
+    "error": "insufficient workspace role"
+  },
+  {
+    "role": "OWNER",
+    "floor": "write",
+    "roles": [
+      "admin",
+      "member",
+      "editor"
+    ],
+    "allowed": false,
+    "error": "insufficient workspace role"
+  },
+  {
+    "role": "OWNER",
+    "floor": "admin",
+    "roles": [
+      "admin"
+    ],
+    "allowed": false,
+    "error": "insufficient workspace role"
+  },
+  {
+    "role": "Admin",
+    "floor": "write",
+    "roles": [
+      "admin",
+      "member",
+      "editor"
+    ],
+    "allowed": false,
+    "error": "insufficient workspace role"
+  },
+  {
+    "role": "Admin",
+    "floor": "admin",
+    "roles": [
+      "admin"
+    ],
+    "allowed": false,
+    "error": "insufficient workspace role"
+  },
+  {
+    "role": "<no user: self-host>",
+    "floor": "admin",
+    "roles": [
+      "admin"
+    ],
+    "allowed": true,
+    "error": null
+  }
+]

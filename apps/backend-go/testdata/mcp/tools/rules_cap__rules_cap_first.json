@@ -1,0 +1,84 @@
+{
+  "seq": 1,
+  "profile": "rules_cap",
+  "token": "admin",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "create_automation",
+      "arguments": {
+        "name": "one",
+        "trigger_type": "on_signal"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"created\", \"automation_id\": \"00000000-0000-4000-8000-000000000002\", \"automation\": {\"id\": \"00000000-0000-4000-8000-000000000002\", \"workspace_id\": \"ws-alpha\", \"name\": \"one\", \"enabled\": true, \"trigger_type\": \"on_signal\", \"trigger_config\": {}, \"condition\": \"\", \"actions\": [], \"scope_workbook_ids\": [], \"stop_on_error\": false, \"max_spend_usd_per_day\": null, \"max_actions_per_day\": null, \"next_run_at\": null, \"schedule_anchor\": null, \"last_fired_at\": null, \"created_by\": \"1\", \"created_at\": \"<volatile>\", \"updated_at\": \"<volatile>\"}}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-admin",
+      "user_id": 1,
+      "tool_name": "create_automation",
+      "arguments_redacted": {
+        "name": "one",
+        "trigger_type": "on_signal"
+      },
+      "idempotency_key": "mcpw_00000000000040008000000000000001",
+      "result_status": "ok",
+      "error": null,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "triggers": {
+      "added": [
+        {
+          "id": "00000000-0000-4000-8000-000000000002",
+          "name": "one",
+          "actions": [],
+          "enabled": true,
+          "condition": "",
+          "created_by": "1",
+          "trigger_type": "on_signal",
+          "workspace_id": "ws-alpha",
+          "stop_on_error": false,
+          "trigger_config": {},
+          "scope_workbook_ids": [],
+          "max_actions_per_day": null,
+          "max_spend_usd_per_day": null
+        }
+      ]
+    },
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 1,
+          "state": "settled",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_00000000000040008000000000000001",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  },
+  "volatile": [
+    "$.automation.created_at",
+    "$.automation.updated_at"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "seq": 7,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 5
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 5,
+    "error": {
+      "code": -32601,
+      "message": "Method not found: "
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

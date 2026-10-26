@@ -1,0 +1,84 @@
+{
+  "seq": 28,
+  "profile": "writes",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 28,
+    "method": "tools/call",
+    "params": {
+      "name": "enroll_leads",
+      "arguments": {
+        "sequence_id": "seq-alpha-1",
+        "lead_ids": [
+          6
+        ],
+        "idempotency_key": "k-enroll-1"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 28,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"enrolled\": 1, \"skipped\": [], \"total_lead_ids\": 1}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "enroll_leads",
+      "arguments_redacted": {
+        "sequence_id": "seq-alpha-1",
+        "lead_ids": [
+          6
+        ],
+        "idempotency_key": "k-enroll-1"
+      },
+      "idempotency_key": "k-enroll-1",
+      "result_status": "ok",
+      "error": null,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 22,
+          "state": "settled",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "k-enroll-1",
+          "reserved_actions": 1
+        }
+      ]
+    },
+    "outreach_enrollments": {
+      "added": [
+        {
+          "id": 5,
+          "error": "",
+          "status": "pending",
+          "lead_id": 6,
+          "sent_count": 0,
+          "sequence_id": "seq-alpha-1",
+          "current_step": 0,
+          "workspace_id": "ws-alpha",
+          "consent_source": "mcp_enroll",
+          "soft_bounce_count": 0,
+          "to_email_snapshot": "hi@tokyo.example.com"
+        }
+      ]
+    }
+  }
+}

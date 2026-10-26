@@ -1,0 +1,17 @@
+{
+  "seq": 5,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 5,
+    "method": "ping"
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 5,
+    "result": {}
+  },
+  "audit": [],
+  "effects": {}
+}
