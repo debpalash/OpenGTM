@@ -2,6 +2,8 @@ package destdeliver
 
 import (
 	"context"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/crmpush"
 	"strings"
 	"testing"
 )
@@ -12,7 +14,22 @@ func (fakeWebhook) Send(context.Context, WebhookRequest) (Result, error) { retur
 
 type fakeCRM struct{}
 
-func (fakeCRM) Push(context.Context, CRMRequest) (Result, error) { return Result{}, nil }
+func (fakeCRM) Push(context.Context, string, map[string]any, map[string]any, string, int64) crmpush.Result {
+	return crmpush.Result{}
+}
+
+type fakeSecrets struct{}
+
+func (fakeSecrets) Get(context.Context, string, string) (string, string, error) { return "", "", nil }
+
+// Every request carries the workspace; the CRM port mirrors crmpush.Push and Ports holds the secret resolver.
+func TestPortShapes(t *testing.T) {
+	_ = WebhookRequest{WorkspaceID: "w"}
+	_ = CampaignRequest{WorkspaceID: "w", LeadID: 1}
+	_ = RowUpsert{WorkspaceID: "w", LeadID: 1}
+	var _ CRMPusher = fakeCRM{}
+	_ = Ports{Secrets: fakeSecrets{}}
+}
 
 func TestPortsSupports(t *testing.T) {
 	var none Ports

@@ -9,48 +9,54 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audiencerefresh"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destdeliver"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 )
 
-// audiencePatterns are exactly the 8 routes of plan 10 Tasks 15-17; destinationPatterns the
-// 15 routes of Tasks 18-21. Stubs register nothing until their task lands, so the registered
+// audiencePatterns / destinationPatterns are the Python route sets. Stubs register nothing until their task lands, so the registered
 // set must stay a subset.
+// Generated from legacy/python/apps/api/routers/{audiences,destinations}.py (9 and 16 routes).
 var audiencePatterns = map[string]bool{
 	"GET /api/audiences":                        true,
+	"GET /api/audiences/capabilities":           true,
 	"POST /api/audiences":                       true,
-	"GET /api/audiences/{audience_id}":          true,
-	"PUT /api/audiences/{audience_id}":          true,
-	"DELETE /api/audiences/{audience_id}":       true,
+	"PATCH /api/audiences/{audience_id}":        true,
+	"POST /api/audiences/{audience_id}/refresh": true,
 	"GET /api/audiences/{audience_id}/members":  true,
-	"GET /api/audiences/{audience_id}/events":   true,
 	"GET /api/audiences/{audience_id}/accounts": true,
+	"GET /api/audiences/{audience_id}/events":   true,
+	"DELETE /api/audiences/{audience_id}":       true,
 }
 
 var destinationPatterns = map[string]bool{
-	"GET /api/audience-destinations":                                               true,
-	"POST /api/audience-destinations":                                              true,
-	"GET /api/audience-destinations/{destination_id}":                              true,
-	"PUT /api/audience-destinations/{destination_id}":                              true,
-	"DELETE /api/audience-destinations/{destination_id}":                           true,
-	"POST /api/audience-destinations/{destination_id}/sync":                        true,
-	"GET /api/audience-destinations/{destination_id}/runs":                         true,
-	"GET /api/audience-destinations/{destination_id}/runs/{run_id}":                true,
-	"GET /api/audience-destinations/{destination_id}/runs/{run_id}/deliveries":     true,
-	"GET /api/audience-destinations/{destination_id}/inbound-tokens":               true,
-	"POST /api/audience-destinations/{destination_id}/inbound-tokens":              true,
-	"DELETE /api/audience-destinations/{destination_id}/inbound-tokens/{token_id}": true,
-	"POST /api/audience-destinations/inbound/{destination_id}":                     true,
-	"GET /api/audience-destinations/{destination_id}/inbound-receipts":             true,
-	"POST /api/audience-destinations/{destination_id}/test":                        true,
+	"GET /api/audience-destinations/types":                             true,
+	"GET /api/audience-destinations":                                   true,
+	"POST /api/audience-destinations":                                  true,
+	"PATCH /api/audience-destinations/{destination_id}":                true,
+	"POST /api/audience-destinations/{destination_id}/sync":            true,
+	"GET /api/audience-destinations/{destination_id}/runs":             true,
+	"GET /api/audience-destinations/{destination_id}/health":           true,
+	"GET /api/audience-destinations/runs/{run_id}/deliveries":          true,
+	"POST /api/audience-destinations/runs/{run_id}/retry":              true,
+	"POST /api/audience-destinations/runs/{run_id}/cancel":             true,
+	"POST /api/audience-destinations/{destination_id}/inbound-token":   true,
+	"GET /api/audience-destinations/{destination_id}/inbound-token":    true,
+	"DELETE /api/audience-destinations/{destination_id}/inbound-token": true,
+	"GET /api/audience-destinations/{destination_id}/inbound-receipts": true,
+	"POST /api/audience-destinations/inbound/{destination_id}":         true,
+	"DELETE /api/audience-destinations/{destination_id}":               true,
 }
 
 type nopEmitter struct{}
 
-func (nopEmitter) Emit(context.Context, pgx.Tx, string, []audiencerefresh.MembershipEvent) error {
-	return nil
+func (nopEmitter) AudienceEvents(context.Context, pgx.Tx, string, []automationhook.AudienceEvent) (int, error) {
+	return 0, nil
 }
+
+// The plan 08 emitter satisfies the seam directly, no adapter.
+var _ audiencerefresh.Emitter = automationhook.Emitter(nil)
 
 func audDeps(pg, on bool, em audiencerefresh.Emitter) Deps {
 	return Deps{Log: slog.New(slog.NewTextHandler(io.Discard, nil)), AudienceEvents: em,
@@ -82,8 +88,8 @@ func TestDestinationRoutesNotRegisteredWithoutFlag(t *testing.T) {
 }
 
 func TestAudienceRoutePatterns(t *testing.T) {
-	if len(audiencePatterns) != 8 {
-		t.Fatalf("pattern table has %d entries, want 8", len(audiencePatterns))
+	if len(audiencePatterns) != 9 {
+		t.Fatalf("pattern table has %d entries, want 9", len(audiencePatterns))
 	}
 	r := httpx.NewRouter()
 	RegisterAudiences(r, audDeps(true, true, nopEmitter{}))
@@ -95,8 +101,8 @@ func TestAudienceRoutePatterns(t *testing.T) {
 }
 
 func TestDestinationRoutePatterns(t *testing.T) {
-	if len(destinationPatterns) != 15 {
-		t.Fatalf("pattern table has %d entries, want 15", len(destinationPatterns))
+	if len(destinationPatterns) != 16 {
+		t.Fatalf("pattern table has %d entries, want 16", len(destinationPatterns))
 	}
 	r := httpx.NewRouter()
 	RegisterDestinations(r, audDeps(true, true, nil))
