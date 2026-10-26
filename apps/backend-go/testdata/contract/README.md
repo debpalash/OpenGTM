@@ -1012,6 +1012,13 @@ Runbook: `docs/go-port/runbooks/governance-playbooks-cutover.md`. Fixtures not r
 - **Legal hold set mid-run** stops the run (`Legal hold enabled during retention enforcement`) and does not call `SchedulePolicy`: the hold route already cancelled the pending job and
   cleared `next_run_at`; a hold set by raw SQL leaves a pending job that cancels itself at pre-start (`legal hold or scheduled retention disabled`). Clearing the hold reschedules.
   Cancelling a run does not reschedule (Python parity). An externally cancelled run stops, keeps status and error, and stores the counts so far.
+- **Disabling retention mid-run (Go hardening).** A scheduler-requested run also stops at the next batch boundary when the policy's `enabled` goes false
+  (`Retention disabled during scheduled enforcement`, no reschedule), like a legal hold; Python checks only at the start. A manual run is not stopped by `enabled`.
+- **Scheduled jobs have no `jobs.workspace_id` (Python `enqueue_job_once`).** A `retention_enforce` or `research_playbook_schedule` job with an empty job workspace is admitted only
+  when its own `fire_key` has the exact scheduler shape (`retention:<ws>:<date>`, `playbook_schedule:<playbook id>:<iso|bootstrap>`) naming the payload's workspace / playbook, and the
+  policy (enabled) or playbook (enabled, schedule audience) is found by a lookup run inside the payload's tenant (a forged workspace sees nothing); otherwise a permanent failure. An empty-workspace
+  `research_playbook_run` or a retention job carrying a `run_id` is always a permanent failure. A non-empty job workspace must equal the payload's. Go's retention scheduler now writes
+  `jobs.workspace_id` (Python leaves it NULL; both are handled), the playbook scheduler already did.
 - **Partial counts on failure.** A failed run stores the counts deleted so far; Python stores none.
 - **Strict snapshot read.** The run's `days` snapshot is read like Python's indexing (a missing category fails the run) plus a range check (30/90..3650); Python accepts any int
   (a corrupt snapshot could widen deletion).
@@ -1037,8 +1044,11 @@ Runbook: `docs/go-port/runbooks/governance-playbooks-cutover.md`. Fixtures not r
   Python's `research_column` enforces it inside each call. There is no cumulative run cap (Python has none either); a retry or a re-attempt gets a fresh per-cell budget.
 - **Run engine.** The final run update is conditional on `status='running'`, so a cancel racing the last member is never overwritten (Python overwrites). Result values follow Python
   `str(value or "")` capped at 64 KiB; errors at 1000 chars. An unavailable Python worker before the first member restores the run exactly and hands the job back; after some members the run
-  returns to `pending` and the job retries. Reconcile re-processes a `failed` run (as Python). A failure hook exists for `research_playbook_run` only (Python registers none for
+  returns to `pending` and the job is handed back to the Python executor with no retry spent (it is not retried on Go). Reconcile re-processes a `failed` run (as Python). A failure hook exists for `research_playbook_run` only (Python registers none for
   `research_playbook_schedule`). Retry/cancel racing a still-running engine job match Python (the guard is run-level only). Retry writes the run reset and the job in one transaction.
+- **Cancel of Python-enqueued schedule jobs.** PATCH, DELETE and `RemoveSchedule` also cancel pending `research_playbook_schedule` jobs with an empty `jobs.workspace_id` whose payload
+  workspace matches (exact fire-key shape, never a bare prefix), so a Python-scheduled occurrence cannot fire an extra paid run after a Go edit.
+- **Cancel during a step.** When a cancel interrupts an in-flight step the open result row is settled as `cancelled` (detached context), not left `running`.
 - **Executor wiring.** Run jobs take the executor from the request-time cohort (`GO_EXECUTOR_ENABLED`, `GO_EXECUTOR_PLAYBOOKS`, `GO_EXECUTOR_WORKSPACES`, read per request).
   `playbooks.ScheduleExecutor` (the PATCH-enqueued schedule job) is wired to the same rule in `RegisterPlaybooks` (API) and by `playbooks.WireExecutors` in the worker; the default
   stays `python`. `cmd/worker` registers the three job types (always claimable, hand-back when the flag is off), `Researcher` is `pyworker`-backed when `PY_WORKER_URL` is set
@@ -1049,9 +1059,9 @@ Runbook: `docs/go-port/runbooks/governance-playbooks-cutover.md`. Fixtures not r
 ### Audit export and list (`governanceaudit.go`, `govaudit`)
 
 - Metadata keys are emitted in stored insertion order (Python), not sorted: `run_id` before `previous_failed` in retry rows (the list fixture is key-sorted by the recorder; the CSV fixture
-  is the byte reference).
-- **CSV formula guard = Python.** Cells starting with `=`, `+`, `-`, `@`, TAB or CR get a leading apostrophe; QUOTE_MINIMAL, BOM, CRLF. Leading space or LF variants are not guarded (neither
-  does Python; logged on #114). Exposure is the user-controlled `route`/`resource_path`/`request_id`/`method` cells.
+  is the byte reference). Go-written playbook retry/cancel rows keep that order too (`audit.SetMetadataOrdered`); other Go routes' metadata is stored with sorted keys.
+- **CSV formula guard (Go hardening).** Cells starting with `=`, `+`, `-`, `@`, TAB or CR get a leading apostrophe (Python), and so do cells whose formula character follows leading
+  spaces, TAB, CR or LF (Python does not; #114); QUOTE_MINIMAL, BOM, CRLF. Exposure is the user-controlled `route`/`resource_path`/`request_id`/`method` cells.
 - `actor_user_id` outside int32 answers 422 `greater_than_equal`/`less_than_equal` (Python 500). A repeated query parameter: last value wins. Cursor length is capped at 1024; a malformed or
   forged cursor answers 422 `invalid audit event cursor`. Export sends 200 and headers before the first query: a DB error on the first batch yields BOM + header only and a later error
   truncates the stream (both as Python), logged by error type only. Python does no redaction at read time; neither does Go.
@@ -1067,7 +1077,9 @@ Runbook: `docs/go-port/runbooks/governance-playbooks-cutover.md`. Fixtures not r
   owner role is not assignable (422) and the owner is immutable, unremovable and not overridable (409) for any actor, so the last owner cannot be removed or demoted. Denial answers 403
   `Cannot grant or manage access above your own`.
   - **Null-effect and clear.** An `allow` and a clear (`effect: null`) both count as granting when the target's role carries the permission by default, so both need the actor to hold it:
-    a delegated editor can no longer lift an admin-imposed deny on themselves or a peer. Denies and clears that grant nothing back stay allowed.
+    a delegated editor can no longer lift an admin-imposed deny on themselves or a peer. Denies stay allowed.
+  - **Deny lift needs admin (Go hardening).** Overrides record no provenance, so a non-admin delegated manager can set or keep a deny but never clear or allow over an existing deny
+    (403), on themselves or a peer; only an admin or owner can lift one. Python lets any `governance.manage` holder.
   - **Denied-role grants.** An actor carrying a deny on X cannot grant a role that confers X (add member, set role); Python allows it. A no-op role change is exempt. Real owners and
     unrestricted admins behave exactly as Python (admins may still manage other admins, change their own role and remove themselves).
   - **L4: 403 versus 409/404.** An actor carrying a deny gets 403 where Python answers 409/404 on an owner target, a non-member or an unknown username (the escalation check runs first).
@@ -1075,6 +1087,14 @@ Runbook: `docs/go-port/runbooks/governance-playbooks-cutover.md`. Fixtures not r
   read errors answer 400 `There was an error parsing the body`. A bad path id plus a bad body returns both 422 entries (Python parity).
 
 ### SSO and SCIM token (`govidp`, `governancesso.go`)
+
+- **Role floor (Go hardening, Python #114).** All SSO and SCIM-token routes, `PUT /retention` (legal hold, days) and `POST /retention/enforce` additionally require role admin or owner
+  (`govadmin.GateAdmin`: the `governance.manage` gate first, then the role), even when a `governance.manage` allow override would pass; editor/member/viewer override holders get 403
+  `Insufficient workspace role`. Python honours the override, so a delegated editor could enforce SSO to lock admins out, mint a SCIM token (and deprovision admins) or clear a legal hold
+  and purge. Delegated editors lose these routes in Go. Preview, runs list and GET retention keep the plain gate.
+- **No-store.** SSO and SCIM-token responses send `Cache-Control: no-store` (the SCIM token is returned once).
+- **Info (auth port, #114).** Python's `/auth/sso/{slug}/callback` links by global username (an IdP-asserted email) and the issuer allow-list pins the host only, so on a shared IdP host
+  another tenant's issuer is admitted. Plan 11 ports only the config write; pin the full issuer, link only existing members and never link owner/admin implicitly when the callback is ported.
 
 - **Secret before the config.** `PUT /sso` (secret before the config row) writes the OIDC client secret first (separate pool transaction, through the secret resolver) and then the config row; Python writes the config
   first. A failed config write (or the audit middleware) leaves the new secret behind, and a failed save can change the secret of an already-enabled config. `secret_configured` uses the
@@ -1086,12 +1106,13 @@ Runbook: `docs/go-port/runbooks/governance-playbooks-cutover.md`. Fixtures not r
   clamp 1..365, non-int -> 90) are read per call like Python. Unknown keys in a stored config JSON are dropped (Python echoes them); invalid stored JSON is an error (Python 500).
 - Bodies use pydantic-lax validation with every error in field order. The plaintext SCIM token is returned exactly once and never logged or audited; 500s log only the operation and error type.
 
-### Carried issues outside plan 11 (for the final review, plan 02 SCIM code)
+### Carried issues outside plan 11 (plan 02 SCIM code, fixed in the final fix wave)
 
-- **SCIM removeMember lock order.** `internal/api/scimusers.go` removeMember deletes the override rows before the member row, while `govadmin` `SetOverride`/`Remove` lock the member row
-  first. A concurrent SCIM deprovision and `PUT /rbac/{user_id}/{permission}` on the same user can deadlock (Postgres aborts one side with 40P01). Fix: `SELECT ... FOR UPDATE` the member row first.
-- **No owner guard on SCIM deprovision.** `ScimRemoveMember` lacks `role <> 'owner'`, so SCIM can remove an owner (the governance routes cannot).
-- Python bugs found and not fixed (user rule): the escalation path above, 500 on out-of-range `user_id`, `PATCH` null/rename/`""` 500s, the CSV leading-space/LF gap, a cancelled run overwritten
+- **SCIM removeMember** now locks the member row `FOR UPDATE` before deleting override rows (the order of the RBAC routes), so a concurrent SCIM deprovision and `PUT /rbac/...` no
+  longer deadlock. `ScimAddViewerMember` is `ON CONFLICT DO NOTHING` (Python overwrites to viewer; a race with an admin add silently demoted the member).
+- **SCIM deprovision refuses the workspace owner and the last owner-role member** with `409 Workspace owner cannot be deprovisioned` (DELETE and `active:false`). 409 is a per-user SCIM
+  conflict (RFC 7644 3.12): IdP sync of other users continues; the IdP shows the user as failed rather than silently diverging. Python has no guard (#114).
+- Python bugs found and not fixed (user rule): the escalation path above, 500 on out-of-range `user_id`, `PATCH` null/rename/`""` 500s, the CSV leading-space/LF gap, the missing SSO/SCIM/legal-hold/enforce role floor for override holders, SCIM deprovision of an owner, a cancelled run overwritten
   by the final update, and unchecked int snapshot values in retention reconcile (issue #114 for the security ones).
 
 ## Plan 09 (outreach: sequences, send, inbound, unsubscribe, webhook, SMTP, suppressions, drafts): recording, coverage and deviations

@@ -48,6 +48,10 @@ Executor choice per workspace: Go claims a job only when `GO_EXECUTOR_ENABLED`, 
    `expired_counts` must be **equal** for all seven categories (`audit`, `llm_usage`, `signals`, `activation`, `audience_history`, `agent_results`, `outreach_history`; eight tables, `activation` covers two). Cutoffs are strict `<` on each table's age column.
 3. Only then turn `GO_EXECUTOR_RETENTION` on. Trigger one `POST /retention/enforce` in a **test workspace** with minimum days and verify the run reaches `completed`, `deleted_counts` equal the
    earlier preview, and the audit trail holds the policy event. Mid-run a legal hold stops the run at the next batch; a failed run stores the counts deleted so far.
+   Mid-run, disabling the policy also stops a scheduler-requested run at the next batch.
+3b. **Scheduled occurrence check (required):** on the canary, set the policy's `next_run_at` and its pending `retention_enforce` job's `next_run_at` to now and confirm the worker completes it
+   (a run with `requested_by=scheduler`, status `completed`, and the next day's job enqueued). Jobs written by the Python scheduler have no `jobs.workspace_id`; Go admits them by their exact
+   `fire_key` and the policy lookup. Do the same for a scheduled playbook (`research_playbook_schedule`). A job that fails with a payload/fire-key error here must be fixed before widening the cohort.
 4. Raise the cohort workspace by workspace. Preview and enforce never touch other workspaces (RLS plus explicit predicates).
 
 ## What to watch
@@ -66,7 +70,7 @@ Executor choice per workspace: Go claims a job only when `GO_EXECUTOR_ENABLED`, 
 1. Set the canary to 0% (comment the `go` lines in `go-split.conf`, `nginx -t`, reload). **No data migration**: both stacks use the same tables. Python serves new requests.
 2. Turn the flags off in reverse order (`GO_EXECUTOR_PLAYBOOKS`, `GO_EXECUTOR_RETENTION`, then the route flags) and restart. **In-flight Go jobs** finish on the worker, or are reconciled:
    a `go` row that reaches a worker whose flag is off is **handed back to Python untouched** (never failed), so no drain is needed before turning a flag off; a Go-claimed job whose lease dies is
-   reconciled by **Python's reaper** (failure handler by job type). An interrupted retention run keeps the counts deleted so far; the next scheduled enforce continues (deletes are idempotent).
+   reconciled by **Python's reaper** (failure handler by job type). An interrupted retention run keeps the counts deleted so far; the next scheduled enforce continues (deletes are idempotent; scheduled jobs with no job workspace are handled by both stacks).
    An interrupted playbook run is restored (`pending`) or retried by the queue; a run cancelled while a member was running is never overwritten by Go.
 3. If route flags are turned off while the canary is above 0%, those requests get 404: lower the canary first.
 
