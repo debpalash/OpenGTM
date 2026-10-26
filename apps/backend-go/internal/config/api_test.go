@@ -16,45 +16,73 @@ func apiEnv(extra map[string]string) func(string) string {
 	return env(m)
 }
 
-func TestConfigRejectsInsecureSecretInProd(t *testing.T) {
-	for _, e := range []string{"production", "staging", "prod", ""} {
-		m := map[string]string{"APP_ENV": e}
-		if e == "" {
-			m = map[string]string{"APP_ENV": "  "}
+const strongKey = "0123456789abcdef0123456789abcdef-strong"
+
+func TestConfigRejectsWeakSecretUnlessExplicitDev(t *testing.T) {
+	cases := map[string]map[string]string{
+		"prod default":   {"APP_ENV": "production"},
+		"staging":        {"APP_ENV": "staging"},
+		"blank env":      {"APP_ENV": "  "},
+		"unset env":      {},
+		"unset env weak": {"SECRET_KEY": "short"},
+		"prod short":     {"APP_ENV": "production", "SECRET_KEY": "a-real-secret"},
+		"prod 31 bytes":  {"APP_ENV": "production", "SECRET_KEY": strings.Repeat("a", 31)},
+		"dev short":      {"APP_ENV": "dev", "SECRET_KEY": "short"},
+		"prod substring": {"APP_ENV": "production", "SECRET_KEY": "x" + insecureKey},
+		"unset env dflt": {"SECRET_KEY": insecureKey},
+	}
+	for name, m := range cases {
+		if name == "dev short" {
+			continue // covered by the dev acceptance test
 		}
-		_, err := loadAPI(apiEnv(m)) // default SECRET_KEY is the insecure key
-		if err == nil || strings.Contains(err.Error(), insecureKey) {
-			t.Errorf("APP_ENV=%q: want refusal without echoing key, got %v", e, err)
+		_, err := loadAPI(apiEnv(m))
+		if err == nil {
+			t.Errorf("%s: want refusal", name)
+			continue
+		}
+		if strings.Contains(err.Error(), insecureKey) || (m["SECRET_KEY"] != "" && strings.Contains(err.Error(), m["SECRET_KEY"])) {
+			t.Errorf("%s: error echoes the key: %v", name, err)
 		}
 	}
-	// substring match, like Python
-	if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "production", "SECRET_KEY": "x" + insecureKey})); err == nil {
-		t.Error("substring of insecure key must be refused")
-	}
-	if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "production", "SECRET_KEY": "a-real-secret"})); err != nil {
-		t.Errorf("real key in prod: %v", err)
+	for _, k := range []string{strongKey, strings.Repeat("a", 32)} {
+		if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "production", "SECRET_KEY": k})); err != nil {
+			t.Errorf("strong key in prod: %v", err)
+		}
+		if _, err := loadAPI(apiEnv(map[string]string{"SECRET_KEY": k})); err != nil {
+			t.Errorf("strong key, unset env: %v", err)
+		}
 	}
 }
 
-func TestConfigAcceptsInsecureSecretInDev(t *testing.T) {
+func TestConfigAcceptsWeakSecretInExplicitDev(t *testing.T) {
 	for _, e := range []string{"dev", "development", "test", "testing", "local", " DEV "} {
-		if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": e})); err != nil {
-			t.Errorf("APP_ENV=%q: %v", e, err)
+		for _, k := range []string{"", "short", insecureKey} {
+			if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": e, "SECRET_KEY": k})); err != nil {
+				t.Errorf("APP_ENV=%q key=%q: %v", e, k, err)
+			}
 		}
 	}
-	// APP_ENV unset defaults to dev (Python default)
-	if _, err := loadAPI(apiEnv(nil)); err != nil {
-		t.Errorf("unset APP_ENV: %v", err)
+}
+
+func TestMCPTokenTTLDaysAcceptsZeroAndNegative(t *testing.T) {
+	for in, want := range map[string]int{"0": 0, "-1": -1, "-30": -30, "365": 365, "100000": 100000, "": 90} {
+		c, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "dev", "MCP_TOKEN_TTL_DAYS": in}))
+		if err != nil || c.MCPTokenTTLDays != want {
+			t.Errorf("%q: got %d, %v want %d", in, c.MCPTokenTTLDays, err, want)
+		}
+	}
+	if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "dev", "MCP_TOKEN_TTL_DAYS": "abc"})); err == nil {
+		t.Error("non-numeric must be refused")
 	}
 }
 
 func TestConfigRejectsNonHS256(t *testing.T) {
 	for _, a := range []string{"HS512", "none", "RS256"} {
-		if _, err := loadAPI(apiEnv(map[string]string{"ALGORITHM": a})); err == nil {
+		if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "dev", "ALGORITHM": a})); err == nil {
 			t.Errorf("ALGORITHM=%s accepted", a)
 		}
 	}
-	if _, err := loadAPI(apiEnv(map[string]string{"ALGORITHM": "HS256"})); err != nil {
+	if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "dev", "ALGORITHM": "HS256"})); err != nil {
 		t.Error(err)
 	}
 }
@@ -62,7 +90,7 @@ func TestConfigRejectsNonHS256(t *testing.T) {
 func TestScimTTLClamped(t *testing.T) {
 	cases := map[string]int{"": 90, "0": 1, "-5": 1, "9999": 365, "30": 30}
 	for in, want := range cases {
-		c, err := loadAPI(apiEnv(map[string]string{"OPENGTM_SCIM_TOKEN_TTL_DAYS": in}))
+		c, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "dev", "OPENGTM_SCIM_TOKEN_TTL_DAYS": in}))
 		if err != nil || c.ScimTokenTTLDays != want {
 			t.Errorf("%q: got %d, %v want %d", in, c.ScimTokenTTLDays, err, want)
 		}
@@ -70,7 +98,7 @@ func TestScimTTLClamped(t *testing.T) {
 }
 
 func TestAPIDefaults(t *testing.T) {
-	c, err := loadAPI(apiEnv(nil))
+	c, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "dev"}))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -78,7 +106,7 @@ func TestAPIDefaults(t *testing.T) {
 		c.CORSOrigins != "*" || c.MCPTokenTTLDays != 90 || c.TrustProxy || c.Algorithm != "HS256" {
 		t.Fatalf("defaults: %+v", c)
 	}
-	c, _ = loadAPI(apiEnv(map[string]string{"TRUST_PROXY": "true", "API_ADDR": ":9", "ACCESS_TOKEN_EXPIRE_MINUTES": "5"}))
+	c, _ = loadAPI(apiEnv(map[string]string{"APP_ENV": "dev", "TRUST_PROXY": "true", "API_ADDR": ":9", "ACCESS_TOKEN_EXPIRE_MINUTES": "5"}))
 	if !c.TrustProxy || c.Addr != ":9" || c.AccessTTL != 5*time.Minute {
 		t.Fatalf("overrides: %+v", c)
 	}
@@ -88,7 +116,7 @@ func TestAPIDefaults(t *testing.T) {
 }
 
 func TestAPIConfigRedacted(t *testing.T) {
-	c, err := loadAPI(apiEnv(map[string]string{"SECRET_KEY": "super-SECRET-key", "DATABASE_URL": "postgres://u:dbPASS-9@h/d"}))
+	c, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "dev", "SECRET_KEY": "super-SECRET-key", "DATABASE_URL": "postgres://u:dbPASS-9@h/d"}))
 	if err != nil {
 		t.Fatal(err)
 	}
