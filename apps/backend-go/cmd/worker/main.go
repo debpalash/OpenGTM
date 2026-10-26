@@ -169,6 +169,9 @@ func jobLimit(cfg config.Config, jobType string) time.Duration {
 	if d, ok := audienceLimit(jobType); ok {
 		return d
 	}
+	if d, ok := leadgenLimit(jobType); ok {
+		return d
+	}
 	switch jobType {
 	case ambitionimport.JobType:
 		return ambitionimport.JobTimeout
@@ -441,6 +444,9 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 		handlers[typ] = h
 	}
 	for typ, h := range audienceHandlers(cfg, pool, log, sec, emitter, audienceOpts{}) {
+		handlers[typ] = h
+	}
+	for typ, h := range leadgenHandlers(cfg, pool, log, pyRPC, leadgenOpts{}) {
 		handlers[typ] = h
 	}
 	route := dispatch(handlers)

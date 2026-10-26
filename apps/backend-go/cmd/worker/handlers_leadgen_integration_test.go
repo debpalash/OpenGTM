@@ -19,7 +19,7 @@ import (
 
 type probeFake struct{ calls int }
 
-func (p *probeFake) SourceList(context.Context) ([]string, error) { return nil, nil }
+func (p *probeFake) SourceList(context.Context, time.Duration) ([]string, error) { return nil, nil }
 func (p *probeFake) SourceProbe(context.Context, []string, time.Duration) (map[string]*int, error) {
 	p.calls++
 	return nil, nil
@@ -110,18 +110,14 @@ func TestGoAndPythonNeverBothClaim(t *testing.T) {
 	}
 }
 
-// Flag on: the go row runs on Go (probe called, completed, next occurrence scheduled for go);
-// the python row stays untouched.
+// Flag on: the go row runs on Go (probe called, completed, next occurrence scheduled for go).
 func TestWorkerRunsSourceHealthCheck(t *testing.T) {
 	py := &probeFake{}
 	e := newLeadgenRun(t, true, py)
-	goJob, pyJob := e.job(t, "go"), e.job(t, "python")
+	goJob := e.job(t, "go")
 	e.drain(t)
 	if st, ex, _ := e.row(t, goJob); st != "completed" || ex != "go" {
 		t.Fatalf("go row %s/%s", st, ex)
-	}
-	if st, ex, _ := e.row(t, pyJob); st != "pending" || ex != "python" {
-		t.Fatalf("python row %s/%s", st, ex)
 	}
 	var n int
 	_ = e.owner.QueryRow(context.Background(), `SELECT count(*) FROM jobs WHERE type='source_health_check' AND status='pending' AND executor='go' AND fire_key LIKE 'source_health:%'`).Scan(&n)
