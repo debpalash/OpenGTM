@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -84,4 +85,24 @@ func (e ExecutorSettings) SignalScanExecutor() string {
 		return "go"
 	}
 	return "python"
+}
+
+// OutreachExecutor is go_executor.outreach_executor: "go" only when
+// GO_EXECUTOR_ENABLED, the workspace is in the cohort and the per-type flag
+// (send: GO_EXECUTOR_OUTREACH_SEND, outreach_inbound_poll:
+// GO_EXECUTOR_OUTREACH_INBOUND) is on. Other job types are an error, as in Python.
+func (e ExecutorSettings) OutreachExecutor(o OutreachSettings, jobType, workspaceID string) (string, error) {
+	var flag bool
+	switch jobType {
+	case "send":
+		flag = o.GoExecutorSend
+	case "outreach_inbound_poll":
+		flag = o.GoExecutorInbound
+	default:
+		return "", fmt.Errorf("config: not an outreach executor job type: %q", jobType)
+	}
+	if e.Enabled && flag && e.Workspaces[workspaceID] {
+		return "go", nil
+	}
+	return "python", nil
 }

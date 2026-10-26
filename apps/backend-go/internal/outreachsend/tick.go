@@ -7,16 +7,18 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachstore"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
 
 // TickConfig carries OUTREACH_TICK_INTERVAL, OUTREACH_TICK_MAX_ENQUEUE and the
-// executor for enqueued jobs (ExecutorFor(GO_EXECUTOR_OUTREACH_SEND)).
+// routing settings; Tick resolves each job's executor per workspace (ExecutorFor).
 type TickConfig struct {
 	Interval   time.Duration
 	MaxEnqueue int
-	Executor   string
+	Executors  config.ExecutorSettings
+	Outreach   config.OutreachSettings
 }
 
 // Tick is tick_sequence: a missing or non-active sequence disables its schedule
@@ -33,7 +35,7 @@ func Tick(ctx context.Context, pool *pgxpool.Pool, wsID, seqID string, now time.
 			n = 0
 			return outreachstore.DisableSchedule(ctx, tx, seqID)
 		}
-		n, err = EnqueueDue(ctx, tx, wsID, seqID, cfg.MaxEnqueue, cfg.Executor)
+		n, err = EnqueueDue(ctx, tx, wsID, seqID, cfg.MaxEnqueue, ExecutorFor(cfg.Executors, cfg.Outreach, wsID))
 		if err != nil {
 			return err
 		}

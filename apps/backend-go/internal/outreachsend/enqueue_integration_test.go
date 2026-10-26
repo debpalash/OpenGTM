@@ -219,7 +219,7 @@ func TestExecuteAndTickCollapse(t *testing.T) {
 	if n := e.enqueue(seq, 200, "go"); n != 1 {
 		t.Fatalf("execute %d", n)
 	}
-	n, err := outreachsend.Tick(e.ctx, e.pool, enqWS, seq, time.Now(), outreachsend.TickConfig{Interval: 900 * time.Second, MaxEnqueue: 200, Executor: "go"})
+	n, err := outreachsend.Tick(e.ctx, e.pool, enqWS, seq, time.Now(), outreachsend.TickConfig{Interval: 900 * time.Second, MaxEnqueue: 200, Executors: enqGoRouting, Outreach: config.OutreachSettings{GoExecutorSend: true}})
 	if err != nil || n != 0 {
 		t.Fatalf("tick n=%d err=%v", n, err)
 	}
@@ -253,7 +253,7 @@ func TestTickDisablesInactiveSequence(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-	cfg := outreachsend.TickConfig{Interval: time.Minute, MaxEnqueue: 10, Executor: "python"}
+	cfg := outreachsend.TickConfig{Interval: time.Minute, MaxEnqueue: 10}
 	for _, s := range []string{seq, "missing-seq"} {
 		n, err := outreachsend.Tick(e.ctx, e.pool, enqWS, s, time.Now(), cfg)
 		if err != nil || n != 0 {
@@ -271,7 +271,7 @@ func TestTickReschedules(t *testing.T) {
 	seq := e.seq("active")
 	e.enroll(seq, 1, "a@example.com", time.Now().Add(-time.Hour))
 	now := time.Date(2026, 3, 1, 12, 0, 0, 0, time.UTC)
-	n, err := outreachsend.Tick(e.ctx, e.pool, enqWS, seq, now, outreachsend.TickConfig{Interval: 900 * time.Second, MaxEnqueue: 200, Executor: "python"})
+	n, err := outreachsend.Tick(e.ctx, e.pool, enqWS, seq, now, outreachsend.TickConfig{Interval: 900 * time.Second, MaxEnqueue: 200})
 	if err != nil || n != 1 {
 		t.Fatalf("n=%d err=%v", n, err)
 	}
@@ -401,3 +401,5 @@ func TestEnqueueSendBlockedByPythonCreatedJob(t *testing.T) {
 		})
 	}
 }
+
+var enqGoRouting = config.ExecutorSettings{Enabled: true, Workspaces: map[string]bool{enqWS: true}}

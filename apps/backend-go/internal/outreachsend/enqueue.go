@@ -7,6 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachstore"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 )
@@ -28,12 +29,11 @@ type SendPayload struct {
 	Variables      map[string]any `json:"variables,omitempty"`
 }
 
-// ExecutorFor maps GO_EXECUTOR_OUTREACH_SEND to the jobs.executor value.
-func ExecutorFor(goSend bool) string {
-	if goSend {
-		return "go"
-	}
-	return "python"
+// ExecutorFor is outreach_executor("send", ws): "go" only when GO_EXECUTOR_ENABLED,
+// the workspace is in the cohort and GO_EXECUTOR_OUTREACH_SEND is on.
+func ExecutorFor(ex config.ExecutorSettings, o config.OutreachSettings, wsID string) string {
+	v, _ := ex.OutreachExecutor(o, "send", wsID) // "send" is always a valid job type
+	return v
 }
 
 // SequenceStepIdem is sequence_step_idem: seq:<ws>:<seq>:<enrollment>:<step>.
