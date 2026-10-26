@@ -138,3 +138,51 @@ func TestRLSRequireSafeRoleDefaultsTrue(t *testing.T) {
 		t.Error("garbage must be refused")
 	}
 }
+
+func TestBillingConfigDefaults(t *testing.T) {
+	c, err := loadAPI(apiEnv(nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.BillingEnabled || c.StripeSecretKey != "" || c.StripeWebhookSecret != "" || c.StripeAPIBase != "https://api.stripe.com" {
+		t.Fatalf("defaults: %+v", c)
+	}
+}
+
+func TestBillingEnabledParsesLikePydantic(t *testing.T) {
+	for in, want := range map[string]bool{"true": true, "True": true, "1": true, "yes": true, "on": true, " TRUE ": true,
+		"false": false, "0": false, "no": false, "off": false, "": false} {
+		c, err := loadAPI(apiEnv(map[string]string{"BILLING_ENABLED": in}))
+		if err != nil || c.BillingEnabled != want {
+			t.Errorf("%q: got %v, %v want %v", in, c.BillingEnabled, err, want)
+		}
+	}
+	if _, err := loadAPI(apiEnv(map[string]string{"BILLING_ENABLED": "maybe"})); err == nil {
+		t.Error("invalid BILLING_ENABLED must fail like pydantic")
+	}
+}
+
+func TestStripeAPIBaseOverridableOnlyInTestEnv(t *testing.T) {
+	c, _ := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "STRIPE_API_BASE": "http://127.0.0.1:9/"}))
+	if c.StripeAPIBase != "http://127.0.0.1:9" {
+		t.Errorf("test env: %q", c.StripeAPIBase)
+	}
+	for _, env := range []string{"dev", "production", "staging"} {
+		c, _ := loadAPI(apiEnv(map[string]string{"APP_ENV": env, "STRIPE_API_BASE": "http://127.0.0.1:9"}))
+		if c.StripeAPIBase != "https://api.stripe.com" {
+			t.Errorf("%s: override honoured: %q", env, c.StripeAPIBase)
+		}
+	}
+}
+
+func TestStripeKeysNeverLogged(t *testing.T) {
+	c, err := loadAPI(apiEnv(map[string]string{"STRIPE_SECRET_KEY": "sk_live_SECRETVALUE", "STRIPE_WEBHOOK_SECRET": "whsec_SECRETVALUE"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, s := range []string{c.String(), c.LogValue().String()} {
+		if strings.Contains(s, "SECRETVALUE") {
+			t.Errorf("leak: %s", s)
+		}
+	}
+}
