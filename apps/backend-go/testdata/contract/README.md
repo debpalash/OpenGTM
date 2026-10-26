@@ -901,8 +901,9 @@ Runbook: `docs/go-port/runbooks/leadgen-cutover.md`.
   Python's `_migrate` had a different column order; the Postgres table fixes one order (the one above). The fixtures are recorded with `sort_keys`, so order is pinned by tests against the
   literal strings (`TestPythonWrittenJobIsServedByGoInPythonKeyOrder`, `leadsread` tests), not by fixtures. U+2028 and U+2029 in stored text are emitted raw (no `\u2028` escaping), like Python.
 - **Events:** `/jobs/{id}/events` reads `progress.recent(500)` through the shared process-wide bus (`progressBus`); Python's fallback semantics are kept (any invalid Redis entry, an empty list or a
-  Redis error falls back to the local deque). An empty workspace id returns nothing (Python returns every tenant's local events). **Known carry:** event objects are decoded and re-encoded, so
-  their keys come out **sorted**, not in the stored byte order Python returns (values unchanged); the fix is to return the stored JSON raw (open item of the plan 14 final fix wave).
+  Redis error falls back to the local deque). An empty workspace id returns nothing (Python returns every tenant's local events). Each event is the **stored JSON text compacted Python-style**
+  (`compactStoredEvent`): keys keep the stored order, non-ASCII is raw, number text is kept. Redis rows are exact; events of the no-Redis in-process deque are rendered by Go's `dumps` (Python
+  key order, `ts` with a `.0`), a plan 14 final fix.
 - **Retry:** an enqueue failure rolls the retry back (job stays `failed`/`cancelled`, retryable) and answers 503; Python resets the job then marks it `failed` with `Retry enqueue failed: ...`.
   An active queue row for the job means no second row and a 200 with that row's id (Python inserts a duplicate); a job another request just retried is 409. The queue payload carries
   `"fire_key"` last (`EnqueueOnce`); the worker ignores it. Existence checks do not parse stored JSON, so a job with NaN details can still be cancelled, deleted or retried.
@@ -942,7 +943,20 @@ Runbook: `docs/go-port/runbooks/leadgen-cutover.md`.
 
 ### Known issues and carries (not fixed here)
 
-- Events keys sorted instead of stored byte order (above); test cleanup after an interrupted integration run can leave `ws-alpha`/`ws-beta` rows (`workspaces_pkey`), the next run cleans them.
+- Test cleanup after an interrupted integration run can leave `ws-alpha`/`ws-beta` rows (`workspaces_pkey`), the next run cleans them.
+- **Method mismatches:** Go answers FastAPI's no-static-mount `405 {"detail":"Method Not Allowed"}` (with `Allow`), which is what the contract recorder saw. The production Python image mounts
+  `StaticFiles` at `/` (`apps/web/dist`), so there a GET on a PUT-only path such as `/api/settings/sources/{id}` answers `404 {"detail":"Not Found"}` and other mismatches get StaticFiles' own 405.
+  This applies to every Go 405 in the port, is not plan 14 specific, and no client sends those requests.
+- **`collectledger.Reconcile` and `CheckFailurePayload` have no production caller**: `collect` never runs in Go (the Python worker owns the failure path), so they stay unused until a Go collect
+  handler exists.
+- **Tech-stack error text:** the route returns the provider's `error` verbatim to every member, including viewers (`blocked_url: host resolves to private ip ...`, truncated transport errors), as
+  Python does. It is only reachable with `TECH_STACK_WEBSITE_FETCH_ENABLED` and can act as an internal DNS and port oracle; tightening it (map to `blocked_url` / `fetch_failed`) would change the
+  response, so it is left for a product decision.
+- **Outbound caps (Go-only):** `POST /api/leads/domain-intel` allows 8 analyses in flight process-wide (503 `Too many domain analyses in progress; retry shortly`), and one workspace holds at most 4 of
+  the 16 tech-stack fetch slots (503 `Too many website fetches in progress; retry shortly`). Python has neither.
+- **Ledger marker (Python change):** `job_ledger.ledger_for` selects the Postgres ledger only when `SQLITE_STORES_BACKEND=postgres` **and** `app_settings.__collection_ledger_backend` is `postgres`
+  (read once per process; a read error raises, it never guesses), and the stores-backend startup guard also refuses a sqlite-mode process when that marker is `postgres`. Rollback has no reverse copy
+  (see the runbook).
 - `tech-stack` success path, real DoH/RDAP and the `verify-email`/`tech-stack` rate limits are not recorded (no network in the recorder): covered by 409/400/422 fixtures, replayed transcripts and
   Go tests with seams.
 - Four older contract recorder servers (governance, audiences, ...) run uvicorn on the default loop; uvloop bypasses the Python socket guards there (the plan 14 recorder uses `loop="asyncio"`).
