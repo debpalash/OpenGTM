@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"path"
 	"sort"
 	"strings"
 )
@@ -46,6 +47,20 @@ func exactPattern(pattern string) string {
 	return pattern
 }
 
+// safeRedirectPath reports whether redirecting from p to toggled is safe: p
+// must already be canonical, and toggled must be a single-slash-rooted path
+// without backslashes, so Location can never be protocol-relative.
+func safeRedirectPath(p, toggled string) bool {
+	if strings.Contains(p, "\\") || strings.Contains(toggled, "\\") {
+		return false
+	}
+	if !strings.HasPrefix(toggled, "/") || strings.HasPrefix(toggled, "//") {
+		return false
+	}
+	base := strings.TrimSuffix(p, "/")
+	return base != "" && path.Clean(base) == base
+}
+
 func (r *Router) matches(method, path, host string) bool {
 	probe := &http.Request{Method: method, URL: &url.URL{Path: path}, Host: host, Header: http.Header{}}
 	h, pat := r.mux.Handler(probe)
@@ -62,7 +77,18 @@ func (r *Router) matches(method, path, host string) bool {
 func (r *Router) Use(mws ...Middleware) { r.global = append(r.global, mws...) }
 
 // Handler returns the composed http.Handler.
-func (r *Router) Handler() http.Handler { return chain(r.mux, r.global) }
+func (r *Router) Handler() http.Handler { return chain(http.HandlerFunc(r.serve), r.global) }
+
+// serve answers non-canonical paths with 404 before ServeMux can redirect
+// them (FastAPI does not clean paths, and a cleaned redirect could be
+// protocol-relative).
+func (r *Router) serve(w http.ResponseWriter, req *http.Request) {
+	if p := req.URL.Path; p != "/" && !safeRedirectPath(p, "/") {
+		Detail(w, http.StatusNotFound, "Not Found")
+		return
+	}
+	r.mux.ServeHTTP(w, req)
+}
 
 func chain(h http.Handler, mws []Middleware) http.Handler {
 	for i := len(mws) - 1; i >= 0; i-- {
@@ -79,7 +105,7 @@ func (r *Router) fallback(w http.ResponseWriter, req *http.Request) {
 		if toggled == p {
 			toggled = p + "/"
 		}
-		if r.matches(req.Method, toggled, req.Host) {
+		if safeRedirectPath(p, toggled) && r.matches(req.Method, toggled, req.Host) {
 			loc := (&url.URL{Path: toggled, RawQuery: req.URL.RawQuery}).String()
 			w.Header().Set("Location", loc)
 			w.WriteHeader(http.StatusTemporaryRedirect)

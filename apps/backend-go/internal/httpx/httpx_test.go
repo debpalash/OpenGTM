@@ -241,3 +241,27 @@ func TestRedirectSlashesBothDirections(t *testing.T) {
 		t.Fatalf("other method must not redirect: %d", rec.Code)
 	}
 }
+
+func TestRedirectSlashesRefusesUnsafePaths(t *testing.T) {
+	r := NewRouter()
+	r.Handle("GET /x/", http.HandlerFunc(ok))
+	r.Handle("GET /evil.com/", http.HandlerFunc(ok))
+	r.Handle("GET /b", http.HandlerFunc(ok))
+	h := r.Handler()
+	for _, p := range []string{"//evil.com", "//evil.com/", `/\evil.com/`, `/\evil.com`, "/a/../b/", "/./b/", "/x//"} {
+		rec := do(h, "GET", p, nil)
+		loc := rec.Header().Get("Location")
+		if rec.Code == 307 || strings.HasPrefix(loc, "//") || strings.Contains(loc, `\`) {
+			t.Fatalf("%q: %d Location=%q", p, rec.Code, loc)
+		}
+	}
+	if rec := do(h, "GET", `/\evil.com/`, nil); rec.Code != 404 {
+		t.Fatalf("backslash: %d", rec.Code)
+	}
+	if rec := do(h, "GET", "/x", nil); rec.Code != 307 || rec.Header().Get("Location") != "/x/" {
+		t.Fatalf("normal: %d %q", rec.Code, rec.Header().Get("Location"))
+	}
+	if rec := do(h, "GET", "/b/", nil); rec.Code != 307 || rec.Header().Get("Location") != "/b" {
+		t.Fatalf("normal strip: %d %q", rec.Code, rec.Header().Get("Location"))
+	}
+}
