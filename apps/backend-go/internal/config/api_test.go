@@ -139,8 +139,17 @@ func TestRLSRequireSafeRoleDefaultsTrue(t *testing.T) {
 	}
 }
 
+// billEnv is apiEnv plus a strong SECRET_KEY so non-dev APP_ENV values load.
+func billEnv(extra map[string]string) func(string) string {
+	m := map[string]string{"SECRET_KEY": strongKey}
+	for k, v := range extra {
+		m[k] = v
+	}
+	return apiEnv(m)
+}
+
 func TestBillingConfigDefaults(t *testing.T) {
-	c, err := loadAPI(apiEnv(nil))
+	c, err := loadAPI(billEnv(nil))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -152,23 +161,23 @@ func TestBillingConfigDefaults(t *testing.T) {
 func TestBillingEnabledParsesLikePydantic(t *testing.T) {
 	for in, want := range map[string]bool{"true": true, "True": true, "1": true, "yes": true, "on": true, " TRUE ": true,
 		"false": false, "0": false, "no": false, "off": false, "": false} {
-		c, err := loadAPI(apiEnv(map[string]string{"BILLING_ENABLED": in}))
+		c, err := loadAPI(billEnv(map[string]string{"BILLING_ENABLED": in}))
 		if err != nil || c.BillingEnabled != want {
 			t.Errorf("%q: got %v, %v want %v", in, c.BillingEnabled, err, want)
 		}
 	}
-	if _, err := loadAPI(apiEnv(map[string]string{"BILLING_ENABLED": "maybe"})); err == nil {
+	if _, err := loadAPI(billEnv(map[string]string{"BILLING_ENABLED": "maybe"})); err == nil {
 		t.Error("invalid BILLING_ENABLED must fail like pydantic")
 	}
 }
 
 func TestStripeAPIBaseOverridableOnlyInTestEnv(t *testing.T) {
-	c, _ := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "STRIPE_API_BASE": "http://127.0.0.1:9/"}))
+	c, _ := loadAPI(billEnv(map[string]string{"APP_ENV": "test", "STRIPE_API_BASE": "http://127.0.0.1:9/"}))
 	if c.StripeAPIBase != "http://127.0.0.1:9" {
 		t.Errorf("test env: %q", c.StripeAPIBase)
 	}
 	for _, env := range []string{"dev", "production", "staging"} {
-		c, _ := loadAPI(apiEnv(map[string]string{"APP_ENV": env, "STRIPE_API_BASE": "http://127.0.0.1:9"}))
+		c, _ := loadAPI(billEnv(map[string]string{"APP_ENV": env, "STRIPE_API_BASE": "http://127.0.0.1:9"}))
 		if c.StripeAPIBase != "https://api.stripe.com" {
 			t.Errorf("%s: override honoured: %q", env, c.StripeAPIBase)
 		}
@@ -176,7 +185,7 @@ func TestStripeAPIBaseOverridableOnlyInTestEnv(t *testing.T) {
 }
 
 func TestStripeKeysNeverLogged(t *testing.T) {
-	c, err := loadAPI(apiEnv(map[string]string{"STRIPE_SECRET_KEY": "sk_live_SECRETVALUE", "STRIPE_WEBHOOK_SECRET": "whsec_SECRETVALUE"}))
+	c, err := loadAPI(billEnv(map[string]string{"STRIPE_SECRET_KEY": "sk_live_SECRETVALUE", "STRIPE_WEBHOOK_SECRET": "whsec_SECRETVALUE"}))
 	if err != nil {
 		t.Fatal(err)
 	}

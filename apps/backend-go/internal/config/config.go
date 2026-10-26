@@ -289,7 +289,17 @@ type APIConfig struct {
 	// RLSRequireSafeRole is PG_RLS_REQUIRE_SAFE_ROLE (default true): refuse to
 	// start when the DB role is superuser/BYPASSRLS; false only logs CRITICAL.
 	RLSRequireSafeRole bool
+
+	// Billing (Python settings.BILLING_ENABLED / STRIPE_*). The keys are secrets:
+	// redacted in String/LogValue and never echoed.
+	BillingEnabled      bool
+	StripeSecretKey     string
+	StripeWebhookSecret string
+	StripeAPIBase       string // STRIPE_API_BASE; honoured only when APP_ENV is "test"
 }
+
+// DefaultStripeAPIBase is the production Stripe API origin.
+const DefaultStripeAPIBase = "https://api.stripe.com"
 
 // LoadAPI reads the API configuration from the environment and validates it.
 func LoadAPI() (APIConfig, error) { return loadAPI(os.Getenv) }
@@ -354,11 +364,28 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	if c.DBMaxConns, err = intVar(get, "API_DB_MAX_CONNS", defaultDBMaxConns, 1, 1000); err != nil {
 		return APIConfig{}, err
 	}
+	if c.BillingEnabled, err = boolVar(get, "BILLING_ENABLED", false); err != nil {
+		return APIConfig{}, err
+	}
+	c.StripeSecretKey = strings.TrimSpace(get("STRIPE_SECRET_KEY"))
+	c.StripeWebhookSecret = strings.TrimSpace(get("STRIPE_WEBHOOK_SECRET"))
+	c.StripeAPIBase = DefaultStripeAPIBase
+	if strings.EqualFold(strings.TrimSpace(c.AppEnv), "test") {
+		if base := strings.TrimRight(strings.TrimSpace(get("STRIPE_API_BASE")), "/"); base != "" {
+			c.StripeAPIBase = base
+		}
+	}
 	return c, nil
 }
 
 func (c APIConfig) redacted() APIConfig {
 	c.DatabaseURL = redactURL(c.DatabaseURL)
+	if c.StripeSecretKey != "" {
+		c.StripeSecretKey = "[redacted]"
+	}
+	if c.StripeWebhookSecret != "" {
+		c.StripeWebhookSecret = "[redacted]"
+	}
 	if c.SecretKey != "" {
 		c.SecretKey = "[redacted]"
 	}
@@ -385,6 +412,10 @@ func (c APIConfig) LogValue() slog.Value {
 		slog.Int("mcp_token_ttl_days", r.MCPTokenTTLDays),
 		slog.Int("scim_token_ttl_days", r.ScimTokenTTLDays),
 		slog.Bool("trust_proxy", r.TrustProxy),
+		slog.Bool("billing_enabled", r.BillingEnabled),
+		slog.String("stripe_secret_key", r.StripeSecretKey),
+		slog.String("stripe_webhook_secret", r.StripeWebhookSecret),
+		slog.String("stripe_api_base", r.StripeAPIBase),
 	)
 }
 
