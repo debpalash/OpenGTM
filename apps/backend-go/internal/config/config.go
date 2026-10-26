@@ -344,7 +344,7 @@ type Flags struct {
 	GoConnectorRoutesEnabled       bool   // GO_CONNECTOR_ROUTES_ENABLED (default false): connectors, hubspot, /api/data, ambitionbox routes
 	GoExecutorAmbitionBox          bool   // GO_EXECUTOR_AMBITIONBOX (default false): enqueue ambitionbox_import for the Go executor
 	CertificationPath              string // OPENGTM_INTEGRATION_CERTIFICATIONS
-	CertificationKey               string // OPENGTM_INTEGRATION_CERTIFICATION_KEY (secret; never logged)
+	CertificationKey               Secret // OPENGTM_INTEGRATION_CERTIFICATION_KEY (secret; never logged)
 	BuildSHA                       string // OPENGTM_BUILD_SHA
 	CRMImportEnabled               bool   // CRM_IMPORT_ENABLED (read-only mirror; crm_import stays on Python)
 	AutomationsEnabled             bool   // AUTOMATIONS_ENABLED
@@ -465,7 +465,7 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 		return APIConfig{}, err
 	}
 	c.Flags.CertificationPath = strings.TrimSpace(get("OPENGTM_INTEGRATION_CERTIFICATIONS"))
-	c.Flags.CertificationKey = strings.TrimSpace(get("OPENGTM_INTEGRATION_CERTIFICATION_KEY"))
+	c.Flags.CertificationKey = Secret(strings.TrimSpace(get("OPENGTM_INTEGRATION_CERTIFICATION_KEY")))
 	c.Flags.BuildSHA = strings.TrimSpace(get("OPENGTM_BUILD_SHA"))
 	if c.Flags.AutomationsEnabled, err = boolVar(get, "AUTOMATIONS_ENABLED", false); err != nil {
 		return APIConfig{}, err
@@ -528,9 +528,6 @@ func (c APIConfig) redacted() APIConfig {
 	if c.PyWorkerToken != "" {
 		c.PyWorkerToken = "[redacted]"
 	}
-	if c.Flags.CertificationKey != "" {
-		c.Flags.CertificationKey = "[redacted]"
-	}
 	return c
 }
 
@@ -584,3 +581,17 @@ func boolVar(get func(string) string, key string, def bool) (bool, error) {
 	}
 	return false, fmt.Errorf("config: %s: not a boolean", key)
 }
+
+// Secret is a string that never renders: fmt (any verb), slog, JSON and text
+// marshalling all yield "[redacted]". Reveal returns the value.
+type Secret string
+
+// Reveal returns the underlying secret.
+func (s Secret) Reveal() string { return string(s) }
+
+func (Secret) String() string               { return "[redacted]" }
+func (Secret) GoString() string             { return `"[redacted]"` }
+func (Secret) Format(f fmt.State, _ rune)   { _, _ = f.Write([]byte("[redacted]")) }
+func (Secret) LogValue() slog.Value         { return slog.StringValue("[redacted]") }
+func (Secret) MarshalJSON() ([]byte, error) { return []byte(`"[redacted]"`), nil }
+func (Secret) MarshalText() ([]byte, error) { return []byte("[redacted]"), nil }
