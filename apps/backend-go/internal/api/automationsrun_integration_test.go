@@ -17,6 +17,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/billing"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -44,10 +45,11 @@ func newArunEnv(t *testing.T, automations bool, getenv func(string) string) arun
 			Automations: config.AutomationsSettings{MaxRowsPerEval: 500, GoExecutorTriggerEval: true}}}
 	registerAutomationsRun(r, d)
 	e := arunEnv{mcpEnv{env: env{h: r.Handler(), st: st}, pool: pool}}
-	old := autoRunNow
+	old, oldVendor := autoRunNow, billing.ResearchVendorCost
 	autoRunNow = func() time.Time { return arunFrozen }
+	billing.ResearchVendorCost = func() bool { return true } // the recording profile ran with RESEARCH_VENDOR_COST=1
 	e.purge()
-	t.Cleanup(func() { autoRunNow = old; e.purge() })
+	t.Cleanup(func() { autoRunNow, billing.ResearchVendorCost = old, oldVendor; e.purge() })
 	e.seedAutomations(t)
 	return e
 }
