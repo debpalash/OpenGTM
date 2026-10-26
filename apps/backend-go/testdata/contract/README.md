@@ -486,3 +486,11 @@ Fixtures `connectors/*` (profiles `default`, `catalog_ok` = default minus `contr
   an unreviewed (rejected by the report) manifest renders `signature: {"status":"unknown"}` and `package_sha256: null`.
 - Error texts that carry library messages (pydantic, YAML, base64, JSON) are not byte-portable; `connector_report.json` flags them
   with `error_is_portable` and tests compare paths and counts for those.
+
+## AmbitionBox (plan 07 Task 9): deviations
+- Redirects are refused (Python/aiohttp follows them); a 3xx is an immediate typed `UpstreamError`.
+- Responses are bounded to 4 MiB (Python reads them whole). An oversized, undecodable or wrong-shape 200 is a typed
+  `UpstreamError` and is not retried (Python: a ContentTypeError is retried, a JSONDecodeError is a 500).
+- `casefold` for name-keyed record ids (companies without an id) is an approximation (lower plus ss/sigma/ligature table); exotic
+  scripts can key differently from Python's `str.casefold`.
+- Timeout text is `timeout` (Python's is empty). Production clients use `ambitionbox.NewEgress` (SSRF-safe dialer, Base pinned).
