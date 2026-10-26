@@ -23,6 +23,7 @@ const (
 	secFTSURL         = "https://efts.sec.gov/LATEST/search-index"
 	secSubmissionsFmt = "https://data.sec.gov/submissions/CIK%s.json"
 	secArchivesFmt    = "https://www.sec.gov/Archives/edgar/data/%d/%s/primary_doc.xml"
+	secTickersMaxBody = 4 << 20
 	secDefaultUA      = "OpenGTM Enrichment admin@yupcha.com"
 	// secInterval spaces requests 125 ms apart (8 req/s), below SEC's
 	// documented 10 req/s fair-access ceiling, process-wide.
@@ -47,7 +48,8 @@ func secNorm(name string) string {
 // secEdgar ports providers/sec_edgar.py (SecEdgarProvider.enrich). The
 // poller entry points resolve_cik and list_form_d_since belong to the intent
 // poller (signal scan) and are not enrichment calls. Python follows
-// redirects; Go never does (egress hardening). The SEC asks for a descriptive
+// redirects (20 hops, as httpx); Go follows them too, every hop URL-checked and
+// carrying the SEC User-Agent and the limiter. The SEC asks for a descriptive
 // User-Agent: Input.Settings["SEC_EDGAR_USER_AGENT"] (global operator
 // config) or the default.
 type secEdgar struct{}
@@ -59,18 +61,19 @@ type secClient struct {
 	ua string
 }
 
-func (s secClient) do(ctx context.Context, url string, q [][2]string) (providers.Response, error) {
-	if err := secLimiter.acquire(ctx); err != nil {
-		return providers.Response{}, err
-	}
-	return providers.Do(ctx, s.c, providers.Req{Method: http.MethodGet, URL: url, Query: q,
-		Header: [][2]string{{"User-Agent", s.ua}}})
+func (s secClient) do(ctx context.Context, url string, q [][2]string, maxBody int) (providers.Response, error) {
+	return guardedGet(ctx, s.c, url, hopOpts{maxHops: httpxMaxRedirects, query: q, maxBody: maxBody,
+		header: [][2]string{{"User-Agent", s.ua}}, pre: secLimiter.acquire})
 }
 
 // json is _get_json: non-200, transport and decode failures are None (nil,
 // false); the raw body is returned for order-sensitive callers.
 func (s secClient) json(ctx context.Context, url string, q [][2]string) (any, []byte, error) {
-	resp, err := s.do(ctx, url, q)
+	limit := 0
+	if url == secTickersURL {
+		limit = secTickersMaxBody // company_tickers.json is about 1 MB
+	}
+	resp, err := s.do(ctx, url, q, limit)
 	if cerr := ctx.Err(); cerr != nil {
 		return nil, nil, cerr
 	}
@@ -85,7 +88,7 @@ func (s secClient) json(ctx context.Context, url string, q [][2]string) (any, []
 }
 
 func (s secClient) text(ctx context.Context, url string) (string, error) {
-	resp, err := s.do(ctx, url, nil)
+	resp, err := s.do(ctx, url, nil, 0)
 	if cerr := ctx.Err(); cerr != nil {
 		return "", cerr
 	}

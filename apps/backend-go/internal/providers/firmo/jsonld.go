@@ -18,6 +18,8 @@ const (
 	jsonldUA     = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 	jsonldCap    = 300_000 // characters of page text parsed
 	maxRedirects = 6
+	// httpx follow_redirects=True gives up after 20 redirects.
+	httpxMaxRedirects = 20
 )
 
 var jsonldOrgTypes = map[string]bool{
@@ -50,8 +52,8 @@ func (p jsonldFirmo) Enrich(ctx context.Context, c *http.Client, _ func() (strin
 }
 
 func (p jsonldFirmo) run(ctx context.Context, c *http.Client, website string, in providers.Input) (providers.Output, error) {
-	resp, err := guardedGet(ctx, c, normalizeWebsiteURL(website), maxRedirects, [][2]string{
-		{"User-Agent", jsonldUA}, {"Accept", "text/html,application/xhtml+xml"}}, false)
+	resp, err := guardedGet(ctx, c, normalizeWebsiteURL(website), hopOpts{maxHops: maxRedirects, header: [][2]string{
+		{"User-Agent", jsonldUA}, {"Accept", "text/html,application/xhtml+xml"}}})
 	if err != nil {
 		return providers.Output{}, err
 	}
@@ -116,17 +118,40 @@ func truncChars(s string, n int) string { return providers.TruncRunes(s, n) }
 
 // ── guarded GET (core.url_guard.guarded_get) ──────────────────────────────
 
+// hopOpts configures guardedGet.
+type hopOpts struct {
+	maxHops int
+	header  [][2]string
+	query   [][2]string // first hop only (redirect targets carry their own)
+	maxBody int         // 0 = providers.MaxBody
+	// strict: a 3xx without Location ends the walk with "too many redirects"
+	// (tech stack's `break`); otherwise it is returned as is (httpx and
+	// guarded_get).
+	strict bool
+	// pre runs before every hop (rate limiters).
+	pre func(context.Context) error
+}
+
 // guardedGet GETs u validating every hop with the egress URL check and
-// following redirects manually, as Python's guarded_get does. The client's
-// dial-time check still applies to every connection. A 3xx without Location is
-// returned as is.
-func guardedGet(ctx context.Context, c *http.Client, u string, maxHops int, header [][2]string, strict bool) (providers.Response, error) {
+// following redirects manually, as Python's guarded_get does (and as httpx's
+// follow_redirects does for the providers that use it, with its 20-hop cap).
+// The client's dial-time check still applies to every connection.
+func guardedGet(ctx context.Context, c *http.Client, u string, o hopOpts) (providers.Response, error) {
 	cur := u
-	for hop := 0; hop <= maxHops; hop++ {
+	for hop := 0; hop <= o.maxHops; hop++ {
 		if err := checkURL(cur); err != nil {
 			return providers.Response{}, err
 		}
-		resp, err := providers.Do(ctx, c, providers.Req{Method: http.MethodGet, URL: cur, Header: header})
+		if o.pre != nil {
+			if err := o.pre(ctx); err != nil {
+				return providers.Response{}, err
+			}
+		}
+		req := providers.Req{Method: http.MethodGet, URL: cur, Header: o.header, MaxBody: o.maxBody}
+		if hop == 0 {
+			req.Query = o.query
+		}
+		resp, err := providers.Do(ctx, c, req)
 		if err != nil {
 			return providers.Response{}, unwrapBlocked(err)
 		}
@@ -134,7 +159,7 @@ func guardedGet(ctx context.Context, c *http.Client, u string, maxHops int, head
 		case 301, 302, 303, 307, 308:
 			loc := resp.Header.Get("Location")
 			if loc == "" {
-				if strict { // tech stack: `break`, then "too many redirects"
+				if o.strict {
 					return providers.Response{}, &blockedErr{"too many redirects"}
 				}
 				return resp, nil

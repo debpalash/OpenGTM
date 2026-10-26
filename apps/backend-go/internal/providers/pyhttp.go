@@ -43,6 +43,8 @@ type Req struct {
 	Query  [][2]string
 	Header [][2]string
 	Body   []byte
+	// MaxBody overrides the response cap for this request (0 = MaxBody).
+	MaxBody int
 }
 
 // Do sends r through c without following redirects and reads at most MaxBody
@@ -50,6 +52,10 @@ type Req struct {
 // secrets (the request URL carries query-string keys); it still satisfies
 // IsTimeout.
 func Do(ctx context.Context, c *http.Client, r Req, secrets ...string) (Response, error) {
+	limit := MaxBody
+	if r.MaxBody > 0 {
+		limit = r.MaxBody
+	}
 	u := r.URL
 	if len(r.Query) > 0 {
 		var q strings.Builder
@@ -83,12 +89,12 @@ func Do(ctx context.Context, c *http.Client, r Req, secrets ...string) (Response
 		return Response{}, &Failure{msg: Scrub(unwrapURL(err).Error(), secrets...), timeout: isTimeout(err)}
 	}
 	defer resp.Body.Close()
-	b, err := io.ReadAll(io.LimitReader(resp.Body, MaxBody+1))
+	b, err := io.ReadAll(io.LimitReader(resp.Body, int64(limit)+1))
 	if err != nil {
 		return Response{}, &Failure{msg: Scrub(unwrapURL(err).Error(), secrets...), timeout: isTimeout(err)}
 	}
-	if len(b) > MaxBody {
-		return Response{}, &Failure{msg: fmt.Sprintf("response body exceeds %d bytes", MaxBody)}
+	if len(b) > limit {
+		return Response{}, &Failure{msg: fmt.Sprintf("response body exceeds %d bytes", limit)}
 	}
 	return Response{Status: resp.StatusCode, Body: b, Header: resp.Header}, nil
 }

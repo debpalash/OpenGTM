@@ -128,8 +128,8 @@ func titlesToSignals(titles []string) jo {
 	}
 }
 
-// atsHiring ports providers/ats_hiring.py. Python follows redirects on the
-// board APIs; the Go port never does. An uncaught Python exception (a board
+// atsHiring ports providers/ats_hiring.py. Redirects on the board APIs are
+// followed like httpx (20 hops) with every hop URL-checked. An uncaught Python exception (a board
 // whose JSON has an unexpected shape) is reported as the provider error.
 type atsHiring struct{}
 
@@ -235,8 +235,7 @@ func (p atsHiring) run(ctx context.Context, c *http.Client, slugs []string, in p
 
 // atsGet is _fetch_json: anything but a 200 with a JSON body is None.
 func atsGet(ctx context.Context, c *http.Client, url string) (any, bool, error) {
-	resp, err := providers.Do(ctx, c, providers.Req{Method: http.MethodGet, URL: url,
-		Header: [][2]string{{"User-Agent", atsUA}}})
+	resp, err := guardedGet(ctx, c, url, hopOpts{maxHops: httpxMaxRedirects, header: [][2]string{{"User-Agent", atsUA}}})
 	if cerr := ctx.Err(); cerr != nil {
 		return nil, false, cerr
 	}

@@ -62,8 +62,9 @@ func gleifNorm(name string) string {
 	return providers.PyStrip(spacesRE.ReplaceAllString(s, " "))
 }
 
-// gleif ports providers/gleif.py (GleifProvider). Python follows redirects;
-// the Go port never does (egress hardening, documented deviation).
+// gleif ports providers/gleif.py (GleifProvider). Redirects are followed like
+// httpx's follow_redirects=True (20 hops) but every hop is URL-checked and
+// passes the rate limiter.
 type gleif struct{}
 
 func (gleif) Name() string { return "gleif" }
@@ -194,11 +195,8 @@ func orEmptyList(v any) any {
 
 // gleifGet is _get_json: any non-200, transport or decode failure is None.
 func gleifGet(ctx context.Context, c *http.Client, url string, q [][2]string) (any, error) {
-	if err := gleifLimiter.acquire(ctx); err != nil {
-		return nil, err
-	}
-	resp, err := providers.Do(ctx, c, providers.Req{Method: http.MethodGet, URL: url, Query: q,
-		Header: [][2]string{{"Accept", gleifAccept}, {"User-Agent", gleifAgent}}})
+	resp, err := guardedGet(ctx, c, url, hopOpts{maxHops: httpxMaxRedirects, query: q,
+		header: [][2]string{{"Accept", gleifAccept}, {"User-Agent", gleifAgent}}, pre: gleifLimiter.acquire})
 	if cerr := ctx.Err(); cerr != nil {
 		return nil, cerr
 	}

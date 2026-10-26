@@ -453,8 +453,8 @@ func (p techStack) robotsAllow(ctx context.Context, c *http.Client, base string)
 // safeGet is _safe_get: every hop (initial and each redirect) is checked
 // before the request; redirects are followed manually, at most techRedirect.
 func safeGet(ctx context.Context, c *http.Client, u string) (headers map[string]string, text string, cookies []string, err error) {
-	resp, err := guardedGet(ctx, c, u, techRedirect, [][2]string{
-		{"User-Agent", techUA}, {"Accept", "text/html,application/xhtml+xml"}, {"Accept-Language", "en-US,en;q=0.9"}}, true)
+	resp, err := guardedGet(ctx, c, u, hopOpts{maxHops: techRedirect, strict: true, header: [][2]string{
+		{"User-Agent", techUA}, {"Accept", "text/html,application/xhtml+xml"}, {"Accept-Language", "en-US,en;q=0.9"}}})
 	if err != nil {
 		return nil, "", nil, err
 	}
