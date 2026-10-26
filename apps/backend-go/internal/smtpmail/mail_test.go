@@ -346,3 +346,30 @@ func TestMessageIDUnique(t *testing.T) {
 		seen[id] = struct{}{}
 	}
 }
+
+func TestComposeFromNamePhraseSafe(t *testing.T) {
+	for _, name := range []string{`Acme, Inc "é" <x@evil.com>`, `Müller, "Hans" <a@b.c>`, `Plain, Co "q" <z@y.x>`, `é`} {
+		raw, _ := Compose(Message{FromEmail: "a@b.com", FromName: name, To: "t@example.com", Subject: "s", HTML: "x", Text: "x"})
+		p := parseMsg(t, raw)
+		a, err := mail.ParseAddress(p.hdr.Get("From"))
+		if err != nil {
+			t.Fatalf("%q: From %q: %v", name, p.hdr.Get("From"), err)
+		}
+		if a.Address != "a@b.com" || a.Name != SanitizeHeader(name, 200) {
+			t.Errorf("%q: got %+v", name, a)
+		}
+	}
+}
+
+func TestComposeLongListUnsubscribeUnencoded(t *testing.T) {
+	url := "https://app.example.com/u?token=" + strings.Repeat("A", 1200)
+	raw, _ := Compose(Message{FromEmail: "a@b.com", To: "t@example.com", Subject: "s", HTML: "x", Text: "x",
+		Headers: map[string]string{"List-Unsubscribe": "<" + url + ">", "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"}})
+	p := parseMsg(t, raw)
+	if got := p.hdr.Get("List-Unsubscribe"); got != "<"+url+">" {
+		t.Fatalf("List-Unsubscribe altered: %.80q", got)
+	}
+	if got := p.hdr.Get("List-Unsubscribe-Post"); got != "List-Unsubscribe=One-Click" {
+		t.Fatalf("post: %q", got)
+	}
+}
