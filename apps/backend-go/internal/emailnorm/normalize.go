@@ -13,7 +13,7 @@ import (
 
 // nameprep approximates IDNA2003 nameprep + ToASCII (Python's "idna" codec):
 // UTS46 mapping with transitional processing (ß -> ss, final sigma folded).
-var nameprep = idna.New(idna.MapForLookup(), idna.Transitional(true))
+var nameprep = idna.New(idna.MapForLookup(), idna.Transitional(true), idna.CheckHyphens(false))
 
 var errLabel = errors.New("emailnorm: bad idna label")
 
