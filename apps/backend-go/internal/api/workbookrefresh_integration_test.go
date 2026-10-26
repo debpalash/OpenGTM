@@ -44,9 +44,12 @@ func newRefreshEnv(t *testing.T, getenv func(string) string) refreshEnv {
 	return e
 }
 
+func (e refreshEnv) clearJobs() {
+	_, _ = e.pool.Exec(context.Background(), `DELETE FROM jobs WHERE type = 'refresh_workbook'`)
+}
+
 func (e refreshEnv) cleanRefresh() {
-	ctx := context.Background()
-	_, _ = e.pool.Exec(ctx, `DELETE FROM jobs WHERE type = 'refresh_workbook'`)
+	e.clearJobs()
 	e.cleanEnrich()
 }
 
@@ -129,42 +132,45 @@ func TestRefreshPolicyUnknownWorkbook404(t *testing.T) {
 	}
 }
 
+// cohortEnv is a mutable getenv: the env holds one pool (one advisory lock), the cohort varies per case.
+type cohortEnv struct{ workspaces string }
+
+func (c *cohortEnv) get(k string) string {
+	switch k {
+	case "GO_EXECUTOR_ENABLED":
+		if c.workspaces != "" {
+			return "true"
+		}
+	case "GO_EXECUTOR_WORKSPACES":
+		return c.workspaces
+	}
+	return ""
+}
+
 // The chain job the policy starts uses the cohort executor, like refresh_executor in Python.
 func TestRefreshPolicyChainUsesCohortExecutor(t *testing.T) {
-	for _, c := range []struct{ env, want string }{{"", "python"}, {"ws-alpha", "go"}} {
-		getenv := func(k string) string {
-			switch k {
-			case "GO_EXECUTOR_ENABLED":
-				return map[bool]string{true: "true", false: ""}[c.env != ""]
-			case "GO_EXECUTOR_WORKSPACES":
-				return c.env
-			}
-			return ""
-		}
-		e := newRefreshEnv(t, getenv)
+	co := &cohortEnv{}
+	e := newRefreshEnv(t, co.get)
+	for _, c := range []struct{ cohort, want string }{{"", "python"}, {"ws-alpha", "go"}} {
+		co.workspaces = c.cohort
+		e.clearJobs()
 		r := e.call("alice", "ws-alpha", "PUT", "/api/workbooks/wb-enrich-1/refresh-policy", `{"interval":"daily"}`)
 		if r.Status != 200 {
 			t.Fatalf("%d %s", r.Status, r.Body)
 		}
 		var ex string
 		if err := e.pool.QueryRow(context.Background(), `SELECT executor FROM jobs WHERE type='refresh_workbook'`).Scan(&ex); err != nil || ex != c.want {
-			t.Fatalf("cohort %q: executor %q (%v), want %s", c.env, ex, err, c.want)
+			t.Fatalf("cohort %q: executor %q (%v), want %s", c.cohort, ex, err, c.want)
 		}
 	}
 }
 
 func TestRefreshEnqueuesWithWorkspaceID(t *testing.T) {
-	for _, c := range []struct{ env, want string }{{"", "python"}, {"ws-alpha", "go"}, {"ws-other", "python"}} {
-		getenv := func(k string) string {
-			switch k {
-			case "GO_EXECUTOR_ENABLED":
-				return map[bool]string{true: "1", false: ""}[c.env != ""]
-			case "GO_EXECUTOR_WORKSPACES":
-				return c.env
-			}
-			return ""
-		}
-		e := newRefreshEnv(t, getenv)
+	co := &cohortEnv{}
+	e := newRefreshEnv(t, co.get)
+	for _, c := range []struct{ cohort, want string }{{"", "python"}, {"ws-alpha", "go"}, {"ws-other", "python"}} {
+		co.workspaces = c.cohort
+		e.clearJobs()
 		r := e.call("alice", "ws-alpha", "POST", "/api/workbooks/wb-enrich-1/refresh", "")
 		if r.Status != 200 || strings.TrimSpace(string(r.Body)) != `{"status":"refreshing"}` {
 			t.Fatalf("%d %s", r.Status, r.Body)
@@ -176,9 +182,9 @@ func TestRefreshEnqueuesWithWorkspaceID(t *testing.T) {
 			t.Fatal(err)
 		}
 		if ex != c.want || status != "pending" || ws == nil || *ws != "ws-alpha" || fire != nil {
-			t.Errorf("cohort %q: executor %q status %s ws %v fire %v", c.env, ex, status, ws, fire)
+			t.Errorf("cohort %q: executor %q status %s ws %v fire %v", c.cohort, ex, status, ws, fire)
 		}
-		if payload != `{"workbook_id":"wb-enrich-1","reason":"manual","workspace_id":"ws-alpha"}` && payload != `{"workbook_id": "wb-enrich-1", "reason": "manual", "workspace_id": "ws-alpha"}` {
+		if payload != `{"workbook_id":"wb-enrich-1","reason":"manual","workspace_id":"ws-alpha"}` {
 			t.Errorf("payload %s", payload)
 		}
 	}
