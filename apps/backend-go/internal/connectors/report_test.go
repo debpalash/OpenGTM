@@ -89,7 +89,8 @@ func relativise(r Report, root string) Report {
 	out := r
 	out.Errors = append([]ReportError{}, r.Errors...)
 	for i := range out.Errors {
-		out.Errors[i].Path = strings.TrimPrefix(out.Errors[i].Path, root+string(filepath.Separator))
+		out.Errors[i].Path = strings.ReplaceAll(out.Errors[i].Path, root+string(filepath.Separator), "")
+		out.Errors[i].Error = strings.ReplaceAll(out.Errors[i].Error, root+string(filepath.Separator), "")
 	}
 	return out
 }
@@ -164,9 +165,9 @@ func TestReportKeyOrder(t *testing.T) {
 	}
 	_, dir, trust := materialise(t, c)
 	b, _ := json.Marshal(ValidateDirectory(dir, c.Policy, trust))
-	order := []string{`"ok"`, `"manifest_version"`, `"signature_policy"`, `"count"`, `"connectors"`, `"errors"`,
+	order := []string{`"ok"`, `"manifest_version"`, `"signature_policy"`, `"count"`, `"connectors"`,
 		`"path"`, `"manifest_sha256"`, `"signature"`, `"status"`, `"key_id"`, `"publisher"`, `"id"`, `"name"`, `"author"`,
-		`"homepage"`, `"license"`, `"description"`, `"capabilities"`, `"tags"`, `"cost_per_lookup"`, `"default_confidence"`, `"credential_key"`}
+		`"homepage"`, `"license"`, `"description"`, `"capabilities"`, `"tags"`, `"cost_per_lookup"`, `"default_confidence"`, `"credential_key"`, `"errors"`}
 	pos := -1
 	for _, k := range order {
 		i := strings.Index(string(b), k)
@@ -275,7 +276,7 @@ func TestSymlinkOutsideRootRejected(t *testing.T) {
 	// the catalog loader skips them too
 	scan := scanDirectory(dir, "optional", trust)
 	for _, l := range scan.loaded {
-		if l.Entry.Manifest.Name == "vec_unsigned" && strings.Contains(l.Path, "link") {
+		if l.Entry.Manifest.Name == "vec_unsigned" && strings.Contains(filepath.Base(l.Path), "link") {
 			t.Fatalf("catalog loaded through a symlink")
 		}
 	}
@@ -283,7 +284,7 @@ func TestSymlinkOutsideRootRejected(t *testing.T) {
 
 func TestDotDotDirectoryRejected(t *testing.T) {
 	root := t.TempDir()
-	rep := ValidateDirectory(filepath.Join(root, "a", "..", "b"), "optional", manifest.TrustStore{})
+	rep := ValidateDirectory(root+"/a/../b", "optional", manifest.TrustStore{})
 	if rep.OK || len(rep.Errors) != 1 || rep.Count != 0 {
 		t.Fatalf("%+v", rep)
 	}

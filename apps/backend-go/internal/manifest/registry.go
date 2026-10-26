@@ -21,6 +21,9 @@ import (
 type Entry struct {
 	Manifest Manifest
 	SHA256   string
+	// MappingKeys is response.mappings in authored order (Go maps lose it);
+	// set by Decode only.
+	MappingKeys []string
 }
 
 // ErrPathTraversal is returned for a manifests directory that contains a ".."
