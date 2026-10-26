@@ -125,7 +125,7 @@ func runCost(ctx context.Context, d Deps, c Ctx, tool string, args Args, shape f
 			return e
 		})
 		if err != nil {
-			slog.Error("mcp enrich reservation failed", "tool", tool, "err", err.Error())
+			slog.Error("mcp enrich reservation failed", "tool", tool, "cause", errorKind(err))
 			recordAudit(ctx, d, c, tool, args, AuditOutcome{Status: "error", Error: msgEnrichFailed})
 			return shape(enrichMessage(err))
 		}
@@ -151,7 +151,7 @@ func runCost(ctx context.Context, d Deps, c Ctx, tool string, args Args, shape f
 		return shape(msgLeadNotFound)
 	}
 	if err != nil {
-		slog.Error("mcp enrich failed", "tool", tool, "err", err.Error())
+		slog.Error("mcp enrich failed", "tool", tool, "cause", errorKind(err))
 		if reserved {
 			finishCap(ctx, d, c, res, releaseCap)
 		}
@@ -173,7 +173,7 @@ func finishCap(ctx context.Context, d Deps, c Ctx, r Reservation, f func(context
 	fctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 	defer cancel()
 	if err := d.RunInWorkspace(fctx, c.WorkspaceID, func(tx pgx.Tx) error { return f(fctx, tx, r) }); err != nil {
-		slog.Error("mcp enrich cap update failed", "err", err.Error())
+		slog.Error("mcp enrich cap update failed", "cause", errorKind(err))
 	}
 }
 
@@ -302,7 +302,7 @@ func scoreLeadTool(ctx context.Context, d Deps, c Ctx, a Args) (string, error) {
 	// Scoring is local CPU in Python and bills nothing: no cap, no audit row.
 	f, err := pyFields(ctx, d, c, "mcp.score_lead", map[string]any{"lead_id": id})
 	if err != nil {
-		slog.Error("mcp score_lead failed", "err", err.Error())
+		slog.Error("mcp score_lead failed", "tool", "mcp.score_lead", "cause", errorKind(err))
 		return errorText(enrichMessage(err)), nil
 	}
 	if isNotFound(f) {
