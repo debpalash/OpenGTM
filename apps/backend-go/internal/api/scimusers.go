@@ -393,6 +393,29 @@ func removeMember(ctx context.Context, q *gen.Queries, wsID string, userID int32
 	if err != nil || !member {
 		return err
 	}
+	// Lock the member row before touching override rows (same order as the RBAC routes).
+	role, err := q.ScimLockMemberRole(ctx, gen.ScimLockMemberRoleParams{WorkspaceID: wsID, UserID: userID})
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return err
+	}
+	// Go hardening (Python has no guard): never deprovision the workspace owner or its last
+	// owner-role member; that would leave nobody with owner permissions. 409 is a per-user
+	// SCIM conflict (RFC 7644 3.12), so the IdP's sync of other users continues.
+	ownerID, err := q.ScimWorkspaceOwnerID(ctx, wsID)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return err
+	}
+	isOwner := ownerID.Valid && ownerID.Int32 == userID
+	if role == "owner" && !isOwner {
+		n, err := q.ScimCountOwnerMembers(ctx, wsID)
+		if err != nil {
+			return err
+		}
+		isOwner = n <= 1
+	}
+	if isOwner {
+		return scimErr{http.StatusConflict, "Workspace owner cannot be deprovisioned"}
+	}
 	p := gen.ScimRemoveMemberOIDCParams{WorkspaceID: wsID, UserID: userID}
 	if err := q.ScimRemoveMemberOIDC(ctx, p); err != nil {
 		return err

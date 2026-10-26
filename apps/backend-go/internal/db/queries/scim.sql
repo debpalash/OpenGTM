@@ -49,7 +49,23 @@ SELECT * FROM users WHERE lower(username) = sqlc.arg(username)::text ORDER BY id
 -- name: ScimAddViewerMember :exec
 INSERT INTO workspace_members (workspace_id, user_id, role, created_at)
 VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(user_id)::int, 'viewer', sqlc.arg(now)::float8)
-ON CONFLICT (workspace_id, user_id) DO UPDATE SET role = EXCLUDED.role, created_at = EXCLUDED.created_at;
+-- DO NOTHING (Python overwrites to viewer): a race with an admin adding the same member
+-- must not silently demote them.
+ON CONFLICT (workspace_id, user_id) DO NOTHING;
+
+-- removeMember takes the member row lock first (the order of the RBAC routes), then
+-- deletes the override rows: the opposite order deadlocked against override PUTs.
+-- name: ScimLockMemberRole :one
+SELECT role FROM workspace_members
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND user_id = sqlc.arg(user_id)::int
+FOR UPDATE;
+
+-- name: ScimCountOwnerMembers :one
+SELECT count(*)::bigint FROM workspace_members
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND role = 'owner';
+
+-- name: ScimWorkspaceOwnerID :one
+SELECT owner_id FROM workspaces WHERE id = sqlc.arg(workspace_id)::text;
 
 -- manager.remove_member deletes these three in order.
 -- name: ScimRemoveMemberOIDC :exec

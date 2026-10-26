@@ -14,7 +14,7 @@ import (
 const scimAddViewerMember = `-- name: ScimAddViewerMember :exec
 INSERT INTO workspace_members (workspace_id, user_id, role, created_at)
 VALUES ($1::text, $2::int, 'viewer', $3::float8)
-ON CONFLICT (workspace_id, user_id) DO UPDATE SET role = EXCLUDED.role, created_at = EXCLUDED.created_at
+ON CONFLICT (workspace_id, user_id) DO NOTHING
 `
 
 type ScimAddViewerMemberParams struct {
@@ -23,6 +23,8 @@ type ScimAddViewerMemberParams struct {
 	Now         float64
 }
 
+// DO NOTHING (Python overwrites to viewer): a race with an admin adding the same member
+// must not silently demote them.
 func (q *Queries) ScimAddViewerMember(ctx context.Context, arg ScimAddViewerMemberParams) error {
 	_, err := q.db.Exec(ctx, scimAddViewerMember, arg.WorkspaceID, arg.UserID, arg.Now)
 	return err
@@ -52,6 +54,18 @@ SELECT count(*)::bigint FROM workspace_scim_users WHERE workspace_id = $1::text
 
 func (q *Queries) ScimCountMappings(ctx context.Context, workspaceID string) (int64, error) {
 	row := q.db.QueryRow(ctx, scimCountMappings, workspaceID)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const scimCountOwnerMembers = `-- name: ScimCountOwnerMembers :one
+SELECT count(*)::bigint FROM workspace_members
+WHERE workspace_id = $1::text AND role = 'owner'
+`
+
+func (q *Queries) ScimCountOwnerMembers(ctx context.Context, workspaceID string) (int64, error) {
+	row := q.db.QueryRow(ctx, scimCountOwnerMembers, workspaceID)
 	var column_1 int64
 	err := row.Scan(&column_1)
 	return column_1, err
@@ -361,6 +375,26 @@ func (q *Queries) ScimListMappingsPage(ctx context.Context, arg ScimListMappings
 	return items, nil
 }
 
+const scimLockMemberRole = `-- name: ScimLockMemberRole :one
+SELECT role FROM workspace_members
+WHERE workspace_id = $1::text AND user_id = $2::int
+FOR UPDATE
+`
+
+type ScimLockMemberRoleParams struct {
+	WorkspaceID string
+	UserID      int32
+}
+
+// removeMember takes the member row lock first (the order of the RBAC routes), then
+// deletes the override rows: the opposite order deadlocked against override PUTs.
+func (q *Queries) ScimLockMemberRole(ctx context.Context, arg ScimLockMemberRoleParams) (string, error) {
+	row := q.db.QueryRow(ctx, scimLockMemberRole, arg.WorkspaceID, arg.UserID)
+	var role string
+	err := row.Scan(&role)
+	return role, err
+}
+
 const scimMappingExists = `-- name: ScimMappingExists :one
 SELECT EXISTS (
   SELECT 1 FROM workspace_scim_users
@@ -592,4 +626,15 @@ func (q *Queries) ScimUsersByIDs(ctx context.Context, ids []int32) ([]User, erro
 		return nil, err
 	}
 	return items, nil
+}
+
+const scimWorkspaceOwnerID = `-- name: ScimWorkspaceOwnerID :one
+SELECT owner_id FROM workspaces WHERE id = $1::text
+`
+
+func (q *Queries) ScimWorkspaceOwnerID(ctx context.Context, workspaceID string) (pgtype.Int4, error) {
+	row := q.db.QueryRow(ctx, scimWorkspaceOwnerID, workspaceID)
+	var owner_id pgtype.Int4
+	err := row.Scan(&owner_id)
+	return owner_id, err
 }
