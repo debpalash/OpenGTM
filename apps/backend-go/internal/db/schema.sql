@@ -569,6 +569,37 @@ CREATE SEQUENCE public.email_data_id_seq
 ALTER SEQUENCE public.email_data_id_seq OWNED BY public.email_data.id;
 
 --
+-- Name: email_verify_cache; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.email_verify_cache (
+    workspace_id text NOT NULL,
+    email_hash text NOT NULL,
+    result jsonb NOT NULL,
+    cached_at timestamp without time zone NOT NULL,
+    expires_at timestamp without time zone NOT NULL
+);
+
+ALTER TABLE ONLY public.email_verify_cache FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: enrichment_cache; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.enrichment_cache (
+    workspace_id text NOT NULL,
+    cache_key text NOT NULL,
+    field_name text NOT NULL,
+    value jsonb,
+    provider text,
+    confidence double precision,
+    cached_at timestamp without time zone NOT NULL,
+    expires_at timestamp without time zone NOT NULL
+);
+
+ALTER TABLE ONLY public.enrichment_cache FORCE ROW LEVEL SECURITY;
+
+--
 -- Name: entity_blocking_keys; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2584,6 +2615,20 @@ ALTER TABLE ONLY public.email_data
     ADD CONSTRAINT email_data_pkey PRIMARY KEY (id);
 
 --
+-- Name: email_verify_cache email_verify_cache_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.email_verify_cache
+    ADD CONSTRAINT email_verify_cache_pkey PRIMARY KEY (workspace_id, email_hash);
+
+--
+-- Name: enrichment_cache enrichment_cache_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.enrichment_cache
+    ADD CONSTRAINT enrichment_cache_pkey PRIMARY KEY (workspace_id, cache_key, field_name);
+
+--
 -- Name: entity_blocking_keys entity_blocking_keys_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3610,6 +3655,18 @@ CREATE INDEX ix_destination_runs_ws_destination_cursor ON public.destination_run
 --
 
 CREATE INDEX ix_email_data_id ON public.email_data USING btree (id);
+
+--
+-- Name: ix_email_verify_cache_expires; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_email_verify_cache_expires ON public.email_verify_cache USING btree (expires_at);
+
+--
+-- Name: ix_enrichment_cache_expires; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_enrichment_cache_expires ON public.enrichment_cache USING btree (expires_at);
 
 --
 -- Name: ix_enroll_ws_due; Type: INDEX; Schema: public; Owner: -
@@ -4745,6 +4802,18 @@ ALTER TABLE public.destination_inbound_receipts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.destination_runs ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: email_verify_cache; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.email_verify_cache ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: enrichment_cache; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.enrichment_cache ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: entity_blocking_keys; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -5061,6 +5130,18 @@ CREATE POLICY workspace_isolation ON public.destination_inbound_receipts USING (
 --
 
 CREATE POLICY workspace_isolation ON public.destination_runs USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: email_verify_cache workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.email_verify_cache USING ((workspace_id = current_setting('app.workspace_id'::text, true))) WITH CHECK ((workspace_id = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: enrichment_cache workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.enrichment_cache USING ((workspace_id = current_setting('app.workspace_id'::text, true))) WITH CHECK ((workspace_id = current_setting('app.workspace_id'::text, true)));
 
 --
 -- Name: entity_blocking_keys workspace_isolation; Type: POLICY; Schema: public; Owner: -

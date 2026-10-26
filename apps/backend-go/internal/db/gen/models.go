@@ -280,6 +280,25 @@ type EmailDatum struct {
 	Notes        pgtype.Text
 }
 
+type EmailVerifyCache struct {
+	WorkspaceID string
+	EmailHash   string
+	Result      []byte
+	CachedAt    pgtype.Timestamp
+	ExpiresAt   pgtype.Timestamp
+}
+
+type EnrichmentCache struct {
+	WorkspaceID string
+	CacheKey    string
+	FieldName   string
+	Value       []byte
+	Provider    pgtype.Text
+	Confidence  pgtype.Float8
+	CachedAt    pgtype.Timestamp
+	ExpiresAt   pgtype.Timestamp
+}
+
 type EntityBlockingKey struct {
 	ID          int32
 	Key         string

@@ -1,0 +1,2 @@
+-- Enrichment provider cache and email-verify cache queries (workspace-scoped, RLS).
+-- Queries are added by Task 11 (internal/enrichcache).
