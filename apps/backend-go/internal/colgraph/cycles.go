@@ -63,9 +63,26 @@ func sortedSet(set map[int]struct{}) []int {
 // ties broken by config order. Lead-field style columns are nodes too. On a
 // cycle it returns the columns in config order together with ErrCycle.
 func Order(cols []Col) ([]Col, error) {
+	idx, err := OrderIndexes(cols)
+	out := make([]Col, len(idx))
+	for i, j := range idx {
+		out[i] = cols[j]
+	}
+	return out, err
+}
+
+// OrderIndexes is Order returning positions into cols instead of copies.
+func OrderIndexes(cols []Col) ([]int, error) {
 	n := len(cols)
+	inOrder := func() []int {
+		o := make([]int, n)
+		for i := range o {
+			o[i] = i
+		}
+		return o
+	}
 	if n <= 1 {
-		return append([]Col(nil), cols...), nil
+		return inOrder(), nil
 	}
 	deps := depGraph(cols, newRefIndex(cols), true)
 	indeg := make([]int, n)
@@ -83,10 +100,10 @@ func Order(cols []Col) ([]Col, error) {
 		}
 	}
 	heap.Init(h)
-	out := make([]Col, 0, n)
+	out := make([]int, 0, n)
 	for h.Len() > 0 {
 		i := heap.Pop(h).(int)
-		out = append(out, cols[i])
+		out = append(out, i)
 		for _, k := range succ[i] {
 			if indeg[k]--; indeg[k] == 0 {
 				heap.Push(h, k)
@@ -94,7 +111,7 @@ func Order(cols []Col) ([]Col, error) {
 		}
 	}
 	if len(out) != n {
-		return append([]Col(nil), cols...), ErrCycle
+		return inOrder(), ErrCycle
 	}
 	return out, nil
 }

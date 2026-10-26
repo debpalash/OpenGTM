@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"reflect"
 	"strconv"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
@@ -142,14 +141,10 @@ func orderColumns(cols []column) []column {
 	for i, c := range cols {
 		graph[i] = c.g
 	}
-	ordered, _ := colgraph.Order(graph)
-	byMap := make(map[uintptr]column, len(cols))
-	for _, c := range cols {
-		byMap[reflect.ValueOf(c.g.Vals).Pointer()] = c
-	}
-	out := make([]column, 0, len(ordered))
-	for _, g := range ordered {
-		out = append(out, byMap[reflect.ValueOf(g.Vals).Pointer()])
+	idx, _ := colgraph.OrderIndexes(graph)
+	out := make([]column, 0, len(idx))
+	for _, i := range idx {
+		out = append(out, cols[i])
 	}
 	return out
 }
