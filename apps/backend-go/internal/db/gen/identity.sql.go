@@ -22,12 +22,114 @@ func (q *Queries) ActiveWorkspace(ctx context.Context, userID int32) (string, er
 	return workspace_id, err
 }
 
+const countLeads = `-- name: CountLeads :one
+SELECT count(*)::bigint FROM leads
+`
+
+func (q *Queries) CountLeads(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countLeads)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users WHERE id = $1::int
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 	_, err := q.db.Exec(ctx, deleteUser, id)
+	return err
+}
+
+const deleteWorkspaceActive = `-- name: DeleteWorkspaceActive :exec
+DELETE FROM user_active_workspace WHERE workspace_id = $1::text
+`
+
+func (q *Queries) DeleteWorkspaceActive(ctx context.Context, workspaceID string) error {
+	_, err := q.db.Exec(ctx, deleteWorkspaceActive, workspaceID)
+	return err
+}
+
+const deleteWorkspaceMemberPermissions = `-- name: DeleteWorkspaceMemberPermissions :exec
+DELETE FROM workspace_member_permissions WHERE workspace_id = $1::text
+`
+
+func (q *Queries) DeleteWorkspaceMemberPermissions(ctx context.Context, workspaceID string) error {
+	_, err := q.db.Exec(ctx, deleteWorkspaceMemberPermissions, workspaceID)
+	return err
+}
+
+const deleteWorkspaceMembers = `-- name: DeleteWorkspaceMembers :exec
+DELETE FROM workspace_members WHERE workspace_id = $1::text
+`
+
+func (q *Queries) DeleteWorkspaceMembers(ctx context.Context, workspaceID string) error {
+	_, err := q.db.Exec(ctx, deleteWorkspaceMembers, workspaceID)
+	return err
+}
+
+const deleteWorkspaceOIDCIdentities = `-- name: DeleteWorkspaceOIDCIdentities :exec
+DELETE FROM workspace_oidc_identities WHERE workspace_id = $1::text
+`
+
+func (q *Queries) DeleteWorkspaceOIDCIdentities(ctx context.Context, workspaceID string) error {
+	_, err := q.db.Exec(ctx, deleteWorkspaceOIDCIdentities, workspaceID)
+	return err
+}
+
+const deleteWorkspaceRow = `-- name: DeleteWorkspaceRow :exec
+DELETE FROM workspaces WHERE id = $1::text
+`
+
+func (q *Queries) DeleteWorkspaceRow(ctx context.Context, workspaceID string) error {
+	_, err := q.db.Exec(ctx, deleteWorkspaceRow, workspaceID)
+	return err
+}
+
+const deleteWorkspaceSCIMGroupMembers = `-- name: DeleteWorkspaceSCIMGroupMembers :exec
+DELETE FROM workspace_scim_group_members WHERE workspace_id = $1::text
+`
+
+func (q *Queries) DeleteWorkspaceSCIMGroupMembers(ctx context.Context, workspaceID string) error {
+	_, err := q.db.Exec(ctx, deleteWorkspaceSCIMGroupMembers, workspaceID)
+	return err
+}
+
+const deleteWorkspaceSCIMGroups = `-- name: DeleteWorkspaceSCIMGroups :exec
+DELETE FROM workspace_scim_groups WHERE workspace_id = $1::text
+`
+
+func (q *Queries) DeleteWorkspaceSCIMGroups(ctx context.Context, workspaceID string) error {
+	_, err := q.db.Exec(ctx, deleteWorkspaceSCIMGroups, workspaceID)
+	return err
+}
+
+const deleteWorkspaceSCIMTokens = `-- name: DeleteWorkspaceSCIMTokens :exec
+DELETE FROM workspace_scim_tokens WHERE workspace_id = $1::text
+`
+
+func (q *Queries) DeleteWorkspaceSCIMTokens(ctx context.Context, workspaceID string) error {
+	_, err := q.db.Exec(ctx, deleteWorkspaceSCIMTokens, workspaceID)
+	return err
+}
+
+const deleteWorkspaceSCIMUsers = `-- name: DeleteWorkspaceSCIMUsers :exec
+DELETE FROM workspace_scim_users WHERE workspace_id = $1::text
+`
+
+func (q *Queries) DeleteWorkspaceSCIMUsers(ctx context.Context, workspaceID string) error {
+	_, err := q.db.Exec(ctx, deleteWorkspaceSCIMUsers, workspaceID)
+	return err
+}
+
+const deleteWorkspaceSettings = `-- name: DeleteWorkspaceSettings :exec
+DELETE FROM workspace_settings WHERE workspace_id = $1::text
+`
+
+// Delete children in manager.delete_workspace order (RLS tables need the GUC).
+func (q *Queries) DeleteWorkspaceSettings(ctx context.Context, workspaceID string) error {
+	_, err := q.db.Exec(ctx, deleteWorkspaceSettings, workspaceID)
 	return err
 }
 
@@ -89,6 +191,49 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, e
 	return i, err
 }
 
+const insertWorkspace = `-- name: InsertWorkspace :one
+INSERT INTO workspaces (id, name, slug, description, icon, owner_id, created_at, updated_at)
+VALUES (
+  $1::text, $2::text, $3::text, $4::text,
+  $5::text, $6::int, $7::float8, $7::float8
+)
+RETURNING id, name, slug, description, icon, owner_id, created_at, updated_at
+`
+
+type InsertWorkspaceParams struct {
+	ID          string
+	Name        string
+	Slug        string
+	Description string
+	Icon        string
+	OwnerID     int32
+	Now         float64
+}
+
+func (q *Queries) InsertWorkspace(ctx context.Context, arg InsertWorkspaceParams) (Workspace, error) {
+	row := q.db.QueryRow(ctx, insertWorkspace,
+		arg.ID,
+		arg.Name,
+		arg.Slug,
+		arg.Description,
+		arg.Icon,
+		arg.OwnerID,
+		arg.Now,
+	)
+	var i Workspace
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.Description,
+		&i.Icon,
+		&i.OwnerID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const isMember = `-- name: IsMember :one
 SELECT EXISTS (
   SELECT 1 FROM workspace_members
@@ -134,6 +279,48 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 			&i.ProfileImage,
 			&i.LastLogin,
 			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listWorkspacesForUser = `-- name: ListWorkspacesForUser :many
+
+SELECT w.id, w.name, w.slug, w.description, w.icon, w.owner_id, w.created_at, w.updated_at FROM workspaces w
+WHERE w.id IN (
+  SELECT workspace_id FROM workspace_members WHERE user_id = $1::int
+  UNION
+  SELECT id FROM workspaces WHERE owner_id = $1::int
+)
+ORDER BY w.created_at ASC, w.id
+`
+
+// Workspace management (/api/workspaces). All identity-plane except leads and the
+// RLS child tables, which run inside tenancy.InWorkspace.
+func (q *Queries) ListWorkspacesForUser(ctx context.Context, userID int32) ([]Workspace, error) {
+	rows, err := q.db.Query(ctx, listWorkspacesForUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Workspace
+	for rows.Next() {
+		var i Workspace
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Slug,
+			&i.Description,
+			&i.Icon,
+			&i.OwnerID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -209,6 +396,22 @@ func (q *Queries) OIDCConfig(ctx context.Context, workspaceID string) (string, e
 	return value, err
 }
 
+const setActiveWorkspace = `-- name: SetActiveWorkspace :exec
+INSERT INTO user_active_workspace (user_id, workspace_id)
+VALUES ($1::int, $2::text)
+ON CONFLICT (user_id) DO UPDATE SET workspace_id = EXCLUDED.workspace_id
+`
+
+type SetActiveWorkspaceParams struct {
+	UserID      int32
+	WorkspaceID string
+}
+
+func (q *Queries) SetActiveWorkspace(ctx context.Context, arg SetActiveWorkspaceParams) error {
+	_, err := q.db.Exec(ctx, setActiveWorkspace, arg.UserID, arg.WorkspaceID)
+	return err
+}
+
 const touchLastLogin = `-- name: TouchLastLogin :exec
 UPDATE users SET last_login = now() at time zone 'utc' WHERE id = $1::int
 `
@@ -244,6 +447,24 @@ type UpdateUserRoleParams struct {
 
 func (q *Queries) UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) error {
 	_, err := q.db.Exec(ctx, updateUserRole, arg.Role, arg.IsAdmin, arg.ID)
+	return err
+}
+
+const upsertOwnerMember = `-- name: UpsertOwnerMember :exec
+INSERT INTO workspace_members (workspace_id, user_id, role, created_at)
+VALUES ($1::text, $2::int, 'owner', $3::float8)
+ON CONFLICT (workspace_id, user_id) DO UPDATE
+SET role = EXCLUDED.role, created_at = EXCLUDED.created_at
+`
+
+type UpsertOwnerMemberParams struct {
+	WorkspaceID string
+	UserID      int32
+	Now         float64
+}
+
+func (q *Queries) UpsertOwnerMember(ctx context.Context, arg UpsertOwnerMemberParams) error {
+	_, err := q.db.Exec(ctx, upsertOwnerMember, arg.WorkspaceID, arg.UserID, arg.Now)
 	return err
 }
 

@@ -70,3 +70,59 @@ WHERE workspace_id = sqlc.arg(workspace_id)::text AND user_id = sqlc.arg(user_id
 -- name: OIDCConfig :one
 SELECT value FROM workspace_settings
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND key = 'OIDC_CONFIG';
+
+-- Workspace management (/api/workspaces). All identity-plane except leads and the
+-- RLS child tables, which run inside tenancy.InWorkspace.
+
+-- name: ListWorkspacesForUser :many
+SELECT w.* FROM workspaces w
+WHERE w.id IN (
+  SELECT workspace_id FROM workspace_members WHERE user_id = sqlc.arg(user_id)::int
+  UNION
+  SELECT id FROM workspaces WHERE owner_id = sqlc.arg(user_id)::int
+)
+ORDER BY w.created_at ASC, w.id;
+
+-- name: InsertWorkspace :one
+INSERT INTO workspaces (id, name, slug, description, icon, owner_id, created_at, updated_at)
+VALUES (
+  sqlc.arg(id)::text, sqlc.arg(name)::text, sqlc.arg(slug)::text, sqlc.arg(description)::text,
+  sqlc.arg(icon)::text, sqlc.arg(owner_id)::int, sqlc.arg(now)::float8, sqlc.arg(now)::float8
+)
+RETURNING *;
+
+-- name: UpsertOwnerMember :exec
+INSERT INTO workspace_members (workspace_id, user_id, role, created_at)
+VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(user_id)::int, 'owner', sqlc.arg(now)::float8)
+ON CONFLICT (workspace_id, user_id) DO UPDATE
+SET role = EXCLUDED.role, created_at = EXCLUDED.created_at;
+
+-- name: SetActiveWorkspace :exec
+INSERT INTO user_active_workspace (user_id, workspace_id)
+VALUES (sqlc.arg(user_id)::int, sqlc.arg(workspace_id)::text)
+ON CONFLICT (user_id) DO UPDATE SET workspace_id = EXCLUDED.workspace_id;
+
+-- name: CountLeads :one
+SELECT count(*)::bigint FROM leads;
+
+-- Delete children in manager.delete_workspace order (RLS tables need the GUC).
+-- name: DeleteWorkspaceSettings :exec
+DELETE FROM workspace_settings WHERE workspace_id = sqlc.arg(workspace_id)::text;
+-- name: DeleteWorkspaceOIDCIdentities :exec
+DELETE FROM workspace_oidc_identities WHERE workspace_id = sqlc.arg(workspace_id)::text;
+-- name: DeleteWorkspaceSCIMTokens :exec
+DELETE FROM workspace_scim_tokens WHERE workspace_id = sqlc.arg(workspace_id)::text;
+-- name: DeleteWorkspaceSCIMUsers :exec
+DELETE FROM workspace_scim_users WHERE workspace_id = sqlc.arg(workspace_id)::text;
+-- name: DeleteWorkspaceSCIMGroupMembers :exec
+DELETE FROM workspace_scim_group_members WHERE workspace_id = sqlc.arg(workspace_id)::text;
+-- name: DeleteWorkspaceSCIMGroups :exec
+DELETE FROM workspace_scim_groups WHERE workspace_id = sqlc.arg(workspace_id)::text;
+-- name: DeleteWorkspaceMemberPermissions :exec
+DELETE FROM workspace_member_permissions WHERE workspace_id = sqlc.arg(workspace_id)::text;
+-- name: DeleteWorkspaceMembers :exec
+DELETE FROM workspace_members WHERE workspace_id = sqlc.arg(workspace_id)::text;
+-- name: DeleteWorkspaceActive :exec
+DELETE FROM user_active_workspace WHERE workspace_id = sqlc.arg(workspace_id)::text;
+-- name: DeleteWorkspaceRow :exec
+DELETE FROM workspaces WHERE id = sqlc.arg(workspace_id)::text;
