@@ -280,7 +280,8 @@ func (b billingRoutes) webhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	payload, err := io.ReadAll(http.MaxBytesReader(w, r.Body, maxWebhookBody))
-	if b.stripe == nil {
+	// Fail closed: an empty webhook secret would let anyone forge a signature.
+	if b.stripe == nil || strings.TrimSpace(b.d.Config.StripeWebhookSecret) == "" {
 		httpx.Detail(w, http.StatusServiceUnavailable, stripeNotConfigured)
 		return
 	}

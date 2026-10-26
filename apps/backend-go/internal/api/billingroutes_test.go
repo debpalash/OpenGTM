@@ -436,3 +436,22 @@ func TestWebhookNeedsNoAuth(t *testing.T) {
 		t.Fatalf("%d %v", code, m)
 	}
 }
+
+func TestWebhookEmptySecretFailsClosed503(t *testing.T) {
+	cfg := billingCfg(true, "sk_test_x", "")
+	cfg.StripeWebhookSecret = ""
+	e := newBillingEnv(t, cfg)
+	e.admin(t, "t9-wh9-ws", "t9-wh9-adm")
+	e.cleanCredits(t, "t9-wh9-ws")
+	p := completedEvent("t9-wh9-ws", "cs_forged", "1000", "paid")
+	h := map[string]string{"Stripe-Signature": billing.SignedHeader(p, "", time.Now())} // forged with the empty key
+	rec, got := e.do("POST", "/api/billing/webhook", "application/json", string(p), h)
+	fx := contract.Load(t, "billing/webhook_unconfigured")
+	contract.AssertEqual(t, got, fx.Response)
+	if rec.Code != 503 {
+		t.Fatalf("status %d", rec.Code)
+	}
+	if bal, n := e.balanceOf(t, "t9-wh9-ws"); bal != 0 || n != 0 {
+		t.Fatalf("credited: %v %d", bal, n)
+	}
+}
