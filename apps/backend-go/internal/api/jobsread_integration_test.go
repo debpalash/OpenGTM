@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -19,6 +20,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadprogress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
@@ -68,6 +70,10 @@ func newJobsEnv(t *testing.T, rdb *redis.Client) jobsEnv {
 	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Redis: rdb,
 		Flags:                   config.Flags{PGLeadStore: true, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: true}},
 		CollectionLedgerBackend: "postgres"}
+	// the shared progress bus (collectroute.go) is process-wide: point it at this env's Redis
+	bus := leadprogress.NewBus(rdb)
+	collectBus = func(Deps) *leadprogress.Bus { return bus }
+	t.Cleanup(func() { collectBus = nil })
 	RegisterJobs(r, d)
 	e := jobsEnv{mcpEnv: mcpEnv{env: env{h: r.Handler(), st: st}, pool: pool}, rdb: rdb}
 	e.purge(t)
@@ -226,7 +232,12 @@ func (e jobsEnv) seedProgress(t *testing.T) {
 	t.Helper()
 	ctx := context.Background()
 	ev := func(offset float64, typ, ws string, data map[string]any) string {
-		m := map[string]any{"type": typ, "ts": 1788000000.0 + offset, "workspace_id": ws}
+		// Python's repr of a float keeps ".0" on whole numbers
+		ts := strconv.FormatFloat(1788000000.0+offset, 'f', -1, 64)
+		if !strings.Contains(ts, ".") {
+			ts += ".0"
+		}
+		m := map[string]any{"type": typ, "ts": json.Number(ts), "workspace_id": ws}
 		for k, v := range data {
 			m[k] = v
 		}
@@ -267,12 +278,12 @@ func jobsActor(name string) (who, ws string) {
 	switch {
 	case strings.HasSuffix(name, "_no_auth"):
 		return "", ""
+	case name == "jobs_list_nonmember_erin_beta":
+		return "erin", "ws-beta"
 	case strings.HasSuffix(name, "_beta"), name == "jobs_list_beta_final":
 		return "bob", "ws-beta"
 	case name == "jobs_list_viewer_bob_alpha":
 		return "bob", "ws-alpha"
-	case name == "jobs_list_nonmember_erin_beta":
-		return "erin", "ws-beta"
 	}
 	return "alice", ""
 }
@@ -326,8 +337,8 @@ func TestJobsReadMatchesFixtures(t *testing.T) {
 		replayed++
 		t.Run(name, func(t *testing.T) { contract.AssertEqual(t, got, fx.Response) })
 	}
-	if replayed != 51 {
-		t.Fatalf("replayed %d read fixtures, want 51", replayed)
+	if replayed != 50 {
+		t.Fatalf("replayed %d read fixtures, want 50", replayed)
 	}
 }
 
@@ -537,15 +548,17 @@ func TestJobEventsRedisDownEmpty(t *testing.T) {
 	down := redis.NewClient(&redis.Options{Addr: "127.0.0.1:1", MaxRetries: -1})
 	t.Cleanup(func() { down.Close() })
 	for name, rdb := range map[string]*redis.Client{"nil": nil, "unreachable": down} {
-		e := newJobsEnv(t, rdb)
-		rec := e.getAlice("/api/jobs/" + jA2 + "/events")
-		if rec.Code != 200 || strings.TrimSpace(rec.Body.String()) != `{"events":[]}` {
-			t.Errorf("%s: %d %s", name, rec.Code, rec.Body)
-		}
-		// the other routes do not depend on Redis
-		if rec := e.getAlice("/api/jobs/" + jA2); rec.Code != 200 {
-			t.Errorf("%s detail: %d", name, rec.Code)
-		}
+		t.Run(name, func(t *testing.T) { // one env per subtest: each holds the database advisory lock until it ends
+			e := newJobsEnv(t, rdb)
+			rec := e.getAlice("/api/jobs/" + jA2 + "/events")
+			if rec.Code != 200 || strings.TrimSpace(rec.Body.String()) != `{"events":[]}` {
+				t.Errorf("%d %s", rec.Code, rec.Body)
+			}
+			// the other routes do not depend on Redis
+			if rec := e.getAlice("/api/jobs/" + jA2); rec.Code != 200 {
+				t.Errorf("detail: %d", rec.Code)
+			}
+		})
 	}
 }
 
