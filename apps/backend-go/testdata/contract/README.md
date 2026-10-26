@@ -64,3 +64,7 @@ Review `git diff` of the fixtures after re-recording: a changed fixture is a cha
   `le=1000`, so Postgres rejects `LIMIT -1` and it answers 500; Go answers 422 `greater_than_equal`
   (`ctx {"ge": 0}`, loc `["query","limit"]`), a user-mandated crash-bug hardening. No fixture; covered by
   `TestNegativeLimit422WithCtx`.
+- `POST /api/functions/{id}/apply` does not run cycle validation (existing FastAPI gap, user decision: keep
+  parity): applying a chain that closes a dependency cycle succeeds in both. `GET /api/functions` ties on
+  `usage_count` are ordered `created_at, id` in Go (FastAPI leaves them in heap order). Covered by
+  `TestApplyDoesNotValidateCycles`; fixtures under `functions/`.

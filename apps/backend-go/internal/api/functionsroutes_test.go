@@ -274,7 +274,11 @@ func TestFunctionsCreateValidationMatchesFixtures(t *testing.T) {
 		"create_missing_name", "create_missing_chain", "create_chain_not_dict", "create_bad_types", "create_no_body",
 	} {
 		fx := contract.Load(t, "functions/"+name)
-		_, got := e.do("POST", "/api/functions", "application/json", string(fx.Request.Body), h)
+		body := string(fx.Request.Body)
+		if body == "null" { // the recorded request had no body at all
+			body = ""
+		}
+		_, got := e.do("POST", "/api/functions", "application/json", body, h)
 		contract.AssertEqual(t, got, fx.Response)
 	}
 	if e.count(t, `name='X'`) != 0 {
