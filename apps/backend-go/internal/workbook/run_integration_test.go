@@ -588,7 +588,7 @@ func TestUpstreamUnavailableBlocksDependent(t *testing.T) {
 	}
 }
 
-// Until Task 21 non-go column types are still handed back to Python.
+// Python-run column types are handed back when no python worker is configured.
 func TestRunStillHandsBackNonGoTypes(t *testing.T) {
 	e := setup(t, wsA)
 	s := newSim(t, nil)

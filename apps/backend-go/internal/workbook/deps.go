@@ -92,8 +92,10 @@ type runState struct {
 	// every column, not just the ones this run executes); cycleBlocked caches
 	// colgraph.CycleBlocked over it.
 	runner       ProviderRunner
-	cols         []column // every configured column (name aliases for {column} references)
-	legacy       bool     // no Deps.Runner: only the payload's manifests exist
+	noRetryMu    sync.Mutex
+	noRetry      map[cellKey]bool // cells whose RPC timed out: no automatic retry
+	cols         []column         // every configured column (name aliases for {column} references)
+	legacy       bool             // no Deps.Runner: only the payload's manifests exist
 	allCols      []colgraph.Col
 	cycleBlocked map[string]bool
 }

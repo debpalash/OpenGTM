@@ -100,7 +100,7 @@ var enrichmentColTypes = map[string]bool{
 }
 
 // goColumnTypes are the only column types this executor runs.
-var goColumnTypes = map[string]bool{"enrichment": true, "waterfall": true, "formula": true, "http": true}
+var goColumnTypes = map[string]bool{"enrichment": true, "waterfall": true, "formula": true, "http": true, "ai_formula": true, "research": true, "agent": true}
 
 // validateGoColumn refuses columns Python eligibility would never have routed
 // here (the workbook may have been edited after enqueue).

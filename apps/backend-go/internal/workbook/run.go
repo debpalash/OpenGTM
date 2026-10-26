@@ -139,7 +139,10 @@ func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result,
 			if err := validateGoColumn(col); err != nil {
 				return Result{}, err
 			}
-			if rs.legacy {
+			if err := rs.checkPyColumn(col); err != nil {
+				return Result{}, err
+			}
+			if rs.legacy && (col.Type == "enrichment" || col.Type == "waterfall") {
 				if err := checkProviders(col, p); err != nil {
 					return Result{}, err
 				}
@@ -451,6 +454,19 @@ func (rs *runState) execute(ctx context.Context, ordered []column, leads []map[s
 	res.Total = countCells(items)
 	rowsDone := 0
 
+	// Cost lever: batch eligible AI cells before the per-row loop. Any failure
+	// leaves the cells to the synchronous loop below.
+	if !rs.stop.shouldStop() {
+		handled, n, err := rs.aiBatchPrepass(ctx, items)
+		if err != nil {
+			return res, err
+		}
+		if len(handled) > 0 {
+			items = applyBatchHandled(items, handled)
+			res.Completed += n
+		}
+	}
+
 	finish := func(err error) (Result, error) { return res, err }
 	for i := 0; i < len(items); i += p.Concurrency {
 		if rs.stop.shouldStop() {
@@ -496,7 +512,7 @@ func (rs *runState) execute(ctx context.Context, ordered []column, leads []map[s
 		}
 		errByRow := map[int64]map[string]bool{}
 		for k := range errCells {
-			if _, ok := byRow[k.row]; ok && selected[k] {
+			if _, ok := byRow[k.row]; ok && selected[k] && !rs.isNoRetry(k) {
 				if errByRow[k.row] == nil {
 					errByRow[k.row] = map[string]bool{}
 				}

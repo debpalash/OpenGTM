@@ -3,6 +3,7 @@ package workbook
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colcompute"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
@@ -13,6 +14,8 @@ func (rs *runState) runCell(ctx context.Context, lead map[string]any, col column
 	switch col.Type {
 	case "formula", "http":
 		return rs.computedCell(ctx, lead, col, rowID, leadID)
+	case rpcAIFormula, rpcResearch, rpcAgent:
+		return rs.pyCell(ctx, lead, col, rowID, leadID)
 	}
 	return rs.waterfall(ctx, lead, col, rowID, leadID)
 }
@@ -73,7 +76,10 @@ func (rs *runState) computedCell(ctx context.Context, lead map[string]any, col c
 			errText = "invalid_http_column"
 			break
 		}
-		res, err := colcompute.RunHTTPColumn(ctx, rs.deps.Client, hc, rs.valuesForHTTP(row), nil)
+		res, err := // The client argument is ignored by colcompute (always the dial-guarded
+			// egress client). secrets is nil on purpose: Python's http_column has no
+			// {secret:NAME} support, so such a placeholder must stay unexpanded.
+			colcompute.RunHTTPColumn(ctx, nil, hc, rs.valuesForHTTP(row), nil)
 		if err != nil {
 			if ctx.Err() != nil {
 				return cellOutcome{}, context.Cause(ctx)
@@ -155,3 +161,5 @@ func rawFields(b json.RawMessage) map[string]json.RawMessage {
 	}
 	return m
 }
+
+func trim(s string) string { return strings.TrimSpace(s) }
