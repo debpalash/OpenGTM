@@ -292,6 +292,17 @@ func (s *Stream) Next() (Frame, error) {
 // response header; never after a response started. 408 and a client-side
 // deadline map to ErrTimeout.
 func (c *Client) Unary(ctx context.Context, path string, body, out any, timeout time.Duration) error {
+	return c.unary(ctx, path, body, out, timeout, true)
+}
+
+// UnaryOnce is Unary with exactly one attempt: for non-idempotent calls (an approved dangerous tool) that
+// must not be re-sent once the request may have reached the worker. The worker's X-Call-Id dedupe is
+// in-memory and per process, so a retry after a dropped connection could run the tool twice.
+func (c *Client) UnaryOnce(ctx context.Context, path string, body, out any, timeout time.Duration) error {
+	return c.unary(ctx, path, body, out, timeout, false)
+}
+
+func (c *Client) unary(ctx context.Context, path string, body, out any, timeout time.Duration, retry bool) error {
 	if err := c.ready(path); err != nil {
 		return err
 	}
@@ -321,7 +332,7 @@ func (c *Client) Unary(ctx context.Context, path string, body, out any, timeout 
 		if rctx.Err() != nil {
 			return ErrTimeout
 		}
-		if attempt == 1 {
+		if attempt == 1 || !retry {
 			return errors.New("pyworker: python worker unreachable")
 		}
 		t := time.NewTimer(c.backoff)

@@ -543,3 +543,22 @@ func TestStreamCloseConcurrentWithBlockedNext(t *testing.T) {
 		t.Fatalf("want ErrClosed, got %v", err)
 	}
 }
+
+func TestUnaryOnceNeverRetries(t *testing.T) {
+	var n atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		n.Add(1)
+		hj, _ := w.(http.Hijacker)
+		conn, _, _ := hj.Hijack()
+		conn.Close()
+	}))
+	defer srv.Close()
+	c := New(srv.URL, testToken, nil)
+	c.backoff = time.Millisecond
+	if err := c.UnaryOnce(context.Background(), "/internal/copilot/tool", struct{}{}, nil, 5*time.Second); err == nil {
+		t.Fatal("expected error")
+	}
+	if n.Load() != 1 {
+		t.Fatalf("%d attempts", n.Load())
+	}
+}
