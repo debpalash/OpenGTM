@@ -210,6 +210,10 @@ func SyncBatch(ctx context.Context, c Client, wsID, destType string, cfg map[str
 	switch destType {
 	case "meta_ads":
 		return c.syncMeta(ctx, wsID, cfg, rows, op, past)
+	case "linkedin_ads":
+		return c.syncLinkedIn(ctx, wsID, cfg, rows, op, past)
+	case "google_ads":
+		return c.syncGoogle(ctx, wsID, cfg, rows, op)
 	}
 	return Result{Error: fmt.Sprintf("unsupported ad destination '%s'", destType)}, nil
 }
