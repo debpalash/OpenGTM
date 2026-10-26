@@ -97,7 +97,13 @@ func CheckAndDebit(ctx context.Context, tx pgx.Tx, enabled bool, workspaceID str
 		_ = sp.Rollback(ctx)
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == uniqueViolation {
-			return replay, nil
+			// Only a replay if the colliding key is visible in this workspace;
+			// a key held by another tenant is never a free replay.
+			seen, qerr := q.BillingDebitKeyExists(ctx, []string{scoped, legacy})
+			if qerr == nil && seen {
+				return replay, nil
+			}
+			return DebitResult{}, fmt.Errorf("billing: debit idempotency key collision not visible in workspace: %w", err)
 		}
 		return DebitResult{}, fmt.Errorf("billing: insert debit: %w", err)
 	}
