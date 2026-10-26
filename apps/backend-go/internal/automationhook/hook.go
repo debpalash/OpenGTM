@@ -6,7 +6,6 @@
 package automationhook
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"log/slog"
@@ -32,6 +31,16 @@ type Hook interface {
 	SignalsInserted(ctx context.Context, tx pgx.Tx, workspaceID string, sigs []SignalRef) (enqueued int, err error)
 }
 
+// Emitter is the full emitter set: Hook plus on_rows_changed and audience membership. It is a
+// separate interface so existing Hook fakes keep compiling.
+type Emitter interface {
+	Hook
+	// RowsChanged is events.on_rows_changed: one trigger_eval per (on_row_changed rule, changed row).
+	RowsChanged(ctx context.Context, tx pgx.Tx, workspaceID, workbookID string, changes []Change) (enqueued int, err error)
+	// AudienceEvents is events.emit_audience_membership.
+	AudienceEvents(ctx context.Context, tx pgx.Tx, workspaceID string, evs []AudienceEvent) (enqueued int, err error)
+}
+
 // SignalRef is one inserted signal: {signal_pk, signal_type, lead_id} of emit_signal_matches.
 // A nil LeadID is skipped (the signal maps to no workbook row).
 type SignalRef struct {
@@ -39,18 +48,37 @@ type SignalRef struct {
 	LeadID   *int64
 }
 
-// New returns a Hook. When enabled is false (AUTOMATIONS_ENABLED off) every
-// call returns 0 without touching the database.
+// DefaultMaxTargets is INTENT_POLLER_MAX_FIRES_PER_SIGNAL's default (D4 fan-out cap).
+const DefaultMaxTargets = 200
+
+// New returns a Hook that always enqueues for the python executor. When enabled is false
+// (AUTOMATIONS_ENABLED off) every call returns 0 without touching the database.
 func New(enabled bool, log *slog.Logger) Hook {
+	return NewWithOptions(enabled, nil, log, DefaultMaxTargets)
+}
+
+// NewWithExecutor is New with go_executor.trigger_eval_executor: exec(ws) names the executor
+// column of each inserted job ("go" or "python"; anything else is "python"; nil is python).
+func NewWithExecutor(enabled bool, exec func(ws string) string, log *slog.Logger) Emitter {
+	return NewWithOptions(enabled, exec, log, DefaultMaxTargets)
+}
+
+// NewWithOptions also sets the per-job target fan-out cap (INTENT_POLLER_MAX_FIRES_PER_SIGNAL).
+func NewWithOptions(enabled bool, exec func(ws string) string, log *slog.Logger, maxTargets int) Emitter {
 	if log == nil {
 		log = slog.Default()
 	}
-	return &hook{enabled: enabled, log: log}
+	if maxTargets < 1 {
+		maxTargets = DefaultMaxTargets
+	}
+	return &hook{enabled: enabled, exec: exec, maxTargets: maxTargets, log: log}
 }
 
 type hook struct {
-	enabled bool
-	log     *slog.Logger
+	enabled    bool
+	exec       func(ws string) string
+	maxTargets int
+	log        *slog.Logger
 }
 
 type target struct {
@@ -72,31 +100,9 @@ func (h *hook) RowsAdded(ctx context.Context, tx pgx.Tx, workspaceID, workbookID
 	if !h.enabled || len(rowIDs) == 0 {
 		return 0, nil
 	}
-	n, err := h.runInSavepoint(ctx, tx, workspaceID, workbookID, rowIDs)
-	if err != nil {
-		h.log.Warn("automation row-added hook failed", "workspace_id", workspaceID, "workbook_id", workbookID, "error", err.Error())
-		return 0, nil
-	}
-	return n, nil
-}
-
-// runInSavepoint runs the whole hook (rule SELECT + job inserts) in one
-// savepoint so any server-side error rolls back to it and leaves the caller's
-// transaction usable. On failure nothing is enqueued.
-func (h *hook) runInSavepoint(ctx context.Context, tx pgx.Tx, workspaceID, workbookID string, rowIDs []int64) (int, error) {
-	sp, err := tx.Begin(ctx)
-	if err != nil {
-		return 0, err
-	}
-	n, err := h.run(ctx, sp, workspaceID, workbookID, rowIDs)
-	if err != nil {
-		_ = sp.Rollback(context.WithoutCancel(ctx))
-		return 0, err
-	}
-	if err := sp.Commit(ctx); err != nil {
-		return 0, err
-	}
-	return n, nil
+	return h.guarded(ctx, tx, "row-added", workspaceID, func(sp pgx.Tx) (int, error) {
+		return h.run(ctx, sp, workspaceID, workbookID, rowIDs)
+	}), nil
 }
 
 func (h *hook) run(ctx context.Context, tx pgx.Tx, workspaceID, workbookID string, rowIDs []int64) (int, error) {
@@ -128,16 +134,7 @@ func (h *hook) run(ctx context.Context, tx pgx.Tx, workspaceID, workbookID strin
 		if !covers(rule.ScopeWorkbookIds, workbookID) {
 			continue
 		}
-		var buf bytes.Buffer
-		enc := json.NewEncoder(&buf)
-		enc.SetEscapeHTML(false)
-		if err := enc.Encode(payload{TriggerID: rule.ID, WorkspaceID: workspaceID, Targets: targets,
-			FireSource: "row_added", FireKey: fireKey}); err != nil {
-			return 0, err
-		}
-		if err := q.InsertTriggerEvalJob(ctx, gen.InsertTriggerEvalJobParams{
-			Payload: bytes.TrimSpace(buf.Bytes()), WorkspaceID: workspaceID,
-		}); err != nil {
+		if err := h.enqueue(ctx, q, workspaceID, rule.ID, targets, "row_added", fireKey); err != nil {
 			return 0, err
 		}
 		enqueued++
@@ -157,99 +154,6 @@ func covers(scopeJSON []byte, workbookID string) bool {
 		}
 	}
 	return false
-}
-
-func (h *hook) SignalsInserted(ctx context.Context, tx pgx.Tx, workspaceID string, sigs []SignalRef) (int, error) {
-	if !h.enabled || len(sigs) == 0 {
-		return 0, nil
-	}
-	n, err := h.signalsInSavepoint(ctx, tx, workspaceID, sigs)
-	if err != nil {
-		h.log.Warn("automation signal hook failed", "workspace_id", workspaceID, "error", err.Error())
-		return 0, nil
-	}
-	return n, nil
-}
-
-func (h *hook) signalsInSavepoint(ctx context.Context, tx pgx.Tx, workspaceID string, sigs []SignalRef) (int, error) {
-	sp, err := tx.Begin(ctx)
-	if err != nil {
-		return 0, err
-	}
-	n, err := h.signals(ctx, sp, workspaceID, sigs)
-	if err != nil {
-		_ = sp.Rollback(context.WithoutCancel(ctx))
-		return 0, err
-	}
-	if err := sp.Commit(ctx); err != nil {
-		return 0, err
-	}
-	return n, nil
-}
-
-func (h *hook) signals(ctx context.Context, tx pgx.Tx, workspaceID string, sigs []SignalRef) (int, error) {
-	q := gen.New(tx)
-	rules, err := q.ListEnabledSignalTriggers(ctx, workspaceID)
-	if err != nil {
-		return 0, err
-	}
-	if len(rules) == 0 {
-		return 0, nil
-	}
-	enqueued := 0
-	for _, sig := range sigs {
-		if sig.LeadID == nil {
-			continue
-		}
-		for _, rule := range rules {
-			if wanted := signalTypes(rule.TriggerConfig); len(wanted) > 0 && !wanted[sig.Type] {
-				continue
-			}
-			scope := scopeList(rule.ScopeWorkbookIds)
-			rows, err := q.SignalRowTargets(ctx, gen.SignalRowTargetsParams{
-				WorkspaceID: workspaceID, LeadID: int32(*sig.LeadID), Scope: scope,
-			})
-			if err != nil {
-				return 0, err
-			}
-			if len(rows) == 0 {
-				continue // signal lead in no scoped workbook: no firing
-			}
-			targets := make([]target, len(rows))
-			for i, r := range rows {
-				targets[i] = target{WorkbookID: r.WorkbookID, RowID: strconv.FormatInt(int64(r.RowID), 10)}
-			}
-			var buf bytes.Buffer
-			enc := json.NewEncoder(&buf)
-			enc.SetEscapeHTML(false)
-			if err := enc.Encode(payload{TriggerID: rule.ID, WorkspaceID: workspaceID, Targets: targets,
-				FireSource: "signal", FireKey: "signal:" + sig.PK}); err != nil {
-				return 0, err
-			}
-			if err := q.InsertTriggerEvalJob(ctx, gen.InsertTriggerEvalJobParams{
-				Payload: bytes.TrimSpace(buf.Bytes()), WorkspaceID: workspaceID,
-			}); err != nil {
-				return 0, err
-			}
-			enqueued++
-		}
-	}
-	return enqueued, nil
-}
-
-// signalTypes is set((rule.trigger_config or {}).get("signal_types") or []).
-func signalTypes(cfg []byte) map[string]bool {
-	var c struct {
-		SignalTypes []string `json:"signal_types"`
-	}
-	if len(cfg) == 0 || json.Unmarshal(cfg, &c) != nil {
-		return nil
-	}
-	m := make(map[string]bool, len(c.SignalTypes))
-	for _, s := range c.SignalTypes {
-		m[s] = true
-	}
-	return m
 }
 
 // scopeList is rule.scope_workbook_ids or []; non-list scopes count as empty.
