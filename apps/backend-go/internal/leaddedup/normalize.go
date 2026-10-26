@@ -220,13 +220,12 @@ func pyHostname(u string) (host string, ok bool) {
 			return "", false
 		}
 	}
+	// CPython _checknetloc
 	for _, r := range netloc {
 		if r >= 0x80 {
-			n := norm.NFKC.String(netloc)
-			for _, c := range "/?#@:" {
-				if strings.ContainsRune(n, c) && !strings.ContainsRune(netloc, c) {
-					return "", false
-				}
+			stripped := strings.NewReplacer("@", "", ":", "", "#", "", "?", "").Replace(netloc)
+			if nf := norm.NFKC.String(stripped); nf != stripped && strings.ContainsAny(nf, "/?#@:") {
+				return "", false
 			}
 			break
 		}

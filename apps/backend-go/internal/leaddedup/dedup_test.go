@@ -145,6 +145,7 @@ func TestNormalizeUnicodeEdges(t *testing.T) {
 		{"http://us:pw@[::ffff:1.2.3.4]:80", "::ffff:1.2.3.4"}, {"http://x.example.com%eth0/", "x.example.com%eth0"},
 		{"\u2100.com", "http://\u2100.com"}, {"http://www.www.a.com", "www.a.com"}, {"http://%41.com", "%41.com"},
 		{"HTTPS://X.COM?q=1", "x.com"}, {"  ", ""}, {"a b.com", "a b.com"}, {"http://:80/", ""},
+		{"http://u@a\uff20b.com", "http://u@a\uff20b.com"}, {"a\uff1ab.com", "http://a\uff1ab.com"},
 	}
 	for _, c := range domain {
 		if got := NormalizeDomain(c[0]); got != c[1] {
@@ -426,5 +427,41 @@ func TestMergeDoesNotMutateInputs(t *testing.T) {
 	_ = MergeLeads(m, []Rec{d})
 	if m.Vals["email"] != "" || len(m.Keys) != 2 {
 		t.Errorf("master mutated: %+v", m)
+	}
+}
+
+// Python 3.13 raises TypeError for each of these (recorded by running
+// LeadDeduplicator.merge_leads); the lenient variant ignores the value.
+func TestMergeStrictRejectsNonStringSource(t *testing.T) {
+	rec := func(kv ...any) Rec {
+		r := Rec{Vals: map[string]any{}}
+		for i := 0; i < len(kv); i += 2 {
+			r.Keys = append(r.Keys, kv[i].(string))
+			r.Vals[kv[i].(string)] = kv[i+1]
+		}
+		return r
+	}
+	crash := map[string][2]any{
+		"null_master": {rec("id", int64(1), "source", nil, "score", int64(1)), []Rec{rec("id", int64(2), "source", "x", "score", int64(1))}},
+		"int_master":  {rec("id", int64(1), "source", int64(5), "score", int64(1)), []Rec{rec("id", int64(2), "source", "x", "score", int64(1))}},
+		"int_dup":     {rec("id", int64(1), "source", "a", "score", int64(1)), []Rec{rec("id", int64(2), "source", int64(5), "score", int64(1))}},
+		"null_only":   {rec("id", int64(1), "source", nil, "score", int64(1)), []Rec{rec("id", int64(2), "score", int64(1))}},
+	}
+	for name, c := range crash {
+		if _, err := MergeLeadsStrict(c[0].(Rec), c[1].([]Rec)); err != ErrNonStringSource {
+			t.Errorf("%s: err = %v, want ErrNonStringSource", name, err)
+		}
+		MergeLeads(c[0].(Rec), c[1].([]Rec))
+	}
+	// Python does not raise: falsy non-string dup source, missing master source
+	ok := map[string][2]any{
+		"falsy_dup":      {rec("id", int64(1), "source", "a", "score", int64(1)), []Rec{rec("id", int64(2), "source", int64(0), "score", int64(1))}},
+		"none_dup":       {rec("id", int64(1), "source", "a", "score", int64(1)), []Rec{rec("id", int64(2), "source", nil, "score", int64(1))}},
+		"missing_master": {rec("id", int64(1), "score", int64(1)), []Rec{rec("id", int64(2), "source", "x", "score", int64(1))}},
+	}
+	for name, c := range ok {
+		if _, err := MergeLeadsStrict(c[0].(Rec), c[1].([]Rec)); err != nil {
+			t.Errorf("%s: unexpected %v", name, err)
+		}
 	}
 }

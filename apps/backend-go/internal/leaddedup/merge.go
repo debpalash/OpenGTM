@@ -82,6 +82,11 @@ func greater(a, b any) bool {
 	return af > bf
 }
 
+// ErrNonStringSource is returned by MergeLeadsStrict where Python raises
+// TypeError in the source join: a present non-string (incl. NULL) master
+// source, or a truthy non-string duplicate source.
+var ErrNonStringSource = errors.New("leaddedup: non-string source")
+
 // MergeLeads ports merge_leads (waterfall fill of empty fields). Non-numeric
 // scores are ignored in the max (Python raises TypeError; see
 // MergeLeadsStrict). Non-string sources are ignored.
@@ -113,14 +118,21 @@ func merge(master Rec, dups []Rec, strict bool) (Rec, error) {
 	}
 
 	sources := map[string]struct{}{}
-	if s, ok := master.Vals["source"].(string); ok {
-		sources[s] = struct{}{}
-	} else if _, has := master.Vals["source"]; !has {
+	if mv, has := master.Vals["source"]; !has {
 		sources[""] = struct{}{}
+	} else if s, ok := mv.(string); ok {
+		sources[s] = struct{}{}
+	} else if strict {
+		return Rec{}, ErrNonStringSource
 	}
 	for _, d := range dups {
-		if s, ok := d.Vals["source"].(string); ok && s != "" {
-			sources[s] = struct{}{}
+		dv := d.Vals["source"]
+		if s, ok := dv.(string); ok {
+			if s != "" {
+				sources[s] = struct{}{}
+			}
+		} else if truthy(dv) && strict {
+			return Rec{}, ErrNonStringSource
 		}
 	}
 	delete(sources, "")
