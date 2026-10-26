@@ -90,3 +90,6 @@ apps/searxng-pool/searxng-pool
 
 # MCP server build output (make build-mcp)
 apps/backend-go/bin/
+/apps/backend-go/api
+/apps/backend-go/worker
+/apps/backend-go/mcp
