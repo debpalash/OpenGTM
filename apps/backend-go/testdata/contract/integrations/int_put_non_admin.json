@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "values": {
+        "SALESFORCE_INSTANCE_URL": "https://x.test"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/settings/integrations/salesforce"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authorized"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

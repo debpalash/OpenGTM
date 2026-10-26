@@ -1,0 +1,57 @@
+{
+  "request": {
+    "body": {
+      "values": {
+        "HUBSPOT_TOKEN": "foreign-key-ignored",
+        "NOT_A_FIELD": "ignored",
+        "SALESFORCE_ACCESS_TOKEN": "sf-contract-token-9876",
+        "SALESFORCE_INSTANCE_URL": " https://contract.my.salesforce.com "
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/settings/integrations/salesforce"
+  },
+  "response": {
+    "body": {
+      "integration": {
+        "connected": true,
+        "description": "Push leads as Salesforce Lead records (upsert by email).",
+        "fields": [
+          {
+            "key": "SALESFORCE_INSTANCE_URL",
+            "label": "Instance URL",
+            "masked": "set",
+            "placeholder": "https://your.my.salesforce.com",
+            "secret": false,
+            "set": true,
+            "value": "https://contract.my.salesforce.com"
+          },
+          {
+            "key": "SALESFORCE_ACCESS_TOKEN",
+            "label": "Access Token",
+            "masked": "\u20269876",
+            "placeholder": "00D...",
+            "secret": true,
+            "set": true,
+            "value": ""
+          }
+        ],
+        "icon": "salesforce",
+        "id": "salesforce",
+        "name": "Salesforce"
+      },
+      "saved": [
+        "SALESFORCE_INSTANCE_URL",
+        "SALESFORCE_ACCESS_TOKEN"
+      ],
+      "status": "ok"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

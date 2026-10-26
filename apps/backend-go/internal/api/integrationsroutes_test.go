@@ -10,6 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
@@ -353,5 +354,55 @@ func TestWorkspaceIntegrationPermissionDenyOverrideHTTP(t *testing.T) {
 	}
 	if rec, _ := e.put(t, w.view, path, body); rec.Code != 200 {
 		t.Fatalf("allowed viewer: %d %s", rec.Code, rec.Body.String())
+	}
+}
+
+// TestIntegrationRoutesMatchFixtures replays the recorded, order-dependent
+// FastAPI sequence (testdata/contract/integrations). alice is a global admin and
+// owner of the workspace, bob a plain "member" of it.
+func TestIntegrationRoutesMatchFixtures(t *testing.T) {
+	e := newSettingsEnv(t)
+	e.cleanIntegrations(t)
+	w := e.wsEnv()
+	aid, ah := w.user(t, "t7-fx-alice")
+	if _, err := e.pool.Exec(context.Background(), `UPDATE users SET is_admin=true, role='admin' WHERE id=$1`, aid); err != nil {
+		t.Fatal(err)
+	}
+	bid, bh := w.user(t, "t7-fx-bob")
+	ws := "t7-fx-ws"
+	w.mk(t, ws, "Alpha", ws, aid, 1788000000, map[int32]string{aid: "owner", bid: "member"})
+	w.setActive(t, aid, ws)
+	q := "?workspace_id=" + ws
+	steps := []struct {
+		name, method, path, body string
+		hdr                      map[string]string
+	}{
+		{"int_list_before", "GET", "/api/settings/integrations", "", ah},
+		{"int_list_no_auth", "GET", "/api/settings/integrations", "", nil},
+		{"int_put_unknown", "PUT", "/api/settings/integrations/nope", `{"values":{"A":"b"}}`, ah},
+		{"int_put_non_admin", "PUT", "/api/settings/integrations/salesforce", `{"values":{"SALESFORCE_INSTANCE_URL":"https://x.test"}}`, bh},
+		{"int_put_missing_values", "PUT", "/api/settings/integrations/salesforce", `{}`, ah},
+		{"int_put_non_string_value", "PUT", "/api/settings/integrations/salesforce", `{"values":{"SALESFORCE_INSTANCE_URL":5}}`, ah},
+		{"int_put_ok", "PUT", "/api/settings/integrations/salesforce",
+			`{"values":{"SALESFORCE_INSTANCE_URL":" https://contract.my.salesforce.com ","SALESFORCE_ACCESS_TOKEN":"sf-contract-token-9876","HUBSPOT_TOKEN":"foreign-key-ignored","NOT_A_FIELD":"ignored"}}`, ah},
+		{"int_put_blank_noop", "PUT", "/api/settings/integrations/salesforce", `{"values":{"SALESFORCE_ACCESS_TOKEN":"   ","SALESFORCE_INSTANCE_URL":""}}`, ah},
+		{"int_put_short_secret", "PUT", "/api/settings/integrations/airtable", `{"values":{"AIRTABLE_TOKEN":"abc"}}`, ah},
+		{"int_list_after", "GET", "/api/settings/integrations", "", bh},
+		{"ws_list_alpha_before", "GET", "/api/settings/workspace-integrations" + q, "", ah},
+		{"ws_put_member_forbidden", "PUT", "/api/settings/workspace-integrations/hubspot" + q, `{"values":{"HUBSPOT_TOKEN":"ws-contract-token-4321"}}`, bh},
+		{"ws_put_unknown", "PUT", "/api/settings/workspace-integrations/nope" + q, `{"values":{"A":"b"}}`, ah},
+		{"ws_put_owner_ok", "PUT", "/api/settings/workspace-integrations/hubspot" + q, `{"values":{"HUBSPOT_TOKEN":" ws-contract-token-4321 ","NOT_A_FIELD":"x"}}`, ah},
+		{"ws_list_alpha_after", "GET", "/api/settings/workspace-integrations" + q, "", bh},
+		{"ws_list_active", "GET", "/api/settings/workspace-integrations", "", ah},
+		{"ws_list_other_workspace", "GET", "/api/settings/workspace-integrations?workspace_id=ws-missing", "", bh},
+		{"ws_put_other_workspace", "PUT", "/api/settings/workspace-integrations/hubspot?workspace_id=ws-missing", `{"values":{"HUBSPOT_TOKEN":"nope-token-0000"}}`, bh},
+		{"ws_list_no_auth", "GET", "/api/settings/workspace-integrations", "", nil},
+	}
+	for _, s := range steps {
+		fx := contract.Load(t, "integrations/"+s.name)
+		_, got := e.do(s.method, s.path, "application/json", s.body, s.hdr)
+		t.Run(s.name, func(t *testing.T) {
+			contract.AssertEqual(t, got, fx.Response, contract.IgnorePaths("$.workspace_id"))
+		})
 	}
 }

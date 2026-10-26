@@ -1,0 +1,164 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/settings/integrations"
+  },
+  "response": {
+    "body": {
+      "integrations": [
+        {
+          "connected": false,
+          "description": "Push leads as HubSpot contacts (output column \u2192 CRM).",
+          "fields": [
+            {
+              "key": "HUBSPOT_TOKEN",
+              "label": "Private App Token",
+              "masked": "",
+              "placeholder": "pat-na1-...",
+              "secret": true,
+              "set": false,
+              "value": ""
+            }
+          ],
+          "icon": "hubspot",
+          "id": "hubspot",
+          "name": "HubSpot CRM"
+        },
+        {
+          "connected": false,
+          "description": "Push leads as Salesforce Lead records (upsert by email).",
+          "fields": [
+            {
+              "key": "SALESFORCE_INSTANCE_URL",
+              "label": "Instance URL",
+              "masked": "",
+              "placeholder": "https://your.my.salesforce.com",
+              "secret": false,
+              "set": false,
+              "value": ""
+            },
+            {
+              "key": "SALESFORCE_ACCESS_TOKEN",
+              "label": "Access Token",
+              "masked": "",
+              "placeholder": "00D...",
+              "secret": true,
+              "set": false,
+              "value": ""
+            }
+          ],
+          "icon": "salesforce",
+          "id": "salesforce",
+          "name": "Salesforce"
+        },
+        {
+          "connected": false,
+          "description": "Append rows to an Airtable base (output column \u2192 Airtable).",
+          "fields": [
+            {
+              "key": "AIRTABLE_TOKEN",
+              "label": "Personal Access Token",
+              "masked": "",
+              "placeholder": "pat...",
+              "secret": true,
+              "set": false,
+              "value": ""
+            }
+          ],
+          "icon": "airtable",
+          "id": "airtable",
+          "name": "Airtable"
+        },
+        {
+          "connected": false,
+          "description": "Append rows to a Google Sheet via an OAuth2 access token.",
+          "fields": [
+            {
+              "key": "GOOGLE_SHEETS_TOKEN",
+              "label": "OAuth2 Access Token",
+              "masked": "",
+              "placeholder": "ya29...",
+              "secret": true,
+              "set": false,
+              "value": ""
+            }
+          ],
+          "icon": "sheets",
+          "id": "sheets",
+          "name": "Google Sheets"
+        },
+        {
+          "connected": false,
+          "description": "Sync consented, hashed identifiers to Custom Audiences.",
+          "fields": [
+            {
+              "key": "META_ACCESS_TOKEN",
+              "label": "Marketing API Access Token",
+              "masked": "",
+              "placeholder": "EAAB...",
+              "secret": true,
+              "set": false,
+              "value": ""
+            }
+          ],
+          "icon": "facebook",
+          "id": "meta_ads",
+          "name": "Meta Ads"
+        },
+        {
+          "connected": false,
+          "description": "Sync consented, hashed identifiers with Customer Match.",
+          "fields": [
+            {
+              "key": "GOOGLE_ADS_ACCESS_TOKEN",
+              "label": "OAuth2 Access Token",
+              "masked": "",
+              "placeholder": "ya29...",
+              "secret": true,
+              "set": false,
+              "value": ""
+            },
+            {
+              "key": "GOOGLE_ADS_DEVELOPER_TOKEN",
+              "label": "Developer Token",
+              "masked": "",
+              "placeholder": "Developer token",
+              "secret": true,
+              "set": false,
+              "value": ""
+            }
+          ],
+          "icon": "google",
+          "id": "google_ads",
+          "name": "Google Ads"
+        },
+        {
+          "connected": false,
+          "description": "Sync consented, hashed emails to Matched Audiences (approval required).",
+          "fields": [
+            {
+              "key": "LINKEDIN_ACCESS_TOKEN",
+              "label": "Marketing API Access Token",
+              "masked": "",
+              "placeholder": "AQX...",
+              "secret": true,
+              "set": false,
+              "value": ""
+            }
+          ],
+          "icon": "linkedin",
+          "id": "linkedin_ads",
+          "name": "LinkedIn Ads"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
