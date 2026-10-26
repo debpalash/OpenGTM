@@ -141,3 +141,21 @@ func TestEveryShippedTemplateBuilds(t *testing.T) {
 		}
 	}
 }
+
+// The stored columns_config text is not HTML-escaped (like every other write path and Python's
+// json.dumps): "<", ">" and "&" stay literal.
+func TestTemplateColumnsStoredWithoutHTMLEscaping(t *testing.T) {
+	tp := wbregistry.Template{ID: "x", Name: "X", Description: "d",
+		Columns: raw(`[{"key":"company","name":"A<B & C>","type":"text"}]`)}
+	cols, _, g := buildTemplateColumns(tp)
+	if g != nil {
+		t.Fatal(g)
+	}
+	b, err := marshalTemplateColumns(cols)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(b), `"A<B & C>"`) || strings.Contains(string(b), `<`) || strings.Contains(string(b), `&`) {
+		t.Fatalf("columns_config escaped: %s", b)
+	}
+}

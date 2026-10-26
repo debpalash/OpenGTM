@@ -253,7 +253,7 @@ func (h templateRoutes) createFromTemplate(w http.ResponseWriter, r *http.Reques
 		httpx.Detail(w, g.Status, g.Detail)
 		return
 	}
-	colJSON, err := json.Marshal(cols)
+	colJSON, err := marshalTemplateColumns(cols)
 	if err != nil {
 		h.wb.fail(w, "create from template", err)
 		return
@@ -286,3 +286,6 @@ func (h templateRoutes) createFromTemplate(w http.ResponseWriter, r *http.Reques
 		EnrichmentColumnsCount int    `json:"enrichment_columns_count"`
 	}{wbID, t.Name, id, len(cols), enrichment})
 }
+
+// marshalTemplateColumns is the stored columns_config text (stub).
+func marshalTemplateColumns(cols []wbcrud.Column) ([]byte, error) { return json.Marshal(cols) }
