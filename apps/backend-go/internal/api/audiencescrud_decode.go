@@ -6,6 +6,7 @@ import (
 	"errors"
 	"math"
 	"math/big"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -169,6 +170,9 @@ func audBool(k string, r json.RawMessage) (bool, *httpx.FieldError) {
 	return false, &e
 }
 
+// audIntString is a str that pydantic lax int accepts: optional sign, digits with single underscores, an all-zero fraction.
+var audIntString = regexp.MustCompile(`^([+-]?\d+(?:_\d+)*)(?:\.(\d+))?$`)
+
 // audInt is pydantic's lax int bounded by ge and le.
 func audInt(k string, r json.RawMessage, ge, le int) (int, *httpx.FieldError) {
 	v := audDecodeAny(r)
@@ -188,17 +192,19 @@ func audInt(k string, r json.RawMessage, ge, le int) (int, *httpx.FieldError) {
 			n = i
 		} else if f, err := strconv.ParseFloat(string(t), 64); err == nil && !math.IsInf(f, 0) && f == math.Trunc(f) {
 			n, _ = new(big.Float).SetFloat64(f).Int(nil)
-		} else if err == nil && !math.IsInf(f, 0) {
+		} else if math.IsInf(f, 0) {
+			return bad("finite_number", "Input should be a finite number")
+		} else if err == nil {
 			return bad("int_from_float", "Input should be a valid integer, got a number with a fractional part")
 		} else {
 			return bad("int_parsing", "Input should be a valid integer, unable to parse string as an integer")
 		}
 	case string:
-		i, ok := new(big.Int).SetString(strings.TrimSpace(t), 10)
-		if !ok {
+		m := audIntString.FindStringSubmatch(strings.TrimSpace(t))
+		if m == nil || strings.Trim(m[2], "0") != "" {
 			return bad("int_parsing", "Input should be a valid integer, unable to parse string as an integer")
 		}
-		n = i
+		n, _ = new(big.Int).SetString(strings.ReplaceAll(m[1], "_", ""), 10)
 	default:
 		return bad("int_type", "Input should be a valid integer")
 	}
