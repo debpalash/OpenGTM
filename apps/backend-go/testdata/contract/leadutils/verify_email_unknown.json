@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "email": "someone@example.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/verify-email"
+  },
+  "response": {
+    "body": {
+      "confidence": 0.0,
+      "deliverable": false,
+      "detail": "smtp timeout",
+      "email": "someone@example.com",
+      "source": "smtp_probe",
+      "status": "unknown",
+      "valid": false
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

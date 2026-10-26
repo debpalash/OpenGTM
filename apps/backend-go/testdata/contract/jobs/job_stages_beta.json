@@ -1,0 +1,47 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs/b1000000000000000000000000000002/stages"
+  },
+  "response": {
+    "body": [
+      {
+        "completed_at": "2026-08-27T07:01:05+00:00",
+        "details": {
+          "reasons": {
+            "no_email": 1
+          }
+        },
+        "id": 17,
+        "input_count": 5,
+        "job_id": "b1000000000000000000000000000002",
+        "output_count": 4,
+        "rejected_count": 1,
+        "stage": "validate",
+        "started_at": "2026-08-27T07:00:05+00:00",
+        "status": "done"
+      },
+      {
+        "completed_at": "",
+        "details": {},
+        "id": 18,
+        "input_count": 4,
+        "job_id": "b1000000000000000000000000000002",
+        "output_count": 0,
+        "rejected_count": 0,
+        "stage": "dedup",
+        "started_at": "2026-08-27T07:02:05+00:00",
+        "status": "running"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

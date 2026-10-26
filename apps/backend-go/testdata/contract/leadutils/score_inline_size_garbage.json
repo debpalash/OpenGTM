@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "lead": {
+        "company": "Garbage Size",
+        "company_size": "unknown"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "company": "Garbage Size",
+      "lead_id": null,
+      "score": 0,
+      "tier": "unqualified"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

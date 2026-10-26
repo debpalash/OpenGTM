@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "lead": {
+        "company": "Open Size",
+        "company_size": "1000+"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "company": "Open Size",
+      "lead_id": null,
+      "score": 15,
+      "tier": "unqualified"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": {
+      "query": "IT staffing Pune"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

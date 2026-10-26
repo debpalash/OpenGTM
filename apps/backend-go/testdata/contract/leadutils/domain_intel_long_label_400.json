@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "domain": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/domain-intel"
+  },
+  "response": {
+    "body": {
+      "detail": "domain must be a valid domain name or URL"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

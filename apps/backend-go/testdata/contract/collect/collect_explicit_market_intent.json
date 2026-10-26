@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "intent": "market_search",
+      "query": "analytics software firms in Austin"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "intent": "market_search",
+      "job_id": "00000000000040008000000000005002",
+      "ok": true,
+      "query": "analytics software firms in Austin",
+      "queue_job_id": 12,
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {
+      "query": "staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing "
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "intent": "market_search",
+      "job_id": "00000000000040008000000000005006",
+      "ok": true,
+      "query": "staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing",
+      "queue_job_id": 16,
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

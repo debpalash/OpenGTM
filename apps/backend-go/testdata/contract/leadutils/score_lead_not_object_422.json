@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "lead": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "x",
+          "loc": [
+            "body",
+            "lead"
+          ],
+          "msg": "Input should be a valid dictionary",
+          "type": "dict_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

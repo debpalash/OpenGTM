@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs?status=pending"
+  },
+  "response": {
+    "body": [
+      {
+        "attempts": 0,
+        "completed_at": "",
+        "created_at": "2026-08-29T08:00:00.100000+00:00",
+        "error": "",
+        "id": "a1000000000000000000000000000001",
+        "intent": "market_search",
+        "intent_details": "{}",
+        "leads_found": 0,
+        "max_attempts": 3,
+        "proxy_used": "",
+        "query": "HR staffing agencies in Pune",
+        "started_at": "",
+        "status": "pending",
+        "tier": 1,
+        "workspace_id": "ws-alpha"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

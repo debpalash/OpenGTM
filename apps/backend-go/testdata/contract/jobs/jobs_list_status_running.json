@@ -1,0 +1,52 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs?status=running"
+  },
+  "response": {
+    "body": [
+      {
+        "attempts": 1,
+        "completed_at": "",
+        "created_at": "2026-08-29T08:30:00.250000+00:00",
+        "error": "",
+        "id": "a1000000000000000000000000000002",
+        "intent": "market_search",
+        "intent_details": "{\"query\": \"IT staffing companies in Bangalore\", \"intent\": \"market_search\", \"domain\": \"\", \"entity\": \"\", \"clarification_kind\": \"\", \"clarification_required\": false, \"reason\": \"\", \"options\": []}",
+        "leads_found": 4,
+        "max_attempts": 3,
+        "proxy_used": "http://proxy-1.contract.invalid:8080",
+        "query": "IT staffing companies in Bangalore",
+        "started_at": "2026-08-29T08:31:05.000001+00:00",
+        "status": "running",
+        "tier": 1,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "attempts": 1,
+        "completed_at": "",
+        "created_at": "2026-08-24T13:00:00.000001+00:00",
+        "error": "",
+        "id": "a1000000000000000000000000000007",
+        "intent": "company_research",
+        "intent_details": "{\"query\": \"example.com\", \"intent\": \"company_research\", \"domain\": \"example.com\", \"entity\": \"Example\", \"clarification_kind\": \"bare_domain\", \"clarification_required\": true, \"reason\": \"A domain is a company target, not a market-search specification.\", \"options\": [{\"key\": \"company_research\", \"intent\": \"company_research\", \"label\": \"Research Example\", \"description\": \"Build one evidence-backed company profile; do not create page-title leads.\", \"route\": \"/chat\", \"draft\": \"Research the company at example.com. Build one evidence-backed company profile with products, market, size, leadership, customers, recent signals, and cited sources.\"}, {\"key\": \"people_at_company\", \"intent\": \"people_at_company\", \"label\": \"Find people at Example\", \"description\": \"Find named decision-makers who are demonstrably associated with this company.\", \"route\": \"/chat\", \"draft\": \"Find decision-makers at the company example.com. Return named people with title, LinkedIn evidence, and only company-attributable contact data.\"}, {\"key\": \"technology_users\", \"intent\": \"technology_users\", \"label\": \"Find Example users\", \"description\": \"Find actual companies using the product; keep list vendors and articles as evidence only.\", \"route\": \"/chat\", \"draft\": \"Find companies that use the technology or product represented by example.com. Return actual customer companies, not directories or list vendors, and include evidence for each relationship.\"}, {\"key\": \"signal_monitor\", \"intent\": \"signal_monitor\", \"label\": \"Monitor Example\", \"description\": \"Create a watch for company, hiring, product, pricing, and leadership changes.\", \"route\": \"/watches\", \"draft\": \"example.com\"}]}",
+        "leads_found": 0,
+        "max_attempts": 3,
+        "proxy_used": "",
+        "query": "example.com",
+        "started_at": "2026-08-24T13:00:05.000002+00:00",
+        "status": "running",
+        "tier": 1,
+        "workspace_id": "ws-alpha"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

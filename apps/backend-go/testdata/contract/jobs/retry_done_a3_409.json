@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/jobs/a1000000000000000000000000000003/retry"
+  },
+  "response": {
+    "body": {
+      "detail": "Only failed or cancelled jobs can be retried"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

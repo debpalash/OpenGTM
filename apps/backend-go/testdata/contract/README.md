@@ -842,3 +842,31 @@ Known issues and accepted risks (not fixed; also for issue #114 where they are P
 
 Python bugs seen during the fix wave (not fixed in `legacy/python`; for issue #114): `compute_next_run` mixes absolute elapsed time with wall-clock `anchor + n*delta` under a non-UTC session TimeZone (Go now matches it; running the database session in UTC avoids the quirk); a cancelled or crashed `trigger_eval` leaves its `trigger_runs` row `running` forever and no reaper exists; `create_webhook_rule` through `/watches` bypasses `automations.manage`; `header_secret_ref` accepts any workspace key; `lead_id` is not checked against the workspace before the webhook rule is committed (orphan rule); manual `dry_run` has side effects.
 
+
+## Plan 14 (leadgen collection): recording profile
+
+19 routes: `POST /api/collect`, `GET /api/jobs`, `GET /api/jobs/{id}` (+ `/stages`, `/leads`, `/events`), `POST /api/jobs/{id}/cancel`, `DELETE /api/jobs/{id}`, `POST /api/jobs/{id}/retry`,
+`GET /api/system-stats`, `POST /api/leads/{score,verify-email,tech-stack,domain-intel}` and `GET|PUT|POST /api/settings/sources*`. Cases `legacy/python/scripts/contract_cases/leadgen.yaml`
+land in `collect/`, `jobs/`, `leadutils/` and `sources/` (files `srcsettings_*`, so they never collide with plan 06). Recorded by `legacy/python/scripts/leadgen_record.sh`
+(needs a private database `opengtm_contract_<x>` migrated to head `c9d2e4f6a8b1` or later, a non-superuser role `APP_URL`, the superuser `ADMIN_URL` and `REDIS_URL` with a dedicated db index):
+re-seeds with `CONTRACT_SEED_LEADGEN=yes`, starts `scripts/leadgen_contract_server.py` on 8426 (`TZ=UTC`, `RUN_INLINE_WORKER=0`, `SQLITE_STORES_BACKEND=postgres`, `PG_LEAD_STORE=true`),
+records and stops it. Re-running is byte-identical.
+
+- The server pins what would vary: counter uuids for collected job ids (from `00000000000040008000000000005000`), a counter clock for the ledger's `isoformat()` stamps
+  (`2026-09-01T12:00:<n>.123456+00:00`), `source_health.updated_at` (2026-09-01 12:00:00), loopback-only sockets with name resolution blocked for everything else (uvicorn runs with
+  `loop="asyncio"`: uvloop would bypass the guards), and one scripted verifier under the REAL email cascade (`valid*`, `invalid*`, `catchall*` local parts answer, anything else is `unknown`).
+- Seed: workspace A jobs `a1000000000000000000000000000001..7` (pending, running, done x2, failed with unparsable `intent_details`, cancelled, running with a clarification payload and
+  unparsable/empty stage details), 2 stages each; workspace B jobs `b1000000000000000000000000000001..2`; leads 101-103 (by `collection_job_id`), 104-105 (by `source = 'job:<id>'`), 106 (beta);
+  `collect` queue rows (pending/processing/completed/failed/cancelled); `source_health` rows in every state with and without `manual_override`; `source_stats`; `SOURCE_*_ENABLED` overrides;
+  Redis `leadgen:progress:<ws>:recent` lists (db index from `REDIS_URL`). Ledger rows are inserted with raw SQL (the Python backend stamps `now()`).
+- Case ORDER is part of the contract: reads, then collect (20 warm-up calls in ws-beta feed the 21st = 429, the 20/minute bucket is per workspace header), cancel, retry, delete, then settings writes.
+  `/__contract/queue` is a launcher-only route (the `collect` durable-queue rows after each phase). `bob` + `X-Workspace-Id: ws-alpha` is the viewer; `erin` is a non-member of ws-beta.
+- Fixtures are written with `sort_keys`, so key ORDER is not in them. Verified separately against the live recorder (raw bytes): job rows `id, query, intent, intent_details, status, tier,
+  attempts, max_attempts, leads_found, proxy_used, error, created_at, started_at, completed_at, workspace_id`; job detail the same plus `stages` last; stage rows `id, job_id, stage, status,
+  input_count, output_count, rejected_count, details, started_at, completed_at`; `jobs/{id}/leads` rows are `Lead.to_dict()` (dataclass order: `id, company, website, email, ...`, `collection_job_id`
+  and `workspace_id` in the pipeline block), NOT the ledger column order.
+- Recorded Python quirks (Python bugs go to issue #114): `POST /leads/score` with a non-string `email` answers a bare 500 (`score_inline_email_int_500`); `events?limit=0` and negative limits slice with
+  `[-0:]` / `[1:]`; `intent_details` or stage `details` holding `NaN`/`Infinity` parse fine but make the response render fail (500); a non-object `intent_details` (`[1,2]`, `"s"`, `null`) is returned as parsed.
+- Vectors from `legacy/python/scripts/gen_leadgen_vectors.py` (`internal/{leadscore,collectintent,sourcehealth,sourcecatalog,collectledger,domainintel,leadprogress}`; `icp.json` and `sources.json` are
+  dumps of the Python config). Notable recorded behaviours: `recent()` falls back to the in-process deque when ANY Redis entry is invalid JSON (it does not skip it); a crt.sh row that is not an object
+  makes `analyze_domain` raise; `get_source_enabled` is true only for the exact stored string `1`.

@@ -1,0 +1,39 @@
+{
+  "request": {
+    "body": {
+      "query": "companies using HubSpot in Germany"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "clarification_kind": "",
+      "clarification_required": true,
+      "domain": "",
+      "entity": "",
+      "intent": "technology_users",
+      "message": "This request needs a specialized GTM workflow and cannot safely run through the broad lead collector.",
+      "ok": false,
+      "options": [
+        {
+          "description": "Find companies with evidence of actual product usage.",
+          "draft": "companies using HubSpot in Germany",
+          "intent": "technology_users",
+          "key": "technology_users",
+          "label": "Research technology users",
+          "route": "/chat"
+        }
+      ],
+      "query": "companies using HubSpot in Germany",
+      "reason": "This request needs a specialized GTM workflow and cannot safely run through the broad lead collector."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

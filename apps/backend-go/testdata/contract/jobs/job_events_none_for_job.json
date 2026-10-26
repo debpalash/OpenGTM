@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs/a1000000000000000000000000000003/events"
+  },
+  "response": {
+    "body": {
+      "events": [
+        {
+          "job_id": "a1000000000000000000000000000003",
+          "message": "Another job's event",
+          "ts": 1788000003.0,
+          "type": "stage_start",
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

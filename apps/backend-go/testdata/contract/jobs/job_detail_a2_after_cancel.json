@@ -1,0 +1,79 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs/a1000000000000000000000000000002"
+  },
+  "response": {
+    "body": {
+      "attempts": 1,
+      "completed_at": "2026-09-01T12:00:28.123456+00:00",
+      "created_at": "2026-08-29T08:30:00.250000+00:00",
+      "error": "Cancelled by user",
+      "id": "a1000000000000000000000000000002",
+      "intent": "market_search",
+      "intent_details": {
+        "clarification_kind": "",
+        "clarification_required": false,
+        "domain": "",
+        "entity": "",
+        "intent": "market_search",
+        "options": [],
+        "query": "IT staffing companies in Bangalore",
+        "reason": ""
+      },
+      "leads_found": 4,
+      "max_attempts": 3,
+      "proxy_used": "http://proxy-1.contract.invalid:8080",
+      "query": "IT staffing companies in Bangalore",
+      "stages": [
+        {
+          "completed_at": "2026-08-22T09:01:00.000006+00:00",
+          "details": {
+            "samples": [
+              "Acme HR",
+              "Zeta Staffing"
+            ],
+            "sources": [
+              "web_search",
+              "directory"
+            ]
+          },
+          "id": 3,
+          "input_count": 14,
+          "job_id": "a1000000000000000000000000000002",
+          "output_count": 12,
+          "rejected_count": 2,
+          "stage": "validate",
+          "started_at": "2026-08-22T09:00:00.000005+00:00",
+          "status": "done"
+        },
+        {
+          "completed_at": "",
+          "details": {
+            "reasons": {}
+          },
+          "id": 4,
+          "input_count": 12,
+          "job_id": "a1000000000000000000000000000002",
+          "output_count": 11,
+          "rejected_count": 1,
+          "stage": "dedup",
+          "started_at": "2026-08-22T09:01:00.000007+00:00",
+          "status": "running"
+        }
+      ],
+      "started_at": "2026-08-29T08:31:05.000001+00:00",
+      "status": "cancelled",
+      "tier": 1,
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

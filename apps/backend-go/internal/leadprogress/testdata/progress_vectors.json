@@ -1,0 +1,2410 @@
+{
+ "channel_format": "leadgen:progress:<workspace_id>",
+ "recent_key_format": "leadgen:progress:<workspace_id>:recent",
+ "encoding": "json.dumps(event, default=str, separators=(',', ':')) (ensure_ascii True, allow_nan True)",
+ "emit": [
+  {
+   "name": "scoped_by_data",
+   "note": "",
+   "bound": [],
+   "type": "job_created",
+   "data": {
+    "job_id": "j1",
+    "query": "q",
+    "workspace_id": "ws-alpha",
+    "message": "Collection queued: q"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "job_created",
+    "ts": 1788000000.0,
+    "job_id": "j1",
+    "query": "q",
+    "workspace_id": "ws-alpha",
+    "message": "Collection queued: q"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"job_created\",\"ts\":1788000000.0,\"job_id\":\"j1\",\"query\":\"q\",\"workspace_id\":\"ws-alpha\",\"message\":\"Collection queued: q\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"job_created\",\"ts\":1788000000.0,\"job_id\":\"j1\",\"query\":\"q\",\"workspace_id\":\"ws-alpha\",\"message\":\"Collection queued: q\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "scoped_by_binding",
+   "note": "",
+   "bound": [
+    [
+     "j1",
+     "ws-alpha"
+    ]
+   ],
+   "type": "stage_start",
+   "data": {
+    "job_id": "j1",
+    "stage": "validate",
+    "message": "m"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "stage_start",
+    "ts": 1788000000.0,
+    "job_id": "j1",
+    "stage": "validate",
+    "message": "m",
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"stage_start\",\"ts\":1788000000.0,\"job_id\":\"j1\",\"stage\":\"validate\",\"message\":\"m\",\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"stage_start\",\"ts\":1788000000.0,\"job_id\":\"j1\",\"stage\":\"validate\",\"message\":\"m\",\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "binding_wins_over_data",
+   "note": "the server-side binding overrides the event's value, key position kept",
+   "bound": [
+    [
+     "j1",
+     "ws-alpha"
+    ]
+   ],
+   "type": "x",
+   "data": {
+    "job_id": "j1",
+    "workspace_id": "ws-evil"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "job_id": "j1",
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"job_id\":\"j1\",\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"job_id\":\"j1\",\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "binding_wins_workspace_key_appended",
+   "note": "workspace_id is last when the data had none",
+   "bound": [
+    [
+     "j1",
+     "ws-alpha"
+    ]
+   ],
+   "type": "x",
+   "data": {
+    "job_id": "j1",
+    "a": 1
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "job_id": "j1",
+    "a": 1,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"job_id\":\"j1\",\"a\":1,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"job_id\":\"j1\",\"a\":1,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "unscoped_never_published",
+   "note": "",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "job_id": "unbound",
+    "a": 1
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "job_id": "unbound",
+    "a": 1
+   },
+   "redis_ops": [],
+   "error": null
+  },
+  {
+   "name": "unscoped_empty_workspace_in_data",
+   "note": "empty string is falsy: unscoped, the key stays in the event",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "",
+    "a": 1
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "",
+    "a": 1
+   },
+   "redis_ops": [],
+   "error": null
+  },
+  {
+   "name": "unscoped_none_workspace_in_data",
+   "note": "",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": null
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": null
+   },
+   "redis_ops": [],
+   "error": null
+  },
+  {
+   "name": "no_job_id",
+   "note": "",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "int_job_id_binding",
+   "note": "job ids are compared as str",
+   "bound": [
+    [
+     "5",
+     "ws-alpha"
+    ]
+   ],
+   "type": "x",
+   "data": {
+    "job_id": 5
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "job_id": 5,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"job_id\":5,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"job_id\":5,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "none_job_id",
+   "note": "",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "job_id": null,
+    "workspace_id": "ws-b"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "job_id": null,
+    "workspace_id": "ws-b"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-b",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"job_id\":null,\"workspace_id\":\"ws-b\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-b:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"job_id\":null,\"workspace_id\":\"ws-b\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-b:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "data_overrides_type",
+   "note": "**data after type: the key keeps its first position, the data value wins",
+   "bound": [],
+   "type": "real",
+   "data": {
+    "type": "fake",
+    "a": 1,
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "fake",
+    "ts": 1788000000.0,
+    "a": 1,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"fake\",\"ts\":1788000000.0,\"a\":1,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"fake\",\"ts\":1788000000.0,\"a\":1,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "data_overrides_ts",
+   "note": "same for ts: an int from the data",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "ts": 5,
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 5,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":5,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":5,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "empty_data",
+   "note": "",
+   "bound": [],
+   "type": "x",
+   "data": {},
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0
+   },
+   "redis_ops": [],
+   "error": null
+  },
+  {
+   "name": "empty_type",
+   "note": "",
+   "bound": [],
+   "type": "",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_00",
+   "note": "repr 1788000000.0",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "tick",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_01",
+   "note": "repr 1788000000.5",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1788000000.5,
+   "event": {
+    "type": "tick",
+    "ts": 1788000000.5,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":1788000000.5,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":1788000000.5,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_02",
+   "note": "repr 1788000000.123456",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1788000000.123456,
+   "event": {
+    "type": "tick",
+    "ts": 1788000000.123456,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":1788000000.123456,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":1788000000.123456,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_03",
+   "note": "repr 1788000000.1234567",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1788000000.1234567,
+   "event": {
+    "type": "tick",
+    "ts": 1788000000.1234567,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":1788000000.1234567,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":1788000000.1234567,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_04",
+   "note": "repr 0.0",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 0.0,
+   "event": {
+    "type": "tick",
+    "ts": 0.0,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":0.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":0.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_05",
+   "note": "repr 1.0",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1.0,
+   "event": {
+    "type": "tick",
+    "ts": 1.0,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":1.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":1.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_06",
+   "note": "repr 1000000000.0",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1000000000.0,
+   "event": {
+    "type": "tick",
+    "ts": 1000000000.0,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":1000000000.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":1000000000.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_07",
+   "note": "repr 1700000000.0",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1700000000.0,
+   "event": {
+    "type": "tick",
+    "ts": 1700000000.0,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":1700000000.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":1700000000.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_08",
+   "note": "repr 0.30000000000000004",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 0.30000000000000004,
+   "event": {
+    "type": "tick",
+    "ts": 0.30000000000000004,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":0.30000000000000004,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":0.30000000000000004,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_09",
+   "note": "repr 1e+16",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1e+16,
+   "event": {
+    "type": "tick",
+    "ts": 1e+16,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":1e+16,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":1e+16,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_10",
+   "note": "repr 1e+22",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1e+22,
+   "event": {
+    "type": "tick",
+    "ts": 1e+22,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":1e+22,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":1e+22,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_11",
+   "note": "repr 123456789.0",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 123456789.0,
+   "event": {
+    "type": "tick",
+    "ts": 123456789.0,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":123456789.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":123456789.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_12",
+   "note": "repr 5e-324",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 5e-324,
+   "event": {
+    "type": "tick",
+    "ts": 5e-324,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":5e-324,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":5e-324,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_13",
+   "note": "repr 1.5e+300",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1.5e+300,
+   "event": {
+    "type": "tick",
+    "ts": 1.5e+300,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":1.5e+300,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":1.5e+300,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_14",
+   "note": "repr -1.0",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": -1.0,
+   "event": {
+    "type": "tick",
+    "ts": -1.0,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":-1.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":-1.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_15",
+   "note": "repr 1e+20",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1e+20,
+   "event": {
+    "type": "tick",
+    "ts": 1e+20,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":1e+20,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":1e+20,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_16",
+   "note": "repr 1e-07",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1e-07,
+   "event": {
+    "type": "tick",
+    "ts": 1e-07,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":1e-07,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":1e-07,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_17",
+   "note": "repr 0.0001",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 0.0001,
+   "event": {
+    "type": "tick",
+    "ts": 0.0001,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":0.0001,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":0.0001,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_18",
+   "note": "repr 12345678901234.5",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 12345678901234.5,
+   "event": {
+    "type": "tick",
+    "ts": 12345678901234.5,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":12345678901234.5,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":12345678901234.5,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "float_ts_19",
+   "note": "repr 1788000001.0",
+   "bound": [],
+   "type": "tick",
+   "data": {
+    "workspace_id": "ws-alpha"
+   },
+   "time": 1788000001.0,
+   "event": {
+    "type": "tick",
+    "ts": 1788000001.0,
+    "workspace_id": "ws-alpha"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"tick\",\"ts\":1788000001.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"tick\",\"ts\":1788000001.0,\"workspace_id\":\"ws-alpha\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "unicode_ensure_ascii",
+   "note": "json.dumps default ensure_ascii=True",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "ws-alpha",
+    "message": "café 東京 — “q” 🚀    \u0000 \u001f"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha",
+    "message": "café 東京 — “q” 🚀    \u0000 \u001f"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"message\":\"caf\\u00e9 \\u6771\\u4eac \\u2014 \\u201cq\\u201d \\ud83d\\ude80 \\u2028 \\u007f \\u0000 \\u001f\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"message\":\"caf\\u00e9 \\u6771\\u4eac \\u2014 \\u201cq\\u201d \\ud83d\\ude80 \\u2028 \\u007f \\u0000 \\u001f\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "escapes",
+   "note": "",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "ws-alpha",
+    "message": "q\"uote \\ back / slash \n \r \t \b \f <script>&amp; "
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha",
+    "message": "q\"uote \\ back / slash \n \r \t \b \f <script>&amp; "
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"message\":\"q\\\"uote \\\\ back / slash \\n \\r \\t \\b \\f <script>&amp; \\u0085\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"message\":\"q\\\"uote \\\\ back / slash \\n \\r \\t \\b \\f <script>&amp; \\u0085\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "surrogate_pair",
+   "note": "",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "ws-alpha",
+    "message": "𝄞"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha",
+    "message": "𝄞"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"message\":\"\\ud834\\udd1e\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"message\":\"\\ud834\\udd1e\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "nested",
+   "note": "",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "ws-alpha",
+    "a": {
+     "b": [
+      1,
+      2.5,
+      null,
+      true,
+      false,
+      {
+       "c": "d"
+      }
+     ],
+     "e": []
+    },
+    "t": [
+     1,
+     2
+    ],
+    "empty": [],
+    "z": {}
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha",
+    "a": {
+     "b": [
+      1,
+      2.5,
+      null,
+      true,
+      false,
+      {
+       "c": "d"
+      }
+     ],
+     "e": []
+    },
+    "t": [
+     1,
+     2
+    ],
+    "empty": [],
+    "z": {}
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"a\":{\"b\":[1,2.5,null,true,false,{\"c\":\"d\"}],\"e\":[]},\"t\":[1,2],\"empty\":[],\"z\":{}}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"a\":{\"b\":[1,2.5,null,true,false,{\"c\":\"d\"}],\"e\":[]},\"t\":[1,2],\"empty\":[],\"z\":{}}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "key_order_preserved",
+   "note": "",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "ws-alpha",
+    "z": 1,
+    "a": 2,
+    "m": 3,
+    "B": 4,
+    "": 5
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha",
+    "z": 1,
+    "a": 2,
+    "m": 3,
+    "B": 4,
+    "": 5
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"z\":1,\"a\":2,\"m\":3,\"B\":4,\"\":5}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"z\":1,\"a\":2,\"m\":3,\"B\":4,\"\":5}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "int_keys_and_bool_keys",
+   "note": "json.dumps coerces non-string keys (True -> 'true', None -> 'null')",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "ws-alpha",
+    "d": {
+     "<int:1>": "c",
+     "<int:2>": "b",
+     "<NoneType:None>": "n",
+     "<float:1.5>": "f"
+    }
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha",
+    "d": {
+     "<int:1>": "c",
+     "<int:2>": "b",
+     "<NoneType:None>": "n",
+     "<float:1.5>": "f"
+    }
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"d\":{\"1\":\"c\",\"2\":\"b\",\"null\":\"n\",\"1.5\":\"f\"}}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"d\":{\"1\":\"c\",\"2\":\"b\",\"null\":\"n\",\"1.5\":\"f\"}}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "default_str_datetime",
+   "note": "default=str",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "ws-alpha",
+    "when": "<datetime:2026-08-29 10:00:00.000005+00:00>",
+    "d": "<date:2026-08-29>"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha",
+    "when": "<datetime:2026-08-29 10:00:00.000005+00:00>",
+    "d": "<date:2026-08-29>"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"when\":\"2026-08-29 10:00:00.000005+00:00\",\"d\":\"2026-08-29\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"when\":\"2026-08-29 10:00:00.000005+00:00\",\"d\":\"2026-08-29\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "default_str_misc",
+   "note": "",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "ws-alpha",
+    "dec": "<Decimal:1.50>",
+    "path": "<PurePosixPath:/a/b>",
+    "set": "<set:{3}>",
+    "bytes": "<bytes:b'ab\\xff'>",
+    "obj": "<Unprintable:<unprintable é>>",
+    "exc": "<ValueError:bad>",
+    "frozen": "<frozenset:frozenset({1})>"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha",
+    "dec": "<Decimal:1.50>",
+    "path": "<PurePosixPath:/a/b>",
+    "set": "<set:{3}>",
+    "bytes": "<bytes:b'ab\\xff'>",
+    "obj": "<Unprintable:<unprintable é>>",
+    "exc": "<ValueError:bad>",
+    "frozen": "<frozenset:frozenset({1})>"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"dec\":\"1.50\",\"path\":\"/a/b\",\"set\":\"{3}\",\"bytes\":\"b'ab\\\\xff'\",\"obj\":\"<unprintable \\u00e9>\",\"exc\":\"bad\",\"frozen\":\"frozenset({1})\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"dec\":\"1.50\",\"path\":\"/a/b\",\"set\":\"{3}\",\"bytes\":\"b'ab\\\\xff'\",\"obj\":\"<unprintable \\u00e9>\",\"exc\":\"bad\",\"frozen\":\"frozenset({1})\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "big_ints_and_floats",
+   "note": "",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "ws-alpha",
+    "i": 12345678901234567890123,
+    "f": 1.0,
+    "g": 1e+300,
+    "h": -0.0,
+    "k": 9007199254740993,
+    "s": 1.5e-09
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha",
+    "i": 12345678901234567890123,
+    "f": 1.0,
+    "g": 1e+300,
+    "h": -0.0,
+    "k": 9007199254740993,
+    "s": 1.5e-09
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"i\":12345678901234567890123,\"f\":1.0,\"g\":1e+300,\"h\":-0.0,\"k\":9007199254740993,\"s\":1.5e-09}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"i\":12345678901234567890123,\"f\":1.0,\"g\":1e+300,\"h\":-0.0,\"k\":9007199254740993,\"s\":1.5e-09}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "nan_inf_literals",
+   "note": "allow_nan default: bare NaN/Infinity tokens (invalid JSON)",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "ws-alpha",
+    "n": "<float:nan>",
+    "p": "<float:inf>",
+    "m": "<float:-inf>"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha",
+    "n": "<float:nan>",
+    "p": "<float:inf>",
+    "m": "<float:-inf>"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"n\":NaN,\"p\":Infinity,\"m\":-Infinity}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"n\":NaN,\"p\":Infinity,\"m\":-Infinity}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "long_message",
+   "note": "",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "ws-alpha",
+    "message": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "ws-alpha",
+    "message": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws-alpha",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"message\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws-alpha:recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws-alpha\",\"message\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  },
+  {
+   "name": "tenant_channel_special_chars",
+   "note": "channel is leadgen:progress:<ws> verbatim",
+   "bound": [],
+   "type": "x",
+   "data": {
+    "workspace_id": "ws:alpha/é "
+   },
+   "time": 1788000000.0,
+   "event": {
+    "type": "x",
+    "ts": 1788000000.0,
+    "workspace_id": "ws:alpha/é "
+   },
+   "redis_ops": [
+    [
+     "publish",
+     "leadgen:progress:ws:alpha/é ",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws:alpha/\\u00e9 \"}"
+    ],
+    [
+     "lpush",
+     "leadgen:progress:ws:alpha/é :recent",
+     "{\"type\":\"x\",\"ts\":1788000000.0,\"workspace_id\":\"ws:alpha/\\u00e9 \"}"
+    ],
+    [
+     "ltrim",
+     "leadgen:progress:ws:alpha/é :recent",
+     0,
+     499
+    ]
+   ],
+   "error": null
+  }
+ ],
+ "recent": [
+  {
+   "name": "limit_0",
+   "note": "",
+   "redis_list_newest_first": [
+    "{\"type\":\"t\",\"ts\":1788000004.0,\"job_id\":\"j\",\"message\":\"m4\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000003.0,\"job_id\":\"j\",\"message\":\"m3\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000002.0,\"job_id\":\"j\",\"message\":\"m2\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000001.0,\"job_id\":\"j\",\"message\":\"m1\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000000.0,\"job_id\":\"j\",\"message\":\"m0\",\"workspace_id\":\"ws-alpha\"}"
+   ],
+   "limit": 0,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [],
+   "result": [],
+   "error": null
+  },
+  {
+   "name": "limit_1",
+   "note": "",
+   "redis_list_newest_first": [
+    "{\"type\":\"t\",\"ts\":1788000004.0,\"job_id\":\"j\",\"message\":\"m4\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000003.0,\"job_id\":\"j\",\"message\":\"m3\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000002.0,\"job_id\":\"j\",\"message\":\"m2\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000001.0,\"job_id\":\"j\",\"message\":\"m1\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000000.0,\"job_id\":\"j\",\"message\":\"m0\",\"workspace_id\":\"ws-alpha\"}"
+   ],
+   "limit": 1,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     0
+    ]
+   ],
+   "result": [
+    {
+     "type": "t",
+     "ts": 1788000004.0,
+     "job_id": "j",
+     "message": "m4",
+     "workspace_id": "ws-alpha"
+    }
+   ],
+   "error": null
+  },
+  {
+   "name": "limit_2",
+   "note": "",
+   "redis_list_newest_first": [
+    "{\"type\":\"t\",\"ts\":1788000004.0,\"job_id\":\"j\",\"message\":\"m4\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000003.0,\"job_id\":\"j\",\"message\":\"m3\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000002.0,\"job_id\":\"j\",\"message\":\"m2\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000001.0,\"job_id\":\"j\",\"message\":\"m1\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000000.0,\"job_id\":\"j\",\"message\":\"m0\",\"workspace_id\":\"ws-alpha\"}"
+   ],
+   "limit": 2,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     1
+    ]
+   ],
+   "result": [
+    {
+     "type": "t",
+     "ts": 1788000003.0,
+     "job_id": "j",
+     "message": "m3",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000004.0,
+     "job_id": "j",
+     "message": "m4",
+     "workspace_id": "ws-alpha"
+    }
+   ],
+   "error": null
+  },
+  {
+   "name": "limit_5",
+   "note": "",
+   "redis_list_newest_first": [
+    "{\"type\":\"t\",\"ts\":1788000004.0,\"job_id\":\"j\",\"message\":\"m4\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000003.0,\"job_id\":\"j\",\"message\":\"m3\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000002.0,\"job_id\":\"j\",\"message\":\"m2\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000001.0,\"job_id\":\"j\",\"message\":\"m1\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000000.0,\"job_id\":\"j\",\"message\":\"m0\",\"workspace_id\":\"ws-alpha\"}"
+   ],
+   "limit": 5,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     4
+    ]
+   ],
+   "result": [
+    {
+     "type": "t",
+     "ts": 1788000000.0,
+     "job_id": "j",
+     "message": "m0",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000001.0,
+     "job_id": "j",
+     "message": "m1",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000002.0,
+     "job_id": "j",
+     "message": "m2",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000003.0,
+     "job_id": "j",
+     "message": "m3",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000004.0,
+     "job_id": "j",
+     "message": "m4",
+     "workspace_id": "ws-alpha"
+    }
+   ],
+   "error": null
+  },
+  {
+   "name": "limit_6",
+   "note": "",
+   "redis_list_newest_first": [
+    "{\"type\":\"t\",\"ts\":1788000004.0,\"job_id\":\"j\",\"message\":\"m4\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000003.0,\"job_id\":\"j\",\"message\":\"m3\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000002.0,\"job_id\":\"j\",\"message\":\"m2\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000001.0,\"job_id\":\"j\",\"message\":\"m1\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000000.0,\"job_id\":\"j\",\"message\":\"m0\",\"workspace_id\":\"ws-alpha\"}"
+   ],
+   "limit": 6,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     5
+    ]
+   ],
+   "result": [
+    {
+     "type": "t",
+     "ts": 1788000000.0,
+     "job_id": "j",
+     "message": "m0",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000001.0,
+     "job_id": "j",
+     "message": "m1",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000002.0,
+     "job_id": "j",
+     "message": "m2",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000003.0,
+     "job_id": "j",
+     "message": "m3",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000004.0,
+     "job_id": "j",
+     "message": "m4",
+     "workspace_id": "ws-alpha"
+    }
+   ],
+   "error": null
+  },
+  {
+   "name": "limit_50",
+   "note": "",
+   "redis_list_newest_first": [
+    "{\"type\":\"t\",\"ts\":1788000004.0,\"job_id\":\"j\",\"message\":\"m4\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000003.0,\"job_id\":\"j\",\"message\":\"m3\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000002.0,\"job_id\":\"j\",\"message\":\"m2\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000001.0,\"job_id\":\"j\",\"message\":\"m1\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000000.0,\"job_id\":\"j\",\"message\":\"m0\",\"workspace_id\":\"ws-alpha\"}"
+   ],
+   "limit": 50,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     49
+    ]
+   ],
+   "result": [
+    {
+     "type": "t",
+     "ts": 1788000000.0,
+     "job_id": "j",
+     "message": "m0",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000001.0,
+     "job_id": "j",
+     "message": "m1",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000002.0,
+     "job_id": "j",
+     "message": "m2",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000003.0,
+     "job_id": "j",
+     "message": "m3",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000004.0,
+     "job_id": "j",
+     "message": "m4",
+     "workspace_id": "ws-alpha"
+    }
+   ],
+   "error": null
+  },
+  {
+   "name": "limit_500",
+   "note": "",
+   "redis_list_newest_first": [
+    "{\"type\":\"t\",\"ts\":1788000004.0,\"job_id\":\"j\",\"message\":\"m4\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000003.0,\"job_id\":\"j\",\"message\":\"m3\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000002.0,\"job_id\":\"j\",\"message\":\"m2\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000001.0,\"job_id\":\"j\",\"message\":\"m1\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000000.0,\"job_id\":\"j\",\"message\":\"m0\",\"workspace_id\":\"ws-alpha\"}"
+   ],
+   "limit": 500,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "result": [
+    {
+     "type": "t",
+     "ts": 1788000000.0,
+     "job_id": "j",
+     "message": "m0",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000001.0,
+     "job_id": "j",
+     "message": "m1",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000002.0,
+     "job_id": "j",
+     "message": "m2",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000003.0,
+     "job_id": "j",
+     "message": "m3",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000004.0,
+     "job_id": "j",
+     "message": "m4",
+     "workspace_id": "ws-alpha"
+    }
+   ],
+   "error": null
+  },
+  {
+   "name": "limit_501",
+   "note": "",
+   "redis_list_newest_first": [
+    "{\"type\":\"t\",\"ts\":1788000004.0,\"job_id\":\"j\",\"message\":\"m4\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000003.0,\"job_id\":\"j\",\"message\":\"m3\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000002.0,\"job_id\":\"j\",\"message\":\"m2\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000001.0,\"job_id\":\"j\",\"message\":\"m1\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000000.0,\"job_id\":\"j\",\"message\":\"m0\",\"workspace_id\":\"ws-alpha\"}"
+   ],
+   "limit": 501,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "result": [
+    {
+     "type": "t",
+     "ts": 1788000000.0,
+     "job_id": "j",
+     "message": "m0",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000001.0,
+     "job_id": "j",
+     "message": "m1",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000002.0,
+     "job_id": "j",
+     "message": "m2",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000003.0,
+     "job_id": "j",
+     "message": "m3",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000004.0,
+     "job_id": "j",
+     "message": "m4",
+     "workspace_id": "ws-alpha"
+    }
+   ],
+   "error": null
+  },
+  {
+   "name": "limit_100000",
+   "note": "",
+   "redis_list_newest_first": [
+    "{\"type\":\"t\",\"ts\":1788000004.0,\"job_id\":\"j\",\"message\":\"m4\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000003.0,\"job_id\":\"j\",\"message\":\"m3\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000002.0,\"job_id\":\"j\",\"message\":\"m2\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000001.0,\"job_id\":\"j\",\"message\":\"m1\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000000.0,\"job_id\":\"j\",\"message\":\"m0\",\"workspace_id\":\"ws-alpha\"}"
+   ],
+   "limit": 100000,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     499
+    ]
+   ],
+   "result": [
+    {
+     "type": "t",
+     "ts": 1788000000.0,
+     "job_id": "j",
+     "message": "m0",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000001.0,
+     "job_id": "j",
+     "message": "m1",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000002.0,
+     "job_id": "j",
+     "message": "m2",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000003.0,
+     "job_id": "j",
+     "message": "m3",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000004.0,
+     "job_id": "j",
+     "message": "m4",
+     "workspace_id": "ws-alpha"
+    }
+   ],
+   "error": null
+  },
+  {
+   "name": "limit_-1",
+   "note": "",
+   "redis_list_newest_first": [
+    "{\"type\":\"t\",\"ts\":1788000004.0,\"job_id\":\"j\",\"message\":\"m4\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000003.0,\"job_id\":\"j\",\"message\":\"m3\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000002.0,\"job_id\":\"j\",\"message\":\"m2\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000001.0,\"job_id\":\"j\",\"message\":\"m1\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000000.0,\"job_id\":\"j\",\"message\":\"m0\",\"workspace_id\":\"ws-alpha\"}"
+   ],
+   "limit": -1,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [],
+   "result": [],
+   "error": null
+  },
+  {
+   "name": "limit_-500",
+   "note": "",
+   "redis_list_newest_first": [
+    "{\"type\":\"t\",\"ts\":1788000004.0,\"job_id\":\"j\",\"message\":\"m4\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000003.0,\"job_id\":\"j\",\"message\":\"m3\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000002.0,\"job_id\":\"j\",\"message\":\"m2\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000001.0,\"job_id\":\"j\",\"message\":\"m1\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000000.0,\"job_id\":\"j\",\"message\":\"m0\",\"workspace_id\":\"ws-alpha\"}"
+   ],
+   "limit": -500,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [],
+   "result": [],
+   "error": null
+  },
+  {
+   "name": "empty_list_falls_back_to_local",
+   "note": "an empty Redis list is falsy: the local deque answers (tenant filtered)",
+   "redis_list_newest_first": [],
+   "limit": 10,
+   "workspace_id": "ws-alpha",
+   "local_events": [
+    {
+     "type": "l",
+     "workspace_id": "ws-alpha",
+     "n": 1
+    },
+    {
+     "type": "o",
+     "workspace_id": "ws-beta"
+    }
+   ],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     9
+    ]
+   ],
+   "result": [
+    {
+     "type": "l",
+     "workspace_id": "ws-alpha",
+     "n": 1
+    }
+   ],
+   "error": null
+  },
+  {
+   "name": "empty_list_no_local",
+   "note": "",
+   "redis_list_newest_first": [],
+   "limit": 10,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     9
+    ]
+   ],
+   "result": [],
+   "error": null
+  },
+  {
+   "name": "one_invalid_entry_falls_back",
+   "note": "Python: json.loads raises, the Redis path is abandoned for 1s and the local deque is returned (the plan's 'skip invalid' is a Go deviation)",
+   "redis_list_newest_first": [
+    "{\"type\":\"t\",\"ts\":1788000004.0,\"job_id\":\"j\",\"message\":\"m4\",\"workspace_id\":\"ws-alpha\"}",
+    "not json",
+    "{\"type\":\"t\",\"ts\":1788000003.0,\"job_id\":\"j\",\"message\":\"m3\",\"workspace_id\":\"ws-alpha\"}"
+   ],
+   "limit": 10,
+   "workspace_id": "ws-alpha",
+   "local_events": [
+    {
+     "type": "l",
+     "workspace_id": "ws-alpha"
+    }
+   ],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     9
+    ]
+   ],
+   "result": [
+    {
+     "type": "l",
+     "workspace_id": "ws-alpha"
+    }
+   ],
+   "error": null
+  },
+  {
+   "name": "invalid_entry_no_local",
+   "note": "",
+   "redis_list_newest_first": [
+    "{"
+   ],
+   "limit": 10,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     9
+    ]
+   ],
+   "result": [],
+   "error": null
+  },
+  {
+   "name": "json_non_object_entries",
+   "note": "valid JSON of any type is returned as-is",
+   "redis_list_newest_first": [
+    "\"s\"",
+    "5",
+    "null",
+    "[1]"
+   ],
+   "limit": 10,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     9
+    ]
+   ],
+   "result": [
+    [
+     1
+    ],
+    null,
+    5,
+    "s"
+   ],
+   "error": null
+  },
+  {
+   "name": "redis_down_local_only",
+   "note": "",
+   "redis_list_newest_first": [],
+   "limit": 3,
+   "workspace_id": "ws-alpha",
+   "local_events": [
+    {
+     "type": "e0",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "e1",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "e2",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "e3",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "e4",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "x",
+     "workspace_id": "ws-beta"
+    }
+   ],
+   "redis_down": true,
+   "lrange_calls": [],
+   "result": [
+    {
+     "type": "e2",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "e3",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "e4",
+     "workspace_id": "ws-alpha"
+    }
+   ],
+   "error": null
+  },
+  {
+   "name": "other_tenant_key_untouched",
+   "note": "",
+   "redis_list_newest_first": [
+    "{\"type\":\"t\",\"ts\":1788000004.0,\"job_id\":\"j\",\"message\":\"m4\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000003.0,\"job_id\":\"j\",\"message\":\"m3\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000002.0,\"job_id\":\"j\",\"message\":\"m2\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000001.0,\"job_id\":\"j\",\"message\":\"m1\",\"workspace_id\":\"ws-alpha\"}",
+    "{\"type\":\"t\",\"ts\":1788000000.0,\"job_id\":\"j\",\"message\":\"m0\",\"workspace_id\":\"ws-alpha\"}"
+   ],
+   "limit": 5,
+   "workspace_id": "ws-beta",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-beta:recent",
+     0,
+     4
+    ]
+   ],
+   "result": [
+    {
+     "type": "t",
+     "ts": 1788000000.0,
+     "job_id": "j",
+     "message": "m0",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000001.0,
+     "job_id": "j",
+     "message": "m1",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000002.0,
+     "job_id": "j",
+     "message": "m2",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000003.0,
+     "job_id": "j",
+     "message": "m3",
+     "workspace_id": "ws-alpha"
+    },
+    {
+     "type": "t",
+     "ts": 1788000004.0,
+     "job_id": "j",
+     "message": "m4",
+     "workspace_id": "ws-alpha"
+    }
+   ],
+   "error": null
+  },
+  {
+   "name": "unicode_entries",
+   "note": "",
+   "redis_list_newest_first": [
+    "{\"message\": \"caf\\u00e9 \\u6771\\u4eac\"}",
+    "{\"message\": \"x\"}"
+   ],
+   "limit": 5,
+   "workspace_id": "ws-alpha",
+   "local_events": [],
+   "redis_down": false,
+   "lrange_calls": [
+    [
+     "leadgen:progress:ws-alpha:recent",
+     0,
+     4
+    ]
+   ],
+   "result": [
+    {
+     "message": "x"
+    },
+    {
+     "message": "café 東京"
+    }
+   ],
+   "error": null
+  }
+ ]
+}

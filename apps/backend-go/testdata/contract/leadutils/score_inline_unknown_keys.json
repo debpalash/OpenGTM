@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {
+      "lead": {
+        "company": "Extra",
+        "id": 77,
+        "nonsense": 1,
+        "score": 99
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "company": "Extra",
+      "lead_id": null,
+      "score": 0,
+      "tier": "unqualified"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

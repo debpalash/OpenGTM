@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "lead": {
+        "company": "Typed",
+        "email": 5
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": "Internal Server Error",
+    "headers": {
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "status": 500
+  }
+}

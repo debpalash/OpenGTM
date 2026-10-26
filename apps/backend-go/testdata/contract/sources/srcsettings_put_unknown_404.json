@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/settings/sources/not_a_source?enabled=true"
+  },
+  "response": {
+    "body": {
+      "detail": "Source 'not_a_source' not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

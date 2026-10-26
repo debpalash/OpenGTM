@@ -1,0 +1,39 @@
+{
+  "request": {
+    "body": {
+      "query": "monitor acme.io pricing changes"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "clarification_kind": "",
+      "clarification_required": true,
+      "domain": "acme.io",
+      "entity": "",
+      "intent": "signal_monitor",
+      "message": "This request needs a specialized GTM workflow and cannot safely run through the broad lead collector.",
+      "ok": false,
+      "options": [
+        {
+          "description": "Create a watch for company, hiring, product, pricing, and leadership changes.",
+          "draft": "acme.io",
+          "intent": "signal_monitor",
+          "key": "signal_monitor",
+          "label": "Monitor Acme",
+          "route": "/watches"
+        }
+      ],
+      "query": "monitor acme.io pricing changes",
+      "reason": "This request needs a specialized GTM workflow and cannot safely run through the broad lead collector."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

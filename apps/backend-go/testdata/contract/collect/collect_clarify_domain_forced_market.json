@@ -1,0 +1,64 @@
+{
+  "request": {
+    "body": {
+      "intent": "market_search",
+      "query": "acme.io"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "clarification_kind": "",
+      "clarification_required": true,
+      "domain": "acme.io",
+      "entity": "",
+      "intent": "market_search",
+      "message": "A bare domain cannot be forced into market-search mode.",
+      "ok": false,
+      "options": [
+        {
+          "description": "Build one evidence-backed company profile; do not create page-title leads.",
+          "draft": "Research the company at acme.io. Build one evidence-backed company profile with products, market, size, leadership, customers, recent signals, and cited sources.",
+          "intent": "company_research",
+          "key": "company_research",
+          "label": "Research Acme",
+          "route": "/chat"
+        },
+        {
+          "description": "Find named decision-makers who are demonstrably associated with this company.",
+          "draft": "Find decision-makers at the company acme.io. Return named people with title, LinkedIn evidence, and only company-attributable contact data.",
+          "intent": "people_at_company",
+          "key": "people_at_company",
+          "label": "Find people at Acme",
+          "route": "/chat"
+        },
+        {
+          "description": "Find actual companies using the product; keep list vendors and articles as evidence only.",
+          "draft": "Find companies that use the technology or product represented by acme.io. Return actual customer companies, not directories or list vendors, and include evidence for each relationship.",
+          "intent": "technology_users",
+          "key": "technology_users",
+          "label": "Find Acme users",
+          "route": "/chat"
+        },
+        {
+          "description": "Create a watch for company, hiring, product, pricing, and leadership changes.",
+          "draft": "acme.io",
+          "intent": "signal_monitor",
+          "key": "signal_monitor",
+          "label": "Monitor Acme",
+          "route": "/watches"
+        }
+      ],
+      "query": "acme.io",
+      "reason": "A bare domain cannot be forced into market-search mode."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

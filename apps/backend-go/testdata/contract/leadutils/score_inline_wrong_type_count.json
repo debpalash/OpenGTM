@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "lead": {
+        "company": "Typed",
+        "employee_count_exact": "many"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "company": "Typed",
+      "lead_id": null,
+      "score": 0,
+      "tier": "unqualified"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

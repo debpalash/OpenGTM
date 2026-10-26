@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": {
+      "intent": "market_search",
+      "query": "research Acme Corp dossier"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "clarification_kind": "",
+      "clarification_required": true,
+      "domain": "",
+      "entity": "",
+      "intent": "company_research",
+      "message": "This request needs a specialized GTM workflow and cannot safely run through the broad lead collector.",
+      "ok": false,
+      "options": [
+        {
+          "description": "Build one evidence-backed account profile.",
+          "draft": "research Acme Corp dossier",
+          "intent": "company_research",
+          "key": "company_research",
+          "label": "Open company research",
+          "route": "/chat"
+        }
+      ],
+      "query": "research Acme Corp dossier",
+      "reason": "This request needs a specialized GTM workflow and cannot safely run through the broad lead collector."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

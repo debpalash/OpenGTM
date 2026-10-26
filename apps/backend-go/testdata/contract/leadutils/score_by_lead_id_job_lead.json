@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "lead_id": 101
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "company": "Mumbai Talent Partners",
+      "lead_id": 101,
+      "score": 40,
+      "tier": "cold"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

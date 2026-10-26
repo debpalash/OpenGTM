@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "query": "rate limit warmup 10"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "intent": "market_search",
+      "job_id": "00000000000040008000000000005016",
+      "ok": true,
+      "query": "rate limit warmup 10",
+      "queue_job_id": 26,
+      "workspace_id": "ws-beta"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

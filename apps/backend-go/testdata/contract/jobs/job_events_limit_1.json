@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs/a1000000000000000000000000000002/events?limit=1"
+  },
+  "response": {
+    "body": {
+      "events": [
+        {
+          "job_id": "a1000000000000000000000000000002",
+          "message": "Validating 12 leads",
+          "stage": "validate",
+          "ts": 1788000006.5,
+          "type": "stage_start",
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

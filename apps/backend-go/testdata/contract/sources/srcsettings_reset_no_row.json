@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/settings/sources/bbb/health/reset"
+  },
+  "response": {
+    "body": {
+      "detail": "no health row",
+      "name": "bbb",
+      "reset": false
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

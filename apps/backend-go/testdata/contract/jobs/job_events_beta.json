@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs/b1000000000000000000000000000002/events"
+  },
+  "response": {
+    "body": {
+      "events": [
+        {
+          "job_id": "b1000000000000000000000000000002",
+          "message": "Collection queued: beta recruiting Chennai",
+          "ts": 1788000000.0,
+          "type": "job_created",
+          "workspace_id": "ws-beta"
+        },
+        {
+          "job_id": "b1000000000000000000000000000002",
+          "message": "Validating",
+          "stage": "validate",
+          "ts": 1788000001.0,
+          "type": "stage_start",
+          "workspace_id": "ws-beta"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

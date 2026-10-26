@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/jobs/a1000000000000000000000000000003"
+  },
+  "response": {
+    "body": {
+      "leads_kept": false,
+      "message": "Job a1000000000000000000000000000003 deleted",
+      "ok": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

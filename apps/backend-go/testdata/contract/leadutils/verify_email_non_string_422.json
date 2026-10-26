@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "email": 5
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/verify-email"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 5,
+          "loc": [
+            "body",
+            "email"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs/a1000000000000000000000000000005/events"
+  },
+  "response": {
+    "body": {
+      "events": []
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

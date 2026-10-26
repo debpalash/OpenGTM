@@ -1,0 +1,55 @@
+{
+  "request": {
+    "body": {
+      "query": "Stripe partnership teams"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "clarification_kind": "company_team",
+      "clarification_required": true,
+      "domain": "",
+      "entity": "Stripe",
+      "intent": "people_at_company",
+      "message": "\u201cStripe partnership teams\u201d can mean people on the team, partner companies, or an overview of the organization.",
+      "ok": false,
+      "options": [
+        {
+          "description": "Find named people at Stripe and require public evidence of both current employment and a partnership remit.",
+          "draft": "Find named people currently working on Stripe's partnership team. Require evidence for current employment and their partnership remit. Return name, title, location, LinkedIn profile, evidence URL, retrieval date, and confidence. Reject similarly named companies and do not guess emails.",
+          "intent": "people_at_company",
+          "key": "team_people",
+          "label": "People on Partnership",
+          "route": "/chat"
+        },
+        {
+          "description": "Find organizations with documented Stripe partner relationships, not people or lookalike companies.",
+          "draft": "Research Stripe's partner ecosystem. Return organizations with a documented partnership with Stripe, the relationship type, evidence URL, evidence date, and confidence. Reject directories and unsupported claims.",
+          "intent": "company_research",
+          "key": "partner_ecosystem",
+          "label": "Stripe partner ecosystem",
+          "route": "/chat"
+        },
+        {
+          "description": "Explain how Stripe's partnership organization and programs appear to work.",
+          "draft": "Build an evidence-backed overview of Stripe's partnership organization and programs. Separate verified facts from inference and cite every material claim.",
+          "intent": "company_research",
+          "key": "team_overview",
+          "label": "Overview of Partnership",
+          "route": "/chat"
+        }
+      ],
+      "query": "Stripe partnership teams",
+      "reason": "\u201cStripe partnership teams\u201d can mean people on the team, partner companies, or an overview of the organization."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

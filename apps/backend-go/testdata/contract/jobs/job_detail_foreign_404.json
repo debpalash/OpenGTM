@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs/b1000000000000000000000000000001"
+  },
+  "response": {
+    "body": {
+      "detail": "Job not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

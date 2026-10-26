@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "lead": {
+        "company": "Comma Size",
+        "company_size": "5,000"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "company": "Comma Size",
+      "lead_id": null,
+      "score": 15,
+      "tier": "unqualified"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

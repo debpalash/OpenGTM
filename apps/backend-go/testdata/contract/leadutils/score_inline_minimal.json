@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {
+      "lead": {
+        "company": "Bare Co"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "company": "Bare Co",
+      "lead_id": null,
+      "score": 0,
+      "tier": "unqualified"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

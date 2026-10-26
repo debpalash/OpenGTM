@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "query": 123
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 123,
+          "loc": [
+            "body",
+            "query"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

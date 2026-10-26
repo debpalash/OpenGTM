@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "email": "catchall@example.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/verify-email"
+  },
+  "response": {
+    "body": {
+      "confidence": 0.5,
+      "deliverable": true,
+      "detail": "accepts any recipient",
+      "email": "catchall@example.com",
+      "source": "smtp_probe",
+      "status": "catch_all",
+      "valid": false
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

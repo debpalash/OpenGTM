@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "DELETE",
+    "path": "/api/jobs/a1000000000000000000000000000003"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

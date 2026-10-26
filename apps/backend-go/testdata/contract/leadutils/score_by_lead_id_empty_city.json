@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "lead_id": 5
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "company": "Nordlicht GmbH",
+      "lead_id": 5,
+      "score": 35,
+      "tier": "cold"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

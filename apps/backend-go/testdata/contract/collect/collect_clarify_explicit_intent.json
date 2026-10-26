@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": {
+      "intent": "company_research",
+      "query": "acme.io"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "clarification_kind": "",
+      "clarification_required": true,
+      "domain": "acme.io",
+      "entity": "",
+      "intent": "company_research",
+      "message": "This request needs a specialized GTM workflow and cannot safely run through the broad lead collector.",
+      "ok": false,
+      "options": [
+        {
+          "description": "Build one evidence-backed company profile; do not create page-title leads.",
+          "draft": "Research the company at acme.io. Build one evidence-backed company profile with products, market, size, leadership, customers, recent signals, and cited sources.",
+          "intent": "company_research",
+          "key": "company_research",
+          "label": "Research Acme",
+          "route": "/chat"
+        }
+      ],
+      "query": "acme.io",
+      "reason": "This request needs a specialized GTM workflow and cannot safely run through the broad lead collector."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

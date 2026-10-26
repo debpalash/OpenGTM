@@ -1,0 +1,42 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs/a1000000000000000000000000000001/stages"
+  },
+  "response": {
+    "body": [
+      {
+        "completed_at": "",
+        "details": {},
+        "id": 1,
+        "input_count": 13,
+        "job_id": "a1000000000000000000000000000001",
+        "output_count": 11,
+        "rejected_count": 2,
+        "stage": "validate",
+        "started_at": "2026-08-21T09:00:00.000005+00:00",
+        "status": "running"
+      },
+      {
+        "completed_at": "",
+        "details": {},
+        "id": 2,
+        "input_count": 11,
+        "job_id": "a1000000000000000000000000000001",
+        "output_count": 10,
+        "rejected_count": 1,
+        "stage": "dedup",
+        "started_at": "2026-08-21T09:01:00.000007+00:00",
+        "status": "running"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

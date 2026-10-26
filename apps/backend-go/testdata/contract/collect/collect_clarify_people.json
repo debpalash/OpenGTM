@@ -1,0 +1,39 @@
+{
+  "request": {
+    "body": {
+      "query": "decision makers at Acme Robotics"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "clarification_kind": "",
+      "clarification_required": true,
+      "domain": "",
+      "entity": "",
+      "intent": "people_at_company",
+      "message": "This request needs a specialized GTM workflow and cannot safely run through the broad lead collector.",
+      "ok": false,
+      "options": [
+        {
+          "description": "Find named, attributable decision-makers.",
+          "draft": "decision makers at Acme Robotics",
+          "intent": "people_at_company",
+          "key": "people_at_company",
+          "label": "Find people in Chat",
+          "route": "/chat"
+        }
+      ],
+      "query": "decision makers at Acme Robotics",
+      "reason": "This request needs a specialized GTM workflow and cannot safely run through the broad lead collector."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

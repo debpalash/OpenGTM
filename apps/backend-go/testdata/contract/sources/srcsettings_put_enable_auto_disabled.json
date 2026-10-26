@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/settings/sources/tradeindia?enabled=true"
+  },
+  "response": {
+    "body": {
+      "enabled": true,
+      "id": "tradeindia"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
