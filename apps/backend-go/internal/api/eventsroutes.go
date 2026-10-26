@@ -52,6 +52,13 @@ type eventsRoute struct {
 	byWS           map[string]int
 }
 
+func orDuration(v, def time.Duration) time.Duration {
+	if v <= 0 {
+		return def
+	}
+	return v
+}
+
 func orDefault(v, def int) int {
 	if v <= 0 {
 		return def
@@ -152,6 +159,12 @@ func (h *eventsRoute) serve(w http.ResponseWriter, r *http.Request) {
 		stop := context.AfterFunc(sd, cancel)
 		defer stop()
 	}
+
+	// Max lifetime: authorization is checked once at connect, so end the stream after a while;
+	// EventSource reconnects and re-authenticates (token expiry, membership, SSO).
+	var lcancel context.CancelFunc
+	ctx, lcancel = context.WithTimeout(ctx, orDuration(h.d.SSEMaxLifetime, defaultSSELifetime))
+	defer lcancel()
 
 	hd := w.Header()
 	hd.Set("Content-Type", "text/event-stream; charset=utf-8")
