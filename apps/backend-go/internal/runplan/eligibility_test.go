@@ -85,3 +85,37 @@ func TestEligibilityMatrix(t *testing.T) {
 		}
 	}
 }
+
+// GO_EXECUTOR_COLUMN_TYPES extends the executor's column types; computed and
+// python-run columns skip the provider-chain checks, structured targets are
+// written back by Go, and the default (flag unset) keeps the Python answers.
+func TestEligibilityExtraColumnTypes(t *testing.T) {
+	cols := func(s string) []colgraph.Col {
+		c, err := colgraph.ParseCols([]byte(s))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return c
+	}
+	cfg := Config{WorkspaceID: "w", GoExecutorEnabled: true, GoCohort: map[string]bool{"w": true}}
+	formula := cols(`[{"id":"f","type":"formula","formula":"upper({company})"}]`)
+	if ok, why := Eligible(formula, nil, cfg); ok || why != ReasonColumnType {
+		t.Fatalf("default must stay on python: %v %s", ok, why)
+	}
+	cfg.ExtraColumnTypes = map[string]bool{"formula": true, "http": true, "ai_formula": true, "research": true, "agent": true}
+	for _, s := range []string{
+		`[{"id":"f","type":"formula","formula":"upper({company})"}]`,
+		`[{"id":"h","type":"http","http_url":"https://api.example.com/x"}]`,
+		`[{"id":"a","type":"ai_formula","prompt":"describe"}]`,
+		`[{"id":"r","type":"research","prompt":"who"}]`,
+		`[{"id":"g","type":"agent","goal":"find"}]`,
+	} {
+		if ok, why := Eligible(cols(s), nil, cfg); !ok {
+			t.Fatalf("%s: %s", s, why)
+		}
+	}
+	// output columns never move, with or without the flag.
+	if ok, why := Eligible(cols(`[{"id":"o","type":"output"}]`), nil, cfg); ok || why != ReasonColumnType {
+		t.Fatalf("output: %v %s", ok, why)
+	}
+}

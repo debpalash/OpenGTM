@@ -42,6 +42,10 @@ type Config struct {
 	GoCohort           map[string]bool // GO_EXECUTOR_WORKSPACES
 	ProvenanceTracking bool
 	AutomationsEnabled bool
+	// ExtraColumnTypes is GO_EXECUTOR_COLUMN_TYPES: computed (formula, http) and
+	// python-run (ai_formula, research, agent) column types the Go executor may
+	// take besides enrichment/waterfall. output is never allowed.
+	ExtraColumnTypes map[string]bool
 	// Index is the manifest index (manifest.LoadIndex); nil means no declarative providers.
 	Index map[string]manifest.Entry
 

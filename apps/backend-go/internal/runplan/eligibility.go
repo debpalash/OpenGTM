@@ -34,6 +34,9 @@ const (
 // goColumnTypes are the column types the Go executor runs (go_executor.GO_COLUMN_TYPES).
 var goColumnTypes = map[string]bool{"enrichment": true, "waterfall": true}
 
+// extraColumnTypes are the types GO_EXECUTOR_COLUMN_TYPES may add.
+var extraColumnTypes = map[string]bool{"formula": true, "http": true, "ai_formula": true, "research": true, "agent": true}
+
 var refRE = regexp.MustCompile(`\{([^}]+)\}`)
 
 // refFields are the config strings scanned for {column} references.
@@ -176,17 +179,22 @@ func Eligible(cols []colgraph.Col, idx map[string]manifest.Entry, cfg Config) (b
 		return false, ReasonNoColumns
 	}
 	for _, c := range cols {
-		if !goColumnTypes[colType(c)] {
+		ct := colType(c)
+		extra := cfg.ExtraColumnTypes[ct] && extraColumnTypes[ct]
+		if !goColumnTypes[ct] && !extra {
 			return false, ReasonColumnType
 		}
 		if truthy(c.Get("condition")) {
 			return false, ReasonCondition
 		}
-		if hasColumnRefs(c) {
+		if hasColumnRefs(c) && len(cfg.ExtraColumnTypes) == 0 { // the Go executor orders referenced columns (task 20)
 			return false, ReasonColumnRefs
 		}
+		if extra {
+			continue // no provider chain, structured target or email verification
+		}
 		t := target(c)
-		if workbook.IsStructuredField(t) {
+		if workbook.IsStructuredField(t) && len(cfg.ExtraColumnTypes) == 0 {
 			return false, ReasonStructuredTarget
 		}
 		if v, present := c.Lookup("verify"); t == "email" && (!present || truthy(v)) {
