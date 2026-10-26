@@ -103,3 +103,24 @@ Review `git diff` of the fixtures after re-recording: a changed fixture is a cha
   (Python: `cross_workspace_merge_forbidden`, which confirms a foreign id exists); no fixture, covered by
   `TestMergeCrossWorkspaceIDs400NothingWritten`. `kept.sources` keeps first-seen order (Python: set order);
   decide commits the merge and the pair status together (Python: two commits).
+
+## Workbook create/list/update/delete/from-jobs (Task 9)
+
+Fixtures `workbooks/*` (cases `legacy/python/scripts/contract_cases/workbooks.yaml`). FastAPI only snapshots leads
+when its lead store is Postgres, which needs a **non-superuser** connection role (the superuser fallback silently
+uses an empty SQLite store): run uvicorn as a `NOSUPERUSER NOBYPASSRLS` login role that is a member of `yupcha_app`
+and set `PG_LEAD_STORE=true`; seed and record as the superuser. After `contract_seed.py`, insert three extra ws-alpha
+leads (`collection_job_id` `job-1` twice, `job-2` once) before recording.
+- `POST /api/workbooks/from-jobs` with `workbook_id`: FastAPI mutates the loaded `filter_criteria` dict in place and
+  reassigns it, which SQLAlchemy treats as unchanged, so the merged `job_ids` are only persisted when the stored
+  filter was empty/NULL (fixtures `from_jobs_merge`, `from_jobs_merge_again`). Go keeps this behaviour (parity);
+  `updated_at` is always stamped. `TestFromJobsMergeKeepsPythonPersistenceQuirk`.
+- `POST /from-jobs` without `name`: FastAPI looks the job queries up in the per-workspace SQLite `jobs` table; Go is
+  Postgres-only, so the name is always `Task Workbook (N jobs)` (the fixture state of a PG deployment).
+- `POST /from-jobs` with a `name` longer than 255 characters: FastAPI answers 500 (varchar(255) overflow); Go answers
+  422 `string_too_long` (crash hardening). No fixture.
+- `POST /api/workbooks/` with `source: csv` and a non-list `source_config.rows`, or `source: job_results` with a
+  non-list `job_ids`: FastAPI answers 500; Go creates the workbook with no rows. No fixture
+  (`TestCreateCsvTruncatesToMaxRows`).
+- Request bodies are limited to 64 MiB (413 `Request body too large`); FastAPI has no limit.
+- Invalid-JSON bodies answer the same simplified `json_invalid` entry as the other Go routes (`loc ["body",0]`, no `ctx`).
