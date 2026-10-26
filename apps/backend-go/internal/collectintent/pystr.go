@@ -139,3 +139,6 @@ func lastRune(s string) rune {
 	r, _ := utf8.DecodeLastRuneInString(s)
 	return r
 }
+
+// PyStrip is Python's str.strip() (Unicode whitespace), for callers outside the package.
+func PyStrip(s string) string { return pyStrip(s) }
