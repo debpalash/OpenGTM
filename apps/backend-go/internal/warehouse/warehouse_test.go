@@ -289,15 +289,13 @@ func TestFloatAndUnicodeReprMatchPython(t *testing.T) {
 		{uint8(7), `7`},
 		{true, `true`},
 		{nil, `null`},
-		{"\x7f\x1f /<>&\U0001F600\b\f\"\\", `"\u007f\u001f /<>&😀\b\f\"\\"`},
-		{"東京é", `"東京é"`},
+		{"\x7f\x1f\u2028/<>&\U0001F600\b\f\"\\", `"\u007f\u001f\u2028/<>&\ud83d\ude00\b\f\"\\"`},
+		{"東京é", `"\u6771\u4eac\u00e9"`},
 		{[]any{1.0, "a"}, `[1.0,"a"]`},
 		{[]string{"b", "a"}, `["b","a"]`},
-		{map[string]any{"b": 1, "a": map[string]any{"z": nil, "y": []any{}}, "é": 2}, `{"a":{"y":[],"z":null},"b":1,"é":2}`},
+		{map[string]any{"b": 1, "a": map[string]any{"z": nil, "y": []any{}}, "é": 2}, `{"a":{"y":[],"z":null},"b":1,"\u00e9":2}`},
 		{struct{ X int }{1}, `"{1}"`}, // default=str
 	}
-	// "é" key sorts after ASCII keys; it is escaped in output.
-	cases[24].want = `{"a":{"y":[],"z":null},"b":1,"é":2}`
 	for _, c := range cases {
 		got, err := pyJSON(c.in)
 		if err != nil {
