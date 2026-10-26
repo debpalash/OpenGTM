@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachsend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachstore"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
@@ -297,8 +298,23 @@ func TestEnqueueExecutorFollowsFlag(t *testing.T) {
 			t.Fatal("bogus executor must error")
 		}
 	})
-	if outreachsend.ExecutorFor(true) != "go" || outreachsend.ExecutorFor(false) != "python" {
-		t.Fatal("ExecutorFor")
+	on := config.ExecutorSettings{Enabled: true, Workspaces: map[string]bool{enqWS: true}}
+	flag := config.OutreachSettings{GoExecutorSend: true}
+	for _, c := range []struct {
+		name string
+		ex   config.ExecutorSettings
+		o    config.OutreachSettings
+		ws   string
+		want string
+	}{
+		{"all gates", on, flag, enqWS, "go"},
+		{"master off", config.ExecutorSettings{Workspaces: on.Workspaces}, flag, enqWS, "python"},
+		{"outside cohort", on, flag, enqOther, "python"},
+		{"flag off", on, config.OutreachSettings{}, enqWS, "python"},
+	} {
+		if got := outreachsend.ExecutorFor(c.ex, c.o, c.ws); got != c.want {
+			t.Errorf("%s: %s want %s", c.name, got, c.want)
+		}
 	}
 }
 
@@ -362,4 +378,26 @@ func indexOf(s, sub string) int {
 		}
 	}
 	return -1
+}
+
+func TestEnqueueSendBlockedByPythonCreatedJob(t *testing.T) {
+	e := enqSetup(t)
+	seq := e.seq("active")
+	idem := "seq:" + enqWS + ":" + seq + ":5:0"
+	for _, st := range []string{"pending", "processing"} {
+		e.in(enqWS, func(tx pgx.Tx) {
+			// Python add_job shape: NULL fire_key, no fire_key in the payload.
+			if _, err := tx.Exec(e.ctx, `INSERT INTO jobs (type, payload, status, workspace_id, executor, fire_key)
+				VALUES ('send', json_build_object('idempotency_key', $1::text, 'workspace_id', $2::text), $3, $2, 'python', NULL)`, idem, enqWS, st); err != nil {
+				t.Fatal(err)
+			}
+			ok, err := outreachsend.EnqueueSend(e.ctx, tx, enqWS, outreachsend.SendPayload{WorkspaceID: enqWS, SequenceID: seq, EnrollmentID: 5, IdempotencyKey: idem}, "go")
+			if err != nil || ok {
+				t.Fatalf("%s: ok=%v err=%v", st, ok, err)
+			}
+			if _, err := tx.Exec(e.ctx, `DELETE FROM jobs WHERE type='send' AND workspace_id=$1`, enqWS); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
 }
