@@ -13,7 +13,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadsread"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadswrite"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
@@ -45,8 +45,15 @@ func ExecNative(ctx context.Context, tx pgx.Tx, name string, args map[string]any
 	default:
 		return "", false, nil
 	}
+	var txWS string
+	if err := tx.QueryRow(ctx, `SELECT current_setting('app.workspace_id', true)`).Scan(&txWS); err != nil {
+		return "", false, err
+	}
+	if ws == "" || txWS != ws {
+		return "", false, errors.New("copilot: workspace argument does not match the transaction workspace")
+	}
 	if IsDangerous(name) && uid != nil {
-		ok, err := hasTablesWrite(ctx, tx, ws, *uid)
+		ok, err := identity.HasPermissionTx(ctx, tx, ws, *uid, "tables.write", "admin", "editor")
 		if err != nil {
 			return "", false, err
 		}
@@ -64,33 +71,6 @@ func ExecNative(ctx context.Context, tx pgx.Tx, name string, args map[string]any
 	default:
 		return updateLeadStatus(ctx, tx, args)
 	}
-}
-
-// hasTablesWrite is identity.Store.HasPermission(ws, uid, "tables.write", "admin", "editor") on the
-// workspace-bound transaction.
-func hasTablesWrite(ctx context.Context, tx pgx.Tx, ws string, uid int32) (bool, error) {
-	q := gen.New(tx)
-	role, err := q.MemberRole(ctx, gen.MemberRoleParams{WorkspaceID: ws, UserID: uid})
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-		return false, err
-	}
-	if role == "owner" {
-		return true, nil
-	}
-	rows, err := q.MemberPermissions(ctx, gen.MemberPermissionsParams{WorkspaceID: ws, UserID: uid})
-	if err != nil {
-		return false, err
-	}
-	effect, found := "", false
-	for _, r := range rows {
-		if r.Permission == "tables.write" {
-			effect, found = r.Effect, true
-		}
-	}
-	if found {
-		return effect == "allow", nil
-	}
-	return role == "admin" || role == "editor", nil
 }
 
 // optString is args.get(key) for a string filter: absent or null is "", a string is itself; any other

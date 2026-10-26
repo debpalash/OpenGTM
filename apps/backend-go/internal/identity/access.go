@@ -39,22 +39,36 @@ func (s *Store) HasPermission(ctx context.Context, ws string, uid int32, permiss
 	if s.pool == nil {
 		return false, errors.New("identity: HasPermission needs a pool-backed store")
 	}
-	var effect string
-	var found bool
+	var ok bool
 	err = tenancy.InWorkspace(ctx, s.pool, ws, func(tx pgx.Tx) error {
-		rows, err := gen.New(tx).MemberPermissions(ctx, gen.MemberPermissionsParams{WorkspaceID: ws, UserID: uid})
-		if err != nil {
-			return err
-		}
-		for _, row := range rows {
-			if row.Permission == permission {
-				effect, found = row.Effect, true
-			}
-		}
-		return nil
+		var err error
+		ok, err = HasPermissionTx(ctx, tx, ws, uid, permission, roles...)
+		return err
 	})
+	return ok, err
+}
+
+// HasPermissionTx is HasPermission on a transaction already bound to ws (tenancy.InWorkspace). It is the
+// single decision function: owner passes, the last explicit per-member allow/deny wins, else the
+// member role must be in roles.
+func HasPermissionTx(ctx context.Context, tx pgx.Tx, ws string, uid int32, permission string, roles ...string) (bool, error) {
+	q := gen.New(tx)
+	role, err := q.MemberRole(ctx, gen.MemberRoleParams{WorkspaceID: ws, UserID: uid})
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return false, err
+	}
+	if role == "owner" {
+		return true, nil
+	}
+	rows, err := q.MemberPermissions(ctx, gen.MemberPermissionsParams{WorkspaceID: ws, UserID: uid})
 	if err != nil {
 		return false, err
+	}
+	effect, found := "", false
+	for _, row := range rows {
+		if row.Permission == permission {
+			effect, found = row.Effect, true
+		}
 	}
 	if found {
 		return effect == "allow", nil
