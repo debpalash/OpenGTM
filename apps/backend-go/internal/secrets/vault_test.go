@@ -189,3 +189,24 @@ func TestVaultUntrustedCertRejected(t *testing.T) {
 		t.Fatal("expected TLS verification failure")
 	}
 }
+
+func TestVaultClientReusedAcrossRequests(t *testing.T) {
+	f := newVaultFake(t)
+	e, _ := NewEnvelope(f.cfg(), nil)
+	for i := 0; i < 2; i++ {
+		if _, err := e.Encrypt(context.Background(), "x"); err != nil {
+			t.Fatal(err)
+		}
+	}
+	a, err1 := e.vault.client()
+	b, err2 := e.vault.client()
+	if err1 != nil || err2 != nil || a != b || a.Transport != b.Transport || a.Timeout != vaultTimeout {
+		t.Fatal("client not reused")
+	}
+	bad := f.cfg()
+	bad.VaultCACert = filepath.Join(t.TempDir(), "missing")
+	e2, _ := NewEnvelope(bad, nil)
+	if _, err := e2.Encrypt(context.Background(), "x"); err == nil || err.Error() != "Could not read VAULT_CACERT" {
+		t.Fatalf("err = %v", err)
+	}
+}

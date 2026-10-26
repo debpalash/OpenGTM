@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -25,16 +26,27 @@ const vaultTimeout = 10 * time.Second
 type vaultClient struct {
 	cfg Config
 	hc  *http.Client
+
+	once   sync.Once
+	cached *http.Client
+	cerr   error
 }
 
 func newVaultClient(cfg Config, hc *http.Client) *vaultClient {
 	return &vaultClient{cfg: cfg, hc: hc}
 }
 
+// client builds the http.Client (CA pool, transport) once and reuses it. A
+// misconfiguration is cached and surfaces on every use.
 func (v *vaultClient) client() (*http.Client, error) {
 	if v.hc != nil {
 		return v.hc, nil
 	}
+	v.once.Do(func() { v.cached, v.cerr = v.build() })
+	return v.cached, v.cerr
+}
+
+func (v *vaultClient) build() (*http.Client, error) {
 	tr := http.DefaultTransport.(*http.Transport).Clone()
 	if ca := v.cfg.VaultCACert; ca != "" {
 		pem, err := os.ReadFile(ca)
@@ -48,6 +60,7 @@ func (v *vaultClient) client() (*http.Client, error) {
 		tr.TLSClientConfig = &tls.Config{RootCAs: pool, MinVersion: tls.VersionTLS12}
 	}
 	return &http.Client{
+		Timeout:       vaultTimeout,
 		Transport:     tr,
 		CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
 	}, nil
