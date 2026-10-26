@@ -1,0 +1,1 @@
+-- plan 08 (automations): autocaps queries; filled by a later task. Statements run inside tenancy.InWorkspace.

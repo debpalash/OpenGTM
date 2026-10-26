@@ -1,0 +1,1 @@
+-- plan 08 (automations): autoruns queries; filled by a later task. Statements run inside tenancy.InWorkspace.

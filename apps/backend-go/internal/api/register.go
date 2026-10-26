@@ -119,4 +119,6 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterHubspot(r, d)
 	RegisterDataCRM(r, d)
 	RegisterAmbitionBox(r, d)
+	RegisterAutomations(r, d)
+	RegisterWatches(r, d)
 }

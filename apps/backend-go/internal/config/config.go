@@ -357,6 +357,7 @@ type Flags struct {
 	IntentPollerEnabled            bool   // INTENT_POLLER_ENABLED
 	AutomationsAllowLegacyOutreach bool   // AUTOMATIONS_ALLOW_LEGACY_OUTREACH
 	FilesAPIMode                   string
+	Automations                    AutomationsSettings // plan 08; see automations.go
 }
 
 // DefaultStripeAPIBase is the production Stripe API origin.
@@ -474,6 +475,9 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	c.Flags.CertificationKey = Secret(strings.TrimSpace(get("OPENGTM_INTEGRATION_CERTIFICATION_KEY")))
 	c.Flags.BuildSHA = strings.TrimSpace(get("OPENGTM_BUILD_SHA"))
 	if c.Flags.AutomationsEnabled, err = boolVar(get, "AUTOMATIONS_ENABLED", false); err != nil {
+		return APIConfig{}, err
+	}
+	if c.Flags.Automations, err = loadAutomations(get); err != nil {
 		return APIConfig{}, err
 	}
 	if c.Flags.IntentPollerEnabled, err = boolVar(get, "INTENT_POLLER_ENABLED", false); err != nil {
