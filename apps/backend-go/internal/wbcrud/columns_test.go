@@ -82,7 +82,7 @@ func TestUnknownColumnKeysPreservedOnRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := compact(t, cols)
-	want := `[{"id":"a","name":"A","width":200,"zzz":{"big":12345678901234567890,"x":1.50}}]`
+	want := `[{"id":"a","name":"A","width":200,"zzz":{"x":1.50,"big":12345678901234567890}}]`
 	if got != want {
 		t.Errorf("got %s\nwant %s", got, want)
 	}
