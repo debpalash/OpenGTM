@@ -29,6 +29,8 @@ type Deps struct {
 	Envelope *secrets.Envelope
 	Egress   *http.Client // SSRF-guarded outbound client
 	Getenv   func(string) string
+	// OpenRouterModelsURL overrides the OpenRouter catalogue URL (tests only).
+	OpenRouterModelsURL string
 }
 
 func (d Deps) getenv() func(string) string {

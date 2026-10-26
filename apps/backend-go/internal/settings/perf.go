@@ -15,14 +15,16 @@ type PerfDefaults struct {
 	RetryPasses     int `json:"retry_passes"`
 }
 
-// PerfSettings is the body of GET/PUT /api/settings/enrichment-perf.
+// PerfSettings is the body of GET/PUT /api/settings/enrichment-perf. Defaults is
+// set by Get only: the Python PUT returns get_enrichment_settings() without it
+// (recorded fixture perf_put_clamp), despite the plan text.
 type PerfSettings struct {
-	RowConcurrency  int          `json:"row_concurrency"`
-	ProviderWorkers int          `json:"provider_workers"`
-	ProviderTimeout int          `json:"provider_timeout"`
-	MaxProviders    int          `json:"max_providers"`
-	RetryPasses     int          `json:"retry_passes"`
-	Defaults        PerfDefaults `json:"defaults"`
+	RowConcurrency  int           `json:"row_concurrency"`
+	ProviderWorkers int           `json:"provider_workers"`
+	ProviderTimeout int           `json:"provider_timeout"`
+	MaxProviders    int           `json:"max_providers"`
+	RetryPasses     int           `json:"retry_passes"`
+	Defaults        *PerfDefaults `json:"defaults,omitempty"`
 }
 
 // PerfUpdate is the PUT body; nil means "not provided" (null is ignored).
@@ -64,7 +66,7 @@ func (p *Perf) defaults() PerfDefaults {
 // value yields the default (_int_setting). Stored values are not re-clamped.
 func (p *Perf) Get(ctx context.Context) (PerfSettings, error) {
 	d := p.defaults()
-	out := PerfSettings{Defaults: d}
+	out := PerfSettings{Defaults: &d}
 	for _, k := range perfKeys {
 		v, err := p.App.Get(ctx, "ENRICH_"+strings.ToUpper(k.name), "")
 		if err != nil {
@@ -94,5 +96,7 @@ func (p *Perf) Put(ctx context.Context, u PerfUpdate) (PerfSettings, error) {
 			return PerfSettings{}, err
 		}
 	}
-	return p.Get(ctx)
+	out, err := p.Get(ctx)
+	out.Defaults = nil
+	return out, err
 }
