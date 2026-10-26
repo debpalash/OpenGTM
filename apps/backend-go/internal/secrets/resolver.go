@@ -112,6 +112,23 @@ func (r *Resolver) Has(ctx context.Context, ws, key string) (bool, error) {
 	return found && raw != "", err
 }
 
+// HasTx is Has on a transaction already bound to ws (tenancy.InWorkspace), so a
+// caller holding a tenant transaction does not take a second pool connection.
+// It needs the PostgreSQL store; with another Store it falls back to Has.
+func (r *Resolver) HasTx(ctx context.Context, tx pgx.Tx, ws, key string) (bool, error) {
+	if ws == "" || key == "" {
+		return false, nil
+	}
+	if _, ok := r.st.(*PgStore); !ok {
+		return r.Has(ctx, ws, key)
+	}
+	v, err := gen.New(tx).GetWorkspaceSetting(ctx, gen.GetWorkspaceSettingParams{WorkspaceID: ws, Key: key})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return false, nil
+	}
+	return err == nil && v != "", err
+}
+
 // PgStore is the PostgreSQL Store: app_settings on the plain pool,
 // workspace_settings inside tenancy.InWorkspace (FORCE RLS).
 type PgStore struct{ pool *pgxpool.Pool }

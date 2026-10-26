@@ -34,6 +34,13 @@ type SecretChecker interface {
 	Has(ctx context.Context, ws, key string) (bool, error)
 }
 
+// txSecretChecker is the optional in-transaction lookup (secrets.Resolver.HasTx):
+// ValidateRule holds a tenant transaction, and a second pool connection taken
+// for the lookup can starve the pool under concurrent requests.
+type txSecretChecker interface {
+	HasTx(ctx context.Context, tx pgx.Tx, ws, key string) (bool, error)
+}
+
 // Config is the slice of settings the rule service reads.
 type Config struct {
 	MaxRulesPerWS       int // AUTOMATIONS_MAX_RULES_PER_WS
@@ -261,7 +268,7 @@ func ValidateRule(ctx context.Context, tx pgx.Tx, ws string, r RuleInput, cfg Co
 				return herr(422, "re_enrich action %d: column_ids not in scoped workbook(s): [%s]", i, strings.Join(missing, ", "))
 			}
 		case "webhook":
-			if err := validateWebhookAction(ctx, ws, i, c, cfg); err != nil {
+			if err := validateWebhookAction(ctx, tx, ws, i, c, cfg); err != nil {
 				return err
 			}
 		}
@@ -273,7 +280,7 @@ func ValidateRule(ctx context.Context, tx pgx.Tx, ws string, r RuleInput, cfg Co
 	return nil
 }
 
-func validateWebhookAction(ctx context.Context, ws string, i int, c *wbcrud.Obj, cfg Config) error {
+func validateWebhookAction(ctx context.Context, tx pgx.Tx, ws string, i int, c *wbcrud.Obj, cfg Config) error {
 	uv, _ := c.Get("url")
 	var url string
 	if truthy(uv) {
@@ -309,7 +316,12 @@ func validateWebhookAction(ctx context.Context, ws string, i int, c *wbcrud.Obj,
 		found := false
 		if ref, ok := rv.(string); ok && cfg.Secrets != nil {
 			var err error
-			if found, err = cfg.Secrets.Has(ctx, ws, ref); err != nil {
+			if tc, ok := cfg.Secrets.(txSecretChecker); ok && tx != nil {
+				found, err = tc.HasTx(ctx, tx, ws, ref)
+			} else {
+				found, err = cfg.Secrets.Has(ctx, ws, ref)
+			}
+			if err != nil {
 				return fmt.Errorf("autosvc: secret lookup: %w", err)
 			}
 		}
