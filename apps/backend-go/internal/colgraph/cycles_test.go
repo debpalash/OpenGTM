@@ -249,6 +249,9 @@ func TestOrderBoundedOnLargeGraph(t *testing.T) {
 	got, err := Order(cols)
 	blocked := CycleBlocked(cols)
 	_ = Independent(cols)
+	if d := Downstream(cols, []string{fmt.Sprintf("c%04d", n-1)}, nil); len(d) != n-1 {
+		t.Fatalf("downstream %d", len(d))
+	}
 	if err != nil || len(blocked) != 0 {
 		t.Fatalf("err=%v blocked=%d", err, len(blocked))
 	}

@@ -230,6 +230,11 @@ func Downstream(cols []Col, changed []string, eligible func(Col) bool) []Col {
 			taintedIdx[i] = true
 		}
 	}
+	byID := map[string][]int{}
+	for i, c := range cols {
+		k := idKey(c)
+		byID[k] = append(byID[k], i)
+	}
 	ordered, _ := Order(cols)
 	selected := []Col{}
 	for _, col := range ordered {
@@ -256,10 +261,8 @@ func Downstream(cols []Col, changed []string, eligible func(Col) bool) []Col {
 			continue
 		}
 		selected = append(selected, col)
-		for i, cand := range cols {
-			if sameValue(cand.Get("id"), col.Get("id")) {
-				taintedIdx[i] = true
-			}
+		for _, i := range byID[idKey(col)] {
+			taintedIdx[i] = true
 		}
 		for _, key := range []string{"id", "name", "lead_field", "target_field"} {
 			if v := col.Get(key); pyTruthy(v) {
