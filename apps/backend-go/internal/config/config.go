@@ -389,6 +389,7 @@ type Flags struct {
 	Audiences                      AudienceSettings    // plan 10; see audiences.go
 	Governance                     GovernanceSettings  // plan 11; see governance.go
 	Copilot                        CopilotSettings     // plan 12; see copilot.go
+	Leadgen                        LeadgenSettings     // plan 14; see leadgen.go
 }
 
 // DefaultStripeAPIBase is the production Stripe API origin.
@@ -472,6 +473,9 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 		return APIConfig{}, err
 	}
 	if c.Flags.Copilot, err = loadCopilot(get, c.Flags.PGLeadStore); err != nil {
+		return APIConfig{}, err
+	}
+	if c.Flags.Leadgen, err = loadLeadgen(get); err != nil {
 		return APIConfig{}, err
 	}
 	if c.Flags.ImportMemoryBudgetMB, err = intVar(get, "IMPORT_MEMORY_BUDGET_MB", 512, 64, 65536); err != nil {

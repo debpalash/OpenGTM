@@ -75,6 +75,11 @@ type Deps struct {
 
 	// ChatStreams caps concurrent copilot chat streams (plan 12). Nil: chat routes are not mounted.
 	ChatStreams *ssestream.Caps
+
+	// CollectionLedgerBackend is the app_settings marker __collection_ledger_backend (plan 14),
+	// read by cmd/api at startup via LoadCollectionLedgerBackend. Leadgen routes register only
+	// when it is exactly "postgres" (the cutover migrated the SQLite ledger).
+	CollectionLedgerBackend string
 }
 
 func (d Deps) getenv() func(string) string {
@@ -145,4 +150,8 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterPlaybooks(r, d)
 	RegisterCopilot(r, d)
 	RegisterPersonIntel(r, d)
+	RegisterCollect(r, d)
+	RegisterJobs(r, d)
+	RegisterLeadUtils(r, d)
+	RegisterSourceSettings(r, d)
 }
