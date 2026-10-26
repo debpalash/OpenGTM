@@ -1,0 +1,12 @@
+# Generates testdata/params_vectors.json (run: cd legacy/python && uv run python gen_params.py.txt <out>)
+import json,sys
+from typing import Optional
+from fastapi import FastAPI, Query
+from fastapi.testclient import TestClient
+app=FastAPI()
+@app.get("/x")
+def x(cursor: Optional[str] = Query(None, max_length=1024), limit: int = Query(default=100, ge=1, le=500)): return {"limit":limit}
+c=TestClient(app); out=[]
+for q in [{"limit":"0"},{"limit":"501"},{"limit":"-3"},{"limit":"abc"},{"limit":"1.5"},{"limit":""},{"limit":"500"},{"limit":"1"},{"cursor":"a"*1025},{"cursor":"a"*1024},{"cursor":"a"*1025,"limit":"0"}]:
+    r=c.get("/x",params=q); out.append({"query":q if len(json.dumps(q))<200 else {k:(v if k!="cursor" else "a"*len(v)) for k,v in q.items()},"cursor_len":len(q.get("cursor","")),"status":r.status_code,"body":r.json()})
+json.dump(out,open(sys.argv[1],"w"),indent=1)

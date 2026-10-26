@@ -288,3 +288,57 @@ func TestExportCSVStreamsInBatches(t *testing.T) {
 		t.Fatalf("kept reading after write failure: %v", sizes)
 	}
 }
+
+// Python sends aware since/before and every decoded cursor as timestamptz, so
+// Postgres reads the naive column in the session TimeZone; Go must do the same.
+func TestListSessionTimeZoneMatchesPython(t *testing.T) {
+	e := setup(t)
+	ws := e.workspace(t, "tz")
+	for i, h := range []int{10, 12, 14} {
+		e.event(t, ws, fmt.Sprintf("e%d", i), "GET", "success", nil, time.Date(2026, 3, 1, h, 0, 0, 0, time.UTC), "{}")
+	}
+	run := func(f Filter, cursor string) string {
+		var p Page
+		err := tenancy.InWorkspace(context.Background(), e.pool, ws, func(tx pgx.Tx) error {
+			if _, err := tx.Exec(context.Background(), `SET LOCAL TIME ZONE 'Asia/Kolkata'`); err != nil {
+				return err
+			}
+			var lerr error
+			p, lerr = List(context.Background(), tx, ws, f, cursor, 10)
+			return lerr
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		return ids(p)
+	}
+	kolkata := time.FixedZone("", 19800)
+	// aware 11:30+05:30 == 11:30 IST wall clock == naive 11:30 -> rows at 12:00 and 14:00
+	s := time.Date(2026, 3, 1, 11, 30, 0, 0, kolkata)
+	if got := run(Filter{Since: &s}, ""); got != "e2,e1" {
+		t.Errorf("aware since (offset equal to session tz): %s", got)
+	}
+	// aware 06:00Z == 11:30 IST wall clock: same rows (UTC conversion would return all three)
+	z := time.Date(2026, 3, 1, 6, 0, 0, 0, time.FixedZone("", 0))
+	if got := run(Filter{Since: &z}, ""); got != "e2,e1" {
+		t.Errorf("aware since Z: %s", got)
+	}
+	if got := run(Filter{Before: &z}, ""); got != "e0" {
+		t.Errorf("aware before Z: %s", got)
+	}
+	// naive stays a plain wall-clock compare
+	n := time.Date(2026, 3, 1, 11, 0, 0, 0, time.UTC)
+	if got := run(Filter{Since: &n}, ""); got != "e2,e1" {
+		t.Errorf("naive since: %s", got)
+	}
+	// Python decodes a naive cursor as UTC-aware: 12:00Z == 17:30 IST, so all rows sort before it
+	cur := EncodeCursor(time.Date(2026, 3, 1, 12, 0, 0, 0, time.UTC), "zzz")
+	if got := run(Filter{}, cur); got != "e2,e1,e0" {
+		t.Errorf("naive cursor: %s", got)
+	}
+	// an explicit-offset cursor 12:00+05:30 == 12:00 IST wall clock: ties on e1 resolved by id
+	cur = EncodeCursor(time.Date(2026, 3, 1, 12, 0, 0, 0, kolkata), "e1")
+	if got := run(Filter{}, cur); got != "e0" {
+		t.Errorf("aware cursor: %s", got)
+	}
+}

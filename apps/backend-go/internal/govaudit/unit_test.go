@@ -1,8 +1,11 @@
 package govaudit
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"os"
+	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
@@ -146,5 +149,86 @@ func TestEventJSONKeyOrder(t *testing.T) {
 	want := `{"id":"i","actor_user_id":null,"actor_role":"","method":"GET","route":"","resource_path":"","response_status":0,"outcome":"","request_id":"","metadata":{"a":1},"created_at":"2026-01-02T03:04:05"}`
 	if err != nil || string(b) != want {
 		t.Fatalf("%v\n%s", err, b)
+	}
+}
+
+func TestDecodeCursorLenientLikePythonB64(t *testing.T) {
+	raw, err := os.ReadFile("testdata/b64_vectors.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var vs [][2]*string
+	if err := json.Unmarshal(raw, &vs); err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range vs {
+		got, ok := pyURLSafeB64Decode(*v[0])
+		if v[1] == nil {
+			if ok {
+				t.Errorf("%q: Python rejects, Go decoded %x", *v[0], got)
+			}
+			continue
+		}
+		if !ok || hex.EncodeToString(got) != *v[1] {
+			t.Errorf("%q: want %s got %x ok=%v", *v[0], *v[1], got, ok)
+		}
+	}
+	// end to end: junk, '+' and '/', extra padding still decode
+	good := EncodeCursor(time.Date(2026, 3, 1, 12, 0, 0, 0, time.UTC), "a")
+	for _, c := range []string{good + "!!", good + "==", good[:5] + "." + good[5:], good + "=", " " + good} {
+		if _, id, cerr := DecodeCursor(c, "audit event"); cerr != nil || id != "a" {
+			t.Errorf("%q: %v", c, cerr)
+		}
+	}
+}
+
+type paramVec struct {
+	Query     map[string]string `json:"query"`
+	CursorLen int               `json:"cursor_len"`
+	Status    int               `json:"status"`
+	Body      json.RawMessage   `json:"body"`
+}
+
+func TestValidateListParams(t *testing.T) {
+	raw, err := os.ReadFile("testdata/params_vectors.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var vs []paramVec
+	if err := json.Unmarshal(raw, &vs); err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range vs {
+		cursor := v.Query["cursor"]
+		if v.CursorLen > 0 {
+			cursor = strings.Repeat("a", v.CursorLen)
+		}
+		limitStr, hasLimit := v.Query["limit"]
+		limit, errs := ValidateListParams(cursor, limitStr, hasLimit)
+		if v.Status == 200 {
+			if len(errs) != 0 {
+				t.Errorf("%v: unexpected %+v", v.Query, errs)
+			}
+			continue
+		}
+		got, _ := json.Marshal(map[string]any{"detail": errs})
+		var a, b any
+		_ = json.Unmarshal(got, &a)
+		_ = json.Unmarshal(v.Body, &b)
+		if !reflect.DeepEqual(a, b) {
+			t.Errorf("%v: got %s want %s", v.Query, got, v.Body)
+		}
+		_ = limit
+	}
+	if l, errs := ValidateListParams("", "", false); l != 100 || errs != nil {
+		t.Fatalf("default %d %v", l, errs)
+	}
+	for in, want := range map[string]int{" 5 ": 5, "+5": 5, "1_0": 10, "5.0": 5, "05": 5} {
+		if l, errs := ValidateListParams("", in, true); l != want || errs != nil {
+			t.Errorf("%q: %d %v", in, l, errs)
+		}
+	}
+	if _, errs := ValidateListParams("", "99999999999999999999", true); len(errs) != 1 || errs[0].Type != "less_than_equal" {
+		t.Errorf("big: %+v", errs)
 	}
 }
