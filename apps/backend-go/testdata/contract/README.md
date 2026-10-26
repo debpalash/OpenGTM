@@ -689,3 +689,11 @@ Replayed against `testdata/transcripts/webhook` (fake secret `ctk_transcript_hoo
 - `PUT /api/workbooks/{id}/refresh-policy` reads at most 1 MiB of body (413 `Request body too large`; a failed read is 400); Python has no limit.
 - The executor of every refresh job the API enqueues (the manual refresh and the chain job `SetPolicyExecutor` may start) is resolved per request with `config.ExecutorCohortFrom(Deps.Getenv)` and `RefreshExecutor(workspace)`, the same rule the worker applies when it chains the next refresh (Python `refresh_executor`). `refresh.SetPolicy` keeps `go` as its default for library callers.
 - `POST /{id}/refresh` inserts a `refresh_workbook` job unconditionally: no fire key and no dedupe, exactly like Python `add_job`, so a double click runs two refresh cycles. The worker's chain guard prevents duplicate recurring chains.
+
+## Automation schedule (plan 08 Task 7): deviations (`internal/autoschedule`)
+
+- Session TimeZone: Python reads `timestamptz` through the driver in the Postgres session TimeZone, so its fire key is `sched:<id>:<isoformat>` with that offset (`+05:30` on an Asia/Kolkata session). Go runs `SHOW TimeZone` in the enqueue transaction and renders the key in that zone, and binds `next_run_at` as `timestamptz` so the naive `jobs.next_run_at` is the session-local wall time, exactly as Python. A TimeZone name Go cannot load (for example an abbreviation) refuses to schedule with an error rather than risk a key that differs from Python's (duplicate schedule jobs). On the default UTC server the key ends `+00:00`.
+- Payload JSON is stored compact (`{"trigger_id":"x",...}`); Python's `json.dumps` stores `{"trigger_id": "x", ...}`. Key order is identical; readers parse JSON.
+- Bootstrap isolates errors per rule (joined and returned) where Python aborts the loop.
+- A non-string `trigger_config.interval` schedules as `daily` (Python: `daily` for int/None, TypeError for list/object); a D4 deviation.
+- `queue.EnqueueOnce` is not used: it stamps `next_run_at = now`, while the Python schedule job carries the scheduled instant.
