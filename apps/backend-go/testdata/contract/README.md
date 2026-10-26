@@ -708,3 +708,29 @@ Replayed against `testdata/transcripts/webhook` (fake secret `ctk_transcript_hoo
 - Session TimeZone: fire keys are rendered in the Postgres session TimeZone (`SHOW TimeZone`, as Python's driver reads timestamptz), and the naive `jobs.next_run_at` is the session-local wall time. An unloadable TimeZone name refuses to schedule.
 - Job payload JSON is compact; Python stores `", "` separators. Key order is identical (`watch_id`, `workspace_id`, `fire_key`, then `poll_now` for manual polls, set in the same insert).
 - `LoadWatch` row-locks the watch (`FOR UPDATE`) so reconcile and a running poll serialise on `consecutive_failures`.
+
+## Plan 06 coverage and rollout (Task 32)
+
+- `internal/api/enrichment_coverage_test.go`: `TestEveryEnrichmentRouteIsPortedOrRetained` (every route decorator of
+  `routers/{workbooks,ingest,meta,signals}.py` is registered in Go or listed in `retained_enrichment_routes.txt` /
+  `retained_leads_routes.txt`; parameter names and trailing slashes are normalised), `TestRetainedEnrichmentRoutesNotRegisteredInGo`
+  and `TestEveryJobTypeHandledOrPython` (the Go worker dispatches `run_workbook`, `refresh_workbook`, `signal_scan`; `source_workbook`,
+  `collect`, `bulk_enrich` stay on Python; every handled type exists in `job_registry.py`). `TestEnrichRoutePatterns` now asserts
+  equality with the 14-route table (it was vacuous: without a pool nothing registered). `TestEveryProviderPortedOrListed` derives
+  from the Python module glob, each module's `name = "..."` attribute and `python_providers.txt`, not from the inventory JSON.
+- `TestFixturesCoverEveryGuardString` also reads the plan 06 fixture areas (`estimate run cellrun sources refresh migrate meta ingest ws`).
+  Allowlisted as Go-only hardening with no FastAPI equivalent: `Too many websocket connections` (WS concurrency cap) and
+  `Request body could not be read` (refresh-policy body read failure).
+- nginx: retained paths (and trailing-slash variants of ported paths) always reach Python; `POST /run` and cell run are keyed per
+  workspace (`$go_ws_bucket`, a second percentage line in `go-split.conf`); the WebSocket location sets the upgrade headers and
+  `proxy_read_timeout 1h`. Asserted by `scripts/nginx-routing-check.sh` at 0% and 100%.
+- Billed recompute 402 (`{"status":"blocked","detail":{message,balance_usd,required_usd}}`, plan 06 Task 31) has NO FastAPI-recorded
+  fixture: it needs a seeded workbook with a paid column plus a zero-balance workspace in the `billing` profile, and adding one
+  changes the seed that every plan 02-06 fixture depends on. The shape is asserted byte-exact in the `internal/runstart` tests from
+  `workbooks.py`; record it with a new seed profile when the seed is next re-based.
+
+## ipinfo DNS resolution (plan 06 Task 14): deviation
+
+The `ipinfo` provider resolves the lead's domain with the system resolver (`lookupIPv4`, Python `socket.gethostbyname`). That is a DNS
+query outside the egress guard; the resolved address is sent to ipinfo.io as a path segment and never connected to, so it cannot be
+turned into an SSRF. A domain that resolves only to a private address still produces an ipinfo lookup for that IP (as Python).
