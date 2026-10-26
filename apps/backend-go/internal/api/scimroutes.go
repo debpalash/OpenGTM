@@ -47,6 +47,7 @@ func RegisterSCIM(r *httpx.Router, d Deps) {
 	r.Handle("PUT "+base+"/Users/{user_id}", http.HandlerFunc(s.replaceUser))
 	r.Handle("PATCH "+base+"/Users/{user_id}", http.HandlerFunc(s.patchUser))
 	r.Handle("DELETE "+base+"/Users/{user_id}", http.HandlerFunc(s.deleteUser))
+	registerSCIMGroups(r, s, base)
 }
 
 type scimRoutes struct{ d Deps }
