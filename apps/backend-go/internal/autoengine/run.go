@@ -226,12 +226,17 @@ rows:
 		}
 		for idx, action := range actions {
 			if stop, err := g.check(ctx); err != nil || stop {
-				return err // lease lost, or cancelled: the run row stays `running` for the reaper
+				if errors.Is(err, workbook.ErrLeaseLost) {
+					return err // the new lease owner owns the run row
+				}
+				e.closeRun(ctx, run, dry, matched, st) // cancelled or errored: no reaper exists
+				return err
 			}
 			err := e.runAction(ctx, actionIn{run: run, cand: cand, action: action, idx: idx, dry: dry, cells: cells,
 				leadID: leadID, leadSQL: leadSQL}, &st)
 			if err != nil {
 				if errors.Is(err, errAborted) || ctx.Err() != nil {
+					e.closeRun(ctx, run, dry, matched, st)
 					return fmt.Errorf("trigger_eval aborted: %w", err)
 				}
 				d.log().Error("automation action failed", "trigger_id", trig.ID, "row_id", cand.rowID, "action_index", idx, "err", err)
@@ -247,6 +252,28 @@ rows:
 	}
 
 	return e.finalize(ctx, run, fireSource, dry, matched, st, cands)
+}
+
+// closeRun finalises the run row of a cancelled or aborted sweep (status
+// failed, counters so far, finished_at) on a detached context: the job context
+// is the thing that ended. Nothing else runs (no activity rows, no reschedule).
+// Best effort; the in_flight markers of unfinished actions are left alone.
+func (e *engine) closeRun(ctx context.Context, run runInfo, dry bool, matched int, st stats) {
+	cctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
+	defer cancel()
+	status := "failed"
+	if dry {
+		status = "dry_run"
+	}
+	err := tenancy.InWorkspace(cctx, e.d.Pool, run.WorkspaceID, func(tx pgx.Tx) error {
+		_, err := gen.New(tx).AutoRunFinishRun(cctx, gen.AutoRunFinishRunParams{ID: run.ID, WorkspaceID: run.WorkspaceID, Status: status,
+			MatchedRows: int32(matched), ActionsAttempted: int32(st.attempted), ActionsSucceeded: int32(st.succeeded),
+			ActionsSkipped: int32(st.skipped), ActionsFailed: int32(st.failed), TotalChargedUsd: round4(st.charged)})
+		return err
+	})
+	if err != nil {
+		e.d.log().Warn("close aborted run failed", "run_id", run.ID, "err", fmt.Sprintf("%T", err))
+	}
 }
 
 // runAction runs one action, turning a non-object action or an

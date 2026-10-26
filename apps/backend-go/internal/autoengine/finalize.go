@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 
@@ -49,6 +50,10 @@ func activityMessage(name, status string, matched int, st stats, total float64) 
 // re-enqueues the next aligned eval (single-flight).
 func (e *engine) finalize(ctx context.Context, run runInfo, fireSource string, dry bool, matched int, st stats, cands []candidate) error {
 	d := e.d
+	// The loop finished normally: settle the run even if the job context ends
+	// now, or the schedule chain would stop until the next bootstrap.
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
+	defer cancel()
 	ws := run.WorkspaceID
 	total := round4(st.charged)
 	status := deriveStatus(dry, st)
