@@ -57,6 +57,7 @@ func (h audRead) refresh(w http.ResponseWriter, r *http.Request) {
 		h.refreshFailed(w, err)
 		return
 	}
+	res.Audience.Filters = pyJSONText(string(res.Audience.Filters), `{}`) // decode + re-dump like the CRUD routes
 	httpx.WriteJSON(w, http.StatusOK, res)
 }
 

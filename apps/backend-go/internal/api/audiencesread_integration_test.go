@@ -397,3 +397,23 @@ func TestAudienceSnapshotJSONMatchesPythonRedump(t *testing.T) {
 		}
 	}
 }
+
+// The refresh response re-dumps the stored filters like Python, byte-identical to the CRUD read.
+func TestAudienceRefreshFiltersMatchPythonRedump(t *testing.T) {
+	e := newAudEnv(t)
+	ctx := context.Background()
+	c := audOwner(t)
+	const stored = `{"city": "AT\u0026T \u00c9co", "min_score": 5}`
+	want := `"filters":{"city":"AT&T Éco","min_score":5}`
+	if _, err := c.Exec(ctx, `UPDATE audiences SET filters = $1::json WHERE id = 'aud-act-2'`, stored); err != nil {
+		t.Fatal(err)
+	}
+	rec, _ := e.call("alice", "ws-alpha", "POST", "/api/audiences/aud-act-2/refresh", "")
+	if rec.Code != 200 || !strings.Contains(rec.Body.String(), want) {
+		t.Fatalf("refresh filters bytes: %d %s", rec.Code, rec.Body.String())
+	}
+	get, _ := e.call("alice", "ws-alpha", "GET", "/api/audiences", "")
+	if !strings.Contains(get.Body.String(), want) {
+		t.Fatalf("CRUD read filters bytes differ: %s", get.Body.String())
+	}
+}
