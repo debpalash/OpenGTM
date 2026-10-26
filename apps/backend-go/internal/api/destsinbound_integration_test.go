@@ -625,3 +625,14 @@ func TestInboundRequiresReadCommitted(t *testing.T) {
 		t.Fatal("receipt written under a non READ COMMITTED transaction")
 	}
 }
+
+// TestInboundSyncLiteralGoesToSyncRoute: ServeMux cannot hold ".../inbound/{id}" beside ".../{id}/sync", so the inbound route is
+// a middleware; FastAPI declares sync first, hence POST .../inbound/sync is a sync of the destination whose id is "inbound"
+// (404 for a normal workspace), not an inbound callback. RegisterDestinations must not panic (every test here builds it).
+func TestInboundSyncLiteralGoesToSyncRoute(t *testing.T) {
+	e := newDestEnv(t)
+	rec, _ := e.call("alice", "ws-alpha", "POST", inbPrefix+"sync", "")
+	if rec.Code != 404 || destDetail(destObj(rec)) != "Destination not found" {
+		t.Fatalf("%d %s", rec.Code, rec.Body)
+	}
+}
