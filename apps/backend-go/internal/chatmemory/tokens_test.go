@@ -48,11 +48,14 @@ func TestTokensFullCaseMapping(t *testing.T) {
 
 func TestNamespace(t *testing.T) {
 	seven := int32(7)
-	if g := chatmemory.Namespace("ws-a", nil); g != "ws-a:self-host" {
-		t.Fatal(g)
+	if g, err := chatmemory.Namespace("ws-a", nil); err != nil || g != "ws-a:self-host" {
+		t.Fatal(g, err)
 	}
-	if g := chatmemory.Namespace("ws-a", &seven); g != "ws-a:7" {
-		t.Fatal(g)
+	if g, err := chatmemory.Namespace("ws-a", &seven); err != nil || g != "ws-a:7" {
+		t.Fatal(g, err)
+	}
+	if g, err := chatmemory.Namespace("", &seven); err == nil || g != "" {
+		t.Fatal("empty workspace must error", g, err)
 	}
 }
 

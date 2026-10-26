@@ -135,7 +135,14 @@ func TestNamespaceIsolation(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
 	a, b := "ws-t9-"+uuid.NewString()[:8], "ws-t9-"+uuid.NewString()[:8]
 	editor, other := int32(11), int32(12)
-	nAE, nBE, nAO := chatmemory.Namespace(a, &editor), chatmemory.Namespace(b, &editor), chatmemory.Namespace(a, &other)
+	mk := func(w string, u *int32) string {
+		n, err := chatmemory.Namespace(w, u)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return n
+	}
+	nAE, nBE, nAO := mk(a, &editor), mk(b, &editor), mk(a, &other)
 	mustAdd(t, pool, nAE, "secret alpha roadmap", nil)
 	mustAdd(t, pool, nBE, "secret beta roadmap", nil)
 	mustAdd(t, pool, nAO, "secret gamma roadmap", nil)
@@ -152,7 +159,7 @@ func TestNamespaceIsolation(t *testing.T) {
 		})
 	}
 	// self-host sentinel of A is distinct from every user of A
-	if got := search(t, pool, chatmemory.Namespace(a, nil), "secret", 10); len(got) != 0 {
+	if got := search(t, pool, mk(a, nil), "secret", 10); len(got) != 0 {
 		t.Fatalf("self-host read user memories: %v", got)
 	}
 }
@@ -205,5 +212,30 @@ func TestSearchEmptyQueryReturnsNothing(t *testing.T) {
 		if got := search(t, pool, n, q, 5); len(got) != 0 {
 			t.Fatalf("%q -> %v", q, got)
 		}
+	}
+}
+
+func TestEmptyNamespaceRefused(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	ctx := context.Background()
+	for _, n := range []string{"", ":self-host"} {
+		tx(t, pool, func(c pgx.Tx) {
+			if err := chatmemory.Add(ctx, c, n, "leaky shared needle", nil); err == nil {
+				t.Errorf("Add(%q) must fail", n)
+			}
+			if _, err := chatmemory.Search(ctx, c, n, "needle", 5); err == nil {
+				t.Errorf("Search(%q) must fail", n)
+			}
+			if _, err := chatmemory.All(ctx, c, n); err == nil {
+				t.Errorf("All(%q) must fail", n)
+			}
+		})
+	}
+	var cnt int
+	tx(t, pool, func(c pgx.Tx) {
+		_ = c.QueryRow(ctx, "SELECT count(*) FROM chat_memories WHERE user_id IN ('', ':self-host') AND text = 'leaky shared needle'").Scan(&cnt)
+	})
+	if cnt != 0 {
+		t.Fatalf("%d rows written", cnt)
 	}
 }
