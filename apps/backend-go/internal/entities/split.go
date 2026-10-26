@@ -87,6 +87,18 @@ func splitTx(ctx context.Context, q *gen.Queries, ws string, logID int32) (Split
 	if eid == "" {
 		return SplitResult{}, opErr(ErrBadSnapshot)
 	}
+	// Lock the surviving entity first, like mergeTx does, so split and merge into the same kept
+	// entity never take entity, identifier and row locks in opposite orders.
+	keptID := ""
+	if log.KeptID.Valid {
+		keptID = log.KeptID.String
+	}
+	var keptRow *gen.CompanyEntity
+	if row, err := q.LockCompanyEntity(ctx, gen.LockCompanyEntityParams{ID: keptID, WorkspaceID: ws}); err == nil {
+		keptRow = &row
+	} else if !isNoRows(err) {
+		return SplitResult{}, err
+	}
 	name, _ := getOr(entData, "canonical_name", nil).(string)
 	if name == "" {
 		name = "(unknown)"
@@ -150,23 +162,17 @@ func splitTx(ctx context.Context, q *gen.Queries, ws string, logID int32) (Split
 			}
 		}
 	}
-	keptID := ""
-	if log.KeptID.Valid {
-		keptID = log.KeptID.String
-	}
 	if refs, ok := asObject(getOr(snap, "references", nil)); ok && refs.Len() > 0 {
 		if err := restoreAccounts(ctx, q, snapWS, refs, eid, keptID); err != nil {
 			return SplitResult{}, err
 		}
 	}
-	if row, err := q.LockCompanyEntity(ctx, gen.LockCompanyEntityParams{ID: keptID, WorkspaceID: ws}); err == nil {
-		kept := fromRow(row)
+	if keptRow != nil {
+		kept := fromRow(*keptRow)
 		restoreEvidence(kept, snap)
 		if err := kept.save(ctx, q); err != nil {
 			return SplitResult{}, err
 		}
-	} else if !isNoRows(err) {
-		return SplitResult{}, err
 	}
 	if prefs, ok := asObject(getOr(snap, "person_references", nil)); ok && prefs.Len() > 0 {
 		if err := restorePeople(ctx, q, snapWS, prefs, eid, keptID); err != nil {

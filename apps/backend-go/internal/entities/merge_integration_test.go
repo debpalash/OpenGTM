@@ -502,3 +502,78 @@ func TestMergeConcurrentSamePairOnce(t *testing.T) {
 	// Observation count was summed once.
 	assertState(t, dump(t, pool, v), want(t, v.Python.AfterMerge))
 }
+
+// Split and merge into the same kept entity, started together in both directions, must not deadlock.
+func TestSplitRacingMergeSameKeptNoDeadlock(t *testing.T) {
+	pool := testpg.NewAppPool(t, 8)
+	v := loadVectors(t)
+	st := &Store{Pool: pool}
+	ctx := context.Background()
+	for round := 0; round < 15; round++ {
+		seedVec(t, pool, v)
+		if _, err := st.Merge(ctx, vecWS, "e-keep", "e-gone", "manual"); err != nil {
+			t.Fatal(err)
+		}
+		var logID int64
+		_ = tenancy.InWorkspace(ctx, pool, vecWS, func(tx pgx.Tx) error {
+			return tx.QueryRow(ctx, `SELECT id FROM entity_merge_log WHERE workspace_id=$1`, vecWS).Scan(&logID)
+		})
+		start := make(chan struct{})
+		var wg sync.WaitGroup
+		var splitErr, mergeErr error
+		wg.Add(2)
+		go func() { defer wg.Done(); <-start; _, splitErr = st.Split(ctx, vecWS, logID) }()
+		go func() { defer wg.Done(); <-start; _, mergeErr = st.Merge(ctx, vecWS, "e-keep", "e-other", "manual") }()
+		close(start)
+		wg.Wait()
+		if splitErr != nil || mergeErr != nil {
+			t.Fatalf("round %d: split=%v merge=%v", round, splitErr, mergeErr)
+		}
+		// Consistent end state: e-gone restored, e-other merged away, one log reverted and one open.
+		var gone, other, reverted, open int
+		_ = tenancy.InWorkspace(ctx, pool, vecWS, func(tx pgx.Tx) error {
+			_ = tx.QueryRow(ctx, `SELECT count(*) FROM company_entities WHERE id='e-gone'`).Scan(&gone)
+			_ = tx.QueryRow(ctx, `SELECT count(*) FROM company_entities WHERE id='e-other'`).Scan(&other)
+			_ = tx.QueryRow(ctx, `SELECT count(*) FILTER (WHERE reverted=1), count(*) FILTER (WHERE reverted=0) FROM entity_merge_log WHERE workspace_id=$1`, vecWS).Scan(&reverted, &open)
+			return nil
+		})
+		if gone != 1 || other != 0 || reverted != 1 || open != 1 {
+			t.Fatalf("round %d: gone=%d other=%d reverted=%d open=%d", round, gone, other, reverted, open)
+		}
+	}
+}
+
+// (A,B) and (B,A) merges together: sorted lock order means one wins, the other sees entity_not_found.
+func TestMergeOppositeDirectionsNoDeadlock(t *testing.T) {
+	pool := testpg.NewAppPool(t, 8)
+	v := loadVectors(t)
+	st := &Store{Pool: pool}
+	for round := 0; round < 15; round++ {
+		seedVec(t, pool, v)
+		start := make(chan struct{})
+		var wg sync.WaitGroup
+		errs := make([]error, 2)
+		pairs := [][2]string{{"e-keep", "e-gone"}, {"e-gone", "e-keep"}}
+		for i := range pairs {
+			wg.Add(1)
+			go func(i int) {
+				defer wg.Done()
+				<-start
+				_, errs[i] = st.Merge(context.Background(), vecWS, pairs[i][0], pairs[i][1], "manual")
+			}(i)
+		}
+		close(start)
+		wg.Wait()
+		okN := 0
+		for _, err := range errs {
+			if err == nil {
+				okN++
+			} else if opCode(err) != "entity_not_found" {
+				t.Fatalf("round %d: %v", round, err)
+			}
+		}
+		if okN != 1 {
+			t.Fatalf("round %d: %d merges succeeded", round, okN)
+		}
+	}
+}
