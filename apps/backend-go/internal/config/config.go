@@ -388,6 +388,7 @@ type Flags struct {
 	Outreach                       OutreachSettings    // plan 09; see outreach.go
 	Audiences                      AudienceSettings    // plan 10; see audiences.go
 	Governance                     GovernanceSettings  // plan 11; see governance.go
+	Copilot                        CopilotSettings     // plan 12; see copilot.go
 }
 
 // DefaultStripeAPIBase is the production Stripe API origin.
@@ -468,6 +469,9 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 		}
 	}
 	if c.Flags.PGLeadStore, err = boolVar(get, "PG_LEAD_STORE", true); err != nil {
+		return APIConfig{}, err
+	}
+	if c.Flags.Copilot, err = loadCopilot(get, c.Flags.PGLeadStore); err != nil {
 		return APIConfig{}, err
 	}
 	if c.Flags.ImportMemoryBudgetMB, err = intVar(get, "IMPORT_MEMORY_BUDGET_MB", 512, 64, 65536); err != nil {

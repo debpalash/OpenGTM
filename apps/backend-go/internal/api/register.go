@@ -139,4 +139,6 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterDestinations(r, d)
 	RegisterGovernance(r, d)
 	RegisterPlaybooks(r, d)
+	RegisterCopilot(r, d)
+	RegisterPersonIntel(r, d)
 }
