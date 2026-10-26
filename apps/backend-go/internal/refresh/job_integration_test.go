@@ -460,3 +460,40 @@ func TestRefreshRetryAfterSourcingEnrichesRowsAndSourcesOnce(t *testing.T) {
 		t.Errorf("run: %+v", run)
 	}
 }
+
+// A refresh job that exhausts its retries re-seeds the chain, so a policy never goes silently dead.
+func TestRefreshFailureReseedsChain(t *testing.T) {
+	pool, ctx := setupPool(t)
+	seedStaleWorkbook(t, ctx, pool, wsA, "w1", refreshCols, `{"enabled":true,"interval":"daily"}`)
+	payload, _ := json.Marshal(map[string]any{"workbook_id": "w1", "workspace_id": wsA})
+	n := queue.FailureNotice{JobID: 4242, JobType: "refresh_workbook", WorkspaceID: wsA, Payload: payload, Reason: "boom", WillRetry: true}
+	if err := refresh.OnFailure(ctx, deps(pool), n); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(ofType(jobs(t, ctx, pool, wsA), "refresh_workbook")); got != 0 {
+		t.Fatalf("a retry is coming: no re-seed, got %d jobs", got)
+	}
+	n.WillRetry = false
+	if err := refresh.OnFailure(ctx, deps(pool), n); err != nil {
+		t.Fatal(err)
+	}
+	if err := refresh.OnFailure(ctx, deps(pool), n); err != nil { // idempotent
+		t.Fatal(err)
+	}
+	if got := ofType(jobs(t, ctx, pool, wsA), "refresh_workbook"); len(got) != 1 {
+		t.Fatalf("want one re-seeded refresh job, got %d", len(got))
+	}
+}
+
+func TestRefreshFailureDoesNotReseedWhenOtherActiveOrDisabled(t *testing.T) {
+	pool, ctx := setupPool(t)
+	seedStaleWorkbook(t, ctx, pool, wsA, "w1", refreshCols, `{"enabled":false,"interval":"daily"}`)
+	payload, _ := json.Marshal(map[string]any{"workbook_id": "w1", "workspace_id": wsA})
+	n := queue.FailureNotice{JobID: 4243, JobType: "refresh_workbook", WorkspaceID: wsA, Payload: payload}
+	if err := refresh.OnFailure(ctx, deps(pool), n); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(ofType(jobs(t, ctx, pool, wsA), "refresh_workbook")); got != 0 {
+		t.Fatalf("disabled policy must not chain: %d", got)
+	}
+}

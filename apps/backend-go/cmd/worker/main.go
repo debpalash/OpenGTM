@@ -400,6 +400,9 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 	if pyRPC != nil {
 		ssDeps.Py = pyRPC
 	}
+	rfFail := rfDeps
+	rfFail.NextExecutorFor = cfg.Executor.RefreshExecutor
+	refresh.RegisterFailureHook(rfFail) // a refresh job that exhausts its retries re-seeds the chain
 	queue.AllowJobType(jobRefreshWorkbook)
 	queue.AllowJobType(jobSignalScan)
 	handlers := map[string]runner{

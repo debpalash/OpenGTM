@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"sort"
 	"time"
 
@@ -35,6 +36,9 @@ type Deps struct {
 	// (Python refresh.py semantics). Zero: do not wait; new rows are then picked
 	// up as stale by the next cycle.
 	SourceWait time.Duration
+	// NextExecutorFor resolves the executor of a re-seeded chain by workspace (failure hook);
+	// nil falls back to NextExecutor / "go".
+	NextExecutorFor func(workspaceID string) string
 	// SourcePoll is the poll interval while waiting (default 2s).
 	SourcePoll time.Duration
 }
@@ -484,4 +488,64 @@ func (d Deps) sourceFirst(ctx context.Context, ws, wbID string, jobID int64, p p
 		return err
 	})
 	return out, err
+}
+
+// RegisterFailureHook re-seeds the refresh chain when a refresh_workbook job fails for good.
+func RegisterFailureHook(d Deps) {
+	queue.RegisterFailureHook("refresh_workbook", func(ctx context.Context, n queue.FailureNotice) error {
+		return OnFailure(ctx, d, n)
+	})
+}
+
+// OnFailure keeps a recurring policy alive: a refresh job that exhausted its retries never
+// reached its chaining step, so, unless a retry is coming, another refresh job is already
+// active, or the policy is off, it enqueues the next occurrence (once per failed job id).
+func OnFailure(ctx context.Context, d Deps, n queue.FailureNotice) error {
+	if n.WillRetry {
+		return nil
+	}
+	var p payload
+	if err := json.Unmarshal(n.Payload, &p); err != nil || p.WorkbookID == "" {
+		return nil
+	}
+	ws := p.WorkspaceID
+	if ws == "" {
+		ws = n.WorkspaceID
+	}
+	if ws == "" || (n.WorkspaceID != "" && n.WorkspaceID != ws) {
+		return nil
+	}
+	exec := d.executor()
+	if d.NextExecutorFor != nil {
+		if e := d.NextExecutorFor(ws); e != "" {
+			exec = e
+		}
+	}
+	return tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {
+		wb, err := gen.New(tx).RefreshWorkbook(ctx, p.WorkbookID)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil
+		}
+		if err != nil {
+			return fmt.Errorf("refresh: failure hook load: %w", err)
+		}
+		policy := decodePolicy(wb.RefreshPolicy)
+		minutes, ok := IntervalMinutes(policy)
+		if !pyTruthy(policy["enabled"]) || !schedulable(minutes, ok) {
+			return nil
+		}
+		// Any other pending or processing refresh will chain by itself.
+		_, err = gen.New(tx).OtherActiveRefreshJob(ctx, gen.OtherActiveRefreshJobParams{
+			WorkbookID: p.WorkbookID, SelfID: math.MaxInt32,
+		})
+		if err == nil {
+			return nil
+		}
+		if !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("refresh: failure hook active chain: %w", err)
+		}
+		key := fmt.Sprintf("refresh_workbook:%s:after:%d", p.WorkbookID, n.JobID)
+		_, err = enqueueNext(ctx, tx, p.WorkbookID, ws, exec, key, minutes, d.now())
+		return err
+	})
 }
