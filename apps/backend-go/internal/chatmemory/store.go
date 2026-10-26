@@ -36,6 +36,8 @@ type Memory struct {
 	Memory    string         `json:"memory"`
 	Metadata  map[string]any `json:"metadata"`
 	CreatedAt string         `json:"created_at"`
+	// MetadataJSON is the stored jsonb as compact JSON in jsonb key order (what Python's dict iterates in).
+	MetadataJSON json.RawMessage `json:"-"`
 }
 
 // Available is always true: the builtin store needs no SDK or key.
@@ -143,8 +145,12 @@ func All(ctx context.Context, tx pgx.Tx, ns string) ([]Memory, error) {
 }
 
 func toMemory(text string, md []byte, ts pgtype.Timestamptz) (Memory, error) {
-	m := Memory{Memory: text, Metadata: map[string]any{}}
+	m := Memory{Memory: text, Metadata: map[string]any{}, MetadataJSON: json.RawMessage("{}")}
 	if len(md) > 0 {
+		var c bytes.Buffer
+		if err := json.Compact(&c, md); err == nil && c.String() != "null" {
+			m.MetadataJSON = c.Bytes()
+		}
 		dec := json.NewDecoder(bytes.NewReader(md))
 		dec.UseNumber() // keep ints as ints, like Python
 		var v map[string]any

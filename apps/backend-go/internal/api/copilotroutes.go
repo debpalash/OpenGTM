@@ -192,11 +192,17 @@ func (c *copilotRoutes) memories(w http.ResponseWriter, r *http.Request) {
 		c.fail(w, "list memories", err)
 		return
 	}
-	if mems == nil {
-		mems = []chatmemory.Memory{}
+	type memoryOut struct {
+		Memory    string          `json:"memory"`
+		Metadata  json.RawMessage `json:"metadata"`
+		CreatedAt string          `json:"created_at"`
+	}
+	out := make([]memoryOut, len(mems))
+	for i, m := range mems {
+		out[i] = memoryOut{m.Memory, m.MetadataJSON, m.CreatedAt}
 	}
 	writeCopilotJSON(w, http.StatusOK, struct {
-		Memories  []chatmemory.Memory `json:"memories"`
-		Available bool                `json:"available"`
-	}{mems, chatmemory.Available()})
+		Memories  []memoryOut `json:"memories"`
+		Available bool        `json:"available"`
+	}{out, chatmemory.Available()})
 }

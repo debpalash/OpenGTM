@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 
@@ -198,7 +199,7 @@ func TestCopilotRoutesMatchFixtures(t *testing.T) {
 				hdr = e.as(c.who, c.ws)
 			}
 			rec, got := e.do(fx.Request.Method, fx.Request.Path, "", "", hdr)
-			contract.AssertEqual(t, got, fx.Response)
+			contract.AssertEqual(t, ckTieOrder(t, got), ckTieOrder(t, fx.Response))
 			if rec.Header().Get("Content-Type") != "application/json" {
 				t.Fatalf("content-type %q", rec.Header().Get("Content-Type"))
 			}
@@ -215,7 +216,7 @@ func TestCopilotStatefulFixtures(t *testing.T) {
 		t.Helper()
 		fx := contract.Load(t, "copilot/"+name)
 		_, got := e.do(fx.Request.Method, fx.Request.Path, "", "", e.as(who, ws))
-		contract.AssertEqual(t, got, fx.Response)
+		contract.AssertEqual(t, ckTieOrder(t, got), ckTieOrder(t, fx.Response))
 	}
 	t.Run("foreign deletes are no-ops", func(t *testing.T) {
 		e := newCKEnv(t, true)
@@ -240,6 +241,29 @@ func TestCopilotStatefulFixtures(t *testing.T) {
 		ownerExec(t, `UPDATE workspaces SET slug='' WHERE id='ws-beta'`)
 		check(t, e, "auth_list_workspace_not_found", "bob", "ws-beta")
 	})
+}
+
+// ckTieOrder sorts the messages of a conversation body by (created_at, id). Messages that share a created_at
+// come back in whatever order Postgres returns them, in Python as in Go (the seed has such ties on purpose),
+// so the order inside a tie is not part of the contract; everything else is compared as recorded.
+func ckTieOrder(t *testing.T, r contract.Resp) contract.Resp {
+	t.Helper()
+	var body map[string]any
+	if json.Unmarshal(r.Body, &body) != nil {
+		return r
+	}
+	msgs, ok := body["messages"].([]any)
+	if !ok {
+		return r
+	}
+	key := func(v any) string { m := v.(map[string]any); return m["created_at"].(string) + "|" + m["id"].(string) }
+	sort.SliceStable(msgs, func(i, j int) bool { return key(msgs[i]) < key(msgs[j]) })
+	b, err := json.Marshal(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Body = b
+	return r
 }
 
 func ckCount(t *testing.T, q string) int {
