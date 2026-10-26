@@ -1,0 +1,66 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "company": "Zed Corp",
+          "website": "https://www.zedco.io/x"
+        },
+        {
+          "company": "Other",
+          "domain": "ZEDCO.io"
+        },
+        {
+          "company": "Zed Corp"
+        },
+        {
+          "company": "Zed, Inc."
+        },
+        {
+          "notes": "a"
+        },
+        {
+          "notes": "b"
+        },
+        {
+          "company": "Caf\u00e9 M\u00fcnch GmbH"
+        },
+        {
+          "company": "Cafe Munch"
+        },
+        {
+          "company": "Has Id",
+          "id": 5,
+          "ratio": 100.0,
+          "score": 1.5
+        },
+        {
+          "website": "https://shop.acme.co.uk/a"
+        },
+        {
+          "website": "http://other.acme.co.uk"
+        },
+        {
+          "website": "Zedco.IO:8080"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/rows"
+  },
+  "response": {
+    "body": {
+      "added": 7,
+      "skipped_duplicates": 5,
+      "total_rows": 7
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

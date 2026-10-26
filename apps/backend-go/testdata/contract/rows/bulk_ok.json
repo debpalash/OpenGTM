@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": {
+      "updates": [
+        {
+          "fields": {
+            "city": "Oslo"
+          },
+          "row_id": 6
+        },
+        {
+          "fields": {
+            "city": "Oslo",
+            "phone": "1",
+            "score": 3
+          },
+          "row_id": 7
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/rows?recompute=false"
+  },
+  "response": {
+    "body": {
+      "reactive_columns": [],
+      "recompute": null,
+      "status": "updated",
+      "updated_rows": 2
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

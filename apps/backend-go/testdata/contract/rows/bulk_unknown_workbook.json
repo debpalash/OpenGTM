@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {
+      "updates": [
+        {
+          "fields": {
+            "city": "b"
+          },
+          "row_id": 6
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/nope/rows"
+  },
+  "response": {
+    "body": {
+      "detail": "Workbook not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": {
+      "city": "x"
+    },
+    "headers": {},
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/rows/3"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

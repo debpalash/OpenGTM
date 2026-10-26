@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "company": "X"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/rows"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: tables.write"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

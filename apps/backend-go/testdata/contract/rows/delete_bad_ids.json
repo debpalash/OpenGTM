@@ -1,0 +1,47 @@
+{
+  "request": {
+    "body": {
+      "row_ids": [
+        "a",
+        1.5,
+        true
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/workbooks/wb-alpha-2/rows"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "a",
+          "loc": [
+            "body",
+            "row_ids",
+            0
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        },
+        {
+          "input": 1.5,
+          "loc": [
+            "body",
+            "row_ids",
+            1
+          ],
+          "msg": "Input should be a valid integer, got a number with a fractional part",
+          "type": "int_from_float"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

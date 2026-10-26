@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "updates": [
+        {
+          "fields": {
+            "city": "a"
+          },
+          "row_id": 6
+        },
+        {
+          "fields": {
+            "city": "b"
+          },
+          "row_id": 6
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/rows"
+  },
+  "response": {
+    "body": {
+      "detail": "Duplicate row IDs are not allowed"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

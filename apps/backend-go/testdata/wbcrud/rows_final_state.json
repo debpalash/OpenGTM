@@ -1,0 +1,278 @@
+{
+ "leads": [
+  {
+   "city": "Oslo",
+   "company": "Acme 01 Ltd",
+   "id": 1,
+   "score": 7
+  },
+  {
+   "city": "Berlin",
+   "company": "Globex",
+   "id": 2,
+   "score": null
+  },
+  {
+   "city": "Pune",
+   "company": "Initech",
+   "id": 3,
+   "score": null
+  }
+ ],
+ "rows": [
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Acme 03\", \"website\": \"https://acme03.example.com\", \"email\": \"info@acme03.example.com\", \"city\": \"Rome\", \"phone\": \"+1-999\", \"score\": 0}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found03@acme03.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": null, \"status\": \"pending\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 3,
+   "lead_id": null,
+   "position": 2,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Renamed Co\", \"website\": \"https://acme04.example.com\", \"email\": \"info@acme04.example.com\", \"city\": \"Paris\", \"phone\": \"+1-555-0104\"}",
+   "enrichments": "{\"email_wf\": {\"value\": null, \"status\": \"failed\", \"provider\": null, \"error\": \"no result\"}, \"summary\": {\"value\": \"Acme 04 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 4,
+   "lead_id": null,
+   "position": 3,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Acme 06\", \"website\": \"https://acme06.example.com\", \"email\": \"info@acme06.example.com\", \"city\": \"Oslo\", \"phone\": \"+1-555-0106\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found06@acme06.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": null, \"status\": \"pending\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 6,
+   "lead_id": null,
+   "position": 5,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Acme 07\", \"website\": \"https://acme07.example.com\", \"email\": null, \"city\": \"Oslo\", \"phone\": \"1\", \"score\": 3}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found07@acme07.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 07 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 7,
+   "lead_id": null,
+   "position": 6,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Acme 08\", \"website\": \"https://acme08.example.com\", \"email\": \"info@acme08.example.com\", \"city\": \"Lyon\", \"phone\": \"+1-555-0108\", \"notes\": {\"b\": [1, 2.5, null], \"a\": \"\\u00e9\"}}",
+   "enrichments": "{\"email_wf\": {\"value\": null, \"status\": \"failed\", \"provider\": null, \"error\": \"no result\"}, \"summary\": {\"value\": \"Acme 08 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 8,
+   "lead_id": null,
+   "position": 7,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Acme 09\", \"website\": \"\", \"email\": \"info@acme09.example.com\", \"city\": \"Oslo\", \"phone\": \"+1-555-0109\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found09@acme09.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": null, \"status\": \"pending\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 9,
+   "lead_id": null,
+   "position": 8,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Acme 11\", \"website\": \"https://acme11.example.com\", \"email\": \"info@acme11.example.com\", \"city\": null, \"phone\": \"+1-555-0111\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found11@acme11.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 11 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 11,
+   "lead_id": null,
+   "position": 10,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Acme 12\", \"website\": \"https://acme12.example.com\", \"email\": \"info@acme12.example.com\", \"city\": \"Pune\", \"phone\": \"+1-555-0112\"}",
+   "enrichments": "{\"email_wf\": {\"value\": null, \"status\": \"failed\", \"provider\": null, \"error\": \"no result\"}, \"summary\": {\"value\": null, \"status\": \"pending\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 12,
+   "lead_id": null,
+   "position": 11,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Acme 13\", \"website\": \"https://acme13.example.com\", \"email\": \"info@acme13.example.com\", \"city\": \"Lyon\", \"phone\": \"+1-555-0113\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found13@acme13.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 13 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 13,
+   "lead_id": null,
+   "position": 12,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Acme 14\", \"website\": \"https://acme14.example.com\", \"email\": null, \"city\": \"Oslo\", \"phone\": \"+1-555-0114\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found14@acme14.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 14 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 14,
+   "lead_id": null,
+   "position": 13,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Acme 16\", \"website\": \"https://acme16.example.com\", \"email\": \"info@acme16.example.com\", \"city\": \"Austin\", \"phone\": \"+1-555-0116\"}",
+   "enrichments": "{\"email_wf\": {\"value\": null, \"status\": \"failed\", \"provider\": null, \"error\": \"no result\"}, \"summary\": {\"value\": \"Acme 16 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 16,
+   "lead_id": null,
+   "position": 15,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Acme 17\", \"website\": \"https://acme17.example.com\", \"email\": \"info@acme17.example.com\", \"city\": \"Pune\", \"phone\": \"+1-555-0117\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found17@acme17.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 17 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 17,
+   "lead_id": null,
+   "position": 16,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Acme 18\", \"website\": \"\", \"email\": \"info@acme18.example.com\", \"city\": \"Lyon\", \"phone\": \"+1-555-0118\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found18@acme18.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": null, \"status\": \"pending\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 18,
+   "lead_id": null,
+   "position": 17,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": null,
+   "data": "{\"company\": \"Acme 19\", \"website\": \"https://acme19.example.com\", \"email\": \"info@acme19.example.com\", \"city\": \"Oslo\", \"phone\": \"+1-555-0119\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found19@acme19.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 19 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "id": 19,
+   "lead_id": null,
+   "position": 18,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": 1,
+   "data": "{\"company\": \"Zed Corp\", \"website\": \"https://www.zedco.io/x\"}",
+   "enrichments": "{}",
+   "id": 26,
+   "lead_id": null,
+   "position": 1,
+   "workbook_id": "wb-alpha-1"
+  },
+  {
+   "corroboration_count": 1,
+   "data": "{\"company\": \"Zed Corp\"}",
+   "enrichments": "{}",
+   "id": 27,
+   "lead_id": null,
+   "position": 2,
+   "workbook_id": "wb-alpha-1"
+  },
+  {
+   "corroboration_count": 1,
+   "data": "{\"notes\": \"a\"}",
+   "enrichments": "{}",
+   "id": 28,
+   "lead_id": null,
+   "position": 3,
+   "workbook_id": "wb-alpha-1"
+  },
+  {
+   "corroboration_count": 1,
+   "data": "{\"notes\": \"b\"}",
+   "enrichments": "{}",
+   "id": 29,
+   "lead_id": null,
+   "position": 4,
+   "workbook_id": "wb-alpha-1"
+  },
+  {
+   "corroboration_count": 1,
+   "data": "{\"company\": \"Caf\\u00e9 M\\u00fcnch GmbH\"}",
+   "enrichments": "{}",
+   "id": 30,
+   "lead_id": null,
+   "position": 5,
+   "workbook_id": "wb-alpha-1"
+  },
+  {
+   "corroboration_count": 1,
+   "data": "{\"id\": 5, \"company\": \"Has Id\", \"score\": 1.5, \"ratio\": 100.0}",
+   "enrichments": "{}",
+   "id": 31,
+   "lead_id": 5,
+   "position": 6,
+   "workbook_id": "wb-alpha-1"
+  },
+  {
+   "corroboration_count": 1,
+   "data": "{\"website\": \"https://shop.acme.co.uk/a\"}",
+   "enrichments": "{}",
+   "id": 32,
+   "lead_id": null,
+   "position": 7,
+   "workbook_id": "wb-alpha-1"
+  },
+  {
+   "corroboration_count": 1,
+   "data": "{\"company\": \"Zed Corp\"}",
+   "enrichments": "{}",
+   "id": 33,
+   "lead_id": null,
+   "position": 8,
+   "workbook_id": "wb-alpha-1"
+  },
+  {
+   "corroboration_count": 1,
+   "data": "{\"company\": \"Zed Corp\"}",
+   "enrichments": "{}",
+   "id": 34,
+   "lead_id": null,
+   "position": 9,
+   "workbook_id": "wb-alpha-1"
+  },
+  {
+   "corroboration_count": 1,
+   "data": "{\"company\": \"Brand New\"}",
+   "enrichments": "{}",
+   "id": 35,
+   "lead_id": null,
+   "position": 10,
+   "workbook_id": "wb-alpha-1"
+  },
+  {
+   "corroboration_count": 1,
+   "data": "{\"company\": \"Brand New\"}",
+   "enrichments": "{}",
+   "id": 36,
+   "lead_id": null,
+   "position": 25,
+   "workbook_id": "wb-alpha-2"
+  },
+  {
+   "corroboration_count": 1,
+   "data": "{\"company\": \"Editor Added\", \"notes\": \"n\"}",
+   "enrichments": "{}",
+   "id": 37,
+   "lead_id": null,
+   "position": 26,
+   "workbook_id": "wb-alpha-2"
+  }
+ ],
+ "workbooks": [
+  {
+   "id": "wb-alpha-1",
+   "source_config": "{}",
+   "status": "idle",
+   "total_rows": 0
+  },
+  {
+   "id": "wb-alpha-2",
+   "source_config": "{\"row_storage_version\": 2}",
+   "status": "idle",
+   "total_rows": 25
+  },
+  {
+   "id": "wb-beta-1",
+   "source_config": "{}",
+   "status": "idle",
+   "total_rows": 0
+  }
+ ]
+}

@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "confirmation": "DELETE 5 ROWS",
+      "expected_count": 5,
+      "view_id": "view-alpha-1"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/rows/delete-query"
+  },
+  "response": {
+    "body": {
+      "deleted": 5,
+      "matched": 5
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

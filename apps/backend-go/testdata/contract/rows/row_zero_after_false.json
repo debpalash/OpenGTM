@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "score": 0
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/rows/3"
+  },
+  "response": {
+    "body": {
+      "fields": [
+        "score"
+      ],
+      "reactive_columns": [],
+      "recompute": null,
+      "row_id": 3,
+      "status": "updated"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

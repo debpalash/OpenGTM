@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "confirmation": "x",
+      "expected_count": 1,
+      "view_id": "nope"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/rows/delete-query"
+  },
+  "response": {
+    "body": {
+      "detail": "Workbook view not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "updates": [
+        {
+          "fields": {
+            "city": "x"
+          },
+          "row_id": 3
+        }
+      ]
+    },
+    "headers": {},
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/rows"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

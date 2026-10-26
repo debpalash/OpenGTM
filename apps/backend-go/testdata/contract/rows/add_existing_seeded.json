@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "website": "https://other.example.com"
+        },
+        {
+          "company": "Acme 09"
+        },
+        {
+          "company": "Brand New"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/rows"
+  },
+  "response": {
+    "body": {
+      "added": 1,
+      "skipped_duplicates": 2,
+      "total_rows": 26
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
