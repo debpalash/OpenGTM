@@ -51,7 +51,19 @@ type Config struct {
 	DebugAddr             string
 	AppEnv                string
 	EgressAllowHosts      []string
+
+	// CredentialsSource is "http" (Python internal endpoint, default) or
+	// "local" (resolve in-process from PostgreSQL via internal/secrets).
+	CredentialsSource string
+	// Secrets envelope settings, used only when CredentialsSource is "local".
+	SecretKey, SecretsProvider, SecretsMasterKey                                        string
+	VaultAddr, VaultToken, VaultTokenFile, VaultTransitKey, VaultNamespace, VaultCACert string
 }
+
+const (
+	CredentialsSourceHTTP  = "http"
+	CredentialsSourceLocal = "local"
+)
 
 // Load reads configuration from the environment and validates it.
 func Load() (Config, error) { return load(os.Getenv) }
@@ -65,6 +77,19 @@ func load(get func(string) string) (Config, error) {
 		AppEnv:               get("APP_ENV"),
 		DebugAddr:            get("GO_WORKER_DEBUG_ADDR"),
 	}
+	c.CredentialsSource = strings.ToLower(strings.TrimSpace(get("CREDENTIALS_SOURCE")))
+	if c.CredentialsSource == "" {
+		c.CredentialsSource = CredentialsSourceHTTP
+	}
+	c.SecretKey = get("SECRET_KEY")
+	c.SecretsProvider = strings.ToLower(strings.TrimSpace(get("SECRETS_PROVIDER")))
+	c.SecretsMasterKey = get("SECRETS_MASTER_KEY")
+	c.VaultAddr = get("VAULT_ADDR")
+	c.VaultToken = get("VAULT_TOKEN")
+	c.VaultTokenFile = get("VAULT_TOKEN_FILE")
+	c.VaultTransitKey = get("VAULT_TRANSIT_KEY")
+	c.VaultNamespace = get("VAULT_NAMESPACE")
+	c.VaultCACert = get("VAULT_CACERT")
 	var err error
 	if c.WorkerConcurrency, err = intVar(get, "GO_WORKER_CONCURRENCY", defaultWorkerConcurrency, 1, maxWorkerConcurrency); err != nil {
 		return Config{}, err
@@ -112,7 +137,38 @@ func load(get func(string) string) (Config, error) {
 	if len(c.EgressAllowHosts) > 0 && c.AppEnv != "test" && c.AppEnv != "bench" {
 		return Config{}, fmt.Errorf("config: EGRESS_ALLOW_HOSTS is only allowed when APP_ENV is test or bench (got %q)", c.AppEnv)
 	}
+	if err := c.validateCredentialsSource(); err != nil {
+		return Config{}, err
+	}
 	return c, nil
+}
+
+// validateCredentialsSource checks the CREDENTIALS_SOURCE selection. Values are
+// never echoed into errors.
+func (c Config) validateCredentialsSource() error {
+	switch c.CredentialsSource {
+	case CredentialsSourceHTTP:
+		return nil
+	case CredentialsSourceLocal:
+	default:
+		return fmt.Errorf("config: CREDENTIALS_SOURCE must be %q or %q", CredentialsSourceHTTP, CredentialsSourceLocal)
+	}
+	if c.DatabaseURL == "" {
+		return errors.New("config: CREDENTIALS_SOURCE=local requires DATABASE_URL")
+	}
+	if c.SecretKey == "" {
+		return errors.New("config: CREDENTIALS_SOURCE=local requires SECRET_KEY")
+	}
+	switch c.SecretsProvider {
+	case "", "local":
+	case "vault_transit":
+		if strings.TrimSpace(c.VaultAddr) == "" {
+			return errors.New("config: SECRETS_PROVIDER=vault_transit requires VAULT_ADDR")
+		}
+	default:
+		return errors.New("config: unsupported SECRETS_PROVIDER (want local or vault_transit)")
+	}
+	return nil
 }
 
 // clampVar is like intVar but clamps out-of-range values (Python's
@@ -170,6 +226,11 @@ func (c Config) redacted() Config {
 	if c.InternalServiceToken != "" {
 		c.InternalServiceToken = "[redacted]"
 	}
+	for _, p := range []*string{&c.SecretKey, &c.SecretsMasterKey, &c.VaultToken} {
+		if *p != "" {
+			*p = "[redacted]"
+		}
+	}
 	return c
 }
 
@@ -194,6 +255,8 @@ func (c Config) LogValue() slog.Value {
 		slog.String("debug_addr", r.DebugAddr),
 		slog.String("app_env", r.AppEnv),
 		slog.Any("egress_allow_hosts", r.EgressAllowHosts),
+		slog.String("credentials_source", r.CredentialsSource),
+		slog.String("secrets_provider", r.SecretsProvider),
 	)
 }
 
