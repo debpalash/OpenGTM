@@ -871,6 +871,104 @@ records and stops it. Re-running is byte-identical.
   dumps of the Python config). Notable recorded behaviours: `recent()` falls back to the in-process deque when ANY Redis entry is invalid JSON (it does not skip it); a crt.sh row that is not an object
   makes `analyze_domain` raise; `get_source_enabled` is true only for the exact stored string `1`.
 
+## Plan 14 deviations (leadgen collection) (Task 22)
+
+Coverage: `internal/api/leadgen_coverage_test.go` parses `routers/leads.py` (`jobs_router`, the four `/leads/*` utilities, `search_router`, `POST /lead/{id}/enrich`) and the
+`/sources*` routes of `routers/settings.py` (22 decorators): every one is in the Go router table (19: `leadgenscaffold_test.go` patterns) or in
+`retained_leadgen_routes.txt` (3: `POST /api/lead/{id}/enrich`, `GET /api/v2/search/unified`, `POST /api/v2/scraper/scrape`; plan 06's `/sources/{col}/preview` stays in
+`retained_enrichment_routes.txt`). `TestEveryLeadgenRouteHasFixtureOrIsRetained` requires a recorded fixture per ported route (`collect/`, `jobs/`, `leadutils/`, `sources/srcsettings_*`),
+`TestRetainedLeadgenRoutesNotRegisteredInGo`, `TestNoGoHandlerImportsScraperDeps` (no HTML-scraping, browser or crawl library in the plan 14 packages, `cmd/api`, `cmd/worker`) and
+`TestLeadgenJobTypesHandledOrPython` (`collect`, `bulk_enrich`, `source_workbook` are never dispatched by the Go worker; `source_health_check` only when
+`GO_EXECUTOR_ENABLED` AND `GO_EXECUTOR_SOURCE_HEALTH`, a global job with no cohort). Cross-stack: `internal/api/leadgen_crossstack_integration_test.go` (the Go-enqueued queue and ledger rows
+satisfy Python's claim predicate and `handle_collect`'s payload; a job written with `PgJobLedger`'s SQL is served by Go in Python's key order, byte for byte; Go's cancel is what
+`_is_cancelled` polls) and `legacy/python/tests/test_go_enqueued_collect.py` (the real `handle_collect` and `_is_cancelled` against a Go-shaped row: `pending -> running -> done`,
+a Go cancel is seen, a job cancelled before the claim is not run). nginx: plan 14 section of `infra/nginx/go-routes.conf`, checked at 0%, 50% and 100% by `scripts/nginx-routing-check.sh`.
+Runbook: `docs/go-port/runbooks/leadgen-cutover.md`.
+
+### Go-only hardening and behaviour changes (Python answers 500, hangs, accepts anything or has no bound)
+
+- **Atomic enqueue (D2):** the ledger row and the queue row of `POST /api/collect` are one Postgres transaction. Python writes two stores and leaves a `failed` row behind when the enqueue
+  fails; Go leaves nothing and answers 503 `Collection queue unavailable`. Cancel, delete and retry are one transaction across ledger and queue too (Python commits the halves separately).
+- **Collect body:** `query` over `COLLECT_QUERY_MAX_CHARS` (default 1000, counted in characters before strip), non-string or null `query`: 422 (Python accepts 1,260 chars and answers a bare
+  500 for a non-string). The body is capped at 64 KiB: 413 `Request body too large`. `workspace_id` in the body is validated and ignored. Enqueue is always `executor='python'`.
+- **Jobs reads:** `events?limit<=0` is 422 (`greater_than_equal`; Python returns every event for 0 and drops the first for negatives), a limit above the 500-event history clamps to it.
+  `status` on `/jobs` is an allow-list: an unknown value returns `[]`, as Python's empty result. Unknown or foreign job ids are 404 `Job not found` for all four sub-routes. NaN or Infinity inside
+  stored `intent_details`/stage `details` is a bare text 500 in Go and Python (only `/{id}` and `/{id}/stages` parse); list, leads, events and the existence checks never parse.
+- **Ordering:** `/jobs` adds an `id DESC` tiebreak and `/jobs/{id}/leads` an `id DESC` tiebreak after `score DESC` (Python has none; rows sharing a key come back in undefined order there).
+- **Key order:** job rows are `id, query, intent, intent_details, status, tier, attempts, max_attempts, leads_found, proxy_used, error, created_at, started_at, completed_at, workspace_id`
+  (detail adds `stages` last), stage rows `id, job_id, stage, status, input_count, output_count, rejected_count, details, started_at, completed_at`; `/jobs/{id}/leads` rows follow
+  `Lead.to_dict()` (dataclass order, NOT the ledger order); the list route returns `intent_details` as the stored text, the detail route parses it. A job whose SQLite file was created before
+  Python's `_migrate` had a different column order; the Postgres table fixes one order (the one above). The fixtures are recorded with `sort_keys`, so order is pinned by tests against the
+  literal strings (`TestPythonWrittenJobIsServedByGoInPythonKeyOrder`, `leadsread` tests), not by fixtures. U+2028 and U+2029 in stored text are emitted raw (no `\u2028` escaping), like Python.
+- **Events:** `/jobs/{id}/events` reads `progress.recent(500)` through the shared process-wide bus (`progressBus`); Python's fallback semantics are kept (any invalid Redis entry, an empty list or a
+  Redis error falls back to the local deque). An empty workspace id returns nothing (Python returns every tenant's local events). **Known carry:** event objects are decoded and re-encoded, so
+  their keys come out **sorted**, not in the stored byte order Python returns (values unchanged); the fix is to return the stored JSON raw (open item of the plan 14 final fix wave).
+- **Retry:** an enqueue failure rolls the retry back (job stays `failed`/`cancelled`, retryable) and answers 503; Python resets the job then marks it `failed` with `Retry enqueue failed: ...`.
+  An active queue row for the job means no second row and a 200 with that row's id (Python inserts a duplicate); a job another request just retried is 409. The queue payload carries
+  `"fire_key"` last (`EnqueueOnce`); the worker ignores it. Existence checks do not parse stored JSON, so a job with NaN details can still be cancelled, deleted or retried.
+- **Delete:** leads go through `leadswrite.Delete` (row delete; the 10,000-lead cap of Python is kept); a NUL byte in a job id is 404.
+- **system-stats (D5):** per-replica numbers from the Python worker RPC; when it fails or answers a wrong shape, 200 with zeros and `X-Stats-Source: degraded`. `tripped_domains` is hidden
+  (empty) for everyone but **global admins**: the worker's limiter is process-global shared state and Python shows every tenant's blocked domains to any member (Python bug, #114).
+- **Lead utilities:** inline `score` bodies where Python crashes (`email=5`, wrong-typed `specialization`, ...) answer 422 `value_error` (bare 500 in Python). Body caps: 1 MiB `score`, 64 KiB
+  `verify-email`/`tech-stack`/`domain-intel` (413). `domain-intel` has a **30/min limiter Go-only** (Python has none; one call makes about 15 outbound requests), its fetches go through
+  `internal/egress` (SSRF guard, no redirects except the same-host rule below, body caps 1 MiB DoH / 2 MiB RDAP / 8 MiB crt.sh, 15 s overall). `tech-stack`: 30 s overall timeout (**504** on timeout), at most
+  16 concurrent fetches process-wide (503 `Too many website fetches in progress; retry shortly`), blocked targets use the Go provider's `blocked_url: ...` strings, and the `TECH_STACK_*` flags are
+  read from operator config (`app_settings`, then env) instead of Python's process settings object. Lead ids beyond int4/int64 are 404. Rate limits are per replica.
+- **Domain analysis:** DoH and crt.sh redirects only to the same host (Python follows any host), RDAP to any https host (`rdap.org` is a bootstrap redirector), at most 5 hops; non-string DoH
+  `Answer` data makes the whole answer `[]`; JSON NaN/Infinity is rejected (Python accepts); a non-object crt.sh row is an error (route 500, as Python's AttributeError).
+- **Source settings (Task 21):** `GET /sources/health` errors carry `"error": "internal error"` instead of `str(e)`; a health-layer error on `.../health/reset` is a bare 500; a failed settings write on
+  `PUT` is a 500 (Python's `_db_set` swallows DB write errors and answers 200) and the value is not mirrored into `os.environ` (Python does). Health flags come from `SOURCE_HEALTH_ENFORCE` /
+  `SOURCE_HEALTH_ENABLED` through `Deps.Getenv`. GET list/health stay open to every authenticated user of any workspace although `source_health` is global (Python parity).
+  Parity gap kept: Go's `SHManualEnable` always sets `updated_at = now()`, Python's `manual_enable` on an already pinned, non-auto_disabled row issues no UPDATE (fixture row `sulekha` pins it);
+  `testpg.NewAppPool` grants DELETE on every table, so the source-health grant test cannot assert DELETE/TRUNCATE are withheld from the runtime role (carry from the Task 12 review).
+- **Source health job (D6, Task 12/20):** `source_health_check` runs in Go only when `GO_EXECUTOR_ENABLED` AND `GO_EXECUTOR_SOURCE_HEALTH` (global job, **no workspace cohort**); otherwise a claimed job is handed
+  back to Python without spending a retry. A failed or null probe batch (or a missing name in the response) is an outage run with no zero transitions (stricter than Python, which treats a raised
+  probe as yield 0). The reschedule excludes the running job's own row (Python's `_enqueue_health_if_absent` counts it, so its in-handler reschedule always no-ops and the chain survives only through
+  the bootstrap). The Go reschedule is gated on `SOURCE_HEALTH_ENABLED`. **`BootstrapSourceHealth` is not called by any Go scheduler**: the Python scheduler (re-seeds every 60 s) stays the only one.
+  Go skips the 1 s sleep between probe batches (each batch is one `POST /internal/leadgen/source-probe` RPC; confirm the Python endpoint paces batches). Single-flight is an advisory lock on the
+  chain key plus the unique fire-key index; no duplicate chains.
+- **Ledger cutover (Tasks 3, 4, 7):** `collection_jobs` / `collection_job_stages` in Postgres (Alembic `c9d2e4f6a8b1`), SQLite value shapes (text isoformat timestamps with `''` defaults). The SQLite to
+  Postgres copy is **quiesced, not a canary** (`migrate_collection_ledger.py cutover` writes the marker `__collection_ledger_backend` last, only after a content-level `verify` with zero mismatches).
+  `cmd/api` reads the marker once at startup (`LoadCollectionLedgerBackend`, fail closed: a missing or unreadable marker leaves the leadgen routes unregistered) and `leadgenRoutesEnabled` also requires
+  `GO_COLLECTION_ROUTES_ENABLED` and `PG_LEAD_STORE`, so **restart `api-go` after the cutover**. There is **no `--reverse`**: the script has `backfill`, `verify` and `cutover` only, and Python has no
+  ledger-specific startup guard (only the general `__stores_backend` one). `apps/api/analytics.py`, `cli.py jobs/collect` and `eval_pipeline.py` still read the SQLite ledger; the ledger is not
+  registered in `apps/api/scripts/sqlite_stores/specs.py` or `verify.py`.
+- **Progress bus (Task 11):** `leadprogress` keeps Python's 500-event local deque fallback and a 1 s Redis backoff; `EmitOrdered` gives Python key order, `Emit(map)` sorts keys; valid-JSON non-object
+  entries are dropped from `Recent`'s result (Python returns them raw); NaN/Infinity tokens in an event make the decoder fall back to the deque; there is no `bind_job` (callers pass the workspace); local
+  subscribers are not supported (the relay uses Redis).
+- **Intent and scoring (Tasks 8, 9):** `collectintent` emulates the one non-RE2 lookbehind (`_DOMAIN_IN_TEXT_RE`) by a hand-written scanner (50k-string fuzz against Python, 0 diffs); the guard test
+  `TestPythonRegexesAreRE2Compatible` skips when `legacy/python` is gone and must then become an assertion on the hard-coded fact. `leadscore` approximates CPython's recursion limit at depth 900 (a
+  deviation only for 900-1000 levels of nesting) and its plain `Score` returns 0 for a wrong-typed field (`ScoreE` returns the error the route turns into 422).
+
+### Known issues and carries (not fixed here)
+
+- Events keys sorted instead of stored byte order (above); test cleanup after an interrupted integration run can leave `ws-alpha`/`ws-beta` rows (`workspaces_pkey`), the next run cleans them.
+- `tech-stack` success path, real DoH/RDAP and the `verify-email`/`tech-stack` rate limits are not recorded (no network in the recorder): covered by 409/400/422 fixtures, replayed transcripts and
+  Go tests with seams.
+- Four older contract recorder servers (governance, audiences, ...) run uvicorn on the default loop; uvloop bypasses the Python socket guards there (the plan 14 recorder uses `loop="asyncio"`).
+  Audit their fixtures for real-network data.
+- `TestEveryLeadgenRouteIsPortedOrRetained`: `retained_leads_routes.txt` (plan 05) still lists the plan 14 routes as retained on FastAPI; it is history for plan 05's coverage test and is not read for
+  plan 14.
+
+### Python bugs found and not fixed (user rule; for issue #114)
+
+- `POST /api/leads/score` with an inline non-string `email` (or non-string `specialization`/`industry_tags`) crashes (`Lead.has_email`): bare 500.
+- `GET /jobs/{id}/events?limit=0` returns every event (`events[-0:]`), negative limits slice from the front (`events[1:]`).
+- `intent_details` or stage `details` containing `NaN`/`Infinity` parse, then the response render fails: 500; a non-object `intent_details` (`[1,2]`, `"s"`, `null`) is returned as parsed.
+- `analyze_domain` raises (500) when crt.sh returns a non-object row; aiohttp's `resp.json()` rejects Cloudflare's `application/dns-json`, so production DoH may always return `[]` (unverified);
+  DoH/crt.sh redirects are followed to any host; non-string DoH `Answer` data misbehaves.
+- `/collect` accepts queries of any length (1,260 chars recorded) and stores them unbounded.
+- `PUT /settings/sources/{id}` for a `DATA_SOURCES` id without a registry entry still creates a pinned health row; `POST .../health/reset` for an unknown id answers 200 `no health row`;
+  `_db_set` swallows DB write errors (200 on a failed write); GET health/list are open to every authenticated user though the table is global.
+- `system-stats` leaks `tripped_domains` (global limiter state) to every workspace member.
+- `domain-intel` and `verify-email` have no body cap; `verify-email` rejects only the ASCII space (`" " in email`), a tab or newline inside the address passes; `domain-intel` has no rate limit though
+  one call is ~15 outbound requests.
+- `_enqueue_health_if_absent` counts `pending|processing` health jobs, which includes the running job itself, so the in-handler reschedule always no-ops; a raised probe counts as yield 0
+  without outage marking.
+- A crash between the ledger insert and the queue insert leaves a `pending` job with no queue row forever; a failed enqueue leaves a `failed` ledger row.
+- `/collect` with U+0000 in the query reaches Postgres and answers a bare 500 (Go also 500).
+- The task 16 report note about `TestLeadgenRoutePatterns` failing in the shared tree was stale: it passes on a clean `git archive HEAD` snapshot (confirmed again in Task 22).
+
 ## Plan 12 (copilot chat and person intel): recording, coverage and deviations
 
 Scope: 12 routes, all ported, none retained (`retained_copilot_routes.txt`): `GET|POST /api/copilotkit/info`, `POST /api/copilotkit`
