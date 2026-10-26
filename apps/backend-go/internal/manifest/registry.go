@@ -119,7 +119,7 @@ func loadEntry(p, policy string, trust TrustStore) (Entry, error) {
 	if res.Status == SigInvalid || res.Status == SigUntrusted || (policy == "required" && res.Status != SigTrusted) {
 		return Entry{}, fmt.Errorf("connector signature is %s", res.Status)
 	}
-	m, canonical, err := decodeManifest(data)
+	m, canonical, _, err := decodeManifest(data)
 	if err != nil {
 		return Entry{}, err
 	}
@@ -130,18 +130,18 @@ func loadEntry(p, policy string, trust TrustStore) (Entry, error) {
 // decodeManifest is load_manifest + canonical_manifest on the same bytes:
 // the YAML mapping gets the body -> body_template alias, then must satisfy
 // ProviderManifest (version "1", required name, capability, request.url).
-func decodeManifest(data []byte) (Manifest, []byte, error) {
+func decodeManifest(data []byte) (Manifest, []byte, []string, error) {
 	tree, err := loadYAML(data)
 	if err != nil {
-		return Manifest{}, nil, err
+		return Manifest{}, nil, nil, err
 	}
 	root, ok := tree.(*pyMap)
 	if !ok {
-		return Manifest{}, nil, errNotMapping
+		return Manifest{}, nil, nil, errNotMapping
 	}
 	var canonical bytes.Buffer
 	if err := dumpValue(&canonical, root); err != nil {
-		return Manifest{}, nil, err
+		return Manifest{}, nil, nil, err
 	}
 	// Coerce on a copy: the hash is over the manifest as authored.
 	raw := &pyMap{ents: append([]pyEnt(nil), root.ents...)}
@@ -149,7 +149,7 @@ func decodeManifest(data []byte) (Manifest, []byte, error) {
 	if cur, present := pyGet(raw, "request"); present && cur != nil {
 		c, isMap := cur.(*pyMap)
 		if !isMap {
-			return Manifest{}, nil, errors.New("request: Input should be a valid dictionary")
+			return Manifest{}, nil, nil, errors.New("request: Input should be a valid dictionary")
 		}
 		req = &pyMap{ents: append([]pyEnt(nil), c.ents...)}
 	} else {
@@ -164,23 +164,42 @@ func decodeManifest(data []byte) (Manifest, []byte, error) {
 	raw.set("request", req)
 	if v, present := pyGet(raw, "manifest_version"); present {
 		if s, isStr := v.(string); !isStr || s != "1" {
-			return Manifest{}, nil, errors.New("manifest_version: Input should be '1'")
+			return Manifest{}, nil, nil, errors.New("manifest_version: Input should be '1'")
 		}
 	}
 	for _, f := range [][2]any{{raw, "name"}, {raw, "capability"}, {req, "url"}} {
 		if v, present := pyGet(f[0].(*pyMap), f[1].(string)); !present || v == nil {
-			return Manifest{}, nil, fmt.Errorf("%s: Field required", f[1])
+			return Manifest{}, nil, nil, fmt.Errorf("%s: Field required", f[1])
 		}
 	}
 	var js bytes.Buffer
 	if err := dumpValue(&js, raw); err != nil {
-		return Manifest{}, nil, err
+		return Manifest{}, nil, nil, err
 	}
 	var m Manifest
 	if err := json.Unmarshal(js.Bytes(), &m); err != nil {
-		return Manifest{}, nil, fmt.Errorf("manifest: %w", err)
+		return Manifest{}, nil, nil, fmt.Errorf("manifest: %w", err)
 	}
-	return m, canonical.Bytes(), nil
+	switch m.Auth.Type {
+	case "header", "bearer", "query", "none":
+	default:
+		return Manifest{}, nil, nil, errors.New("1 validation error for ProviderManifest\nauth.type\n  Input should be 'header', 'bearer', 'query' or 'none'")
+	}
+	var keys []string
+	if resp, ok := pyGet(root, "response"); ok {
+		if rm, ok := resp.(*pyMap); ok {
+			if mp, ok := pyGet(rm, "mappings"); ok {
+				if mm, ok := mp.(*pyMap); ok {
+					for _, ent := range mm.ents {
+						if k, ok := ent.key.(string); ok {
+							keys = append(keys, k)
+						}
+					}
+				}
+			}
+		}
+	}
+	return m, canonical.Bytes(), keys, nil
 }
 
 func pyGet(m *pyMap, key string) (any, bool) {
