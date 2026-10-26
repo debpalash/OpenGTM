@@ -23,4 +23,9 @@ type ProviderResult struct {
 	Output  json.RawMessage
 	Error   string
 	CostUSD float64
+	// HTTPStatus is the HTTP status of a rejected or failed call (0 when the
+	// request never got a response). Err is a sentinel (ErrUnknownProvider,
+	// ErrUnauthorized) for rejections callers may act on; nil otherwise.
+	HTTPStatus int
+	Err        error
 }
