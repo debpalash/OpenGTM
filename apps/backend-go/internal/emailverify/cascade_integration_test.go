@@ -21,7 +21,9 @@ func pgDeps(t *testing.T, wss ...string) (Deps, *pgxpool.Pool) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	clean := func() { _, _ = owner.Exec(context.Background(), `DELETE FROM email_verify_cache WHERE workspace_id = ANY($1)`, wss) }
+	clean := func() {
+		_, _ = owner.Exec(context.Background(), `DELETE FROM email_verify_cache WHERE workspace_id = ANY($1)`, wss)
+	}
 	clean()
 	t.Cleanup(func() { clean(); owner.Close() })
 	d := NewDeps()

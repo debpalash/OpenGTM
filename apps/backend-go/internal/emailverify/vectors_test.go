@@ -196,9 +196,9 @@ type classRow struct {
 }
 
 type fileStat struct {
-	Count  int      `json:"count"`
-	Sha    string   `json:"sha256_of_sorted_lines"`
-	Head   []string `json:"head"`
+	Count int      `json:"count"`
+	Sha   string   `json:"sha256_of_sorted_lines"`
+	Head  []string `json:"head"`
 }
 
 func TestClassifyVectors(t *testing.T) {
@@ -357,13 +357,13 @@ type emailCheckJSON struct {
 }
 
 type classification struct {
-	Email       string `json:"email"`
-	ValidSyntax bool   `json:"valid_syntax"`
-	LocalPart   string `json:"local_part"`
-	Domain      string `json:"domain"`
-	IsRole      bool   `json:"is_role"`
-	IsFree      bool   `json:"is_free"`
-	IsDisposable bool  `json:"is_disposable"`
+	Email        string `json:"email"`
+	ValidSyntax  bool   `json:"valid_syntax"`
+	LocalPart    string `json:"local_part"`
+	Domain       string `json:"domain"`
+	IsRole       bool   `json:"is_role"`
+	IsFree       bool   `json:"is_free"`
+	IsDisposable bool   `json:"is_disposable"`
 }
 
 func (r EmailCheck) wire() emailCheckJSON {
@@ -732,7 +732,7 @@ func TestCascadeHonoursContextCancel(t *testing.T) {
 
 type cancelVerifier struct{ cancel context.CancelFunc }
 
-func (c *cancelVerifier) Name() string                              { return "cancel" }
+func (c *cancelVerifier) Name() string                            { return "cancel" }
 func (c *cancelVerifier) Available(context.Context) (bool, error) { return true, nil }
 func (c *cancelVerifier) Verify(ctx context.Context, _ string) (Result, error) {
 	c.cancel()
@@ -836,8 +836,8 @@ type scriptedFinder struct {
 	avail  bool
 }
 
-func (f *scriptedFinder) Name() string                                       { return f.name }
-func (f *scriptedFinder) Available(context.Context, string) bool            { return f.avail }
+func (f *scriptedFinder) Name() string                           { return f.name }
+func (f *scriptedFinder) Available(context.Context, string) bool { return f.avail }
 func (f *scriptedFinder) Find(context.Context, string, map[string]any, string) (string, map[string]string, error) {
 	if f.errMsg != "" {
 		return "", nil, errors.New(f.errMsg)
