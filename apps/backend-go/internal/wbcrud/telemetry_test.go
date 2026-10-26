@@ -198,7 +198,7 @@ func TestBudgetNegative422AndNaN422(t *testing.T) {
 	}
 	if _, errs := ParseBudgetBody([]byte(`{"max_usd":-1}`)); len(errs) == 1 {
 		e := errs[0]
-		if e.Msg != "Input should be greater than or equal to 0" || e.Ctx["ge"] != 0.0 {
+		if e.Msg != "Input should be greater than or equal to 0" || e.Ctx["ge"] != json.Number("0.0") {
 			t.Errorf("negative detail: %+v", e)
 		}
 	}
