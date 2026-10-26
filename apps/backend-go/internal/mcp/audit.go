@@ -32,7 +32,7 @@ var topLevelRedactKeys = map[string]bool{
 
 // secretKeyPattern is the broader substring pattern applied at every depth (D6).
 // "email" is deliberately absent: nested contact data stays readable.
-var secretKeyPattern = regexp.MustCompile(`(?i)token|secret|password|authorization|cookie|credential|api_?key`)
+var secretKeyPattern = regexp.MustCompile(`(?i)token|secret|password|passwd|pwd|authorization|bearer|cookie|credential|session|api[-_]?key|private[-_]?key|access[-_]?key`)
 
 // RedactArguments returns a copy of tool arguments that is safe to persist:
 // top-level keys token/password/secret/api_key/authorization/email (any case)

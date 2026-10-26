@@ -143,3 +143,19 @@ func TestRecordTimeoutBounded(t *testing.T) {
 		t.Fatalf("Record blocked %v", el)
 	}
 }
+
+func TestRedactWiderSecretKeys(t *testing.T) {
+	keys := []string{"api-key", "x-api-key", "apiKey", "private_key", "privateKey", "private-key", "access_key", "AccessKey",
+		"passwd", "pwd", "db_pwd", "Bearer", "bearer_token", "session", "session_id", "sessionToken"}
+	in := Args{"cfg": map[string]any{"ok": "keep"}}
+	nested := map[string]any{"ok": "keep"}
+	for _, k := range keys {
+		in[k] = "TOPSECRET"
+		nested[k] = "NESTSECRET"
+	}
+	in["cfg"] = nested
+	b, _ := json.Marshal(RedactArguments(in))
+	if strings.Contains(string(b), "TOPSECRET") || strings.Contains(string(b), "NESTSECRET") || !strings.Contains(string(b), `"ok":"keep"`) {
+		t.Fatalf("got %s", b)
+	}
+}
