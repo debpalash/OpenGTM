@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/entities/review-queue?status=merged"
+  },
+  "response": {
+    "body": {
+      "pairs": [
+        {
+          "candidate": {
+            "canonical_name": "Orbit Laboratories",
+            "id": "ent-w-4",
+            "new_entity_id": "ent-w-4"
+          },
+          "entity_id": "ent-w-3",
+          "id": 2,
+          "reason": "grey_band",
+          "score": 0.8,
+          "status": "merged"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

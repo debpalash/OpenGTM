@@ -1,0 +1,68 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/entities/company/ent-w-2"
+  },
+  "response": {
+    "body": {
+      "canonical_name": "Zenith Corporation Ltd",
+      "corroboration_count": 1,
+      "fields": {
+        "city": [
+          {
+            "observed_at": "2026-08-29T10:00:00+00:00",
+            "source": "seed",
+            "value": "Austin"
+          }
+        ],
+        "company": [
+          {
+            "observed_at": "2026-08-29T10:00:00+00:00",
+            "source": "seed",
+            "value": "Zenith Corporation Ltd"
+          }
+        ],
+        "website": [
+          {
+            "observed_at": "2026-08-29T10:00:00+00:00",
+            "source": "seed",
+            "value": "https://zenith-corp.example.com"
+          }
+        ]
+      },
+      "id": "ent-w-2",
+      "identity_keys": {
+        "domains": [
+          "zenith-corp.example.com"
+        ],
+        "emails": [],
+        "name_variants": [
+          "Zenith Corporation Ltd"
+        ],
+        "phones": []
+      },
+      "observation_count": 3,
+      "primary_city": "Austin",
+      "primary_domain": "zenith-corp.example.com",
+      "primary_email": "",
+      "primary_phone": "",
+      "source_agreement": {
+        "city": 1.0,
+        "company": 1.0,
+        "website": 1.0
+      },
+      "sources": [
+        "seed"
+      ],
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

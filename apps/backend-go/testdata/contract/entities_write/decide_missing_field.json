@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "pair_id": 2
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/entities/review-queue/decide"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "pair_id": 2
+          },
+          "loc": [
+            "body",
+            "decision"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

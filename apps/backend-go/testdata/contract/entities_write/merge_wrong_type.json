@@ -1,0 +1,46 @@
+{
+  "request": {
+    "body": {
+      "kept_id": 5,
+      "merged_id": "ent-w-2",
+      "reason": [
+        "x"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/entities/merge"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 5,
+          "loc": [
+            "body",
+            "kept_id"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        },
+        {
+          "input": [
+            "x"
+          ],
+          "loc": [
+            "body",
+            "reason"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "kept_id": "ent-w-1"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/entities/merge"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "kept_id": "ent-w-1"
+          },
+          "loc": [
+            "body",
+            "merged_id"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

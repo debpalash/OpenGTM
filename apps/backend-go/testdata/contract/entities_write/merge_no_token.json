@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "kept_id": "ent-w-1",
+      "merged_id": "ent-w-2"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/entities/merge"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

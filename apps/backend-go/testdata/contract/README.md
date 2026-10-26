@@ -96,3 +96,10 @@ Review `git diff` of the fixtures after re-recording: a changed fixture is a cha
   bytes) are bound to a scope hash of the issuing stack's SQL, so an in-flight v2 cursor answers 400
   `Invalid workbook row cursor; restart pagination` on the other stack. Clients restart pagination.
 - Connector-run cursors keep `created_at.isoformat()` of the timezone-aware column (`+00:00`, microseconds only when non-zero).
+- Entity merge/split/decide (`entities_write/`, Task 17): the base seed's entities keep provenance as
+  `{"name": ...}` (not field -> list), which Python's merge cannot fold (TypeError, HTTP 500); the cases use
+  the extra seed `scripts/contract_seed_entities_write.py`. Go answers `400 invalid_entity_fields` for such
+  rows and writes nothing. A merge naming an id of another workspace answers `400 entity_not_found` in Go
+  (Python: `cross_workspace_merge_forbidden`, which confirms a foreign id exists); no fixture, covered by
+  `TestMergeCrossWorkspaceIDs400NothingWritten`. `kept.sources` keeps first-seen order (Python: set order);
+  decide commits the merge and the pair status together (Python: two commits).

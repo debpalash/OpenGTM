@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "kept_id": "ent-w-1",
+      "merged_id": "ent-w-1"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/entities/merge"
+  },
+  "response": {
+    "body": {
+      "detail": "same_entity"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

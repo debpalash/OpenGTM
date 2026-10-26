@@ -147,8 +147,8 @@ func TestEntityWritesMatchFixtures(t *testing.T) {
 	// Recording order matters: later cases observe the writes of earlier ones.
 	for _, n := range []string{"merge_no_token", "merge_non_editor", "merge_missing_field", "merge_wrong_type", "merge_body_not_object",
 		"merge_same_entity", "merge_unknown_entity", "merge_other_workspace_header", "merge_ok", "get_kept_after_merge",
-		"get_merged_after_merge", "merge_again", "split_non_editor", "split_missing_field", "split_not_int", "split_unknown_log",
-		"split_other_workspace", "split_ok", "get_kept_after_split", "get_restored_after_split", "split_again",
+		"get_merged_after_merge", "merge_again", "split_non_editor", "split_missing_field", "split_not_int", "split_null", "split_unknown_log",
+		"split_other_workspace", "split_ok", "get_kept_after_split", "get_restored_after_split", "split_again", "split_true_is_one", "split_false_is_zero",
 		"decide_non_editor", "decide_missing_field", "decide_missing_pair", "decide_other_workspace", "decide_no_candidate",
 		"decide_merge", "decide_reject_other_word", "review_merged", "review_rejected"} {
 		auth := alice
@@ -233,11 +233,12 @@ func TestMergeNonListProvenance400(t *testing.T) {
 		_, err := tx.Exec(ctx, `UPDATE company_entities SET fields='{"name":"x"}' WHERE id='ent-w-2'`)
 		return err
 	})
+	before := e.entityCount(t, "ws-alpha")
 	code, body := e.post("/api/entities/merge", `{"kept_id":"ent-w-1","merged_id":"ent-w-2"}`, alice)
 	if code != 400 || body["detail"] != "invalid_entity_fields" {
 		t.Fatalf("%d %v", code, body)
 	}
-	if e.entityCount(t, "ws-alpha") != 4 {
+	if e.entityCount(t, "ws-alpha") != before {
 		t.Error("entities changed")
 	}
 }

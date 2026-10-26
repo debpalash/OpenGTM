@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "decision": "merge",
+      "pair_id": 2
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/entities/review-queue/decide"
+  },
+  "response": {
+    "body": {
+      "corroboration_count": 1,
+      "kept_id": "ent-w-3",
+      "merged_id": "ent-w-4",
+      "status": "merged"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
