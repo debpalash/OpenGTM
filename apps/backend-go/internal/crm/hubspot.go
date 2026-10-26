@@ -88,15 +88,17 @@ func (h *HubSpot) sleep() func(context.Context, time.Duration) error {
 	return ctxSleep
 }
 
-// token is _get_token: workspace secret, then global settings, then env. A
-// resolver failure falls back to the environment, as the Python except branch.
+// token is _get_token: workspace secret, then global settings, then env (the
+// resolver walks that chain itself). A resolver error is not "not found": it
+// fails closed (no token, no request) instead of falling back to the process
+// environment as the Python except branch does (security deviation).
 func (h *HubSpot) token(ctx context.Context, ws string) string {
 	if h.Secrets == nil {
 		return os.Getenv("HUBSPOT_TOKEN")
 	}
 	v, _, err := h.Secrets.Get(ctx, ws, "HUBSPOT_TOKEN")
 	if err != nil {
-		return os.Getenv("HUBSPOT_TOKEN")
+		return ""
 	}
 	return v
 }
