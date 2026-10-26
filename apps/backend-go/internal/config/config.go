@@ -493,6 +493,9 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	}
 	c.PyWorkerURL = strings.TrimSpace(get("PY_WORKER_URL"))
 	c.PyWorkerToken = strings.TrimSpace(get("PY_WORKER_TOKEN"))
+	if c.PyWorkerToken == "" { // the Python endpoint authenticates with INTERNAL_SERVICE_TOKEN
+		c.PyWorkerToken = strings.TrimSpace(get("INTERNAL_SERVICE_TOKEN"))
+	}
 	if c.WSMaxMessageBytes, err = intVar(get, "WS_MAX_MESSAGE_BYTES", 65536, 1, 1<<30); err != nil {
 		return APIConfig{}, err
 	}
