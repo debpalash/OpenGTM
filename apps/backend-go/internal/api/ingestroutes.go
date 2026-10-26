@@ -312,24 +312,35 @@ type ingestResult struct {
 }
 
 var (
-	leadFieldsOnce sync.Once
+	leadFieldsMu   sync.Mutex
 	leadFieldNames []string
 )
 
-func ingestLeadFields() []string {
-	leadFieldsOnce.Do(func() {
-		if reg, err := wbregistry.Load(); err == nil {
-			leadFieldNames = reg.LeadFields()
+// ingestLeadFields is the registry's lead field list. A registry that fails to load is an
+// error (surfaced as a logged 500), never an empty list that would silently map nothing;
+// a failure is not cached, so the next request retries.
+func ingestLeadFields() ([]string, error) {
+	leadFieldsMu.Lock()
+	defer leadFieldsMu.Unlock()
+	if leadFieldNames == nil {
+		reg, err := wbregistry.Load()
+		if err != nil {
+			return nil, fmt.Errorf("ingest: load field registry: %w", err)
 		}
-	})
-	return leadFieldNames
+		leadFieldNames = append([]string{}, reg.LeadFields()...)
+	}
+	return leadFieldNames, nil
 }
 
 // ingestKeyMap is _key_map: lowercase incoming key -> canonical lead field. Every lead field maps to itself;
 // each lead_field column also maps its display name.
-func ingestKeyMap(cols []wbcrud.Column) map[string]string {
+func ingestKeyMap(cols []wbcrud.Column) (map[string]string, error) {
 	m := map[string]string{}
-	for _, f := range ingestLeadFields() {
+	fields, err := ingestLeadFields()
+	if err != nil {
+		return nil, err
+	}
+	for _, f := range fields {
 		m[strings.ToLower(f)] = f
 	}
 	for _, c := range cols {
@@ -346,7 +357,7 @@ func ingestKeyMap(cols []wbcrud.Column) map[string]string {
 			}
 		}
 	}
-	return m
+	return m, nil
 }
 
 // ingestMapRow is _map_row: mapped keys use the canonical field, unknown keys are kept verbatim and recorded.
@@ -392,7 +403,10 @@ func (h ingestRoutes) apply(ctx context.Context, tx pgx.Tx, ws, wbID string, req
 			return nil, false, err
 		}
 	}
-	keyMap := ingestKeyMap(wb.Columns)
+	keyMap, err := ingestKeyMap(wb.Columns)
+	if err != nil {
+		return nil, false, err
+	}
 	unmapped := map[string]struct{}{}
 	var mapped []*wbcrud.Obj
 	skippedEmpty := 0
