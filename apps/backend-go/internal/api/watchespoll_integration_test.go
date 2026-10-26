@@ -48,7 +48,6 @@ func newWatchPollEnv(t *testing.T, flags config.Flags) watchPollEnv {
 	registerWatchesPoll(r, d)
 	e := watchPollEnv{leadsEnv{mcpEnv{env: env{h: r.Handler(), st: st}, pool: pool}}}
 	e.purgeWatches(t)
-	t.Cleanup(func() { e.purgeWatches(t) })
 	e.purge()
 	t.Cleanup(e.purge)
 	e.seedLeads(t)
@@ -57,6 +56,8 @@ func newWatchPollEnv(t *testing.T, flags config.Flags) watchPollEnv {
 	e.seed(t, "erin", pythonHash, true, "user", false)
 	e.member(t, "ws-alpha", e.mustUserByName(t, "erin").ID, "editor")
 	e.seedWatches(t)
+	// registered last, so it runs before the workspace cleanups (FKs from the watch rows)
+	t.Cleanup(func() { e.purgeWatches(t) })
 	return e
 }
 
@@ -106,7 +107,7 @@ func watchActor(name string) (who, ws string) {
 	case "poll_no_auth", "signals_no_auth":
 		return "", ""
 	case "poll_daily_quota_exhausted", "signals_beta_own":
-		return "bob", ""
+		return "bob", "ws-beta" // bob's recorded active workspace; Go resolves the default workspace differently
 	case "poll_member_forbidden", "signals_member_read_ok", "off_watches_poll_member_403_first":
 		return "bob", "ws-alpha"
 	case "poll_editor_ok":
@@ -149,14 +150,19 @@ func TestPollNowMatchesFixtures(t *testing.T) {
 }
 
 func TestPollNowGatesMatchFixtures(t *testing.T) {
-	off := newWatchPollEnv(t, config.Flags{PGLeadStore: true})
-	for _, name := range []string{"off_watches_poll", "off_watches_poll_member_403_first", "off_watches_signals"} {
-		t.Run(name, func(t *testing.T) { off.replay(t, name) })
-	}
-	nopg := newWatchPollEnv(t, config.Flags{IntentPollerEnabled: true})
-	for _, name := range []string{"nopg_poll", "nopg_signals"} {
-		t.Run(name, func(t *testing.T) { nopg.replay(t, name) })
-	}
+	// one pool (and test lock) per profile: each profile is its own subtest
+	t.Run("off", func(t *testing.T) {
+		off := newWatchPollEnv(t, config.Flags{PGLeadStore: true})
+		for _, name := range []string{"off_watches_poll", "off_watches_poll_member_403_first", "off_watches_signals"} {
+			t.Run(name, func(t *testing.T) { off.replay(t, name) })
+		}
+	})
+	t.Run("nopg", func(t *testing.T) {
+		nopg := newWatchPollEnv(t, config.Flags{IntentPollerEnabled: true})
+		for _, name := range []string{"nopg_poll", "nopg_signals"} {
+			t.Run(name, func(t *testing.T) { nopg.replay(t, name) })
+		}
+	})
 }
 
 func TestPollNowDisabled409(t *testing.T) {
@@ -260,8 +266,8 @@ func TestSignalsMatchFixtures(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(files) != 34 {
-		t.Fatalf("expected 34 signals fixtures, found %d", len(files))
+	if len(files) != 35 {
+		t.Fatalf("expected 35 signals fixtures, found %d", len(files))
 	}
 	for _, f := range files {
 		name := strings.TrimSuffix(filepath.Base(f), ".json")
