@@ -61,3 +61,13 @@ func (s *Store) HasPermission(ctx context.Context, ws string, uid int32, permiss
 	}
 	return slices.Contains(roles, role), nil
 }
+
+// MemberRole is manager.member_role: the workspace_members role, or "" when
+// the user has no member row. Identity plane: no tenant GUC.
+func (s *Store) MemberRole(ctx context.Context, ws string, uid int32) (string, error) {
+	role, err := s.q.MemberRole(ctx, gen.MemberRoleParams{WorkspaceID: ws, UserID: uid})
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return "", err
+	}
+	return role, nil
+}

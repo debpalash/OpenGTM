@@ -56,7 +56,7 @@ func TestEventsStreamsPublishedEvent(t *testing.T) {
 	go func() { s, _ := bufio.NewReader(resp.Body).ReadString('\n'); line <- s }()
 	select {
 	case s := <-line:
-		want := `data: {"type": "lead", "n": 1.5, "name": "é<b>", "a": {"z": 1, "b": 2}}` + "\n"
+		want := `data: {"type": "lead", "n": 1.5, "name": "\u00e9<b>", "a": {"z": 1, "b": 2}}` + "\n"
 		if s != want {
 			t.Fatalf("got %q want %q", s, want)
 		}

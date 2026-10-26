@@ -162,13 +162,9 @@ func TestEventsSSORequired403(t *testing.T) {
 		user string
 		amr  []string
 	}{{"t16s-alice", []string{"pwd"}}, {"t16s-bob", []string{"sso"}}} {
-		ctx, cancel := context.WithCancel(context.Background())
-		cancel()
-		req := httptest.NewRequest("GET", "/api/events?token="+e.tokenQuery(t, c.user, c.amr), nil).WithContext(ctx)
-		rec := httptest.NewRecorder()
-		e.h.ServeHTTP(rec, req)
-		if rec.Code != 200 {
-			t.Errorf("%s %v = %d %s", c.user, c.amr, rec.Code, rec.Body)
+		resp, _, _ := openStream(t, e, "/api/events?token="+e.tokenQuery(t, c.user, c.amr), nil)
+		if resp.StatusCode != 200 {
+			t.Errorf("%s %v = %d", c.user, c.amr, resp.StatusCode)
 		}
 	}
 }
