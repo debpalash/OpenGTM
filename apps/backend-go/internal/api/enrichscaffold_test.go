@@ -1,0 +1,92 @@
+package api
+
+import (
+	"io"
+	"log/slog"
+	"testing"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
+)
+
+// enrichPatterns are exactly the routes Tasks 23-30 plus GET /api/signals/sources
+// (Task 17) register. Stubs register nothing until their task lands, so the
+// registered set must always be a subset of this table.
+var enrichPatterns = map[string]bool{
+	"GET /api/workbooks/{workbook_id}/run/estimate":                       true,
+	"POST /api/workbooks/{workbook_id}/stop":                              true,
+	"GET /api/workbooks/meta/provider-stats":                              true,
+	"POST /api/workbooks/{workbook_id}/run":                               true,
+	"POST /api/workbooks/{workbook_id}/rows/{row_id}/cells/{col_id}/run":  true,
+	"POST /api/workbooks/{workbook_id}/sources":                           true,
+	"POST /api/workbooks/{workbook_id}/sources/{col_id}/run":              true,
+	"PUT /api/workbooks/{workbook_id}/refresh-policy":                     true,
+	"POST /api/workbooks/{workbook_id}/refresh":                           true,
+	"POST /api/workbooks/{workbook_id}/migrate":                           true,
+	"GET /api/workbooks/{workbook_id}/ws":                                 true,
+	"POST /api/v2/workbooks/{workbook_id}/ingest-token":                   true,
+	"POST /api/v2/workbooks/{workbook_id}/rows/ingest":                    true,
+	"GET /api/signals/sources":                                            true,
+}
+
+// retainedEnrichRoutes stay on FastAPI and must never register here.
+var retainedEnrichRoutes = []string{
+	"POST /api/v2/workbooks/{workbook_id}/generate-column",
+	"GET /api/workbooks/meta/provider-accuracy",
+	"GET /api/workbooks/{workbook_id}/sources/{col_id}/preview",
+}
+
+func enrichDeps(pg, run bool) Deps {
+	return Deps{Log: slog.New(slog.NewTextHandler(io.Discard, nil)),
+		Flags: config.Flags{PGLeadStore: pg, GoRunRoutesEnabled: run}}
+}
+
+func registerEnrich(r *httpx.Router, d Deps) {
+	RegisterWorkbookRuns(r, d)
+	RegisterIngest(r, d)
+	RegisterWorkbookWS(r, d)
+}
+
+func TestEnrichRoutesNotRegisteredWithoutFlags(t *testing.T) {
+	for _, c := range []struct{ pg, run bool }{{false, false}, {true, false}, {false, true}} {
+		r := httpx.NewRouter()
+		registerEnrich(r, enrichDeps(c.pg, c.run))
+		if n := len(r.Patterns()); n != 0 {
+			t.Errorf("pg=%v run=%v: %d routes registered: %v", c.pg, c.run, n, r.Patterns())
+		}
+	}
+	if enrichDeps(true, false).runRoutesEnabled("x") || enrichDeps(false, true).runRoutesEnabled("x") {
+		t.Fatal("runRoutesEnabled needs both flags")
+	}
+	if !enrichDeps(true, true).runRoutesEnabled("x") {
+		t.Fatal("runRoutesEnabled false with both flags")
+	}
+}
+
+func TestEnrichRoutePatterns(t *testing.T) {
+	if len(enrichPatterns) != 14 {
+		t.Fatalf("pattern table has %d entries, want 14", len(enrichPatterns))
+	}
+	r := httpx.NewRouter()
+	registerEnrich(r, enrichDeps(true, true))
+	for _, p := range r.Patterns() {
+		if !enrichPatterns[p] {
+			t.Errorf("unexpected pattern %s", p)
+		}
+		for _, ret := range retainedEnrichRoutes {
+			if p == ret {
+				t.Errorf("retained route registered: %s", p)
+			}
+		}
+	}
+}
+
+func TestEnrichRegisteredViaRegisterAll(t *testing.T) {
+	r := httpx.NewRouter()
+	RegisterAll(r, enrichDeps(false, true))
+	for _, p := range r.Patterns() {
+		if enrichPatterns[p] {
+			t.Errorf("enrichment route registered without PG_LEAD_STORE: %s", p)
+		}
+	}
+}
