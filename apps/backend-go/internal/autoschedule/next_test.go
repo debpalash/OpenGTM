@@ -37,7 +37,11 @@ func loadVectors(t *testing.T) vectorFile {
 
 func parseISO(t *testing.T, s string) time.Time {
 	t.Helper()
+	// A naive anchor is UTC (compute_next_run replaces a missing tzinfo).
 	ts, err := time.Parse(time.RFC3339Nano, s)
+	if err != nil {
+		ts, err = time.Parse("2006-01-02T15:04:05.999999999", s)
+	}
 	if err != nil {
 		t.Fatalf("parse %q: %v", s, err)
 	}
