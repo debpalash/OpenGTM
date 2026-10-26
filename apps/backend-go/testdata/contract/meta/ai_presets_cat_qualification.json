@@ -1,0 +1,44 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/meta/ai-column-presets?category=qualification"
+  },
+  "response": {
+    "body": {
+      "categories": [
+        "personalization",
+        "qualification",
+        "research"
+      ],
+      "presets": [
+        {
+          "category": "qualification",
+          "column_type": "ai_formula",
+          "description": "Score how well a company matches your ICP. Number only \u2014 easy to sort/filter.",
+          "id": "icp_fit_score",
+          "name": "ICP Fit Score (0-100)",
+          "output_format": "number",
+          "prompt": "ROLE: You are a B2B sales qualification analyst.\nCONTEXT: Company: {company}. Website: {website}. City: {city}. Size: {company_size}. Description: {description}.\nTASK: Score 0-100 how well this company fits an ICP of mid-market B2B companies that would buy sales-intelligence software. Weight: firmographic fit 40, buying-signal/intent 25, technographic fit 20, trigger events 15.\nFORMAT: Output ONLY the integer score (0-100). No words, no symbols.\nFALLBACK: If there is not enough data to judge, output INSUFFICIENT_DATA."
+        },
+        {
+          "category": "qualification",
+          "column_type": "ai_formula",
+          "description": "Classify a contact's seniority from their title \u2014 one word, easy to filter.",
+          "id": "seniority_tier",
+          "name": "Contact Seniority Tier",
+          "output_format": "text",
+          "prompt": "ROLE: You classify B2B contact seniority.\nCONTEXT: Contact: {contact_person}. Title: {contact_title}. Company: {company}.\nTASK: Classify the seniority tier of this contact.\nFORMAT: Output exactly one of: C_SUITE, VP, DIRECTOR, MANAGER, IC, UNKNOWN. Nothing else.\nFALLBACK: If there is no title, output UNKNOWN."
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

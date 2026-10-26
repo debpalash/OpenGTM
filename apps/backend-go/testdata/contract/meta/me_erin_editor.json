@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/me/context"
+  },
+  "response": {
+    "body": {
+      "is_owner": false,
+      "role": "editor",
+      "user_id": "4",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

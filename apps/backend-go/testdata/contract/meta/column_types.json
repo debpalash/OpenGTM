@@ -1,0 +1,86 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/meta/column-types"
+  },
+  "response": {
+    "body": {
+      "agent": {
+        "description": "Goal-directed enrichment \u2014 agent picks tools dynamically, with a reasoning trace",
+        "editable": false,
+        "has_config": true,
+        "icon": "Bot"
+      },
+      "ai_formula": {
+        "description": "LLM-powered transformation",
+        "editable": false,
+        "has_config": true,
+        "icon": "Brain"
+      },
+      "conditional": {
+        "description": "Only runs if condition is met",
+        "editable": false,
+        "has_config": true,
+        "icon": "GitBranch"
+      },
+      "enrichment": {
+        "description": "Single provider enrichment",
+        "editable": false,
+        "has_config": true,
+        "icon": "Sparkles"
+      },
+      "formula": {
+        "description": "Compute a value from other columns with a safe expression (e.g. {Email}.split(\"@\")[1])",
+        "editable": false,
+        "has_config": true,
+        "icon": "Calculator"
+      },
+      "http": {
+        "description": "Call any HTTP API per row and extract a value via JSONPath",
+        "editable": false,
+        "has_config": true,
+        "icon": "Webhook"
+      },
+      "lead_field": {
+        "description": "Mapped to a Lead field (editable, writes back to Lead)",
+        "editable": true,
+        "has_config": false,
+        "icon": "Type"
+      },
+      "output": {
+        "description": "Push to CRM, sequencer, webhook",
+        "editable": false,
+        "has_config": true,
+        "icon": "Send"
+      },
+      "research": {
+        "description": "Web-research agent \u2014 browses to answer a question per row",
+        "editable": false,
+        "has_config": true,
+        "icon": "Globe"
+      },
+      "source": {
+        "description": "Materializes NEW rows from the source engine via an ICP query",
+        "editable": false,
+        "emits_rows": true,
+        "has_config": true,
+        "icon": "Radar"
+      },
+      "waterfall": {
+        "description": "Chain of providers with fallback",
+        "editable": false,
+        "has_config": true,
+        "icon": "Layers"
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

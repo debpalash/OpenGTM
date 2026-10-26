@@ -1,0 +1,774 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/meta/providers"
+  },
+  "response": {
+    "body": {
+      "providers": [
+        {
+          "capabilities": [
+            "email",
+            "email_confidence"
+          ],
+          "certification": null,
+          "confidence": 0.95,
+          "maturity": "beta",
+          "name": "mailscout",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "decision_makers",
+            "contact_person",
+            "contact_title"
+          ],
+          "certification": null,
+          "confidence": 0.6,
+          "maturity": "beta",
+          "name": "crosslinked",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "phone",
+            "email",
+            "address"
+          ],
+          "certification": null,
+          "confidence": 0.5,
+          "maturity": "beta",
+          "name": "facebook_pages",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "hiring_signals",
+            "open_roles"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "ats_hiring",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "hiring_signals",
+            "technologies"
+          ],
+          "certification": null,
+          "confidence": 0.7,
+          "maturity": "beta",
+          "name": "jobspy",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "hunter_io",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email",
+            "phone",
+            "contact_person",
+            "contact_title",
+            "linkedin_url",
+            "company_size"
+          ],
+          "certification": null,
+          "confidence": 0.85,
+          "maturity": "beta",
+          "name": "apollo_io",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email_verify"
+          ],
+          "certification": null,
+          "confidence": 0.9,
+          "maturity": "beta",
+          "name": "abstract_api",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email"
+          ],
+          "certification": null,
+          "confidence": 0.6,
+          "maturity": "beta",
+          "name": "ddg_email",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email",
+            "phone",
+            "description",
+            "linkedin_url",
+            "twitter_url",
+            "facebook_url"
+          ],
+          "certification": null,
+          "confidence": 0.65,
+          "maturity": "beta",
+          "name": "website_scraper",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "linkedin_url",
+            "twitter_url"
+          ],
+          "certification": null,
+          "confidence": 0.55,
+          "maturity": "beta",
+          "name": "social_finder",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "contact_person",
+            "contact_title",
+            "decision_makers",
+            "linkedin_url"
+          ],
+          "certification": null,
+          "confidence": 0.5,
+          "maturity": "beta",
+          "name": "decision_maker",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "website",
+            "phone",
+            "email",
+            "description"
+          ],
+          "certification": null,
+          "confidence": 0.5,
+          "maturity": "beta",
+          "name": "ddg_company",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "phone_verify",
+            "phone_carrier",
+            "phone_line_type"
+          ],
+          "certification": null,
+          "confidence": 0.85,
+          "maturity": "beta",
+          "name": "numverify",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "company_data",
+            "org",
+            "location",
+            "asn"
+          ],
+          "certification": null,
+          "confidence": 0.7,
+          "maturity": "beta",
+          "name": "ipinfo",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "score",
+            "score_tier"
+          ],
+          "certification": null,
+          "confidence": 0.95,
+          "maturity": "beta",
+          "name": "lead_scorer",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "technologies"
+          ],
+          "certification": null,
+          "confidence": 0.75,
+          "maturity": "beta",
+          "name": "tech_stack",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email",
+            "contact_person",
+            "contact_title"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "snovio",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email",
+            "phone",
+            "contact_person",
+            "contact_title",
+            "linkedin_url",
+            "company_size",
+            "industry_tags",
+            "description"
+          ],
+          "certification": null,
+          "confidence": 0.88,
+          "maturity": "beta",
+          "name": "people_data_labs",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email",
+            "email_verify"
+          ],
+          "certification": null,
+          "confidence": 0.82,
+          "maturity": "beta",
+          "name": "prospeo",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email",
+            "phone",
+            "description",
+            "company_size",
+            "founding_year",
+            "industry_tags",
+            "address",
+            "contact_person",
+            "contact_title",
+            "decision_makers",
+            "linkedin_url",
+            "twitter_url",
+            "facebook_url"
+          ],
+          "certification": null,
+          "confidence": 0.7,
+          "maturity": "beta",
+          "name": "deep_scraper",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "phone",
+            "address",
+            "description",
+            "industry_tags",
+            "company_size"
+          ],
+          "certification": null,
+          "confidence": 0.9,
+          "maturity": "beta",
+          "name": "google_maps",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email_verify"
+          ],
+          "certification": null,
+          "confidence": 0.92,
+          "maturity": "beta",
+          "name": "debounce",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email_verify"
+          ],
+          "certification": null,
+          "confidence": 0.85,
+          "maturity": "beta",
+          "name": "holehe",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email",
+            "contact_person"
+          ],
+          "certification": null,
+          "confidence": 0.72,
+          "maturity": "beta",
+          "name": "email_harvester",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "company_size",
+            "industry_tags",
+            "description",
+            "founding_year"
+          ],
+          "certification": null,
+          "confidence": 0.68,
+          "maturity": "beta",
+          "name": "company_intel",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "phone",
+            "address",
+            "industry_tags"
+          ],
+          "certification": null,
+          "confidence": 0.65,
+          "maturity": "beta",
+          "name": "local_business",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "company",
+            "address",
+            "phone",
+            "email",
+            "city",
+            "state",
+            "founded_year",
+            "founding_year",
+            "linkedin_url",
+            "twitter_url",
+            "facebook_url",
+            "description"
+          ],
+          "certification": null,
+          "confidence": 0.85,
+          "maturity": "beta",
+          "name": "jsonld_firmographics",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "decision_makers",
+            "contact_person",
+            "contact_title"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "staffspy",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "description",
+            "website",
+            "industry_tags",
+            "founded_year",
+            "company_size",
+            "address",
+            "linkedin_url",
+            "twitter_url",
+            "facebook_url"
+          ],
+          "certification": null,
+          "confidence": 0.6,
+          "maturity": "beta",
+          "name": "wikidata",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "address",
+            "founded_year",
+            "industry_tags",
+            "description"
+          ],
+          "certification": null,
+          "confidence": 0.85,
+          "maturity": "beta",
+          "name": "mca_registry",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "funding_amount",
+            "funding_date",
+            "funding_stage_signal",
+            "decision_makers",
+            "industry",
+            "sec_cik"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "sec_edgar",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "decision_makers",
+            "contact_person",
+            "contact_title",
+            "address",
+            "founded_year"
+          ],
+          "certification": null,
+          "confidence": 0.85,
+          "maturity": "beta",
+          "name": "companies_house",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "lei",
+            "legal_name",
+            "country",
+            "city",
+            "region",
+            "entity_status",
+            "registration_authority",
+            "jurisdiction",
+            "parent_lei",
+            "ultimate_parent_lei",
+            "ultimate_parent_name",
+            "corporate_hierarchy"
+          ],
+          "certification": null,
+          "confidence": 0.85,
+          "maturity": "beta",
+          "name": "gleif",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "company_size",
+            "description"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "leadmagic_company",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "leadmagic_email",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "mobile_phone",
+            "phone"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "leadmagic_mobile",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "mobile_phone"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "prospeo_mobile",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

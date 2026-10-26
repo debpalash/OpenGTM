@@ -1,0 +1,58 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/meta/lead-fields"
+  },
+  "response": {
+    "body": {
+      "fields": [
+        "company",
+        "website",
+        "email",
+        "phone",
+        "contact_person",
+        "contact_title",
+        "city",
+        "state",
+        "address",
+        "specialization",
+        "company_size",
+        "company_size_basis",
+        "description",
+        "linkedin_url",
+        "twitter_url",
+        "facebook_url",
+        "score",
+        "score_tier",
+        "status",
+        "source",
+        "notes",
+        "email_confidence",
+        "industry_tags",
+        "hiring_signals",
+        "decision_makers",
+        "founding_year",
+        "funding_stage",
+        "last_funding_amount",
+        "investors",
+        "recent_news",
+        "google_rating",
+        "technologies",
+        "technographics",
+        "email_verify",
+        "email_presence",
+        "secondary_emails",
+        "revenue_estimate"
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
