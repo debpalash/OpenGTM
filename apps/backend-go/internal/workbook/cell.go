@@ -15,6 +15,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/spend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
@@ -38,6 +40,7 @@ const (
 	callTimeout            // runner deadline (asyncio.TimeoutError)
 	callException          // any other failure after/around the call
 	callInvalid            // spend validation (programming) error; never "uncertain"
+	callUnknown            // the runner does not know the provider: skipped
 )
 
 // providerCall is the outcome of one provider attempt.
@@ -75,34 +78,51 @@ func (rs *runState) credFunc(ctx context.Context) func(string) (string, error) {
 	return func(env string) (string, error) { return rs.deps.Creds.Get(ctx, rs.p.WorkspaceID, env) }
 }
 
-// invoke runs the manifest under the run's provider deadline. timedOut is true
-// only when that deadline (not the manifest's own timeout, nor job
-// cancellation) expired: Python raises asyncio.TimeoutError only then.
-func (rs *runState) invoke(ctx context.Context, m manifest.Manifest, lead map[string]any) (res manifest.Result, timedOut bool) {
-	pctx, cancel := context.WithTimeout(ctx, time.Duration(rs.p.ProviderTimeout*float64(time.Second)))
-	defer cancel()
-	res = manifest.ExecuteChecked(pctx, rs.deps.Client, m, leadStrings(lead), rs.credFunc(pctx), rs.deps.URLCheck)
-	return res, ctx.Err() == nil && errors.Is(pctx.Err(), context.DeadlineExceeded)
+// runProvider runs one provider through the run's provider runner under the
+// run's provider deadline. timedOut is true only when that deadline (not the
+// manifest's own timeout, nor job cancellation) expired: Python raises
+// asyncio.TimeoutError only then. A returned error is infrastructure (job
+// cancelled, runner unavailable, unknown provider, credential lookup).
+func (rs *runState) runProvider(ctx context.Context, name string, lead map[string]any, target string) (out providers.Output, timedOut bool, err error) {
+	in := providers.Input{Lead: providerLead(lead), Field: target}
+	out, err = rs.runner.Run(ctx, rs.p.WorkspaceID, name, in, time.Duration(rs.p.ProviderTimeout*float64(time.Second)))
+	if err != nil {
+		return providers.Output{}, false, err
+	}
+	return out, out.Error == "timeout", nil
 }
 
-// precheck runs manifest.Prepare (render, credential, URL guard; no network to
-// the provider) and returns its refusal text, or "".
-func (rs *runState) precheck(ctx context.Context, m manifest.Manifest, lead map[string]any) string {
-	pctx, cancel := context.WithTimeout(ctx, time.Duration(rs.p.ProviderTimeout*float64(time.Second)))
-	defer cancel()
-	_, perr := manifest.Prepare(m, leadStrings(lead), rs.credFunc(pctx), rs.deps.URLCheck)
-	return perr
+// providerLead is the lead dict a provider sees: the hydrated row without the
+// executor's own "__" bookkeeping keys.
+func providerLead(lead map[string]any) map[string]any {
+	out := make(map[string]any, len(lead))
+	for k, v := range lead {
+		if !strings.HasPrefix(k, "__") {
+			out[k] = v
+		}
+	}
+	return out
 }
 
-// responseDict is the dict run_provider returns for a declarative provider.
-func responseDict(name string, res manifest.Result) map[string]any {
+// prechecker is implemented by runners that can refuse a call before any
+// network I/O (a missing credential, a blocked URL): such a call must never
+// create a spend attempt.
+type prechecker interface {
+	precheck(ctx context.Context, name string, lead map[string]any) string
+}
+
+// responseDict is the dict run_provider returns for a provider call.
+func responseDict(name string, out providers.Output) map[string]any {
 	fields := map[string]any{}
-	for k, v := range res.Fields {
-		fields[k] = v
+	if out.Extra != nil {
+		for _, k := range out.Extra.Keys() {
+			v, _ := out.Extra.Get(k)
+			fields[k] = v
+		}
 	}
 	return map[string]any{
-		"provider": name, "success": res.Success, "fields": fields, "confidence": res.Confidence,
-		"error": res.Error, "billing_evidence": nil, "license": "unknown",
+		"provider": name, "success": out.Error == "" && len(fields) > 0, "fields": fields, "confidence": out.Confidence,
+		"error": out.Error, "billing_evidence": nil, "license": "unknown",
 	}
 }
 
@@ -132,8 +152,8 @@ func (rs *runState) markUncertain(ctx context.Context, id spend.Identity) {
 // admission, fenced dispatch, the provider call, then settlement. Any failure
 // after dispatch leaves the attempt `uncertain`. No network I/O happens inside
 // a transaction.
-func (rs *runState) reservedCall(ctx context.Context, m manifest.Manifest, name string, lead map[string]any,
-	col column, rowIdentity string, exposure, cellLimit int64) (pcall providerCall, perr error) {
+func (rs *runState) reservedCall(ctx context.Context, name string, lead map[string]any,
+	col column, target, rowIdentity string, exposure, cellLimit int64) (pcall providerCall, perr error) {
 	ws, wb := rs.p.WorkspaceID, rs.p.WorkbookID
 	resv := rs.buildReservation(name, lead, col, rowIdentity, exposure, cellLimit)
 	var adm spend.Admission
@@ -186,16 +206,28 @@ func (rs *runState) reservedCall(ctx context.Context, m manifest.Manifest, name 
 			pcall, perr = providerCall{kind: callException, text: truncRunes(fmt.Sprintf("panic: %v", r), maxErrorRunes)}, nil
 		}
 	}()
-	res, timedOut := rs.invoke(ctx, m, lead)
+	out, timedOut, rerr := rs.runProvider(ctx, name, lead, target)
 	if ctx.Err() != nil {
 		rs.markUncertain(ctx, id)
 		return providerCall{}, context.Cause(ctx)
+	}
+	if rerr != nil {
+		// The call was dispatched: whatever the runner reports, it may have
+		// reached the vendor, so the attempt stays `uncertain`.
+		rs.markUncertain(ctx, id)
+		if errors.Is(rerr, pyworker.ErrUnknownProvider) {
+			return providerCall{kind: callUnknown}, nil
+		}
+		if errors.Is(rerr, pyworker.ErrUnavailable) || errors.Is(rerr, pyworker.ErrUnauthorized) {
+			return providerCall{}, fmt.Errorf("workbook: python worker: %w", rerr)
+		}
+		return providerCall{kind: callException, text: truncRunes(rerr.Error(), maxErrorRunes)}, nil
 	}
 	if timedOut {
 		rs.markUncertain(ctx, id)
 		return providerCall{kind: callTimeout}, nil
 	}
-	resp := responseDict(name, res)
+	resp := responseDict(name, out)
 	env, err := spend.AccountingEnvelope(name, spend.ProviderResponse(resp), exposure)
 	if err != nil {
 		rs.markUncertain(ctx, id)
@@ -251,6 +283,22 @@ func providerInputs(lead map[string]any) map[string]any {
 	return out
 }
 
+// operationInputs is the `inputs` of the spend operation contract: for a
+// declarative provider only the manifest-readable fields of the raw row, for
+// any other provider the whole hydrated row (Python _operation_contract).
+func (rs *runState) operationInputs(name string, lead map[string]any) map[string]any {
+	if _, declarative := rs.p.Manifests[name]; declarative {
+		return providerInputs(lead)
+	}
+	out := make(map[string]any, len(lead))
+	for k, v := range lead {
+		if k != contractInputsKey {
+			out[k] = v
+		}
+	}
+	return out
+}
+
 // buildReservation is the spend reservation (and therefore contract hash) for
 // one provider call. The Python executor builds the same operation contract
 // for declarative providers (enrichment.declarative_operation_contract).
@@ -261,7 +309,7 @@ func (rs *runState) buildReservation(name string, lead map[string]any, col colum
 		ColumnID: col.ID, Provider: name, AttemptKey: spend.AttemptKey(ws, wb, rs.claim.ID, rowIdentity, col.ID, name),
 		ExposureMicroUSD: exposure, CellLimitMicroUSD: cellLimit,
 		CostBasis: map[string]any{"kind": "catalog_estimate", "provider": name},
-		Operation: map[string]any{"inputs": providerInputs(lead), "column": col.cfg},
+		Operation: map[string]any{"inputs": rs.operationInputs(name, lead), "column": col.cfg},
 	}
 }
 
@@ -364,7 +412,6 @@ func (rs *runState) waterfall(ctx context.Context, lead map[string]any, col colu
 	rowIdentity := fmt.Sprintf("row:%d", rowID)
 
 	var resultValue, resultProvider, resultError string
-	var attempts []attemptRecord
 
 	// ── cost-aware ordering + budget ceiling ──
 	var budgetRemaining *float64
@@ -424,6 +471,7 @@ func (rs *runState) waterfall(ctx context.Context, lead map[string]any, col colu
 		chain = chain[:mp]
 	}
 
+	attempted := 0 // provider_attempts entries of the Python cell
 loop:
 	for _, name := range chain {
 		if err := checkOwner(ctx, rs.deps.Pool, rs.claim, wb); err != nil {
@@ -432,13 +480,11 @@ loop:
 		if ctx.Err() != nil {
 			return cellOutcome{}, context.Cause(ctx)
 		}
-		m, ok := rs.p.Manifests[name]
-		if !ok {
+		if _, declarative := rs.p.Manifests[name]; !declarative && rs.legacy {
 			rs.log.Warn("provider not found, skipping", "provider", name)
 			skipped = append(skipped, skippedProvider{name, "unknown_provider"})
 			continue
 		}
-		t0 := time.Now()
 		reserved := rs.pl.paid(name)
 		if !reserved && !rs.pl.knownCost(name) {
 			resultError = "provider_price_unknown"
@@ -453,31 +499,36 @@ loop:
 			// Money moves only for calls that will really reach the network: a
 			// missing key or a blocked URL is known before Reserve, so it never
 			// creates an attempt or a budget hold (and never ends `uncertain`).
-			if perr := rs.precheck(ctx, m, lead); perr != "" {
-				call = providerCall{kind: callOK, resp: responseDict(name, manifest.Result{Error: perr})}
-			} else if call, err = rs.reservedCall(ctx, m, name, lead, col, rowIdentity, exposure, chainExposure); err != nil {
+			if perr := rs.precheck(ctx, name, lead); perr != "" {
+				call = providerCall{kind: callOK, resp: responseDict(name, providers.Output{Error: perr})}
+			} else if call, err = rs.reservedCall(ctx, name, lead, col, target, rowIdentity, exposure, chainExposure); err != nil {
 				return cellOutcome{}, err
 			}
 		} else {
-			res, timedOut := rs.invoke(ctx, m, lead)
+			out, timedOut, rerr := rs.runProvider(ctx, name, lead, target)
 			if ctx.Err() != nil {
 				return cellOutcome{}, context.Cause(ctx)
 			}
-			if timedOut {
+			switch {
+			case errors.Is(rerr, pyworker.ErrUnknownProvider):
+				call = providerCall{kind: callUnknown}
+			case errors.Is(rerr, pyworker.ErrUnavailable), errors.Is(rerr, pyworker.ErrUnauthorized):
+				return cellOutcome{}, fmt.Errorf("workbook: python worker: %w", rerr)
+			case rerr != nil:
+				call = providerCall{kind: callException, text: truncRunes(rerr.Error(), maxErrorRunes)}
+			case timedOut:
 				call = providerCall{kind: callTimeout}
-			} else {
-				call = providerCall{kind: callOK, resp: responseDict(name, res)}
+			default:
+				call = providerCall{kind: callOK, resp: responseDict(name, out)}
 			}
 		}
-		latency := float64(time.Since(t0)) / float64(time.Millisecond)
 
 		// failed records a timeout/exception attempt; reserved calls stop the
 		// waterfall as accounting_uncertain, free ones move to the next provider.
 		stop := false
-		failed := func(errText string, timedOut bool) {
+		failed := func(errText string) {
 			resultError = errText
-			attempts = append(attempts, attemptRecord{provider: name, field: target, latencyMS: latency,
-				timedOut: timedOut, rateLimited: !timedOut && looksRateLimited(errText)})
+			attempted++
 			if reserved {
 				resultError = "accounting_uncertain"
 				stop = true
@@ -487,26 +538,24 @@ loop:
 		case callReject, callInvalid:
 			resultError = call.text
 			break loop
+		case callUnknown:
+			rs.log.Warn("provider not found, skipping", "provider", name)
+			skipped = append(skipped, skippedProvider{name, "unknown_provider"})
 		case callTimeout:
 			rs.log.Warn("provider timed out", "provider", name, "row", rowID)
-			failed("timeout", true)
+			failed("timeout")
 		case callException:
 			rs.log.Error("provider failed", "provider", name, "row", rowID, "err", call.text)
-			failed(call.text, false)
+			failed(call.text)
 		case callOK:
+			attempted++
 			success, _ := call.resp["success"].(bool)
 			fields, _ := call.resp["fields"].(map[string]any)
-			conf := asFloat(call.resp["confidence"])
-			if conf == 0 {
-				conf = m.DefaultConfidence
-			}
-			attempts = append(attempts, attemptRecord{provider: name, field: target,
-				success: success && len(fields) > 0, confidence: conf, latencyMS: latency})
 			if success && len(fields) > 0 {
 				if v, ok := fields[target]; ok && manifest.PyTruthy(v) && v != "N/A" {
 					val, perr := cellScalar(v)
 					if perr != nil {
-						failed(truncRunes(perr.Error(), maxErrorRunes), false)
+						failed(truncRunes(perr.Error(), maxErrorRunes))
 					} else {
 						resultValue, resultProvider = val, name
 					}
@@ -520,7 +569,7 @@ loop:
 			break
 		}
 	}
-	if resultValue == "" && resultError == "" && len(attempts) == 0 {
+	if resultValue == "" && resultError == "" && attempted == 0 {
 		if len(authorized) == 0 {
 			if explicit {
 				resultError = "no_providers_selected"
@@ -545,7 +594,7 @@ loop:
 			return cellOutcome{Success: true, Value: v}, nil
 		}
 	}
-	return rs.commitCell(ctx, col, rowID, leadID, resultValue, resultProvider, resultError, skipped, attempts)
+	return rs.commitCell(ctx, col, rowID, leadID, resultValue, resultProvider, resultError, skipped)
 }
 
 // completeCellValue returns the stored value of a complete overlay cell.
@@ -634,7 +683,7 @@ func canonify(v any) any {
 // transaction for the overlay row and the workbook row mirror, then the
 // separate telemetry transaction, then the result broadcast.
 func (rs *runState) commitCell(ctx context.Context, col column, rowID, leadID int64, value, provider, errText string,
-	skipped []skippedProvider, attempts []attemptRecord) (cellOutcome, error) {
+	skipped []skippedProvider) (cellOutcome, error) {
 	ws, wb := rs.p.WorkspaceID, rs.p.WorkbookID
 	hasResult := value != ""
 	w := cellWrite{WorkspaceID: ws, WorkbookID: wb, LeadID: int32(leadID), RowID: int32(rowID),
@@ -661,7 +710,6 @@ func (rs *runState) commitCell(ctx context.Context, col column, rowID, leadID in
 	if err != nil {
 		return cellOutcome{}, err
 	}
-	rs.pl.recordAttempts(ctx, rs.deps.Pool, ws, attempts, rs.log)
 
 	var bValue, bProvider any
 	status := "error"

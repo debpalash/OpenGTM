@@ -12,6 +12,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 )
 
@@ -40,8 +41,28 @@ type Deps struct {
 	Manifests ManifestSource
 	Progress  progress.Publisher // nil = no broadcasts
 	Log       *slog.Logger
+	// Runner runs every enrichment provider call (providerrun.Runner: Go
+	// providers in process, others on the Python worker). nil runs only the
+	// payload's verified declarative manifests (tests, standalone use).
+	Runner ProviderRunner
+	// Py is the Python worker RPC for ai_formula, research and agent columns
+	// and the AI batch prepass. nil hands such jobs back to Python.
+	Py PyCaller
+	// AIBatch configures the ai_formula batch prepass (off by default).
+	AIBatch BatchConfig
 	// StopCheckInterval throttles the pause/cancel probe (Python: ~2s).
 	StopCheckInterval time.Duration
+}
+
+// PyCaller is the Python worker RPC (pyworker.Client).
+type PyCaller interface {
+	Call(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error)
+}
+
+// BatchConfig controls the ai_formula batch prepass (WORKBOOK_BATCH_*).
+type BatchConfig struct {
+	Enabled bool
+	MinRows int // fewer eligible cells than this run synchronously (default 20)
 }
 
 // Result is the run summary persisted as the job's execution_result receipt.
@@ -70,6 +91,8 @@ type runState struct {
 	// allCols is the whole columns_config as a graph (dependency checks look at
 	// every column, not just the ones this run executes); cycleBlocked caches
 	// colgraph.CycleBlocked over it.
+	runner       ProviderRunner
+	legacy       bool // no Deps.Runner: only the payload's manifests exist
 	allCols      []colgraph.Col
 	cycleBlocked map[string]bool
 }

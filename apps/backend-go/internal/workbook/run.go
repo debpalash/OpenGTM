@@ -108,6 +108,10 @@ func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result,
 		interval = defaultStopCheckInterval
 	}
 	rs := &runState{deps: deps, claim: c, p: p, pl: planner{costs: p.Costs}, log: log}
+	rs.runner, rs.legacy = deps.Runner, deps.Runner == nil
+	if rs.legacy {
+		rs.runner = manifestRunner{rs}
+	}
 	rs.stop = &stopProbe{interval: interval, check: func() bool { return rs.pausedOrCancelled(ctx) }}
 
 	// ── Load config + rows ──
@@ -134,8 +138,10 @@ func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result,
 			if err := validateGoColumn(col); err != nil {
 				return Result{}, err
 			}
-			if err := checkProviders(col, p); err != nil {
-				return Result{}, err
+			if rs.legacy {
+				if err := checkProviders(col, p); err != nil {
+					return Result{}, err
+				}
 			}
 			enrichCols = append(enrichCols, col)
 		}
