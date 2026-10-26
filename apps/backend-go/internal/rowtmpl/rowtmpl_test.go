@@ -43,6 +43,7 @@ type vecCase struct {
 	LeadData  map[string]any
 	Columns   []colgraph.Col
 	Value     any
+	Input     any
 	Error     string
 	HasError  bool
 	ErrorType string
@@ -80,22 +81,13 @@ func loadCases(t *testing.T) []vecCase {
 			}
 		}
 		vc.Value = fixVal(c.Vals["value"])
+		vc.Input = c.Vals["input"]
 		if e, ok := c.Vals["error"].(string); ok {
 			vc.Error, vc.HasError = e, true
 		}
 		out = append(out, vc)
 	}
 	return out
-}
-
-// deepInputs: the vector's "value" for non-error resolve_deep cases holds the
-// RESULT (generator overwrites the input), so the inputs are listed here,
-// copied from gen_connector_vectors.py.
-var deepInputs = map[string]string{
-	"deep_str":                       `"{company}"`,
-	"deep_dict_values_only":          `{"{company}": "{company}", "n": 5, "t": true, "z": null}`,
-	"deep_list":                      `["{company}", 1, ["{email}"], {"k": "{site}"}]`,
-	"deep_non_container_passthrough": `3.5`,
 }
 
 func strMap(m map[string]any) map[string]string {
@@ -132,14 +124,7 @@ func TestRowTmplVectors(t *testing.T) {
 				got, err := Resolve(c.Template, c.LeadData, c.Columns)
 				check(t, c, got, err)
 			case "resolve_deep":
-				in := c.Value
-				if s, ok := deepInputs[c.Name]; ok {
-					var err error
-					if in, err = DecodeOrdered([]byte(s)); err != nil {
-						t.Fatal(err)
-					}
-				}
-				got, err := ResolveDeep(in, c.LeadData, c.Columns)
+				got, err := ResolveDeep(c.Input, c.LeadData, c.Columns)
 				if c.HasError {
 					if err == nil || err.Error() != c.Error {
 						t.Fatalf("err %v want %q", err, c.Error)

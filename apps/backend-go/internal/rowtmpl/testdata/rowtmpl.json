@@ -1680,7 +1680,6 @@
   {
    "name": "deep_str",
    "op": "resolve_deep",
-   "value": "Acme",
    "lead_data": {
     "company": "Acme",
     "email": "a@x.com",
@@ -1720,17 +1719,69 @@
      "name": "First Name",
      "type": "formula"
     }
-   ]
+   ],
+   "input": "{company}",
+   "value": "Acme"
   },
   {
    "name": "deep_dict_values_only",
    "op": "resolve_deep",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "input": {
+    "{company}": "{company}",
+    "n": 5,
+    "t": true,
+    "z": null
+   },
    "value": {
     "{company}": "Acme",
     "n": 5,
     "t": true,
     "z": null
-   },
+   }
+  },
+  {
+   "name": "deep_list",
+   "op": "resolve_deep",
    "lead_data": {
     "company": "Acme",
     "email": "a@x.com",
@@ -1770,11 +1821,17 @@
      "name": "First Name",
      "type": "formula"
     }
-   ]
-  },
-  {
-   "name": "deep_list",
-   "op": "resolve_deep",
+   ],
+   "input": [
+    "{company}",
+    1,
+    [
+     "{email}"
+    ],
+    {
+     "k": "{site}"
+    }
+   ],
    "value": [
     "Acme",
     1,
@@ -1784,52 +1841,11 @@
     {
      "k": "https://acme.com"
     }
-   ],
-   "lead_data": {
-    "company": "Acme",
-    "email": "a@x.com",
-    "website": "https://acme.com",
-    "score": 0,
-    "first_name": "Ada",
-    "Work Email": "STALE@x.com",
-    "extra": "kept",
-    "n": null
-   },
-   "columns": [
-    {
-     "id": "company",
-     "name": "Company",
-     "type": "lead_field",
-     "lead_field": "company"
-    },
-    {
-     "id": "email",
-     "name": "Work Email",
-     "type": "lead_field",
-     "lead_field": "email"
-    },
-    {
-     "id": "site",
-     "name": "Website",
-     "type": "lead_field",
-     "lead_field": "website"
-    },
-    {
-     "id": "score",
-     "name": "Score",
-     "type": "formula"
-    },
-    {
-     "id": "first_name",
-     "name": "First Name",
-     "type": "formula"
-    }
    ]
   },
   {
    "name": "deep_non_container_passthrough",
    "op": "resolve_deep",
-   "value": 3.5,
    "lead_data": {
     "company": "Acme",
     "email": "a@x.com",
@@ -1869,67 +1885,66 @@
      "name": "First Name",
      "type": "formula"
     }
-   ]
+   ],
+   "input": 3.5,
+   "value": 3.5
   },
   {
    "name": "deep_unknown_inside_nested_raises",
    "op": "resolve_deep",
-   "value": {
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "input": {
     "a": [
      {
       "b": "{nope}"
      }
     ]
    },
-   "lead_data": {
-    "company": "Acme",
-    "email": "a@x.com",
-    "website": "https://acme.com",
-    "score": 0,
-    "first_name": "Ada",
-    "Work Email": "STALE@x.com",
-    "extra": "kept",
-    "n": null
-   },
-   "columns": [
-    {
-     "id": "company",
-     "name": "Company",
-     "type": "lead_field",
-     "lead_field": "company"
-    },
-    {
-     "id": "email",
-     "name": "Work Email",
-     "type": "lead_field",
-     "lead_field": "email"
-    },
-    {
-     "id": "site",
-     "name": "Website",
-     "type": "lead_field",
-     "lead_field": "website"
-    },
-    {
-     "id": "score",
-     "name": "Score",
-     "type": "formula"
-    },
-    {
-     "id": "first_name",
-     "name": "First Name",
-     "type": "formula"
-    }
-   ],
    "error": "Unknown column reference: nope. Fix the template before sending.",
    "error_type": "ValueError"
   },
   {
    "name": "deep_json_braces_in_value_text",
    "op": "resolve_deep",
-   "value": {
-    "body": "{\"k\": \"{company}\"}"
-   },
    "lead_data": {
     "company": "Acme",
     "email": "a@x.com",
@@ -1970,6 +1985,9 @@
      "type": "formula"
     }
    ],
+   "input": {
+    "body": "{\"k\": \"{company}\"}"
+   },
    "error": "Unknown column reference: \"k\": \"{company. Fix the template before sending.",
    "error_type": "ValueError"
   }
