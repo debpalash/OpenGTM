@@ -575,3 +575,47 @@ func TestTenantIsolation(t *testing.T) {
 		t.Fatal("A's sends were touched")
 	}
 }
+
+func TestUpdateSameValueKeepsUpdatedAt(t *testing.T) {
+	e := setup(t)
+	seq := e.newSeq(wsA, "Same")
+	time.Sleep(5 * time.Millisecond)
+	e.in(wsA, func(tx pgx.Tx) {
+		got, err := outreachstore.UpdateSequence(e.ctx, tx, wsA, seq.ID, map[string]any{
+			"name": "Same", "daily_limit": 50, "steps": json.RawMessage(`[ ]`), "send_window_tz": "UTC"})
+		if err != nil || got == nil || *got.UpdatedAt != *seq.UpdatedAt {
+			t.Fatalf("no-op update bumped updated_at: %+v %v", got, err)
+		}
+	})
+}
+
+func TestCreateSequenceRangeChecks(t *testing.T) {
+	e := setup(t)
+	for name, mut := range map[string]func(*outreachstore.SeqInput){
+		"daily_limit":  func(i *outreachstore.SeqInput) { i.DailyLimit = 1 << 40 },
+		"window_start": func(i *outreachstore.SeqInput) { i.SendWindowStart = -(1 << 40) },
+		"window_end":   func(i *outreachstore.SeqInput) { i.SendWindowEnd = 1 << 33 },
+	} {
+		in := outreachstore.NewSeqInput(name)
+		mut(&in)
+		e.in(wsA, func(tx pgx.Tx) {
+			if _, err := outreachstore.CreateSequence(e.ctx, tx, wsA, in); err == nil {
+				t.Fatalf("%s: expected range error", name)
+			}
+		})
+	}
+}
+
+func TestDueEnrollmentsNegativeLimit(t *testing.T) {
+	e := setup(t)
+	seq := e.newSeq(wsA, "S")
+	e.enroll(wsA, seq.ID, 1, "a@example.com")
+	e.in(wsA, func(tx pgx.Tx) {
+		for _, l := range []int{-1, 0} {
+			got, err := outreachstore.DueEnrollments(e.ctx, tx, seq.ID, l)
+			if err != nil || len(got) != 0 {
+				t.Fatalf("limit %d: %v %v", l, got, err)
+			}
+		}
+	})
+}
