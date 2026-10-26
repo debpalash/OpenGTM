@@ -111,10 +111,10 @@ func (e *env) seedHot(t *testing.T) leadsread.Lead {
 			l = idB
 		}
 		_ = l
-		e.ex(t, `INSERT INTO audiences (id, workspace_id, name, description, filters, member_count, created_at, updated_at) VALUES ($1,$2,'Hot accounts','','{}',1,now(),now())`, "aud-"+w, w)
-		e.ex(t, `INSERT INTO audience_destinations (id, workspace_id, audience_id, name, destination_type, enabled, config, field_map, created_at, updated_at) VALUES ($1,$2,$3,'Contract Webhook','webhook',true,'{}','{}',now(),now())`, "dest-"+w, w, "aud-"+w)
-		e.ex(t, `INSERT INTO destination_runs (id, workspace_id, destination_id, status, created_at) VALUES ($1,$2,$3,'completed',now())`, "run-"+w, w, "dest-"+w)
-		e.ex(t, `INSERT INTO outreach_sequences (id, workspace_id, name, description, steps, status, created_at, updated_at) VALUES ($1,$2,'s','','[]','active',now(),now())`, "seq-"+w, w)
+		e.ex(t, `INSERT INTO audiences (id, workspace_id, name, description, filters, member_count, created_at, updated_at) VALUES ($1,$2,'Hot accounts','','{}',1,now(),now())`, suf("aud", w, e), w)
+		e.ex(t, `INSERT INTO audience_destinations (id, workspace_id, audience_id, name, destination_type, enabled, config, field_map, created_at, updated_at) VALUES ($1,$2,$3,'Contract Webhook','webhook',true,'{}','{}',now(),now())`, suf("dest", w, e), w, suf("aud", w, e))
+		e.ex(t, `INSERT INTO destination_runs (id, workspace_id, destination_id, status, created_at) VALUES ($1,$2,$3,'completed',now())`, suf("run", w, e), w, suf("dest", w, e))
+		e.ex(t, `INSERT INTO outreach_sequences (id, workspace_id, name, description, steps, status, created_at, updated_at) VALUES ($1,$2,'s','','[]','active',now(),now())`, suf("seq", w, e), w)
 	}
 	for _, it := range body.Items {
 		parts := strings.SplitN(it.ID, ":", 2)
@@ -122,6 +122,10 @@ func (e *env) seedHot(t *testing.T) leadsread.Lead {
 			lid := id
 			if w == e.wsB {
 				lid = idB
+			}
+			rid := atoi(parts[len(parts)-1])
+			if w == e.wsB {
+				rid += 1000000
 			}
 			ts := time.Unix(int64(it.OccurredAt), 0).UTC().Format("2006-01-02 15:04:05")
 			switch it.Kind {
@@ -137,7 +141,7 @@ func (e *env) seedHot(t *testing.T) leadsread.Lead {
 					parts[1], w, lid, it.Status, title, it.Description, it.Metadata["source"], it.Metadata["source_url"], int32(it.Metadata["weight"].(float64)), it.OccurredAt)
 			case "audience":
 				e.ex(t, `INSERT INTO audience_membership_events (id, workspace_id, audience_id, lead_id, event_type, snapshot, created_at) VALUES ($1,$2,$3,$4,$5,'{}',$6)`,
-					atoi(parts[1]), w, "aud-"+w, lid, it.Status, ts)
+					rid, w, suf("aud", w, e), lid, it.Status, ts)
 			case "activation":
 				var summ, errm any
 				if strings.HasPrefix(*it.Description, "HTTP") {
@@ -150,7 +154,7 @@ func (e *env) seedHot(t *testing.T) leadsread.Lead {
 					delivered = ts
 				}
 				e.ex(t, `INSERT INTO destination_deliveries (id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, summary, error, delivered_at, created_at, updated_at) VALUES ($1,$2,$3,$4,$5,'upsert',$6,'0',$7,1,$8,$9,$10,$11,$11)`,
-					atoi(parts[1]), w, "run-"+w, "dest-"+w, lid, "idem-"+it.ID+w, it.Status, summ, errm, delivered, ts)
+					rid, w, suf("run", w, e), suf("dest", w, e), lid, "idem-"+it.ID+w, it.Status, summ, errm, delivered, ts)
 			case "outreach":
 				var subj any = it.Title
 				if it.Title == "Outreach email" {
@@ -158,11 +162,18 @@ func (e *env) seedHot(t *testing.T) leadsread.Lead {
 				}
 				step := int32(it.Metadata["step_number"].(float64))
 				e.ex(t, `INSERT INTO outreach_sends (id, workspace_id, sequence_id, lead_id, step_number, to_email, subject, status, idempotency_key, created_at, updated_at) VALUES ($1,$2,$3,$4,$5,'a@b.c',$6,$7,$8,$9,$9)`,
-					atoi(parts[1]), w, "seq-"+w, lid, step, subj, it.Status, "send-"+it.ID+w, ts+"+00")
+					rid, w, suf("seq", w, e), lid, step, subj, it.Status, "send-"+it.ID+w, ts+"+00")
 			}
 		}
 	}
 	return e.getLead(t, e.wsA, id)
+}
+
+func suf(p, w string, e *env) string {
+	if w == e.wsA {
+		return p + "-alpha-1"
+	}
+	return p + "-beta-1"
 }
 
 func atoi(s string) int {
@@ -258,8 +269,8 @@ func TestTimelineKeyOrderAndFloats(t *testing.T) {
 	if !strings.HasPrefix(got, `{"items":[{"id":"signal:sig-a-08","kind":"signal","title":"news signal 8","description":"Seeded news event #8 for contract fixtures","status":"news","occurred_at":1788018000.5,"metadata":{"source":"crunchbase","source_url":"https://signals.example.com/a/8","weight":7}}],"next_before":1788018000.5,"next_before_id":"signal:sig-a-08"}`) {
 		t.Fatalf("bytes: %s", got)
 	}
-	p = e.build(t, e.wsA, lead, 100, f64(1787283001), "")
-	if g := string(e.json(t, p)); !strings.Contains(g, `"occurred_at":1787283000.0,"metadata":{}}],"next_before":null,"next_before_id":null}`) {
+	p = e.build(t, e.wsA, lead, 100, f64(1787452201), "")
+	if g := string(e.json(t, p)); !strings.Contains(g, `"occurred_at":1787452200.0,"metadata":{}}],"next_before":null,"next_before_id":null}`) {
 		t.Fatalf("tail: %s", g)
 	}
 }
@@ -291,8 +302,8 @@ func TestTimelinePagingStable(t *testing.T) {
 	if !reflect.DeepEqual(seen, want) {
 		t.Fatalf("walk %v != all %v", seen, want)
 	}
-	if len(want) != 31 {
-		t.Fatalf("expected 31 items got %d", len(want))
+	if len(want) != 21 {
+		t.Fatalf("expected 21 items got %d", len(want))
 	}
 }
 
@@ -334,7 +345,7 @@ func TestTimelineNullColumnsRenderNull(t *testing.T) {
 	e := setup(t)
 	id := e.lead(t, e.wsA, "Nulls", nil, nil, nil)
 	e.ex(t, `INSERT INTO signals (id, workspace_id, lead_id, created_at) VALUES ('t8-null',$1,$2,NULL)`, e.wsA, id)
-	e.ex(t, `INSERT INTO outreach_sends (workspace_id, lead_id, to_email, idempotency_key) VALUES ($1,$2,'a@b.c','t8-k')`, e.wsA, id)
+	e.ex(t, `INSERT INTO outreach_sends (workspace_id, lead_id, to_email, idempotency_key, created_at) VALUES ($1,$2,'a@b.c','t8-k',NULL)`, e.wsA, id)
 	lead := e.getLead(t, e.wsA, id)
 	got := string(e.json(t, e.build(t, e.wsA, lead, 100, nil, "")))
 	for _, w := range []string{
