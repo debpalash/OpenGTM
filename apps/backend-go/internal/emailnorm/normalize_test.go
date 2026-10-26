@@ -129,3 +129,19 @@ func TestNormalizeIdempotentOnVectors(t *testing.T) {
 		}
 	}
 }
+
+func TestNormalizeIDNAHyphenLabels(t *testing.T) {
+	// Expectations from Python: "<domain>".encode("idna").
+	cases := map[string]string{
+		"u@-é.com":    "u@xn----bga.com",
+		"u@é-.com":    "u@xn----9fa.com",
+		"u@ab--é.com": "u@xn--ab---epa.com",
+		"u@a.-é-.de":  "u@a.xn-----bja.de",
+		"u@--é.com":   "u@xn-----cja.com",
+	}
+	for in, want := range cases {
+		if got := Normalize(in); got != want {
+			t.Errorf("Normalize(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
