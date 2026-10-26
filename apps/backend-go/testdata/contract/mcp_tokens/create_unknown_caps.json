@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "capabilities": [
+        "zzz",
+        "leads:read",
+        "bad:cap",
+        "zzz"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/mcp/tokens"
+  },
+  "response": {
+    "body": {
+      "detail": "unknown capabilities: ['bad:cap', 'zzz']"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

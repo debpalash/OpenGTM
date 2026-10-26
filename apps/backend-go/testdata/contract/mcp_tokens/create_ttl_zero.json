@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": {
+      "capabilities": [
+        "outreach:send"
+      ],
+      "ttl_days": 0
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/mcp/tokens"
+  },
+  "response": {
+    "body": {
+      "capabilities": [
+        "outreach:send"
+      ],
+      "created_at": "2026-10-26T07:06:20.410558+00:00",
+      "expires_at": null,
+      "id": "0ee2e29c-6b60-4bd0-aa42-67f1d00b8152",
+      "last_used_at": null,
+      "name": "",
+      "prefix": "ycp_wLRIVy0G",
+      "revoked_at": null,
+      "token": "<redacted>",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

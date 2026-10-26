@@ -1,0 +1,42 @@
+{
+  "request": {
+    "body": {
+      "capabilities": "leads:read",
+      "ttl_days": "abc"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/mcp/tokens"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "leads:read",
+          "loc": [
+            "body",
+            "capabilities"
+          ],
+          "msg": "Input should be a valid list",
+          "type": "list_type"
+        },
+        {
+          "input": "abc",
+          "loc": [
+            "body",
+            "ttl_days"
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}
