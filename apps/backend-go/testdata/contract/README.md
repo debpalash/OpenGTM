@@ -260,3 +260,15 @@ helper vectors (`telemetry_vectors.json`) come from the real Python (`scripts/du
   runs list, Go reads it as an empty payload; a scalar payload never matches (`->>` on a scalar would raise in Postgres).
 - `selected_cell_count` / `output_attempts` / `result` follow `workbooks.py` exactly (vectors); `execution_result` is shown only
   when its `retry_count` equals the job's (`NULL` counts as 0, `1.0` and `true` equal 1).
+
+### CSV import hardening (Task 13 fix round 1)
+- JSON nesting deeper than 200 levels answers 422 `json_invalid` on every body route that uses the shared ordered decoder
+  (`decodeOrdered`); Python's `json` raises `RecursionError` near 1000 levels (500). Without a bound a `[[[[...` body kills the Go process.
+- Import decoding stops at row 50,001: the 422 `too_long` reports `actual_length` 50001 (FastAPI reports the real count). Per-element
+  errors for `rows` / `mapping` are capped at 100 each (pydantic lists all).
+- Upload budget: `/import` and `/import/preview` reserve `Content-Length` bytes (the 64 MiB cap when chunked) from a per-process
+  budget `IMPORT_MEMORY_BUDGET_MB` (default 512, range 64..65536) before reading the body, after auth and the editor gate. When it
+  stays full for 5 s the answer is `503 {"detail":"Too many imports in progress"}` with `Retry-After: 5`. A decoded import holds
+  roughly ten times its body size. The 30 s server read timeout still bounds slow uploads.
+- JSON body edge cases differ from Python's `json.loads`: a UTF-8 BOM, UTF-16/32 bodies and `NaN`/`Infinity` (accepted by Python) are 422
+  in Go; invalid UTF-8 is replaced by U+FFFD (Python: 422).

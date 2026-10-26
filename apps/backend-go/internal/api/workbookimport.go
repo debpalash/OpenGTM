@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -19,9 +20,14 @@ import (
 // contract (documented in testdata/contract/README.md).
 const maxImportBody = 64 << 20
 
+// importBudgetWait is how long a request waits for upload budget before 503.
+var importBudgetWait = 5 * time.Second
+
 type importRoutes struct {
-	d   Deps
-	svc *wbcrud.Service
+	d      Deps
+	svc    *wbcrud.Service
+	budget *byteBudget
+	wait   time.Duration
 }
 
 // RegisterWorkbookImport registers POST /{id}/import/preview and /{id}/import
@@ -30,13 +36,17 @@ func RegisterWorkbookImport(r *httpx.Router, d Deps) {
 	if d.Pool == nil || !d.workbooksEnabled("workbook import") {
 		return
 	}
-	ir := importRoutes{d: d}
+	mb := d.Flags.ImportMemoryBudgetMB
+	if mb <= 0 {
+		mb = 512
+	}
+	ir := importRoutes{d: d, budget: newByteBudget(int64(mb) << 20), wait: importBudgetWait}
 	ir.svc = &wbcrud.Service{Pool: d.Pool, Leads: wbcrud.PGLeads{}, Hook: automationhook.New(d.Flags.AutomationsEnabled, d.Log), Now: time.Now}
 	mws := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity),
 		identity.RequireRole("tables.write", "editor", "admin")}
 	const base = "/api/workbooks/{workbook_id}/import"
-	r.Handle("POST "+base+"/preview", http.HandlerFunc(ir.preview), mws...)
-	r.Handle("POST "+base, http.HandlerFunc(ir.run), mws...)
+	r.Handle("POST "+base+"/preview", http.HandlerFunc(ir.withBudget(ir.preview)), mws...)
+	r.Handle("POST "+base, http.HandlerFunc(ir.withBudget(ir.run)), mws...)
 }
 
 func (ir importRoutes) log() *slog.Logger {
@@ -44,6 +54,35 @@ func (ir importRoutes) log() *slog.Logger {
 		return ir.d.Log
 	}
 	return slog.Default()
+}
+
+// withBudget reserves upload bytes (Content-Length, or the body cap when the
+// length is unknown) before the body is read, after authentication and the role
+// gate. It answers 503 + Retry-After when the budget stays full, and releases
+// when the handler returns.
+func (ir importRoutes) withBudget(h func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.ContentLength > maxImportBody {
+			httpx.Detail(w, http.StatusRequestEntityTooLarge, "Request body too large")
+			return
+		}
+		weight := r.ContentLength
+		if weight < 0 {
+			weight = maxImportBody
+		}
+		ctx, cancel := context.WithTimeout(r.Context(), ir.wait)
+		release, ok := ir.budget.acquire(ctx, weight)
+		cancel()
+		if !ok {
+			if r.Context().Err() != nil {
+				return // the client went away while waiting
+			}
+			httpx.Detail(w, http.StatusServiceUnavailable, "Too many imports in progress", httpx.Header{Key: "Retry-After", Value: "5"})
+			return
+		}
+		defer release()
+		h(w, r)
+	}
 }
 
 // request streams and validates the body, answering 413/422 itself.

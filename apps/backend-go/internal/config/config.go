@@ -315,6 +315,10 @@ const (
 
 // Flags are the feature flags shared with the Python settings.
 type Flags struct {
+	// ImportMemoryBudgetMB is IMPORT_MEMORY_BUDGET_MB (default 512, 64..65536): upload
+	// bytes the workbook import/preview routes may hold in flight at once; a decoded
+	// import costs roughly ten times its body size.
+	ImportMemoryBudgetMB int
 	PGLeadStore                    bool // PG_LEAD_STORE (default true); Go supports only the Postgres lead store
 	AutomationsEnabled             bool // AUTOMATIONS_ENABLED
 	IntentPollerEnabled            bool // INTENT_POLLER_ENABLED
@@ -400,6 +404,9 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 		}
 	}
 	if c.Flags.PGLeadStore, err = boolVar(get, "PG_LEAD_STORE", true); err != nil {
+		return APIConfig{}, err
+	}
+	if c.Flags.ImportMemoryBudgetMB, err = intVar(get, "IMPORT_MEMORY_BUDGET_MB", 512, 64, 65536); err != nil {
 		return APIConfig{}, err
 	}
 	if c.Flags.AutomationsEnabled, err = boolVar(get, "AUTOMATIONS_ENABLED", false); err != nil {

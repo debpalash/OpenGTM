@@ -6,11 +6,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"reflect"
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
@@ -33,7 +37,7 @@ var importCaseOrder = []string{
 	"i_second_import_overwrites_last",
 }
 
-func newImportEnv(t *testing.T) rowsEnv {
+func newImportEnv(t *testing.T, budgetMB ...int) rowsEnv {
 	t.Helper()
 	if os.Getenv("TEST_DATABASE_URL") == "" {
 		t.Skip("TEST_DATABASE_URL not set")
@@ -41,7 +45,8 @@ func newImportEnv(t *testing.T) rowsEnv {
 	e := newRowsEnv(t) // owner pool, cleanup, seed helpers, the app pool (one advisory lock per test)
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(e.pool, nil))
-	RegisterWorkbookImport(r, Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Config: config.APIConfig{}, Flags: config.Flags{PGLeadStore: true}})
+	RegisterWorkbookImport(r, Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Config: config.APIConfig{}, Flags: config.Flags{PGLeadStore: true, ImportMemoryBudgetMB: append(budgetMB, 0)[0]}})
+	RegisterWorkbookRows(r, Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Config: config.APIConfig{}, Flags: config.Flags{PGLeadStore: true}})
 	e.h = r.Handler()
 	return e
 }
@@ -218,5 +223,81 @@ func TestRefusedImportDoesNotTouchWorkbook(t *testing.T) {
 	var after string
 	if err := e.owner.QueryRow(context.Background(), q).Scan(&after); err != nil || after != before {
 		t.Fatalf("workbook changed by a refused import: %q -> %q (%v)", before, after, err)
+	}
+}
+
+func (e rowsEnv) post(path string, body io.Reader, length int64, hdr map[string]string) *httptest.ResponseRecorder {
+	req := httptest.NewRequest("POST", path, body)
+	req.ContentLength = length
+	req.Header.Set("Content-Type", "application/json")
+	for k, v := range hdr {
+		req.Header.Set(k, v)
+	}
+	rec := httptest.NewRecorder()
+	e.h.ServeHTTP(rec, req)
+	return rec
+}
+
+func TestImportBudget503ThenRecovers(t *testing.T) {
+	old := importBudgetWait
+	importBudgetWait = 150 * time.Millisecond
+	t.Cleanup(func() { importBudgetWait = old })
+	e := newImportEnv(t, 64) // 64 MiB: one max upload fills it
+	e.seed(t)
+	users := e.users(t)
+	alice := users["alice"]
+	const path = "/api/workbooks/wb-alpha-1/import"
+
+	// a slow max-weight upload (chunked: unknown length) holds the whole budget
+	pr, pw := io.Pipe()
+	held := make(chan *httptest.ResponseRecorder, 1)
+	go func() { held <- e.post(path, pr, -1, alice) }()
+	time.Sleep(100 * time.Millisecond)
+
+	rec := e.post("/api/workbooks/wb-alpha-1/import/preview", strings.NewReader(`{"rows":[{"a":1}]}`), 18, alice)
+	if rec.Code != 503 || rec.Header().Get("Retry-After") != "5" || !strings.Contains(rec.Body.String(), "Too many imports in progress") {
+		t.Fatalf("status %d retry-after %q body %s", rec.Code, rec.Header().Get("Retry-After"), rec.Body.String())
+	}
+	// anonymous traffic is refused by auth before it can queue for budget
+	if rec := e.post(path, strings.NewReader(`{}`), 2, nil); rec.Code != 401 {
+		t.Errorf("anonymous: %d", rec.Code)
+	}
+	_, _ = pw.Write([]byte(`{"rows":[{"Company":"Held Co"}]}`))
+	_ = pw.Close()
+	if r := <-held; r.Code != 200 {
+		t.Fatalf("held import: %d %s", r.Code, r.Body.String())
+	}
+
+	// every outcome returns its bytes: 422, 400, 404, 413 and success, then a max-weight upload still fits
+	deep := strings.Repeat("[", 1<<20)
+	for _, c := range []struct {
+		path, body string
+		want       int
+	}{
+		{path, `{}`, 422}, {path, deep, 422}, {path, `{"rows":[{"a":""}]}`, 400},
+		{"/api/workbooks/nope/import", `{"rows":[{"a":1}]}`, 404}, {path, `{"rows":[{"Company":"After Co"}]}`, 200},
+	} {
+		if rec := e.post(c.path, strings.NewReader(c.body), int64(len(c.body)), alice); rec.Code != c.want {
+			t.Errorf("%s %.30s: %d want %d (%s)", c.path, c.body, rec.Code, c.want, rec.Body.String())
+		}
+	}
+	if rec := e.post(path, strings.NewReader(`{}`), maxImportBody+1, alice); rec.Code != 413 {
+		t.Errorf("declared oversize: %d", rec.Code)
+	}
+	if rec := e.post(path, strings.NewReader(`{"rows":[{"Company":"Last Co"}]}`), -1, alice); rec.Code != 200 {
+		t.Fatalf("budget leaked: %d %s", rec.Code, rec.Body.String())
+	}
+	_ = http.StatusOK
+}
+
+// the shared ordered decoder also guards the other body routes (add rows here)
+func TestDeepBodyOnAddRowsIs422(t *testing.T) {
+	e := newImportEnv(t)
+	e.seed(t)
+	users := e.users(t)
+	deep := `{"rows":[{"a":` + strings.Repeat("[", 1<<20)
+	rec, _ := e.do("POST", "/api/workbooks/wb-alpha-1/rows", "application/json", deep, users["alice"])
+	if rec.Code != 422 || !strings.Contains(rec.Body.String(), "json_invalid") {
+		t.Fatalf("%d %.200s", rec.Code, rec.Body.String())
 	}
 }
