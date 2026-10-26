@@ -46,3 +46,18 @@ func TestOutreachExecutorGates(t *testing.T) {
 		t.Error("non-outreach job type must error")
 	}
 }
+
+func TestSourceHealthExecutorGates(t *testing.T) {
+	mk := func(en, sh string) ExecutorSettings {
+		return ExecutorCohortFrom(func(k string) string {
+			return map[string]string{"GO_EXECUTOR_ENABLED": en, "GO_EXECUTOR_SOURCE_HEALTH": sh}[k]
+		})
+	}
+	for _, c := range []struct{ en, sh, want string }{
+		{"true", "true", "go"}, {"false", "true", "python"}, {"true", "", "python"}, {"", "", "python"},
+	} {
+		if got := mk(c.en, c.sh).SourceHealthExecutor(); got != c.want {
+			t.Errorf("enabled=%q flag=%q: got %s want %s", c.en, c.sh, got, c.want)
+		}
+	}
+}
