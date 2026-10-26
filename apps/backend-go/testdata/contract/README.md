@@ -440,6 +440,13 @@ writes nothing. No fixture; tests named in parentheses.
 - Missing or mistyped arguments answer `{"error": "<field> is required|must be ..."}`; `email` is limited to 320 characters and `company` to 500.
 - `enrich_company` goes through the Python RPC `mcp.enrich_company`; Python's own tool raised on the `(results, logs)` tuple of `WaterfallEnricher.enrich` (issue #114), the RPC provider returns `{"enriched_fields", "provider"}` instead, and with no chains registered that is an empty success (`{}` and `""`).
 
+## MCP outreach tools (plan 13 Task 13): deviations (D3, D9)
+
+- `enroll_leads`: `lead_ids` must be an array of integers, at most 1000 (`{"error": "lead_ids must contain at most 1000 ids"}`, `{"error": "lead_ids must be an array of integers"}`); `sequence_id` at most 255 characters. Python accepts anything and raises on a bad element.
+- `send_email`: `subject` at most 998 characters and must not contain CR, LF or NUL (`{"error": "subject must not contain line breaks"}`, header-injection hardening; Python accepts them, so the send adapter must still header-encode); `body_html` at most 204800 bytes; `sequence_id` and `idempotency_key` at most 255 characters; `step_number` a non-negative integer. Mistyped arguments answer `{"error": "<field> must be ..."}`.
+- `send_email` normalizes the lead email (NFKC, trim, lower, IDNA2003 domain via transitional mapping) before the send; an email containing CR/LF/NUL or empty after normalization is skipped as `no_email` without queueing. A lead with no email never reaches `QueueSend`.
+- Both tools answer `{"error": "<tool> is not available in this build"}` while the plan 08 outreach adapter is not wired (nil `OutreachPort`).
+
 ## Plan 06 Task 10 deviations (formula and http columns, `internal/colcompute`)
 
 Parity is pinned by `internal/colcompute/testdata/{formula,template,http}_vectors.json` (271 + 60 cases) and a throwaway differential run of ~16k generated expressions against the real Python module (7 mismatches, all exotic syntax-error wording). Documented deviations:

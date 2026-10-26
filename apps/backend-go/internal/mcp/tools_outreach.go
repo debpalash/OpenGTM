@@ -17,6 +17,7 @@ const (
 	maxEnrollLeadIDs   = 1000
 	maxSubjectChars    = 998
 	maxBodyHTMLBytes   = 200 * 1024
+	maxOutreachIDLen   = 255
 	enrollConsentLabel = "mcp_enroll"
 )
 
@@ -56,6 +57,22 @@ func outreachErr(tool string, err error) (string, error) {
 	return "", err
 }
 
+// idna2003 approximates Python's "idna" codec (IDNA2003): transitional mapping
+// turns the sharp s into "ss" and folds final sigma.
+var idna2003 = idna.New(idna.MapForLookup(), idna.Transitional(true))
+
+// idString reads an optional string argument capped at maxOutreachIDLen.
+func idString(a Args, key string) (string, error) {
+	s, _, err := a.String(key)
+	if err != nil {
+		return "", err
+	}
+	if utf8.RuneCountInString(s) > maxOutreachIDLen {
+		return "", errors.New(key + " must be at most 255 characters")
+	}
+	return s, nil
+}
+
 // normalizeEmail mirrors outreach.normalize.normalize_email (NFKC, trim, lower,
 // IDNA domain) and returns "" for an empty address.
 func normalizeEmail(email string) string {
@@ -71,7 +88,7 @@ func normalizeEmail(email string) string {
 	if local == "" || domain == "" {
 		return e
 	}
-	if ascii, err := idna.Lookup.ToASCII(domain); err == nil {
+	if ascii, err := idna2003.ToASCII(domain); err == nil {
 		domain = strings.ToLower(ascii)
 	}
 	return local + "@" + domain
@@ -82,7 +99,7 @@ func enrollLeads(ctx context.Context, tx pgx.Tx, d Deps, c Ctx, a Args) (string,
 	if d.Outreach == nil {
 		return unavailableJSON(tool), nil
 	}
-	seqID, _, err := a.String("sequence_id")
+	seqID, err := idString(a, "sequence_id")
 	if err != nil {
 		return errJSON(err.Error()), nil
 	}
@@ -157,7 +174,7 @@ func sendEmail(ctx context.Context, tx pgx.Tx, d Deps, c Ctx, a Args) (string, e
 	if !ok {
 		return errJSON("lead_id is required"), nil
 	}
-	seqID, _, err := a.String("sequence_id")
+	seqID, err := idString(a, "sequence_id")
 	if err != nil {
 		return errJSON(err.Error()), nil
 	}
@@ -175,6 +192,9 @@ func sendEmail(ctx context.Context, tx pgx.Tx, d Deps, c Ctx, a Args) (string, e
 	if utf8.RuneCountInString(subject) > maxSubjectChars {
 		return errJSON("subject must be at most 998 characters"), nil
 	}
+	if strings.ContainsAny(subject, "\r\n\x00") {
+		return errJSON("subject must not contain line breaks"), nil
+	}
 	body, _, err := a.String("body_html")
 	if err != nil {
 		return errJSON(err.Error()), nil
@@ -182,7 +202,7 @@ func sendEmail(ctx context.Context, tx pgx.Tx, d Deps, c Ctx, a Args) (string, e
 	if len(body) > maxBodyHTMLBytes {
 		return errJSON("body_html must be at most 204800 bytes"), nil
 	}
-	idem, _, err := a.String("idempotency_key")
+	idem, err := idString(a, "idempotency_key")
 	if err != nil {
 		return errJSON(err.Error()), nil
 	}
@@ -194,9 +214,15 @@ func sendEmail(ctx context.Context, tx pgx.Tx, d Deps, c Ctx, a Args) (string, e
 		return outreachErr(tool, err)
 	}
 	data := leadSendData(lead)
-	if e, _ := data["email"].(string); strings.TrimSpace(e) == "" {
+	e, _ := data["email"].(string)
+	if strings.ContainsAny(e, "\r\n\x00") {
+		e = ""
+	}
+	e = normalizeEmail(e)
+	if e == "" {
 		return sendPayload(SendResult{Status: "skipped", Summary: "lead has no email", SkipReason: "no_email"})
 	}
+	data["email"] = e
 	res, err := d.OutreachPort().QueueSend(ctx, tx, c.WorkspaceID, QueueSendRequest{
 		SequenceID: seqID, StepNumber: int(step), Subject: subject, BodyHTML: body,
 		LeadID: leadID, LeadData: data, IdempotencyKey: idem,
@@ -219,7 +245,9 @@ func leadSendData(l *Lead) map[string]any {
 		"contact_title": l.ContactTitle, "city": l.City, "website": l.Website, "phone": l.Phone}
 	for _, f := range sendLeadFields {
 		if f == "company" {
-			out[f] = l.Company
+			if l.Company != "" {
+				out[f] = l.Company
+			}
 		} else if v := vals[f]; v != nil {
 			out[f] = *v
 		}
