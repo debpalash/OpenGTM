@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/spend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
@@ -109,40 +110,142 @@ func TestCellRunWithoutJobReservesAndSettles(t *testing.T) {
 	}
 }
 
-// A client disconnect (request context cancel) mid paid call leaves the
-// attempt uncertain and writes no cell, like a lease loss in the queued run.
-func TestCellRunCancelOnClientDisconnect(t *testing.T) {
+// hookRunner runs before() between the cell load and the spend reservation (the runner's
+// credential precheck is the last step before Reserve).
+type hookRunner struct {
+	*fakeRunner
+	before func()
+}
+
+func (h hookRunner) Configured(ctx context.Context, ws, p string) (bool, error) {
+	if h.before != nil {
+		h.before()
+	}
+	return h.fakeRunner.Configured(ctx, ws, p)
+}
+
+// A queued run that appears after the cell was loaded (and before it reserves) still owns the
+// attempt key: the cell re-resolves the live job at reserve time.
+func TestCellRunJobAppearingBeforeReserveSharesKey(t *testing.T) {
+	e := setup(t, wsA)
+	ids := e.seed(wsA, "wb-late", paidCol, 1, 10)
+	fr := paidRunner(0)
+	d := e.deps(newSim(t, nil), nil)
+	var c *queue.Claim
+	d.Runner = hookRunner{fr, func() {
+		if c == nil {
+			c = e.claim(wsA, payloadNoManifests(wsA, "wb-late", map[string]float64{"hunter_io": 0.04}, nil))
+		}
+	}}
+	res, err := workbook.EnrichCell(e.ctx, d, workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-late", RowID: int64(ids[0]), ColumnID: "c1"})
+	if err != nil || !res.Success {
+		t.Fatalf("%+v %v", res, err)
+	}
+	want := spend.AttemptKey(wsA, "wb-late", c.ID, fmt.Sprintf("row:%d", ids[0]), "c1", "hunter_io")
+	if got := e.str(wsA, `SELECT attempt_key FROM workbook_spend_attempts`); got != want {
+		t.Fatalf("attempt key %q is not the late job's key %q", got, want)
+	}
+	if _, err := workbook.Run(e.ctx, d, c); err != nil {
+		t.Fatal(err)
+	}
+	if n := fr.callCount(); n != 1 {
+		t.Fatalf("provider called %d times", n)
+	}
+	if got := e.spentUSD(wsA, "wb-late"); got != 0.04 {
+		t.Fatalf("spent %v", got)
+	}
+}
+
+// After dispatch the run is detached from the client: a disconnect neither strands the paid
+// attempt nor loses the provider result.
+func TestCellRunDetachesAfterDispatch(t *testing.T) {
 	e := setup(t, wsA)
 	ids := e.seed(wsA, "wb-dc", paidCol, 1, 10)
-	started := make(chan struct{})
-	fr := &fakeRunner{fn: func(ctx context.Context, _ string, _ providers.Input) (providers.Output, error) {
+	started, release := make(chan struct{}), make(chan struct{})
+	fr := &fakeRunner{fn: func(context.Context, string, providers.Input) (providers.Output, error) {
 		close(started)
-		<-ctx.Done()
-		return providers.Output{}, ctx.Err()
+		<-release
+		return providers.Output{Confidence: 0.7, Extra: obj("founded_year", "1999")}, nil
 	}}
 	d := e.deps(newSim(t, nil), nil)
 	d.Runner = fr
 	ctx, cancel := context.WithCancel(e.ctx)
-	done := make(chan error, 1)
+	type out struct {
+		r   workbook.CellResult
+		err error
+	}
+	done := make(chan out, 1)
 	go func() {
-		_, err := workbook.EnrichCell(ctx, d, workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-dc", RowID: int64(ids[0]), ColumnID: "c1"})
-		done <- err
+		r, err := workbook.EnrichCell(ctx, d, workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-dc", RowID: int64(ids[0]), ColumnID: "c1"})
+		done <- out{r, err}
 	}()
 	<-started
 	cancel()
+	close(release)
 	select {
-	case err := <-done:
-		if err == nil || ctx.Err() == nil {
-			t.Fatalf("want a cancellation error, got %v", err)
+	case o := <-done:
+		if o.err != nil || !o.r.Success {
+			t.Fatalf("detached run: %+v %v", o.r, o.err)
 		}
 	case <-time.After(5 * time.Second):
-		t.Fatal("EnrichCell did not return after the context was cancelled")
+		t.Fatal("EnrichCell did not return")
 	}
-	if st := e.str(wsA, `SELECT status FROM workbook_spend_attempts`); st != "uncertain" {
-		t.Fatalf("attempt %q, want uncertain", st)
+	if st := e.str(wsA, `SELECT status FROM workbook_spend_attempts`); st != "settled" {
+		t.Fatalf("attempt %q, want settled", st)
 	}
-	if got := overlay(e, "wb-dc", "c1", "status"); got != "" {
-		t.Fatalf("a cancelled cell was written: %q", got)
+	if got := overlay(e, "wb-dc", "c1", "status"); got != "complete" {
+		t.Fatalf("cell not persisted: %q", got)
+	}
+}
+
+// A client that is gone before dispatch cancels the run: no attempt, no provider call, no write.
+func TestCellRunCancelBeforeDispatchWritesNothing(t *testing.T) {
+	e := setup(t, wsA)
+	ids := e.seed(wsA, "wb-pre", paidCol, 1, 10)
+	fr := paidRunner(0)
+	d := e.deps(newSim(t, nil), nil)
+	ctx, cancel := context.WithCancel(e.ctx)
+	d.Runner = hookRunner{fr, cancel}
+	_, err := workbook.EnrichCell(ctx, d, workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-pre", RowID: int64(ids[0]), ColumnID: "c1"})
+	if err == nil || ctx.Err() == nil {
+		t.Fatalf("want a cancellation error, got %v", err)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_spend_attempts`); n != 0 || fr.callCount() != 0 {
+		t.Fatalf("%d attempts, %d calls", n, fr.callCount())
+	}
+	if got := overlay(e, "wb-pre", "c1", "status"); got != "" {
+		t.Fatalf("written: %q", got)
+	}
+}
+
+// While a live queued run holds the attempt (dispatched), the cell reports
+// attempt_not_dispatchable without persisting an error cell the queued run would then overwrite.
+func TestCellRunNotDispatchableWithLiveJobIsNotPersisted(t *testing.T) {
+	e := setup(t, wsA)
+	ids := e.seed(wsA, "wb-nd", paidCol, 1, 10)
+	started, release := make(chan struct{}), make(chan struct{})
+	fr := &fakeRunner{fn: func(context.Context, string, providers.Input) (providers.Output, error) {
+		close(started)
+		<-release
+		return providers.Output{Confidence: 0.7, Extra: obj("founded_year", "1999")}, nil
+	}}
+	d := e.deps(newSim(t, nil), nil)
+	d.Runner = fr
+	c := e.claim(wsA, payloadNoManifests(wsA, "wb-nd", map[string]float64{"hunter_io": 0.04}, nil))
+	runDone := make(chan struct{})
+	go func() { defer close(runDone); _, _ = workbook.Run(e.ctx, d, c) }()
+	<-started
+	res, err := workbook.EnrichCell(e.ctx, d, workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-nd", RowID: int64(ids[0]), ColumnID: "c1"})
+	if err != nil || res.Success || res.Error == nil || *res.Error != "attempt_not_dispatchable" {
+		t.Fatalf("%+v %v", res, err)
+	}
+	if got := overlay(e, "wb-nd", "c1", "status"); got == "error" {
+		t.Fatal("the cell run persisted attempt_not_dispatchable")
+	}
+	close(release)
+	<-runDone
+	if got := overlay(e, "wb-nd", "c1", "status"); got != "complete" {
+		t.Fatalf("queued run result lost: %q", got)
 	}
 }
 

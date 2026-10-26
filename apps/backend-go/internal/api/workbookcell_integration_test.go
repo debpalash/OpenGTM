@@ -26,6 +26,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
@@ -41,6 +42,8 @@ type cellEnv struct {
 	pyLastBody atomic.Value // string
 	pyLastAuth atomic.Value // string
 	runner     *cellFakeRunner
+	pyURL      string       // PYTHON_API_URL override (empty = the stand-in)
+	pyLastXFF  atomic.Value // string
 }
 
 type cellFakeRunner struct {
@@ -66,16 +69,19 @@ func (f *cellFakeRunner) Run(ctx context.Context, _, _ string, _ providers.Input
 	return providers.Output{Confidence: 0.7, Extra: o}, nil
 }
 
-func newCellEnv(t *testing.T) *cellEnv {
+func newCellEnv(t *testing.T) *cellEnv { return newCellEnvURL(t, "") }
+
+func newCellEnvURL(t *testing.T, pyURL string) *cellEnv {
 	t.Helper()
 	pool := testpg.NewAppPool(t, 8)
 	st := identity.NewStore(pool)
 	ce := &cellEnv{pyStatus: 200, pyBody: `{"status":"complete","value":"pushed","provider":"webhook","error":null,"skipped":false,"forced":true,"research":null}`,
-		runner: &cellFakeRunner{}}
+		runner: &cellFakeRunner{}, pyURL: pyURL}
 	ce.python = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ce.pyHits.Add(1)
 		b, _ := io.ReadAll(r.Body)
 		ce.pyLastBody.Store(string(b))
+		ce.pyLastXFF.Store(r.Header.Get("X-Forwarded-For") + "|" + r.Header.Get("X-Real-Ip"))
 		ce.pyLastAuth.Store(r.Header.Get("Authorization") + "|" + r.Header.Get("X-Workspace-Id") + "|" + r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("X-From-Python", "yes")
@@ -94,6 +100,9 @@ func newCellEnv(t *testing.T) *cellEnv {
 		Limiter: ratelimit.New(nil),
 		Getenv: func(k string) string {
 			if k == "PYTHON_API_URL" {
+				if ce.pyURL != "" {
+					return ce.pyURL
+				}
 				return ce.python.URL
 			}
 			return ""
@@ -375,8 +384,8 @@ func TestCellRunRejectsBadBodies(t *testing.T) {
 	}
 }
 
-// The request context (client disconnect) cancels a running paid provider call; nothing is
-// written and the attempt stays uncertain.
+// After the paid call is dispatched a client disconnect does not cancel the run: the cell is
+// persisted and the attempt settles; only the answer (499) is dropped.
 func TestCellRunCancelOnClientDisconnect(t *testing.T) {
 	e := newCellEnv(t)
 	e.runner.block = make(chan struct{})
@@ -403,10 +412,14 @@ func TestCellRunCancelOnClientDisconnect(t *testing.T) {
 		time.Sleep(10 * time.Millisecond)
 	}
 	cancel()
+	close(e.runner.block)
 	select {
 	case <-done:
 	case <-time.After(5 * time.Second):
-		t.Fatal("handler did not return after the client went away")
+		t.Fatal("handler did not return")
+	}
+	if rec.Code != 499 {
+		t.Fatalf("status %d, want 499", rec.Code)
 	}
 	c, err := pgx.Connect(context.Background(), os.Getenv("TEST_DATABASE_URL"))
 	if err != nil {
@@ -414,13 +427,74 @@ func TestCellRunCancelOnClientDisconnect(t *testing.T) {
 	}
 	defer c.Close(context.Background())
 	var st string
-	if err := c.QueryRow(context.Background(), `SELECT status FROM workbook_spend_attempts WHERE workbook_id='wb-paid'`).Scan(&st); err != nil || st != "uncertain" {
+	if err := c.QueryRow(context.Background(), `SELECT status FROM workbook_spend_attempts WHERE workbook_id='wb-paid'`).Scan(&st); err != nil || st != "settled" {
 		t.Fatalf("attempt %q %v", st, err)
 	}
-	if got := e.overlayStatus(t, "wb-paid", 2001, "c1"); got != "" {
-		t.Fatalf("cancelled cell written: %q", got)
+	if got := e.overlayStatus(t, "wb-paid", 2001, "c1"); got != "complete" {
+		t.Fatalf("cell not persisted: %q", got)
 	}
-	if rec.Code == 200 && strings.Contains(rec.Body.String(), `"complete"`) {
-		t.Fatalf("a cancelled run answered success: %s", rec.Body.String())
+}
+
+// The proxy never relays a truncated body and never forwards client-supplied forwarding headers.
+func TestCellRunProxyHardening(t *testing.T) {
+	e := newCellEnv(t)
+	path := "/api/workbooks/wb-enrich-1/rows/101/cells/out_hook/run"
+	hdr := bearer("alice")
+	hdr["X-Workspace-Id"] = "ws-alpha"
+	hdr["X-Forwarded-For"] = "6.6.6.6"
+	hdr["X-Real-Ip"] = "7.7.7.7"
+	rec, _ := e.do("POST", path, "application/json", `{}`, hdr)
+	if rec.Code != 200 {
+		t.Fatalf("%d %s", rec.Code, rec.Body.String())
+	}
+	if x, _ := e.pyLastXFF.Load().(string); strings.Contains(x, "6.6.6.6") || strings.Contains(x, "7.7.7.7") {
+		t.Fatalf("client forwarding headers reached python: %q", x)
+	}
+	e.pyBody = `{"x":"` + strings.Repeat("a", 8<<20) + `"}`
+	rec, _ = e.do("POST", path, "application/json", `{}`, hdr)
+	if rec.Code != 502 {
+		t.Fatalf("oversized python reply: %d (%d bytes)", rec.Code, rec.Body.Len())
+	}
+}
+
+// PYTHON_API_URL is checked once at registration: anything but an http(s) URL with a host is
+// treated as unset.
+func TestCellRunRejectsBadPythonURL(t *testing.T) {
+	for _, bad := range []string{"ftp://example.com", "http://", "example.com:8000", "file:///etc"} {
+		t.Run(bad, func(t *testing.T) {
+			e := newCellEnvURL(t, bad)
+			rec, _ := e.post("alice", "ws-alpha", "/api/workbooks/wb-enrich-1/rows/101/cells/out_hook/run", `{}`)
+			if rec.Code != 502 || !strings.Contains(rec.Body.String(), "not configured") || e.pyHits.Load() != 0 {
+				t.Fatalf("%q: %d %s", bad, rec.Code, rec.Body.String())
+			}
+		})
+	}
+}
+
+// The API-side runner resolves provider credentials per workspace through the settings
+// resolver (so a keyed provider is configured), and without a secrets envelope fails closed.
+func TestCellRunnerResolvesWorkspaceCredentials(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	envl, err := secrets.NewEnvelope(secrets.Config{MasterKey: "cell-run-test-key", AppEnv: "test"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	getenv := func(k string) string {
+		if k == "HUNTER_API_KEY" {
+			return "k-from-env"
+		}
+		return ""
+	}
+	with := newCellRunner(Deps{Pool: pool, Envelope: envl, Getenv: getenv, Log: quietLog()}).(interface {
+		Configured(context.Context, string, string) (bool, error)
+	})
+	if ok, err := with.Configured(context.Background(), "ws-alpha", "hunter_io"); err != nil || !ok {
+		t.Fatalf("keyed provider with a resolvable key: %v %v", ok, err)
+	}
+	without := newCellRunner(Deps{Pool: pool, Getenv: getenv, Log: quietLog()}).(interface {
+		Configured(context.Context, string, string) (bool, error)
+	})
+	if ok, _ := without.Configured(context.Background(), "ws-alpha", "hunter_io"); ok {
+		t.Fatal("no envelope must not resolve credentials")
 	}
 }
