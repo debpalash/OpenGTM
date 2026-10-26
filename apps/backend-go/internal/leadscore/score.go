@@ -157,7 +157,9 @@ func ApplyReliability(score int, r *float64) int {
 	if r == nil {
 		return score
 	}
-	adjusted := math.RoundToEven(float64(score) + ReliabilitySwing*(*r-0.5))
+	// The explicit float64 conversion stops the compiler fusing this into an FMA on arm64,
+	// which would round differently from Python at exact .5 ties.
+	adjusted := math.RoundToEven(float64(score) + float64(ReliabilitySwing*(*r-0.5)))
 	if adjusted < 0 {
 		return 0
 	}
