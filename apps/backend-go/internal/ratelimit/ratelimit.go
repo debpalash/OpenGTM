@@ -2,6 +2,7 @@
 package ratelimit
 
 import (
+	"container/heap"
 	"context"
 	"fmt"
 	"net/http"
@@ -48,8 +49,30 @@ func (l *Limiter) key(r *http.Request) string {
 }
 
 type window struct {
+	key     string
 	count   int
 	expires time.Time
+	idx     int // position in expiryHeap
+}
+
+// expiryHeap orders windows by expiry so eviction never scans the map: the sweep pops expired
+// windows from the top and a full map drops the top (the window closest to expiry), each O(log n).
+type expiryHeap []*window
+
+func (h expiryHeap) Len() int           { return len(h) }
+func (h expiryHeap) Less(i, j int) bool { return h[i].expires.Before(h[j].expires) }
+func (h expiryHeap) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+	h[i].idx, h[j].idx = i, j
+}
+func (h *expiryHeap) Push(x any) { w := x.(*window); w.idx = len(*h); *h = append(*h, w) }
+func (h *expiryHeap) Pop() any {
+	old := *h
+	n := len(old)
+	w := old[n-1]
+	old[n-1] = nil
+	*h = old[:n-1]
+	return w
 }
 
 // Limiter holds fixed-window counters. Like limits' memory storage, a window
@@ -58,9 +81,18 @@ type Limiter struct {
 	now  func() time.Time
 	mu   sync.Mutex
 	hits map[string]*window
+	exp  expiryHeap
+	max  int // key cap (maxKeys unless a test lowers it)
 	seq  int
 	// trusted are the proxy networks whose X-Real-IP is believed (TRUST_PROXY_CIDRS, default: loopback and private ranges).
 	trusted []netip.Prefix
+}
+
+// SetMaxKeys lowers or raises the number of live windows kept (default 100k). Call before use.
+func (l *Limiter) SetMaxKeys(n int) {
+	l.mu.Lock()
+	l.max = n
+	l.mu.Unlock()
 }
 
 // SetTrustedProxies replaces the trusted proxy networks (see ParseTrustedProxies).
@@ -70,7 +102,7 @@ func New(now func() time.Time) *Limiter {
 	if now == nil {
 		now = time.Now
 	}
-	return &Limiter{now: now, hits: map[string]*window{}, trusted: ParseTrustedProxies(os.Getenv("TRUST_PROXY_CIDRS"), nil)}
+	return &Limiter{now: now, hits: map[string]*window{}, max: maxKeys, trusted: ParseTrustedProxies(os.Getenv("TRUST_PROXY_CIDRS"), nil)}
 }
 
 var units = map[string]struct {
@@ -124,35 +156,31 @@ func (l *Limiter) hit(key string, limit int, period time.Duration) bool {
 	now := l.now()
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	l.sweep(now)
 	win := l.hits[key]
-	if win == nil || !now.Before(win.expires) {
-		if win == nil && len(l.hits) >= maxKeys {
-			l.makeRoom(now)
+	if win == nil {
+		if len(l.hits) >= l.max {
+			l.evictOne()
 		}
-		win = &window{expires: now.Add(period)}
+		win = &window{key: key, expires: now.Add(period)}
 		l.hits[key] = win
+		heap.Push(&l.exp, win)
 	}
 	win.count++
 	return win.count <= limit
 }
 
-// makeRoom sweeps expired windows; if the map is still full it drops the
-// window closest to expiry so memory stays bounded.
-func (l *Limiter) makeRoom(now time.Time) {
-	for k, w := range l.hits {
-		if !now.Before(w.expires) {
-			delete(l.hits, k)
-		}
+// sweep drops the windows that have expired. Each window is popped once, so the cost is amortised
+// over the inserts that created them and nothing ever scans the whole map.
+func (l *Limiter) sweep(now time.Time) {
+	for len(l.exp) > 0 && !now.Before(l.exp[0].expires) {
+		delete(l.hits, heap.Pop(&l.exp).(*window).key)
 	}
-	if len(l.hits) < maxKeys {
-		return
+}
+
+// evictOne drops the window closest to expiry so memory stays bounded.
+func (l *Limiter) evictOne() {
+	if len(l.exp) > 0 {
+		delete(l.hits, heap.Pop(&l.exp).(*window).key)
 	}
-	var oldK string
-	var oldT time.Time
-	for k, w := range l.hits {
-		if oldK == "" || w.expires.Before(oldT) {
-			oldK, oldT = k, w.expires
-		}
-	}
-	delete(l.hits, oldK)
 }

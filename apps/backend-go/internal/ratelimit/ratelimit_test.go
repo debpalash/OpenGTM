@@ -174,3 +174,46 @@ func TestBoundedSize(t *testing.T) {
 		t.Fatal(n)
 	}
 }
+
+// Plan 10 final security M2: a flood of new keys at the cap costs O(log n) per request, never a
+// scan of the map, and the map and the heap stay in step and bounded.
+func TestFullMapEvictionIsNotAScan(t *testing.T) {
+	now := time.Unix(1_000_000, 0)
+	l := New(func() time.Time { return now })
+	l.max = 50_000
+	for i := 0; i < l.max; i++ {
+		l.hit("fill"+time.Duration(i).String(), 5, time.Minute)
+	}
+	start := time.Now()
+	for i := 0; i < 200_000; i++ {
+		l.hit("new"+time.Duration(i).String(), 5, time.Minute)
+	}
+	// 200k inserts at a full 50k map: a per-insert full scan would take minutes, the heap well under a second.
+	if d := time.Since(start); d > 5*time.Second {
+		t.Fatalf("200k new keys at the cap took %s", d)
+	}
+	if len(l.hits) > l.max || len(l.exp) != len(l.hits) {
+		t.Fatalf("hits %d heap %d max %d", len(l.hits), len(l.exp), l.max)
+	}
+	now = now.Add(2 * time.Minute) // everything has expired; the next hit sweeps it all
+	l.hit("after", 5, time.Minute)
+	if len(l.hits) != 1 || len(l.exp) != 1 {
+		t.Fatalf("after expiry: hits %d heap %d", len(l.hits), len(l.exp))
+	}
+}
+
+// A window that expires starts fresh at the next hit for its key.
+func TestExpiredWindowRestarts(t *testing.T) {
+	now := time.Unix(1_000_000, 0)
+	l := New(func() time.Time { return now })
+	for i := 0; i < 3; i++ {
+		l.hit("k", 2, time.Minute)
+	}
+	if l.hit("k", 2, time.Minute) {
+		t.Fatal("over budget must stay blocked")
+	}
+	now = now.Add(time.Minute)
+	if !l.hit("k", 2, time.Minute) {
+		t.Fatal("a new window must allow the next hit")
+	}
+}
