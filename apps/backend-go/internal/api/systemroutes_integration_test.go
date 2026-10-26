@@ -53,13 +53,10 @@ func TestHardenedRequiresAuthAndAdmin(t *testing.T) {
 		}
 	}
 	user := bearer("sysuser")
-	for _, rt := range routes[1:] { // stats needs auth only; files routes need a global admin
+	for _, rt := range routes { // every route (stats included, hardened) needs a global admin
 		if c := call(rt[0], rt[1], user); c != http.StatusForbidden {
 			t.Errorf("non-admin %v = %d, want 403", rt, c)
 		}
-	}
-	if c := call("GET", "/api/system/stats", user); c != http.StatusOK {
-		t.Errorf("non-admin stats = %d, want 200 (auth only)", c)
 	}
 	if _, err := os.Stat(filepath.Join(data, "f.txt")); err != nil {
 		t.Fatalf("non-admin delete removed the file: %v", err)

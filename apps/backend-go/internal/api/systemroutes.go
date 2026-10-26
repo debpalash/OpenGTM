@@ -5,8 +5,9 @@ import (
 	"log/slog"
 	"mime"
 	"net/http"
-	"os"
 	"path/filepath"
+	"sync"
+	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -28,18 +29,30 @@ func RegisterSystem(r *httpx.Router, d Deps) {
 		return
 	}
 	authn := identity.Authenticate(d.Signer, d.Identity)
-	s.mount(r, []httpx.Middleware{authn}, []httpx.Middleware{authn, identity.RequireGlobalAdmin()})
+	admin := []httpx.Middleware{authn, identity.RequireGlobalAdmin()}
+	s.mount(r, admin, admin)
 }
 
 type sysRoutes struct {
 	fs     *sysfiles.FS
 	legacy bool
 	dbURL  string
-	root   string // project root walked for project_size (parent of the data dir, like ROOT_DIR)
+	root   string // directory walked for project_size: the parent of the data dir (legacy) or the data dir (hardened)
 	log    *slog.Logger
+
+	mu       sync.Mutex // hardened stats cache
+	cached   sysfiles.Stat
+	cachedAt time.Time
 }
 
-func newSysRoutes(d Deps) sysRoutes {
+// Hardened stats bounds (deviation D1): walk limited to DATA_DIR, capped, cached.
+const (
+	statsMaxEntries = 100_000
+	statsMaxTime    = 5 * time.Second
+	statsCacheTTL   = 30 * time.Second
+)
+
+func newSysRoutes(d Deps) *sysRoutes {
 	log := d.Log
 	if log == nil {
 		log = slog.Default()
@@ -53,13 +66,14 @@ func newSysRoutes(d Deps) sysRoutes {
 		abs = filepath.Clean(dir)
 	}
 	legacy := d.Flags.FilesAPIMode == config.FilesAPIModeLegacy
-	return sysRoutes{
-		fs: sysfiles.New(abs, legacy), legacy: legacy, dbURL: d.Config.DatabaseURL,
-		root: filepath.Dir(abs), log: log,
+	s := &sysRoutes{fs: sysfiles.New(abs, legacy), legacy: legacy, dbURL: d.Config.DatabaseURL, root: abs, log: log}
+	if legacy {
+		s.root = filepath.Dir(abs) // Python ROOT_DIR
 	}
+	return s
 }
 
-func (s sysRoutes) mount(r *httpx.Router, statsMW, fileMW []httpx.Middleware) {
+func (s *sysRoutes) mount(r *httpx.Router, statsMW, fileMW []httpx.Middleware) {
 	r.Handle("GET /api/system/stats", http.HandlerFunc(s.stats), statsMW...)
 	r.Handle("GET /api/files/list", http.HandlerFunc(s.list), fileMW...)
 	r.Handle("GET /api/files/download/{file_path...}", http.HandlerFunc(s.download), fileMW...)
@@ -68,7 +82,7 @@ func (s sysRoutes) mount(r *httpx.Router, statsMW, fileMW []httpx.Middleware) {
 
 // fail answers an unexpected error: Python's str(e) in legacy mode, a generic message
 // otherwise (the real error goes to the server log only).
-func (s sysRoutes) fail(w http.ResponseWriter, what string, err error) {
+func (s *sysRoutes) fail(w http.ResponseWriter, what string, err error) {
 	s.log.Error("system files: "+what+" failed", "err", err)
 	if s.legacy {
 		httpx.Detail(w, http.StatusInternalServerError, err.Error())
@@ -77,8 +91,26 @@ func (s sysRoutes) fail(w http.ResponseWriter, what string, err error) {
 	httpx.Detail(w, http.StatusInternalServerError, "Internal error")
 }
 
-func (s sysRoutes) stats(w http.ResponseWriter, r *http.Request) {
-	st, err := sysfiles.Stats(r.Context(), "/", s.root, s.dbURL)
+func (s *sysRoutes) stats(w http.ResponseWriter, r *http.Request) {
+	var st sysfiles.Stat
+	var err error
+	if s.legacy {
+		st, err = sysfiles.Stats(r.Context(), "/", s.root, s.dbURL)
+	} else {
+		s.mu.Lock()
+		defer s.mu.Unlock() // serialises walks: concurrent callers share one result
+		if time.Since(s.cachedAt) < statsCacheTTL && !s.cachedAt.IsZero() {
+			httpx.WriteJSON(w, http.StatusOK, s.cached)
+			return
+		}
+		st, err = sysfiles.Stats(r.Context(), "/", s.root, s.dbURL, sysfiles.StatsLimits{MaxEntries: statsMaxEntries, MaxTime: statsMaxTime})
+		if err == nil {
+			s.cached, s.cachedAt = st, time.Now()
+		}
+	}
+	if r.Context().Err() != nil {
+		return // client went away: nothing to log or answer
+	}
 	if err != nil {
 		s.fail(w, "stats", err)
 		return
@@ -86,8 +118,12 @@ func (s sysRoutes) stats(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, st)
 }
 
-func (s sysRoutes) list(w http.ResponseWriter, r *http.Request) {
-	l, err := s.fs.List(r.URL.Query().Get("path"))
+func (s *sysRoutes) list(w http.ResponseWriter, r *http.Request) {
+	l, truncated, err := s.fs.ListTruncated(r.URL.Query().Get("path"))
+	if truncated {
+		// Hardened listings are capped (sysfiles.DefaultListLimit); the body stays a bare array.
+		w.Header().Set("X-Files-Truncated", "true")
+	}
 	switch {
 	case errors.Is(err, sysfiles.ErrAccessDenied):
 		httpx.Detail(w, http.StatusForbidden, "Invalid path: Access denied")
@@ -98,8 +134,8 @@ func (s sysRoutes) list(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s sysRoutes) download(w http.ResponseWriter, r *http.Request) {
-	p, st, err := s.fs.Open(r.PathValue("file_path"))
+func (s *sysRoutes) download(w http.ResponseWriter, r *http.Request) {
+	f, st, err := s.fs.OpenFile(r.PathValue("file_path"))
 	switch {
 	case errors.Is(err, sysfiles.ErrAccessDenied):
 		httpx.Detail(w, http.StatusForbidden, "Access denied")
@@ -111,12 +147,8 @@ func (s sysRoutes) download(w http.ResponseWriter, r *http.Request) {
 		s.fail(w, "download", err)
 		return
 	}
-	f, err := os.Open(p)
-	if err != nil {
-		s.fail(w, "download", err)
-		return
-	}
 	defer f.Close()
+	p := f.Name()
 	ctype := mime.TypeByExtension(filepath.Ext(p))
 	if ctype == "" {
 		ctype = "text/plain" // Starlette FileResponse default
@@ -132,7 +164,7 @@ func (s sysRoutes) download(w http.ResponseWriter, r *http.Request) {
 	http.ServeContent(w, r, "", st.ModTime(), f)
 }
 
-func (s sysRoutes) remove(w http.ResponseWriter, r *http.Request) {
+func (s *sysRoutes) remove(w http.ResponseWriter, r *http.Request) {
 	err := s.fs.Delete(r.PathValue("file_path"))
 	switch {
 	case err == nil:

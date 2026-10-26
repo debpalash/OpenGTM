@@ -68,3 +68,21 @@ Review `git diff` of the fixtures after re-recording: a changed fixture is a cha
   parity): applying a chain that closes a dependency cycle succeeds in both. `GET /api/functions` ties on
   `usage_count` are ordered `created_at, id` in Go (FastAPI leaves them in heap order). Covered by
   `TestApplyDoesNotValidateCycles`; fixtures under `functions/`.
+
+## Files / system routes (Task 18): hardened-mode deviations
+
+`FILES_API_MODE=hardened` (default) deviates from FastAPI deliberately; `FILES_API_MODE=legacy` keeps exact parity
+(fixtures `system/*`, recorded with FastAPI, are asserted in legacy mode only).
+- All four routes require a token; `/api/system/stats`, `list`, `download`, `delete` all require a global admin.
+- Paths: no absolute paths, no `..` segment, symlinks resolved and contained (`filepath.Rel`), dangling symlinks refused,
+  downloads opened with `O_NOFOLLOW` plus an `/proc/self/fd` containment re-check, delete re-verifies the parent.
+- `DELETE` never recurses: non-empty directory -> 400 `Directory is not empty`; the data dir itself -> 400
+  `Cannot delete the data directory`; missing target -> 404 `File not found or could not be deleted` (FastAPI answers 500
+  `404: File not found or could not be deleted`, an artefact of its blanket `except`).
+- Unexpected failures -> 500 `Internal error` (FastAPI returns `str(e)`).
+- `GET /api/files/list` is capped at 5000 entries (newest per group kept); when cut, response header
+  `X-Files-Truncated: true` is set (body stays a bare array). Legacy is unbounded.
+- `GET /api/system/stats`: `project_size` walks `DATA_DIR` only (FastAPI walks its parent, `/` for `/data`), capped at
+  100,000 entries / 5 s; when capped the body gains `project_size_partial: true` (key absent otherwise). Result cached 30 s.
+  A client-cancelled request is not logged.
+- Listing order keeps the Python quirk: files before folders, each group by `modified` descending.

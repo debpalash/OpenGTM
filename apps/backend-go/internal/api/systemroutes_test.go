@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"log/slog"
@@ -110,33 +111,112 @@ func TestDownloadStreamsFileWithFilename(t *testing.T) {
 }
 
 func TestNoInternalErrorTextLeaks(t *testing.T) {
-	if os.Geteuid() == 0 {
-		t.Skip("permission errors need a non-root user")
-	}
 	data := legacyTree(t)
-	secretDir := filepath.Join(data, "locked")
-	if err := os.Mkdir(secretDir, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(secretDir, "f.txt"), []byte("x"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Chmod(filepath.Join(secretDir, "f.txt"), 0); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Chmod(secretDir, 0); err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { os.Chmod(secretDir, 0o755) })
 	h := sysHandlerNoAuth(t, data)
-	for _, c := range [][2]string{{"GET", "/api/files/list?path=locked"}, {"GET", "/api/files/download/locked/f.txt"}, {"DELETE", "/api/files/delete/locked/f.txt"}} {
+	check := func(c [2]string) {
+		t.Helper()
 		rec, _ := sysDo(h, c[0], c[1])
 		if rec.Code != 500 || strings.TrimSpace(rec.Body.String()) != `{"detail":"Internal error"}` {
 			t.Errorf("%v: %d %s", c, rec.Code, rec.Body.String())
 		}
-		if strings.Contains(rec.Body.String(), data) || strings.Contains(strings.ToLower(rec.Body.String()), "permission") {
+		lc := strings.ToLower(rec.Body.String())
+		if strings.Contains(rec.Body.String(), data) || strings.Contains(lc, "permission") || strings.Contains(lc, "not a directory") || strings.Contains(lc, "errno") {
 			t.Errorf("%v leaks error text: %s", c, rec.Body.String())
 		}
+	}
+	// Root-safe failure injection: listing a regular file is ENOTDIR (500 in both modes).
+	check([2]string{"GET", "/api/files/list?path=alpha.txt"})
+	// Permission failures only exist for non-root users; run them whenever they can occur and say so otherwise.
+	if os.Geteuid() == 0 {
+		t.Log("running as root: permission-denied cases not applicable; ENOTDIR case above covers the leak assertions")
+		return
+	}
+	locked := filepath.Join(data, "locked")
+	if err := os.Mkdir(locked, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(locked, "f.txt"), []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(locked, 0); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { os.Chmod(locked, 0o755) })
+	for _, c := range [][2]string{{"GET", "/api/files/list?path=locked"}, {"GET", "/api/files/download/locked/f.txt"}, {"DELETE", "/api/files/delete/locked/f.txt"}} {
+		check(c)
+	}
+}
+
+type recHandler struct{ n *int }
+
+func (h recHandler) Enabled(context.Context, slog.Level) bool  { return true }
+func (h recHandler) Handle(context.Context, slog.Record) error { *h.n++; return nil }
+func (h recHandler) WithAttrs([]slog.Attr) slog.Handler        { return h }
+func (h recHandler) WithGroup(string) slog.Handler             { return h }
+
+func TestStatsCancelledRequestIsSilent(t *testing.T) {
+	n := 0
+	d := hardenedDeps(legacyTree(t))
+	d.Log = slog.New(recHandler{&n})
+	s := newSysRoutes(d)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	rec := httptest.NewRecorder()
+	s.stats(rec, httptest.NewRequest("GET", "/api/system/stats", nil).WithContext(ctx))
+	if n != 0 || rec.Body.Len() != 0 {
+		t.Errorf("cancelled stats logged %d records / wrote %q", n, rec.Body.String())
+	}
+}
+
+func TestHardenedStatsBoundedAndCached(t *testing.T) {
+	data := legacyTree(t)
+	outside := filepath.Join(filepath.Dir(data), "big-sibling.bin")
+	if err := os.WriteFile(outside, make([]byte, 5000), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	s := newSysRoutes(hardenedDeps(data))
+	get := func() map[string]any {
+		rec := httptest.NewRecorder()
+		s.stats(rec, httptest.NewRequest("GET", "/api/system/stats", nil))
+		var m map[string]any
+		if rec.Code != 200 || json.Unmarshal(rec.Body.Bytes(), &m) != nil {
+			t.Fatalf("stats: %d %s", rec.Code, rec.Body.String())
+		}
+		return m
+	}
+	first := get()
+	if sz := first["project_size"].(float64); sz < 30 || sz > 200 {
+		t.Errorf("project_size %v includes files outside DATA_DIR", sz)
+	}
+	if _, ok := first["project_size_partial"]; ok {
+		t.Errorf("small tree flagged partial")
+	}
+	if err := os.WriteFile(filepath.Join(data, "grow.bin"), make([]byte, 7000), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if again := get(); again["project_size"] != first["project_size"] {
+		t.Errorf("second call within TTL was not served from cache")
+	}
+	s.cachedAt = time.Now().Add(-time.Hour)
+	if fresh := get(); fresh["project_size"].(float64) < first["project_size"].(float64)+7000 {
+		t.Errorf("expired cache not refreshed: %v", fresh["project_size"])
+	}
+}
+
+func TestHardenedListTruncationHeader(t *testing.T) {
+	data := legacyTree(t)
+	r := httpx.NewRouter()
+	s := newSysRoutes(hardenedDeps(data))
+	s.fs = s.fs.WithListLimit(2)
+	s.mount(r, nil, nil)
+	rec, _ := sysDo(r.Handler(), "GET", "/api/files/list")
+	var l []map[string]any
+	if rec.Header().Get("X-Files-Truncated") != "true" || json.Unmarshal(rec.Body.Bytes(), &l) != nil || len(l) != 2 {
+		t.Errorf("truncation: header=%q body=%s", rec.Header().Get("X-Files-Truncated"), rec.Body.String())
+	}
+	rec, _ = sysDo(r.Handler(), "GET", "/api/files/list?path=sub")
+	if rec.Header().Get("X-Files-Truncated") != "" {
+		t.Errorf("small listing flagged truncated")
 	}
 }
 
