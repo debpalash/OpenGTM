@@ -22,8 +22,9 @@ timeouts, buffering off). `scripts/nginx-routing-check.sh` asserts this plus 0% 
 
 1. Plan 01 cutover is complete (`SQLITE_STORES_BACKEND=postgres`): Python reads `app_settings` and
    `workspace_settings` from PostgreSQL. See `sqlite-to-postgres.md`.
-2. Plan 02 is deployed: the Go API (`api-go`) runs behind nginx with `go-split.conf` / `go-routes.conf`
-   (`api-cutover.md`), at least at 0%.
+2. Plan 02 is deployed: `api-go`, `go-split.conf` and `go-routes.conf` are in place behind nginx
+   (`api-cutover.md`) with the `go` line commented out (0%). The Go build deployed for plan 02 is **not**
+   settings-capable: do not route settings or billing to it; the plan-03 build is deployed in step 3 below.
 3. `SECRETS_MASTER_KEY` (or `SECRET_KEY` when unset) is identical on `api`, the Python worker and `api-go`.
    Do not change it from step 1 until the canary is finished (see "Master key freeze").
 4. Stripe SDK: Go uses `github.com/stripe/stripe-go/v87` **v87.0.0** (exact pin in `go.mod`, imported only
@@ -44,16 +45,22 @@ Go writes provider keys, enrichment keys and secret integration fields into `app
    ```
    It is idempotent, never logs values and never re-encrypts an already-prefixed value. Confirm the
    counts: the real run's "encrypted" equals the dry run's "would encrypt", and a second dry run reports 0.
-3. Only now deploy Go (`api-go`) with `CREDENTIALS_SOURCE=http` (the worker keeps fetching credentials
+   The update is conditional on the value read; if `changed_concurrently` is non-zero, a row was written
+   during the run: re-run the script until it reports 0.
+3. Only now deploy the **plan-03 Go build** (`api-go`, replacing the plan-02 build) with `CREDENTIALS_SOURCE=http` (the worker keeps fetching credentials
    through the API).
-4. Canary the settings routes: raise the split percentage (`1%` -> `10%` -> `50%` -> `100%`), reloading
-   nginx each time. Watch `X-Upstream`, 4xx/5xx rates and `audit_log`. Verify in the UI that provider keys
+4. Canary the settings routes: edit the single `go` line in `infra/nginx/go-split.conf`, uncommenting it
+   and ramping `5%` -> `25%` -> `100%`, then `nginx -t && nginx -s reload` each time. Watch `X-Upstream`, 4xx/5xx rates and `audit_log`. Verify in the UI that provider keys
    still show as configured and masked, and that a key saved via Go works through Python (`POST
    /api/settings/providers/{id}/test`).
 5. Flip `CREDENTIALS_SOURCE=local` on **one** worker, check a run, then roll it to the rest.
 
 ## Stripe
 
+- `STRIPE_WEBHOOK_SECRET` is **required on both Python and Go** before enabling billing. Python now also
+  fails closed (`503 Stripe is not configured`) on a blank secret; this is a production fix needed on
+  `main` too (this branch does not touch `main`). Go also caps the credited amount at the paid
+  `amount_total` for USD sessions.
 - Set `STRIPE_WEBHOOK_SECRET` (and `STRIPE_SECRET_KEY`, `BILLING_ENABLED=true`) on `api-go` **before**
   routing webhooks to Go. With an empty webhook secret or no secret key, Go **fails closed** and answers
   `503 Stripe is not configured` (it never accepts unsigned events); with `BILLING_ENABLED` unset it answers
@@ -77,7 +84,8 @@ re-encrypts the `app_settings` rows.
 
 ## Rollback
 
-1. Set the split percentage to `0` and `nginx -s reload`. Python serves everything again.
+1. Comment out the `go` line in `infra/nginx/go-split.conf` (nginx rejects a literal `0%`) and
+   `nginx -t && nginx -s reload`. Python serves everything again.
 2. Set `CREDENTIALS_SOURCE=http` on the workers.
 3. No data rollback: secrets written by Go decrypt in Python (`decrypt_value`), and Python still reads any
    remaining plaintext.
@@ -89,6 +97,8 @@ re-encrypts the `app_settings` rows.
 ## Verification
 
 - `scripts/nginx-routing-check.sh` (0% and 100%).
+- Go refuses to start when the settings registry or the secrets provider config is invalid
+  (for example an unsupported `SECRETS_PROVIDER`): a crash-looping `api-go` means fix the config, not 404s.
 - `cd apps/backend-go && make vet test` and `make test-integration` (settings/billing/integrations fixtures
   replayed in `internal/api/settings_contract_integration_test.go`).
 - Fixtures under `apps/backend-go/testdata/contract/{settings,integrations,billing}` are recorded from
