@@ -27,6 +27,13 @@ type domainIntelRoute struct {
 	client *http.Client
 }
 
+// domainIntelMaxInFlight bounds concurrent analyses process-wide: the limiter is per workspace and workspaces are
+// self-service, so many tenants together must not fan out an unbounded number of upstream requests (each analysis
+// is up to ~15 requests to DoH, RDAP and crt.sh, and those hosts rate-limit by server IP).
+const domainIntelMaxInFlight = 8
+
+var domainIntelSlots = make(chan struct{}, domainIntelMaxInFlight)
+
 // registerDomainIntel mounts POST /api/leads/domain-intel (routers/leads.py domain_intelligence): require_editor
 // (tables.write; owner, admin, editor). The request value is only ever a query term of the three fixed upstreams
 // (cloudflare DoH, rdap.org, crt.sh) behind the egress guard (no private ranges, no proxies, redirects checked by
@@ -98,6 +105,13 @@ func (h *domainIntelRoute) http() *http.Client {
 // try block) and FastAPI answers 500, so Go answers the same bare 500 (no upstream text) instead of a partial
 // result.
 func (h *domainIntelRoute) analyze(w http.ResponseWriter, r *http.Request) {
+	select {
+	case domainIntelSlots <- struct{}{}:
+		defer func() { <-domainIntelSlots }()
+	default:
+		httpx.Detail(w, http.StatusServiceUnavailable, "Too many domain analyses in progress; retry shortly")
+		return
+	}
 	domain, _ := r.Context().Value(domainIntelCtxKey{}).(string)
 	res, err := domainintel.Analyze(r.Context(), h.http(), domain)
 	if err != nil {

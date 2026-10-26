@@ -242,3 +242,41 @@ func TestDomainIntelRateLimited(t *testing.T) {
 		t.Errorf("validation after limit: %d", rec.Code)
 	}
 }
+
+// A process-wide cap bounds concurrent analyses (each fans out to three upstreams) however many workspaces
+// ask: over the cap the route answers 503 without any upstream work.
+func TestDomainIntelProcessWideCap503(t *testing.T) {
+	defer func(c chan struct{}) { domainIntelSlots = c }(domainIntelSlots)
+	domainIntelSlots = make(chan struct{}, 2)
+	block := make(chan struct{})
+	in := make(chan struct{}, 8)
+	tr := &intelTransport{handlers: map[string]func(*http.Request) (*http.Response, error){
+		"crt.sh": func(r *http.Request) (*http.Response, error) {
+			in <- struct{}{}
+			<-block
+			return intelReply(200, `[]`)(r)
+		}}}
+	e := newIntelEnv(t, tr)
+	var wg sync.WaitGroup
+	for i := 0; i < 2; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			e.post("alice", "", "/api/leads/domain-intel", `{"domain": "example.com"}`)
+		}()
+	}
+	<-in
+	<-in
+	rec := e.post("alice", "", "/api/leads/domain-intel", `{"domain": "example.com"}`)
+	if rec.Code != 503 {
+		t.Errorf("over the cap: %d %s", rec.Code, rec.Body)
+	}
+	close(block)
+	wg.Wait()
+	if rec := e.post("alice", "", "/api/leads/domain-intel", `{"domain": "example.com"}`); rec.Code != 200 {
+		t.Errorf("slots must be released: %d %s", rec.Code, rec.Body)
+	}
+	if len(domainIntelSlots) != 0 {
+		t.Errorf("slot leaked: %d", len(domainIntelSlots))
+	}
+}

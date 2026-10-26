@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
@@ -32,6 +33,39 @@ const (
 )
 
 var techStackSlots = make(chan struct{}, techStackMaxInFlight)
+
+// techStackWorkspaceMax is one workspace's share of those slots, so a tenant pointing the route at a slow host
+// cannot make every other tenant's fetch answer 503. A var so tests can lift it.
+var (
+	techStackWorkspaceMax = 4
+	techStackMu           sync.Mutex
+	techStackByWS         = map[string]int{}
+)
+
+// acquireTechStack takes a per-workspace share, then a process-wide slot; the returned func releases both.
+func acquireTechStack(workspaceID string) (release func(), ok bool) {
+	techStackMu.Lock()
+	if techStackByWS[workspaceID] >= techStackWorkspaceMax {
+		techStackMu.Unlock()
+		return nil, false
+	}
+	techStackByWS[workspaceID]++
+	techStackMu.Unlock()
+	releaseWS := func() {
+		techStackMu.Lock()
+		if techStackByWS[workspaceID]--; techStackByWS[workspaceID] <= 0 {
+			delete(techStackByWS, workspaceID)
+		}
+		techStackMu.Unlock()
+	}
+	select {
+	case techStackSlots <- struct{}{}:
+		return func() { <-techStackSlots; releaseWS() }, true
+	default:
+		releaseWS()
+		return nil, false
+	}
+}
 
 // resolver reads settings and credentials through the secrets envelope; nil without an envelope or pool.
 func (h *leadUtils) resolver() *secrets.Resolver {
@@ -189,13 +223,13 @@ func (h *leadUtils) techStack(w http.ResponseWriter, r *http.Request, raw string
 			settings[k] = v
 		}
 	}
-	select {
-	case techStackSlots <- struct{}{}:
-		defer func() { <-techStackSlots }()
-	default:
+	wsCtx, _ := identity.WorkspaceFrom(r.Context())
+	release, ok := acquireTechStack(wsCtx.WorkspaceID)
+	if !ok {
 		httpx.Detail(w, http.StatusServiceUnavailable, "Too many website fetches in progress; retry shortly")
 		return
 	}
+	defer release()
 	timeout := techStackTimeout
 	if leadUtilsTechTimeout > 0 {
 		timeout = leadUtilsTechTimeout

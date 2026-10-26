@@ -514,6 +514,8 @@ func TestTechStackSuccessShape(t *testing.T) {
 }
 
 func TestTechStackConcurrencyCap503(t *testing.T) {
+	defer func(n int) { techStackWorkspaceMax = n }(techStackWorkspaceMax)
+	techStackWorkspaceMax = techStackMaxInFlight // the per-workspace share is not under test here
 	block := make(chan struct{})
 	in := make(chan struct{}, techStackMaxInFlight+1)
 	useFakeTech(t, fakeTech{block: block, in: in, out: providers.Output{Error: "No technologies detected"}})
@@ -537,6 +539,43 @@ func TestTechStackConcurrencyCap503(t *testing.T) {
 	wg.Wait()
 	if rec := e.post("alice", "", "/api/leads/tech-stack", `{"domain":"a.com"}`); rec.Code != 200 {
 		t.Errorf("slots must be released: %d %s", rec.Code, rec.Body.String())
+	}
+}
+
+// One tenant cannot hold every slot: a workspace gets techStackWorkspaceMax in flight, then 503, while
+// another workspace is still served.
+func TestTechStackPerWorkspaceShare(t *testing.T) {
+	block := make(chan struct{})
+	in := make(chan struct{}, 16)
+	useFakeTech(t, fakeTech{block: block, in: in, out: providers.Output{Error: "No technologies detected"}})
+	e := newUtilsEnv(t, func(d *Deps) { d.Limiter = nil })
+	var wg sync.WaitGroup
+	for i := 0; i < techStackWorkspaceMax; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			e.post("alice", "ws-alpha", "/api/leads/tech-stack", `{"domain":"a.com"}`)
+		}()
+	}
+	for i := 0; i < techStackWorkspaceMax; i++ {
+		<-in
+	}
+	if rec := e.post("alice", "ws-alpha", "/api/leads/tech-stack", `{"domain":"a.com"}`); rec.Code != 503 {
+		t.Errorf("own share exhausted: %d %s", rec.Code, rec.Body.String())
+	}
+	done := make(chan int, 1)
+	go func() { done <- e.post("bob", "ws-beta", "/api/leads/tech-stack", `{"domain":"b.com"}`).Code }()
+	<-in // the other workspace's call entered the provider
+	close(block)
+	wg.Wait()
+	if code := <-done; code != 200 {
+		t.Errorf("other workspace: %d", code)
+	}
+	techStackMu.Lock()
+	left := len(techStackByWS)
+	techStackMu.Unlock()
+	if left != 0 || len(techStackSlots) != 0 {
+		t.Errorf("leaked shares %d / slots %d", left, len(techStackSlots))
 	}
 }
 
