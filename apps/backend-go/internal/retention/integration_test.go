@@ -537,3 +537,84 @@ func TestSchedulePolicyCancelDoesNotTouchOtherWorkspaceWithWildcards(t *testing.
 		t.Fatalf("other workspace's job is %s", st)
 	}
 }
+
+func (e *env) schedule(ctx context.Context, txWS string, polWS string, enabled bool, now time.Time) error {
+	return tenancy.InWorkspace(ctx, e.pool, txWS, func(tx pgx.Tx) error {
+		p, err := UpsertPolicy(ctx, tx, txWS, enabled, false, map[string]int{}, 1)
+		if err != nil {
+			return err
+		}
+		p.WorkspaceID = polWS
+		_, err = SchedulePolicy(ctx, tx, &p, now, nil)
+		return err
+	})
+}
+
+func (e *env) pending(t *testing.T, ws string) int {
+	t.Helper()
+	var n int
+	if err := e.owner.QueryRow(context.Background(),
+		`SELECT count(*) FROM jobs WHERE type='retention_enforce' AND status='pending' AND payload->>'workspace_id'=$1`, ws).Scan(&n); err != nil {
+		t.Fatal(err)
+	}
+	return n
+}
+
+func TestSchedulePolicyCancelIsTenantSafeWithColonIDs(t *testing.T) {
+	e := setup(t)
+	ctx := context.Background()
+	a, ab := e.prefix+"a", e.prefix+"a:b"
+	now := time.Date(2026, 6, 15, 12, 0, 0, 0, time.UTC)
+	for _, ws := range []string{a, ab} {
+		if err := e.schedule(ctx, ws, ws, true, now); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if e.pending(t, a) != 1 || e.pending(t, ab) != 1 {
+		t.Fatalf("setup: a=%d ab=%d", e.pending(t, a), e.pending(t, ab))
+	}
+	// Disabling "a" cancels only a's job.
+	if err := e.schedule(ctx, a, a, false, now); err != nil {
+		t.Fatal(err)
+	}
+	if e.pending(t, a) != 0 {
+		t.Fatalf("a still has %d pending", e.pending(t, a))
+	}
+	if e.pending(t, ab) != 1 {
+		t.Fatalf("a:b lost its pending job (%d)", e.pending(t, ab))
+	}
+}
+
+func TestSchedulePolicyConcurrentDedupe(t *testing.T) {
+	e := setup(t)
+	ctx := context.Background()
+	ws := e.prefix + "wsConc"
+	now := time.Date(2026, 6, 15, 12, 0, 0, 0, time.UTC)
+	errs := make(chan error, 16)
+	for i := 0; i < 16; i++ {
+		go func() { errs <- e.schedule(ctx, ws, ws, true, now) }()
+	}
+	for i := 0; i < 16; i++ {
+		if err := <-errs; err != nil {
+			t.Fatal(err)
+		}
+	}
+	if n := e.pending(t, ws); n != 1 {
+		t.Fatalf("%d pending jobs, want 1", n)
+	}
+}
+
+func TestSchedulePolicyRejectsForeignWorkspace(t *testing.T) {
+	e := setup(t)
+	ctx := context.Background()
+	now := time.Date(2026, 6, 15, 12, 0, 0, 0, time.UTC)
+	err := e.schedule(ctx, e.prefix+"wsA", e.prefix+"wsB", true, now)
+	if err == nil {
+		t.Fatal("expected tenant mismatch error")
+	}
+	var n int
+	_ = e.owner.QueryRow(ctx, `SELECT count(*) FROM retention_schedules WHERE workspace_id=$1`, e.prefix+"wsB").Scan(&n)
+	if n != 0 {
+		t.Fatalf("foreign mirror written")
+	}
+}
