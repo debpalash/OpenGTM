@@ -80,6 +80,27 @@ func (q *Queries) InsertRefreshJobAt(ctx context.Context, arg InsertRefreshJobAt
 	return id, err
 }
 
+const otherActiveRefreshJob = `-- name: OtherActiveRefreshJob :one
+SELECT id FROM jobs
+WHERE type = 'refresh_workbook' AND status IN ('pending', 'processing')
+  AND payload->>'workbook_id' = $1::text
+  AND id <> $2::int4
+LIMIT 1
+`
+
+type OtherActiveRefreshJobParams struct {
+	WorkbookID string
+	SelfID     int32
+}
+
+// Another pending/processing refresh_workbook for the workbook (not this job).
+func (q *Queries) OtherActiveRefreshJob(ctx context.Context, arg OtherActiveRefreshJobParams) (int32, error) {
+	row := q.db.QueryRow(ctx, otherActiveRefreshJob, arg.WorkbookID, arg.SelfID)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
 const refreshPageBounds = `-- name: RefreshPageBounds :one
 SELECT COALESCE(max(id), 0)::int4 AS hi, count(*)::int8 AS n
 FROM (

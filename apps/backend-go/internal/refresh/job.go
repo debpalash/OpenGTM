@@ -317,9 +317,19 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 		// 3) Chain the next refresh once per (workbook, job).
 		minutes, ok := IntervalMinutes(policy)
 		if pyTruthy(policy["enabled"]) && schedulable(minutes, ok) {
-			key := fmt.Sprintf("refresh_workbook:%s:after:%d", p.WorkbookID, c.ID)
-			if _, err := enqueueNext(ctx, tx, p.WorkbookID, ws, d.executor(), key, minutes, now); err != nil {
-				return err
+			// Deviation: Python chains unconditionally, so every extra refresh
+			// job (signal-triggered, retried) starts a permanent extra chain.
+			// Go chains only when no other refresh is pending or running.
+			_, err := gen.New(tx).OtherActiveRefreshJob(ctx, gen.OtherActiveRefreshJobParams{
+				WorkbookID: p.WorkbookID, SelfID: int32(c.ID),
+			})
+			if errors.Is(err, pgx.ErrNoRows) {
+				key := fmt.Sprintf("refresh_workbook:%s:after:%d", p.WorkbookID, c.ID)
+				if _, err := enqueueNext(ctx, tx, p.WorkbookID, ws, d.executor(), key, minutes, now); err != nil {
+					return err
+				}
+			} else if err != nil {
+				return fmt.Errorf("refresh: active chain: %w", err)
 			}
 		}
 		return nil

@@ -63,3 +63,11 @@ VALUES (sqlc.arg(executor)::text, 'refresh_workbook', sqlc.arg(payload)::json,
         (now() AT TIME ZONE 'UTC'), sqlc.arg(next_run_at)::timestamp, 3, 0)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id;
+
+-- name: OtherActiveRefreshJob :one
+-- Another pending/processing refresh_workbook for the workbook (not this job).
+SELECT id FROM jobs
+WHERE type = 'refresh_workbook' AND status IN ('pending', 'processing')
+  AND payload->>'workbook_id' = sqlc.arg(workbook_id)::text
+  AND id <> sqlc.arg(self_id)::int4
+LIMIT 1;
