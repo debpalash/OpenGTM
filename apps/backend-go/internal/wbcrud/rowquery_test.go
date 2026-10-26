@@ -185,14 +185,14 @@ func TestSearchEscapesLikeWildcards(t *testing.T) {
 		{`{"name":"axb"}`, `{"score":{"value":"hotXlead","status":"complete"}}`},
 	})
 	for search, want := range map[string][]int64{
-		"%":         {ids[0]},
-		"0% r":      {ids[0]},
-		"_":         {ids[2]},
-		"HOT_lead":  {ids[2]},
-		"  A_B  ":   {ids[2]},
-		"hotxlead":  {ids[3]},
-		"nomatch":   nil,
-		"":          {ids[0], ids[1], ids[2], ids[3]},
+		"%":        {ids[0]},
+		"0% r":     {ids[0]},
+		"_":        {ids[2]},
+		"HOT_lead": {ids[2]},
+		"  A_B  ":  {ids[2]},
+		"hotxlead": {ids[3]},
+		"nomatch":  nil,
+		"":         {ids[0], ids[1], ids[2], ids[3]},
 	} {
 		q, g := wbcrud.BuildRowQuery(e.wbq(), nil, search)
 		if g != nil {

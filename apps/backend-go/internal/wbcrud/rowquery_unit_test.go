@@ -44,12 +44,12 @@ func TestAfterRejectsBadCursorValues(t *testing.T) {
 	view := &QueryView{ID: "v", Config: ViewConfig{Sort: []ViewSort{{Column: "name", Dir: "asc"}}}}
 	q, _ := BuildRowQuery(QueryWorkbook{ID: "w", Columns: qcols()}, view, "")
 	for _, vals := range [][]any{
-		{int64(1), int64(1), int64(1)},       // sort term must be text
-		{"a", "x", int64(1)},                 // position must be integral
-		{"a", int64(1), nil},                 // id required
-		{"a", int64(1)},                      // wrong count
-		{"a\x00b", int64(1), int64(1)},       // NUL cannot reach postgres
-		{"a", int64(1), int64(1) << 40},      // id out of int4 range
+		{int64(1), int64(1), int64(1)},  // sort term must be text
+		{"a", "x", int64(1)},            // position must be integral
+		{"a", int64(1), nil},            // id required
+		{"a", int64(1)},                 // wrong count
+		{"a\x00b", int64(1), int64(1)},  // NUL cannot reach postgres
+		{"a", int64(1), int64(1) << 40}, // id out of int4 range
 	} {
 		if _, g := q.After(vals); g == nil || g.Status != 400 || g.Detail != "Invalid workbook row cursor" {
 			t.Fatalf("After(%v) = %v", vals, g)
