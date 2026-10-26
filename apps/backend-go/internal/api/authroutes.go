@@ -57,6 +57,15 @@ func formField(r *http.Request, name string) (string, bool) {
 	return v, v != "" // FastAPI treats an empty required form value as missing
 }
 
+// dummyVerify is a seam so tests can observe the constant-time equalizer.
+var dummyVerify = auth.DummyVerify
+
+// noStore marks credential-bearing responses as uncacheable (RFC 6749 5.1).
+func noStore(w http.ResponseWriter) {
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Pragma", "no-cache")
+}
+
 func (a authRoutes) token(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, maxAuthBody)
 	_ = r.ParseMultipartForm(maxAuthBody) // also parses urlencoded; other content types leave PostForm empty
@@ -82,13 +91,19 @@ func (a authRoutes) token(w http.ResponseWriter, r *http.Request) {
 	}
 	u, hash, err := a.d.Identity.PasswordHashByUsername(r.Context(), username)
 	if errors.Is(err, identity.ErrNotFound) {
-		auth.DummyVerify()
+		dummyVerify()
 		bad()
 		return
 	}
 	if err != nil {
 		a.log().Error("auth: user lookup failed")
 		httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+	if hash == "" {
+		// SSO-only / no local password: spend the same time as a real verify.
+		dummyVerify()
+		bad()
 		return
 	}
 	if !auth.VerifyPassword(password, hash) {
@@ -104,6 +119,7 @@ func (a authRoutes) token(w http.ResponseWriter, r *http.Request) {
 		httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
+	noStore(w)
 	httpx.WriteJSON(w, http.StatusOK, resp)
 }
 
@@ -155,6 +171,7 @@ func (a authRoutes) refresh(w http.ResponseWriter, r *http.Request) {
 		amr = []string{"pwd"}
 	}
 	if resp, ok := a.mint(w, claims.Sub, amr); ok {
+		noStore(w)
 		httpx.WriteJSON(w, http.StatusOK, resp)
 	}
 }
