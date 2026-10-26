@@ -1,0 +1,151 @@
+{
+ "normalize": [
+  {
+   "target": "sec_cik: 12 ",
+   "normalized": "0000000012",
+   "stable_no_cik": "0000000012"
+  },
+  {
+   "target": "sec_cik:1_0",
+   "normalized": "0000000010",
+   "stable_no_cik": "0000000010"
+  },
+  {
+   "target": "sec_cik:+5",
+   "normalized": "0000000005",
+   "stable_no_cik": "0000000005"
+  },
+  {
+   "target": "sec_cik:-5",
+   "normalized": "-000000005",
+   "stable_no_cik": "-000000005"
+  },
+  {
+   "target": "sec_cik:abc",
+   "normalized": "sec_cik:abc",
+   "stable_no_cik": "sec_cik:abc"
+  },
+  {
+   "target": "SEC_CIK:",
+   "normalized": "sec_cik:",
+   "stable_no_cik": "sec_cik:"
+  },
+  {
+   "target": "http://WWW.Foo.com/",
+   "normalized": "foo.com",
+   "stable_no_cik": "foo.com"
+  },
+  {
+   "target": "https://www.www.x.com//",
+   "normalized": "www.x.com",
+   "stable_no_cik": "www.x.com"
+  },
+  {
+   "target": "Ünïcode Corp",
+   "normalized": "n code",
+   "stable_no_cik": "n code"
+  },
+  {
+   "target": "The Group Holdings",
+   "normalized": "",
+   "stable_no_cik": ""
+  },
+  {
+   "target": "a.b-c_d",
+   "normalized": "a b c d",
+   "stable_no_cik": "a b c d"
+  },
+  {
+   "target": "\tTab Co\n",
+   "normalized": "tab",
+   "stable_no_cik": "tab"
+  },
+  {
+   "target": "HTTP://x",
+   "normalized": "x",
+   "stable_no_cik": "x"
+  }
+ ],
+ "role": [
+  {
+   "title": "Chief of Staff",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "VP, Sales",
+   "tier": "vp",
+   "is_exec": true
+  },
+  {
+   "title": "Vice-President",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "direCTOr",
+   "tier": "director",
+   "is_exec": true
+  },
+  {
+   "title": "Head Of Growth",
+   "tier": "vp",
+   "is_exec": true
+  },
+  {
+   "title": "Senior Vice President of x",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "CTO/Co-founder",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "board member",
+   "tier": "director",
+   "is_exec": true
+  },
+  {
+   "title": "ünchief",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "chief_x",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "Co-CEO",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "president",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "Managing Director",
+   "tier": "director",
+   "is_exec": true
+  },
+  {
+   "title": "founder",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "vp",
+   "tier": "vp",
+   "is_exec": true
+  },
+  {
+   "title": "VP",
+   "tier": "vp",
+   "is_exec": true
+  }
+ ]
+}
