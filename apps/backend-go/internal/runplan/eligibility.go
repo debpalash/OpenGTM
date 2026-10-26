@@ -210,6 +210,9 @@ func Eligible(cols []colgraph.Col, idx map[string]manifest.Entry, cfg Config) (b
 		for _, name := range chain {
 			e, ok := idx[name]
 			if !ok {
+				if cfg.NativeProviders {
+					continue // providerrun runs it in process or through the Python worker
+				}
 				return false, ReasonNonDeclarative
 			}
 			m := e.Manifest

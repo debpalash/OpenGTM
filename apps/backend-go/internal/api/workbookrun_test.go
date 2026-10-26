@@ -80,3 +80,17 @@ func TestExecutorSettingsFromEnv(t *testing.T) {
 		t.Fatal("bad concurrency must default")
 	}
 }
+
+func TestExecutorSettingsNativeProviders(t *testing.T) {
+	if executorSettings(func(string) string { return "" }).NativeProv {
+		t.Fatal("GO_RUN_NATIVE_PROVIDERS must default off")
+	}
+	if !executorSettings(func(k string) string {
+		if k == "GO_RUN_NATIVE_PROVIDERS" {
+			return "true"
+		}
+		return ""
+	}).NativeProv {
+		t.Fatal("GO_RUN_NATIVE_PROVIDERS=true must enable")
+	}
+}

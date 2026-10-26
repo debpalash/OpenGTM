@@ -119,3 +119,25 @@ func TestEligibilityExtraColumnTypes(t *testing.T) {
 		t.Fatalf("output: %v %s", ok, why)
 	}
 }
+
+// GO_RUN_NATIVE_PROVIDERS (Go-only, default off = Python parity): a chain whose
+// providers are not in the manifest index (Go-native or pyworker) may run on Go.
+func TestEligibilityNativeProviders(t *testing.T) {
+	cols, err := colgraph.ParseCols([]byte(`[{"id":"e","type":"enrichment","target_field":"description","waterfall":["not_a_manifest_provider"]}]`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg := Config{WorkspaceID: "w", GoExecutorEnabled: true, GoCohort: map[string]bool{"w": true}}
+	if ok, why := Eligible(cols, nil, cfg); ok || why != ReasonNonDeclarative {
+		t.Fatalf("default must hand back: %v %s", ok, why)
+	}
+	cfg.NativeProviders = true
+	if ok, why := Eligible(cols, nil, cfg); !ok {
+		t.Fatalf("flag on must allow: %s", why)
+	}
+	// a declarative provider is still checked as before.
+	idx := map[string]manifest.Entry{"not_a_manifest_provider": {}}
+	if ok, why := Eligible(cols, idx, cfg); ok || why != ReasonMappingNotTargetOnly {
+		t.Fatalf("manifest checks stay: %v %s", ok, why)
+	}
+}

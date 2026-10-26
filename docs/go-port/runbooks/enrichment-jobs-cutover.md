@@ -85,6 +85,11 @@ just not sticky).
 4. `GO_EXECUTOR_COLUMN_TYPES` (comma separated: `formula`, `http`, `ai_formula`, `research`, `agent`; unknown values are
    dropped) on api and Go worker: widens the cohort to those column types. **Note:** a non-empty value also lifts the
    hand-back for column references and structured targets, so enable it only after steps 1-3 are stable.
+   `GO_RUN_NATIVE_PROVIDERS=true` (api only, Go-only flag, default off = Python parity): bulk `/run` normally hands back
+   any chain with a provider outside the declarative manifest index (`non_declarative_provider`), exactly like Python,
+   so Go-native and Python-worker providers only run on single-cell run. With the flag on, such chains stay on Go
+   (native in process, else `PY_WORKER_URL`; an unknown provider is still handed back at run time). Enable it only
+   after the Go worker has `PY_WORKER_URL` and global settings (`REACHER_URL`, `SEC_EDGAR_USER_AGENT`, ...) in its env.
 5. `GO_EXECUTOR_SIGNAL_SCAN=true` (cohort-gated like step 3, together with `GO_EXECUTOR_ENABLED`) moves `signal_scan` and
    the refresh chain's next occurrence to Go; `SIGNAL_SCAN_MAX_HOT_LEADS` (50), `_MAX_WARM_LEADS` (30),
    `_MAX_LEADS_PER_WORKSPACE` (20), `SIGNAL_SCAN_GLOBAL_MAX_LEADS` (500, 0 = unlimited) apply to both stacks.

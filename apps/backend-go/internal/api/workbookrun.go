@@ -221,6 +221,7 @@ type executorConfig struct {
 	Provenance  bool            // PROVENANCE_TRACKING_ENABLED
 	ExtraTypes  map[string]bool // GO_EXECUTOR_COLUMN_TYPES
 	Concurrency int             // WORKBOOK_RUN_CONCURRENCY (default 12)
+	NativeProv  bool            // GO_RUN_NATIVE_PROVIDERS (Go-only, default off)
 }
 
 // goExtraTypes are the column types GO_EXECUTOR_COLUMN_TYPES may add; anything
@@ -240,6 +241,7 @@ func executorSettings(getenv func(string) string) executorConfig {
 	}
 	c := executorConfig{Enabled: truthy("GO_EXECUTOR_ENABLED"), Provenance: truthy("PROVENANCE_TRACKING_ENABLED"),
 		Cohort: map[string]bool{}, ExtraTypes: map[string]bool{}, Concurrency: 12}
+	c.NativeProv = truthy("GO_RUN_NATIVE_PROVIDERS")
 	for _, w := range strings.Split(getenv("GO_EXECUTOR_WORKSPACES"), ",") {
 		if w = strings.TrimSpace(w); w != "" {
 			c.Cohort[w] = true
@@ -271,7 +273,7 @@ func (h *runRoutes) config(ctx context.Context, ws string) runplan.Config {
 		Perf:               runplan.Perf{RowConcurrency: perf.RowConcurrency, MaxProviders: perf.MaxProviders, RetryPasses: perf.RetryPasses, ProviderWorkers: perf.ProviderWorkers, ProviderTimeout: perf.ProviderTimeout},
 		DefaultConcurrency: ex.Concurrency,
 		GoExecutorEnabled:  ex.Enabled, GoCohort: ex.Cohort, ProvenanceTracking: ex.Provenance,
-		AutomationsEnabled: h.d.Flags.AutomationsEnabled, ExtraColumnTypes: ex.ExtraTypes,
+		AutomationsEnabled: h.d.Flags.AutomationsEnabled, ExtraColumnTypes: ex.ExtraTypes, NativeProviders: ex.NativeProv,
 		Index: h.index.get(), Leads: wbcrud.PGLeads{}, NewRunID: runNewID,
 	}
 }
