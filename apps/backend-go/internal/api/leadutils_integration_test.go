@@ -264,7 +264,7 @@ func TestScoreMissingLead404(t *testing.T) {
 
 func TestScoreInlineWrongTypes422(t *testing.T) {
 	e := newUtilsEnv(t)
-	for _, b := range []string{`{"lead":{"company":"T","email":5}}`, `{"lead":{"company":"T","specialization":["a"]}}`, `{"lead":{"company":"T","email":{"a":1}}}`} {
+	for _, b := range []string{`{"lead":{"company":"T","email":5}}`, `{"lead":{"company":"T","specialization":["a"]}}`, `{"lead":{"company":"T","email":true}}`} {
 		rec := e.post("alice", "", "/api/leads/score", b)
 		m := jsonBody(t, rec)
 		if rec.Code != 422 || m["detail"] == nil {
