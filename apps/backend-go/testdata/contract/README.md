@@ -305,6 +305,14 @@ Fixtures `analytics/*` (cases `legacy/python/scripts/contract_cases/analytics.ya
 - Final-review hardening: the duplicates are deleted before the master is updated (same transaction). A master with an empty city merged with a same-company duplicate that has a city collides with that duplicate on `uq_leads_ws_company_city` when the master is updated first, so Python answers 500 (IntegrityError) for the most common duplicate shape; Go answers 200. If the merged company+city belongs to a lead outside the merge, Go answers 409 `A lead already exists for the merged company and city` and rolls everything back (Python: 500).
 - Dedup run fixtures are compared order-insensitively (cluster id sets, unordered pair digests): Python's tie ordering depends on `PYTHONHASHSEED`.
 
+## SSE events (plan 05 final fix): hardening beyond Python
+- `GET /api/events`: Python has no stream limits. Go answers 429 `{"detail":"Too many event streams for this user"}` /
+  `{"detail":"Too many event streams for this workspace"}` past `SSE_MAX_STREAMS_PER_USER` (10) / `SSE_MAX_STREAMS_PER_WORKSPACE`
+  (200), after the 403/SSO checks and before the process-wide `SSE_MAX_STREAMS` 503. nginx adds `limit_conn sse_per_ip 20` (429).
+- A stream is closed by the server after `SSE_MAX_LIFETIME_SECONDS` (30 min) and when the server shuts down; EventSource reconnects
+  and re-authenticates. Python streams live until the client leaves.
+- The `/api/events` nginx location logs `error_log` at `crit` only, because upstream-error lines print the `?token=` query.
+
 ## Bulk enrich (plan 05 Task 14 and final fix): deviations
 - `POST /api/leads/bulk-enrich`: a JSON `NaN`/`Infinity` literal answers 422 `json_invalid` (Python parses it and answers 422 `finite_number`); a number such as `1E400` answers 422 `finite_number` with `input: null` (Python echoes the value). All are 422.
 - Final-review hardening: a lead id outside int4 (for example `2147483648`, `1e10`, a 30-digit integer or a numeric string) answers 422 `value_error` ("Value error, lead id out of range", loc `body.lead_ids.<i>`, input not echoed) and nothing is enqueued. Python accepts any size, enqueues it verbatim, and the worker's Postgres lookup 500s; huge digit strings also bloated `jobs.payload`. Over-long digit strings are rejected before they are parsed.

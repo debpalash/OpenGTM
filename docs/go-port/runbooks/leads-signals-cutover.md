@@ -19,9 +19,17 @@ fails when a route is in neither list.
    during a collection.
 4. `SSE_MAX_STREAMS` on `api-go` (default 1000; 503 `{"detail":...}` once full). Size it to the expected
    concurrent browser tabs and the file-descriptor limit of the container. Python has no cap.
+   Also `SSE_MAX_STREAMS_PER_USER` (default 10) and `SSE_MAX_STREAMS_PER_WORKSPACE` (default 200): beyond either,
+   429 `Too many event streams for this user|workspace`, so one user cannot starve other tenants; nginx adds
+   `limit_conn sse_per_ip 20` (429). `SSE_MAX_LIFETIME_SECONDS` (default 1800) closes a stream after that long so
+   `EventSource` reconnects and re-authenticates (token expiry, removed members and SSO changes take effect then).
+   On SIGTERM open streams end at once, so a Go restart no longer waits out the 30 s grace.
 5. The Python worker is running and consumes `executor='python'` jobs: `POST /api/leads/bulk-enrich` and
    `POST /api/signals/scan` only enqueue `bulk_enrich` / `signal_scan`; the scrapers stay in Python.
-6. The nginx build contains the plan-05 section of `go-routes.conf` and the `sse_noquery` log format in `go-split.conf`.
+6. The `?token=` access token travels in the query string and nginx cannot redact it from `error_log` request
+   lines; the `/api/events` location logs only `crit` and above, but treat every nginx `error_log` (and the Python
+   uvicorn access log) as sensitive and keep it out of shared log pipelines.
+7. The nginx build contains the plan-05 section of `go-routes.conf` and the `sse_noquery` log format in `go-split.conf`.
 
 ## Routing summary
 
