@@ -199,7 +199,9 @@ func seedActiveWorkspace(t *testing.T, e leadsEnv, user, ws string) {
 		ON CONFLICT (user_id) DO UPDATE SET workspace_id = EXCLUDED.workspace_id`, uid, ws); err != nil {
 		t.Fatal(err)
 	}
-	t.Cleanup(func() { _, _ = e.pool.Exec(context.Background(), `DELETE FROM user_active_workspace WHERE user_id = $1`, uid) })
+	t.Cleanup(func() {
+		_, _ = e.pool.Exec(context.Background(), `DELETE FROM user_active_workspace WHERE user_id = $1`, uid)
+	})
 }
 
 // wcrudOwnerExecQuiet runs best-effort cleanup SQL as the table owner (ignores errors).
