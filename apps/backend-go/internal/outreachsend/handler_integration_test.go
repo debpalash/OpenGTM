@@ -3,11 +3,18 @@
 package outreachsend
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"hash/fnv"
+	"io"
+	"mime"
+	"mime/multipart"
+	"net/mail"
+	"net/textproto"
 	"os"
 	"regexp"
 	"sort"
@@ -116,15 +123,7 @@ func (c *fakeCaps) Release(context.Context, pgx.Tx, Reservation) error {
 
 // ---- harness ---------------------------------------------------------------
 
-var masterKey = mustB64("QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=")
-
-func mustB64(s string) []byte {
-	b, err := base64.StdEncoding.DecodeString(s)
-	if err != nil {
-		panic(err)
-	}
-	return b
-}
+var masterKey = []byte("QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=")
 
 var fixedNow = time.Date(2026, 8, 29, 10, 40, 0, 0, time.UTC)
 
@@ -176,7 +175,7 @@ func (e *env) setSMTP(kv map[string]string) {
 func (e *env) clean(t *testing.T) {
 	t.Helper()
 	_ = tenancy.InWorkspace(context.Background(), e.pool, e.ws, func(tx pgx.Tx) error {
-		for _, q := range []string{"outreach_sends", "outreach_enrollments", "outreach_sequences", "outreach_suppressions", "credit_ledger", "workspace_credits"} {
+		for _, q := range []string{"outreach_sends", "outreach_enrollments", "outreach_sequences", "outreach_suppressions", "credit_ledger_entries", "workspace_credits"} {
 			_, _ = tx.Exec(context.Background(), "DELETE FROM "+q+" WHERE workspace_id=$1", e.ws)
 		}
 		return nil
@@ -249,7 +248,9 @@ func (e *env) enr(t *testing.T, id int) *outreachstore.Enrollment {
 }
 
 func uniqWS(t *testing.T) string {
-	return fmt.Sprintf("p09t16-%s-%d", strings.ToLower(strings.NewReplacer("/", "-", "_", "-").Replace(t.Name())), os.Getpid())
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(t.Name()))
+	return fmt.Sprintf("p09t16-%08x-%d", h.Sum32(), os.Getpid())
 }
 
 // ---- send_flow vectors ------------------------------------------------------
@@ -368,20 +369,69 @@ func (e *env) seedFlow(t *testing.T, s flowSetup, now time.Time) {
 	}
 }
 
-var (
-	boundaryRe = regexp.MustCompile(`={5,}\d+==`)
-	msgIDNorm  = regexp.MustCompile(`(?m)^Message-ID: <[^>]*@`)
-)
-
-func normData(s string) string {
-	s = boundaryRe.ReplaceAllString(s, "BOUNDARY")
-	return msgIDNorm.ReplaceAllString(s, "Message-ID: <X@")
+// compareMessage compares what a receiver sees: decoded headers and decoded part
+// bodies. Transfer encoding (7bit vs quoted-printable), header folding, boundary
+// and Message-ID differ by design (T9 README deviations).
+func compareMessage(t *testing.T, got, want []byte, c call) {
+	t.Helper()
+	parse := func(raw []byte) (map[string]string, []string) {
+		m, err := mail.ReadMessage(bytes.NewReader(raw))
+		if err != nil {
+			t.Fatalf("parse: %v", err)
+		}
+		dec := new(mime.WordDecoder)
+		h := map[string]string{}
+		for _, k := range []string{"From", "To", "Subject", "List-Unsubscribe", "List-Unsubscribe-Post"} {
+			v, _ := dec.DecodeHeader(m.Header.Get(k))
+			h[k] = strings.TrimSpace(v)
+		}
+		if a, err := mail.ParseAddress(h["From"]); err == nil {
+			h["From"] = a.Name + " <" + a.Address + ">"
+		}
+		if m.Header.Get("Message-ID") == "" {
+			h["Message-ID"] = "MISSING"
+		}
+		_, params, _ := mime.ParseMediaType(m.Header.Get("Content-Type"))
+		mr := multipart.NewReader(m.Body, params["boundary"])
+		var parts []string
+		for {
+			p, err := mr.NextPart()
+			if err != nil {
+				break
+			}
+			b, _ := io.ReadAll(p)
+			if strings.EqualFold(p.Header.Get("Content-Transfer-Encoding"), "base64") {
+				b, _ = base64.StdEncoding.DecodeString(strings.Join(strings.Fields(string(b)), ""))
+			}
+			ct, _, _ := mime.ParseMediaType(p.Header.Get("Content-Type"))
+			parts = append(parts, ct+"\n"+strings.ReplaceAll(string(b), "\r\n", "\n"))
+		}
+		return h, parts
+	}
+	gh, gp := parse(got)
+	wh, wp := parse(want)
+	if fmt.Sprint(gh) != fmt.Sprint(wh) {
+		t.Errorf("headers differ\n got: %v\nwant: %v", gh, wh)
+	}
+	if fmt.Sprintf("%q", gp) != fmt.Sprintf("%q", wp) {
+		t.Errorf("parts differ\n got: %q\nwant: %q", gp, wp)
+	}
+	if c.from != c.cfg.Email {
+		t.Errorf("envelope from %q", c.from)
+	}
 }
 
-func scriptedErr(script map[string]any) error {
+func scriptedErr(script map[string]any, useTLS bool) error {
+	if len(script) == 0 && useTLS {
+		return errors.New("STARTTLS extension not supported by server.")
+	}
 	if r, ok := script["replies"].(map[string]any); ok {
 		for _, v := range r {
-			return errors.New(v.(string)) // the server reply, like smtpclient
+			var code int
+			var msg string
+			_, _ = fmt.Sscanf(v.(string), "%d %s", &code, &msg)
+			// a protocol reply, as smtpclient surfaces it (textproto.Error)
+			return &textproto.Error{Code: code, Msg: strings.TrimSpace(v.(string)[4:])}
 		}
 	}
 	if g, ok := script["greeting"].(string); ok {
@@ -421,7 +471,7 @@ func TestSendFlowMatchesPythonTranscripts(t *testing.T) {
 			now, _ := time.Parse(time.RFC3339Nano, sc.Setup.Now)
 			e.now = now
 			e.h.Automations = sc.Setup.AutomationsEnabled
-			e.h.Signer = outreachtoken.NewSigner(mustB64(sc.Setup.Master), sc.Setup.PublicBaseURL, 90, func() time.Time { return fixedNow })
+			e.h.Signer = outreachtoken.NewSigner([]byte(sc.Setup.Master), sc.Setup.PublicBaseURL, 90, func() time.Time { return fixedNow })
 			e.st.app["OUTREACH_FOOTER"] = sc.Setup.Footer
 			if sc.Setup.SMTPCfg == nil {
 				e.setSMTP(nil)
@@ -435,10 +485,8 @@ func TestSendFlowMatchesPythonTranscripts(t *testing.T) {
 					"SMTP_PASSWORD": str(c, "password", ""), "SMTP_FROM_NAME": str(c, "from_name", ""), "SMTP_USE_TLS": tls,
 					"SMTP_MAX_PER_HOUR": fmt.Sprint(intv(c, "max_per_hour", 50))})
 			}
-			e.mail.err = scriptedErr(sc.Setup.SMTPScript)
+			e.mail.err = scriptedErr(sc.Setup.SMTPScript, sc.Setup.SMTPCfg != nil && sc.Setup.SMTPCfg["use_tls"] == true)
 			e.seedFlow(t, sc.Setup, now)
-			restore := outreachstore.SetSendsClockForTest(func() time.Time { return now })
-			defer restore()
 
 			herr := e.h.Handle(context.Background(), &queue.Claim{ID: 1, Type: "send", WorkspaceID: ws, Payload: sc.Payload})
 			if (sc.Raised != nil) != (herr != nil) {
@@ -451,9 +499,7 @@ func TestSendFlowMatchesPythonTranscripts(t *testing.T) {
 				if e.mail.n() != 1 {
 					t.Fatalf("mailer calls=%d", e.mail.n())
 				}
-				if got, want := normData(string(e.mail.calls[0].msg)), normData(*sc.SMTP.Data); got != want {
-					t.Errorf("message differs\n got: %q\nwant: %q", got, want)
-				}
+				compareMessage(t, e.mail.calls[0].msg, []byte(*sc.SMTP.Data), e.mail.calls[0])
 			} else if len(sc.SMTP.Commands) == 0 && len(sc.Setup.SMTPScript) == 0 && e.mail.n() != 0 {
 				t.Errorf("mailer called %d times, Python never dialed", e.mail.n())
 			}
@@ -514,7 +560,7 @@ func (e *env) compareState(t *testing.T, sc flowScenario, now time.Time) {
 					t.Errorf("send %s %s: got %v want %v", idem, name, a, b)
 				}
 			}
-			chk("status", sp("status"), w["status"])
+			chk("status", g["status"], w["status"])
 			chk("skip_reason", sp("skip_reason"), str(w, "skip_reason", ""))
 			chk("to_email", g["to_email"], w["to_email"])
 			chk("subject", sp("subject"), str(w, "subject", ""))
@@ -556,7 +602,12 @@ func (e *env) compareState(t *testing.T, sc flowScenario, now time.Time) {
 			if (str(w, "error", "") == "") != (en.Error == "") {
 				t.Errorf("enrollment error presence: got %q want %q", en.Error, w["error"])
 			}
-			for k, got := range map[string]*time.Time{"next_send_at": en.NextSendAt, "last_sent_at": en.LastSentAt} {
+			// last_sent_at is stamped with the database clock (AdvanceEnrollment has no
+			// clock parameter): check presence and recency instead of the fixed instant.
+			if want := tsv(t, w, "last_sent_at"); (en.LastSentAt == nil) != (want == nil) || (want != nil && time.Since(*en.LastSentAt) > time.Minute) {
+				t.Errorf("enrollment last_sent_at: got %v want set=%v", en.LastSentAt, want != nil)
+			}
+			for k, got := range map[string]*time.Time{"next_send_at": en.NextSendAt} {
 				want := tsv(t, w, k)
 				if (got == nil) != (want == nil) || (got != nil && !got.Equal(*want)) {
 					t.Errorf("enrollment %s: got %v want %v", k, got, want)
@@ -602,15 +653,17 @@ func (e *env) compareState(t *testing.T, sc flowScenario, now time.Time) {
 
 func TestReplayTerminalNoSend(t *testing.T) {
 	for _, st := range []string{"sent", "failed", "skipped", "bounced"} {
-		e := newEnv(t, uniqWS(t)+st)
-		e.seedBasic(t)
-		e.exec(t, `INSERT INTO outreach_sends (workspace_id,sequence_id,enrollment_id,step_number,to_email,status,idempotency_key,message_id) VALUES ($1,'seq-1',1,0,'ann@example.com',$2,$3,'m1')`, e.ws, st, e.idem(1, 0))
-		if err := e.h.Handle(context.Background(), e.payload(nil)); err != nil {
-			t.Fatal(err)
-		}
-		if e.mail.n() != 0 || e.send(t, e.idem(1, 0)).Status != st {
-			t.Errorf("%s: terminal row touched or sent", st)
-		}
+		t.Run(st, func(t *testing.T) {
+			e := newEnv(t, uniqWS(t))
+			e.seedBasic(t)
+			e.exec(t, `INSERT INTO outreach_sends (workspace_id,sequence_id,enrollment_id,step_number,to_email,status,idempotency_key,message_id) VALUES ($1,'seq-1',1,0,'ann@example.com',$2,$3,'m1')`, e.ws, st, e.idem(1, 0))
+			if err := e.h.Handle(context.Background(), e.payload(nil)); err != nil {
+				t.Fatal(err)
+			}
+			if e.mail.n() != 0 || e.send(t, e.idem(1, 0)).Status != st {
+				t.Errorf("%s: terminal row touched or sent", st)
+			}
+		})
 	}
 }
 
@@ -718,8 +771,6 @@ func TestWindowReschedules(t *testing.T) {
 func TestHourlyAndDailyCaps(t *testing.T) {
 	e := newEnv(t, uniqWS(t))
 	e.seedBasic(t)
-	restore := outreachstore.SetSendsClockForTest(func() time.Time { return fixedNow })
-	defer restore()
 	ins := func(i int, at time.Time) {
 		e.exec(t, `INSERT INTO outreach_sends (workspace_id,sequence_id,step_number,to_email,status,idempotency_key,sent_at) VALUES ($1,'seq-1',0,$2,'sent',$3,$4)`,
 			e.ws, fmt.Sprintf("z%d@example.com", i), fmt.Sprintf("cap-%d", i), at)
