@@ -1,6 +1,9 @@
 package colcompute
 
 import (
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rowtmpl"
+
 	"errors"
 	"sort"
 	"strings"
@@ -72,12 +75,12 @@ func TestFormulaReferences(t *testing.T) {
 	var v formulaVectors
 	loadVectors(t, "formula_vectors.json", &v)
 	for _, c := range v.References {
-		refs := FormulaReferences(c.Expr)
+		refs := colgraph.FormulaReferences(c.Expr)
 		sort.Strings(refs)
 		want := append([]string{}, c.Refs...)
 		sort.Strings(want)
 		if strings.Join(refs, "\x00") != strings.Join(want, "\x00") {
-			t.Errorf("FormulaReferences(%q) = %q, want %q", c.Expr, refs, want)
+			t.Errorf("colgraph.FormulaReferences(%q) = %q, want %q", c.Expr, refs, want)
 		}
 		if got := replaceFormulaReferences(c.Expr, func(raw string) string { return "<" + raw + ">" }); got != c.Replaced {
 			t.Errorf("replace(%q) = %q, want %q", c.Expr, got, c.Replaced)
@@ -227,6 +230,60 @@ func TestFormulaFailsClosedOnOpaqueNodes(t *testing.T) {
 	for _, k := range []string{"JoinedStr", "Dict", "Set", "Starred", "ListComp", "SetComp", "DictComp", "GeneratorExp", "Lambda", "NamedExpr", "Await", "Yield", "keyword"} {
 		if allowedKinds[k] {
 			t.Errorf("%s must not be whitelisted", k)
+		}
+	}
+}
+
+func TestValidateTemplateReferencesVectors(t *testing.T) {
+	var v struct {
+		V []struct {
+			Template string           `json:"template"`
+			Columns  []map[string]any `json:"columns"`
+			Result   struct {
+				Value   any    `json:"value"`
+				Message string `json:"message"`
+			} `json:"result"`
+		} `json:"validate_template_references"`
+	}
+	loadVectors(t, "template_vectors.json", &v)
+	if len(v.V) == 0 {
+		t.Fatal("no vectors")
+	}
+	for _, c := range v.V {
+		var cols []colgraph.Col
+		for _, m := range c.Columns {
+			col := colgraph.MakeCol()
+			for k, val := range m {
+				col.Set(k, val)
+			}
+			cols = append(cols, col)
+		}
+		err := rowtmpl.ValidateTemplateReferences(c.Template, cols)
+		if c.Result.Message == "" && err != nil || c.Result.Message != "" && (err == nil || err.Error() != c.Result.Message) {
+			t.Errorf("%q: err %v, want %q", c.Template, err, c.Result.Message)
+		}
+	}
+}
+
+func TestFormulaResourceCaps(t *testing.T) {
+	hex := "0x" + strings.Repeat("f", 20000) // 80k bits
+	cases := []string{
+		`"a" * 10**9`, `"a" * 1000000000`, `{a} * 1000000000`,
+		`("a" * 1000) * 1000 * 1000`, `([1] * 1000) * 1000 * 1000`, `b"ab" * 999999999`,
+		hex + "*" + hex + "*" + hex, hex + "*" + hex + "*" + hex + "*" + hex,
+		`"a" * 99999999999999999999999`,
+		strings.TrimSuffix(strings.Repeat(`("a" * 1000000) + `, 40), " + "), // cumulative allocation
+		strings.TrimSuffix(strings.Repeat(`len("a" * 1000000) + `, 5), " + ") + ` + len(("a" * 1000000) * 100)`,
+	}
+	for _, e := range cases {
+		start := time.Now()
+		_, err := EvalFormula(e, map[string]any{"a": "x"})
+		var fe *FormulaError
+		if !errors.As(err, &fe) {
+			t.Errorf("%.60q accepted (%v)", e, err)
+		}
+		if time.Since(start) > 500*time.Millisecond {
+			t.Errorf("%.60q took %v", e, time.Since(start))
 		}
 	}
 }

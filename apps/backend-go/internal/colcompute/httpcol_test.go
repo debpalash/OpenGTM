@@ -14,8 +14,6 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
-
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 )
 
 type httpCaseFile struct {
@@ -214,7 +212,7 @@ func TestHTTPColumnVectors(t *testing.T) {
 	for _, c := range f.Cases {
 		t.Run(c.Name, func(t *testing.T) {
 			tr := &stubTransport{st: stubFor(c.Name)}
-			got, err := RunHTTPColumn(context.Background(), &http.Client{Transport: tr}, columnFromVector(t, c.Column), row, nil)
+			got, err := RunHTTPColumn(context.Background(), useTransport(t, tr), columnFromVector(t, c.Column), row, nil)
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -269,7 +267,7 @@ func TestHTTPColumnBlocksPrivateAfterTemplate(t *testing.T) {
 	var hits atomic.Int32
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { hits.Add(1) }))
 	defer srv.Close()
-	client := egress.NewClient(nil)
+	client := (*http.Client)(nil)
 	for _, target := range []string{
 		srv.URL + "/x",
 		"http://127.0.0.1/x",
@@ -288,7 +286,7 @@ func TestHTTPColumnBlocksPrivateAfterTemplate(t *testing.T) {
 		t.Fatalf("blocked target was contacted %d times", hits.Load())
 	}
 	// Even with a plain (non-guarded) client the pre-flight check fires first.
-	got, _ := RunHTTPColumn(context.Background(), http.DefaultClient, HTTPColumn{URL: srv.URL}, nil, nil)
+	got, _ := RunHTTPColumn(context.Background(), nil, HTTPColumn{URL: srv.URL}, nil, nil)
 	if got.Success || hits.Load() != 0 {
 		t.Fatalf("pre-flight guard skipped: %+v hits=%d", got, hits.Load())
 	}
@@ -305,8 +303,8 @@ func TestHTTPColumnNoRedirects(t *testing.T) {
 	old := egressCheck
 	egressCheck = func(string) error { return nil } // loopback test servers
 	defer func() { egressCheck = old }()
-	// http.DefaultClient follows redirects; the column must not.
-	got, err := RunHTTPColumn(context.Background(), http.DefaultClient, HTTPColumn{URL: a.URL}, nil, nil)
+	// A redirect-following transport-level client must not make the column follow.
+	got, err := RunHTTPColumn(context.Background(), useTransport(t, http.DefaultTransport), HTTPColumn{URL: a.URL}, nil, nil)
 	if err != nil || got.Success || got.Error != "http_302" {
 		t.Fatalf("result %+v err %v, want http_302", got, err)
 	}
@@ -327,7 +325,7 @@ func TestHTTPColumnSecretNotInError(t *testing.T) {
 
 	// The header is expanded on the wire...
 	tr := &stubTransport{st: textStub("ok", 200)}
-	got, err := RunHTTPColumn(context.Background(), &http.Client{Transport: tr}, col, rowOf("q", "x"), secrets)
+	got, err := RunHTTPColumn(context.Background(), useTransport(t, tr), col, rowOf("q", "x"), secrets)
 	if err != nil || !got.Success || tr.seen[0].headers["authorization"] != "Bearer "+secret {
 		t.Fatalf("secret not sent: %+v %v %+v", got, err, tr.seen)
 	}
@@ -338,7 +336,7 @@ func TestHTTPColumnSecretNotInError(t *testing.T) {
 		&net.OpError{Op: "dial", Err: errors.New("bad " + secret)},
 	} {
 		tr = &stubTransport{st: stub{err: e}}
-		got, _ = RunHTTPColumn(context.Background(), &http.Client{Transport: tr}, col, rowOf("q", "x"), secrets)
+		got, _ = RunHTTPColumn(context.Background(), useTransport(t, tr), col, rowOf("q", "x"), secrets)
 		if got.Success || strings.Contains(got.Error, secret) || got.Error == "" {
 			t.Fatalf("error %q leaks or is empty", got.Error)
 		}
@@ -349,21 +347,21 @@ func TestHTTPColumnSecretNotInError(t *testing.T) {
 	// Unknown secret: refused before any request, naming the secret only.
 	tr = &stubTransport{st: textStub("ok", 200)}
 	col2 := HTTPColumn{URL: "https://api.example.test/", Headers: map[string]string{"X": "{secret:other}"}}
-	got, _ = RunHTTPColumn(context.Background(), &http.Client{Transport: tr}, col2, nil, secrets)
+	got, _ = RunHTTPColumn(context.Background(), useTransport(t, tr), col2, nil, secrets)
 	if got.Success || got.Error != "unknown_secret: other" || len(tr.seen) != 0 {
 		t.Fatalf("unknown secret: %+v seen=%d", got, len(tr.seen))
 	}
 	// A secret must never travel to a host chosen by row data.
 	tr = &stubTransport{st: textStub("ok", 200)}
 	col3 := HTTPColumn{URL: "https://{host}/", Headers: map[string]string{"X": "{secret:api}"}}
-	got, _ = RunHTTPColumn(context.Background(), &http.Client{Transport: tr}, col3, rowOf("host", "evil.example"), secrets)
+	got, _ = RunHTTPColumn(context.Background(), useTransport(t, tr), col3, rowOf("host", "evil.example"), secrets)
 	if got.Success || got.Error != "secret_with_templated_host" || len(tr.seen) != 0 {
 		t.Fatalf("templated host + secret: %+v seen=%d", got, len(tr.seen))
 	}
 	// Secrets are not expanded in the URL or body: they stay inert column references.
 	tr = &stubTransport{st: textStub("ok", 200)}
 	col4 := HTTPColumn{URL: "https://api.example.test/?k={secret:api}"}
-	got, _ = RunHTTPColumn(context.Background(), &http.Client{Transport: tr}, col4, nil, secrets)
+	got, _ = RunHTTPColumn(context.Background(), useTransport(t, tr), col4, nil, secrets)
 	if got.Error != "unresolved_url_placeholder" || len(tr.seen) != 0 {
 		t.Fatalf("secret in URL: %+v seen=%d", got, len(tr.seen))
 	}
@@ -371,13 +369,87 @@ func TestHTTPColumnSecretNotInError(t *testing.T) {
 
 func TestHTTPColumnBodyCap(t *testing.T) {
 	tr := &stubTransport{st: textStub(strings.Repeat("a", 1<<20+10), 200)}
-	got, _ := RunHTTPColumn(context.Background(), &http.Client{Transport: tr}, HTTPColumn{URL: "https://api.example.test/"}, nil, nil)
+	got, _ := RunHTTPColumn(context.Background(), useTransport(t, tr), HTTPColumn{URL: "https://api.example.test/"}, nil, nil)
 	if got.Success || got.Error != "response_too_large" {
 		t.Fatalf("over-cap body: %+v", got)
 	}
 	tr = &stubTransport{st: textStub(strings.Repeat("a", 1<<20), 200)}
-	got, _ = RunHTTPColumn(context.Background(), &http.Client{Transport: tr}, HTTPColumn{URL: "https://api.example.test/"}, nil, nil)
+	got, _ = RunHTTPColumn(context.Background(), useTransport(t, tr), HTTPColumn{URL: "https://api.example.test/"}, nil, nil)
 	if !got.Success || len(got.Value.(string)) != 2000 {
 		t.Fatalf("at-cap body: success=%v err=%q", got.Success, got.Error)
+	}
+}
+
+// useTransport swaps the wire transport under the always-guarded client (tests only).
+func useTransport(t *testing.T, rt http.RoundTripper) *http.Client {
+	t.Helper()
+	old := testTransport
+	testTransport = rt
+	t.Cleanup(func() { testTransport = old })
+	return nil
+}
+
+func TestHTTPColumnMethodAllowList(t *testing.T) {
+	for _, m := range []string{"TRACE", "CONNECT", "OPTIONS", "PROPFIND", "G ET", "get\r\nX: y"} {
+		tr := &stubTransport{st: textStub("ok", 200)}
+		got, err := RunHTTPColumn(context.Background(), useTransport(t, tr), HTTPColumn{URL: "https://api.example.test/", Method: m}, nil, nil)
+		if err != nil || got.Success || got.Error != "unsupported_method" || len(tr.seen) != 0 {
+			t.Errorf("%q: %+v %v seen=%d", m, got, err, len(tr.seen))
+		}
+	}
+	for _, m := range []string{"get", "POST", "put", "patch", "head", "delete"} {
+		tr := &stubTransport{st: textStub("ok", 200)}
+		if got, _ := RunHTTPColumn(context.Background(), useTransport(t, tr), HTTPColumn{URL: "https://api.example.test/", Method: m}, nil, nil); got.Error == "unsupported_method" {
+			t.Errorf("%q refused", m)
+		}
+	}
+}
+
+// A caller-supplied client is never trusted: the dial-time-guarded client is always used.
+func TestHTTPColumnIgnoresCallerClient(t *testing.T) {
+	tr := &stubTransport{st: textStub("ok", 200)}
+	rogue := &http.Client{Transport: tr}
+	got, _ := RunHTTPColumn(context.Background(), rogue, HTTPColumn{URL: "https://api.example.test/"}, nil, nil)
+	if len(tr.seen) != 0 {
+		t.Fatalf("caller client was used: %+v", got)
+	}
+}
+
+func TestHTTPColumnSecretRedactedInValue(t *testing.T) {
+	const secret = "sk-live-TOPSECRET-12345"
+	secrets := func(string) (string, bool) { return secret, true }
+	col := HTTPColumn{URL: "https://api.example.test/", Headers: map[string]string{"Authorization": "Bearer {secret:api}"}}
+	tr := &stubTransport{st: jsonStub(`{"headers":{"Authorization":"Bearer ` + secret + `"},"n":1}`)}
+	got, _ := RunHTTPColumn(context.Background(), useTransport(t, tr), col, nil, secrets)
+	if !got.Success || strings.Contains(got.Value.(string), secret) {
+		t.Fatalf("raw value leaks: %+v", got)
+	}
+	col.JSONPath = "$.headers"
+	got, _ = RunHTTPColumn(context.Background(), useTransport(t, tr), col, nil, secrets)
+	if !got.Success || strings.Contains(got.Value.(string), secret) {
+		t.Fatalf("projected value leaks: %+v", got)
+	}
+	col.JSONPath = "$.headers.Authorization"
+	got, _ = RunHTTPColumn(context.Background(), useTransport(t, tr), col, nil, secrets)
+	if !got.Success || strings.Contains(got.Value.(string), secret) {
+		t.Fatalf("scalar value leaks: %+v", got)
+	}
+}
+
+func TestHTTPColumnSecretNeverInURLOrBody(t *testing.T) {
+	const secret = "sk-live-TOPSECRET-12345"
+	secrets := func(string) (string, bool) { return secret, true }
+	tr := &stubTransport{st: textStub("ok", 200)}
+	col := HTTPColumn{URL: "https://api.example.test/", Method: "POST", Body: "k={secret:api}", JSONBody: nil}
+	RunHTTPColumn(context.Background(), useTransport(t, tr), col, nil, secrets)
+	col.Body, col.JSONBody = "", []byte(`{"k":"{secret:api}","l":["{secret:api}"]}`)
+	RunHTTPColumn(context.Background(), useTransport(t, tr), col, nil, secrets)
+	if len(tr.seen) != 2 {
+		t.Fatalf("seen %d", len(tr.seen))
+	}
+	for _, r := range tr.seen {
+		if strings.Contains(r.body, secret) || strings.Contains(r.url, secret) || !strings.Contains(r.body, "[secret:api: not found]") {
+			t.Fatalf("secret expanded outside headers: %+v", r)
+		}
 	}
 }
