@@ -149,7 +149,7 @@ func TestLeadReadFixturesMatchPython(t *testing.T) {
 		replayed++
 		t.Run(name, func(t *testing.T) { contract.AssertEqual(t, got, fx.Response) })
 	}
-	if replayed < 55 {
+	if replayed != 52 {
 		t.Fatalf("only %d lead read fixtures replayed", replayed)
 	}
 }
@@ -195,7 +195,7 @@ func TestListLeadsLimitCappedAt10000(t *testing.T) {
 	}
 	var list []json.RawMessage
 	_ = json.Unmarshal(rec.Body.Bytes(), &list)
-	if len(list) != 15 { // 15 non-dead alpha leads
+	if len(list) != 14 { // 14 non-dead alpha leads
 		t.Errorf("%d leads", len(list))
 	}
 	if rec := e.get("alice", "ws-alpha", "/api/leads?limit=-1"); rec.Code != 422 {

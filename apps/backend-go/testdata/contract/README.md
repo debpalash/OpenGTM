@@ -223,3 +223,14 @@ FastAPI as a non-superuser role; final state golden `testdata/wbcrud/import_fina
 - No cycle/identity guard runs: imported columns are plain `lead_field` columns with fresh ids (FastAPI does not validate either).
 - Python's `str.lower` / `str.casefold` / `str.title` mappings for header normalisation come from `internal/wbcrud/pycase_tables.txt`,
   generated from the real interpreter by `scripts/gen_csv_vectors.py` (every code point is checked in `csvvectors_test.go`).
+
+## Lead read routes (plan 05 Task 9): deviations
+Fixtures `leads/*` (list, stats, filters, get, similar), cases `legacy/python/scripts/contract_cases/leads.yaml`. The Go replay seeds
+its leads from `testdata/leads/seed.json` (generated from the constants of `contract_seed.py`; ids 1-18).
+- `GET /api/leads?limit=` above 10,000 (including values beyond int64) is capped to 10,000 (D2). A negative `limit` or `offset`
+  answers 422 `greater_than_equal` (FastAPI passes it to Postgres, which fails with a 500). An `offset` beyond int64 is an empty page.
+- `score_min` / `score_max` outside int4 are clamped to the int4 range (FastAPI answers 500 from Postgres); the filter keeps its meaning.
+- `GET /api/lead/{id}` and `/similar` with an id beyond int64 answer 404 `Lead not found` (FastAPI: 500). A `limit` above 10,000 on
+  `/similar` is capped to 10,000 (the answer is the same: no workspace page holds more).
+- `workspace_id` on `/api/leads` is accepted and ignored: the caller's workspace always applies (FastAPI behaves the same).
+- JSON bodies keep U+2028 / U+2029 raw, as Python's `ensure_ascii=False` does.
