@@ -3,13 +3,18 @@
 // identity-keyed upserts of connector records into workbook rows.
 package sourceingest
 
-import "time"
+import (
+	"time"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
+)
 
 // Record is a ConnectorRecord: one source record with its stable identity.
 type Record struct {
-	Provider  string
-	RecordID  string
-	Data      map[string]any
+	Provider string
+	RecordID string
+	// Data is insertion-ordered (connectors build it in the Python field order).
+	Data      *wbcrud.Obj
 	Rank      int
 	SourceURL *string
 	FetchedAt time.Time

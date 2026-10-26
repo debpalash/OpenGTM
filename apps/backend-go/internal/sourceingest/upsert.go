@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"reflect"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -18,6 +17,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
 const (
@@ -150,8 +150,11 @@ func Upsert(ctx context.Context, tx pgx.Tx, workbookID, workspaceID, provider st
 
 // UpsertNotify is Upsert followed by the on_row_added automation event for the
 // rows it added (Python emits it from the caller after the page commit; Go runs
-// it inside the caller's transaction, in a savepoint, so a hook failure never
-// breaks the page). A nil hook skips the event.
+// it inside the caller's transaction). The hook itself swallows and logs its
+// own failures (savepoint), as Python's emit_row_added does, so in practice it
+// returns nil; any error that does come back is returned so the caller's
+// transaction (rows and cursor together) rolls back consistently. A nil hook
+// skips the event.
 func UpsertNotify(ctx context.Context, tx pgx.Tx, hook automationhook.Hook, workbookID, workspaceID, provider string, recs []Record, resetRows bool) (Summary, error) {
 	sum, err := Upsert(ctx, tx, workbookID, workspaceID, provider, recs, resetRows)
 	if err != nil {
@@ -171,48 +174,30 @@ type pair struct {
 }
 
 // newData is dict(record.data) plus the `_source` key (provider, record_id,
-// rank, url, fetched_at in that order). Go maps are unordered, so data keys are
-// sorted; `_source` always comes last.
+// rank, url, fetched_at in that order), in connector key order. A `_source` key
+// already in Data keeps its position, as a Python dict assignment does.
 func newData(rec Record, provider, recordID string) ([]pair, error) {
-	keys := make([]string, 0, len(rec.Data))
-	for k := range rec.Data {
-		if k != "_source" {
-			keys = append(keys, k)
-		}
+	obj := wbcrud.NewObj()
+	for _, k := range rec.Data.Keys() {
+		v, _ := rec.Data.Get(k)
+		obj.Set(k, v)
 	}
-	sort.Strings(keys)
-	pairs := make([]pair, 0, len(keys)+1)
-	for _, k := range keys {
-		b, err := marshal(rec.Data[k])
-		if err != nil {
-			return nil, fmt.Errorf("sourceingest: record %q field %q: %w", recordID, k, err)
-		}
-		pairs = append(pairs, pair{k, b})
-	}
-	var url any
+	src := wbcrud.NewObj()
+	src.Set("provider", provider)
+	src.Set("record_id", recordID)
+	src.Set("rank", rec.Rank)
 	if rec.SourceURL != nil {
-		url = *rec.SourceURL
+		src.Set("url", *rec.SourceURL)
+	} else {
+		src.Set("url", nil)
 	}
-	var sb bytes.Buffer
-	sb.WriteByte('{')
-	for i, f := range []struct {
-		k string
-		v any
-	}{{"provider", provider}, {"record_id", recordID}, {"rank", rec.Rank}, {"url", url}, {"fetched_at", isoformat(rec.FetchedAt)}} {
-		if i > 0 {
-			sb.WriteByte(',')
-		}
-		kb, _ := marshal(f.k)
-		vb, err := marshal(f.v)
-		if err != nil {
-			return nil, err
-		}
-		sb.Write(kb)
-		sb.WriteByte(':')
-		sb.Write(vb)
+	src.Set("fetched_at", isoformat(rec.FetchedAt))
+	obj.Set("_source", src)
+	b, err := obj.MarshalJSON()
+	if err != nil {
+		return nil, fmt.Errorf("sourceingest: record %q: %w", recordID, err)
 	}
-	sb.WriteByte('}')
-	return append(pairs, pair{"_source", sb.Bytes()}), nil
+	return parseObject(string(b)), nil
 }
 
 func marshal(v any) ([]byte, error) {
