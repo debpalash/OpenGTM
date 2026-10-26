@@ -375,6 +375,34 @@ func (q *Queries) RetGetPolicy(ctx context.Context, workspaceID string) (Retenti
 	return i, err
 }
 
+const retInsertRunJob = `-- name: RetInsertRunJob :one
+INSERT INTO jobs (executor, type, payload, workspace_id, priority, fire_key, status,
+                  created_at, next_run_at, max_retries, retry_count)
+VALUES ($1::text, 'retention_enforce', $2::json, $3::text, 1,
+        $4::text, 'pending', (now() AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'), 3, 0)
+RETURNING id
+`
+
+type RetInsertRunJobParams struct {
+	Executor    string
+	Payload     []byte
+	WorkspaceID string
+	FireKey     string
+}
+
+// The enforce job: payload {workspace_id, run_id} without fire_key (queue_service.add_job), due now.
+func (q *Queries) RetInsertRunJob(ctx context.Context, arg RetInsertRunJobParams) (int32, error) {
+	row := q.db.QueryRow(ctx, retInsertRunJob,
+		arg.Executor,
+		arg.Payload,
+		arg.WorkspaceID,
+		arg.FireKey,
+	)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
 const retInsertScheduledJob = `-- name: RetInsertScheduledJob :one
 INSERT INTO jobs (executor, type, payload, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count)
 VALUES ($1::text, 'retention_enforce', $2::json, 1, $3::text, 'pending',
@@ -585,6 +613,52 @@ func (q *Queries) RetRunGet(ctx context.Context, arg RetRunGetParams) (RetRunGet
 	return i, err
 }
 
+const retRunInsertRequested = `-- name: RetRunInsertRequested :one
+
+INSERT INTO retention_runs (id, workspace_id, status, requested_by, policy_snapshot, deleted_counts)
+VALUES (gen_random_uuid()::text, $1::text, 'pending', $2::text,
+        $3::json, '{}'::json)
+RETURNING id, status, requested_by, policy_snapshot, deleted_counts, error, started_at, finished_at, created_at
+`
+
+type RetRunInsertRequestedParams struct {
+	WorkspaceID    string
+	RequestedBy    string
+	PolicySnapshot []byte
+}
+
+type RetRunInsertRequestedRow struct {
+	ID             string
+	Status         string
+	RequestedBy    pgtype.Text
+	PolicySnapshot []byte
+	DeletedCounts  []byte
+	Error          pgtype.Text
+	StartedAt      pgtype.Timestamp
+	FinishedAt     pgtype.Timestamp
+	CreatedAt      pgtype.Timestamp
+}
+
+// ---- routes (internal/api/governanceretention.go) ----
+// An operator-requested run (requested_by is the user id as text, like Python's str(ctx.user.id)).
+// created_at takes its server default (now(), naive, session TimeZone).
+func (q *Queries) RetRunInsertRequested(ctx context.Context, arg RetRunInsertRequestedParams) (RetRunInsertRequestedRow, error) {
+	row := q.db.QueryRow(ctx, retRunInsertRequested, arg.WorkspaceID, arg.RequestedBy, arg.PolicySnapshot)
+	var i RetRunInsertRequestedRow
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.RequestedBy,
+		&i.PolicySnapshot,
+		&i.DeletedCounts,
+		&i.Error,
+		&i.StartedAt,
+		&i.FinishedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const retRunLock = `-- name: RetRunLock :one
 SELECT status, (started_at::timestamptz) AS started_at
 FROM retention_runs
@@ -659,6 +733,77 @@ type RetRunStartParams struct {
 func (q *Queries) RetRunStart(ctx context.Context, arg RetRunStartParams) error {
 	_, err := q.db.Exec(ctx, retRunStart, arg.StartedAt, arg.ID, arg.WorkspaceID)
 	return err
+}
+
+const retRunsList = `-- name: RetRunsList :many
+SELECT id, status, requested_by, policy_snapshot, deleted_counts, error, started_at, finished_at, created_at
+FROM retention_runs
+WHERE workspace_id = $1::text
+  AND (NOT $2::bool
+       OR created_at < $3::timestamptz
+       OR (created_at = $3::timestamptz AND id < $4::text))
+ORDER BY created_at DESC, id DESC
+LIMIT $6::int OFFSET $5::int
+`
+
+type RetRunsListParams struct {
+	WorkspaceID   string
+	UseCursor     bool
+	CursorCreated pgtype.Timestamptz
+	CursorID      string
+	RowOffset     int32
+	RowLimit      int32
+}
+
+type RetRunsListRow struct {
+	ID             string
+	Status         string
+	RequestedBy    pgtype.Text
+	PolicySnapshot []byte
+	DeletedCounts  []byte
+	Error          pgtype.Text
+	StartedAt      pgtype.Timestamp
+	FinishedAt     pgtype.Timestamp
+	CreatedAt      pgtype.Timestamp
+}
+
+// Newest first. The keyset compares the naive column to an aware UTC cursor as timestamptz (the
+// session TimeZone reads the column), exactly what psycopg sends for Python's aware datetime.
+func (q *Queries) RetRunsList(ctx context.Context, arg RetRunsListParams) ([]RetRunsListRow, error) {
+	rows, err := q.db.Query(ctx, retRunsList,
+		arg.WorkspaceID,
+		arg.UseCursor,
+		arg.CursorCreated,
+		arg.CursorID,
+		arg.RowOffset,
+		arg.RowLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []RetRunsListRow
+	for rows.Next() {
+		var i RetRunsListRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Status,
+			&i.RequestedBy,
+			&i.PolicySnapshot,
+			&i.DeletedCounts,
+			&i.Error,
+			&i.StartedAt,
+			&i.FinishedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const retSetPolicyNextRun = `-- name: RetSetPolicyNextRun :one

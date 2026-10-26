@@ -209,3 +209,33 @@ WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
   SELECT ctid FROM outreach_sends
   WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz
   LIMIT sqlc.arg(batch)::int);
+
+-- ---- routes (internal/api/governanceretention.go) ----
+
+-- An operator-requested run (requested_by is the user id as text, like Python's str(ctx.user.id)).
+-- created_at takes its server default (now(), naive, session TimeZone).
+-- name: RetRunInsertRequested :one
+INSERT INTO retention_runs (id, workspace_id, status, requested_by, policy_snapshot, deleted_counts)
+VALUES (gen_random_uuid()::text, sqlc.arg(workspace_id)::text, 'pending', sqlc.arg(requested_by)::text,
+        sqlc.arg(policy_snapshot)::json, '{}'::json)
+RETURNING id, status, requested_by, policy_snapshot, deleted_counts, error, started_at, finished_at, created_at;
+
+-- Newest first. The keyset compares the naive column to an aware UTC cursor as timestamptz (the
+-- session TimeZone reads the column), exactly what psycopg sends for Python's aware datetime.
+-- name: RetRunsList :many
+SELECT id, status, requested_by, policy_snapshot, deleted_counts, error, started_at, finished_at, created_at
+FROM retention_runs
+WHERE workspace_id = sqlc.arg(workspace_id)::text
+  AND (NOT sqlc.arg(use_cursor)::bool
+       OR created_at < sqlc.arg(cursor_created)::timestamptz
+       OR (created_at = sqlc.arg(cursor_created)::timestamptz AND id < sqlc.arg(cursor_id)::text))
+ORDER BY created_at DESC, id DESC
+LIMIT sqlc.arg(row_limit)::int OFFSET sqlc.arg(row_offset)::int;
+
+-- The enforce job: payload {workspace_id, run_id} without fire_key (queue_service.add_job), due now.
+-- name: RetInsertRunJob :one
+INSERT INTO jobs (executor, type, payload, workspace_id, priority, fire_key, status,
+                  created_at, next_run_at, max_retries, retry_count)
+VALUES (sqlc.arg(executor)::text, 'retention_enforce', sqlc.arg(payload)::json, sqlc.arg(workspace_id)::text, 1,
+        sqlc.arg(fire_key)::text, 'pending', (now() AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'), 3, 0)
+RETURNING id;
