@@ -208,8 +208,6 @@ func TestCertificateVerificationRequired(t *testing.T) {
 	if err == nil {
 		t.Fatal("self-signed certificate was accepted")
 	}
-	var ua x509UnknownAuthority
-	_ = ua
 	if !strings.Contains(err.Error(), "certificate") && !strings.Contains(err.Error(), "x509") {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -220,8 +218,6 @@ func TestCertificateVerificationRequired(t *testing.T) {
 		t.Fatal("self-signed certificate accepted over STARTTLS")
 	}
 }
-
-type x509UnknownAuthority struct{}
 
 func TestDialGuardUsed(t *testing.T) {
 	ts := newServer(t, modeImplicitTLS)

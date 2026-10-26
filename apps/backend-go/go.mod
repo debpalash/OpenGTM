@@ -6,6 +6,7 @@ toolchain go1.27.3
 
 require (
 	github.com/coder/websocket v1.8.14
+	github.com/emersion/go-imap/v2 v2.0.0-beta.8
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/redis/go-redis/v9 v9.23.0
@@ -24,6 +25,8 @@ require (
 	github.com/cubicdaiya/gonp v1.0.4 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/emersion/go-message v0.18.2 // indirect
+	github.com/emersion/go-sasl v0.0.0-20241020182733-b788ff22d5a6 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
 	github.com/go-sql-driver/mysql v1.9.2 // indirect
 	github.com/google/cel-go v0.24.1 // indirect
