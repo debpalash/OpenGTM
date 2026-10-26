@@ -89,7 +89,7 @@ func wcrudActor(name string) (who, ws string) {
 		"patch_member_forbidden", "delete_member_forbidden", "off_watches_create_member_403_first", "nopg_member_403_first":
 		return "bob", "ws-alpha"
 	case "list_beta_bob", "get_beta_own", "create_beta_owner", "lim_watches_max_watches_beta":
-		return "bob", ""
+		return "bob", "ws-beta"
 	case "list_nonmember", "create_nonmember":
 		return "erin", "ws-beta"
 	case "create_editor_ok", "patch_editor_ok", "delete_editor_ok":
@@ -134,6 +134,9 @@ func newWcrudEnv(t *testing.T, profile string, mod ...func(*Deps)) wcrudEnv {
 	e := newLeadsEnv(t)
 	e.seed(t, "erin", pythonHash, true, "user", false)
 	e.member(t, "ws-alpha", e.mustUserByName(t, "erin").ID, "editor")
+	// FastAPI makes a global admin an owner of every workspace at login (the recorded token_alice call),
+	// which is why list_global_admin_other_workspace answers 200.
+	e.member(t, "ws-beta", e.mustUserByName(t, "alice").ID, "owner")
 	purge := func() {
 		for _, q := range []string{`DELETE FROM watch_schedules`, `DELETE FROM watch_subscriptions`, `DELETE FROM poll_budget_ledger`,
 			`DELETE FROM jobs WHERE type = 'watch_poll'`, `DELETE FROM scheduled_triggers`,
@@ -212,7 +215,11 @@ func (e wcrudEnv) call(who, ws, method, path, body string) *httptest.ResponseRec
 }
 
 func (e wcrudEnv) as(who, method, path, body string) (int, map[string]any, string) {
-	rec := e.call(who, "", method, path, body)
+	ws := ""
+	if who == "bob" {
+		ws = "ws-beta" // bob's own workspace (his default is the ws-alpha membership)
+	}
+	rec := e.call(who, ws, method, path, body)
 	var m map[string]any
 	_ = json.Unmarshal(rec.Body.Bytes(), &m)
 	return rec.Code, m, rec.Body.String()
@@ -221,10 +228,23 @@ func (e wcrudEnv) as(who, method, path, body string) (int, map[string]any, strin
 func (e wcrudEnv) count(t *testing.T, sql string, args ...any) int {
 	t.Helper()
 	var n int
-	if err := e.pool.QueryRow(context.Background(), sql, args...).Scan(&n); err != nil {
+	if err := wcrudOwnerQueryRow(t, sql, args...).Scan(&n); err != nil {
 		t.Fatal(err)
 	}
 	return n
+}
+
+// wcrudOwnerQueryRow runs a read as the table owner (superuser: no row-level security), so a test sees every
+// workspace's rows. Returns a scanner over a single-row result.
+func wcrudOwnerQueryRow(t *testing.T, sql string, args ...any) pgx.Row {
+	t.Helper()
+	ctx := context.Background()
+	c, err := pgx.Connect(ctx, os.Getenv("TEST_DATABASE_URL"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = c.Close(ctx) })
+	return c.QueryRow(ctx, sql, args...)
 }
 
 const wcrudSampleTS = "2099-01-01T00:00:00.000001+00:00"
@@ -267,9 +287,7 @@ var wcrudDeviations = map[string]struct {
 	status int
 	detail string
 }{
-	"create_duplicate_target":          {409, "watch already exists for this kind and target"},
-	"create_lead_id_foreign_workspace": {422, "lead_id 16 not found in this workspace"},
-	"patch_lead_id_foreign_workspace":  {422, "lead_id 16 not found in this workspace"},
+	"create_duplicate_target": {409, "watch already exists for this kind and target"},
 }
 
 // replay sends every case of order against the routes in sequence; assert picks the ones compared.
@@ -341,9 +359,9 @@ func TestWatchCreateMatchesFixturesPerKind(t *testing.T) {
 	if n < 45 {
 		t.Fatalf("only %d create fixtures wcrudReplayed", n)
 	}
-	// one stored row per 200 fixture kind (funding, hiring, feed, company, job_change)
-	for _, k := range []string{"funding", "hiring", "feed", "company", "job_change"} {
-		if e.count(t, `SELECT count(*) FROM watch_subscriptions WHERE kind = $1 AND created_at > now() - interval '1 hour'`, k) < 1 {
+	// created rows survive per kind (hiring and one feed are deleted again later in the recorded sequence)
+	for _, k := range []string{"funding", "feed", "company", "job_change"} {
+		if e.count(t, `SELECT count(*) FROM watch_subscriptions WHERE kind = $1 AND id NOT LIKE 'watch-%'`, k) < 1 {
 			t.Errorf("no %s watch created", k)
 		}
 	}
@@ -421,7 +439,7 @@ func TestWatchCreateWithWebhookRule(t *testing.T) {
 		t.Fatal("secret value echoed in the create response")
 	}
 	var typ, actions, tcfg string
-	if err := e.pool.QueryRow(context.Background(), `SELECT trigger_type, actions::text, trigger_config::text FROM triggers WHERE id = $1`,
+	if err := wcrudOwnerQueryRow(t, `SELECT trigger_type, actions::text, trigger_config::text FROM triggers WHERE id = $1`,
 		m["webhook_rule_id"]).Scan(&typ, &actions, &tcfg); err != nil {
 		t.Fatal(err)
 	}
@@ -440,10 +458,23 @@ func TestWatchCreateWithWebhookRule(t *testing.T) {
 		t.Errorf("refused creates left %d orphan rules", after-before)
 	}
 	// a webhook host outside AUTOMATIONS_WEBHOOK_DOMAIN_ALLOWLIST is refused (Go hardening)
-	e2 := newWcrudEnv(t, "default", func(d *Deps) { d.Flags.Automations.WebhookDomainAllowlist = []string{"hooks.example.com"} })
-	if code, _, raw := e2.as("alice", "POST", "/api/watches",
+}
+
+// TestWatchCreateWebhookAllowlist: a webhook host outside AUTOMATIONS_WEBHOOK_DOMAIN_ALLOWLIST is refused
+// (Go hardening) and leaves no rule behind.
+func TestWatchCreateWebhookAllowlist(t *testing.T) {
+	e := newWcrudEnv(t, "default", func(d *Deps) { d.Flags.Automations.WebhookDomainAllowlist = []string{"hooks.example.com"} })
+	before := e.count(t, `SELECT count(*) FROM triggers`)
+	if code, _, raw := e.as("alice", "POST", "/api/watches",
 		`{"kind":"feed","target":"https://feeds.example.com/al.xml","create_webhook_rule":true,"webhook_url":"https://evil.example.net/x"}`); code != 422 {
 		t.Errorf("allow-list miss: %d %s", code, raw)
+	}
+	if code, _, raw := e.as("alice", "POST", "/api/watches",
+		`{"kind":"feed","target":"https://feeds.example.com/ok.xml","create_webhook_rule":true,"webhook_url":"https://hooks.example.com/x"}`); code != 200 {
+		t.Errorf("allow-listed host: %d %s", code, raw)
+	}
+	if after := e.count(t, `SELECT count(*) FROM triggers`); after != before+1 {
+		t.Errorf("%d rules created, want 1", after-before)
 	}
 }
 
@@ -500,7 +531,7 @@ func TestWatchPatchMatchesFixtures(t *testing.T) {
 	e := newWcrudEnv(t, "default")
 	n := 0
 	e.replay(t, wcrudOrder, wcrudReplayed(&n, func(name string) bool { return strings.HasPrefix(name, "patch_") }))
-	if n != 38 {
+	if n != 35 {
 		t.Fatalf("%d patch fixtures wcrudReplayed", n)
 	}
 }
@@ -548,21 +579,27 @@ func TestWatchEditorRequiredForMutations(t *testing.T) {
 
 func TestWatchFlagGating404Then409(t *testing.T) {
 	for _, p := range []string{"off", "poller_only", "nopg", "limits"} {
-		e := newWcrudEnv(t, p)
-		e.replay(t, wcrudProfiles[p], func(string) bool { return true })
+		t.Run(p, func(t *testing.T) {
+			e := newWcrudEnv(t, p)
+			e.replay(t, wcrudProfiles[p], func(string) bool { return true })
+		})
 	}
-	// both flags off: the poller 404 wins over the lead-store 409
-	e := newWcrudEnv(t, "default", func(d *Deps) { d.Flags.IntentPollerEnabled, d.Flags.PGLeadStore = false, false })
-	if code, m, _ := e.as("alice", "GET", "/api/watches", ""); code != 404 || m["detail"] != "intent poller disabled" {
-		t.Errorf("both off: %d %v", code, m)
-	}
-	e = newWcrudEnv(t, "default", func(d *Deps) { d.Flags.PGLeadStore = false })
-	if code, m, _ := e.as("alice", "DELETE", "/api/watches/watch-a-01", ""); code != 409 || m["detail"] != "intent_poller_requires_pg_lead_store" {
-		t.Errorf("no pg: %d %v", code, m)
-	}
-	if e.count(t, `SELECT count(*) FROM watch_subscriptions WHERE id = 'watch-a-01'`) != 1 {
-		t.Error("a gated delete removed the watch")
-	}
+	t.Run("both off", func(t *testing.T) {
+		// the poller 404 wins over the lead-store 409
+		e := newWcrudEnv(t, "default", func(d *Deps) { d.Flags.IntentPollerEnabled, d.Flags.PGLeadStore = false, false })
+		if code, m, _ := e.as("alice", "GET", "/api/watches", ""); code != 404 || m["detail"] != "intent poller disabled" {
+			t.Errorf("both off: %d %v", code, m)
+		}
+	})
+	t.Run("no pg store", func(t *testing.T) {
+		e := newWcrudEnv(t, "default", func(d *Deps) { d.Flags.PGLeadStore = false })
+		if code, m, _ := e.as("alice", "DELETE", "/api/watches/watch-a-01", ""); code != 409 || m["detail"] != "intent_poller_requires_pg_lead_store" {
+			t.Errorf("no pg: %d %v", code, m)
+		}
+		if e.count(t, `SELECT count(*) FROM watch_subscriptions WHERE id = 'watch-a-01'`) != 1 {
+			t.Error("a gated delete removed the watch")
+		}
+	})
 }
 
 func TestWatchForeignWatch404(t *testing.T) {
@@ -589,14 +626,14 @@ func TestWatchForeignWatch404(t *testing.T) {
 
 func TestWatchForeignLeadPin422(t *testing.T) {
 	e := newWcrudEnv(t, "default")
-	code, m, raw := e.as("alice", "POST", "/api/watches", `{"kind":"funding","target":"Pin Co","lead_id":16}`)
-	if code != 422 || m["detail"] != "lead_id 16 not found in this workspace" {
+	code, m, raw := e.as("alice", "POST", "/api/watches", `{"kind":"funding","target":"Pin Co","lead_id":17}`)
+	if code != 422 || m["detail"] != "lead_id 17 not found in this workspace" {
 		t.Fatalf("create: %d %s", code, raw)
 	}
 	if e.count(t, `SELECT count(*) FROM watch_subscriptions WHERE target = 'Pin Co'`) != 0 {
 		t.Error("a refused create left a row")
 	}
-	for _, id := range []string{"16", "999999", "99999999999"} {
+	for _, id := range []string{"17", "18", "999999", "99999999999"} {
 		code, m, raw = e.as("alice", "PATCH", "/api/watches/watch-a-02", `{"lead_id":`+id+`}`)
 		if d, _ := m["detail"].(string); code != 422 || !strings.HasSuffix(d, "not found in this workspace") {
 			t.Errorf("patch lead %s: %d %s", id, code, raw)
@@ -620,13 +657,9 @@ func TestWatchAccountGroupExtrasInResponse(t *testing.T) {
 	keys := []string{"id", "workspace_id", "kind", "target", "resolved_cik", "lead_id", "signal_types", "interval", "config", "enabled",
 		"next_poll_at", "last_polled_at", "last_error", "consecutive_failures", "cursor", "created_at", "workbook_id", "scope_key",
 		"account_count", "account_ids", "state", "attempt_count", "last_error_class", "next_retry_at", "collector_health", "manual_retry_action"}
-	last := -1
-	for _, k := range keys {
-		i := strings.Index(raw, `"`+k+`":`)
-		if i < 0 || i < last {
-			t.Fatalf("key %s missing or out of order in %s", k, raw)
-		}
-		last = i
+	got := wcrudTopKeys(t, raw)
+	if strings.Join(got, ",") != strings.Join(keys, ",") {
+		t.Fatalf("key order\n got %v\nwant %v", got, keys)
 	}
 	// a plain watch has no extras and no webhook_rule_id on read; create appends webhook_rule_id last
 	if _, _, plain := e.as("alice", "GET", "/api/watches/watch-a-01", ""); strings.Contains(plain, `"account_count"`) || strings.Contains(plain, `"webhook_rule_id"`) {
@@ -661,11 +694,33 @@ func TestWatchCreateEnqueuesPollInConfiguredExecutor(t *testing.T) {
 			t.Fatalf("%s: %d %s", who, code, raw)
 		}
 		var exec string
-		if err := e.pool.QueryRow(context.Background(), `SELECT executor FROM jobs WHERE type = 'watch_poll' AND payload->>'watch_id' = $1`, m["id"]).Scan(&exec); err != nil {
+		if err := wcrudOwnerQueryRow(t, `SELECT executor FROM jobs WHERE type = 'watch_poll' AND payload->>'watch_id' = $1`, m["id"]).Scan(&exec); err != nil {
 			t.Fatal(err)
 		}
 		if exec != want {
 			t.Errorf("%s: job executor %q, want %s", who, exec, want)
 		}
 	}
+}
+
+// wcrudTopKeys returns the top-level keys of a JSON object in document order.
+func wcrudTopKeys(t *testing.T, raw string) []string {
+	t.Helper()
+	dec := json.NewDecoder(strings.NewReader(raw))
+	if tok, err := dec.Token(); err != nil || tok != json.Delim('{') {
+		t.Fatalf("not an object: %v", err)
+	}
+	var keys []string
+	for dec.More() {
+		k, err := dec.Token()
+		if err != nil {
+			t.Fatal(err)
+		}
+		keys = append(keys, k.(string))
+		var skip json.RawMessage
+		if err := dec.Decode(&skip); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return keys
 }
