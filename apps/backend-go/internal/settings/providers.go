@@ -227,6 +227,23 @@ func (p *Providers) Test(ctx context.Context, id string) (res map[string]any, fo
 }
 
 func (p *Providers) post(ctx context.Context, target string, hdr map[string]string, body any) (int, []byte, error) {
+	st, raw, err := p.doPost(ctx, target, hdr, body)
+	if err != nil {
+		// Never surface the URL or any credential header value.
+		msg := err.Error()
+		for _, v := range hdr {
+			if len(v) >= 8 {
+				msg = strings.ReplaceAll(msg, v, "[redacted]")
+				msg = strings.ReplaceAll(msg, strings.TrimPrefix(v, "Bearer "), "[redacted]")
+			}
+		}
+		msg = strings.ReplaceAll(msg, target, "[url]")
+		err = errors.New(msg)
+	}
+	return st, raw, err
+}
+
+func (p *Providers) doPost(ctx context.Context, target string, hdr map[string]string, body any) (int, []byte, error) {
 	b, _ := json.Marshal(body)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, target, bytes.NewReader(b))
 	if err != nil {
@@ -350,7 +367,8 @@ func (p *Providers) send(ctx context.Context, id string, prov Provider, key, bas
 		}
 		return errResult(msg)
 	case id == "google_ai":
-		status, raw, err := p.post(ctx, fmt.Sprintf("%s/models/%s:generateContent?key=%s", base, model, url.QueryEscape(key)), nil,
+		status, raw, err := p.post(ctx, fmt.Sprintf("%s/models/%s:generateContent", strings.TrimRight(base, "/"), url.PathEscape(model)),
+			map[string]string{"x-goog-api-key": key},
 			map[string]any{"contents": []any{map[string]any{"parts": []any{map[string]string{"text": testPrompt}}}}})
 		if err != nil {
 			return errResult(err.Error())

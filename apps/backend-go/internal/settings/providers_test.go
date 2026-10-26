@@ -192,3 +192,53 @@ func TestTestProviderErrorBodies(t *testing.T) {
 		t.Fatalf("%v", res)
 	}
 }
+
+func TestTestProviderTransportErrorLeaksNeitherKeyNorURL(t *testing.T) {
+	const key = "AIzaSyTESTKEY1234567890abcdef"
+	var buf strings.Builder
+	st := newFake()
+	p := newProviders(t, st)
+	p.Log = slog.New(slog.NewTextHandler(&buf, nil))
+	// google_ai id is required for the native branch: reuse it as non-openai.
+	prov, _ := p.Reg.Provider("google_ai")
+	prov.OpenAICompatible = false
+	p.Reg.Providers.m["google_ai"] = prov
+	ctx := context.Background()
+	_ = p.App.Set(ctx, prov.EnvKey, key)
+	_ = p.App.Set(ctx, prov.EnvURL, "http://127.0.0.1:1/v1beta")
+	res, _, err := p.Test(ctx, "google_ai")
+	if err != nil {
+		t.Fatal(err)
+	}
+	out, _ := json.Marshal(res)
+	all := string(out) + buf.String()
+	for _, bad := range []string{key, "generateContent", "127.0.0.1:1/v1beta"} {
+		if strings.Contains(all, bad) {
+			t.Fatalf("leak of %q in %s", bad, all)
+		}
+	}
+	if res["status"] != "error" {
+		t.Fatalf("%v", res)
+	}
+}
+
+func TestGoogleKeySentAsHeaderNotQuery(t *testing.T) {
+	var q, hk, path string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		q, hk, path = r.URL.RawQuery, r.Header.Get("x-goog-api-key"), r.URL.EscapedPath()
+		_, _ = w.Write([]byte(`{"candidates":[{"content":{"parts":[{"text":" hi "}]}}]}`))
+	}))
+	defer srv.Close()
+	p := newProviders(t, newFake(), hostOf(t, srv))
+	prov, _ := p.Reg.Provider("google_ai")
+	prov.OpenAICompatible = false
+	p.Reg.Providers.m["google_ai"] = prov
+	ctx := context.Background()
+	_ = p.App.Set(ctx, prov.EnvKey, "AIzaSy1234567890abcdef")
+	_ = p.App.Set(ctx, prov.EnvURL, srv.URL+"/v1beta/")
+	_ = p.App.Set(ctx, prov.EnvModel, "gem/ini 1")
+	res, _, _ := p.Test(ctx, "google_ai")
+	if q != "" || hk != "AIzaSy1234567890abcdef" || path != "/v1beta/models/gem%2Fini%201:generateContent" || res["response"] != "hi" {
+		t.Fatalf("q=%q hk=%q path=%q res=%v", q, hk, path, res)
+	}
+}
