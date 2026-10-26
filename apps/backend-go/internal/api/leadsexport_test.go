@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
-	"strings"
 	"testing"
 )
 
@@ -30,7 +29,9 @@ func loadCSVVectors(t *testing.T) csvVectors {
 		t.Fatal(err)
 	}
 	var v csvVectors
-	if err := json.Unmarshal(raw, &v); err != nil {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber()
+	if err := dec.Decode(&v); err != nil {
 		t.Fatal(err)
 	}
 	return v
@@ -38,8 +39,13 @@ func loadCSVVectors(t *testing.T) csvVectors {
 
 // vectorValue restores the Python type lost by JSON (ints stay float64 after decoding).
 func vectorValue(typ string, in any) any {
-	if f, ok := in.(float64); ok && typ == "int" {
-		return int64(f)
+	if n, ok := in.(json.Number); ok {
+		if typ == "int" {
+			i, _ := n.Int64()
+			return i
+		}
+		f, _ := n.Float64()
+		return f
 	}
 	return in
 }
@@ -86,10 +92,14 @@ func TestCSVWriterMatchesPythonLines(t *testing.T) {
 	for i, r := range loadCSVVectors(t).Rows {
 		vals := make([]any, len(r.Values))
 		for j, x := range r.Values {
-			vals[j] = x
-			if f, ok := x.(float64); ok && f == float64(int64(f)) && !strings.Contains(r.Line, "1.5") {
-				vals[j] = int64(f)
+			if n, ok := x.(json.Number); ok {
+				if iv, err := n.Int64(); err == nil {
+					x = iv
+				} else {
+					x, _ = n.Float64()
+				}
 			}
+			vals[j] = csvSafe(x)
 		}
 		var b bytes.Buffer
 		if err := writeExportRow(&b, vals); err != nil {
