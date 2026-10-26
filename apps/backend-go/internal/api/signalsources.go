@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -58,10 +57,11 @@ func certSnapshotFor(d Deps, now func() time.Time) certSnapshot {
 	return snap
 }
 
-// certText renders a certificate field; validated certificates carry strings there.
+// certText renders a certificate field; validated certificates carry strings there,
+// anything else fails closed to "".
 func certText(v any) string {
 	if s, ok := v.(string); ok {
 		return s
 	}
-	return fmt.Sprint(v)
+	return ""
 }
