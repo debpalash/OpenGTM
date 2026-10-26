@@ -80,10 +80,11 @@ ON CONFLICT (workspace_id) DO UPDATE
 SET enabled = EXCLUDED.enabled, next_run_at = EXCLUDED.next_run_at, updated_at = now();
 
 -- The row enqueue_job_once writes: priority 1, max_retries 3, next_run_at = the next
--- occurrence (NOT now: the job must wait a day), workspace_id left NULL as in Python.
+-- occurrence (NOT now: the job must wait a day), workspace_id set (Python
+-- leaves it NULL; the Go handler accepts both, see retention.verifyScheduled).
 -- name: RetInsertScheduledJob :one
-INSERT INTO jobs (executor, type, payload, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count)
-VALUES (sqlc.arg(executor)::text, 'retention_enforce', sqlc.arg(payload)::json, 1, sqlc.arg(fire_key)::text, 'pending',
+INSERT INTO jobs (executor, type, payload, workspace_id, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count)
+VALUES (sqlc.arg(executor)::text, 'retention_enforce', sqlc.arg(payload)::json, sqlc.arg(workspace_id)::text, 1, sqlc.arg(fire_key)::text, 'pending',
         (now() AT TIME ZONE 'UTC'), (sqlc.arg(next_run_at)::timestamptz)::timestamp, 3, 0)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id;

@@ -8,8 +8,12 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/jackc/pgx/v5"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
@@ -49,7 +53,7 @@ func RunHandler(d Deps, r Researcher) func(ctx context.Context, c *queue.Claim) 
 		if f[0] == "" || f[1] == "" {
 			return errors.New(errRunPayload)
 		}
-		if c.WorkspaceID != "" && f[0] != c.WorkspaceID {
+		if c.WorkspaceID == "" || f[0] != c.WorkspaceID { // a run job always carries its workspace
 			return foreign(c)
 		}
 		err := HandleRun(ctx, d, f[0], f[1])
@@ -67,6 +71,45 @@ func RunHandler(d Deps, r Researcher) func(ctx context.Context, c *queue.Claim) 
 	}
 }
 
+// verifyScheduleJob admits a research_playbook_schedule job with an empty jobs.workspace_id
+// (what Python's enqueue_job_once writes). The job's own fire_key must be exactly
+// playbook_schedule:<playbook id>:<iso time> for the payload's playbook, and the playbook
+// must exist in the payload's workspace (read in that tenant, so a forged workspace sees
+// nothing) with an active schedule; anything else is a permanent failure.
+func verifyScheduleJob(ctx context.Context, d Deps, jobID int64, ws, playbookID string) error {
+	var fk *string
+	if err := d.Pool.QueryRow(ctx, `SELECT fire_key FROM jobs WHERE id = $1 AND type = 'research_playbook_schedule'`, jobID).Scan(&fk); err != nil {
+		return fmt.Errorf("playbook schedule job %d: read fire key: %w", jobID, err)
+	}
+	prefix := schedulePrefix(playbookID)
+	if fk == nil || len(*fk) <= len(prefix) || (*fk)[:len(prefix)] != prefix {
+		return fmt.Errorf("playbook schedule job %d fire key does not name the payload playbook", jobID)
+	}
+	active := false
+	err := tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {
+		row, err := gen.New(tx).PbGetPlaybook(ctx, gen.PbGetPlaybookParams{WorkspaceID: ws, ID: playbookID})
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		pb, err := playbookFrom(row)
+		if err != nil {
+			return err
+		}
+		active = pb.Enabled && pb.ScheduleAudienceID != nil && *pb.ScheduleAudienceID != ""
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	if !active {
+		return fmt.Errorf("playbook schedule job %d: no active scheduled playbook in the payload workspace", jobID)
+	}
+	return nil
+}
+
 // ScheduleHandler is the research_playbook_schedule job handler.
 func ScheduleHandler(d Deps) func(ctx context.Context, c *queue.Claim) error {
 	return func(ctx context.Context, c *queue.Claim) error {
@@ -74,8 +117,12 @@ func ScheduleHandler(d Deps) func(ctx context.Context, c *queue.Claim) error {
 		if f[0] == "" || f[1] == "" {
 			return errors.New("playbook schedule requires workspace_id and playbook_id")
 		}
-		if c.WorkspaceID != "" && f[0] != c.WorkspaceID {
-			return foreign(c)
+		if c.WorkspaceID != "" {
+			if f[0] != c.WorkspaceID {
+				return foreign(c)
+			}
+		} else if err := verifyScheduleJob(ctx, d, c.ID, f[0], f[1]); err != nil {
+			return &queue.PermanentError{Err: err}
 		}
 		return HandleSchedule(ctx, d, f[0], f[1])
 	}
@@ -87,7 +134,7 @@ func ScheduleHandler(d Deps) func(ctx context.Context, c *queue.Claim) error {
 func FailureHook(d Deps) queue.FailureHook {
 	return func(ctx context.Context, n queue.FailureNotice) error {
 		f := payloadFields(n.Payload, "workspace_id", "run_id")
-		if f[0] == "" || f[1] == "" || (n.WorkspaceID != "" && f[0] != n.WorkspaceID) {
+		if f[0] == "" || f[1] == "" || n.WorkspaceID == "" || f[0] != n.WorkspaceID {
 			slog.Error("playbook failure hook: payload does not match the job; ignored", "job_id", n.JobID)
 			return nil
 		}

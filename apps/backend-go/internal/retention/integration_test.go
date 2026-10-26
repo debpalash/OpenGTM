@@ -442,9 +442,12 @@ func (e *env) runSchedule(t *testing.T, tz, scenario string, goExec bool) {
 			got = append(got, m)
 		}
 		want := s.Jobs
-		if goExec {
-			for _, j := range want {
-				if j["fire_key"] == "retention:"+ws+":2026-06-16" {
+		for _, j := range want {
+			if j["fire_key"] == "retention:"+ws+":2026-06-16" {
+				// Go deviation from the Python vector (which leaves it NULL): the scheduled job
+				// carries its workspace (tenant cap); the handler accepts both.
+				j["workspace_id"] = ws
+				if goExec {
 					j["executor"] = "go"
 				}
 			}

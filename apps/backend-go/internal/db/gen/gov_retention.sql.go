@@ -404,26 +404,29 @@ func (q *Queries) RetInsertRunJob(ctx context.Context, arg RetInsertRunJobParams
 }
 
 const retInsertScheduledJob = `-- name: RetInsertScheduledJob :one
-INSERT INTO jobs (executor, type, payload, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count)
-VALUES ($1::text, 'retention_enforce', $2::json, 1, $3::text, 'pending',
-        (now() AT TIME ZONE 'UTC'), ($4::timestamptz)::timestamp, 3, 0)
+INSERT INTO jobs (executor, type, payload, workspace_id, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count)
+VALUES ($1::text, 'retention_enforce', $2::json, $3::text, 1, $4::text, 'pending',
+        (now() AT TIME ZONE 'UTC'), ($5::timestamptz)::timestamp, 3, 0)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id
 `
 
 type RetInsertScheduledJobParams struct {
-	Executor  string
-	Payload   []byte
-	FireKey   string
-	NextRunAt pgtype.Timestamptz
+	Executor    string
+	Payload     []byte
+	WorkspaceID string
+	FireKey     string
+	NextRunAt   pgtype.Timestamptz
 }
 
 // The row enqueue_job_once writes: priority 1, max_retries 3, next_run_at = the next
-// occurrence (NOT now: the job must wait a day), workspace_id left NULL as in Python.
+// occurrence (NOT now: the job must wait a day), workspace_id set (Python
+// leaves it NULL; the Go handler accepts both, see retention.verifyScheduled).
 func (q *Queries) RetInsertScheduledJob(ctx context.Context, arg RetInsertScheduledJobParams) (int32, error) {
 	row := q.db.QueryRow(ctx, retInsertScheduledJob,
 		arg.Executor,
 		arg.Payload,
+		arg.WorkspaceID,
 		arg.FireKey,
 		arg.NextRunAt,
 	)

@@ -113,7 +113,7 @@ func SchedulePolicy(ctx context.Context, tx pgx.Tx, p *Policy, now time.Time, ex
 		return nil, err
 	}
 	if _, err := q.RetInsertScheduledJob(ctx, gen.RetInsertScheduledJobParams{
-		Executor: executor, Payload: bytes.TrimSpace(buf.Bytes()), FireKey: key, NextRunAt: nextTS,
+		Executor: executor, Payload: bytes.TrimSpace(buf.Bytes()), WorkspaceID: ws, FireKey: key, NextRunAt: nextTS,
 	}); err != nil && !errors.Is(err, pgx.ErrNoRows) { // ErrNoRows: lost the unique-index race
 		return nil, fmt.Errorf("retention: enqueue: %w", err)
 	}
