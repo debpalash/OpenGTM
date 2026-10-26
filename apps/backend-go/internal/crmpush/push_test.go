@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -61,7 +62,9 @@ func loadVectors(t *testing.T) vectors {
 		t.Fatal(err)
 	}
 	var v vectors
-	if err := json.Unmarshal(raw, &v); err != nil {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber() // production row data is decoded with UseNumber: 501 stays "501"
+	if err := dec.Decode(&v); err != nil {
 		t.Fatal(err)
 	}
 	return v
@@ -350,7 +353,7 @@ func assertCall(t *testing.T, got callRec, want vectorCall) {
 		_ = json.Unmarshal(args["lead"], &lead)
 		for k, x := range lead {
 			g, _ := got.Lead.Get(k)
-			if g != x {
+			if fmt.Sprint(g) != fmt.Sprint(x) {
 				t.Fatalf("lead.%s=%v want %v", k, g, x)
 			}
 		}
