@@ -240,7 +240,7 @@ func destSyncHandler(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, se
 	dd := destsync.Deps{
 		Pool: pool, Deliverer: destdeliver.New(ports, aud.DestDeliveryTimeout),
 		Ads:            destsync.NewAdSyncer(adsdrv.NewClient(get, cfg.AppEnv, cfg.EgressAllowHosts)),
-		Warehouse:      destsync.NewWarehouseSyncer(warehouse.NewClient(cfg.AppEnv, cfg.EgressAllowHosts), get),
+		Warehouse:      destsync.NewWarehouseSyncer(warehouse.NewClient(cfg.AppEnv, cfg.EgressAllowHosts), destdeliver.WorkspaceOnly(sec)),
 		MemberPageSize: aud.DestMemberPageSize, AdBatchSize: aud.DestAdBatchSize, Log: log,
 	}
 	if o.lease != nil {

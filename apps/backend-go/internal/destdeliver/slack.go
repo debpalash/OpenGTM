@@ -17,11 +17,13 @@ func (d *Deliverer) slack(ctx context.Context, dest Destination, leadID int, sna
 	if ref == "" || d.ports.Secrets == nil {
 		return Result{Error: notFound}
 	}
-	webhookURL, _, err := d.ports.Secrets.Get(ctx, dest.WorkspaceID, ref)
+	webhookURL, src, err := d.ports.Secrets.Get(ctx, dest.WorkspaceID, ref)
 	if err != nil {
 		return Result{Error: "Slack webhook secret lookup failed"}
 	}
-	if webhookURL == "" {
+	// The reference names a workspace secret only: a global or env value never stands in (it would be sent to a
+	// destination-configured URL).
+	if webhookURL == "" || src != "workspace" {
 		return Result{Error: notFound}
 	}
 	sec.add(webhookURL)

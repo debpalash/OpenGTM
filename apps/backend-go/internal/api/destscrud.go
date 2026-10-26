@@ -253,11 +253,13 @@ func (h destCrud) checkConfig(ctx context.Context, ws, typ string, cfg map[strin
 		return "", errSecretsOff
 	}
 	res := secrets.NewResolver(h.d.Envelope, secrets.NewPgStore(h.d.Pool), h.d.getenv())
-	v, _, gerr := res.Get(ctx, ws, colgraph.PyStr(cfg[field]))
+	v, src, gerr := res.Get(ctx, ws, colgraph.PyStr(cfg[field]))
 	if gerr != nil {
 		return "", gerr
 	}
-	if v == "" {
+	// Workspace secrets only (deviation from Python's get_secret fallback, logged for #114): the value is sent to a
+	// destination-configured URL, so a global or env key must not be reachable by name.
+	if v == "" || src != secrets.SourceWorkspace {
 		return typ + " " + field + " was not found", nil
 	}
 	return "", nil

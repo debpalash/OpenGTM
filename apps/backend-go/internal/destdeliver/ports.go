@@ -68,6 +68,22 @@ type SecretResolver interface {
 	Get(ctx context.Context, ws, key string) (value, source string, err error)
 }
 
+// WorkspaceOnly adapts a resolver to a name getter that answers only workspace-scoped secrets: a global, env or
+// default value reads as unset. Destination header_secret_ref / webhook_secret_ref lookups use it so a workspace
+// editor cannot point a reference at a deployment-level key.
+func WorkspaceOnly(sec SecretResolver) func(ctx context.Context, ws, name string) (string, error) {
+	return func(ctx context.Context, ws, name string) (string, error) {
+		if sec == nil {
+			return "", nil
+		}
+		v, src, err := sec.Get(ctx, ws, name)
+		if err != nil || src != "workspace" {
+			return "", err
+		}
+		return v, nil
+	}
+}
+
 // Ports the Python integrations (plans 07/08) behind Go seams.
 type (
 	WebhookSender interface {
