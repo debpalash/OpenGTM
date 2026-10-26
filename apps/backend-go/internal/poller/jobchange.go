@@ -2,6 +2,7 @@ package poller
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -257,6 +258,15 @@ func pcInt(v any) (int64, bool) {
 		return t, true
 	case int:
 		return int64(t), true
+	case json.Number:
+		if n, err := t.Int64(); err == nil {
+			return n, true
+		}
+		f, err := t.Float64()
+		if err != nil {
+			return 0, false
+		}
+		return pcInt(f)
 	case float64:
 		if math.IsNaN(t) || math.IsInf(t, 0) || t >= 9.2e18 || t <= -9.2e18 {
 			return 0, false
@@ -396,6 +406,10 @@ func FetchJobChanges(ctx context.Context, d PyDeps, w PyWatch, contacts []Contac
 }
 
 func pcFloat(v any) float64 {
+	if n, ok := v.(json.Number); ok {
+		f, _ := n.Float64()
+		return f
+	}
 	if f, ok := providers.Num(v); ok {
 		return f
 	}
