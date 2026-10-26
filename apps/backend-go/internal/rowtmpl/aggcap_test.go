@@ -1,6 +1,9 @@
 package rowtmpl
 
-import "strings"
+import (
+	"strings"
+	"testing"
+)
 
 func TestResolveDeepAggregateCap(t *testing.T) {
 	big := strings.Repeat("x", 8<<10)

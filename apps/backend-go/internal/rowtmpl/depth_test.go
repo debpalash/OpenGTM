@@ -1,6 +1,9 @@
 package rowtmpl
 
-import "strings"
+import (
+	"strings"
+	"testing"
+)
 
 func TestOrderedDepthGuard(t *testing.T) {
 	deep := func(n int) string { return strings.Repeat("[", n) + strings.Repeat("]", n) }
