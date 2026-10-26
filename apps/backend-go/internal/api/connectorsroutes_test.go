@@ -94,15 +94,23 @@ func newConnEnv(t *testing.T) *connEnv {
 // serve rebuilds the router over a manifests directory and signature policy.
 func (e *connEnv) serve(t *testing.T, dir, policy string) {
 	t.Helper()
+	vars := map[string]string{}
+	if policy != "" {
+		vars["CONNECTOR_SIGNATURE_POLICY"] = policy
+	}
+	e.serveVars(t, dir, vars)
+}
+
+// serveVars is serve with an explicit environment (a key present with an empty value is "set").
+func (e *connEnv) serveVars(t *testing.T, dir string, vars map[string]string) {
+	t.Helper()
+	vars["OPENGTM_CONNECTOR_MANIFESTS_DIR"], vars["OPENGTM_CONNECTOR_TRUST_STORE"] = dir, connTrust
+	prev := connectorsLookupEnv
+	connectorsLookupEnv = func(k string) (string, bool) { v, ok := vars[k]; return v, ok }
+	t.Cleanup(func() { connectorsLookupEnv = prev })
 	env, err := secrets.NewEnvelope(secrets.Config{MasterKey: "conn-routes-test-key", AppEnv: "test"}, nil)
 	if err != nil {
 		t.Fatal(err)
-	}
-	vars := map[string]string{
-		"OPENGTM_CONNECTOR_MANIFESTS_DIR": dir, "OPENGTM_CONNECTOR_TRUST_STORE": connTrust,
-	}
-	if policy != "" {
-		vars["CONNECTOR_SIGNATURE_POLICY"] = policy
 	}
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(e.pool, nil))
@@ -286,5 +294,28 @@ func TestCatalogConfiguredPerWorkspace(t *testing.T) {
 	}
 	if b["contract_trusted"] || b["contract_http"] {
 		t.Errorf("ws-alpha secret served ws-beta: %v", b)
+	}
+}
+
+// Python: CONNECTOR_SIGNATURE_POLICY set but empty is not "optional|required", so it is "required".
+func TestEmptySignaturePolicyIsRequired(t *testing.T) {
+	e := newConnEnv(t)
+	dir := copyManifests(t, "contract_badname.yaml")
+	policyOf := func(vars map[string]string) string {
+		e.serveVars(t, dir, vars)
+		rec, _ := e.do("GET", "/api/connectors/compatibility", "", "", e.alice)
+		var b struct {
+			P string `json:"signature_policy"`
+		}
+		if rec.Code != 200 || json.Unmarshal(rec.Body.Bytes(), &b) != nil {
+			t.Fatalf("compat: %d", rec.Code)
+		}
+		return b.P
+	}
+	if got := policyOf(map[string]string{"CONNECTOR_SIGNATURE_POLICY": ""}); got != "required" {
+		t.Errorf("set-but-empty policy = %q, want required", got)
+	}
+	if got := policyOf(map[string]string{}); got != "optional" {
+		t.Errorf("unset policy = %q, want optional", got)
 	}
 }
