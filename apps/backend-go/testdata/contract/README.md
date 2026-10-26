@@ -168,3 +168,12 @@ text (Python `json.dumps` spacing and `ensure_ascii`, `PyDumps`). `TestRowRecomp
 - Not a deviation but worth knowing: `RowQuery.CountSQL` passed the sort-term parameters of a sorted saved view to a
   statement that does not reference them (pgx: `expected N arguments`); fixed with `RowQuery.whereArgs`
   (`TestDeleteQueryWithSortedViewAndSearch`).
+
+## Saved views (Task 14): deviations
+
+Fixtures `views/*` (cases `legacy/python/scripts/contract_cases/views.yaml`, FastAPI as a non-superuser role).
+- A view whose stored `config` is NULL or does not parse as a `ViewConfig`: FastAPI answers 500 on the list/PUT
+  response model; Go shows it as the empty default config (`{"filters":[],"sort":[],"hidden_columns":[]}`) so one bad
+  row cannot take down the switcher. Views list `created_at, id` (as Task 11).
+- `X-Workspace-Id` of another workspace or another workspace's workbook/view ids answer 404 and write nothing.
+- Request bodies over 4 MiB answer 413 `Request body too large`.
