@@ -244,9 +244,6 @@ func (e *Engine) Handle(ctx context.Context, c *queue.Claim) error {
 		buf = warehouse.NewBuffer(rs.runID, rs.ws, rs.ref, e.d.WarehouseMaxMemory)
 		defer buf.Close()
 	}
-	if rs.wh {
-		return errors.New("destsync: warehouse destinations are not implemented yet")
-	}
 	return e.stream(ctx, rs, buf)
 }
 
@@ -370,6 +367,11 @@ func (e *Engine) stream(ctx context.Context, rs *runState, buf *warehouse.Buffer
 	}
 	if rs.ads {
 		if stop, err := e.reconcileExits(ctx, rs); err != nil || stop {
+			return err
+		}
+	}
+	if rs.wh {
+		if stop, err := e.flushWarehouse(ctx, rs, buf); err != nil || stop {
 			return err
 		}
 	}
