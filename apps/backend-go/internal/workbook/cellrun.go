@@ -37,7 +37,12 @@ var (
 	// verification, columns whose Python worker is unavailable): the route proxies the
 	// request to the Python API unchanged. See NeedsPythonReason.
 	ErrNeedsPython = errors.New("workbook: cell runs on the python api")
+	// ErrClientGone means the caller went away before any paid call was dispatched; nothing ran.
+	ErrClientGone = errors.New("workbook: client went away before dispatch")
 )
+
+// cellRunBudget bounds a detached in-request run (provider calls carry their own timeouts).
+const cellRunBudget = 5 * time.Minute
 
 type needsPythonError struct{ reason string }
 
@@ -133,6 +138,28 @@ func (r CellResult) MarshalJSON() ([]byte, error) {
 type cellIdentity struct {
 	keyID int64  // the "job id" inside the attempt key
 	runID string // workbook_spend_attempts.run_id
+	live  bool   // keyed by a live run_workbook job
+}
+
+// clientErr reports a client that left before dispatch (nil for a queued run).
+func (rs *runState) clientErr() error {
+	if rs.client != nil && rs.client.Err() != nil {
+		return fmt.Errorf("%w: %v", ErrClientGone, context.Cause(rs.client))
+	}
+	return nil
+}
+
+// resolveLiveJob keys the cell's spend to the workbook's live run_workbook job, if any.
+func (rs *runState) resolveLiveJob(ctx context.Context, tx pgx.Tx) error {
+	id, err := gen.New(tx).ActiveRunWorkbookJobID(ctx, gen.ActiveRunWorkbookJobIDParams{WorkspaceID: rs.p.WorkspaceID, WorkbookID: rs.p.WorkbookID})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	rs.cell = &cellIdentity{keyID: int64(id), runID: fmt.Sprintf("job:%d", id), live: true}
+	return nil
 }
 
 func (rs *runState) spendJobID() int64 {
@@ -197,12 +224,20 @@ func EnrichCell(ctx context.Context, deps Deps, req CellRequest) (CellResult, er
 	}
 	rs.cycleBlocked = colgraph.CycleBlocked(rs.allCols)
 	if lc.jobID > 0 {
-		rs.cell = &cellIdentity{keyID: lc.jobID, runID: fmt.Sprintf("job:%d", lc.jobID)}
+		rs.cell = &cellIdentity{keyID: lc.jobID, runID: fmt.Sprintf("job:%d", lc.jobID), live: true}
 	} else {
 		id := time.Now().UnixNano() // far above any int4 job id: never collides with a queued run
 		rs.cell = &cellIdentity{keyID: id, runID: fmt.Sprintf("cell:%d", id)}
 	}
-	return rs.runOneCell(ctx, lc, req.Force)
+	// Detach: past the first paid dispatch the client's disconnect must not strand the attempt
+	// `uncertain` or lose the provider result. The client's ctx still gates every pre-dispatch step.
+	rs.client = ctx
+	dctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), cellRunBudget)
+	defer cancel()
+	if err := rs.clientErr(); err != nil {
+		return CellResult{}, err
+	}
+	return rs.runOneCell(dctx, lc, req.Force)
 }
 
 func loadCell(ctx context.Context, deps Deps, req CellRequest) (lc loadedCell, err error) {

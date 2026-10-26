@@ -70,7 +70,7 @@ func truncRunes(s string, n int) string {
 // context was cancelled (lease loss, cancellation, shutdown) or the lease
 // fence failed. Cell-local failures are never abort errors.
 func abortErr(ctx context.Context, err error) error {
-	if errors.Is(err, ErrLeaseLost) {
+	if errors.Is(err, ErrLeaseLost) || errors.Is(err, ErrClientGone) {
 		return err
 	}
 	if ctx.Err() != nil {
@@ -163,11 +163,20 @@ func (rs *runState) markUncertain(ctx context.Context, id spend.Identity) {
 func (rs *runState) reservedCall(ctx context.Context, name string, lead map[string]any,
 	col column, target, rowIdentity string, exposure, cellLimit int64) (pcall providerCall, perr error) {
 	ws, wb := rs.p.WorkspaceID, rs.p.WorkbookID
-	resv := rs.buildReservation(name, lead, col, rowIdentity, exposure, cellLimit)
+	if err := rs.clientErr(); err != nil {
+		return providerCall{}, err
+	}
 	var adm spend.Admission
 	err := tenancy.InWorkspace(ctx, rs.deps.Pool, ws, func(tx pgx.Tx) error {
+		// An in-request cell re-resolves the live run_workbook job inside the reserving
+		// transaction, so a queued run that started after the cell was loaded still owns the key.
+		if rs.claim == nil {
+			if e := rs.resolveLiveJob(ctx, tx); e != nil {
+				return e
+			}
+		}
 		var e error
-		adm, e = spend.Reserve(ctx, tx, resv)
+		adm, e = spend.Reserve(ctx, tx, rs.buildReservation(name, lead, col, rowIdentity, exposure, cellLimit))
 		return e
 	})
 	if err != nil {
@@ -187,6 +196,10 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 
 	if adm.Status == "settled" {
 		return rs.replaySettled(ctx, id)
+	}
+	// The last point an in-request run may still be cancelled by its client.
+	if err := rs.clientErr(); err != nil {
+		return providerCall{}, err
 	}
 	var dispatched bool
 	err = tenancy.InWorkspace(ctx, rs.deps.Pool, ws, func(tx pgx.Tx) error {
@@ -495,6 +508,9 @@ func (rs *runState) waterfall(ctx context.Context, lead map[string]any, col colu
 	attempted := 0 // provider_attempts entries of the Python cell
 loop:
 	for _, name := range chain {
+		if err := rs.clientErr(); err != nil {
+			return cellOutcome{}, err
+		}
 		if err := checkOwner(ctx, rs.deps.Pool, rs.claim, wb); err != nil {
 			return cellOutcome{}, err
 		}
@@ -607,6 +623,11 @@ loop:
 			}
 			resultError = truncRunes("providers_unavailable: "+strings.Join(parts, ", "), maxErrorRunes)
 		}
+	}
+	if rs.claim == nil && rs.cell != nil && rs.cell.live && resultValue == "" && resultError == "attempt_not_dispatchable" {
+		// The live queued run holds this attempt: report it, but never persist an error cell
+		// the queued run's own result would then have to overwrite.
+		return cellOutcome{Err: resultError}, nil
 	}
 	if resultValue == "" && resultError == "contract_conflict" {
 		// A paid cell this job already finished must never be overwritten by a

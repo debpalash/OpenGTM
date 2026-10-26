@@ -93,7 +93,10 @@ type runState struct {
 	// colgraph.CycleBlocked over it.
 	runner ProviderRunner
 	// cell identifies the spend run of an in-request cell run (claim == nil).
-	cell         *cellIdentity
+	cell *cellIdentity
+	// client is the caller of an in-request cell run: its cancellation stops the run only
+	// until the first paid dispatch (the run itself is detached from it).
+	client       context.Context
 	noRetryMu    sync.Mutex
 	noRetry      map[cellKey]bool // cells whose RPC timed out: no automatic retry
 	cols         []column         // every configured column (name aliases for {column} references)
