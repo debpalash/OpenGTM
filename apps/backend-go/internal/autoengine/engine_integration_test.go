@@ -700,3 +700,49 @@ func TestIdempotentReattemptKeepsPriorChargeAndCreditRefusalUpdatesMarker(t *tes
 		}
 	}
 }
+
+// Python expires its ORM rows at every action commit, so a long sweep
+// evaluates each row from its current data: a row edited (or deleted) after
+// the sweep began is judged on what it holds when it is reached.
+func TestSweepReadsRowFreshBeforeEvaluating(t *testing.T) {
+	e := newEnv(t)
+	e.defaultSeed(trig{Condition: "{score} > 50"})
+	rec := &recorder{}
+	e.d.Execute = func(ctx context.Context, ws string, a map[string]any, wb, row string, lead *int64, ld map[string]any, cols []autoactions.Column, idem string) autoactions.Result {
+		if len(rec.calls) == 0 { // while the first row's action runs, a user edits the others
+			e.inWS(ws1, func(tx pgx.Tx) error {
+				if _, err := tx.Exec(e.ctx, `UPDATE workbook_rows SET data='{"company":"Beta","score":"80"}'::json WHERE id=$1`, e.rowIDs[1]); err != nil {
+					return err
+				}
+				_, err := tx.Exec(e.ctx, `UPDATE workbook_rows SET data='{"company":"Gamma","score":"10"}'::json, enrichments=NULL WHERE id=$1`, e.rowIDs[2])
+				return err
+			})
+		}
+		return rec.exec(ctx, ws, a, wb, row, lead, ld, cols, idem)
+	}
+	e.must(e.run(pl("fk-fresh", nil)))
+	if len(rec.calls) != 2 ||
+		!strings.Contains(rec.calls[0], fmt.Sprintf(":%d:", e.rowIDs[0])) ||
+		!strings.Contains(rec.calls[1], fmt.Sprintf(":%d:", e.rowIDs[1])) {
+		t.Fatalf("stale snapshot evaluated: %v", rec.calls)
+	}
+}
+
+func TestSweepSkipsRowDeletedMidSweep(t *testing.T) {
+	e := newEnv(t)
+	e.defaultSeed(trig{})
+	rec := &recorder{}
+	e.d.Execute = func(ctx context.Context, ws string, a map[string]any, wb, row string, lead *int64, ld map[string]any, cols []autoactions.Column, idem string) autoactions.Result {
+		if len(rec.calls) == 0 {
+			e.inWS(ws1, func(tx pgx.Tx) error {
+				_, err := tx.Exec(e.ctx, `DELETE FROM workbook_rows WHERE id=$1`, e.rowIDs[1])
+				return err
+			})
+		}
+		return rec.exec(ctx, ws, a, wb, row, lead, ld, cols, idem)
+	}
+	e.must(e.run(pl("fk-del", nil)))
+	if len(rec.calls) != 2 {
+		t.Fatalf("deleted row still acted on: %v", rec.calls)
+	}
+}
