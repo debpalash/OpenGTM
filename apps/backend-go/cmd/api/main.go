@@ -217,6 +217,7 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool, str
 func applySSE(d *api.Deps, cfg config.APIConfig, streamCtx context.Context) error {
 	d.SSEMaxStreams, d.SSEMaxPerUser, d.SSEMaxPerWorkspace = cfg.SSEMaxStreams, cfg.SSEMaxPerUser, cfg.SSEMaxPerWorkspace
 	d.SSEMaxLifetime, d.ShutdownCtx = cfg.SSEMaxLifetime, streamCtx
+	d.WSMaxMessageBytes = cfg.WSMaxMessageBytes // workbook WebSocket read limit (plan 06 task 29)
 	if cfg.RedisURL == "" {
 		return nil
 	}

@@ -107,13 +107,13 @@ func TestServerTimeouts(t *testing.T) {
 
 func TestApplySSEWiresConfigRedisAndShutdown(t *testing.T) {
 	ctx := context.Background()
-	cfg := config.APIConfig{SSEMaxStreams: 7, SSEMaxPerUser: 2, SSEMaxPerWorkspace: 3, SSEMaxLifetime: time.Minute,
+	cfg := config.APIConfig{SSEMaxStreams: 7, SSEMaxPerUser: 2, SSEMaxPerWorkspace: 3, SSEMaxLifetime: time.Minute, WSMaxMessageBytes: 4096,
 		RedisURL: "redis://:pw-secret@127.0.0.1:1/0"}
 	var d api.Deps
 	if err := applySSE(&d, cfg, ctx); err != nil {
 		t.Fatal(err)
 	}
-	if d.Redis == nil || d.SSEMaxStreams != 7 || d.SSEMaxPerUser != 2 || d.SSEMaxPerWorkspace != 3 || d.SSEMaxLifetime != time.Minute || d.ShutdownCtx != ctx {
+	if d.Redis == nil || d.SSEMaxStreams != 7 || d.SSEMaxPerUser != 2 || d.SSEMaxPerWorkspace != 3 || d.SSEMaxLifetime != time.Minute || d.ShutdownCtx != ctx || d.WSMaxMessageBytes != 4096 {
 		t.Fatalf("deps = %+v", d)
 	}
 	_ = d.Redis.Close()
