@@ -495,3 +495,16 @@ Fixtures `connectors/*` (profiles `default`, `catalog_ok` = default minus `contr
 - `casefold` for name-keyed record ids (companies without an id) is an approximation (lower plus ss/sigma/ligature table); exotic
   scripts can key differently from Python's `str.casefold`.
 - Timeout text is `timeout` (Python's is empty). Production clients use `ambitionbox.NewEgress` (SSRF-safe dialer, Base pinned).
+
+## Email data (plan 07 Task 14): deviations
+
+`internal/emaildata` serves the 7 `/api/data` routes over the legacy GLOBAL `email_data`/`links` tables (no workspace_id; global admin only, plan 07 D5). Replayed against the recorded `testdata/contract/datacrm` fixtures. Deviations from Python:
+
+1. `sort_by` outside the 8 columns (`id,name,email,source_link_id,created_at,is_used,tags,notes`), e.g. `metadata` (Python 500: getattr on a non-column attribute), falls back to `id`; `order` other than `asc` is descending (as Python). Applies to list and export (`TestSortByNonColumnAttributeIsNotACrash`).
+2. Negative `limit` or `offset` answers 422 `greater_than_equal` in FastAPI shape (`emaildata.PagingErrors`, `ErrBadPaging`); Python 500. `stats/domains?limit<=0` answers `[]` as Python.
+3. Ids, `source_link_id` and path ids outside the int4 range match nothing (404 for PATCH, `{"status":"not found"}` for DELETE, dropped from `mark-used`); Python raises a driver error (500).
+4. A NUL byte in a filter or patch string is `ErrInvalidInput`, answered 422 by the route; Python 500.
+5. Ordering appends `id ASC` as a deterministic tie-break (Python has none), so OFFSET paging and export batches are stable.
+6. Domain stats lower-case with Go `strings.ToLower` (Python `.lower()` differs on a few exotic code points); counting happens in Go over the streamed email column.
+7. CSV export neutralises formula prefixes `= + - @ TAB CR` and a leading LF on name, email, tags and notes with an apostrophe (the plan 04 workbook export guard, `wbcrud.ExportSafeValue`); Python writes them raw (`TestExportNeutralisesFormulaPrefixes`; the Python vector `formula_injection_not_escaped` is compared with the guarded bytes). The guard runs before the notes newline-to-space step.
+8. No row cap on export or list `limit` (as Python); the route may cap `limit`.
