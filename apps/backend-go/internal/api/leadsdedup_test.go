@@ -251,7 +251,6 @@ func TestMergeIsAtomic(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer owner.Close(ctx)
 	for _, q := range []string{
 		`CREATE OR REPLACE FUNCTION t13_fail_delete() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF OLD.id = 8 THEN RAISE EXCEPTION 'forced'; END IF; RETURN OLD; END $$`,
 		`CREATE TRIGGER t13_fail BEFORE DELETE ON leads FOR EACH ROW EXECUTE FUNCTION t13_fail_delete()`,
@@ -261,6 +260,7 @@ func TestMergeIsAtomic(t *testing.T) {
 		}
 	}
 	t.Cleanup(func() {
+		defer owner.Close(ctx)
 		_, _ = owner.Exec(ctx, `DROP TRIGGER IF EXISTS t13_fail ON leads`)
 		_, _ = owner.Exec(ctx, `DROP FUNCTION IF EXISTS t13_fail_delete()`)
 	})

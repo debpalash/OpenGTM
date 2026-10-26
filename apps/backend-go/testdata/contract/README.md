@@ -297,3 +297,9 @@ Fixtures `analytics/*` (cases `legacy/python/scripts/contract_cases/analytics.ya
 - Bodies are decoded by `encoding/json`: `NaN`/`Infinity` literals answer 422 `json_invalid` (Python's parser accepts them), and a lone
   surrogate escape such as `\ud800` becomes U+FFFD instead of a Python 500 at encode time.
 - Trailing data after the JSON value (for example a stray `}`) answers 422 `json_invalid`, as in Python.
+
+## Dedup routes (plan 05 Task 13): deviations
+- `POST /api/leads/dedup/merge`: non-integer `master_id` or `duplicate_ids` (strings, floats, booleans, nulls, a non-list) answer 400 `master_id and duplicate_ids required` (D2; Python looked them up in SQLite-style coercion or crashed with 500).
+- A merge whose leads hold a NULL/non-numeric `score` or a non-string `source` answers 422 (`value_error`, loc `body.duplicate_ids`) before any write (D2; Python raises TypeError, 500).
+- The master update and all deletes run in one transaction (D4); Python wrote and deleted in separate statements, so a failure left a half-merged state.
+- Dedup run fixtures are compared order-insensitively (cluster id sets, unordered pair digests): Python's tie ordering depends on `PYTHONHASHSEED`.
