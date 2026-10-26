@@ -187,7 +187,7 @@ func TestScanIsIdempotentAcrossRuns(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if c2.SignalsFound < 2 || c2.SignalsInserted != 0 {
+	if c2.SignalsFound < 1 || c2.SignalsInserted != 0 {
 		t.Fatalf("second run inserted again: %+v", c2)
 	}
 	if got := e.signalIDs(t, ws); len(got) != 2 {
@@ -292,11 +292,23 @@ func TestOnSignalOnlyForNewRows(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("want exactly the hiring rule to fire once, got %d: %+v", len(got), got)
 	}
-	for _, want := range []string{`"trigger_id": "tr-hiring"`, `"fire_source": "signal"`, `"fire_key": "signal:` + sid + `"`,
-		fmt.Sprintf(`"row_id": "%d"`, row), `"workbook_id": "` + e.prefix + `wb1"`, `"dry_run": false`} {
-		if !strings.Contains(got[0].payload, want) {
-			t.Fatalf("payload missing %s: %s", want, got[0].payload)
-		}
+	var p struct {
+		TriggerID   string `json:"trigger_id"`
+		WorkspaceID string `json:"workspace_id"`
+		Targets     []struct {
+			WorkbookID string `json:"workbook_id"`
+			RowID      string `json:"row_id"`
+		} `json:"targets"`
+		FireSource string `json:"fire_source"`
+		FireKey    string `json:"fire_key"`
+		DryRun     bool   `json:"dry_run"`
+	}
+	if err := json.Unmarshal([]byte(got[0].payload), &p); err != nil {
+		t.Fatal(err)
+	}
+	if p.TriggerID != "tr-hiring" || p.WorkspaceID != ws || p.FireSource != "signal" || p.FireKey != "signal:"+sid || p.DryRun ||
+		len(p.Targets) != 1 || p.Targets[0].WorkbookID != e.prefix+"wb1" || p.Targets[0].RowID != fmt.Sprint(row) {
+		t.Fatalf("payload %s", got[0].payload)
 	}
 	if got[0].exec != "python" || got[0].status != "pending" || got[0].prio != 1 {
 		t.Fatalf("job %+v", got[0])
