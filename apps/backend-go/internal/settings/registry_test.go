@@ -91,6 +91,10 @@ func TestRegistryMatchesRecordedProvidersFixture(t *testing.T) {
 
 func TestRegistrySecretAppKeys(t *testing.T) {
 	r := mustLoad(t)
+	// Tripwire: an empty list (e.g. a bad export) must never pass silently.
+	if len(r.SecretAppKeys) == 0 {
+		t.Fatal("registry.json secret_app_keys is empty")
+	}
 	have := map[string]bool{}
 	for _, k := range r.SecretAppKeys {
 		have[k] = true

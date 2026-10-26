@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -9,12 +10,44 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 )
 
+func mustRouter(t *testing.T, cfg config.APIConfig) http.Handler {
+	t.Helper()
+	r, err := buildRouter(cfg, telemetry.NewLogger(io.Discard), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return r.Handler()
+}
+
+func TestSettingsDepsFailStartupOnBadConfig(t *testing.T) {
+	cfg := config.APIConfig{SecretKey: "k", AppEnv: "test"}
+	t.Setenv("SECRETS_PROVIDER", "bogus-provider")
+	t.Setenv("SECRETS_MASTER_KEY", "master-key-must-not-leak")
+	_, err := newSettingsDeps(cfg, settings.Load)
+	if err == nil || !strings.Contains(err.Error(), "SECRETS_PROVIDER") {
+		t.Fatalf("bad provider must fail startup, got %v", err)
+	}
+	if strings.Contains(err.Error(), "master-key-must-not-leak") {
+		t.Fatal("error leaks a secret")
+	}
+
+	t.Setenv("SECRETS_PROVIDER", "local")
+	if _, err := newSettingsDeps(cfg, func() (*settings.Registry, error) { return nil, errors.New("boom") }); err == nil || !strings.Contains(err.Error(), "registry") {
+		t.Fatalf("registry load failure must fail startup, got %v", err)
+	}
+	d, err := newSettingsDeps(cfg, settings.Load)
+	if err != nil || d.Registry == nil || d.Envelope == nil || d.Egress == nil {
+		t.Fatalf("valid config: %+v %v", d, err)
+	}
+}
+
 func TestMainBuildsRouter(t *testing.T) {
 	cfg := config.APIConfig{SecretKey: "k", CORSOrigins: "*", AppEnv: "test"}
-	h := buildRouter(cfg, telemetry.NewLogger(io.Discard), nil).Handler()
+	h := mustRouter(t, cfg)
 
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, httptest.NewRequest("GET", "/healthz", nil))
