@@ -1,0 +1,107 @@
+package outreachstore
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/jackc/pgx/v5"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailnorm"
+)
+
+// Outcome is remove_suppression's result string.
+type Outcome string
+
+const (
+	OutcomeOK       Outcome = "ok"
+	OutcomeNotFound Outcome = "not_found"
+	OutcomeLocked   Outcome = "locked"
+)
+
+// Suppression is one list_suppressions entry (Python dict key order).
+type Suppression struct {
+	ID        int     `json:"id"`
+	Email     string  `json:"email"`
+	Reason    string  `json:"reason"`
+	Source    string  `json:"source"`
+	Locked    bool    `json:"locked"`
+	CreatedAt *string `json:"created_at"`
+}
+
+// IsSuppressed reports whether any suppression match key of email (the canonical
+// form, plus the dot/plus-collapsed form for gmail) is on this workspace's list.
+func IsSuppressed(ctx context.Context, tx pgx.Tx, wsID, email string) (bool, error) {
+	keys := emailnorm.MatchKeys(email)
+	if len(keys) == 0 {
+		return false, nil
+	}
+	ok, err := gen.New(tx).OutreachSuppressionExists(ctx, gen.OutreachSuppressionExistsParams{WorkspaceID: wsID, Emails: keys})
+	if err != nil {
+		return false, fmt.Errorf("outreachstore: is suppressed: %w", err)
+	}
+	return ok, nil
+}
+
+// AddSuppression inserts the canonical email idempotently and reports whether a
+// row was added. An existing row is left untouched, so a locked suppression is
+// never downgraded; an email that does not normalize is not added.
+func AddSuppression(ctx context.Context, tx pgx.Tx, wsID, email, reason, source string, locked bool) (bool, error) {
+	canonical := emailnorm.Normalize(email)
+	if canonical == "" {
+		return false, nil
+	}
+	added, err := gen.New(tx).OutreachSuppressionAdd(ctx, gen.OutreachSuppressionAddParams{
+		WorkspaceID: wsID, Email: canonical, Reason: reason, Source: source, Locked: locked,
+	})
+	if err != nil {
+		return false, fmt.Errorf("outreachstore: add suppression: %w", err)
+	}
+	return added, nil
+}
+
+// ListSuppressions returns this workspace's suppressions, newest first.
+func ListSuppressions(ctx context.Context, tx pgx.Tx, limit int) ([]Suppression, error) {
+	rows, err := gen.New(tx).OutreachSuppressionList(ctx, gen.OutreachSuppressionListParams{
+		WorkspaceID: currentWorkspace(ctx, tx), RowLimit: int32(limit),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("outreachstore: list suppressions: %w", err)
+	}
+	out := make([]Suppression, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, Suppression{
+			ID: int(r.ID), Email: r.Email, Reason: r.Reason.String, Source: r.Source.String,
+			Locked: r.Locked.Bool, CreatedAt: isoPy(r.CreatedAt),
+		})
+	}
+	return out, nil
+}
+
+// RemoveSuppression deletes an unlocked suppression: ok, not_found or locked.
+func RemoveSuppression(ctx context.Context, tx pgx.Tx, wsID, email string) (Outcome, error) {
+	canonical := emailnorm.Normalize(email)
+	q := gen.New(tx)
+	row, err := q.OutreachSuppressionGet(ctx, gen.OutreachSuppressionGetParams{WorkspaceID: wsID, Email: canonical})
+	if err == pgx.ErrNoRows {
+		return OutcomeNotFound, nil
+	}
+	if err != nil {
+		return "", fmt.Errorf("outreachstore: remove suppression: %w", err)
+	}
+	if row.Locked.Bool {
+		return OutcomeLocked, nil
+	}
+	if _, err := q.OutreachSuppressionDelete(ctx, gen.OutreachSuppressionDeleteParams{WorkspaceID: wsID, ID: row.ID}); err != nil {
+		return "", fmt.Errorf("outreachstore: remove suppression: %w", err)
+	}
+	return OutcomeOK, nil
+}
+
+// currentWorkspace reads the tenant GUC the transaction was opened with
+// (ListSuppressions takes no workspace id, like list_suppressions).
+func currentWorkspace(ctx context.Context, tx pgx.Tx) string {
+	var ws string
+	_ = tx.QueryRow(ctx, `SELECT COALESCE(current_setting('app.workspace_id', true), '')`).Scan(&ws)
+	return ws
+}

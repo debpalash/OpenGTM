@@ -98,8 +98,8 @@ func TestSuppressionMatchesGmailVariants(t *testing.T) {
 		if ok, _ := outreachstore.IsSuppressed(ctx, tx, ws, ""); ok {
 			t.Errorf("empty is never suppressed")
 		}
-		if added, err := outreachstore.AddSuppression(ctx, tx, ws, "not an email", "manual", "", false); err != nil || added {
-			t.Errorf("invalid email: added=%v err=%v", added, err)
+		if added, err := outreachstore.AddSuppression(ctx, tx, ws, "   ", "manual", "", false); err != nil || added {
+			t.Errorf("blank email: added=%v err=%v", added, err)
 		}
 	})
 }
@@ -387,7 +387,7 @@ func (r *supRun) seed(sc supScenario) {
 		for _, e := range sc.Setup.Enrollments {
 			var id int
 			err := tx.QueryRow(ctx, `INSERT INTO outreach_enrollments (workspace_id, sequence_id, lead_id, to_email_snapshot, current_step, status, next_send_at, sent_count, soft_bounce_count)
-			  VALUES ($1,$2,1,$3,$4,$5,$6,0,0) RETURNING id`, r.ws, r.seq(e["sequence_id"]), e["to_email"], supNum(e["current_step"]), e["status"], r.clock).Scan(&id)
+			  VALUES ($1,$2,$7,$3,$4,$5,$6,0,0) RETURNING id`, r.ws, r.seq(e["sequence_id"]), e["to_email"], supNum(e["current_step"]), e["status"], r.clock, 1000+supNum(e["id"])).Scan(&id)
 			if err != nil {
 				t.Fatalf("seed enrollment: %v", err)
 			}
@@ -484,9 +484,10 @@ func (r *supRun) state() map[string]any {
 			var sa, ba *time.Time
 			_ = rows.Scan(&id, &seq, &enr, &lead, &step, &to, &subj, &st, &skip, &mid, &idem, &ch, &e, &sa, &ba)
 			var en any
-			if enr != nil {
-				en = float64(r.rEnrol[*enr])
+			if enr == nil {
+				continue // the vector state lists enrollment-linked sends only (the rest is breaker filler)
 			}
+			en = float64(r.rEnrol[*enr])
 			var sk any
 			if skip != nil {
 				sk = *skip
@@ -585,7 +586,7 @@ func supRunScenario(t *testing.T, pool *pgxpool.Pool, v supVec, sc supScenario) 
 				result = tripped
 			case "record_inbound":
 				created, err := outreachstore.RecordInboundProcessed(ctx, tx, outreachstore.InboundIn{
-					WorkspaceID: r.ws, IMAPUID: supStr(op["imap_uid"]), UIDValidity: supStr(op["uidvalidity"]), SourceMessageID: supStr(op["source_message_id"]),
+					WorkspaceID: r.ws, IMAPUID: supStr(op["imap_uid"]), UIDValidity: supStr(op["uidvalidity"]), UIDValidityNone: op["uidvalidity"] == nil, SourceMessageID: supStr(op["source_message_id"]),
 					MatchedSendID: r.sendID(op["matched_send_id"]), Kind: supStr(op["kind"]), Recipient: supStr(op["recipient"]), Diagnostic: supStr(op["diagnostic"]),
 				})
 				if err != nil {
@@ -704,6 +705,10 @@ func TestAutoPausedSequenceStopsDue(t *testing.T) {
 	seq := "s" + ws[len(ws)-8:] + "-pau"
 	supTx(t, pool, ws, func(ctx context.Context, tx pgx.Tx) {
 		if _, err := tx.Exec(ctx, `INSERT INTO outreach_sequences (id, workspace_id, name, steps, status, auto_paused) VALUES ($1,$2,'p','[]','active',false)`, seq, ws); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := tx.Exec(ctx, `INSERT INTO outreach_sends (workspace_id, sequence_id, step_number, to_email, status, idempotency_key)
+		  VALUES ($1,$2,0,'a@example.com','sent','k0')`, ws, seq); err != nil {
 			t.Fatal(err)
 		}
 		th := outreachstore.Thresholds{MinSends: 0, BounceRate: 0.05, ComplaintRate: 0.003, SoftBounceMax: 3}
