@@ -12,6 +12,8 @@ Deviations: `apps/backend-go/testdata/contract/README.md`, section "Plan 09 (out
 3. `SECRETS_MASTER_KEY` is **identical on both stacks** (and on the Go worker). It encrypts the SMTP/IMAP passwords and derives the unsubscribe-token key; a mismatch makes every link already mailed fail on one stack. Without a usable key Go answers 503 on the public unsubscribe routes and the worker hands `send`/`outreach_inbound_poll` jobs back to Python (error log at startup).
    `SECRET_KEY` and `APP_ENV` must also match (an insecure default `SECRET_KEY` in production is refused).
 4. `OUTREACH_PUBLIC_BASE_URL` (no trailing slash) is the URL recipients reach, used in `List-Unsubscribe` and the footer link; same value on both stacks. `OUTREACH_UNSUB_TTL_DAYS` (90) and `OUTREACH_BOUNCE_WEBHOOK_SECRET` (shared with the bounce provider; unset = the webhook answers 503) are the same on both stacks.
+   **The Go worker needs the same `OUTREACH_*` values as the API and Python** (`OUTREACH_PUBLIC_BASE_URL`, `OUTREACH_UNSUB_TTL_DAYS`, `OUTREACH_SOFT_BOUNCE_MAX`, the breaker settings `OUTREACH_CIRCUIT_MIN_SENDS` / `OUTREACH_BOUNCE_PAUSE_RATE` / `OUTREACH_COMPLAINT_PAUSE_RATE`, the inbound tuning `OUTREACH_INBOUND_*`, `OUTREACH_SEND_COST_USD`, and the `GO_EXECUTOR_OUTREACH_*` flags). "Both stacks" means API, Python **and** worker: the worker loads them itself, and with the defaults it would mail a localhost unsubscribe link. Before the final fix wave the worker did not load them at all and every `executor='go'` job was handed back to Python; check the worker log has no `GO_EXECUTOR_OUTREACH_SEND is off` hand-back once the flag is on.
+   Set `OUTREACH_PUBLIC_BASE_URL` to an https URL in production: the default (`http://localhost:8000`) yields dead cleartext unsubscribe links.
 5. `AUTOMATIONS_ENABLED` is the master switch for sends: with it off, Go `send` Handle returns without effect (like Python `handle_send`) and the job completes without mailing. The inbound poll also needs `OUTREACH_INBOUND_POLL_ENABLED=true`. Check the value on Python and Go before moving jobs.
 6. Executor cohort: Python decides the executor at enqueue. A job goes to Go only when `GO_EXECUTOR_ENABLED=true`, the workspace is in `GO_EXECUTOR_WORKSPACES`, **and** the per-type flag is on (`GO_EXECUTOR_OUTREACH_SEND` / `GO_EXECUTOR_OUTREACH_INBOUND`). Set the same values on both stacks. Sends are non-idempotent, so the cohort (not a global switch) limits the blast radius.
 7. **The Python scheduler stays** (D9): `bootstrap_outreach_schedules` and `bootstrap_inbound_schedules` are the only tickers; Go exposes `Tick`/`EnqueueSend` but nothing calls them on a timer. The Python reaper stays too (Go has no reaper; it reconciles dead Go leases by job type). Only the job's `executor` column changes with the flags.
@@ -53,13 +55,25 @@ Flip one at a time, in this order, watching between steps (all default false):
 4. Then restart the Go worker (or set `GO_EXECUTOR_OUTREACH_SEND=false` there too: with the flag off it hands every `send` row back to Python untouched). A job cancelled after the `in_flight` marker is finalized `failed`.
 5. Inbound: set `GO_EXECUTOR_OUTREACH_INBOUND=false` and wait for `outreach_inbound_poll` jobs with `executor='go'` to leave `pending/processing`; poll ticks are short (job timeout 600 s) and idempotent.
 
+## SMTP and IMAP credentials (plan 09 final security H1)
+
+- The platform's global/env `SMTP_EMAIL` and `SMTP_PASSWORD` (and `IMAP_USER`/`IMAP_PASSWORD`) are used **only with the global host and port**. A workspace that sets its own `SMTP_HOST` or `SMTP_PORT` must also have its own email and password; otherwise `smtp/status` is `configured:false`, `smtp/test` answers 400 `SMTP not configured: SMTP host or port is set ...`, and sends fail with that text (no dial). If a workspace complains after the upgrade, have its admin re-save the full SMTP config (`smtp_email` and `smtp_password` included). Python still has the old behaviour (issue #114), so the platform password stays reachable by a workspace admin until Python's `get_smtp_config` is fixed: do not enable a global `SMTP_PASSWORD` on multi-tenant installs that route any traffic to Python.
+- A global IMAP mailbox is polled by every workspace without IMAP settings of its own, and those pollers mark each other's bounce mail seen: give each workspace its own IMAP settings, or keep global IMAP for single-tenant installs.
+
+## Rate-limit keys (all plans)
+
+The shared limiter now keys by the authenticated workspace (else user, else client IP), not by `X-Workspace-Id`, a bearer prefix or `X-Forwarded-For`; `TRUST_PROXY` no longer matters for it. If unauthenticated traffic reaches the API from a network outside the `TRUST_PROXY_CIDRS` defaults (for example the Kubernetes 10/8 pod network), set `TRUST_PROXY_CIDRS` or every such caller shares the proxy's bucket. Budgets and the 429 body are unchanged. See the README section "Rate-limit keys (all plans)".
+
 ## What to watch
 
 - API log: `outreach routes not registered`, `proxy headers from untrusted peer`, 503s on unsubscribe (master key).
 - Worker log: `outreach handlers hand jobs back` (no secret resolver or master key), per-send errors (type only, never an address or password).
 - Queue: `send` jobs failing repeatedly (transport/TLS) and sequences with `auto_paused=true` (the bounce/complaint circuit breaker: `OUTREACH_BOUNCE_PAUSE_RATE` 0.05, `OUTREACH_COMPLAINT_PAUSE_RATE` 0.003 after `OUTREACH_CIRCUIT_MIN_SENDS` 20 sends).
 - Inbound: `outreach_inbound_schedules` rows with `consecutive_failures` climbing; a schedule disables itself at `OUTREACH_INBOUND_MAX_CONSECUTIVE_FAILURES` (10).
-- Webhook: `outreach_send_by_message_id` is a sequential scan of `outreach_sends` per call (no index on `message_id`). If webhook volume or table size grows, add an index on `outreach_sends (message_id)` in a follow-up Alembic revision.
+- Webhook: `outreach_send_by_message_id` is a sequential scan of `outreach_sends` per call (no index on `message_id`). If webhook volume or table size grows, add an index on `outreach_sends (message_id)` in a follow-up Alembic revision; the same revision should `REVOKE EXECUTE ... FROM PUBLIC` on the function and grant it to the app role only (the schema snapshot shows the default PUBLIC grant; the secret-gated route is the only caller).
+- Breaker: a sequence is auto-paused only by distinct sends/recipients (repeated or forged DSNs citing one Message-ID count once); a bounce naming a different recipient than the send is applied but not counted.
+- The ESP behind the bounce webhook must post only bounce/complaint events: any other `event` (`delivered`, `open`, `click`) is treated as a hard bounce (Python parity).
+- Gmail suppressions while split: delete them by the collapsed spelling or from the Go bucket (Python's `DELETE` looks up the dotted form only).
 
 ## Bounce and complaint spot checks
 
@@ -82,7 +96,7 @@ Flip one at a time, in this order, watching between steps (all default false):
 ## Deviations to expect (full list in the README)
 
 - Stricter validation: 422 instead of 500 for out-of-range or over-long values; `PUT` cannot activate a sequence (use `start`); `enroll` accepts at most 5000 ids (chunks of 500, partial commit on failure); SMTP host/port validated; `POST /smtp/test` limited to 10/min.
-- HTML-escaped unsubscribe landing; secret-before-body on the webhook; a blank suppression email is a 422.
+- Lead fields are HTML-escaped in the HTML part of emails (Python inserts them raw); the global SMTP/IMAP credentials never go with a workspace-chosen host; HTML-escaped unsubscribe landing; secret-before-body on the webhook; a blank suppression email is a 422.
 - Unsubscribe and complaint lock existing suppressions; Gmail suppression keys are collapsed on write.
 - Wire format differs (quoted-printable bodies, quoted From), no `Date` header (as Python), cohort-based executor routing, rolling 24 h daily cap (as Python).
 

@@ -77,6 +77,8 @@ Dashboards to watch: nginx 5xx and 4xx by `X-Upstream` on the five routes, p95 l
 api-go `/healthz` and restarts, Postgres connection count and RLS/permission errors, login failure rate
 (`/auth/token` 401s), rate-limit 429s.
 
+Shared limiter keys (all plans' rate-limited routes: collect, workbook run/cell/sources, domain-intel, lead utilities, outreach `smtp/test`): since the plan 09 final fix wave the bucket is the authenticated workspace (else user, else client IP via `X-Real-IP` from a `TRUST_PROXY_CIDRS` peer), never `X-Workspace-Id`, a bearer prefix or `X-Forwarded-For`; `TRUST_PROXY` no longer affects it. Set `TRUST_PROXY_CIDRS` if nginx reaches the API from outside the defaults (loopback, 172.16/12, 192.168/16, fc00::/7). Details: contract README, "Rate-limit keys (all plans)".
+
 ## Verification
 
 ```
