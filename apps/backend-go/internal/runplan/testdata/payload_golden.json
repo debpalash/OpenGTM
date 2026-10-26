@@ -1,0 +1,254 @@
+{
+ "columns": [
+  {
+   "id": "em",
+   "type": "enrichment",
+   "provider": "leadmagic_email",
+   "target_field": "email",
+   "verify": false
+  },
+  {
+   "id": "mob",
+   "type": "waterfall",
+   "waterfall": [
+    "prospeo_mobile",
+    "leadmagic_mobile",
+    "leadmagic_email"
+   ],
+   "target_field": "mobile_phone"
+  },
+  {
+   "id": "cs",
+   "type": "enrichment",
+   "provider": "leadmagic_company",
+   "target_field": "company_size"
+  },
+  {
+   "id": "other",
+   "type": "formula",
+   "formula": "1"
+  }
+ ],
+ "column_ids": [
+  "em",
+  "mob",
+  "cs"
+ ],
+ "payload": {
+  "version": 1,
+  "manifests": {
+   "leadmagic_email": {
+    "manifest_version": "1",
+    "name": "leadmagic_email",
+    "display_name": "LeadMagic Email Finder",
+    "author": "OpenGTM",
+    "homepage": "https://leadmagic.io",
+    "license": "Apache-2.0",
+    "tags": [
+     "email",
+     "enrichment",
+     "byok"
+    ],
+    "capability": "email",
+    "capabilities": [
+     "email"
+    ],
+    "description": "LeadMagic /email-finder \u2014 first/last + domain \u2192 work email.",
+    "default_confidence": 0.8,
+    "cost_per_lookup": 0.05,
+    "auth": {
+     "type": "header",
+     "param": "X-API-Key",
+     "value": null,
+     "env_var": "LEADMAGIC_API_KEY"
+    },
+    "request": {
+     "method": "POST",
+     "url": "https://api.leadmagic.io/email-finder",
+     "headers": {
+      "Content-Type": "application/json"
+     },
+     "query": {},
+     "body_template": {
+      "first_name": "{{input.first_name}}",
+      "last_name": "{{input.last_name}}",
+      "domain": "{{input.domain}}",
+      "company_name": "{{input.company}}"
+     },
+     "timeout": 20.0
+    },
+    "response": {
+     "error_path": null,
+     "error_message_path": null,
+     "mappings": {
+      "email": "$.email"
+     }
+    },
+    "input_fields": []
+   },
+   "prospeo_mobile": {
+    "manifest_version": "1",
+    "name": "prospeo_mobile",
+    "display_name": "Prospeo Mobile Finder",
+    "author": "OpenGTM",
+    "homepage": "https://prospeo.io",
+    "license": "Apache-2.0",
+    "tags": [
+     "phone",
+     "enrichment",
+     "byok"
+    ],
+    "capability": "mobile_phone",
+    "capabilities": [
+     "mobile_phone"
+    ],
+    "description": "Prospeo /mobile-finder \u2014 LinkedIn profile URL \u2192 verified mobile number.",
+    "default_confidence": 0.8,
+    "cost_per_lookup": 0.1,
+    "auth": {
+     "type": "header",
+     "param": "X-KEY",
+     "value": null,
+     "env_var": "PROSPEO_API_KEY"
+    },
+    "request": {
+     "method": "POST",
+     "url": "https://api.prospeo.io/mobile-finder",
+     "headers": {
+      "Content-Type": "application/json"
+     },
+     "query": {},
+     "body_template": {
+      "url": "{{input.linkedin_url}}"
+     },
+     "timeout": 20.0
+    },
+    "response": {
+     "error_path": "error",
+     "error_message_path": "message",
+     "mappings": {
+      "mobile_phone": "$.response.raw_format"
+     }
+    },
+    "input_fields": []
+   },
+   "leadmagic_mobile": {
+    "manifest_version": "1",
+    "name": "leadmagic_mobile",
+    "display_name": "LeadMagic Mobile Finder",
+    "author": "OpenGTM",
+    "homepage": "https://leadmagic.io",
+    "license": "Apache-2.0",
+    "tags": [
+     "phone",
+     "enrichment",
+     "byok"
+    ],
+    "capability": "mobile_phone",
+    "capabilities": [
+     "mobile_phone",
+     "phone"
+    ],
+    "description": "LeadMagic /mobile-finder \u2014 LinkedIn profile or work email \u2192 mobile number.",
+    "default_confidence": 0.8,
+    "cost_per_lookup": 0.05,
+    "auth": {
+     "type": "header",
+     "param": "X-API-Key",
+     "value": null,
+     "env_var": "LEADMAGIC_API_KEY"
+    },
+    "request": {
+     "method": "POST",
+     "url": "https://api.leadmagic.io/mobile-finder",
+     "headers": {
+      "Content-Type": "application/json"
+     },
+     "query": {},
+     "body_template": {
+      "profile_url": "{{input.linkedin_url}}",
+      "work_email": "{{input.email}}"
+     },
+     "timeout": 20.0
+    },
+    "response": {
+     "error_path": null,
+     "error_message_path": null,
+     "mappings": {
+      "mobile_phone": "$.mobile_number",
+      "phone": "$.mobile_number"
+     }
+    },
+    "input_fields": []
+   },
+   "leadmagic_company": {
+    "manifest_version": "1",
+    "name": "leadmagic_company",
+    "display_name": "LeadMagic Company Search",
+    "author": "OpenGTM",
+    "homepage": "https://leadmagic.io",
+    "license": "Apache-2.0",
+    "tags": [
+     "company",
+     "firmographics",
+     "byok"
+    ],
+    "capability": "company_size",
+    "capabilities": [
+     "company_size",
+     "description"
+    ],
+    "description": "LeadMagic /company-search \u2014 domain \u2192 firmographics (employee count, industry).",
+    "default_confidence": 0.8,
+    "cost_per_lookup": 0.05,
+    "auth": {
+     "type": "header",
+     "param": "X-API-Key",
+     "value": null,
+     "env_var": "LEADMAGIC_API_KEY"
+    },
+    "request": {
+     "method": "POST",
+     "url": "https://api.leadmagic.io/company-search",
+     "headers": {
+      "Content-Type": "application/json"
+     },
+     "query": {},
+     "body_template": {
+      "company_domain": "{{input.domain}}",
+      "company_name": "{{input.company}}"
+     },
+     "timeout": 20.0
+    },
+    "response": {
+     "error_path": null,
+     "error_message_path": null,
+     "mappings": {
+      "company_size": "$.employee_count",
+      "description": "$.description"
+     }
+    },
+    "input_fields": []
+   }
+  },
+  "manifest_sha256": {
+   "leadmagic_email": "af9f891b09c6ab8da27d6ce233c03433ac1f247d8acc2b75e224787e6c2ca663",
+   "prospeo_mobile": "591eb8221de19a34c2003f3df0022ba18696e48d857fd126fc3e677c6fd5ac2a",
+   "leadmagic_mobile": "1742778bbf154bc28ef504b258493236184f06fb922496091d735b1c08593653",
+   "leadmagic_company": "3e8dcae915734a53fe99f0a5c8eba5c7ddeab971c0a216885a53d927ee695c65"
+  },
+  "costs": {
+   "leadmagic_email": 0.05,
+   "prospeo_mobile": 0.1,
+   "leadmagic_mobile": 0.05,
+   "leadmagic_company": 0.05
+  },
+  "default_concurrency": 12
+ },
+ "sha256": {
+  "leadmagic_company": "3e8dcae915734a53fe99f0a5c8eba5c7ddeab971c0a216885a53d927ee695c65",
+  "leadmagic_email": "af9f891b09c6ab8da27d6ce233c03433ac1f247d8acc2b75e224787e6c2ca663",
+  "leadmagic_mobile": "1742778bbf154bc28ef504b258493236184f06fb922496091d735b1c08593653",
+  "prospeo_mobile": "591eb8221de19a34c2003f3df0022ba18696e48d857fd126fc3e677c6fd5ac2a"
+ }
+}

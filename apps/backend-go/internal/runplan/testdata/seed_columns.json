@@ -1,0 +1,185 @@
+{
+ "columns": [
+  {
+   "id": "company",
+   "name": "Company",
+   "type": "lead_field",
+   "width": 200,
+   "lead_field": "company"
+  },
+  {
+   "id": "website",
+   "name": "Website",
+   "type": "lead_field",
+   "width": 200,
+   "lead_field": "website"
+  },
+  {
+   "id": "email",
+   "name": "Email",
+   "type": "lead_field",
+   "width": 220,
+   "lead_field": "email"
+  },
+  {
+   "id": "email_enr",
+   "name": "Email Hunter",
+   "type": "enrichment",
+   "width": 200,
+   "provider": "hunter_io",
+   "target_field": "email"
+  },
+  {
+   "id": "wf_email",
+   "name": "Email Waterfall",
+   "type": "waterfall",
+   "width": 220,
+   "waterfall": [
+    "hunter_io",
+    "apollo_io"
+   ],
+   "target_field": "email",
+   "verify": true
+  },
+  {
+   "id": "plat_x",
+   "name": "Platform Chain",
+   "type": "waterfall",
+   "width": 220,
+   "waterfall": [
+    "research",
+    "hunter_io"
+   ],
+   "target_field": "description"
+  },
+  {
+   "id": "ai_sum",
+   "name": "AI Summary",
+   "type": "ai_formula",
+   "width": 300,
+   "prompt": "Summarize {company}",
+   "input_columns": [
+    "company"
+   ]
+  },
+  {
+   "id": "calc_len",
+   "name": "Name Length",
+   "type": "formula",
+   "width": 120,
+   "formula": "len({company})"
+  },
+  {
+   "id": "calc_dom",
+   "name": "Domain",
+   "type": "formula",
+   "width": 160,
+   "formula": "{website}.split(\"//\")[1]",
+   "condition": "{website} != \"\""
+  },
+  {
+   "id": "http_x",
+   "name": "HTTP Lookup",
+   "type": "http",
+   "width": 200,
+   "http_method": "GET",
+   "http_url": "https://api.example.com/lookup?d={website}",
+   "http_extract": "$.data.email"
+  },
+  {
+   "id": "http_local",
+   "name": "HTTP Loopback",
+   "type": "http",
+   "width": 200,
+   "http_method": "GET",
+   "http_url": "http://127.0.0.1:9/x?d={website}"
+  },
+  {
+   "id": "out_hook",
+   "name": "Push Webhook",
+   "type": "output",
+   "width": 160,
+   "destination": "webhook",
+   "destination_config": {
+    "url": "https://hooks.example.com/contract"
+   },
+   "run_once": true
+  },
+  {
+   "id": "res_x",
+   "name": "Research",
+   "type": "research",
+   "width": 300,
+   "prompt": "Research {company}",
+   "max_steps": 3
+  },
+  {
+   "id": "agt_x",
+   "name": "Agent",
+   "type": "agent",
+   "width": 300,
+   "goal": "Find the CEO of {company}"
+  },
+  {
+   "id": "cyc_a",
+   "name": "Cycle A",
+   "type": "formula",
+   "width": 120,
+   "formula": "{cyc_b} + \"x\""
+  },
+  {
+   "id": "cyc_b",
+   "name": "Cycle B",
+   "type": "formula",
+   "width": 120,
+   "formula": "{cyc_a} + \"y\""
+  },
+  {
+   "id": "src_icp",
+   "name": "ICP Source",
+   "type": "source",
+   "width": 200,
+   "icp": {
+    "description": "B2B SaaS",
+    "industry": "software"
+   },
+   "channels": {},
+   "target_rows": 10
+  }
+ ],
+ "v1_columns": [
+  {
+   "id": "company",
+   "name": "Company",
+   "type": "lead_field",
+   "width": 200,
+   "lead_field": "company"
+  },
+  {
+   "id": "calc_len",
+   "name": "Name Length",
+   "type": "formula",
+   "width": 120,
+   "formula": "len({company})"
+  }
+ ],
+ "big_columns": [
+  {
+   "id": "company",
+   "name": "Company",
+   "type": "lead_field",
+   "width": 200,
+   "lead_field": "company"
+  },
+  {
+   "id": "plat_big",
+   "name": "Platform Chain",
+   "type": "waterfall",
+   "width": 220,
+   "waterfall": [
+    "research"
+   ],
+   "target_field": "description"
+  }
+ ]
+}
