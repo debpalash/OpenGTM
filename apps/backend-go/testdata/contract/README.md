@@ -43,3 +43,9 @@ Review `git diff` of the fixtures after re-recording: a changed fixture is a cha
   Task 11). No fixture exists for this case; it is covered by `TestCreateSlugCollision409`.
 - The recorder (`contract_record.py`) can reference earlier responses in a case path or JSON body with
   `{{body:<case>.<dotted.path>}}` (used by `workspaces.yaml` for generated workspace ids).
+- `PUT`/`PATCH /scim/v2/{slug}/Groups/{id}` renaming a group onto an existing displayName: FastAPI
+  answers 500 (unhandled `IntegrityError`); Go answers `409 {"detail":"SCIM group already exists"}`
+  like `POST`. Covered by `TestDuplicateDisplayName409`, no fixture.
+- `POST /Groups` with a non-numeric member `value` answers `409 SCIM group already exists` in both
+  (FastAPI's blanket `except Exception` swallows the 400); PUT/PATCH answer 400. Fixture
+  `scim_groups/create_nonnumeric_member`.
