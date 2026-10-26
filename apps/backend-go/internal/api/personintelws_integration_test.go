@@ -121,7 +121,7 @@ func fakeProfile(u string) personintel.Profile {
 	return *p
 }
 
-func TestWSRejectsBadTokenOrNonAdmin4403(t *testing.T) {
+func TestPersonWSRejectsBadTokenOrNonAdmin4403(t *testing.T) {
 	e := newPWSEnv(t, nil, nil)
 	ref, _ := testSigner.Refresh(pwsTag+"admin", nil)
 	for name, q := range map[string]string{
@@ -138,7 +138,7 @@ func TestWSRejectsBadTokenOrNonAdmin4403(t *testing.T) {
 	}
 }
 
-func TestWSHappyPathStepsMatchFixture(t *testing.T) {
+func TestPersonWSHappyPathStepsMatchFixture(t *testing.T) {
 	var gotURL string
 	var gotDeep bool
 	e := newPWSEnv(t, func(ctx context.Context, d personintel.Deps, u string, deep bool, n func(string, map[string]any)) (personintel.Profile, error) {
@@ -184,7 +184,7 @@ func TestWSHappyPathStepsMatchFixture(t *testing.T) {
 	}
 }
 
-func TestWSRealPipelineStepOrder(t *testing.T) {
+func TestPersonWSRealPipelineStepOrder(t *testing.T) {
 	e := newPWSEnv(t, nil, nil)
 	c := e.mustDial(t, "admin")
 	sendText(t, c, pwsURL)
@@ -200,7 +200,7 @@ func TestWSRealPipelineStepOrder(t *testing.T) {
 	}
 }
 
-func TestWSMissingURL(t *testing.T) {
+func TestPersonWSMissingURL(t *testing.T) {
 	e := newPWSEnv(t, func(context.Context, personintel.Deps, string, bool, func(string, map[string]any)) (personintel.Profile, error) {
 		t.Error("enrich must not run")
 		return personintel.Profile{}, nil
@@ -215,7 +215,7 @@ func TestWSMissingURL(t *testing.T) {
 	}
 }
 
-func TestWSInvalidURL(t *testing.T) {
+func TestPersonWSInvalidURL(t *testing.T) {
 	e := newPWSEnv(t, nil, nil)
 	c := e.mustDial(t, "admin")
 	sendText(t, c, `{"linkedin_url":"https://example.com/in/x"}`)
@@ -226,7 +226,7 @@ func TestWSInvalidURL(t *testing.T) {
 	}
 }
 
-func TestWSMalformedFirstFrameGenericError(t *testing.T) {
+func TestPersonWSMalformedFirstFrameGenericError(t *testing.T) {
 	e := newPWSEnv(t, nil, nil)
 	for _, body := range []string{`not json`, `[1]`, `"x"`, `{"linkedin_url":5}`} {
 		c := e.mustDial(t, "admin")
@@ -238,7 +238,7 @@ func TestWSMalformedFirstFrameGenericError(t *testing.T) {
 	}
 }
 
-func TestWSOversizedFrameClosed(t *testing.T) {
+func TestPersonWSOversizedFrameClosed(t *testing.T) {
 	e := newPWSEnv(t, nil, func(d *Deps) { d.WSMaxMessageBytes = 128 })
 	c := e.mustDial(t, "admin")
 	sendText(t, c, `{"linkedin_url":"https://www.linkedin.com/in/`+strings.Repeat("a", 300)+`"}`)
@@ -248,7 +248,7 @@ func TestWSOversizedFrameClosed(t *testing.T) {
 	}
 }
 
-func TestWSFirstFrameTimeout(t *testing.T) {
+func TestPersonWSFirstFrameTimeout(t *testing.T) {
 	old := personWSFirstFrameTimeout
 	personWSFirstFrameTimeout = 200 * time.Millisecond
 	defer func() { personWSFirstFrameTimeout = old }()
@@ -271,7 +271,7 @@ func waitGoroutines(t *testing.T, base int) {
 	}
 }
 
-func TestWSDisconnectCancelsPipeline(t *testing.T) {
+func TestPersonWSDisconnectCancelsPipeline(t *testing.T) {
 	started := make(chan struct{})
 	var cancelled atomic.Bool
 	e := newPWSEnv(t, func(ctx context.Context, d personintel.Deps, u string, deep bool, n func(string, map[string]any)) (personintel.Profile, error) {
@@ -310,7 +310,7 @@ func TestWSDisconnectCancelsPipeline(t *testing.T) {
 	}
 }
 
-func TestWSSecondConcurrentRunRejected(t *testing.T) {
+func TestPersonWSSecondConcurrentRunRejected(t *testing.T) {
 	started, release := make(chan struct{}), make(chan struct{})
 	e := newPWSEnv(t, func(ctx context.Context, d personintel.Deps, u string, deep bool, n func(string, map[string]any)) (personintel.Profile, error) {
 		close(started)
@@ -345,7 +345,7 @@ func identityID(t *testing.T, e *pwsEnv, user string) int32 {
 	return e.mustUserByName(t, pwsTag+user).ID
 }
 
-func TestWSDeadline(t *testing.T) {
+func TestPersonWSDeadline(t *testing.T) {
 	old := personWSDeadline
 	personWSDeadline = 300 * time.Millisecond
 	defer func() { personWSDeadline = old }()
@@ -364,7 +364,7 @@ func TestWSDeadline(t *testing.T) {
 	}
 }
 
-func TestWSNoInternalErrorTextLeaked(t *testing.T) {
+func TestPersonWSNoInternalErrorTextLeaked(t *testing.T) {
 	secret := "postgres://user:hunter2@10.0.0.5/db"
 	for name, fn := range map[string]pwsEnrich{
 		"pipeline error step": func(ctx context.Context, d personintel.Deps, u string, deep bool, n func(string, map[string]any)) (personintel.Profile, error) {
@@ -397,7 +397,7 @@ func TestWSNoInternalErrorTextLeaked(t *testing.T) {
 	}
 }
 
-func TestWSUnparseableUsernameKeepsPythonMessage(t *testing.T) {
+func TestPersonWSUnparseableUsernameKeepsPythonMessage(t *testing.T) {
 	e := newPWSEnv(t, nil, nil)
 	c := e.mustDial(t, "admin")
 	sendText(t, c, `{"linkedin_url":"https://linkedin.com/in/"}`)
@@ -407,7 +407,7 @@ func TestWSUnparseableUsernameKeepsPythonMessage(t *testing.T) {
 	}
 }
 
-func TestWSShutdownClosesGoingAway(t *testing.T) {
+func TestPersonWSShutdownClosesGoingAway(t *testing.T) {
 	sd, stop := context.WithCancel(context.Background())
 	started := make(chan struct{})
 	e := newPWSEnv(t, func(ctx context.Context, d personintel.Deps, u string, deep bool, n func(string, map[string]any)) (personintel.Profile, error) {
@@ -427,7 +427,7 @@ func TestWSShutdownClosesGoingAway(t *testing.T) {
 	waitGoroutines(t, base)
 }
 
-func TestWSPerUserConnectionCap(t *testing.T) {
+func TestPersonWSPerUserConnectionCap(t *testing.T) {
 	e := newPWSEnv(t, nil, func(d *Deps) { d.SSEMaxPerUser = 2 })
 	e.mustDial(t, "admin")
 	e.mustDial(t, "admin")
@@ -436,4 +436,24 @@ func TestWSPerUserConnectionCap(t *testing.T) {
 		t.Errorf("err=%v status=%d, want 429", err, handshakeStatus(resp))
 	}
 	e.mustDial(t, "admin2") // another admin has its own budget
+}
+
+func TestPersonWSDeepScrapePassesCallerWorkspace(t *testing.T) {
+	var gotWS string
+	e := newPWSEnv(t, func(ctx context.Context, d personintel.Deps, u string, deep bool, n func(string, map[string]any)) (personintel.Profile, error) {
+		gotWS = d.WorkspaceID
+		return fakeProfile(u), nil
+	}, nil)
+	admin := e.mustUserByName(t, pwsTag+"admin").ID
+	ws := pwsTag + "ws-deep"
+	e.workspace(t, ws, admin)
+	e.member(t, ws, admin, "owner")
+	c := e.mustDial(t, "admin")
+	sendText(t, c, `{"linkedin_url":"https://www.linkedin.com/in/jane-doe","deep":true}`)
+	if fr, _ := readAll(t, c, 5*time.Second); len(fr) != 1 {
+		t.Fatalf("frames = %v", fr)
+	}
+	if gotWS != ws {
+		t.Errorf("pipeline workspace = %q, want %q", gotWS, ws)
+	}
 }
