@@ -178,3 +178,9 @@ func ValidateViewColumns(cols []Column, v ViewConfig) *GuardError {
 func pl(prefix []any, rest ...any) []any {
 	return append(append([]any{}, prefix...), rest...)
 }
+
+// ParseStoredViewConfig parses a config already in the database; unlike
+// ParseViewConfig it applies no request-shape caps.
+func ParseStoredViewConfig(raw json.RawMessage, prefix ...any) (ViewConfig, []httpx.FieldError) {
+	return ParseViewConfig(raw, prefix...)
+}
