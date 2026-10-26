@@ -120,6 +120,10 @@ UPDATE jobs SET status = 'cancelled'
 WHERE type = 'research_playbook_schedule' AND status = 'pending'
   AND workspace_id = $1::text
   AND starts_with(fire_key, $2::text)
+  -- the exact key shape only: a playbook whose id extends this one's ('a' vs 'a:b')
+  -- has keys that also start with the prefix; the remainder must be one occurrence.
+  AND substr(fire_key, char_length($2::text) + 1)
+      ~ '^(bootstrap|[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]+)?([+-][0-9]{2}:[0-9]{2})?)$'
 `
 
 type PbCancelScheduleJobsParams struct {
@@ -764,6 +768,22 @@ func (q *Queries) PbRetryRun(ctx context.Context, arg PbRetryRunParams) (PbRetry
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const pbSetPlaybookNextRun = `-- name: PbSetPlaybookNextRun :exec
+UPDATE research_playbooks SET next_run_at = $1::timestamp, updated_at = (now() AT TIME ZONE 'UTC')
+WHERE workspace_id = $2::text AND id = $3::text
+`
+
+type PbSetPlaybookNextRunParams struct {
+	NextRunAt   pgtype.Timestamp
+	WorkspaceID string
+	ID          string
+}
+
+func (q *Queries) PbSetPlaybookNextRun(ctx context.Context, arg PbSetPlaybookNextRunParams) error {
+	_, err := q.db.Exec(ctx, pbSetPlaybookNextRun, arg.NextRunAt, arg.WorkspaceID, arg.ID)
+	return err
 }
 
 const pbUpdatePlaybook = `-- name: PbUpdatePlaybook :one

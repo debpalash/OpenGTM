@@ -85,7 +85,15 @@ WHERE playbook_id = sqlc.arg(playbook_id)::text AND workspace_id = sqlc.arg(work
 UPDATE jobs SET status = 'cancelled'
 WHERE type = 'research_playbook_schedule' AND status = 'pending'
   AND workspace_id = sqlc.arg(workspace_id)::text
-  AND starts_with(fire_key, sqlc.arg(fire_prefix)::text);
+  AND starts_with(fire_key, sqlc.arg(fire_prefix)::text)
+  -- the exact key shape only: a playbook whose id extends this one's ('a' vs 'a:b')
+  -- has keys that also start with the prefix; the remainder must be one occurrence.
+  AND substr(fire_key, char_length(sqlc.arg(fire_prefix)::text) + 1)
+      ~ '^(bootstrap|[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]+)?([+-][0-9]{2}:[0-9]{2})?)$';
+
+-- name: PbSetPlaybookNextRun :exec
+UPDATE research_playbooks SET next_run_at = sqlc.narg(next_run_at)::timestamp, updated_at = (now() AT TIME ZONE 'UTC')
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::text;
 
 -- Single-flight scheduled-occurrence job (job_scheduling.enqueue_job_once with
 -- next_run_at); lock and active check use LockJobFireKey / ActiveJobByFireKey.
