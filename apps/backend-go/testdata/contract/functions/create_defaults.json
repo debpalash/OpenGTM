@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "columns_chain": [],
+      "name": "Defaults"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/functions"
+  },
+  "response": {
+    "body": {
+      "columns_count": 0,
+      "id": "6e2793dd-3413-464e-afb9-5289791356e6",
+      "name": "Defaults"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

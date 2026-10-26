@@ -1,0 +1,39 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/functions/fn-1"
+  },
+  "response": {
+    "body": {
+      "category": "enrichment",
+      "columns_chain": [
+        {
+          "id": "email_wf",
+          "name": "Email Finder",
+          "target_field": "email",
+          "type": "waterfall",
+          "verify": true,
+          "waterfall": [
+            "hunter",
+            "apollo"
+          ],
+          "width": 220
+        }
+      ],
+      "description": "email waterfall",
+      "id": "fn-1",
+      "name": "Find email",
+      "usage_count": 0,
+      "version": 1
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

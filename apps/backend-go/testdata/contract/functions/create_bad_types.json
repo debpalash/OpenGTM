@@ -1,0 +1,62 @@
+{
+  "request": {
+    "body": {
+      "category": [],
+      "columns_chain": {},
+      "description": null,
+      "name": 5
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/functions"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 5,
+          "loc": [
+            "body",
+            "name"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        },
+        {
+          "input": null,
+          "loc": [
+            "body",
+            "description"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        },
+        {
+          "input": [],
+          "loc": [
+            "body",
+            "category"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        },
+        {
+          "input": {},
+          "loc": [
+            "body",
+            "columns_chain"
+          ],
+          "msg": "Input should be a valid list",
+          "type": "list_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

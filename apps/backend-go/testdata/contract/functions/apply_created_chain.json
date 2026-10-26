@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "workbook_id": "wb-alpha-2"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/functions/39a6a52d-a173-4579-9c98-9f8afc76bfac/apply"
+  },
+  "response": {
+    "body": {
+      "applied": "Chain A",
+      "columns_added": 2,
+      "total_columns": 9
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
