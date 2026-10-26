@@ -18,6 +18,8 @@ stub_conf() { # $1 = name
   cat > "$TMP/stub-$1.conf" <<CONF
 server { listen 8000; location / {
   add_header X-Stub $1 always; add_header X-Seen-Uri \$request_uri always;
+  add_header X-Seen-Proto \$server_protocol always; add_header X-Seen-Conn \$http_connection always;
+  add_header X-Seen-Upgrade \$http_upgrade always;
   return 200 "$1\n"; } }
 CONF
 }
@@ -56,6 +58,19 @@ check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
     expect "$r X-Upstream" "$(hdr "$1" "$2" X-Upstream)" "$want"
     expect "$r X-Stub     " "$(hdr "$1" "$2" X-Stub)" "$want"
     expect "$r X-Seen-Uri " "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+  done
+  # Proxy settings must match the location each route would otherwise fall into.
+  for r in "GET /api/workspaces" "GET /api/mcp/tokens" "GET /api/leads"; do
+    set -- $r
+    expect "$2 upstream HTTP version" "$(curl -s -D- -o /dev/null -H 'Upgrade: websocket' "http://127.0.0.1:$PORT$2" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-seen-proto"{print $2}')" "HTTP/1.1"
+    expect "$2 Connection to upstream" "$(curl -s -D- -o /dev/null -H 'Upgrade: websocket' "http://127.0.0.1:$PORT$2" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-seen-conn"{print $2}')" upgrade
+    expect "$2 Upgrade to upstream" "$(curl -s -D- -o /dev/null -H 'Upgrade: websocket' "http://127.0.0.1:$PORT$2" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-seen-upgrade"{print $2}')" websocket
+  done
+  # Timeouts/buffering are not observable from a stub: compare each location block in `nginx -T`.
+  local T; T="$(docker exec "$RUN-gw" nginx -T 2>/dev/null)"
+  blk() { printf '%s\n' "$T" | awk -v pat="$1" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f' | grep -E 'proxy_(read_timeout|send_timeout|buffering|http_version)' | sed 's/^[[:space:]]*//' | sort; }
+  for l in "^~ /api/workspaces" "^~ /api/mcp/tokens"; do
+    expect "timeouts/buffering of '$l' == '/api/'" "$(blk "$l")" "$(blk "/api/")"
   done
   # Always Python, at any percentage
   expect "GET /auth/sso/x X-Stub" "$(hdr GET /auth/sso/x X-Stub)" py
