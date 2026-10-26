@@ -1,0 +1,2648 @@
+[
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "5",
+  "stored": "5"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "-5",
+  "stored": "-5"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "0",
+  "stored": "0"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "7.0",
+  "stored": "7"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "1.5",
+  "stored": "1.5"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "2.5",
+  "stored": "2.5"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "3.5",
+  "stored": "3.5"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "-0.5",
+  "stored": "-0.5"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "-1.5",
+  "stored": "-1.5"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "1e3",
+  "stored": "1000"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "1E2",
+  "stored": "100"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "0.1",
+  "stored": "0.1"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "1e-7",
+  "stored": "1e-07"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "123456789.123456789",
+  "stored": "123456789.12345679"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "2147483647",
+  "stored": "2147483647"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "2147483648",
+  "stored": "2147483648"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "-2147483648",
+  "stored": "-2147483648"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "-2147483649",
+  "stored": "-2147483649"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "9223372036854775808",
+  "stored": "9223372036854775808"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "1e400",
+  "stored": "Infinity"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "-1e400",
+  "stored": "-Infinity"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "NaN",
+  "stored": "NaN"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "Infinity",
+  "stored": "Infinity"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "true",
+  "stored": "true"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "false",
+  "stored": "false"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "error": "IntegrityError",
+  "ok": false,
+  "raw": "null"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"7\"",
+  "stored": "7"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\" 7 \"",
+  "stored": " 7 "
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"7.0\"",
+  "stored": "7.0"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"1e2\"",
+  "stored": "1e2"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"0x10\"",
+  "stored": "0x10"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"\"",
+  "stored": ""
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"high\"",
+  "stored": "high"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"abc\"",
+  "stored": "abc"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"true\"",
+  "stored": "true"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"a\\u0000b\""
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"\u00e9 \u00fc \u65e5\u672c\"",
+  "stored": "\u00e9 \u00fc \u65e5\u672c"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[]",
+  "stored": "{}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[1]",
+  "stored": "{1}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "{}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "{\"a\": 1}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "1e15",
+  "stored": "1e+15"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "1e16",
+  "stored": "1e+16"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "123456789012345678",
+  "stored": "123456789012345678"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "1.5e16",
+  "stored": "1.5e+16"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "1e-5",
+  "stored": "1e-05"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "0.0001",
+  "stored": "0.0001"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "1e-4",
+  "stored": "0.0001"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "-1e16",
+  "stored": "-1e+16"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "5e-324",
+  "stored": "5e-324"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "1.7976931348623157e308",
+  "stored": "1.7976931348623157e+308"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[1, 2, 3]",
+  "stored": "{1,2,3}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[\"a\", \"b\"]",
+  "stored": "{a,b}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[\"a b\", \"\", \"NULL\", \"x,y\", \"q\\\"r\", \"{z}\", \"b\\\\s\"]",
+  "stored": "{\"a b\",\"\",\"NULL\",\"x,y\",\"q\\\"r\",\"{z}\",\"b\\\\s\"}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[1, \"a\"]"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[1, 2.5]"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[1.5, 2.5]",
+  "stored": "{1.5,2.5}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[true, false]",
+  "stored": "{t,f}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[null]",
+  "stored": "{NULL}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[1, null]",
+  "stored": "{1,NULL}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[[1, 2], [3, 4]]",
+  "stored": "{{1,2},{3,4}}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[[1], [2, 3]]"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[[]]",
+  "stored": "{{}}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[{}]"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[1, true]"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[3000000000]",
+  "stored": "{3000000000}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[3000000000, 1]",
+  "stored": "{3000000000,1}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[\"\u00e9\", \"\u65e5\u672c\"]",
+  "stored": "{\u00e9,\u65e5\u672c}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[null, null]",
+  "stored": "{NULL,NULL}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\"a\\u0000b\"]"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[1e16]",
+  "stored": "{1e+16}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[[[\"x\"]]]",
+  "stored": "{{{x}}}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[[1], 2]"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"+7\"",
+  "stored": "+7"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"-7\"",
+  "stored": "-7"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"1_000\"",
+  "stored": "1_000"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"0b101\"",
+  "stored": "0b101"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"0o17\"",
+  "stored": "0o17"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"0X1F\"",
+  "stored": "0X1F"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"7 8\"",
+  "stored": "7 8"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"-0x10\"",
+  "stored": "-0x10"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"0x\"",
+  "stored": "0x"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"\\t7\\n\"",
+  "stored": "\t7\n"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"2147483648\"",
+  "stored": "2147483648"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"-2147483648\"",
+  "stored": "-2147483648"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"0x7FFFFFFF\"",
+  "stored": "0x7FFFFFFF"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"0x80000000\"",
+  "stored": "0x80000000"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"1__0\"",
+  "stored": "1__0"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"_1\"",
+  "stored": "_1"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"1_\"",
+  "stored": "1_"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"+\"",
+  "stored": "+"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"-\"",
+  "stored": "-"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"\u0663\"",
+  "stored": "\u0663"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"\uff17\"",
+  "stored": "\uff17"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"00012\"",
+  "stored": "00012"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"0_7\"",
+  "stored": "0_7"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"0x_1\"",
+  "stored": "0x_1"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"0b2\"",
+  "stored": "0b2"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"0o8\"",
+  "stored": "0o8"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"1.0\"",
+  "stored": "1.0"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "\"\u0663.\u0660\"",
+  "stored": "\u0663.\u0660"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "-0.0",
+  "stored": "-0"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "0.5",
+  "stored": "0.5"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "-2.5",
+  "stored": "-2.5"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "2147483647.4",
+  "stored": "2147483647.4"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "2147483647.5",
+  "stored": "2147483647.5"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "-2147483648.5",
+  "stored": "-2147483648.5"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "2147483647.49",
+  "stored": "2147483647.49"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[[], []]",
+  "stored": "{{},{}}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[2.5, 1]"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[[1, 2], [3]]"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[[1, 2], [3, 4], [5, 6]]",
+  "stored": "{{1,2},{3,4},{5,6}}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[1.0, 2.0]",
+  "stored": "{1,2}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[\"1\", \"2\"]",
+  "stored": "{1,2}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[true, null]",
+  "stored": "{t,NULL}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[[null]]",
+  "stored": "{{NULL}}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[\"NuLl\"]",
+  "stored": "{\"NuLl\"}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[\"a\\nb\"]",
+  "stored": "{\"a\nb\"}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[\" a\"]",
+  "stored": "{\" a\"}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[\"a\\tb\"]",
+  "stored": "{\"a\tb\"}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[\"\\\\\"]",
+  "stored": "{\"\\\\\"}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[\"{\"]",
+  "stored": "{\"{\"}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[\" \"]",
+  "stored": "{\" \"}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[-1, -2]",
+  "stored": "{-1,-2}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[-0.0]",
+  "stored": "{-0}"
+ },
+ {
+  "class": "text_notnull",
+  "column": "company",
+  "ok": true,
+  "raw": "[1e-5, 1e15]",
+  "stored": "{1e-05,1e+15}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "5",
+  "stored": "5"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "-5",
+  "stored": "-5"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "0",
+  "stored": "0"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "7.0",
+  "stored": "7"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "1.5",
+  "stored": "1.5"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "2.5",
+  "stored": "2.5"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "3.5",
+  "stored": "3.5"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "-0.5",
+  "stored": "-0.5"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "-1.5",
+  "stored": "-1.5"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "1e3",
+  "stored": "1000"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "1E2",
+  "stored": "100"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "0.1",
+  "stored": "0.1"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "1e-7",
+  "stored": "1e-07"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "123456789.123456789",
+  "stored": "123456789.12345679"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "2147483647",
+  "stored": "2147483647"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "2147483648",
+  "stored": "2147483648"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "-2147483648",
+  "stored": "-2147483648"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "-2147483649",
+  "stored": "-2147483649"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "9223372036854775808",
+  "stored": "9223372036854775808"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "1e400",
+  "stored": "Infinity"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "-1e400",
+  "stored": "-Infinity"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "NaN",
+  "stored": "NaN"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "Infinity",
+  "stored": "Infinity"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "true",
+  "stored": "true"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "false",
+  "stored": "false"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "null",
+  "stored": null
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"7\"",
+  "stored": "7"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\" 7 \"",
+  "stored": " 7 "
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"7.0\"",
+  "stored": "7.0"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"1e2\"",
+  "stored": "1e2"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"0x10\"",
+  "stored": "0x10"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"\"",
+  "stored": ""
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"high\"",
+  "stored": "high"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"abc\"",
+  "stored": "abc"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"true\"",
+  "stored": "true"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"a\\u0000b\""
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"\u00e9 \u00fc \u65e5\u672c\"",
+  "stored": "\u00e9 \u00fc \u65e5\u672c"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[]",
+  "stored": "{}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[1]",
+  "stored": "{1}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "{}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "{\"a\": 1}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "1e15",
+  "stored": "1e+15"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "1e16",
+  "stored": "1e+16"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "123456789012345678",
+  "stored": "123456789012345678"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "1.5e16",
+  "stored": "1.5e+16"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "1e-5",
+  "stored": "1e-05"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "0.0001",
+  "stored": "0.0001"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "1e-4",
+  "stored": "0.0001"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "-1e16",
+  "stored": "-1e+16"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "5e-324",
+  "stored": "5e-324"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "1.7976931348623157e308",
+  "stored": "1.7976931348623157e+308"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[1, 2, 3]",
+  "stored": "{1,2,3}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[\"a\", \"b\"]",
+  "stored": "{a,b}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[\"a b\", \"\", \"NULL\", \"x,y\", \"q\\\"r\", \"{z}\", \"b\\\\s\"]",
+  "stored": "{\"a b\",\"\",\"NULL\",\"x,y\",\"q\\\"r\",\"{z}\",\"b\\\\s\"}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[1, \"a\"]"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[1, 2.5]"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[1.5, 2.5]",
+  "stored": "{1.5,2.5}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[true, false]",
+  "stored": "{t,f}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[null]",
+  "stored": "{NULL}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[1, null]",
+  "stored": "{1,NULL}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[[1, 2], [3, 4]]",
+  "stored": "{{1,2},{3,4}}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[[1], [2, 3]]"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[[]]",
+  "stored": "{{}}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[{}]"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[1, true]"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[3000000000]",
+  "stored": "{3000000000}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[3000000000, 1]",
+  "stored": "{3000000000,1}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[\"\u00e9\", \"\u65e5\u672c\"]",
+  "stored": "{\u00e9,\u65e5\u672c}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[null, null]",
+  "stored": "{NULL,NULL}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\"a\\u0000b\"]"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[1e16]",
+  "stored": "{1e+16}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[[[\"x\"]]]",
+  "stored": "{{{x}}}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[[1], 2]"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"+7\"",
+  "stored": "+7"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"-7\"",
+  "stored": "-7"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"1_000\"",
+  "stored": "1_000"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"0b101\"",
+  "stored": "0b101"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"0o17\"",
+  "stored": "0o17"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"0X1F\"",
+  "stored": "0X1F"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"7 8\"",
+  "stored": "7 8"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"-0x10\"",
+  "stored": "-0x10"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"0x\"",
+  "stored": "0x"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"\\t7\\n\"",
+  "stored": "\t7\n"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"2147483648\"",
+  "stored": "2147483648"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"-2147483648\"",
+  "stored": "-2147483648"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"0x7FFFFFFF\"",
+  "stored": "0x7FFFFFFF"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"0x80000000\"",
+  "stored": "0x80000000"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"1__0\"",
+  "stored": "1__0"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"_1\"",
+  "stored": "_1"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"1_\"",
+  "stored": "1_"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"+\"",
+  "stored": "+"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"-\"",
+  "stored": "-"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"\u0663\"",
+  "stored": "\u0663"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"\uff17\"",
+  "stored": "\uff17"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"00012\"",
+  "stored": "00012"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"0_7\"",
+  "stored": "0_7"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"0x_1\"",
+  "stored": "0x_1"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"0b2\"",
+  "stored": "0b2"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"0o8\"",
+  "stored": "0o8"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"1.0\"",
+  "stored": "1.0"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "\"\u0663.\u0660\"",
+  "stored": "\u0663.\u0660"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "-0.0",
+  "stored": "-0"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "0.5",
+  "stored": "0.5"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "-2.5",
+  "stored": "-2.5"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "2147483647.4",
+  "stored": "2147483647.4"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "2147483647.5",
+  "stored": "2147483647.5"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "-2147483648.5",
+  "stored": "-2147483648.5"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "2147483647.49",
+  "stored": "2147483647.49"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[[], []]",
+  "stored": "{{},{}}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[2.5, 1]"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[[1, 2], [3]]"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[[1, 2], [3, 4], [5, 6]]",
+  "stored": "{{1,2},{3,4},{5,6}}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[1.0, 2.0]",
+  "stored": "{1,2}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[\"1\", \"2\"]",
+  "stored": "{1,2}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[true, null]",
+  "stored": "{t,NULL}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[[null]]",
+  "stored": "{{NULL}}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[\"NuLl\"]",
+  "stored": "{\"NuLl\"}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[\"a\\nb\"]",
+  "stored": "{\"a\nb\"}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[\" a\"]",
+  "stored": "{\" a\"}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[\"a\\tb\"]",
+  "stored": "{\"a\tb\"}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[\"\\\\\"]",
+  "stored": "{\"\\\\\"}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[\"{\"]",
+  "stored": "{\"{\"}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[\" \"]",
+  "stored": "{\" \"}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[-1, -2]",
+  "stored": "{-1,-2}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[-0.0]",
+  "stored": "{-0}"
+ },
+ {
+  "class": "text_null",
+  "column": "notes",
+  "ok": true,
+  "raw": "[1e-5, 1e15]",
+  "stored": "{1e-05,1e+15}"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "5",
+  "stored": "5"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "-5",
+  "stored": "-5"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "0",
+  "stored": "0"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "7.0",
+  "stored": "7"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "1.5",
+  "stored": "2"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "2.5",
+  "stored": "2"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "3.5",
+  "stored": "4"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "-0.5",
+  "stored": "0"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "-1.5",
+  "stored": "-2"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "1e3",
+  "stored": "1000"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "1E2",
+  "stored": "100"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "0.1",
+  "stored": "0"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "1e-7",
+  "stored": "0"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "123456789.123456789",
+  "stored": "123456789"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "2147483647",
+  "stored": "2147483647"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "2147483648"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "-2147483648",
+  "stored": "-2147483648"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "-2147483649"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "9223372036854775808"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "1e400"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "-1e400"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "NaN"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "Infinity"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "true",
+  "stored": "1"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "false",
+  "stored": "0"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "null",
+  "stored": null
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"7\"",
+  "stored": "7"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\" 7 \"",
+  "stored": "7"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"7.0\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"1e2\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"0x10\"",
+  "stored": "16"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"high\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"abc\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"true\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"a\\u0000b\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"\u00e9 \u00fc \u65e5\u672c\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[1]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "{}"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "{\"a\": 1}"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "1e15"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "1e16"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "123456789012345678"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "1.5e16"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "1e-5",
+  "stored": "0"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "0.0001",
+  "stored": "0"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "1e-4",
+  "stored": "0"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "-1e16"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "5e-324",
+  "stored": "0"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "1.7976931348623157e308"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[1, 2, 3]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\"a\", \"b\"]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\"a b\", \"\", \"NULL\", \"x,y\", \"q\\\"r\", \"{z}\", \"b\\\\s\"]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[1, \"a\"]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[1, 2.5]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[1.5, 2.5]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[true, false]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[null]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[1, null]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[[1, 2], [3, 4]]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[[1], [2, 3]]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[[]]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[{}]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[1, true]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[3000000000]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[3000000000, 1]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\"\u00e9\", \"\u65e5\u672c\"]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[null, null]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\"a\\u0000b\"]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[1e16]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[[[\"x\"]]]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[[1], 2]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"+7\"",
+  "stored": "7"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"-7\"",
+  "stored": "-7"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"1_000\"",
+  "stored": "1000"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"0b101\"",
+  "stored": "5"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"0o17\"",
+  "stored": "15"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"0X1F\"",
+  "stored": "31"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"7 8\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"-0x10\"",
+  "stored": "-16"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"0x\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"\\t7\\n\"",
+  "stored": "7"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"2147483648\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"-2147483648\"",
+  "stored": "-2147483648"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"0x7FFFFFFF\"",
+  "stored": "2147483647"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"0x80000000\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"1__0\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"_1\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"1_\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"+\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"-\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"\u0663\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"\uff17\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"00012\"",
+  "stored": "12"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"0_7\"",
+  "stored": "7"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "\"0x_1\"",
+  "stored": "1"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"0b2\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"0o8\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"1.0\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "\"\u0663.\u0660\""
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "-0.0",
+  "stored": "0"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "0.5",
+  "stored": "0"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "-2.5",
+  "stored": "-2"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "2147483647.4",
+  "stored": "2147483647"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "2147483647.5"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "-2147483648.5",
+  "stored": "-2147483648"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "ok": true,
+  "raw": "2147483647.49",
+  "stored": "2147483647"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[[], []]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[2.5, 1]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[[1, 2], [3]]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[[1, 2], [3, 4], [5, 6]]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[1.0, 2.0]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\"1\", \"2\"]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[true, null]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[[null]]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\"NuLl\"]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\"a\\nb\"]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\" a\"]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\"a\\tb\"]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\"\\\\\"]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\"{\"]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "DataError",
+  "ok": false,
+  "raw": "[\" \"]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[-1, -2]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[-0.0]"
+ },
+ {
+  "class": "int",
+  "column": "score",
+  "error": "ProgrammingError",
+  "ok": false,
+  "raw": "[1e-5, 1e15]"
+ }
+]

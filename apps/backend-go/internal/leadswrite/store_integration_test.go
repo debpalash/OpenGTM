@@ -255,9 +255,9 @@ func TestUpdateFieldsTypeError(t *testing.T) {
 	for field, f := range map[string]map[string]any{
 		"score":                {"notes": "changed", "score": "high"},
 		"company":              {"notes": "changed", "company": nil},
-		"employee_count_exact": {"notes": "changed", "employee_count_exact": 1.5},
+		"employee_count_exact": {"notes": "changed", "employee_count_exact": "7.0"},
 		"enrichment_attempts":  {"notes": "changed", "enrichment_attempts": int64(1) << 40},
-		"notes":                {"notes": 5},
+		"notes":                {"notes": map[string]any{"a": 1}},
 		"description":          {"description": "a\x00b"},
 	} {
 		_, err := e.update(t, e.wsA, id, f)
@@ -345,6 +345,35 @@ func TestWritesTenantIsolation(t *testing.T) {
 	for k, v := range before {
 		if *after[k] != *v {
 			t.Errorf("cross-tenant write changed %s", k)
+		}
+	}
+}
+
+// TestUpdateFieldsStoresWhatPythonStores applies every Python-generated vector
+// through UpdateFields and compares the value Postgres stored.
+func TestUpdateFieldsStoresWhatPythonStores(t *testing.T) {
+	e := newEnv(t)
+	id := e.create(t, e.wsA, leadswrite.NewLead{Company: "Seed Co", City: "X", Notes: "orig"})
+	for _, v := range loadVectors(t) {
+		reset := map[string]any{"company": "Seed Co", "notes": "orig", "score": 42}
+		if _, err := e.update(t, e.wsA, id, reset); err != nil {
+			t.Fatal(err)
+		}
+		_, err := e.update(t, e.wsA, id, map[string]any{v.Column: body(t, v.Raw)})
+		if !v.OK {
+			var fe *leadswrite.FieldError
+			if !errors.As(err, &fe) {
+				t.Errorf("%s %s: want FieldError, got %v", v.Class, v.Raw, err)
+			}
+			continue
+		}
+		if err != nil {
+			t.Errorf("%s %s: %v", v.Class, v.Raw, err)
+			continue
+		}
+		got := e.row(t, id)[v.Column]
+		if (got == nil) != (v.Stored == nil) || (got != nil && *got != *v.Stored) {
+			t.Errorf("%s %s: stored %v, Python %v", v.Class, v.Raw, got, v.Stored)
 		}
 	}
 }
