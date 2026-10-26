@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
 // CSVHeader is the first line of every export.
@@ -30,20 +32,20 @@ var (
 )
 
 // writeCSVRows reproduces Python's f-string rows: every field quoted, `"`
-// doubled, newlines of `notes` (only) turned into a space, NULL as empty, a 0 or
-// NULL source link as empty, used as Yes/No. Formula prefixes are NOT escaped
-// (parity: Python does not either).
+// doubled (formula prefixes = + - @ TAB CR LF get an apostrophe, the plan 04
+// workbook export guard; Python has none, plan 07 Task 14 deviation), newlines of `notes` (only) turned into a space, NULL as empty, a 0 or
+// NULL source link as empty, used as Yes/No.
 func writeCSVRows(w io.Writer, rows []Row) error {
 	var b strings.Builder
 	for _, r := range rows {
 		b.WriteString(`"`)
-		b.WriteString(quoteDoubler.Replace(deref(r.Name)))
+		b.WriteString(quoteDoubler.Replace(safe(r.Name)))
 		b.WriteString(`","`)
-		b.WriteString(quoteDoubler.Replace(deref(r.Email)))
+		b.WriteString(quoteDoubler.Replace(safe(r.Email)))
 		b.WriteString(`","`)
-		b.WriteString(quoteDoubler.Replace(deref(r.Tags)))
+		b.WriteString(quoteDoubler.Replace(safe(r.Tags)))
 		b.WriteString(`","`)
-		b.WriteString(notesEscaper.Replace(deref(r.Notes)))
+		b.WriteString(notesEscaper.Replace(safe(r.Notes)))
 		b.WriteString(`","`)
 		if r.SourceLinkID != nil && *r.SourceLinkID != 0 {
 			b.WriteString(strconv.FormatInt(*r.SourceLinkID, 10))
@@ -68,3 +70,6 @@ func deref(s *string) string {
 	}
 	return *s
 }
+
+// safe is deref plus the spreadsheet formula guard shared with the workbook export.
+func safe(s *string) string { return wbcrud.ExportSafeValue(deref(s)) }
