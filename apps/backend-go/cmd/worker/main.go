@@ -23,6 +23,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
@@ -285,6 +286,21 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 		Creds:     api,
 		Manifests: api,
 		Log:       log,
+	}
+	if cfg.CredentialsSource == config.CredentialsSourceLocal {
+		env, err := secrets.NewEnvelope(secrets.Config{
+			Provider: cfg.SecretsProvider, MasterKey: cfg.SecretsMasterKey, SecretKey: cfg.SecretKey, AppEnv: cfg.AppEnv,
+			VaultAddr: cfg.VaultAddr, VaultToken: cfg.VaultToken, VaultTokenFile: cfg.VaultTokenFile,
+			VaultTransitKey: cfg.VaultTransitKey, VaultNamespace: cfg.VaultNamespace, VaultCACert: cfg.VaultCACert,
+		}, nil)
+		if err != nil {
+			return nil, nil, err
+		}
+		// Manifests still come from the API; their auth.env_var set is the
+		// allow-list for in-process resolution.
+		allow := credentials.NewManifestAllow(api)
+		deps.Manifests = allow
+		deps.Creds = credentials.NewLocal(secrets.NewResolver(env, secrets.NewPgStore(pool), os.Getenv), allow.Allowed, nil)
 	}
 	closeFn := func() {}
 	if cfg.RedisURL != "" {
