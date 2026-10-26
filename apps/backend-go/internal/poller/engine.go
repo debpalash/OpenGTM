@@ -377,8 +377,8 @@ func Handle(ctx context.Context, d HandlerDeps, c *queue.Claim) error {
 	// ── per source, ONE transaction each ──
 	anyFailure := false
 	var emitted, dupe int
-	for i, src := range kinds {
-		if i > 0 && c != nil {
+	for _, src := range kinds {
+		if c != nil {
 			if cancelled, cerr := queue.IsCancelled(ctx, pool, c); cerr == nil && cancelled {
 				log.Info("watch_poll cancelled between sources", "job_id", jobID, "watch_id", watchID)
 				return nil
@@ -389,12 +389,7 @@ func Handle(ctx context.Context, d HandlerDeps, c *queue.Claim) error {
 				return nil
 			}
 		}
-		var out sourceOutcome
-		err := tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
-			var err error
-			out, err = d.pollOneSource(ctx, tx, watchID, ws, src, fireKey, lead)
-			return err
-		})
+		out, err := d.pollOneSource(ctx, watchID, ws, src, fireKey, lead)
 		if err != nil {
 			return err
 		}
@@ -454,43 +449,67 @@ func Handle(ctx context.Context, d HandlerDeps, c *queue.Claim) error {
 	return nil
 }
 
-// pollOneSource runs one source inside its own transaction: billing gate,
-// fetch, side-channel patches, emission and the cursor merge. A returned error
-// rolls the whole source back (database or cancellation, never a fetch problem).
-// A source failure commits what Python commits (the debit and any last_error)
-// but advances no cursor.
-func (d HandlerDeps) pollOneSource(ctx context.Context, tx pgx.Tx, watchID, ws, src, fireKey string, lead int64) (sourceOutcome, error) {
-	q := gen.New(tx)
-	row, ok, err := loadWatchRow(ctx, tx, watchID, ws)
-	if err != nil || !ok {
-		return sourceOutcome{}, err
-	}
-	// last_error edits on top of the stored value, written with the result.
-	lockState := func() (gen.PollEngineLockRow, error) {
-		st, err := q.PollEngineLock(ctx, gen.PollEngineLockParams{ID: watchID, WorkspaceID: ws})
-		if err != nil {
-			return st, fmt.Errorf("poller: lock watch: %w", err)
+// pollOneSource runs one source in three phases so no transaction spans the
+// external fetch (a fetch can take a minute; holding a pooled connection and
+// the workspace balance row lock that long would starve other work):
+// tx A (short) loads the watch, runs the billing gate (idempotent per run id,
+// commits even when the fetch later fails, like Python) and reads what the
+// fetch needs (lead website, materialised contacts); the fetch runs with NO
+// transaction; tx B (short) re-reads the watch under its row lock, applies the
+// side-channel patches, emits and merges the cursor together. A returned error
+// is a database or cancellation problem, never a fetch problem.
+func (d HandlerDeps) pollOneSource(ctx context.Context, watchID, ws, src, fireKey string, lead int64) (sourceOutcome, error) {
+	var (
+		row      WatchRow
+		contacts []Contact
+		website  string
+		terminal bool
+		outcome  sourceOutcome
+	)
+	err := tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {
+		q := gen.New(tx)
+		var ok bool
+		var err error
+		row, ok, err = loadWatchRow(ctx, tx, watchID, ws)
+		if err != nil || !ok {
+			terminal = true
+			return err
 		}
-		return st, nil
-	}
-	setLastError := func(msg string) error {
-		st, err := lockState()
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil
-		}
+		proceed, err := DebitSource(ctx, tx, d.Cfg, ws, src, fireKey)
 		if err != nil {
 			return err
 		}
-		return q.PollEngineSaveSource(ctx, gen.PollEngineSaveSourceParams{ID: watchID, WorkspaceID: ws,
-			PollCursor: nonEmptyJSON(st.Cursor), ResolvedCik: st.ResolvedCik, LastError: textOf(&msg)})
-	}
-
-	proceed, err := DebitSource(ctx, tx, d.Cfg, ws, src, fireKey)
-	if err != nil {
-		return sourceOutcome{}, err
-	}
-	if !proceed {
-		return sourceOutcome{failed: true}, setLastError("insufficient_credits")
+		if !proceed {
+			terminal, outcome = true, sourceOutcome{failed: true}
+			st, err := q.PollEngineLock(ctx, gen.PollEngineLockParams{ID: watchID, WorkspaceID: ws})
+			if errors.Is(err, pgx.ErrNoRows) {
+				return nil
+			}
+			if err != nil {
+				return fmt.Errorf("poller: lock watch: %w", err)
+			}
+			msg := "insufficient_credits"
+			return q.PollEngineSaveSource(ctx, gen.PollEngineSaveSourceParams{ID: watchID, WorkspaceID: ws,
+				PollCursor: nonEmptyJSON(st.Cursor), ResolvedCik: st.ResolvedCik, LastError: textOf(&msg)})
+		}
+		switch src {
+		case "web_tech":
+			if lead != 0 && lead <= math.MaxInt32 {
+				w, err := q.PollEngineLeadWebsite(ctx, gen.PollEngineLeadWebsiteParams{ID: int32(lead), WorkspaceID: ws})
+				if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+					return fmt.Errorf("poller: lead website: %w", err)
+				}
+				website = w.String
+			}
+		case "job_change":
+			view := WatchView{ID: row.ID, Target: row.Target, Cursor: row.Cursor, ResolvedCIK: row.ResolvedCIK}
+			contacts, err = MaterializeContacts(ctx, tx, PyWatch{WatchView: view, WorkspaceID: ws, FireKey: fireKey, Config: row.Config, SignalTypes: row.SignalTypes})
+			return err
+		}
+		return nil
+	})
+	if err != nil || terminal {
+		return outcome, err
 	}
 
 	view := WatchView{ID: row.ID, Target: row.Target, Cursor: row.Cursor, ResolvedCIK: row.ResolvedCIK}
@@ -509,22 +528,10 @@ func (d HandlerDeps) pollOneSource(ctx context.Context, tx pgx.Tx, watchID, ws, 
 	case src == "hiring" || src == "tech":
 		evs, patch, ferr = FetchHiringAndTech(ctx, d.PyDeps, pyw, src == "hiring", src == "tech", d.Backfill)
 	case src == "web_tech":
-		website := ""
-		if lead != 0 && lead <= math.MaxInt32 {
-			w, err := q.PollEngineLeadWebsite(ctx, gen.PollEngineLeadWebsiteParams{ID: int32(lead), WorkspaceID: ws})
-			if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-				return sourceOutcome{}, fmt.Errorf("poller: lead website: %w", err)
-			}
-			website = w.String
-		}
 		evs, patch, ferr = FetchWebTech(ctx, d.SourceDeps, view, website, d.Backfill)
 	case src == "feed":
 		evs, patch, ferr = FetchFeedSource(ctx, d.SourceDeps, view, d.Backfill)
 	case src == "job_change":
-		contacts, err := MaterializeContacts(ctx, tx, pyw)
-		if err != nil {
-			return sourceOutcome{}, err
-		}
 		evs, patch, ferr = FetchJobChanges(ctx, d.PyDeps, pyw, contacts, d.Backfill)
 	case src == "account_group":
 		evs, patch, ferr = FetchAccountGroup(ctx, d.PyDeps, pyw, d.Backfill)
@@ -532,13 +539,33 @@ func (d HandlerDeps) pollOneSource(ctx context.Context, tx pgx.Tx, watchID, ws, 
 		return sourceOutcome{}, nil
 	}
 	if ctx.Err() != nil {
-		return sourceOutcome{}, ctx.Err() // shutdown: roll the source back
+		return sourceOutcome{}, ctx.Err() // shutdown: nothing applied
 	}
 	if ferr != nil {
 		d.log().Warn("watch_poll source failed", "watch_id", watchID, "source", src, "err", ferr.Error())
-		return sourceOutcome{failed: true}, nil // nothing advanced; the debit commits like Python's
+		return sourceOutcome{failed: true}, nil // nothing advanced; the debit already committed like Python's
 	}
 
+	err = tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {
+		var err error
+		outcome, err = d.applySource(ctx, tx, row, src, lead, evs, patch)
+		return err
+	})
+	return outcome, err
+}
+
+// applySource is tx B: re-read under the row lock, side-channel patches,
+// unresolved-lead guard, emission and the cursor merge.
+func (d HandlerDeps) applySource(ctx context.Context, tx pgx.Tx, row WatchRow, src string, lead int64, evs []DetectedEvent, patch map[string]any) (sourceOutcome, error) {
+	q := gen.New(tx)
+	watchID, ws := row.ID, row.WorkspaceID
+	lockState := func() (gen.PollEngineLockRow, error) {
+		st, err := q.PollEngineLock(ctx, gen.PollEngineLockParams{ID: watchID, WorkspaceID: ws})
+		if err != nil {
+			return st, fmt.Errorf("poller: lock watch: %w", err)
+		}
+		return st, nil
+	}
 	st, err := lockState()
 	if errors.Is(err, pgx.ErrNoRows) {
 		return sourceOutcome{}, nil // deleted mid-poll: write nothing

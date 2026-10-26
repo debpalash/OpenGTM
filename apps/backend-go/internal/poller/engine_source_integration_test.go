@@ -213,12 +213,8 @@ func TestPollSourceVectors(t *testing.T) {
 				}
 				return evs, patch, true, nil
 			}
-			var out sourceOutcome
-			err := tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
-				var err error
-				out, err = d.pollOneSource(ctx, tx, wid, ws, v.Src, "fk-1", lead)
-				return err
-			})
+			d.Pool = pool
+			out, err := d.pollOneSource(ctx, wid, ws, v.Src, "fk-1", lead)
 			if err != nil {
 				t.Fatal(err)
 			}
