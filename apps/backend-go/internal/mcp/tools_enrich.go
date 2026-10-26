@@ -132,7 +132,14 @@ func runCost(ctx context.Context, d Deps, c Ctx, tool string, args Args, shape f
 		}
 		reserved = true
 	}
+	finished := false
+	defer func() { // a panic in do must not leak the held slot (the server recovers it)
+		if reserved && !finished {
+			finishCap(ctx, d, c, res, releaseCap)
+		}
+	}()
 	text, err := do(ctx)
+	finished = true
 	if err != nil {
 		slog.Error("mcp enrich failed", "tool", tool, "err", err.Error())
 		if reserved {

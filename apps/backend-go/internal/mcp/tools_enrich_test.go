@@ -459,3 +459,25 @@ func fixtureText(t *testing.T, name string) string {
 	}
 	return f.Response.Result.Content[0].Text
 }
+
+type panicEnrich struct{ fakeEnrich }
+
+func (*panicEnrich) VerifyEmail(context.Context, string, string) (VerifyResult, error) {
+	panic("adapter bug")
+}
+
+func TestEnrichPanicReleasesHeldSlot(t *testing.T) {
+	r := newEnrichRig(t, Config{MaxEnrichPerDay: 2})
+	r.d.Enrich = &panicEnrich{}
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Fatal("panic swallowed")
+			}
+		}()
+		_, _ = r.call(t, "verify_email", Args{"email": "a@b.co"})
+	}()
+	if r.released != 1 || r.settled != 0 {
+		t.Fatalf("released=%d settled=%d", r.released, r.settled)
+	}
+}
