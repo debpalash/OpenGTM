@@ -46,11 +46,11 @@ func Targets() []Target { return append([]Target(nil), targets...) }
 
 // Cutoff is the value a row's age column must be strictly below to be expired:
 // a time.Time instant (KindTimestamp), a 'YYYY-MM-DD' string (KindDate, the date
-// in now's own zone like Python's cutoff.date()), or a float64 epoch (KindEpoch).
+// in UTC like Python's cutoff.date()), or a float64 epoch (KindEpoch).
 // now is truncated to microseconds, Python's datetime resolution. days must have
 // been through NormalizeDays: Cutoff does not validate.
 func Cutoff(t Target, days int, now time.Time) any {
-	c := now.Truncate(time.Microsecond).Add(-time.Duration(days) * 24 * time.Hour)
+	c := now.UTC().Truncate(time.Microsecond).Add(-time.Duration(days) * 24 * time.Hour)
 	switch t.Kind {
 	case KindEpoch:
 		return float64(c.UnixMicro()) / 1e6

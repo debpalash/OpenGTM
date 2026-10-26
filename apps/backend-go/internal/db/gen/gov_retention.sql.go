@@ -15,6 +15,9 @@ const retCancelPendingJobs = `-- name: RetCancelPendingJobs :execrows
 UPDATE jobs SET status = 'cancelled'
 WHERE type = 'retention_enforce' AND status = 'pending'
   AND starts_with(fire_key, $1::text)
+  -- exact shape prefix || 'YYYY-MM-DD': a workspace id containing ':' ('a:b') would
+  -- otherwise match the prefix of workspace 'a'.
+  AND length(fire_key) = length($1::text) + 10
 `
 
 // Exact prefix match: Python's LIKE treats '_' and '%' in a workspace id as wildcards

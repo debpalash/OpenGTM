@@ -50,6 +50,13 @@ func SchedulePolicy(ctx context.Context, tx pgx.Tx, p *Policy, now time.Time, ex
 		return nil, errors.New("retention: schedule needs a policy with a workspace")
 	}
 	ws := p.WorkspaceID
+	var txWS string
+	if err := tx.QueryRow(ctx, `SELECT coalesce(current_setting('app.workspace_id', true), '')`).Scan(&txWS); err != nil {
+		return nil, fmt.Errorf("retention: read tenant: %w", err)
+	}
+	if txWS != ws {
+		return nil, fmt.Errorf("retention: policy workspace %q does not match transaction tenant %q", ws, txWS)
+	}
 	q := gen.New(tx)
 	if _, err := q.RetCancelPendingJobs(ctx, "retention:"+ws+":"); err != nil {
 		return nil, fmt.Errorf("retention: cancel pending: %w", err)

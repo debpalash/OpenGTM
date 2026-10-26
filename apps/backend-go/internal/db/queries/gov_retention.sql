@@ -68,7 +68,10 @@ RETURNING next_run_at, updated_at;
 -- name: RetCancelPendingJobs :execrows
 UPDATE jobs SET status = 'cancelled'
 WHERE type = 'retention_enforce' AND status = 'pending'
-  AND starts_with(fire_key, sqlc.arg(fire_key_prefix)::text);
+  AND starts_with(fire_key, sqlc.arg(fire_key_prefix)::text)
+  -- exact shape prefix || 'YYYY-MM-DD': a workspace id containing ':' ('a:b') would
+  -- otherwise match the prefix of workspace 'a'.
+  AND length(fire_key) = length(sqlc.arg(fire_key_prefix)::text) + 10;
 
 -- name: RetUpsertMirror :exec
 INSERT INTO retention_schedules (workspace_id, enabled, next_run_at)
