@@ -195,7 +195,10 @@ func TestCreateRaceExactlyOneWins(t *testing.T) {
 func (e *env) update(t *testing.T, ws string, id int64, f map[string]any) (bool, error) {
 	t.Helper()
 	var found bool
-	err := e.in(t, ws, func(tx pgx.Tx) (err error) { found, err = leadswrite.UpdateFields(context.Background(), tx, id, f); return })
+	err := e.in(t, ws, func(tx pgx.Tx) (err error) {
+		found, err = leadswrite.UpdateFields(context.Background(), tx, id, f)
+		return
+	})
 	return found, err
 }
 
@@ -292,7 +295,10 @@ func TestUpdateStatus(t *testing.T) {
 	e := newEnv(t)
 	id := e.create(t, e.wsA, leadswrite.NewLead{Company: "St", City: "A"})
 	var found bool
-	if err := e.in(t, e.wsA, func(tx pgx.Tx) (err error) { found, err = leadswrite.UpdateStatus(context.Background(), tx, id, "contacted"); return }); err != nil || !found {
+	if err := e.in(t, e.wsA, func(tx pgx.Tx) (err error) {
+		found, err = leadswrite.UpdateStatus(context.Background(), tx, id, "contacted")
+		return
+	}); err != nil || !found {
 		t.Fatalf("found=%v err=%v", found, err)
 	}
 	if got := *e.row(t, id)["status"]; got != "contacted" {
