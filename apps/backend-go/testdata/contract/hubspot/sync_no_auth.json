@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": {},
+    "headers": {},
+    "method": "POST",
+    "path": "/api/crm/hubspot/sync"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

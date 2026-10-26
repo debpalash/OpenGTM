@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/crm/hubspot/status"
+  },
+  "response": {
+    "body": {
+      "connected": true,
+      "portal_id": 4242424,
+      "time_zone": "UTC"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

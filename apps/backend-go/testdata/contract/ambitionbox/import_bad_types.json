@@ -1,0 +1,46 @@
+{
+  "request": {
+    "body": {
+      "name": [
+        1
+      ],
+      "replace_existing": "perhaps"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/ambitionbox/imports"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": [
+            1
+          ],
+          "loc": [
+            "body",
+            "name"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        },
+        {
+          "input": "perhaps",
+          "loc": [
+            "body",
+            "replace_existing"
+          ],
+          "msg": "Input should be a valid boolean, unable to interpret input",
+          "type": "bool_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

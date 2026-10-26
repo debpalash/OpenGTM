@@ -1,0 +1,201 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/connectors/catalog"
+  },
+  "response": {
+    "body": {
+      "connectors": [
+        {
+          "auth_type": "bearer",
+          "author": "opengtm-contract",
+          "capabilities": [
+            "email"
+          ],
+          "certification": null,
+          "configured": true,
+          "cost_per_lookup": 0.01,
+          "default_confidence": 0.8,
+          "description": "Trusted signature, forged certification",
+          "homepage": "https://example.com/contract",
+          "id": "contract_forged",
+          "license": "Apache-2.0",
+          "manifest_version": "1",
+          "maturity": "beta",
+          "name": "Contract Forged",
+          "package_sha256": "1f5d7cce2141b679869eddf34b428230edea4b3a87de9a045aaf1446c8d5f306",
+          "required_checks": [
+            "authentication",
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "tenant_isolation"
+          ],
+          "signature": {
+            "key_id": "contract-key-1",
+            "publisher": "OpenGTM Contract Fixtures",
+            "status": "trusted"
+          },
+          "tags": [
+            "contract"
+          ]
+        },
+        {
+          "auth_type": "bearer",
+          "author": "opengtm-contract",
+          "capabilities": [
+            "email"
+          ],
+          "certification": null,
+          "configured": true,
+          "cost_per_lookup": 0.01,
+          "default_confidence": 0.8,
+          "description": "Contract fixture connector",
+          "homepage": "https://example.com/contract",
+          "id": "contract_http",
+          "license": "Apache-2.0",
+          "manifest_version": "1",
+          "maturity": "beta",
+          "name": "Contract Http",
+          "package_sha256": null,
+          "required_checks": [
+            "authentication",
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "tenant_isolation"
+          ],
+          "signature": {
+            "status": "unknown"
+          },
+          "tags": [
+            "contract"
+          ]
+        },
+        {
+          "auth_type": "bearer",
+          "author": "opengtm-contract",
+          "capabilities": [
+            "email"
+          ],
+          "certification": {
+            "build_sha": "contract-build-0001",
+            "evidence_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "evidence_url": "https://evidence.example.com/contract/run-contract-0001",
+            "expires_at": "2026-11-01T00:00:00Z",
+            "mode": "controlled_live",
+            "subject_build_sha256": "92ee5da9b00fba1aa4bf44908d3dca02e7adafcdb5ca86597ef61359e95eed25",
+            "validated_at": "2026-08-20T00:00:00Z",
+            "validation_run_id": "run-contract-0001"
+          },
+          "configured": true,
+          "cost_per_lookup": 0.01,
+          "default_confidence": 0.8,
+          "description": "Contract fixture connector",
+          "homepage": "https://example.com/contract",
+          "id": "contract_trusted",
+          "license": "Apache-2.0",
+          "manifest_version": "1",
+          "maturity": "supported",
+          "name": "Contract Trusted",
+          "package_sha256": "92ee5da9b00fba1aa4bf44908d3dca02e7adafcdb5ca86597ef61359e95eed25",
+          "required_checks": [
+            "authentication",
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "tenant_isolation"
+          ],
+          "signature": {
+            "key_id": "contract-key-1",
+            "publisher": "OpenGTM Contract Fixtures",
+            "status": "trusted"
+          },
+          "tags": [
+            "contract"
+          ]
+        },
+        {
+          "auth_type": "none",
+          "author": "opengtm-contract",
+          "capabilities": [
+            "phone"
+          ],
+          "certification": null,
+          "configured": true,
+          "cost_per_lookup": 0.01,
+          "default_confidence": 0.8,
+          "description": "Contract fixture connector",
+          "homepage": "https://example.com/contract",
+          "id": "contract_unsigned",
+          "license": "Apache-2.0",
+          "manifest_version": "1",
+          "maturity": "beta",
+          "name": "Contract Unsigned",
+          "package_sha256": "b72883c92c71f4b612aa78388fdbc10b08867c013ce4c170425190128a84b73e",
+          "required_checks": [
+            "authentication",
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "tenant_isolation"
+          ],
+          "signature": {
+            "key_id": null,
+            "publisher": null,
+            "status": "unsigned"
+          },
+          "tags": [
+            "contract"
+          ]
+        },
+        {
+          "auth_type": "none",
+          "author": "opengtm-contract",
+          "capabilities": [
+            "phone"
+          ],
+          "certification": null,
+          "configured": true,
+          "cost_per_lookup": 0.01,
+          "default_confidence": 0.8,
+          "description": "Duplicate provider id",
+          "homepage": "https://example.com/contract",
+          "id": "contract_unsigned",
+          "license": "Apache-2.0",
+          "manifest_version": "1",
+          "maturity": "beta",
+          "name": "Contract Unsigned",
+          "package_sha256": "b72883c92c71f4b612aa78388fdbc10b08867c013ce4c170425190128a84b73e",
+          "required_checks": [
+            "authentication",
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "tenant_isolation"
+          ],
+          "signature": {
+            "key_id": null,
+            "publisher": null,
+            "status": "unsigned"
+          },
+          "tags": [
+            "contract"
+          ]
+        }
+      ],
+      "manifest_version": "1",
+      "signature_policy": "optional",
+      "total": 5
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

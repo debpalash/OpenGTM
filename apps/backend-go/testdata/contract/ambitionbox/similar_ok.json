@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/ambitionbox/companies/777/similar"
+  },
+  "response": {
+    "body": [
+      {
+        "companyId": 778,
+        "name": "Similar One",
+        "rating": 3.7
+      },
+      {
+        "companyId": 779,
+        "name": "Similar Two",
+        "rating": 4.1
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

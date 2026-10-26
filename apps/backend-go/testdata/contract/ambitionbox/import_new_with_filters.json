@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "industry": "Banking",
+      "limit": 45,
+      "name": "  Banks India  ",
+      "rating": "4",
+      "sort_by": "rating"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/ambitionbox/imports"
+  },
+  "response": {
+    "body": {
+      "job_id": 4,
+      "name": "Banks India",
+      "requested_limit": 45,
+      "run_id": "00000000-0000-4000-8001-000000000002",
+      "source": "ambitionbox",
+      "status": "pending",
+      "url": "/workbooks/00000000-0000-4000-8002-000000000002",
+      "workbook_id": "00000000-0000-4000-8002-000000000002"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 202
+  }
+}

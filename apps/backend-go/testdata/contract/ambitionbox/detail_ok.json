@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/ambitionbox/companies/777/detail"
+  },
+  "response": {
+    "body": {
+      "benefits": [
+        "Health insurance",
+        "Flexible hours"
+      ],
+      "companyId": 777,
+      "name": "Contract Company 777",
+      "ratings": {
+        "overall": 3.9,
+        "workLife": 3.5
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

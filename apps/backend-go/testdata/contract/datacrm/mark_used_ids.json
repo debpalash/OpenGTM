@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "ids": [
+        1,
+        2,
+        3,
+        9999
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/data/mark-used"
+  },
+  "response": {
+    "body": {
+      "count": 3,
+      "success": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

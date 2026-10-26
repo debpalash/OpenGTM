@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/data/4"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "created_at": "2026-08-13T07:16:00.004444+00:00",
+        "email": "User04@ExAmPlE.org",
+        "id": 4,
+        "is_used": false,
+        "name": "\u674e\u96f7",
+        "notes": null,
+        "source_link_id": 4,
+        "tags": "cold"
+      },
+      "status": "success"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

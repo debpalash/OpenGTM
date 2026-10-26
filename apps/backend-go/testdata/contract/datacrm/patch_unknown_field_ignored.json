@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "bogus": 1,
+      "id": 777,
+      "source_link_id": 5
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/data/5"
+  },
+  "response": {
+    "body": {
+      "data": {
+        "created_at": "2026-08-14T00:05:00+00:00",
+        "email": "User05@acme.io",
+        "id": 5,
+        "is_used": false,
+        "name": "",
+        "notes": null,
+        "source_link_id": 5,
+        "tags": null
+      },
+      "status": "success"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

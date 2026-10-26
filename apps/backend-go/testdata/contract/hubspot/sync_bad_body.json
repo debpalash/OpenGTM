@@ -1,0 +1,42 @@
+{
+  "request": {
+    "body": {
+      "lead_ids": "x",
+      "limit": "many"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/crm/hubspot/sync"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "x",
+          "loc": [
+            "body",
+            "lead_ids"
+          ],
+          "msg": "Input should be a valid list",
+          "type": "list_type"
+        },
+        {
+          "input": "many",
+          "loc": [
+            "body",
+            "limit"
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

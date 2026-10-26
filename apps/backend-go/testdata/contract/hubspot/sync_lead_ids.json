@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "lead_ids": [
+        1,
+        2,
+        4,
+        5
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/crm/hubspot/sync"
+  },
+  "response": {
+    "body": {
+      "created": 2,
+      "errors": [
+        "Lead 4: HTTP 409: {\"status\":\"error\",\"message\":\"Contact already exists. Existing ID: 777\",\"category\":\"CONFLICT\"}"
+      ],
+      "failed": 1,
+      "total_synced": 3,
+      "updated": 1
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

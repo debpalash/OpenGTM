@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": {
+      "lead_ids": [
+        1,
+        2
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/crm/hubspot/sync"
+  },
+  "response": {
+    "body": {
+      "created": 0,
+      "errors": [
+        "Lead 1: HTTP 401: {\"status\":\"error\",\"message\":\"The OAuth token used to make this call expired.\",\"category\":\"EXPIRED_AUTHENTICATION\"}",
+        "Lead 2: HTTP 401: {\"status\":\"error\",\"message\":\"The OAuth token used to make this call expired.\",\"category\":\"EXPIRED_AUTHENTICATION\"}"
+      ],
+      "failed": 2,
+      "total_synced": 0,
+      "updated": 0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

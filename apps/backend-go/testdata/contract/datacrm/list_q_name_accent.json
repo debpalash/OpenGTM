@@ -1,0 +1,87 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/data?q=m%C3%BCller"
+  },
+  "response": {
+    "body": {
+      "items": [
+        {
+          "created_at": "2026-08-09T14:39:00+00:00",
+          "email": "User51@mail.Example.com",
+          "id": 51,
+          "is_used": true,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 21,
+          "source_url": "https://source21.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-07-25T12:29:00+00:00",
+          "email": "User41@acme.io",
+          "id": 41,
+          "is_used": false,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 11,
+          "source_url": "https://source11.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-25T10:19:00+00:00",
+          "email": "User31@ACME.io",
+          "id": 31,
+          "is_used": false,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 1,
+          "source_url": "https://source01.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-10T08:09:00+00:00",
+          "email": null,
+          "id": 21,
+          "is_used": true,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 21,
+          "source_url": "https://source21.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-07-26T06:59:00+00:00",
+          "email": "User11@acme.io",
+          "id": 11,
+          "is_used": false,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": null,
+          "source_url": null,
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-25T04:49:00+00:00",
+          "email": "User01@ACME.io",
+          "id": 1,
+          "is_used": false,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 1,
+          "source_url": "https://source01.example.com/list",
+          "tags": "prospect,vip"
+        }
+      ],
+      "total": 6
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

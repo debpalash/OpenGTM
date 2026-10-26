@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": {
+      "limit": 1,
+      "name": "   "
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/ambitionbox/imports"
+  },
+  "response": {
+    "body": {
+      "job_id": 5,
+      "name": "AmbitionBox Companies",
+      "requested_limit": 1,
+      "run_id": "00000000-0000-4000-8001-000000000003",
+      "source": "ambitionbox",
+      "status": "pending",
+      "url": "/workbooks/00000000-0000-4000-8002-000000000003",
+      "workbook_id": "00000000-0000-4000-8002-000000000003"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 202
+  }
+}

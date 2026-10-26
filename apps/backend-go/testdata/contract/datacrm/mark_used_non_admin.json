@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "ids": [
+        1
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/data/mark-used"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authorized"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

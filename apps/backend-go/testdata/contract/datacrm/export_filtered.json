@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/data/export?q=acme&is_used=false&sort_by=email&order=asc"
+  },
+  "response": {
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"Zo\u00eb M\u00fcller\",\"User01@ACME.io\",\"prospect,vip\",\"\",\"1\",\"2026-08-25T04:49:00+00:00\",\"No\"\n\"\",\"User05@acme.io\",\"\",\"\",\"5\",\"2026-08-14T00:05:00+00:00\",\"No\"\n\"\u00dcnal \u015eahin\",\"User07@ACME.io\",\"prospect,vip\",\"\",\"7\",\"2026-08-06T10:43:00+00:00\",\"No\"\n\"Zo\u00eb M\u00fcller\",\"User11@acme.io\",\"prospect,vip\",\"\",\"\",\"2026-07-26T06:59:00+00:00\",\"No\"\n\"\u00dcnal \u015eahin\",\"User17@acme.io\",\"prospect,vip\",\"\",\"17\",\"2026-08-20T12:53:00+00:00\",\"No\"\n\"Ana P\u00e9rez\",\"User19@ACME.io\",\"prospect,vip\",\"\",\"19\",\"2026-08-12T22:31:00+00:00\",\"No\"\n\"Ren\u00e9e O'Brien\",\"User23@acme.io\",\"prospect,vip\",\"\",\"23\",\"2026-08-01T18:47:00+00:00\",\"No\"\n\"\u00c5sa Lindstr\u00f6m\",\"User25@ACME.io\",\"\",\"\",\"25\",\"2026-07-30T04:25:00+00:00\",\"No\"\n\"Ana P\u00e9rez\",\"User29@acme.io\",\"prospect,vip\",\"\",\"29\",\"2026-08-28T00:41:00+00:00\",\"No\"\n\"Zo\u00eb M\u00fcller\",\"User31@ACME.io\",\"prospect,vip\",\"\",\"1\",\"2026-08-25T10:19:00+00:00\",\"No\"\n\"\u00c5sa Lindstr\u00f6m\",\"User35@acme.io\",\"\",\"\",\"5\",\"2026-08-14T06:35:00+00:00\",\"No\"\n\"\u00dcnal \u015eahin\",\"User37@ACME.io\",\"prospect,vip\",\"\",\"7\",\"2026-08-05T16:13:00+00:00\",\"No\"\n\"Zo\u00eb M\u00fcller\",\"User41@acme.io\",\"prospect,vip\",\"\",\"11\",\"2026-07-25T12:29:00+00:00\",\"No\"\n\"Ren\u00e9e O'Brien\",\"User43@ACME.io\",\"prospect,vip\",\"\",\"13\",\"2026-07-17T22:07:00+00:00\",\"No\"\n\"\u00dcnal \u015eahin\",\"User47@acme.io\",\"prospect,vip\",\"\",\"17\",\"2026-08-20T18:23:00+00:00\",\"No\"\n\"Ana P\u00e9rez\",\"User49@ACME.io\",\"prospect,vip\",\"\",\"19\",\"2026-08-13T04:01:00+00:00\",\"No\"\n\"Ren\u00e9e O'Brien\",\"User53@acme.io\",\"prospect,vip\",\"\",\"23\",\"2026-08-02T00:17:00+00:00\",\"No\"\n\"\u00c5sa Lindstr\u00f6m\",\"User55@ACME.io\",\"\",\"\",\"\",\"2026-07-30T10:55:00+00:00\",\"No\"\n\"Ana P\u00e9rez\",\"User59@acme.io\",\"prospect,vip\",\"\",\"29\",\"2026-08-28T06:11:00+00:00\",\"No\"\n",
+    "headers": {
+      "content-disposition": "attachment; filename=export_20260901_120000.csv",
+      "content-type": "text/csv; charset=utf-8"
+    },
+    "status": 200
+  }
+}

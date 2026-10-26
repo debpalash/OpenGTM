@@ -1,0 +1,81 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/ambitionbox/companies/777/jobs?page=2"
+  },
+  "response": {
+    "body": {
+      "jobs": [
+        {
+          "company": "Contract Company 777",
+          "company_id": 777,
+          "company_rating": 3.8,
+          "experience": "0+ yrs",
+          "job_id": "J777-0",
+          "job_profile": "Engineering",
+          "locations": [
+            "Pune"
+          ],
+          "portal": "ambitionbox",
+          "posted_on": "2026-08-20",
+          "skills": [
+            "go",
+            "sql"
+          ],
+          "title": "Engineer 0",
+          "url": "https://www.ambitionbox.com/jobs/engineer-0-jdp"
+        },
+        {
+          "company": "Contract Company 777",
+          "company_id": 777,
+          "company_rating": 3.8,
+          "experience": "1-3 yrs",
+          "job_id": "J777-1",
+          "job_profile": "Engineering",
+          "locations": [
+            "Pune"
+          ],
+          "portal": "ambitionbox",
+          "posted_on": "2026-08-20",
+          "skills": [
+            "go",
+            "sql"
+          ],
+          "title": "Engineer 1",
+          "url": "https://www.ambitionbox.com/jobs/engineer-1-jdp"
+        },
+        {
+          "company": "Contract Company 777",
+          "company_id": 777,
+          "company_rating": 3.8,
+          "experience": "2-4 yrs",
+          "job_id": "J777-2",
+          "job_profile": "Engineering",
+          "locations": [
+            "Pune"
+          ],
+          "portal": "ambitionbox",
+          "posted_on": "2026-08-20",
+          "skills": [
+            "go",
+            "sql"
+          ],
+          "title": "Engineer 2",
+          "url": "https://www.ambitionbox.com/jobs/engineer-2-jdp"
+        }
+      ],
+      "page": 1,
+      "total": 3,
+      "total_pages": 1
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

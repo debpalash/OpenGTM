@@ -1,0 +1,38 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/data/stats/domains"
+  },
+  "response": {
+    "body": [
+      {
+        "count": 19,
+        "domain": "acme.io"
+      },
+      {
+        "count": 10,
+        "domain": "caf\u00e9.example.fr"
+      },
+      {
+        "count": 10,
+        "domain": "example.org"
+      },
+      {
+        "count": 10,
+        "domain": "example.com"
+      },
+      {
+        "count": 9,
+        "domain": "mail.example.com"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

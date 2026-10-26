@@ -1,0 +1,197 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/data?start_date=2026-08-20&limit=100"
+  },
+  "response": {
+    "body": {
+      "items": [
+        {
+          "created_at": "2026-08-29T00:00:00.066660+00:00",
+          "email": "User60@Example.COM",
+          "id": 60,
+          "is_used": true,
+          "name": "Jos\u00e9 \u00c1lvarez",
+          "notes": "line one\nline two",
+          "source_link_id": 30,
+          "source_url": "https://source30.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-08-28T06:11:00+00:00",
+          "email": "User59@acme.io",
+          "id": 59,
+          "is_used": false,
+          "name": "Ana P\u00e9rez",
+          "notes": null,
+          "source_link_id": 29,
+          "source_url": "https://source29.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-20T18:23:00+00:00",
+          "email": "User47@acme.io",
+          "id": 47,
+          "is_used": false,
+          "name": "\u00dcnal \u015eahin",
+          "notes": null,
+          "source_link_id": 17,
+          "source_url": "https://source17.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-25T01:34:00+00:00",
+          "email": "User46@ExAmPlE.org",
+          "id": 46,
+          "is_used": false,
+          "name": "Chlo\u00e9 Dupont",
+          "notes": null,
+          "source_link_id": 16,
+          "source_url": "https://source16.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-29T08:45:00+00:00",
+          "email": "User45@mail.Example.com",
+          "id": 45,
+          "is_used": true,
+          "name": null,
+          "notes": null,
+          "source_link_id": 15,
+          "source_url": "https://source15.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-08-27T15:56:00.048884+00:00",
+          "email": "User44@Caf\u00e9.Example.fr",
+          "id": 44,
+          "is_used": false,
+          "name": "\u674e\u96f7",
+          "notes": null,
+          "source_link_id": null,
+          "source_url": null,
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-21T03:08:00.035552+00:00",
+          "email": "User32@Caf\u00e9.Example.fr",
+          "id": 32,
+          "is_used": false,
+          "name": "\u0141ukasz Nowak",
+          "notes": null,
+          "source_link_id": 2,
+          "source_url": "https://source02.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-25T10:19:00+00:00",
+          "email": "User31@ACME.io",
+          "id": 31,
+          "is_used": false,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 1,
+          "source_url": "https://source01.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-28T17:30:00+00:00",
+          "email": "User30@Example.COM",
+          "id": 30,
+          "is_used": true,
+          "name": "Jos\u00e9 \u00c1lvarez",
+          "notes": "He said \"hi\", then left",
+          "source_link_id": 30,
+          "source_url": "https://source30.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-08-28T00:41:00+00:00",
+          "email": "User29@acme.io",
+          "id": 29,
+          "is_used": false,
+          "name": "Ana P\u00e9rez",
+          "notes": null,
+          "source_link_id": 29,
+          "source_url": "https://source29.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-20T12:53:00+00:00",
+          "email": "User17@acme.io",
+          "id": 17,
+          "is_used": false,
+          "name": "\u00dcnal \u015eahin",
+          "notes": null,
+          "source_link_id": 17,
+          "source_url": "https://source17.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-24T19:04:00.017776+00:00",
+          "email": "User16@ExAmPlE.org",
+          "id": 16,
+          "is_used": false,
+          "name": "Chlo\u00e9 Dupont",
+          "notes": null,
+          "source_link_id": 16,
+          "source_url": "https://source16.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-29T02:15:00+00:00",
+          "email": "User15@mail.Example.com",
+          "id": 15,
+          "is_used": true,
+          "name": "\u00c5sa Lindstr\u00f6m",
+          "notes": null,
+          "source_link_id": 15,
+          "source_url": "https://source15.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-08-28T09:26:00+00:00",
+          "email": "User14@Caf\u00e9.Example.fr",
+          "id": 14,
+          "is_used": false,
+          "name": "\u674e\u96f7",
+          "notes": null,
+          "source_link_id": 14,
+          "source_url": "https://source14.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-20T21:38:00+00:00",
+          "email": "User02@Caf\u00e9.Example.fr",
+          "id": 2,
+          "is_used": false,
+          "name": "\u0141ukasz Nowak",
+          "notes": null,
+          "source_link_id": 2,
+          "source_url": "https://source02.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-25T04:49:00+00:00",
+          "email": "User01@ACME.io",
+          "id": 1,
+          "is_used": false,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 1,
+          "source_url": "https://source01.example.com/list",
+          "tags": "prospect,vip"
+        }
+      ],
+      "total": 16
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

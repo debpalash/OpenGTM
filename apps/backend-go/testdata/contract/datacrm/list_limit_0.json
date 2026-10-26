@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/data?limit=0"
+  },
+  "response": {
+    "body": {
+      "items": [],
+      "total": 60
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

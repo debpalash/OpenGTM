@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": {},
+    "headers": {},
+    "method": "POST",
+    "path": "/api/ambitionbox/imports"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/ambitionbox/companies?location=Pune"
+  },
+  "response": {
+    "body": "Internal Server Error",
+    "headers": {
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "status": 500
+  }
+}

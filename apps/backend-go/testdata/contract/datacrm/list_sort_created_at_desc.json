@@ -1,0 +1,681 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/data?sort_by=created_at&limit=100"
+  },
+  "response": {
+    "body": {
+      "items": [
+        {
+          "created_at": null,
+          "email": "User34@ExAmPlE.org",
+          "id": 34,
+          "is_used": false,
+          "name": "\u674e\u96f7",
+          "notes": null,
+          "source_link_id": 4,
+          "source_url": "https://source04.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-29T08:45:00+00:00",
+          "email": "User45@mail.Example.com",
+          "id": 45,
+          "is_used": true,
+          "name": null,
+          "notes": null,
+          "source_link_id": 15,
+          "source_url": "https://source15.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-08-29T02:15:00+00:00",
+          "email": "User15@mail.Example.com",
+          "id": 15,
+          "is_used": true,
+          "name": "\u00c5sa Lindstr\u00f6m",
+          "notes": null,
+          "source_link_id": 15,
+          "source_url": "https://source15.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-08-29T00:00:00.066660+00:00",
+          "email": "User60@Example.COM",
+          "id": 60,
+          "is_used": true,
+          "name": "Jos\u00e9 \u00c1lvarez",
+          "notes": "line one\nline two",
+          "source_link_id": 30,
+          "source_url": "https://source30.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-08-28T17:30:00+00:00",
+          "email": "User30@Example.COM",
+          "id": 30,
+          "is_used": true,
+          "name": "Jos\u00e9 \u00c1lvarez",
+          "notes": "He said \"hi\", then left",
+          "source_link_id": 30,
+          "source_url": "https://source30.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-08-28T09:26:00+00:00",
+          "email": "User14@Caf\u00e9.Example.fr",
+          "id": 14,
+          "is_used": false,
+          "name": "\u674e\u96f7",
+          "notes": null,
+          "source_link_id": 14,
+          "source_url": "https://source14.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-28T06:11:00+00:00",
+          "email": "User59@acme.io",
+          "id": 59,
+          "is_used": false,
+          "name": "Ana P\u00e9rez",
+          "notes": null,
+          "source_link_id": 29,
+          "source_url": "https://source29.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-28T00:41:00+00:00",
+          "email": "User29@acme.io",
+          "id": 29,
+          "is_used": false,
+          "name": "Ana P\u00e9rez",
+          "notes": null,
+          "source_link_id": 29,
+          "source_url": "https://source29.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-27T15:56:00.048884+00:00",
+          "email": "User44@Caf\u00e9.Example.fr",
+          "id": 44,
+          "is_used": false,
+          "name": "\u674e\u96f7",
+          "notes": null,
+          "source_link_id": null,
+          "source_url": null,
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-25T10:19:00+00:00",
+          "email": "User31@ACME.io",
+          "id": 31,
+          "is_used": false,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 1,
+          "source_url": "https://source01.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-25T04:49:00+00:00",
+          "email": "User01@ACME.io",
+          "id": 1,
+          "is_used": false,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 1,
+          "source_url": "https://source01.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-25T01:34:00+00:00",
+          "email": "User46@ExAmPlE.org",
+          "id": 46,
+          "is_used": false,
+          "name": "Chlo\u00e9 Dupont",
+          "notes": null,
+          "source_link_id": 16,
+          "source_url": "https://source16.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-24T19:04:00.017776+00:00",
+          "email": "User16@ExAmPlE.org",
+          "id": 16,
+          "is_used": false,
+          "name": "Chlo\u00e9 Dupont",
+          "notes": null,
+          "source_link_id": 16,
+          "source_url": "https://source16.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-21T03:08:00.035552+00:00",
+          "email": "User32@Caf\u00e9.Example.fr",
+          "id": 32,
+          "is_used": false,
+          "name": "\u0141ukasz Nowak",
+          "notes": null,
+          "source_link_id": 2,
+          "source_url": "https://source02.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-20T21:38:00+00:00",
+          "email": "User02@Caf\u00e9.Example.fr",
+          "id": 2,
+          "is_used": false,
+          "name": "\u0141ukasz Nowak",
+          "notes": null,
+          "source_link_id": 2,
+          "source_url": "https://source02.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-20T18:23:00+00:00",
+          "email": "User47@acme.io",
+          "id": 47,
+          "is_used": false,
+          "name": "\u00dcnal \u015eahin",
+          "notes": null,
+          "source_link_id": 17,
+          "source_url": "https://source17.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-20T12:53:00+00:00",
+          "email": "User17@acme.io",
+          "id": 17,
+          "is_used": false,
+          "name": "\u00dcnal \u015eahin",
+          "notes": null,
+          "source_link_id": 17,
+          "source_url": "https://source17.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-17T11:12:00.053328+00:00",
+          "email": "User48@Example.COM",
+          "id": 48,
+          "is_used": true,
+          "name": "Sam \"Sammy\" Lee",
+          "notes": "line one\nline two",
+          "source_link_id": 18,
+          "source_url": "https://source18.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-17T05:42:00+00:00",
+          "email": "User18@Example.COM",
+          "id": 18,
+          "is_used": true,
+          "name": null,
+          "notes": "He said \"hi\", then left",
+          "source_link_id": 18,
+          "source_url": "https://source18.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-16T20:57:00+00:00",
+          "email": "User33@mail.Example.com",
+          "id": 33,
+          "is_used": true,
+          "name": "Ren\u00e9e O'Brien",
+          "notes": null,
+          "source_link_id": null,
+          "source_url": null,
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-16T14:27:00+00:00",
+          "email": "User03@mail.Example.com",
+          "id": 3,
+          "is_used": true,
+          "name": "Ren\u00e9e O'Brien",
+          "notes": null,
+          "source_link_id": 3,
+          "source_url": "https://source03.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-14T06:35:00+00:00",
+          "email": "User35@acme.io",
+          "id": 35,
+          "is_used": false,
+          "name": "\u00c5sa Lindstr\u00f6m",
+          "notes": null,
+          "source_link_id": 5,
+          "source_url": "https://source05.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-08-14T00:05:00+00:00",
+          "email": "User05@acme.io",
+          "id": 5,
+          "is_used": false,
+          "name": "",
+          "notes": null,
+          "source_link_id": 5,
+          "source_url": "https://source05.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-08-13T21:50:00+00:00",
+          "email": "User50@Caf\u00e9.Example.fr",
+          "id": 50,
+          "is_used": false,
+          "name": "Jos\u00e9 \u00c1lvarez",
+          "notes": null,
+          "source_link_id": 20,
+          "source_url": "https://source20.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-08-13T15:20:00.022220+00:00",
+          "email": "User20@Caf\u00e9.Example.fr",
+          "id": 20,
+          "is_used": false,
+          "name": "Jos\u00e9 \u00c1lvarez",
+          "notes": null,
+          "source_link_id": 20,
+          "source_url": "https://source20.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-08-13T07:16:00.004444+00:00",
+          "email": "User04@ExAmPlE.org",
+          "id": 4,
+          "is_used": false,
+          "name": "\u674e\u96f7",
+          "notes": null,
+          "source_link_id": 4,
+          "source_url": "https://source04.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-13T04:01:00+00:00",
+          "email": "User49@ACME.io",
+          "id": 49,
+          "is_used": false,
+          "name": "Ana P\u00e9rez",
+          "notes": null,
+          "source_link_id": 19,
+          "source_url": "https://source19.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-12T22:31:00+00:00",
+          "email": "User19@ACME.io",
+          "id": 19,
+          "is_used": false,
+          "name": "Ana P\u00e9rez",
+          "notes": null,
+          "source_link_id": 19,
+          "source_url": "https://source19.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-10T08:09:00+00:00",
+          "email": null,
+          "id": 21,
+          "is_used": true,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 21,
+          "source_url": "https://source21.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-09T23:24:00.039996+00:00",
+          "email": "User36@Example.COM",
+          "id": 36,
+          "is_used": true,
+          "name": null,
+          "notes": "line one\nline two",
+          "source_link_id": 6,
+          "source_url": "https://source06.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-09T17:54:00+00:00",
+          "email": "User06@Example.COM",
+          "id": 6,
+          "is_used": true,
+          "name": "Chlo\u00e9 Dupont",
+          "notes": "He said \"hi\", then left",
+          "source_link_id": 6,
+          "source_url": "https://source06.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-09T14:39:00+00:00",
+          "email": "User51@mail.Example.com",
+          "id": 51,
+          "is_used": true,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 21,
+          "source_url": "https://source21.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-06T10:43:00+00:00",
+          "email": "User07@ACME.io",
+          "id": 7,
+          "is_used": false,
+          "name": "\u00dcnal \u015eahin",
+          "notes": null,
+          "source_link_id": 7,
+          "source_url": "https://source07.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-06T07:28:00.057772+00:00",
+          "email": "User52@ExAmPlE.org",
+          "id": 52,
+          "is_used": false,
+          "name": "\u0141ukasz Nowak",
+          "notes": null,
+          "source_link_id": 22,
+          "source_url": "https://source22.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-06T01:58:00+00:00",
+          "email": "User22@ExAmPlE.org",
+          "id": 22,
+          "is_used": false,
+          "name": "\u0141ukasz Nowak",
+          "notes": null,
+          "source_link_id": null,
+          "source_url": null,
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-05T16:13:00+00:00",
+          "email": "User37@ACME.io",
+          "id": 37,
+          "is_used": false,
+          "name": "\u00dcnal \u015eahin",
+          "notes": null,
+          "source_link_id": 7,
+          "source_url": "https://source07.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-02T09:02:00+00:00",
+          "email": "User38@Caf\u00e9.Example.fr",
+          "id": 38,
+          "is_used": false,
+          "name": "Sam \"Sammy\" Lee",
+          "notes": null,
+          "source_link_id": 8,
+          "source_url": "https://source08.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-02T03:32:00.008888+00:00",
+          "email": "User08@Caf\u00e9.Example.fr",
+          "id": 8,
+          "is_used": false,
+          "name": "Sam \"Sammy\" Lee",
+          "notes": null,
+          "source_link_id": 8,
+          "source_url": "https://source08.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-02T00:17:00+00:00",
+          "email": "User53@acme.io",
+          "id": 53,
+          "is_used": false,
+          "name": "Ren\u00e9e O'Brien",
+          "notes": null,
+          "source_link_id": 23,
+          "source_url": "https://source23.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-01T18:47:00+00:00",
+          "email": "User23@acme.io",
+          "id": 23,
+          "is_used": false,
+          "name": "Ren\u00e9e O'Brien",
+          "notes": null,
+          "source_link_id": 23,
+          "source_url": "https://source23.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-07-30T10:55:00+00:00",
+          "email": "User55@ACME.io",
+          "id": 55,
+          "is_used": false,
+          "name": "\u00c5sa Lindstr\u00f6m",
+          "notes": null,
+          "source_link_id": null,
+          "source_url": null,
+          "tags": null
+        },
+        {
+          "created_at": "2026-07-30T04:25:00+00:00",
+          "email": "User25@ACME.io",
+          "id": 25,
+          "is_used": false,
+          "name": "\u00c5sa Lindstr\u00f6m",
+          "notes": null,
+          "source_link_id": 25,
+          "source_url": "https://source25.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-07-29T19:40:00.044440+00:00",
+          "email": "User40@ExAmPlE.org",
+          "id": 40,
+          "is_used": false,
+          "name": "Jos\u00e9 \u00c1lvarez",
+          "notes": null,
+          "source_link_id": 10,
+          "source_url": "https://source10.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-07-29T13:10:00+00:00",
+          "email": "User10@ExAmPlE.org",
+          "id": 10,
+          "is_used": false,
+          "name": "Jos\u00e9 \u00c1lvarez",
+          "notes": null,
+          "source_link_id": 10,
+          "source_url": "https://source10.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-07-29T11:36:00.026664+00:00",
+          "email": "User24@Example.COM",
+          "id": 24,
+          "is_used": true,
+          "name": "\u674e\u96f7",
+          "notes": "line one\nline two",
+          "source_link_id": 24,
+          "source_url": "https://source24.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-07-29T02:51:00+00:00",
+          "email": "User39@mail.Example.com",
+          "id": 39,
+          "is_used": true,
+          "name": "Ana P\u00e9rez",
+          "notes": null,
+          "source_link_id": 9,
+          "source_url": "https://source09.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-07-28T20:21:00+00:00",
+          "email": "User09@mail.Example.com",
+          "id": 9,
+          "is_used": true,
+          "name": null,
+          "notes": null,
+          "source_link_id": 9,
+          "source_url": "https://source09.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-07-28T17:06:00+00:00",
+          "email": "User54@Example.COM",
+          "id": 54,
+          "is_used": true,
+          "name": null,
+          "notes": "He said \"hi\", then left",
+          "source_link_id": 24,
+          "source_url": "https://source24.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-07-26T06:59:00+00:00",
+          "email": "User11@acme.io",
+          "id": 11,
+          "is_used": false,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": null,
+          "source_url": null,
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-07-26T03:44:00.062216+00:00",
+          "email": "User56@Caf\u00e9.Example.fr",
+          "id": 56,
+          "is_used": false,
+          "name": "Chlo\u00e9 Dupont",
+          "notes": null,
+          "source_link_id": 26,
+          "source_url": "https://source26.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-07-25T21:14:00+00:00",
+          "email": "User26@Caf\u00e9.Example.fr",
+          "id": 26,
+          "is_used": false,
+          "name": "Chlo\u00e9 Dupont",
+          "notes": null,
+          "source_link_id": 26,
+          "source_url": "https://source26.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-07-25T12:29:00+00:00",
+          "email": "User41@acme.io",
+          "id": 41,
+          "is_used": false,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 11,
+          "source_url": "https://source11.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-07-22T05:18:00+00:00",
+          "email": "User42@Example.COM",
+          "id": 42,
+          "is_used": true,
+          "name": "\u0141ukasz Nowak",
+          "notes": "He said \"hi\", then left",
+          "source_link_id": 12,
+          "source_url": "https://source12.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-07-21T23:48:00.013332+00:00",
+          "email": "User12@Example.COM",
+          "id": 12,
+          "is_used": true,
+          "name": "\u0141ukasz Nowak",
+          "notes": "line one\nline two",
+          "source_link_id": 12,
+          "source_url": "https://source12.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-07-21T20:33:00+00:00",
+          "email": "User57@mail.Example.com",
+          "id": 57,
+          "is_used": true,
+          "name": "\u00dcnal \u015eahin",
+          "notes": null,
+          "source_link_id": 27,
+          "source_url": "https://source27.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-07-21T14:03:00+00:00",
+          "email": "User27@mail.Example.com",
+          "id": 27,
+          "is_used": true,
+          "name": null,
+          "notes": null,
+          "source_link_id": 27,
+          "source_url": "https://source27.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-07-18T07:52:00.031108+00:00",
+          "email": "User28@ExAmPlE.org",
+          "id": 28,
+          "is_used": false,
+          "name": "Sam \"Sammy\" Lee",
+          "notes": null,
+          "source_link_id": 28,
+          "source_url": "https://source28.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-07-17T22:07:00+00:00",
+          "email": "User43@ACME.io",
+          "id": 43,
+          "is_used": false,
+          "name": "Ren\u00e9e O'Brien",
+          "notes": null,
+          "source_link_id": 13,
+          "source_url": "https://source13.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-07-17T16:37:00+00:00",
+          "email": "not-an-email",
+          "id": 13,
+          "is_used": false,
+          "name": "Ren\u00e9e O'Brien",
+          "notes": null,
+          "source_link_id": 13,
+          "source_url": "https://source13.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-07-17T13:22:00+00:00",
+          "email": "User58@ExAmPlE.org",
+          "id": 58,
+          "is_used": false,
+          "name": "Sam \"Sammy\" Lee",
+          "notes": null,
+          "source_link_id": 28,
+          "source_url": "https://source28.example.com/list",
+          "tags": "cold"
+        }
+      ],
+      "total": 60
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

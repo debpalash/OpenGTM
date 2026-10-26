@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/data/mark-used"
+  },
+  "response": {
+    "body": {
+      "count": 60,
+      "success": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

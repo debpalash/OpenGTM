@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {
+      "workbook_id": "wb-alpha-ab-active"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/ambitionbox/imports"
+  },
+  "response": {
+    "body": {
+      "detail": {
+        "code": "connector_run_active",
+        "message": "AmbitionBox import run-ab-active-1 is already active",
+        "run_id": "run-ab-active-1"
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

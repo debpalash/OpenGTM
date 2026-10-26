@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "sort_by": "newest"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/ambitionbox/imports"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "pattern": "^(popular|rating|reviews)$"
+          },
+          "input": "newest",
+          "loc": [
+            "body",
+            "sort_by"
+          ],
+          "msg": "String should match pattern '^(popular|rating|reviews)$'",
+          "type": "string_pattern_mismatch"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

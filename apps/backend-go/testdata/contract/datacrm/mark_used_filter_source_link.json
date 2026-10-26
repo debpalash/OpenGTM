@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "source_link_id": 5,
+      "used": false
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/data/mark-used"
+  },
+  "response": {
+    "body": {
+      "count": 2,
+      "success": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

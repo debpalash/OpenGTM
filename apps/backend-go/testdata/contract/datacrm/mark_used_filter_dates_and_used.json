@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "end_date": "2026-08-31",
+      "is_used_filter": false,
+      "start_date": "2026-08-01",
+      "used": true
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/data/mark-used"
+  },
+  "response": {
+    "body": {
+      "count": 26,
+      "success": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

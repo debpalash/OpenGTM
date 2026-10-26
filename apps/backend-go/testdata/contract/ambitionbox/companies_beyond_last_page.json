@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/ambitionbox/companies?page=9"
+  },
+  "response": {
+    "body": {
+      "companies": [],
+      "has_more": false,
+      "page": 9,
+      "source_total": 57,
+      "total": 0,
+      "total_pages": 3
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

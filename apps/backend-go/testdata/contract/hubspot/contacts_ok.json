@@ -1,0 +1,64 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/crm/hubspot/contacts"
+  },
+  "response": {
+    "body": {
+      "contacts": [
+        {
+          "archived": false,
+          "createdAt": "2026-08-01T10:00:00.000Z",
+          "id": "501",
+          "properties": {
+            "company": "Globex",
+            "email": "hello@globex.example.com",
+            "firstname": "Gil",
+            "jobtitle": "CTO",
+            "lastname": "Obex",
+            "phone": "+15550101"
+          },
+          "updatedAt": "2026-08-02T10:00:00.000Z"
+        },
+        {
+          "archived": false,
+          "createdAt": "2026-08-03T10:00:00.000Z",
+          "id": "502",
+          "properties": {
+            "company": "Initech",
+            "email": "ana@initech.example.com",
+            "firstname": "Ana",
+            "jobtitle": null,
+            "lastname": "P\u00e9rez",
+            "phone": null
+          },
+          "updatedAt": "2026-08-03T10:00:00.000Z"
+        },
+        {
+          "archived": false,
+          "createdAt": "2026-08-04T10:00:00.000Z",
+          "id": "503",
+          "properties": {
+            "company": "Umbrella",
+            "email": "zoe@umbrella.example.com",
+            "firstname": "Zo\u00eb",
+            "jobtitle": "CEO",
+            "lastname": "M\u00fcller",
+            "phone": "+15550103"
+          },
+          "updatedAt": "2026-08-05T10:00:00.000Z"
+        }
+      ],
+      "count": 3
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

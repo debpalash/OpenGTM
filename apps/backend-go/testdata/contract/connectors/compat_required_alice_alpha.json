@@ -1,0 +1,99 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/connectors/compatibility"
+  },
+  "response": {
+    "body": {
+      "connectors": [
+        {
+          "author": "opengtm-contract",
+          "capabilities": [
+            "email"
+          ],
+          "cost_per_lookup": 0.01,
+          "default_confidence": 0.8,
+          "description": "Trusted signature, forged certification",
+          "homepage": "https://example.com/contract",
+          "id": "contract_forged",
+          "license": "Apache-2.0",
+          "manifest_sha256": "1f5d7cce2141b679869eddf34b428230edea4b3a87de9a045aaf1446c8d5f306",
+          "manifest_version": "1",
+          "name": "Contract Forged",
+          "path": "email/contract_forged.yaml",
+          "signature": {
+            "key_id": "contract-key-1",
+            "publisher": "OpenGTM Contract Fixtures",
+            "status": "trusted"
+          },
+          "tags": [
+            "contract"
+          ]
+        },
+        {
+          "author": "opengtm-contract",
+          "capabilities": [
+            "email"
+          ],
+          "cost_per_lookup": 0.01,
+          "default_confidence": 0.8,
+          "description": "Contract fixture connector",
+          "homepage": "https://example.com/contract",
+          "id": "contract_trusted",
+          "license": "Apache-2.0",
+          "manifest_sha256": "92ee5da9b00fba1aa4bf44908d3dca02e7adafcdb5ca86597ef61359e95eed25",
+          "manifest_version": "1",
+          "name": "Contract Trusted",
+          "path": "email/contract_trusted.yaml",
+          "signature": {
+            "key_id": "contract-key-1",
+            "publisher": "OpenGTM Contract Fixtures",
+            "status": "trusted"
+          },
+          "tags": [
+            "contract"
+          ]
+        }
+      ],
+      "count": 2,
+      "errors": [
+        {
+          "error": "name must match ^[a-z][a-z0-9_]{2,63}$",
+          "path": "../../apps/backend-go/internal/connectors/testdata/manifests/email/contract_badname.yaml"
+        },
+        {
+          "error": "connector request URL must use HTTPS",
+          "path": "../../apps/backend-go/internal/connectors/testdata/manifests/email/contract_http.yaml"
+        },
+        {
+          "error": "connector signature is untrusted:",
+          "path": "../../apps/backend-go/internal/connectors/testdata/manifests/email/contract_untrusted.yaml"
+        },
+        {
+          "error": "connector signature is invalid: manifest digest mismatch",
+          "path": "../../apps/backend-go/internal/connectors/testdata/manifests/phone/contract_tampered.yaml"
+        },
+        {
+          "error": "connector signature is unsigned:",
+          "path": "../../apps/backend-go/internal/connectors/testdata/manifests/phone/contract_unsigned.yaml"
+        },
+        {
+          "error": "duplicate provider id 'contract_unsigned'",
+          "path": "../../apps/backend-go/internal/connectors/testdata/manifests/phone/contract_unsigned_copy.yaml"
+        }
+      ],
+      "manifest_version": "1",
+      "ok": false,
+      "signature_policy": "required"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
