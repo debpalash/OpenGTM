@@ -55,9 +55,6 @@ func (h dataRoutes) fail(w http.ResponseWriter, what string, err error) {
 // serviceErr maps the service sentinels to FastAPI-shaped answers. where is "query" or "body".
 func (h dataRoutes) serviceErr(w http.ResponseWriter, what, where string, err error) {
 	switch {
-	case errors.Is(err, emaildata.ErrBadPaging):
-		// Not reached through the handlers (paging is validated first) but kept as the single mapping.
-		httpx.ValidationError(w, emaildata.PagingErrors(-1, -1)...)
 	case errors.Is(err, emaildata.ErrInvalidInput):
 		httpx.ValidationError(w, httpx.FieldError{Type: "value_error", Loc: []any{where},
 			Msg: "Value error, string contains a NUL byte"})
@@ -509,9 +506,10 @@ func (h dataRoutes) export(w http.ResponseWriter, r *http.Request) {
 			h.serviceErr(w, "export", "query", err)
 			return
 		}
-		// Headers are out: abort the stream (the client sees a truncated body, as Python's
-		// StreamingResponse would on a mid-stream exception).
+		// Headers are out: abort the connection so the client sees a broken transfer instead of
+		// a clean chunked EOF on a truncated CSV (net/http swallows ErrAbortHandler quietly).
 		h.log.Warn("data crm: export aborted", "err", err, "bytes", lw.written)
+		panic(http.ErrAbortHandler)
 	}
 }
 

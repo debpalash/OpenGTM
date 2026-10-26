@@ -529,6 +529,7 @@ Fixtures `connectors/*` (profiles `default`, `catalog_ok` = default minus `contr
   with `error_is_portable` and tests compare paths and counts for those.
 
 ## AmbitionBox (plan 07 Task 9): deviations
+- Worker lease loss or cancellation mid-import: the Go worker does not fail the run; it hands the job back as `retrying` and relies on the Python reaper (and the run-active guard) to reclaim it (see the cutover runbook). Python has no equivalent since one process owns the run.
 - Redirects are refused (Python/aiohttp follows them); a 3xx is an immediate typed `UpstreamError`.
 - Responses are bounded to 4 MiB (Python reads them whole). An oversized, undecodable or wrong-shape 200 is a typed
   `UpstreamError` and is not retried (Python: a ContentTypeError is retried, a JSONDecodeError is a 500).
@@ -573,6 +574,8 @@ Route level, on top of the service deviations in "Email data (plan 07 Task 14)":
 2. A NUL byte in a filter or patch value answers 422 `{"type":"value_error","loc":["query"|"body"],"msg":"Value error, string contains a NUL byte"}`; Python 500. The shape is Go's own (no Python fixture).
 3. Ids beyond the int4 range (path or body) match nothing: PATCH 404 (the detail prints the number), DELETE `{"status":"not found"}`, dropped from `mark-used`; Python answers a driver 500. `limit`/`offset` beyond int64 are clamped and there is no maximum `limit`, as Python.
 4. `mark-used` and PATCH bodies are capped at 1 MiB (422 `value_error`); Python has no cap.
+5. A mid-stream CSV export failure (after the first byte) logs and aborts the connection (`panic(http.ErrAbortHandler)`), so the client sees a broken transfer, not a clean EOF on a truncated file. Python's StreamingResponse also truncates; Go makes the failure detectable.
+6. Parity, deliberately kept: `GET /api/data` `limit` is not capped (Python has no cap; global-admin only) and the `q` search does not escape `%` and `_` (Python's `ilike(f"%{q}%")` does not either). `stats/domains` aggregates in memory as Python does. Tightening these is a product decision (D4 candidates), not a port fix.
 
 ## Plan 07 coverage and rollout (Task 19)
 
