@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -298,4 +299,28 @@ func setHeartbeat(t *testing.T, d time.Duration) {
 	old := sseHeartbeat
 	sseHeartbeat = d
 	t.Cleanup(func() { sseHeartbeat = old })
+}
+
+// A shutdown signal must end open streams so http.Server.Shutdown does not wait out its grace.
+func TestEventsStreamEndsOnShutdown(t *testing.T) {
+	setHeartbeat(t, time.Hour)
+	sctx, shutdown := context.WithCancel(context.Background())
+	defer shutdown()
+	e := newEventsEnv(t, func(d *Deps) { d.ShutdownCtx = sctx })
+	ws := e.seedWS(t, "t16sd")
+	tok := e.tokenQuery(t, "t16sd-alice", []string{"pwd"})
+	resp, _, _ := openStream(t, e, "/api/events?token="+tok+"&workspace_id="+ws, nil)
+	done := make(chan struct{})
+	go func() { _, _ = io.Copy(io.Discard, resp.Body); close(done) }()
+	select {
+	case <-done:
+		t.Fatal("stream ended before shutdown")
+	case <-time.After(150 * time.Millisecond):
+	}
+	shutdown()
+	select {
+	case <-done:
+	case <-time.After(3 * time.Second):
+		t.Fatal("stream still open after shutdown signal")
+	}
 }
