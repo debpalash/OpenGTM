@@ -262,3 +262,25 @@ func TestWorkbookToolsRequireCapabilityAndRole(t *testing.T) {
 		}
 	}
 }
+
+func TestCreateWorkbookLengthCaps(t *testing.T) {
+	for field, max := range map[string]int{"name": maxWorkbookNameLen, "description": maxWorkbookDescLen} {
+		f := &fixedWB{id: "x"}
+		w := wbToolByName(t, Deps{Workbooks: f}, "create_workbook")
+		args := Args{"description": "abc"}
+		args[field] = strings.Repeat("é", max)
+		if got := runWB(t, w, wbCtx, args); strings.Contains(got, "error") {
+			t.Fatalf("%s at limit refused: %s", field, got)
+		}
+		f = &fixedWB{id: "x"}
+		w = wbToolByName(t, Deps{Workbooks: f}, "create_workbook")
+		args[field] = strings.Repeat("é", max+1)
+		want := `{"error": "` + field + ` must be at most ` + itoa(max) + ` characters"}`
+		if got := runWB(t, w, wbCtx, args); got != want {
+			t.Fatalf("%s: %s", field, got)
+		}
+		if f.name != "" {
+			t.Fatalf("%s reached the port", field)
+		}
+	}
+}

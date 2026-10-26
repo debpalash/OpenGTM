@@ -231,3 +231,22 @@ func TestLeadWriteResultsAreValidJSON(t *testing.T) {
 		t.Fatal("not ascii-escaped")
 	}
 }
+
+func TestLeadWriteFieldLengthCaps(t *testing.T) {
+	for field, max := range map[string]int{"company": maxLeadNameLen, "city": maxLeadNameLen, "email": maxLeadNameLen, "notes": maxLeadTextLen, "description": maxLeadTextLen, "address": maxLeadTextLen} {
+		r := &recLeads{}
+		ok := Args{"company": "X", field: strings.Repeat("é", max)}
+		if got := applyLead(t, r, "create_lead", ok); strings.Contains(got, "error") {
+			t.Errorf("%s at limit refused: %s", field, got)
+		}
+		r = &recLeads{}
+		bad := Args{"company": "X", field: strings.Repeat("é", max+1)}
+		want := `{"error": "` + field + ` must be at most ` + itoa(max) + ` characters"}`
+		if got := applyLead(t, r, "create_lead", bad); got != want {
+			t.Errorf("%s: %s", field, got)
+		}
+		if len(r.upserted) != 0 {
+			t.Errorf("%s reached the port", field)
+		}
+	}
+}

@@ -168,3 +168,20 @@ func TestReadToolsUnavailableWithoutAdapter(t *testing.T) {
 		t.Fatalf("no runner: %v", err)
 	}
 }
+
+func TestFindLeadsArgLengthCaps(t *testing.T) {
+	for _, field := range []string{"query", "city", "tier"} {
+		f := &capLeads{}
+		if _, err := callRead(t, readDeps(f), "find_leads", Args{field: strings.Repeat("a", maxSearchArgLen)}); err != nil {
+			t.Fatalf("%s at limit: %v", field, err)
+		}
+		_, err := callRead(t, readDeps(f), "find_leads", Args{field: strings.Repeat("a", maxSearchArgLen+1)})
+		want := field + " must be at most " + itoa(maxSearchArgLen) + " characters"
+		if err == nil || err.Error() != want {
+			t.Fatalf("%s: %v", field, err)
+		}
+		if len(f.got) != 1 {
+			t.Fatalf("%s: oversize reached the port", field)
+		}
+	}
+}
