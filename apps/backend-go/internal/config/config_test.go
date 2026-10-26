@@ -133,3 +133,55 @@ func TestRedactMasksPasswordQueryParam(t *testing.T) {
 		t.Fatalf("got %q", got)
 	}
 }
+
+func TestConfigCredentialsSourceValidation(t *testing.T) {
+	base := map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok}
+	with := func(kv ...string) map[string]string {
+		m := map[string]string{}
+		for k, v := range base {
+			m[k] = v
+		}
+		for i := 0; i < len(kv); i += 2 {
+			m[kv[i]] = kv[i+1]
+		}
+		return m
+	}
+	c, err := load(env(base))
+	if err != nil || c.CredentialsSource != "http" {
+		t.Fatalf("default must be http, got %q, %v", c.CredentialsSource, err)
+	}
+	if c, err = load(env(with("CREDENTIALS_SOURCE", " HTTP "))); err != nil || c.CredentialsSource != "http" {
+		t.Fatalf("got %q, %v", c.CredentialsSource, err)
+	}
+	for name, m := range map[string]map[string]string{
+		"bogus":           with("CREDENTIALS_SOURCE", "redis"),
+		"local no db":     with("CREDENTIALS_SOURCE", "local", "SECRET_KEY", "k"),
+		"local no secret": with("CREDENTIALS_SOURCE", "local", "DATABASE_URL", "postgres://x/y"),
+		"local bad prov":  with("CREDENTIALS_SOURCE", "local", "DATABASE_URL", "postgres://x/y", "SECRET_KEY", "k", "SECRETS_PROVIDER", "kms"),
+		"vault no addr":   with("CREDENTIALS_SOURCE", "local", "DATABASE_URL", "postgres://x/y", "SECRET_KEY", "k", "SECRETS_PROVIDER", "vault_transit"),
+	} {
+		if _, err := load(env(m)); err == nil {
+			t.Errorf("%s: expected error", name)
+		}
+	}
+	c, err = load(env(with("CREDENTIALS_SOURCE", "local", "DATABASE_URL", "postgres://x/y", "SECRET_KEY", "k",
+		"SECRETS_PROVIDER", "vault_transit", "VAULT_ADDR", "https://v:8200", "VAULT_TRANSIT_KEY", "tk", "SECRETS_MASTER_KEY", "mk", "VAULT_TOKEN", "tok")))
+	if err != nil || c.CredentialsSource != "local" || c.SecretKey != "k" || c.SecretsProvider != "vault_transit" ||
+		c.VaultAddr != "https://v:8200" || c.VaultTransitKey != "tk" || c.SecretsMasterKey != "mk" || c.VaultToken != "tok" {
+		t.Fatalf("got %+v, %v", c, err)
+	}
+	// secrets never appear in the logged or printed config
+	c, err = load(env(with("CREDENTIALS_SOURCE", "local", "DATABASE_URL", "postgres://x/y", "SECRET_KEY", "SK-SENTINEL",
+		"SECRETS_MASTER_KEY", "MK-SENTINEL", "VAULT_TOKEN", "VT-SENTINEL")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var buf bytes.Buffer
+	slog.New(slog.NewTextHandler(&buf, nil)).Info("x", "config", c)
+	out := buf.String() + fmt.Sprintf("%v %+v", c, c)
+	for _, s := range []string{"SK-SENTINEL", "MK-SENTINEL", "VT-SENTINEL"} {
+		if strings.Contains(out, s) {
+			t.Fatalf("config output leaks %s", s)
+		}
+	}
+}
