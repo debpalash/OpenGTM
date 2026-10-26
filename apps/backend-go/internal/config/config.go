@@ -329,7 +329,16 @@ type Flags struct {
 	// ImportMemoryBudgetMB is IMPORT_MEMORY_BUDGET_MB (default 512, 64..65536): upload
 	// bytes the workbook import/preview routes may hold in flight at once; a decoded
 	// import costs roughly ten times its body size.
-	ImportMemoryBudgetMB           int
+	ImportMemoryBudgetMB int
+	// Hardening beyond Python (plan 04 final review); each zero value means the default.
+	ExportMaxConcurrent            int  // EXPORT_MAX_CONCURRENT (default 8): CSV exports streaming at once
+	ExportMaxPerWorkspace          int  // EXPORT_MAX_PER_WORKSPACE (default 2)
+	ExportWriteTimeoutSeconds      int  // EXPORT_WRITE_TIMEOUT_SECONDS (default 15): per-write deadline of a CSV export
+	WorkbookMaxAddRows             int  // WORKBOOK_MAX_ADD_ROWS (default 10000): rows per add-rows request
+	WorkbookMaxRowKeys             int  // WORKBOOK_MAX_ROW_KEYS (default 2000): keys in one added row
+	WorkbookMaxViewFilters         int  // WORKBOOK_MAX_VIEW_FILTERS (default 50)
+	WorkbookMaxViewSorts           int  // WORKBOOK_MAX_VIEW_SORTS (default 10)
+	WorkbookMaxColumns             int  // WORKBOOK_MAX_COLUMNS (default 500)
 	PGLeadStore                    bool // PG_LEAD_STORE (default true); Go supports only the Postgres lead store
 	GoRunRoutesEnabled             bool // GO_RUN_ROUTES_ENABLED (default false): enrichment run/ingest/ws routes
 	AutomationsEnabled             bool // AUTOMATIONS_ENABLED
@@ -420,6 +429,25 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	}
 	if c.Flags.ImportMemoryBudgetMB, err = intVar(get, "IMPORT_MEMORY_BUDGET_MB", 512, 64, 65536); err != nil {
 		return APIConfig{}, err
+	}
+	for _, v := range []struct {
+		dst  *int
+		name string
+		def  int
+		max  int
+	}{
+		{&c.Flags.ExportMaxConcurrent, "EXPORT_MAX_CONCURRENT", 8, 1000},
+		{&c.Flags.ExportMaxPerWorkspace, "EXPORT_MAX_PER_WORKSPACE", 2, 1000},
+		{&c.Flags.ExportWriteTimeoutSeconds, "EXPORT_WRITE_TIMEOUT_SECONDS", 15, 3600},
+		{&c.Flags.WorkbookMaxAddRows, "WORKBOOK_MAX_ADD_ROWS", 10000, 1000000},
+		{&c.Flags.WorkbookMaxRowKeys, "WORKBOOK_MAX_ROW_KEYS", 2000, 100000},
+		{&c.Flags.WorkbookMaxViewFilters, "WORKBOOK_MAX_VIEW_FILTERS", 50, 10000},
+		{&c.Flags.WorkbookMaxViewSorts, "WORKBOOK_MAX_VIEW_SORTS", 10, 1000},
+		{&c.Flags.WorkbookMaxColumns, "WORKBOOK_MAX_COLUMNS", 500, 100000},
+	} {
+		if *v.dst, err = intVar(get, v.name, v.def, 1, v.max); err != nil {
+			return APIConfig{}, err
+		}
 	}
 	if c.Flags.AutomationsEnabled, err = boolVar(get, "AUTOMATIONS_ENABLED", false); err != nil {
 		return APIConfig{}, err

@@ -3,6 +3,7 @@ package api
 
 import (
 	"context"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 	"log/slog"
 	"net/http"
 	"os"
@@ -93,6 +94,8 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterSCIM(r, d)
 	RegisterSettings(r, d)
 	RegisterBilling(r, d)
+	wbcrud.SetLimits(wbcrud.Limits{MaxAddRows: d.Flags.WorkbookMaxAddRows, MaxRowKeys: d.Flags.WorkbookMaxRowKeys,
+		MaxViewFilters: d.Flags.WorkbookMaxViewFilters, MaxViewSorts: d.Flags.WorkbookMaxViewSorts, MaxColumns: d.Flags.WorkbookMaxColumns})
 	RegisterWorkbooks(r, d)
 	RegisterWorkbookDetail(r, d)
 	RegisterWorkbookColumns(r, d)
