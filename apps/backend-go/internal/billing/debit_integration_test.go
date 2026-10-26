@@ -452,3 +452,54 @@ func checkRes(t *testing.T, i int, got DebitResult, st seqStep) {
 		t.Fatalf("step %d: got %+v want %+v", i, got, *w)
 	}
 }
+
+func insertRawEntry(t *testing.T, pool *pgxpool.Pool, ws, key string) {
+	t.Helper()
+	err := tenancy.InWorkspace(context.Background(), pool, ws, func(tx pgx.Tx) error {
+		_, e := tx.Exec(context.Background(),
+			`INSERT INTO credit_ledger_entries (workspace_id, amount_usd, reason, run_id, idempotency_key) VALUES ($1,-1,'run_debit','x',$2)`, ws, key)
+		return e
+	})
+	if err != nil {
+		t.Fatalf("insert raw entry: %v", err)
+	}
+}
+
+// A legacy Python "run:<id>" row in the same workspace is a replay; the same
+// run id in another workspace is a normal charge.
+func TestDebitLegacyKeyFallback(t *testing.T) {
+	pool := ledgerPool(t, "t6-leg-a", "t6-leg-b")
+	credit(t, pool, "t6-leg-a", 5, "manual_grant", "")
+	credit(t, pool, "t6-leg-b", 5, "manual_grant", "")
+	insertRawEntry(t, pool, "t6-leg-a", "run:legacy1")
+
+	a, err := debit(t, pool, true, "t6-leg-a", 2, "legacy1")
+	if err != nil || !a.IdempotentReplay || a.ChargedUSD != 0 || a.BalanceUSD != 5 {
+		t.Fatalf("a=%+v err=%v", a, err)
+	}
+	if bal, rows := ledger(t, pool, "t6-leg-a"); bal != 5 || len(rows) != 2 {
+		t.Fatalf("replay wrote: bal=%v rows=%d", bal, len(rows))
+	}
+	b, err := debit(t, pool, true, "t6-leg-b", 2, "legacy1")
+	if err != nil || b.IdempotentReplay || b.ChargedUSD != 2 || b.BalanceUSD != 3 {
+		t.Fatalf("b=%+v err=%v", b, err)
+	}
+}
+
+// A unique violation on a key this workspace cannot see (another tenant's row)
+// must surface as an error, never as a free replay.
+func TestDebitUniqueViolationNotVisibleIsError(t *testing.T) {
+	pool := ledgerPool(t, "t6-uv-a", "t6-uv-b")
+	credit(t, pool, "t6-uv-a", 5, "manual_grant", "")
+	scoped, _ := debitKeys("t6-uv-a", "r1")
+	insertRawEntry(t, pool, "t6-uv-b", scoped) // squats a's key in b's rows
+
+	res, err := debit(t, pool, true, "t6-uv-a", 2, "r1")
+	var ice *InsufficientCreditsError
+	if err == nil || errors.As(err, &ice) || res.IdempotentReplay || res.ChargedUSD != 0 {
+		t.Fatalf("res=%+v err=%v: want a plain error, not a replay", res, err)
+	}
+	if bal, rows := ledger(t, pool, "t6-uv-a"); bal != 5 || len(rows) != 1 {
+		t.Fatalf("a wrote: bal=%v rows=%d", bal, len(rows))
+	}
+}
