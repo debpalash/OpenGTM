@@ -496,3 +496,105 @@ func TestContractConflictNeverOverwritesCompleteCell(t *testing.T) {
 		t.Fatalf("provider calls %d", s.total())
 	}
 }
+
+func refCol(id, ref string, chain ...string) string {
+	c := colJSON(id, chain...)
+	return c[:len(c)-1] + `,"prompt":"{` + ref + `}"}`
+}
+
+// Providers must be called for upstream columns first even when the dependent
+// is configured first.
+func TestRunOrderFollowsDependencies(t *testing.T) {
+	e := setup(t, wsA)
+	var mu sync.Mutex
+	var order []string
+	s := newSim(t, func(name string, _ int, w http.ResponseWriter, _ *http.Request) {
+		mu.Lock()
+		order = append(order, name)
+		mu.Unlock()
+		fmt.Fprint(w, `{"v":"1999"}`)
+	})
+	e.seed(wsA, "wb-order", "["+refCol("a", "b", "pa")+","+colJSON("b", "pb")+"]", 1, 10)
+	c := e.claim(wsA, payloadFor(wsA, "wb-order", map[string]float64{"pa": 0, "pb": 0}, nil))
+	res, err := workbook.Run(e.ctx, e.deps(s, nil), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Completed != 2 || res.Errors != 0 {
+		t.Fatalf("result %+v", res)
+	}
+	if strings.Join(order, ",") != "pb,pa" {
+		t.Fatalf("provider order %v", order)
+	}
+}
+
+func TestCyclicColumnBlockedMessage(t *testing.T) {
+	e := setup(t, wsA)
+	s := newSim(t, nil)
+	e.seed(wsA, "wb-cyc", "["+refCol("a", "b", "pa")+","+refCol("b", "a", "pb")+"]", 1, 10)
+	c := e.claim(wsA, payloadFor(wsA, "wb-cyc", map[string]float64{"pa": 0, "pb": 0}, nil))
+	res, err := workbook.Run(e.ctx, e.deps(s, nil), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Errors != 2 || res.Completed != 0 || s.total() != 0 {
+		t.Fatalf("result %+v calls %d", res, s.total())
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_rows WHERE workbook_id='wb-cyc' AND enrichments::jsonb->'a'->>'error'='dependency_cycle' AND enrichments::jsonb->'b'->>'error'='dependency_cycle'`); n != 1 {
+		t.Fatalf("cycle error cells %d", n)
+	}
+}
+
+func TestUpstreamFailureSkipsDependent(t *testing.T) {
+	e := setup(t, wsA)
+	s := newSim(t, func(name string, _ int, w http.ResponseWriter, _ *http.Request) {
+		if name == "pb" {
+			fmt.Fprint(w, `{}`) // no data: upstream cell fails
+			return
+		}
+		fmt.Fprint(w, `{"v":"1999"}`)
+	})
+	e.seed(wsA, "wb-up", "["+colJSON("b", "pb")+","+refCol("a", "b", "pa")+"]", 1, 10)
+	c := e.claim(wsA, payloadFor(wsA, "wb-up", map[string]float64{"pa": 0, "pb": 0}, nil))
+	res, err := workbook.Run(e.ctx, e.deps(s, nil), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Errors != 2 || res.Completed != 0 || s.count("pa") != 0 {
+		t.Fatalf("result %+v pa calls %d", res, s.count("pa"))
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_rows WHERE workbook_id='wb-up' AND enrichments::jsonb->'b'->>'error'='no_data' AND enrichments::jsonb->'a'->>'error'='upstream_dependency_failed' AND enrichments::jsonb->'a'->>'status'='error'`); n != 1 {
+		t.Fatalf("expected upstream_dependency_failed cell")
+	}
+}
+
+// An upstream executable column that is not part of this run and has no value
+// leaves the dependent with Python's upstream_dependency_unavailable.
+func TestUpstreamUnavailableBlocksDependent(t *testing.T) {
+	e := setup(t, wsA)
+	s := newSim(t, nil)
+	e.seed(wsA, "wb-unav", "["+colJSON("b", "pb")+","+refCol("a", "b", "pa")+"]", 1, 10)
+	c := e.claim(wsA, payloadFor(wsA, "wb-unav", map[string]float64{"pa": 0, "pb": 0}, map[string]any{"column_ids": []string{"a"}}))
+	res, err := workbook.Run(e.ctx, e.deps(s, nil), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Errors != 1 || s.total() != 0 {
+		t.Fatalf("result %+v calls %d", res, s.total())
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_rows WHERE workbook_id='wb-unav' AND enrichments::jsonb->'a'->>'error'='upstream_dependency_unavailable'`); n != 1 {
+		t.Fatal("expected upstream_dependency_unavailable")
+	}
+}
+
+// Until Task 21 non-go column types are still handed back to Python.
+func TestRunStillHandsBackNonGoTypes(t *testing.T) {
+	e := setup(t, wsA)
+	s := newSim(t, nil)
+	e.seed(wsA, "wb-nongo", `[{"id":"c1","type":"ai_formula","name":"c1","prompt":"x"}]`, 1, 10)
+	c := e.claim(wsA, payloadFor(wsA, "wb-nongo", map[string]float64{"pa": 0}, nil))
+	_, err := workbook.Run(e.ctx, e.deps(s, nil), c)
+	if !errors.Is(err, workbook.ErrHandedBack) || s.total() != 0 {
+		t.Fatalf("non-go type must be handed back: %v", err)
+	}
+}

@@ -54,7 +54,6 @@ func TestRefusalsHandBackToPython(t *testing.T) {
 			return mutate(good(wb), func(p map[string]any) { delete(p, "go") })
 		}, nil, "missing go block"},
 		{"unsupported column", `[{"id":"c1","type":"ai_formula","name":"c1","prompt":"x"}]`, good, nil, "not supported"},
-		{"edited column (refs)", `[{"id":"c1","type":"waterfall","target_field":"founded_year","waterfall":["free1"],"prompt":"{Other}"}]`, good, nil, "references other columns"},
 		{"unknown provider", "[" + colJSON("c1", "ghost") + "]", good, nil, "unknown_provider"},
 		{"manifest hash mismatch", "[" + colJSON("c1", "free1") + "]", good,
 			manifestSrv{sha: map[string]string{"free1": "0000"}}, "manifest_mismatch"},
