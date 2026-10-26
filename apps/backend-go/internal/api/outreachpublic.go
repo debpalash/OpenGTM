@@ -1,6 +1,10 @@
 package api
 
 import (
+	"crypto/sha256"
+	"crypto/subtle"
+	"encoding/hex"
+	"encoding/json"
 	"html"
 	"io"
 	"net"
@@ -18,6 +22,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachtoken"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
 // The public routes are unauthenticated: the signed token (unsubscribe) or the platform secret (bounce webhook) is the only
@@ -28,6 +33,10 @@ const (
 	unsubRateWindow  = 60 * time.Second
 	unsubRateMaxKeys = 100_000
 	unsubTokenPrefix = 32
+	whMaxBodyBytes   = 64 << 10
+	whMessageIDMax   = 998 // RFC 5322 line limit
+	whEventMax       = 256
+	whImapUIDWidth   = 64 // outreach_inbound_messages.imap_uid is VARCHAR(64)
 
 	unsubNotConfigured = "unsubscribe not configured"
 	unsubInvalidHTML   = "<h2>Invalid unsubscribe link</h2>"
@@ -53,6 +62,7 @@ func registerOutreachPublic(r *httpx.Router, d Deps) {
 	}
 	r.Handle("GET /api/outreach/unsubscribe", http.HandlerFunc(h.landing))
 	r.Handle("POST /api/outreach/unsubscribe", http.HandlerFunc(h.unsubscribe))
+	r.Handle("POST /api/outreach/webhooks/bounce", http.HandlerFunc(h.bounce))
 }
 
 // pubQueryLast is the value FastAPI/Starlette gives a scalar query parameter: the last one, "" when absent.
@@ -137,6 +147,173 @@ func (h *pubRoutes) unsubscribe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "unsubscribed"})
+}
+
+// secretsEqual compares through fixed-length digests in constant time, so neither the length nor a common prefix of
+// the configured secret leaks, and a non-ASCII header value cannot raise (Python compare_digest would).
+func secretsEqual(a, b string) bool {
+	ha, hb := sha256.Sum256([]byte(a)), sha256.Sum256([]byte(b))
+	return subtle.ConstantTimeCompare(ha[:], hb[:]) == 1
+}
+
+// pubBool is pydantic's lax bool validation.
+func pubBool(v any, loc []any) (bool, *httpx.FieldError) {
+	bad := func(typ, msg string) (bool, *httpx.FieldError) {
+		e := seqFE(typ, msg, loc, v, nil)
+		return false, &e
+	}
+	const unclear = "Input should be a valid boolean, unable to interpret input"
+	switch t := v.(type) {
+	case bool:
+		return t, nil
+	case json.Number:
+		switch string(t) {
+		case "0", "0.0":
+			return false, nil
+		case "1", "1.0":
+			return true, nil
+		}
+		return bad("bool_parsing", unclear)
+	case string:
+		switch strings.ToLower(t) {
+		case "0", "off", "f", "false", "n", "no":
+			return false, nil
+		case "1", "on", "t", "true", "y", "yes":
+			return true, nil
+		}
+		return bad("bool_parsing", unclear)
+	}
+	return bad("bool_type", "Input should be a valid boolean")
+}
+
+// bounceEvent is the validated BounceEvent{message_id: str, event: str = "bounce", hard: bool = True}.
+type bounceEvent struct {
+	MessageID, Event string
+	Hard             bool
+}
+
+func parseBounceEvent(raw []byte) (bounceEvent, []httpx.FieldError) {
+	ev := bounceEvent{Event: "bounce", Hard: true}
+	obj, errs := wbcrud.DecodeBodyObject(raw)
+	if errs != nil {
+		return ev, errs
+	}
+	if v, present := obj.Get("message_id"); !present {
+		errs = append(errs, seqFE("missing", "Field required", seqLoc("message_id"), obj, nil))
+	} else if s, e := seqString(v, seqLoc("message_id"), whMessageIDMax); e != nil {
+		errs = append(errs, *e)
+	} else {
+		ev.MessageID = s
+	}
+	if v, present := obj.Get("event"); present {
+		if s, e := seqString(v, seqLoc("event"), whEventMax); e != nil {
+			errs = append(errs, *e)
+		} else {
+			ev.Event = s
+		}
+	}
+	if v, present := obj.Get("hard"); present {
+		if b, e := pubBool(v, seqLoc("hard")); e != nil {
+			errs = append(errs, *e)
+		} else {
+			ev.Hard = b
+		}
+	}
+	return ev, errs
+}
+
+// bounceKind maps the ESP event to the shared bounce kind (Python: complaint, else hard, else soft).
+func bounceKind(ev bounceEvent) string {
+	switch {
+	case ev.Event == "complaint":
+		return "complaint"
+	case ev.Hard:
+		return "hard"
+	}
+	return "soft"
+}
+
+// ledgerUID keys the inbound ledger row by the message id; the column is 64 characters wide, so a longer id is keyed by
+// its digest rather than failing the insert.
+func ledgerUID(messageID string) string {
+	if len([]rune(messageID)) <= whImapUIDWidth {
+		return messageID
+	}
+	sum := sha256.Sum256([]byte(messageID))
+	return "sha256:" + hex.EncodeToString(sum[:])[:whImapUIDWidth-len("sha256:")]
+}
+
+// bounce is the platform-authenticated bounce/complaint hook. Order: the platform secret (before anything else is read),
+// the body, the SECURITY DEFINER message-id lookup (the only statement that spans tenants; it returns a routing tuple),
+// then everything else in the owning workspace, in one transaction so the ledger insert gates apply_bounce exactly once.
+func (h *pubRoutes) bounce(w http.ResponseWriter, r *http.Request) {
+	secret := h.d.Flags.Outreach.BounceWebhookSecret.Reveal()
+	if secret == "" {
+		httpx.Detail(w, http.StatusServiceUnavailable, "bounce webhook not configured")
+		return
+	}
+	if !secretsEqual(r.Header.Get("X-Webhook-Secret"), secret) {
+		httpx.Detail(w, http.StatusForbidden, "invalid signature")
+		return
+	}
+	raw, err := io.ReadAll(io.LimitReader(r.Body, whMaxBodyBytes+1))
+	if err != nil {
+		httpx.Detail(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	if len(raw) > whMaxBodyBytes {
+		httpx.Detail(w, http.StatusRequestEntityTooLarge, "Request body too large")
+		return
+	}
+	ev, errs := parseBounceEvent(raw)
+	if errs != nil {
+		httpx.ValidationError(w, errs...)
+		return
+	}
+	mid := strings.TrimSpace(ev.MessageID)
+	ref, err := outreachstore.LookupSendAnyWorkspace(r.Context(), h.d.Pool, mid)
+	if err != nil {
+		h.fail(w, "bounce lookup", err)
+		return
+	}
+	if ref == nil {
+		httpx.Detail(w, http.StatusNotFound, "message not found")
+		return
+	}
+	kind := bounceKind(ev)
+	sendID := ref.SendID
+	var enrollment *int
+	if ref.EnrollmentID != nil {
+		n := int(*ref.EnrollmentID)
+		enrollment = &n
+	}
+	duplicate := false
+	err = tenancy.InWorkspace(r.Context(), h.d.Pool, ref.WorkspaceID, func(tx pgx.Tx) error {
+		created, e := outreachstore.RecordInboundProcessed(r.Context(), tx, outreachstore.InboundIn{
+			WorkspaceID: ref.WorkspaceID, IMAPUID: ledgerUID(mid), UIDValidity: "webhook", SourceMessageID: mid,
+			MatchedSendID: &sendID, Kind: kind, Recipient: ref.ToEmail, Diagnostic: "webhook",
+		})
+		if e != nil {
+			return e
+		}
+		if !created {
+			duplicate = true
+			return nil
+		}
+		return outreachstore.ApplyBounce(r.Context(), tx, outreachstore.BounceApply{
+			WorkspaceID: ref.WorkspaceID, SendID: &sendID, SequenceID: ref.SequenceID, EnrollmentID: enrollment,
+			ToEmail: ref.ToEmail, Kind: kind, Diagnostic: "webhook", Source: "webhook",
+		}, outreachstore.ThresholdsFrom(h.d.Flags.Outreach))
+	})
+	if err != nil {
+		h.fail(w, "bounce apply", err)
+		return
+	}
+	if duplicate {
+		httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "duplicate"})
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }
 
 // publicClientIP is the rate-limit identity. Behind nginx every request arrives from the proxy, and nginx overwrites
