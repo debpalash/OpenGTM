@@ -2,7 +2,6 @@ package leadscore
 
 import (
 	"bytes"
-	_ "embed"
 	"encoding/json"
 	"errors"
 	"os"
@@ -169,8 +168,8 @@ func TestSpecializationSubstringBothDirections(t *testing.T) {
 			t.Errorf("%q = %d, want 20", s, got)
 		}
 	}
-	// industry-only match gives the half credit; "Payroll" is an industry, not a preferred specialization.
-	for _, s := range []string{"Payroll", "payroll services", "Recruitment"} {
+	// industry-only match gives the half credit; "HR Consultancy" is an industry, not a preferred specialization.
+	for _, s := range []string{"HR Consultancy", "hr consultancy firm", "Executive Search"} {
 		if got := Score(MapLead{"specialization": s}, nil); got != 10 {
 			t.Errorf("%q = %d, want 10", s, got)
 		}
