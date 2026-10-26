@@ -74,7 +74,7 @@ agent columns, columns with a `condition`, or an enrichment/waterfall email targ
 (`status=pending`, `executor=python`, no retry spent, no write). Metric to watch: the worker log line `trigger_eval handed back to python`
 (field `reason`), and the jobs it leaves behind:
 ```sql
-SELECT date_trunc('hour', updated_at) h, count(*) FROM jobs
+SELECT date_trunc('hour', created_at) h, count(*) FROM jobs
  WHERE type='trigger_eval' AND error LIKE 'handed back to python:%' GROUP BY 1 ORDER BY 1 DESC LIMIT 24;
 ```
 A steady stream is expected for rules with those actions; a jump after a deploy, or hand-backs that never complete on Python
