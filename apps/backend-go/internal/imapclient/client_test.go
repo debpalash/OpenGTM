@@ -54,8 +54,8 @@ func TestSelectReturnsUIDValidity(t *testing.T) {
 func TestSearchUnseenSince(t *testing.T) {
 	ts := newServer(t, modeImplicitTLS)
 	now := time.Now()
-	ts.add(t, msgA, now.Add(-72*time.Hour))              // uid 1: old, unseen
-	ts.add(t, msgA, now.Add(-1*time.Hour))               // uid 2: recent, unseen
+	ts.add(t, msgA, now.Add(-72*time.Hour))               // uid 1: old, unseen
+	ts.add(t, msgA, now.Add(-1*time.Hour))                // uid 2: recent, unseen
 	ts.add(t, msgA, now.Add(-1*time.Hour), imap.FlagSeen) // uid 3: recent, seen
 	c := connected(t, ts)
 	if _, err := c.Select(ctx, "INBOX"); err != nil {
