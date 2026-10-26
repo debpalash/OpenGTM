@@ -1,0 +1,563 @@
+{
+ "row_values": {
+  "company": "Acme",
+  "Company": "Acme Name",
+  "Email": "a@b.co",
+  "n": 0,
+  "flag": false,
+  "none": null,
+  "First Name": "Ada",
+  "first_name": "Eve",
+  "Dup": "1",
+  "dup": "2",
+  "X Y": "xy",
+  "x_y": "x_y"
+ },
+ "resolve_prompt": [
+  {
+   "template": "{company}",
+   "default": {
+    "value": "Acme"
+   },
+   "strict": {
+    "value": "Acme"
+   }
+  },
+  {
+   "template": "{Company}",
+   "default": {
+    "value": "Acme Name"
+   },
+   "strict": {
+    "value": "Acme Name"
+   }
+  },
+  {
+   "template": "{COMPANY}",
+   "default": {
+    "error": "ValueError",
+    "message": "Ambiguous column reference: COMPANY. Use an exact column ID."
+   },
+   "strict": {
+    "error": "ValueError",
+    "message": "Ambiguous column reference: COMPANY. Use an exact column ID."
+   }
+  },
+  {
+   "template": "{ company }",
+   "default": {
+    "value": "Acme"
+   },
+   "strict": {
+    "value": "Acme"
+   }
+  },
+  {
+   "template": "{email}",
+   "default": {
+    "value": "a@b.co"
+   },
+   "strict": {
+    "value": "a@b.co"
+   }
+  },
+  {
+   "template": "{n}",
+   "default": {
+    "value": "0"
+   },
+   "strict": {
+    "value": "0"
+   }
+  },
+  {
+   "template": "{flag}",
+   "default": {
+    "value": "False"
+   },
+   "strict": {
+    "value": "False"
+   }
+  },
+  {
+   "template": "{none}",
+   "default": {
+    "value": ""
+   },
+   "strict": {
+    "value": ""
+   }
+  },
+  {
+   "template": "{first name}",
+   "default": {
+    "value": "Ada"
+   },
+   "strict": {
+    "value": "Ada"
+   }
+  },
+  {
+   "template": "{FIRST NAME}",
+   "default": {
+    "value": "Ada"
+   },
+   "strict": {
+    "value": "Ada"
+   }
+  },
+  {
+   "template": "{first_name}",
+   "default": {
+    "value": "Eve"
+   },
+   "strict": {
+    "value": "Eve"
+   }
+  },
+  {
+   "template": "{x y}",
+   "default": {
+    "value": "xy"
+   },
+   "strict": {
+    "value": "xy"
+   }
+  },
+  {
+   "template": "{X_Y}",
+   "default": {
+    "value": "x_y"
+   },
+   "strict": {
+    "value": "x_y"
+   }
+  },
+  {
+   "template": "{missing}",
+   "default": {
+    "value": "[missing: not found]"
+   },
+   "strict": {
+    "error": "ValueError",
+    "message": "Unknown column reference: missing. Fix the template before sending."
+   }
+  },
+  {
+   "template": "{ missing }",
+   "default": {
+    "value": "[missing: not found]"
+   },
+   "strict": {
+    "error": "ValueError",
+    "message": "Unknown column reference: missing. Fix the template before sending."
+   }
+  },
+  {
+   "template": "{}",
+   "default": {
+    "value": "{}"
+   },
+   "strict": {
+    "value": "{}"
+   }
+  },
+  {
+   "template": "a {company} b {Email} c",
+   "default": {
+    "value": "a Acme b a@b.co c"
+   },
+   "strict": {
+    "value": "a Acme b a@b.co c"
+   }
+  },
+  {
+   "template": "{company}{company}",
+   "default": {
+    "value": "AcmeAcme"
+   },
+   "strict": {
+    "value": "AcmeAcme"
+   }
+  },
+  {
+   "template": "{dup}",
+   "default": {
+    "value": "2"
+   },
+   "strict": {
+    "value": "2"
+   }
+  },
+  {
+   "template": "{Dup}",
+   "default": {
+    "value": "1"
+   },
+   "strict": {
+    "value": "1"
+   }
+  },
+  {
+   "template": "{DUP}",
+   "default": {
+    "error": "ValueError",
+    "message": "Ambiguous column reference: DUP. Use an exact column ID."
+   },
+   "strict": {
+    "error": "ValueError",
+    "message": "Ambiguous column reference: DUP. Use an exact column ID."
+   }
+  },
+  {
+   "template": "{x_y}",
+   "default": {
+    "value": "x_y"
+   },
+   "strict": {
+    "value": "x_y"
+   }
+  },
+  {
+   "template": "no refs",
+   "default": {
+    "value": "no refs"
+   },
+   "strict": {
+    "value": "no refs"
+   }
+  },
+  {
+   "template": "",
+   "default": {
+    "value": ""
+   },
+   "strict": {
+    "value": ""
+   }
+  },
+  {
+   "template": "{a{company}}",
+   "default": {
+    "value": "[a{company: not found]}"
+   },
+   "strict": {
+    "error": "ValueError",
+    "message": "Unknown column reference: a{company. Fix the template before sending."
+   }
+  },
+  {
+   "template": "{company",
+   "default": {
+    "value": "{company"
+   },
+   "strict": {
+    "value": "{company"
+   }
+  },
+  {
+   "template": "company}",
+   "default": {
+    "value": "company}"
+   },
+   "strict": {
+    "value": "company}"
+   }
+  },
+  {
+   "template": "{n} {n}",
+   "default": {
+    "value": "0 0"
+   },
+   "strict": {
+    "value": "0 0"
+   }
+  },
+  {
+   "template": "{💡}",
+   "default": {
+    "value": "[💡: not found]"
+   },
+   "strict": {
+    "error": "ValueError",
+    "message": "Unknown column reference: 💡. Fix the template before sending."
+   }
+  }
+ ],
+ "cell_text": [
+  {
+   "value": null,
+   "text": ""
+  },
+  {
+   "value": 0,
+   "text": "0"
+  },
+  {
+   "value": false,
+   "text": "False"
+  },
+  {
+   "value": "",
+   "text": ""
+  },
+  {
+   "value": "x",
+   "text": "x"
+  },
+  {
+   "value": 1.5,
+   "text": "1.5"
+  },
+  {
+   "value": 100000000000000000000,
+   "text": "100000000000000000000"
+  },
+  {
+   "value": [
+    1
+   ],
+   "text": "[1]"
+  },
+  {
+   "value": {
+    "a": 1
+   },
+   "text": "{'a': 1}"
+  },
+  {
+   "value": true,
+   "text": "True"
+  }
+ ],
+ "get_row_values": [
+  {
+   "name": "plain",
+   "cells": {
+    "company": "A",
+    "n": 3,
+    "z": null
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "values": {
+    "value": {
+     "Company": "A",
+     "Count": "3",
+     "z": "",
+     "company": "A",
+     "n": "3"
+    }
+   }
+  },
+  {
+   "name": "dict_cells",
+   "cells": {
+    "company": {
+     "value": "A"
+    },
+    "n": {
+     "value": null
+    },
+    "z": {}
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "values": {
+    "value": {
+     "Company": "A",
+     "Count": "",
+     "z": "",
+     "company": "A",
+     "n": ""
+    }
+   }
+  },
+  {
+   "name": "name_collision_id_wins",
+   "cells": {
+    "company": "Real",
+    "x": "ByName"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "x",
+     "name": "company"
+    }
+   ],
+   "values": {
+    "value": {
+     "Company": "Real",
+     "company": "Real",
+     "x": "ByName"
+    }
+   }
+  },
+  {
+   "name": "no_name_uses_id",
+   "cells": {
+    "k": 1
+   },
+   "columns_config": [
+    {
+     "id": "k"
+    }
+   ],
+   "values": {
+    "value": {
+     "k": "1"
+    }
+   }
+  },
+  {
+   "name": "unknown_cell_uses_id",
+   "cells": {
+    "zz": 1
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "values": {
+    "value": {
+     "zz": "1"
+    }
+   }
+  },
+  {
+   "name": "empty",
+   "cells": {},
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "values": {
+    "value": {}
+   }
+  }
+ ],
+ "validate_template_references": [
+  {
+   "template": "{a}",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    }
+   ],
+   "result": {
+    "value": null
+   }
+  },
+  {
+   "template": "{dup}",
+   "columns": [
+    {
+     "id": "a",
+     "name": "Dup"
+    },
+    {
+     "id": "b",
+     "name": "dup"
+    }
+   ],
+   "result": {
+    "value": null
+   }
+  },
+  {
+   "template": "{a}",
+   "columns": [
+    {
+     "id": "a",
+     "name": "X"
+    },
+    {
+     "id": "b",
+     "name": "a"
+    }
+   ],
+   "result": {
+    "value": null
+   }
+  },
+  {
+   "template": "{x} {y}",
+   "columns": [],
+   "result": {
+    "value": null
+   }
+  },
+  {
+   "template": "",
+   "columns": [],
+   "result": {
+    "value": null
+   }
+  }
+ ]
+}

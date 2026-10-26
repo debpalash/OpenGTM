@@ -1,0 +1,2781 @@
+{
+ "registry": {
+  "abstract_api": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "email_verify"
+   ],
+   "default_confidence": 0.9
+  },
+  "apollo_io": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "email",
+    "phone",
+    "contact_person",
+    "contact_title",
+    "linkedin_url",
+    "company_size"
+   ],
+   "default_confidence": 0.85
+  },
+  "ats_hiring": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "hiring_signals",
+    "open_roles"
+   ],
+   "default_confidence": 0.8
+  },
+  "companies_house": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "decision_makers",
+    "contact_person",
+    "contact_title",
+    "address",
+    "founded_year"
+   ],
+   "default_confidence": 0.85
+  },
+  "company_intel": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "company_size",
+    "industry_tags",
+    "description",
+    "founding_year"
+   ],
+   "default_confidence": 0.68
+  },
+  "crosslinked": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "decision_makers",
+    "contact_person",
+    "contact_title"
+   ],
+   "default_confidence": 0.6
+  },
+  "ddg_company": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "website",
+    "phone",
+    "email",
+    "description"
+   ],
+   "default_confidence": 0.5
+  },
+  "ddg_email": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "email"
+   ],
+   "default_confidence": 0.6
+  },
+  "debounce": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "email_verify"
+   ],
+   "default_confidence": 0.92
+  },
+  "decision_maker": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "contact_person",
+    "contact_title",
+    "decision_makers",
+    "linkedin_url"
+   ],
+   "default_confidence": 0.5
+  },
+  "deep_scraper": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "email",
+    "phone",
+    "description",
+    "company_size",
+    "founding_year",
+    "industry_tags",
+    "address",
+    "contact_person",
+    "contact_title",
+    "decision_makers",
+    "linkedin_url",
+    "twitter_url",
+    "facebook_url"
+   ],
+   "default_confidence": 0.7
+  },
+  "email_harvester": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "email",
+    "contact_person"
+   ],
+   "default_confidence": 0.72
+  },
+  "facebook_pages": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "phone",
+    "email",
+    "address"
+   ],
+   "default_confidence": 0.5
+  },
+  "gleif": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "lei",
+    "legal_name",
+    "country",
+    "city",
+    "region",
+    "entity_status",
+    "registration_authority",
+    "jurisdiction",
+    "parent_lei",
+    "ultimate_parent_lei",
+    "ultimate_parent_name",
+    "corporate_hierarchy"
+   ],
+   "default_confidence": 0.85
+  },
+  "google_maps": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "phone",
+    "address",
+    "description",
+    "industry_tags",
+    "company_size"
+   ],
+   "default_confidence": 0.9
+  },
+  "holehe": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "email_verify"
+   ],
+   "default_confidence": 0.85
+  },
+  "hunter_io": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "email"
+   ],
+   "default_confidence": 0.8
+  },
+  "ipinfo": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "company_data",
+    "org",
+    "location",
+    "asn"
+   ],
+   "default_confidence": 0.7
+  },
+  "jobspy": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "hiring_signals",
+    "technologies"
+   ],
+   "default_confidence": 0.7
+  },
+  "jsonld_firmographics": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "company",
+    "address",
+    "phone",
+    "email",
+    "city",
+    "state",
+    "founded_year",
+    "founding_year",
+    "linkedin_url",
+    "twitter_url",
+    "facebook_url",
+    "description"
+   ],
+   "default_confidence": 0.85
+  },
+  "lead_scorer": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "score",
+    "score_tier"
+   ],
+   "default_confidence": 0.95
+  },
+  "leadmagic_company": {
+   "cost_per_lookup": 0.05,
+   "capabilities": [
+    "company_size",
+    "description"
+   ],
+   "default_confidence": 0.8
+  },
+  "leadmagic_email": {
+   "cost_per_lookup": 0.05,
+   "capabilities": [
+    "email"
+   ],
+   "default_confidence": 0.8
+  },
+  "leadmagic_mobile": {
+   "cost_per_lookup": 0.05,
+   "capabilities": [
+    "mobile_phone",
+    "phone"
+   ],
+   "default_confidence": 0.8
+  },
+  "local_business": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "phone",
+    "address",
+    "industry_tags"
+   ],
+   "default_confidence": 0.65
+  },
+  "mailscout": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "email",
+    "email_confidence"
+   ],
+   "default_confidence": 0.95
+  },
+  "mca_registry": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "address",
+    "founded_year",
+    "industry_tags",
+    "description"
+   ],
+   "default_confidence": 0.85
+  },
+  "numverify": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "phone_verify",
+    "phone_carrier",
+    "phone_line_type"
+   ],
+   "default_confidence": 0.85
+  },
+  "people_data_labs": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "email",
+    "phone",
+    "contact_person",
+    "contact_title",
+    "linkedin_url",
+    "company_size",
+    "industry_tags",
+    "description"
+   ],
+   "default_confidence": 0.88
+  },
+  "prospeo": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "email",
+    "email_verify"
+   ],
+   "default_confidence": 0.82
+  },
+  "prospeo_mobile": {
+   "cost_per_lookup": 0.1,
+   "capabilities": [
+    "mobile_phone"
+   ],
+   "default_confidence": 0.8
+  },
+  "sec_edgar": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "funding_amount",
+    "funding_date",
+    "funding_stage_signal",
+    "decision_makers",
+    "industry",
+    "sec_cik"
+   ],
+   "default_confidence": 0.8
+  },
+  "snovio": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "email",
+    "contact_person",
+    "contact_title"
+   ],
+   "default_confidence": 0.8
+  },
+  "social_finder": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "linkedin_url",
+    "twitter_url"
+   ],
+   "default_confidence": 0.55
+  },
+  "staffspy": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "decision_makers",
+    "contact_person",
+    "contact_title"
+   ],
+   "default_confidence": 0.8
+  },
+  "tech_stack": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "technologies"
+   ],
+   "default_confidence": 0.75
+  },
+  "website_scraper": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "email",
+    "phone",
+    "description",
+    "linkedin_url",
+    "twitter_url",
+    "facebook_url"
+   ],
+   "default_confidence": 0.65
+  },
+  "wikidata": {
+   "cost_per_lookup": 0.0,
+   "capabilities": [
+    "description",
+    "website",
+    "industry_tags",
+    "founded_year",
+    "company_size",
+    "address",
+    "linkedin_url",
+    "twitter_url",
+    "facebook_url"
+   ],
+   "default_confidence": 0.6
+  }
+ },
+ "vendors": [
+  {
+   "name": "hunter_io",
+   "base_cost": 0.04,
+   "byok": true,
+   "capabilities": [
+    "email"
+   ],
+   "notes": ""
+  },
+  {
+   "name": "apollo_io",
+   "base_cost": 0.03,
+   "byok": true,
+   "capabilities": [
+    "email",
+    "phone",
+    "contact_person",
+    "company_size"
+   ],
+   "notes": ""
+  },
+  {
+   "name": "snovio",
+   "base_cost": 0.03,
+   "byok": true,
+   "capabilities": [
+    "email"
+   ],
+   "notes": ""
+  },
+  {
+   "name": "prospeo",
+   "base_cost": 0.02,
+   "byok": true,
+   "capabilities": [
+    "email",
+    "phone"
+   ],
+   "notes": ""
+  },
+  {
+   "name": "people_data_labs",
+   "base_cost": 0.03,
+   "byok": true,
+   "capabilities": [
+    "email",
+    "phone",
+    "company_size"
+   ],
+   "notes": ""
+  },
+  {
+   "name": "abstract_api",
+   "base_cost": 0.01,
+   "byok": true,
+   "capabilities": [
+    "email_verify"
+   ],
+   "notes": ""
+  },
+  {
+   "name": "debounce",
+   "base_cost": 0.008,
+   "byok": true,
+   "capabilities": [
+    "email_verify"
+   ],
+   "notes": ""
+  },
+  {
+   "name": "numverify",
+   "base_cost": 0.005,
+   "byok": true,
+   "capabilities": [
+    "phone"
+   ],
+   "notes": ""
+  },
+  {
+   "name": "google_maps",
+   "base_cost": 0.005,
+   "byok": true,
+   "capabilities": [
+    "phone",
+    "address"
+   ],
+   "notes": ""
+  },
+  {
+   "name": "leadmagic_email",
+   "base_cost": 0.05,
+   "byok": true,
+   "capabilities": [
+    "email"
+   ],
+   "notes": ""
+  },
+  {
+   "name": "leadmagic_mobile",
+   "base_cost": 0.05,
+   "byok": true,
+   "capabilities": [
+    "mobile_phone",
+    "phone"
+   ],
+   "notes": ""
+  },
+  {
+   "name": "prospeo_mobile",
+   "base_cost": 0.1,
+   "byok": true,
+   "capabilities": [
+    "mobile_phone"
+   ],
+   "notes": ""
+  },
+  {
+   "name": "research",
+   "base_cost": 0.05,
+   "byok": false,
+   "capabilities": [
+    "research"
+   ],
+   "notes": "flagged by RESEARCH_VENDOR_COST (default off)"
+  }
+ ],
+ "lookups": [
+  {
+   "name": "",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": false,
+   "is_byok": true
+  },
+  {
+   "name": "",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": false,
+   "is_byok": true
+  },
+  {
+   "name": "HUNTER_IO",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": false,
+   "is_byok": true
+  },
+  {
+   "name": "HUNTER_IO",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": false,
+   "is_byok": true
+  },
+  {
+   "name": "abstract_api",
+   "research_flag": false,
+   "base_cost": 0.01,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "abstract_api",
+   "research_flag": true,
+   "base_cost": 0.01,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "apollo_io",
+   "research_flag": false,
+   "base_cost": 0.03,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "apollo_io",
+   "research_flag": true,
+   "base_cost": 0.03,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "ats_hiring",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "ats_hiring",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "claygent",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "claygent",
+   "research_flag": true,
+   "base_cost": 0.05,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "companies_house",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "companies_house",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "company_intel",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "company_intel",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "crosslinked",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "crosslinked",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "ddg_company",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "ddg_company",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "ddg_email",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "ddg_email",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "debounce",
+   "research_flag": false,
+   "base_cost": 0.008,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "debounce",
+   "research_flag": true,
+   "base_cost": 0.008,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "decision_maker",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "decision_maker",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "deep_scraper",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "deep_scraper",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "email_harvester",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "email_harvester",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "facebook_pages",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "facebook_pages",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "free_x",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": false,
+   "is_byok": true
+  },
+  {
+   "name": "free_x",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": false,
+   "is_byok": true
+  },
+  {
+   "name": "gleif",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "gleif",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "google_maps",
+   "research_flag": false,
+   "base_cost": 0.005,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "google_maps",
+   "research_flag": true,
+   "base_cost": 0.005,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "holehe",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "holehe",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "hunter_io",
+   "research_flag": false,
+   "base_cost": 0.04,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "hunter_io",
+   "research_flag": true,
+   "base_cost": 0.04,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "hunter_io ",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": false,
+   "is_byok": true
+  },
+  {
+   "name": "hunter_io ",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": false,
+   "is_byok": true
+  },
+  {
+   "name": "ipinfo",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "ipinfo",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "jobspy",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "jobspy",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "jsonld_firmographics",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "jsonld_firmographics",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "lead_scorer",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "lead_scorer",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "leadmagic_company",
+   "research_flag": false,
+   "base_cost": 0.05,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "leadmagic_company",
+   "research_flag": true,
+   "base_cost": 0.05,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "leadmagic_email",
+   "research_flag": false,
+   "base_cost": 0.05,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "leadmagic_email",
+   "research_flag": true,
+   "base_cost": 0.05,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "leadmagic_mobile",
+   "research_flag": false,
+   "base_cost": 0.05,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "leadmagic_mobile",
+   "research_flag": true,
+   "base_cost": 0.05,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "local_business",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "local_business",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "mailscout",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "mailscout",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "mca_registry",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "mca_registry",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "nope",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": false,
+   "is_byok": true
+  },
+  {
+   "name": "nope",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": false,
+   "is_byok": true
+  },
+  {
+   "name": "numverify",
+   "research_flag": false,
+   "base_cost": 0.005,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "numverify",
+   "research_flag": true,
+   "base_cost": 0.005,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "people_data_labs",
+   "research_flag": false,
+   "base_cost": 0.03,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "people_data_labs",
+   "research_flag": true,
+   "base_cost": 0.03,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "prospeo",
+   "research_flag": false,
+   "base_cost": 0.02,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "prospeo",
+   "research_flag": true,
+   "base_cost": 0.02,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "prospeo_mobile",
+   "research_flag": false,
+   "base_cost": 0.1,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "prospeo_mobile",
+   "research_flag": true,
+   "base_cost": 0.1,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "research",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": false
+  },
+  {
+   "name": "research",
+   "research_flag": true,
+   "base_cost": 0.05,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": false
+  },
+  {
+   "name": "sec_edgar",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "sec_edgar",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "snovio",
+   "research_flag": false,
+   "base_cost": 0.03,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "snovio",
+   "research_flag": true,
+   "base_cost": 0.03,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "social_finder",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "social_finder",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "staffspy",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "staffspy",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "tech_stack",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "tech_stack",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "website_scraper",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "website_scraper",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "wikidata",
+   "research_flag": false,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "wikidata",
+   "research_flag": true,
+   "base_cost": 0.0,
+   "is_paid": false,
+   "has_known_cost": true,
+   "is_byok": true
+  }
+ ],
+ "calculate_cost": [
+  {
+   "name": "hunter_io",
+   "operation": "enrich",
+   "params": null,
+   "cost": 0.04
+  },
+  {
+   "name": "hunter_io",
+   "operation": "verify",
+   "params": {},
+   "cost": 0.04
+  },
+  {
+   "name": "hunter_io",
+   "operation": "search",
+   "params": {
+    "limit": 50
+   },
+   "cost": 0.08
+  },
+  {
+   "name": "hunter_io",
+   "operation": "search",
+   "params": {
+    "per_page": 26
+   },
+   "cost": 0.08
+  },
+  {
+   "name": "hunter_io",
+   "operation": "search",
+   "params": {
+    "rows": 1
+   },
+   "cost": 0.04
+  },
+  {
+   "name": "hunter_io",
+   "operation": "search",
+   "params": {},
+   "cost": 0.04
+  },
+  {
+   "name": "hunter_io",
+   "operation": "search",
+   "params": {
+    "limit": 0
+   },
+   "cost": 0.04
+  },
+  {
+   "name": "hunter_io",
+   "operation": "bulk",
+   "params": {
+    "count": 10
+   },
+   "cost": 0.4
+  },
+  {
+   "name": "hunter_io",
+   "operation": "bulk",
+   "params": {
+    "records": 3
+   },
+   "cost": 0.12
+  },
+  {
+   "name": "hunter_io",
+   "operation": "bulk",
+   "params": {},
+   "cost": 0.04
+  },
+  {
+   "name": "hunter_io",
+   "operation": "bulk",
+   "params": {
+    "count": 0
+   },
+   "cost": 0.04
+  },
+  {
+   "name": "hunter_io",
+   "operation": "find",
+   "params": {
+    "count": 9
+   },
+   "cost": 0.04
+  },
+  {
+   "name": "apollo_io",
+   "operation": "enrich",
+   "params": null,
+   "cost": 0.03
+  },
+  {
+   "name": "apollo_io",
+   "operation": "verify",
+   "params": {},
+   "cost": 0.03
+  },
+  {
+   "name": "apollo_io",
+   "operation": "search",
+   "params": {
+    "limit": 50
+   },
+   "cost": 0.06
+  },
+  {
+   "name": "apollo_io",
+   "operation": "search",
+   "params": {
+    "per_page": 26
+   },
+   "cost": 0.06
+  },
+  {
+   "name": "apollo_io",
+   "operation": "search",
+   "params": {
+    "rows": 1
+   },
+   "cost": 0.03
+  },
+  {
+   "name": "apollo_io",
+   "operation": "search",
+   "params": {},
+   "cost": 0.03
+  },
+  {
+   "name": "apollo_io",
+   "operation": "search",
+   "params": {
+    "limit": 0
+   },
+   "cost": 0.03
+  },
+  {
+   "name": "apollo_io",
+   "operation": "bulk",
+   "params": {
+    "count": 10
+   },
+   "cost": 0.3
+  },
+  {
+   "name": "apollo_io",
+   "operation": "bulk",
+   "params": {
+    "records": 3
+   },
+   "cost": 0.09
+  },
+  {
+   "name": "apollo_io",
+   "operation": "bulk",
+   "params": {},
+   "cost": 0.03
+  },
+  {
+   "name": "apollo_io",
+   "operation": "bulk",
+   "params": {
+    "count": 0
+   },
+   "cost": 0.03
+  },
+  {
+   "name": "apollo_io",
+   "operation": "find",
+   "params": {
+    "count": 9
+   },
+   "cost": 0.03
+  },
+  {
+   "name": "google_maps",
+   "operation": "enrich",
+   "params": null,
+   "cost": 0.005
+  },
+  {
+   "name": "google_maps",
+   "operation": "verify",
+   "params": {},
+   "cost": 0.005
+  },
+  {
+   "name": "google_maps",
+   "operation": "search",
+   "params": {
+    "limit": 50
+   },
+   "cost": 0.01
+  },
+  {
+   "name": "google_maps",
+   "operation": "search",
+   "params": {
+    "per_page": 26
+   },
+   "cost": 0.01
+  },
+  {
+   "name": "google_maps",
+   "operation": "search",
+   "params": {
+    "rows": 1
+   },
+   "cost": 0.005
+  },
+  {
+   "name": "google_maps",
+   "operation": "search",
+   "params": {},
+   "cost": 0.005
+  },
+  {
+   "name": "google_maps",
+   "operation": "search",
+   "params": {
+    "limit": 0
+   },
+   "cost": 0.005
+  },
+  {
+   "name": "google_maps",
+   "operation": "bulk",
+   "params": {
+    "count": 10
+   },
+   "cost": 0.05
+  },
+  {
+   "name": "google_maps",
+   "operation": "bulk",
+   "params": {
+    "records": 3
+   },
+   "cost": 0.015
+  },
+  {
+   "name": "google_maps",
+   "operation": "bulk",
+   "params": {},
+   "cost": 0.005
+  },
+  {
+   "name": "google_maps",
+   "operation": "bulk",
+   "params": {
+    "count": 0
+   },
+   "cost": 0.005
+  },
+  {
+   "name": "google_maps",
+   "operation": "find",
+   "params": {
+    "count": 9
+   },
+   "cost": 0.005
+  },
+  {
+   "name": "leadmagic_email",
+   "operation": "enrich",
+   "params": null,
+   "cost": 0.05
+  },
+  {
+   "name": "leadmagic_email",
+   "operation": "verify",
+   "params": {},
+   "cost": 0.05
+  },
+  {
+   "name": "leadmagic_email",
+   "operation": "search",
+   "params": {
+    "limit": 50
+   },
+   "cost": 0.1
+  },
+  {
+   "name": "leadmagic_email",
+   "operation": "search",
+   "params": {
+    "per_page": 26
+   },
+   "cost": 0.1
+  },
+  {
+   "name": "leadmagic_email",
+   "operation": "search",
+   "params": {
+    "rows": 1
+   },
+   "cost": 0.05
+  },
+  {
+   "name": "leadmagic_email",
+   "operation": "search",
+   "params": {},
+   "cost": 0.05
+  },
+  {
+   "name": "leadmagic_email",
+   "operation": "search",
+   "params": {
+    "limit": 0
+   },
+   "cost": 0.05
+  },
+  {
+   "name": "leadmagic_email",
+   "operation": "bulk",
+   "params": {
+    "count": 10
+   },
+   "cost": 0.5
+  },
+  {
+   "name": "leadmagic_email",
+   "operation": "bulk",
+   "params": {
+    "records": 3
+   },
+   "cost": 0.15000000000000002
+  },
+  {
+   "name": "leadmagic_email",
+   "operation": "bulk",
+   "params": {},
+   "cost": 0.05
+  },
+  {
+   "name": "leadmagic_email",
+   "operation": "bulk",
+   "params": {
+    "count": 0
+   },
+   "cost": 0.05
+  },
+  {
+   "name": "leadmagic_email",
+   "operation": "find",
+   "params": {
+    "count": 9
+   },
+   "cost": 0.05
+  },
+  {
+   "name": "nope",
+   "operation": "enrich",
+   "params": null,
+   "cost": 0.0
+  },
+  {
+   "name": "nope",
+   "operation": "verify",
+   "params": {},
+   "cost": 0.0
+  },
+  {
+   "name": "nope",
+   "operation": "search",
+   "params": {
+    "limit": 50
+   },
+   "cost": 0.0
+  },
+  {
+   "name": "nope",
+   "operation": "search",
+   "params": {
+    "per_page": 26
+   },
+   "cost": 0.0
+  },
+  {
+   "name": "nope",
+   "operation": "search",
+   "params": {
+    "rows": 1
+   },
+   "cost": 0.0
+  },
+  {
+   "name": "nope",
+   "operation": "search",
+   "params": {},
+   "cost": 0.0
+  },
+  {
+   "name": "nope",
+   "operation": "search",
+   "params": {
+    "limit": 0
+   },
+   "cost": 0.0
+  },
+  {
+   "name": "nope",
+   "operation": "bulk",
+   "params": {
+    "count": 10
+   },
+   "cost": 0.0
+  },
+  {
+   "name": "nope",
+   "operation": "bulk",
+   "params": {
+    "records": 3
+   },
+   "cost": 0.0
+  },
+  {
+   "name": "nope",
+   "operation": "bulk",
+   "params": {},
+   "cost": 0.0
+  },
+  {
+   "name": "nope",
+   "operation": "bulk",
+   "params": {
+    "count": 0
+   },
+   "cost": 0.0
+  },
+  {
+   "name": "nope",
+   "operation": "find",
+   "params": {
+    "count": 9
+   },
+   "cost": 0.0
+  },
+  {
+   "name": "research",
+   "operation": "enrich",
+   "params": null,
+   "cost": 0.05
+  },
+  {
+   "name": "research",
+   "operation": "verify",
+   "params": {},
+   "cost": 0.05
+  },
+  {
+   "name": "research",
+   "operation": "search",
+   "params": {
+    "limit": 50
+   },
+   "cost": 0.1
+  },
+  {
+   "name": "research",
+   "operation": "search",
+   "params": {
+    "per_page": 26
+   },
+   "cost": 0.1
+  },
+  {
+   "name": "research",
+   "operation": "search",
+   "params": {
+    "rows": 1
+   },
+   "cost": 0.05
+  },
+  {
+   "name": "research",
+   "operation": "search",
+   "params": {},
+   "cost": 0.05
+  },
+  {
+   "name": "research",
+   "operation": "search",
+   "params": {
+    "limit": 0
+   },
+   "cost": 0.05
+  },
+  {
+   "name": "research",
+   "operation": "bulk",
+   "params": {
+    "count": 10
+   },
+   "cost": 0.5
+  },
+  {
+   "name": "research",
+   "operation": "bulk",
+   "params": {
+    "records": 3
+   },
+   "cost": 0.15000000000000002
+  },
+  {
+   "name": "research",
+   "operation": "bulk",
+   "params": {},
+   "cost": 0.05
+  },
+  {
+   "name": "research",
+   "operation": "bulk",
+   "params": {
+    "count": 0
+   },
+   "cost": 0.05
+  },
+  {
+   "name": "research",
+   "operation": "find",
+   "params": {
+    "count": 9
+   },
+   "cost": 0.05
+  }
+ ],
+ "estimate_run_cost": [
+  {
+   "name": "empty",
+   "research_flag": false,
+   "num_rows": 10,
+   "providers_by_column": {},
+   "result": {
+    "rows": 10,
+    "worst_usd": 0.0,
+    "best_usd": 0.0,
+    "breakdown": [],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "empty",
+   "research_flag": true,
+   "num_rows": 10,
+   "providers_by_column": {},
+   "result": {
+    "rows": 10,
+    "worst_usd": 0.0,
+    "best_usd": 0.0,
+    "breakdown": [],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "zero_rows",
+   "research_flag": false,
+   "num_rows": 0,
+   "providers_by_column": {
+    "c1": [
+     "hunter_io",
+     "apollo_io"
+    ]
+   },
+   "result": {
+    "rows": 0,
+    "worst_usd": 0.0,
+    "best_usd": 0.0,
+    "breakdown": [
+     {
+      "column": "c1",
+      "paid_providers": [
+       "hunter_io",
+       "apollo_io"
+      ],
+      "worst_usd": 0.0,
+      "best_usd": 0.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "zero_rows",
+   "research_flag": true,
+   "num_rows": 0,
+   "providers_by_column": {
+    "c1": [
+     "hunter_io",
+     "apollo_io"
+    ]
+   },
+   "result": {
+    "rows": 0,
+    "worst_usd": 0.0,
+    "best_usd": 0.0,
+    "breakdown": [
+     {
+      "column": "c1",
+      "paid_providers": [
+       "hunter_io",
+       "apollo_io"
+      ],
+      "worst_usd": 0.0,
+      "best_usd": 0.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "one_row",
+   "research_flag": false,
+   "num_rows": 1,
+   "providers_by_column": {
+    "c1": [
+     "hunter_io",
+     "apollo_io"
+    ]
+   },
+   "result": {
+    "rows": 1,
+    "worst_usd": 0.07,
+    "best_usd": 0.03,
+    "breakdown": [
+     {
+      "column": "c1",
+      "paid_providers": [
+       "hunter_io",
+       "apollo_io"
+      ],
+      "worst_usd": 0.07,
+      "best_usd": 0.03,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "one_row",
+   "research_flag": true,
+   "num_rows": 1,
+   "providers_by_column": {
+    "c1": [
+     "hunter_io",
+     "apollo_io"
+    ]
+   },
+   "result": {
+    "rows": 1,
+    "worst_usd": 0.07,
+    "best_usd": 0.03,
+    "breakdown": [
+     {
+      "column": "c1",
+      "paid_providers": [
+       "hunter_io",
+       "apollo_io"
+      ],
+      "worst_usd": 0.07,
+      "best_usd": 0.03,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "hundred",
+   "research_flag": false,
+   "num_rows": 100,
+   "providers_by_column": {
+    "c1": [
+     "hunter_io",
+     "apollo_io"
+    ]
+   },
+   "result": {
+    "rows": 100,
+    "worst_usd": 7.0,
+    "best_usd": 3.0,
+    "breakdown": [
+     {
+      "column": "c1",
+      "paid_providers": [
+       "hunter_io",
+       "apollo_io"
+      ],
+      "worst_usd": 7.0,
+      "best_usd": 3.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "hundred",
+   "research_flag": true,
+   "num_rows": 100,
+   "providers_by_column": {
+    "c1": [
+     "hunter_io",
+     "apollo_io"
+    ]
+   },
+   "result": {
+    "rows": 100,
+    "worst_usd": 7.0,
+    "best_usd": 3.0,
+    "breakdown": [
+     {
+      "column": "c1",
+      "paid_providers": [
+       "hunter_io",
+       "apollo_io"
+      ],
+      "worst_usd": 7.0,
+      "best_usd": 3.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "free_only",
+   "research_flag": false,
+   "num_rows": 50,
+   "providers_by_column": {
+    "a": [
+     "website_scraper",
+     "ddg_email"
+    ]
+   },
+   "result": {
+    "rows": 50,
+    "worst_usd": 0.0,
+    "best_usd": 0.0,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [],
+      "worst_usd": 0,
+      "best_usd": 0.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "free_only",
+   "research_flag": true,
+   "num_rows": 50,
+   "providers_by_column": {
+    "a": [
+     "website_scraper",
+     "ddg_email"
+    ]
+   },
+   "result": {
+    "rows": 50,
+    "worst_usd": 0.0,
+    "best_usd": 0.0,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [],
+      "worst_usd": 0,
+      "best_usd": 0.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "unknown",
+   "research_flag": false,
+   "num_rows": 5,
+   "providers_by_column": {
+    "a": [
+     "nope_one",
+     "hunter_io",
+     "nope_one"
+    ]
+   },
+   "result": {
+    "rows": 5,
+    "worst_usd": 0.2,
+    "best_usd": 0.2,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [
+       "hunter_io"
+      ],
+      "worst_usd": 0.2,
+      "best_usd": 0.2,
+      "unknown_providers": [
+       "nope_one"
+      ]
+     }
+    ],
+    "unknown_providers": [
+     "nope_one"
+    ],
+    "catalog_complete": false,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Unknown provider prices are excluded; these totals are incomplete, not a spend ceiling."
+   }
+  },
+  {
+   "name": "unknown",
+   "research_flag": true,
+   "num_rows": 5,
+   "providers_by_column": {
+    "a": [
+     "nope_one",
+     "hunter_io",
+     "nope_one"
+    ]
+   },
+   "result": {
+    "rows": 5,
+    "worst_usd": 0.2,
+    "best_usd": 0.2,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [
+       "hunter_io"
+      ],
+      "worst_usd": 0.2,
+      "best_usd": 0.2,
+      "unknown_providers": [
+       "nope_one"
+      ]
+     }
+    ],
+    "unknown_providers": [
+     "nope_one"
+    ],
+    "catalog_complete": false,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Unknown provider prices are excluded; these totals are incomplete, not a spend ceiling."
+   }
+  },
+  {
+   "name": "unknown_dedup_order",
+   "research_flag": false,
+   "num_rows": 5,
+   "providers_by_column": {
+    "a": [
+     "zz",
+     "aa"
+    ],
+    "b": [
+     "aa"
+    ]
+   },
+   "result": {
+    "rows": 5,
+    "worst_usd": 0.0,
+    "best_usd": 0.0,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [],
+      "worst_usd": 0,
+      "best_usd": 0.0,
+      "unknown_providers": [
+       "zz",
+       "aa"
+      ]
+     },
+     {
+      "column": "b",
+      "paid_providers": [],
+      "worst_usd": 0,
+      "best_usd": 0.0,
+      "unknown_providers": [
+       "aa"
+      ]
+     }
+    ],
+    "unknown_providers": [
+     "aa",
+     "zz"
+    ],
+    "catalog_complete": false,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Unknown provider prices are excluded; these totals are incomplete, not a spend ceiling."
+   }
+  },
+  {
+   "name": "unknown_dedup_order",
+   "research_flag": true,
+   "num_rows": 5,
+   "providers_by_column": {
+    "a": [
+     "zz",
+     "aa"
+    ],
+    "b": [
+     "aa"
+    ]
+   },
+   "result": {
+    "rows": 5,
+    "worst_usd": 0.0,
+    "best_usd": 0.0,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [],
+      "worst_usd": 0,
+      "best_usd": 0.0,
+      "unknown_providers": [
+       "zz",
+       "aa"
+      ]
+     },
+     {
+      "column": "b",
+      "paid_providers": [],
+      "worst_usd": 0,
+      "best_usd": 0.0,
+      "unknown_providers": [
+       "aa"
+      ]
+     }
+    ],
+    "unknown_providers": [
+     "aa",
+     "zz"
+    ],
+    "catalog_complete": false,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Unknown provider prices are excluded; these totals are incomplete, not a spend ceiling."
+   }
+  },
+  {
+   "name": "empty_chain",
+   "research_flag": false,
+   "num_rows": 7,
+   "providers_by_column": {
+    "a": []
+   },
+   "result": {
+    "rows": 7,
+    "worst_usd": 0.0,
+    "best_usd": 0.0,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [],
+      "worst_usd": 0,
+      "best_usd": 0.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "empty_chain",
+   "research_flag": true,
+   "num_rows": 7,
+   "providers_by_column": {
+    "a": []
+   },
+   "result": {
+    "rows": 7,
+    "worst_usd": 0.0,
+    "best_usd": 0.0,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [],
+      "worst_usd": 0,
+      "best_usd": 0.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "multi_col",
+   "research_flag": false,
+   "num_rows": 12,
+   "providers_by_column": {
+    "e": [
+     "hunter_io"
+    ],
+    "p": [
+     "numverify",
+     "google_maps"
+    ],
+    "x": [
+     "research"
+    ]
+   },
+   "result": {
+    "rows": 12,
+    "worst_usd": 0.6,
+    "best_usd": 0.54,
+    "breakdown": [
+     {
+      "column": "e",
+      "paid_providers": [
+       "hunter_io"
+      ],
+      "worst_usd": 0.48,
+      "best_usd": 0.48,
+      "unknown_providers": []
+     },
+     {
+      "column": "p",
+      "paid_providers": [
+       "numverify",
+       "google_maps"
+      ],
+      "worst_usd": 0.12,
+      "best_usd": 0.06,
+      "unknown_providers": []
+     },
+     {
+      "column": "x",
+      "paid_providers": [],
+      "worst_usd": 0,
+      "best_usd": 0.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "multi_col",
+   "research_flag": true,
+   "num_rows": 12,
+   "providers_by_column": {
+    "e": [
+     "hunter_io"
+    ],
+    "p": [
+     "numverify",
+     "google_maps"
+    ],
+    "x": [
+     "research"
+    ]
+   },
+   "result": {
+    "rows": 12,
+    "worst_usd": 1.2,
+    "best_usd": 1.14,
+    "breakdown": [
+     {
+      "column": "e",
+      "paid_providers": [
+       "hunter_io"
+      ],
+      "worst_usd": 0.48,
+      "best_usd": 0.48,
+      "unknown_providers": []
+     },
+     {
+      "column": "p",
+      "paid_providers": [
+       "numverify",
+       "google_maps"
+      ],
+      "worst_usd": 0.12,
+      "best_usd": 0.06,
+      "unknown_providers": []
+     },
+     {
+      "column": "x",
+      "paid_providers": [
+       "research"
+      ],
+      "worst_usd": 0.6,
+      "best_usd": 0.6,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "research",
+   "research_flag": false,
+   "num_rows": 4,
+   "providers_by_column": {
+    "r": [
+     "research"
+    ]
+   },
+   "result": {
+    "rows": 4,
+    "worst_usd": 0.0,
+    "best_usd": 0.0,
+    "breakdown": [
+     {
+      "column": "r",
+      "paid_providers": [],
+      "worst_usd": 0,
+      "best_usd": 0.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "research",
+   "research_flag": true,
+   "num_rows": 4,
+   "providers_by_column": {
+    "r": [
+     "research"
+    ]
+   },
+   "result": {
+    "rows": 4,
+    "worst_usd": 0.2,
+    "best_usd": 0.2,
+    "breakdown": [
+     {
+      "column": "r",
+      "paid_providers": [
+       "research"
+      ],
+      "worst_usd": 0.2,
+      "best_usd": 0.2,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "claygent",
+   "research_flag": false,
+   "num_rows": 4,
+   "providers_by_column": {
+    "r": [
+     "claygent"
+    ]
+   },
+   "result": {
+    "rows": 4,
+    "worst_usd": 0.0,
+    "best_usd": 0.0,
+    "breakdown": [
+     {
+      "column": "r",
+      "paid_providers": [],
+      "worst_usd": 0,
+      "best_usd": 0.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "claygent",
+   "research_flag": true,
+   "num_rows": 4,
+   "providers_by_column": {
+    "r": [
+     "claygent"
+    ]
+   },
+   "result": {
+    "rows": 4,
+    "worst_usd": 0.2,
+    "best_usd": 0.2,
+    "breakdown": [
+     {
+      "column": "r",
+      "paid_providers": [
+       "claygent"
+      ],
+      "worst_usd": 0.2,
+      "best_usd": 0.2,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "manifest_declared",
+   "research_flag": false,
+   "num_rows": 20,
+   "providers_by_column": {
+    "m": [
+     "leadmagic_email",
+     "prospeo_mobile"
+    ]
+   },
+   "result": {
+    "rows": 20,
+    "worst_usd": 3.0,
+    "best_usd": 1.0,
+    "breakdown": [
+     {
+      "column": "m",
+      "paid_providers": [
+       "leadmagic_email",
+       "prospeo_mobile"
+      ],
+      "worst_usd": 3.0,
+      "best_usd": 1.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "manifest_declared",
+   "research_flag": true,
+   "num_rows": 20,
+   "providers_by_column": {
+    "m": [
+     "leadmagic_email",
+     "prospeo_mobile"
+    ]
+   },
+   "result": {
+    "rows": 20,
+    "worst_usd": 3.0,
+    "best_usd": 1.0,
+    "breakdown": [
+     {
+      "column": "m",
+      "paid_providers": [
+       "leadmagic_email",
+       "prospeo_mobile"
+      ],
+      "worst_usd": 3.0,
+      "best_usd": 1.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "float_rounding",
+   "research_flag": false,
+   "num_rows": 3,
+   "providers_by_column": {
+    "a": [
+     "debounce",
+     "numverify",
+     "abstract_api"
+    ]
+   },
+   "result": {
+    "rows": 3,
+    "worst_usd": 0.069,
+    "best_usd": 0.015,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [
+       "debounce",
+       "numverify",
+       "abstract_api"
+      ],
+      "worst_usd": 0.069,
+      "best_usd": 0.015,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "float_rounding",
+   "research_flag": true,
+   "num_rows": 3,
+   "providers_by_column": {
+    "a": [
+     "debounce",
+     "numverify",
+     "abstract_api"
+    ]
+   },
+   "result": {
+    "rows": 3,
+    "worst_usd": 0.069,
+    "best_usd": 0.015,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [
+       "debounce",
+       "numverify",
+       "abstract_api"
+      ],
+      "worst_usd": 0.069,
+      "best_usd": 0.015,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "many_rows",
+   "research_flag": false,
+   "num_rows": 100000,
+   "providers_by_column": {
+    "a": [
+     "hunter_io",
+     "snovio",
+     "prospeo"
+    ]
+   },
+   "result": {
+    "rows": 100000,
+    "worst_usd": 9000.0,
+    "best_usd": 2000.0,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [
+       "hunter_io",
+       "snovio",
+       "prospeo"
+      ],
+      "worst_usd": 9000.0,
+      "best_usd": 2000.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "many_rows",
+   "research_flag": true,
+   "num_rows": 100000,
+   "providers_by_column": {
+    "a": [
+     "hunter_io",
+     "snovio",
+     "prospeo"
+    ]
+   },
+   "result": {
+    "rows": 100000,
+    "worst_usd": 9000.0,
+    "best_usd": 2000.0,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [
+       "hunter_io",
+       "snovio",
+       "prospeo"
+      ],
+      "worst_usd": 9000.0,
+      "best_usd": 2000.0,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "duplicate_provider",
+   "research_flag": false,
+   "num_rows": 10,
+   "providers_by_column": {
+    "a": [
+     "hunter_io",
+     "hunter_io"
+    ]
+   },
+   "result": {
+    "rows": 10,
+    "worst_usd": 0.8,
+    "best_usd": 0.4,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [
+       "hunter_io",
+       "hunter_io"
+      ],
+      "worst_usd": 0.8,
+      "best_usd": 0.4,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "duplicate_provider",
+   "research_flag": true,
+   "num_rows": 10,
+   "providers_by_column": {
+    "a": [
+     "hunter_io",
+     "hunter_io"
+    ]
+   },
+   "result": {
+    "rows": 10,
+    "worst_usd": 0.8,
+    "best_usd": 0.4,
+    "breakdown": [
+     {
+      "column": "a",
+      "paid_providers": [
+       "hunter_io",
+       "hunter_io"
+      ],
+      "worst_usd": 0.8,
+      "best_usd": 0.4,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "negative_rows",
+   "research_flag": false,
+   "num_rows": -3,
+   "providers_by_column": {
+    "c1": [
+     "hunter_io",
+     "apollo_io"
+    ]
+   },
+   "result": {
+    "rows": -3,
+    "worst_usd": -0.21,
+    "best_usd": -0.09,
+    "breakdown": [
+     {
+      "column": "c1",
+      "paid_providers": [
+       "hunter_io",
+       "apollo_io"
+      ],
+      "worst_usd": -0.21,
+      "best_usd": -0.09,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  },
+  {
+   "name": "negative_rows",
+   "research_flag": true,
+   "num_rows": -3,
+   "providers_by_column": {
+    "c1": [
+     "hunter_io",
+     "apollo_io"
+    ]
+   },
+   "result": {
+    "rows": -3,
+    "worst_usd": -0.21,
+    "best_usd": -0.09,
+    "breakdown": [
+     {
+      "column": "c1",
+      "paid_providers": [
+       "hunter_io",
+       "apollo_io"
+      ],
+      "worst_usd": -0.21,
+      "best_usd": -0.09,
+      "unknown_providers": []
+     }
+    ],
+    "unknown_providers": [],
+    "catalog_complete": true,
+    "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling."
+   }
+  }
+ ]
+}

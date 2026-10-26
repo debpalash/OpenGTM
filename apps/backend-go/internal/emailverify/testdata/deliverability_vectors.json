@@ -1,0 +1,1281 @@
+{
+ "verify_deliverability": [
+  {
+   "email": "a@acme.com",
+   "verdict": "valid",
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "verified",
+    "status": "valid",
+    "source": "smtp",
+    "verification_confidence": 0.95,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "valid",
+      "detail": "rcpt_accepted"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "a@acme.com",
+   "verdict": "invalid",
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "smtp",
+    "verification_confidence": 0.9,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "invalid",
+      "detail": "rcpt_rejected"
+     }
+    ],
+    "keep": false
+   }
+  },
+  {
+   "email": "a@acme.com",
+   "verdict": "catch_all",
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "risky",
+    "status": "catch_all",
+    "source": "smtp",
+    "verification_confidence": 0.5,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": true,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "catch_all",
+      "detail": "catch_all"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "a@acme.com",
+   "verdict": "unknown",
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "unknown",
+    "status": "unknown",
+    "source": "",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "",
+      "status": "unknown",
+      "detail": "no_verifier"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "a@acme.com",
+   "verdict": "raises",
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "unknown",
+    "status": "unknown",
+    "source": "",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": true
+   }
+  },
+  {
+   "email": "a@acme.com",
+   "verdict": "weird",
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "unknown",
+    "status": "weird",
+    "source": "x",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "x",
+      "status": "weird",
+      "detail": ""
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "info@acme.com",
+   "verdict": "valid",
+   "result": {
+    "email": "info@acme.com",
+    "confidence": "risky",
+    "status": "valid",
+    "source": "smtp",
+    "verification_confidence": 0.95,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "valid",
+      "detail": "rcpt_accepted"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "info@acme.com",
+   "verdict": "invalid",
+   "result": {
+    "email": "info@acme.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "smtp",
+    "verification_confidence": 0.9,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "invalid",
+      "detail": "rcpt_rejected"
+     }
+    ],
+    "keep": false
+   }
+  },
+  {
+   "email": "info@acme.com",
+   "verdict": "catch_all",
+   "result": {
+    "email": "info@acme.com",
+    "confidence": "risky",
+    "status": "catch_all",
+    "source": "smtp",
+    "verification_confidence": 0.5,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": true,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "catch_all",
+      "detail": "catch_all"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "info@acme.com",
+   "verdict": "unknown",
+   "result": {
+    "email": "info@acme.com",
+    "confidence": "unknown",
+    "status": "unknown",
+    "source": "",
+    "verification_confidence": 0.0,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "",
+      "status": "unknown",
+      "detail": "no_verifier"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "info@acme.com",
+   "verdict": "raises",
+   "result": {
+    "email": "info@acme.com",
+    "confidence": "unknown",
+    "status": "unknown",
+    "source": "",
+    "verification_confidence": 0.0,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": true
+   }
+  },
+  {
+   "email": "info@acme.com",
+   "verdict": "weird",
+   "result": {
+    "email": "info@acme.com",
+    "confidence": "unknown",
+    "status": "weird",
+    "source": "x",
+    "verification_confidence": 0.0,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "x",
+      "status": "weird",
+      "detail": ""
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "u@gmail.com",
+   "verdict": "valid",
+   "result": {
+    "email": "u@gmail.com",
+    "confidence": "verified",
+    "status": "valid",
+    "source": "smtp",
+    "verification_confidence": 0.95,
+    "is_role": false,
+    "is_free": true,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "valid",
+      "detail": "rcpt_accepted"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "u@gmail.com",
+   "verdict": "invalid",
+   "result": {
+    "email": "u@gmail.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "smtp",
+    "verification_confidence": 0.9,
+    "is_role": false,
+    "is_free": true,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "invalid",
+      "detail": "rcpt_rejected"
+     }
+    ],
+    "keep": false
+   }
+  },
+  {
+   "email": "u@gmail.com",
+   "verdict": "catch_all",
+   "result": {
+    "email": "u@gmail.com",
+    "confidence": "risky",
+    "status": "catch_all",
+    "source": "smtp",
+    "verification_confidence": 0.5,
+    "is_role": false,
+    "is_free": true,
+    "is_disposable": false,
+    "catch_all": true,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "catch_all",
+      "detail": "catch_all"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "u@gmail.com",
+   "verdict": "unknown",
+   "result": {
+    "email": "u@gmail.com",
+    "confidence": "unknown",
+    "status": "unknown",
+    "source": "",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": true,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "",
+      "status": "unknown",
+      "detail": "no_verifier"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "u@gmail.com",
+   "verdict": "raises",
+   "result": {
+    "email": "u@gmail.com",
+    "confidence": "unknown",
+    "status": "unknown",
+    "source": "",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": true,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": true
+   }
+  },
+  {
+   "email": "u@gmail.com",
+   "verdict": "weird",
+   "result": {
+    "email": "u@gmail.com",
+    "confidence": "unknown",
+    "status": "weird",
+    "source": "x",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": true,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "x",
+      "status": "weird",
+      "detail": ""
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "x@mailinator.com",
+   "verdict": "valid",
+   "result": {
+    "email": "x@mailinator.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "disposable",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": true,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "x@mailinator.com",
+   "verdict": "invalid",
+   "result": {
+    "email": "x@mailinator.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "disposable",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": true,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "x@mailinator.com",
+   "verdict": "catch_all",
+   "result": {
+    "email": "x@mailinator.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "disposable",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": true,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "x@mailinator.com",
+   "verdict": "unknown",
+   "result": {
+    "email": "x@mailinator.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "disposable",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": true,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "x@mailinator.com",
+   "verdict": "raises",
+   "result": {
+    "email": "x@mailinator.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "disposable",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": true,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "x@mailinator.com",
+   "verdict": "weird",
+   "result": {
+    "email": "x@mailinator.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "disposable",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": true,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "bad syntax",
+   "verdict": "valid",
+   "result": {
+    "email": "bad syntax",
+    "confidence": "",
+    "status": "invalid",
+    "source": "syntax",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "bad syntax",
+   "verdict": "invalid",
+   "result": {
+    "email": "bad syntax",
+    "confidence": "",
+    "status": "invalid",
+    "source": "syntax",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "bad syntax",
+   "verdict": "catch_all",
+   "result": {
+    "email": "bad syntax",
+    "confidence": "",
+    "status": "invalid",
+    "source": "syntax",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "bad syntax",
+   "verdict": "unknown",
+   "result": {
+    "email": "bad syntax",
+    "confidence": "",
+    "status": "invalid",
+    "source": "syntax",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "bad syntax",
+   "verdict": "raises",
+   "result": {
+    "email": "bad syntax",
+    "confidence": "",
+    "status": "invalid",
+    "source": "syntax",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "bad syntax",
+   "verdict": "weird",
+   "result": {
+    "email": "bad syntax",
+    "confidence": "",
+    "status": "invalid",
+    "source": "syntax",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "",
+   "verdict": "valid",
+   "result": {
+    "email": "",
+    "confidence": "",
+    "status": "invalid",
+    "source": "syntax",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "",
+   "verdict": "invalid",
+   "result": {
+    "email": "",
+    "confidence": "",
+    "status": "invalid",
+    "source": "syntax",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "",
+   "verdict": "catch_all",
+   "result": {
+    "email": "",
+    "confidence": "",
+    "status": "invalid",
+    "source": "syntax",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "",
+   "verdict": "unknown",
+   "result": {
+    "email": "",
+    "confidence": "",
+    "status": "invalid",
+    "source": "syntax",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "",
+   "verdict": "raises",
+   "result": {
+    "email": "",
+    "confidence": "",
+    "status": "invalid",
+    "source": "syntax",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "",
+   "verdict": "weird",
+   "result": {
+    "email": "",
+    "confidence": "",
+    "status": "invalid",
+    "source": "syntax",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   }
+  },
+  {
+   "email": "SALES@ACME.COM",
+   "verdict": "valid",
+   "result": {
+    "email": "SALES@ACME.COM",
+    "confidence": "risky",
+    "status": "valid",
+    "source": "smtp",
+    "verification_confidence": 0.95,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "valid",
+      "detail": "rcpt_accepted"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "SALES@ACME.COM",
+   "verdict": "invalid",
+   "result": {
+    "email": "SALES@ACME.COM",
+    "confidence": "",
+    "status": "invalid",
+    "source": "smtp",
+    "verification_confidence": 0.9,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "invalid",
+      "detail": "rcpt_rejected"
+     }
+    ],
+    "keep": false
+   }
+  },
+  {
+   "email": "SALES@ACME.COM",
+   "verdict": "catch_all",
+   "result": {
+    "email": "SALES@ACME.COM",
+    "confidence": "risky",
+    "status": "catch_all",
+    "source": "smtp",
+    "verification_confidence": 0.5,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": true,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "catch_all",
+      "detail": "catch_all"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "SALES@ACME.COM",
+   "verdict": "unknown",
+   "result": {
+    "email": "SALES@ACME.COM",
+    "confidence": "unknown",
+    "status": "unknown",
+    "source": "",
+    "verification_confidence": 0.0,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "",
+      "status": "unknown",
+      "detail": "no_verifier"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "SALES@ACME.COM",
+   "verdict": "raises",
+   "result": {
+    "email": "SALES@ACME.COM",
+    "confidence": "unknown",
+    "status": "unknown",
+    "source": "",
+    "verification_confidence": 0.0,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": true
+   }
+  },
+  {
+   "email": "SALES@ACME.COM",
+   "verdict": "weird",
+   "result": {
+    "email": "SALES@ACME.COM",
+    "confidence": "unknown",
+    "status": "weird",
+    "source": "x",
+    "verification_confidence": 0.0,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "x",
+      "status": "weird",
+      "detail": ""
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "a@acme.technology",
+   "verdict": "valid",
+   "result": {
+    "email": "a@acme.technology",
+    "confidence": "verified",
+    "status": "valid",
+    "source": "smtp",
+    "verification_confidence": 0.95,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "valid",
+      "detail": "rcpt_accepted"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "a@acme.technology",
+   "verdict": "invalid",
+   "result": {
+    "email": "a@acme.technology",
+    "confidence": "",
+    "status": "invalid",
+    "source": "smtp",
+    "verification_confidence": 0.9,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "invalid",
+      "detail": "rcpt_rejected"
+     }
+    ],
+    "keep": false
+   }
+  },
+  {
+   "email": "a@acme.technology",
+   "verdict": "catch_all",
+   "result": {
+    "email": "a@acme.technology",
+    "confidence": "risky",
+    "status": "catch_all",
+    "source": "smtp",
+    "verification_confidence": 0.5,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": true,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "catch_all",
+      "detail": "catch_all"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "a@acme.technology",
+   "verdict": "unknown",
+   "result": {
+    "email": "a@acme.technology",
+    "confidence": "unknown",
+    "status": "unknown",
+    "source": "",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "",
+      "status": "unknown",
+      "detail": "no_verifier"
+     }
+    ],
+    "keep": true
+   }
+  },
+  {
+   "email": "a@acme.technology",
+   "verdict": "raises",
+   "result": {
+    "email": "a@acme.technology",
+    "confidence": "unknown",
+    "status": "unknown",
+    "source": "",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": true
+   }
+  },
+  {
+   "email": "a@acme.technology",
+   "verdict": "weird",
+   "result": {
+    "email": "a@acme.technology",
+    "confidence": "unknown",
+    "status": "weird",
+    "source": "x",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "x",
+      "status": "weird",
+      "detail": ""
+     }
+    ],
+    "keep": true
+   }
+  }
+ ],
+ "tag_email_confidence": [
+  {
+   "name": "clean",
+   "verdict": "valid",
+   "email": "a@acme.com",
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "verified",
+    "status": "valid",
+    "source": "smtp",
+    "verification_confidence": 0.95,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "valid",
+      "detail": "ok"
+     }
+    ],
+    "keep": true
+   },
+   "lead": {
+    "email": "a@acme.com",
+    "email_confidence": "verified",
+    "email_provider": "hunter"
+   }
+  },
+  {
+   "name": "clean",
+   "verdict": "invalid",
+   "email": "a@acme.com",
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "smtp",
+    "verification_confidence": 0.9,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "invalid",
+      "detail": "rej"
+     }
+    ],
+    "keep": false
+   },
+   "lead": {
+    "email": "",
+    "email_confidence": "",
+    "email_provider": ""
+   }
+  },
+  {
+   "name": "clean",
+   "verdict": "unknown",
+   "email": "a@acme.com",
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "unknown",
+    "status": "unknown",
+    "source": "",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "",
+      "status": "unknown",
+      "detail": "x"
+     }
+    ],
+    "keep": true
+   },
+   "lead": {
+    "email": "a@acme.com",
+    "email_confidence": "unknown",
+    "email_provider": "hunter"
+   }
+  },
+  {
+   "name": "role",
+   "verdict": "valid",
+   "email": "info@acme.com",
+   "result": {
+    "email": "info@acme.com",
+    "confidence": "risky",
+    "status": "valid",
+    "source": "smtp",
+    "verification_confidence": 0.95,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "valid",
+      "detail": "ok"
+     }
+    ],
+    "keep": true
+   },
+   "lead": {
+    "email": "info@acme.com",
+    "email_confidence": "risky",
+    "email_provider": "hunter"
+   }
+  },
+  {
+   "name": "role",
+   "verdict": "invalid",
+   "email": "info@acme.com",
+   "result": {
+    "email": "info@acme.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "smtp",
+    "verification_confidence": 0.9,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "smtp",
+      "status": "invalid",
+      "detail": "rej"
+     }
+    ],
+    "keep": false
+   },
+   "lead": {
+    "email": "",
+    "email_confidence": "",
+    "email_provider": ""
+   }
+  },
+  {
+   "name": "role",
+   "verdict": "unknown",
+   "email": "info@acme.com",
+   "result": {
+    "email": "info@acme.com",
+    "confidence": "unknown",
+    "status": "unknown",
+    "source": "",
+    "verification_confidence": 0.0,
+    "is_role": true,
+    "is_free": false,
+    "is_disposable": false,
+    "catch_all": false,
+    "verification_attempts": [
+     {
+      "provider": "",
+      "status": "unknown",
+      "detail": "x"
+     }
+    ],
+    "keep": true
+   },
+   "lead": {
+    "email": "info@acme.com",
+    "email_confidence": "unknown",
+    "email_provider": "hunter"
+   }
+  },
+  {
+   "name": "no_email",
+   "verdict": "valid",
+   "email": "",
+   "result": null,
+   "lead": {
+    "email": "",
+    "email_confidence": "old",
+    "email_provider": "hunter"
+   }
+  },
+  {
+   "name": "no_email",
+   "verdict": "invalid",
+   "email": "",
+   "result": null,
+   "lead": {
+    "email": "",
+    "email_confidence": "old",
+    "email_provider": "hunter"
+   }
+  },
+  {
+   "name": "no_email",
+   "verdict": "unknown",
+   "email": "",
+   "result": null,
+   "lead": {
+    "email": "",
+    "email_confidence": "old",
+    "email_provider": "hunter"
+   }
+  },
+  {
+   "name": "disposable",
+   "verdict": "valid",
+   "email": "x@mailinator.com",
+   "result": {
+    "email": "x@mailinator.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "disposable",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": true,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   },
+   "lead": {
+    "email": "",
+    "email_confidence": "",
+    "email_provider": ""
+   }
+  },
+  {
+   "name": "disposable",
+   "verdict": "invalid",
+   "email": "x@mailinator.com",
+   "result": {
+    "email": "x@mailinator.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "disposable",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": true,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   },
+   "lead": {
+    "email": "",
+    "email_confidence": "",
+    "email_provider": ""
+   }
+  },
+  {
+   "name": "disposable",
+   "verdict": "unknown",
+   "email": "x@mailinator.com",
+   "result": {
+    "email": "x@mailinator.com",
+    "confidence": "",
+    "status": "invalid",
+    "source": "disposable",
+    "verification_confidence": 0.0,
+    "is_role": false,
+    "is_free": false,
+    "is_disposable": true,
+    "catch_all": false,
+    "verification_attempts": [],
+    "keep": false
+   },
+   "lead": {
+    "email": "",
+    "email_confidence": "",
+    "email_provider": ""
+   }
+  },
+  {
+   "name": "bad_syntax",
+   "verdict": "valid",
+   "email": "nope",
+   "result": null,
+   "lead": {
+    "email": "nope",
+    "email_confidence": "old",
+    "email_provider": "hunter"
+   }
+  },
+  {
+   "name": "bad_syntax",
+   "verdict": "invalid",
+   "email": "nope",
+   "result": null,
+   "lead": {
+    "email": "nope",
+    "email_confidence": "old",
+    "email_provider": "hunter"
+   }
+  },
+  {
+   "name": "bad_syntax",
+   "verdict": "unknown",
+   "email": "nope",
+   "result": null,
+   "lead": {
+    "email": "nope",
+    "email_confidence": "old",
+    "email_provider": "hunter"
+   }
+  }
+ ]
+}

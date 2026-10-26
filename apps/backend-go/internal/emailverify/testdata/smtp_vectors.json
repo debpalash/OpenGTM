@@ -1,0 +1,2434 @@
+{
+ "constants": {
+  "helo": "verify.yupcha.com",
+  "mail_from": "verify@yupcha.com",
+  "random_local": "abcdefghijklmnop",
+  "port": 25
+ },
+ "probe_domain": [
+  {
+   "name": "accept_all_candidates_not_catchall",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "mx1.acme.com."
+     ]
+    ]
+   },
+   "smtp": {
+    "mx1.acme.com": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "rcpt_default": 250
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com",
+    "b@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "mx1.acme.com",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": true,
+     "b@acme.com": true
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "mx1.acme.com",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "rcpt",
+     "a@acme.com"
+    ],
+    [
+     "rcpt",
+     "b@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "catch_all_detected",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "mx1.acme.com."
+     ]
+    ]
+   },
+   "smtp": {
+    "mx1.acme.com": {
+     "rcpt_default": 250
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "mx1.acme.com",
+    "reachable": true,
+    "catch_all": true,
+    "results": {
+     "a@acme.com": null
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "mx1.acme.com",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "hard_reject_550",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "mx1.acme.com"
+     ]
+    ]
+   },
+   "smtp": {
+    "mx1.acme.com": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "rcpt": {
+      "a@acme.com": 550,
+      "b@acme.com": 250
+     }
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com",
+    "b@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "mx1.acme.com",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": false,
+     "b@acme.com": true
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "mx1.acme.com",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "rcpt",
+     "a@acme.com"
+    ],
+    [
+     "rcpt",
+     "b@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "reject_codes_551_553_554",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "rcpt": {
+      "a@acme.com": 551,
+      "b@acme.com": 553,
+      "c@acme.com": 554
+     }
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com",
+    "b@acme.com",
+    "c@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": false,
+     "b@acme.com": false,
+     "c@acme.com": false
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "rcpt",
+     "a@acme.com"
+    ],
+    [
+     "rcpt",
+     "b@acme.com"
+    ],
+    [
+     "rcpt",
+     "c@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "soft_codes_unknown",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "rcpt": {
+      "a@acme.com": 450,
+      "b@acme.com": 451,
+      "c@acme.com": 452,
+      "d@acme.com": 421
+     }
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com",
+    "b@acme.com",
+    "c@acme.com",
+    "d@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": null,
+     "b@acme.com": null,
+     "c@acme.com": null,
+     "d@acme.com": null
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "rcpt",
+     "a@acme.com"
+    ],
+    [
+     "rcpt",
+     "b@acme.com"
+    ],
+    [
+     "rcpt",
+     "c@acme.com"
+    ],
+    [
+     "rcpt",
+     "d@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "other_5xx_is_unknown_not_reject",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "rcpt": {
+      "a@acme.com": 500,
+      "b@acme.com": 552,
+      "c@acme.com": 503
+     }
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com",
+    "b@acme.com",
+    "c@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": null,
+     "b@acme.com": null,
+     "c@acme.com": null
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "rcpt",
+     "a@acme.com"
+    ],
+    [
+     "rcpt",
+     "b@acme.com"
+    ],
+    [
+     "rcpt",
+     "c@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "random_probe_4xx_is_not_catchall_boundary",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 399,
+     "rcpt_default": 250
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": true,
+    "catch_all": true,
+    "results": {
+     "a@acme.com": null
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "random_probe_400_is_not_catchall",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 400,
+     "rcpt_default": 250
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": true
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "rcpt",
+     "a@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "mail_from_refused",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "mail": 550
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": false,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": null
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "mail_from_400_boundary",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "mail": 400
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": false,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": null
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "connect_oserror",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "connect_error": "oserror"
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": false,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": null
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "connect_smtp_error",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "connect_error": "smtp"
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": false,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": null
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "no_mx_nxdomain",
+   "mx": {},
+   "smtp": {},
+   "smtp_enabled": true,
+   "domain": "nomx.com",
+   "candidates": [
+    "a@nomx.com"
+   ],
+   "probe": {
+    "domain": "nomx.com",
+    "mx_host": null,
+    "reachable": false,
+    "catch_all": false,
+    "results": {
+     "a@nomx.com": null
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "nomx.com",
+     "MX"
+    ]
+   ]
+  },
+  {
+   "name": "mx_dns_timeout",
+   "mx": {
+    "slow.com": "The DNS operation timed out."
+   },
+   "smtp": {},
+   "smtp_enabled": true,
+   "domain": "slow.com",
+   "candidates": [
+    "a@slow.com"
+   ],
+   "probe": {
+    "domain": "slow.com",
+    "mx_host": null,
+    "reachable": false,
+    "catch_all": false,
+    "results": {
+     "a@slow.com": null
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "slow.com",
+     "MX"
+    ]
+   ]
+  },
+  {
+   "name": "mx_lowest_preference_wins",
+   "mx": {
+    "acme.com": [
+     [
+      30,
+      "c.acme.com."
+     ],
+     [
+      10,
+      "a.acme.com."
+     ],
+     [
+      20,
+      "b.acme.com."
+     ]
+    ]
+   },
+   "smtp": {
+    "a.acme.com": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "rcpt_default": 250
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "x@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "a.acme.com",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "x@acme.com": true
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "a.acme.com",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "rcpt",
+     "x@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "mx_equal_preference_first_listed",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "first.acme.com."
+     ],
+     [
+      10,
+      "second.acme.com."
+     ]
+    ]
+   },
+   "smtp": {
+    "first.acme.com": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "x@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "first.acme.com",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "x@acme.com": true
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "first.acme.com",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "rcpt",
+     "x@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "smtp_disabled",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {}
+   },
+   "smtp_enabled": false,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": null,
+    "reachable": false,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": null
+    }
+   },
+   "log": []
+  },
+  {
+   "name": "disconnect_mid_candidates_breaks",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "disconnect_on": [
+      "b@acme.com"
+     ],
+     "rcpt_default": 250
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com",
+    "b@acme.com",
+    "c@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": true,
+     "b@acme.com": null,
+     "c@acme.com": null
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "rcpt",
+     "a@acme.com"
+    ],
+    [
+     "rcpt",
+     "b@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "smtp_exception_per_candidate_unknown",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "exc_on": [
+      "b@acme.com"
+     ],
+     "rcpt_default": 250
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com",
+    "b@acme.com",
+    "c@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": true,
+     "b@acme.com": null,
+     "c@acme.com": true
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "rcpt",
+     "a@acme.com"
+    ],
+    [
+     "rcpt",
+     "b@acme.com"
+    ],
+    [
+     "rcpt",
+     "c@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "quit_error_falls_back_to_close",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "quit_error": true,
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": true
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "rcpt",
+     "a@acme.com"
+    ],
+    [
+     "quit"
+    ],
+    [
+     "close"
+    ]
+   ]
+  },
+  {
+   "name": "no_candidates",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": true,
+    "catch_all": false,
+    "results": {}
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "duplicate_candidates_dict_collapses",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "rcpt_default": 250
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com",
+    "a@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "a@acme.com": true
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "rcpt",
+     "a@acme.com"
+    ],
+    [
+     "rcpt",
+     "a@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "mx_trailing_dot_stripped",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "mail.acme.com."
+     ]
+    ]
+   },
+   "smtp": {
+    "mail.acme.com": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "x@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "mail.acme.com",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "x@acme.com": true
+    }
+   },
+   "log": [
+    [
+     "dns",
+     "acme.com",
+     "MX"
+    ],
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "mail.acme.com",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "abcdefghijklmnop@acme.com"
+    ],
+    [
+     "rcpt",
+     "x@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  },
+  {
+   "name": "empty_domain",
+   "mx": {},
+   "smtp": {},
+   "smtp_enabled": true,
+   "domain": "",
+   "candidates": [
+    "a@"
+   ],
+   "probe": {
+    "domain": "",
+    "mx_host": null,
+    "reachable": false,
+    "catch_all": false,
+    "results": {
+     "a@": null
+    }
+   },
+   "log": []
+  },
+  {
+   "name": "second_probe_uses_catchall_cache",
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "rcpt_default": 250
+    }
+   },
+   "smtp_enabled": true,
+   "domain": "acme.com",
+   "candidates": [
+    "a@acme.com",
+    "then b@acme.com"
+   ],
+   "probe": {
+    "domain": "acme.com",
+    "mx_host": "m",
+    "reachable": true,
+    "catch_all": false,
+    "results": {
+     "b@acme.com": true
+    }
+   },
+   "log": [
+    [
+     "smtp.new"
+    ],
+    [
+     "connect",
+     "m",
+     25
+    ],
+    [
+     "ehlo_or_helo"
+    ],
+    [
+     "helo",
+     "verify.yupcha.com"
+    ],
+    [
+     "mail",
+     "verify@yupcha.com"
+    ],
+    [
+     "rcpt",
+     "b@acme.com"
+    ],
+    [
+     "quit"
+    ]
+   ]
+  }
+ ],
+ "verify_email": [
+  {
+   "email": "a@acme.com",
+   "scenario": "good",
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "smtp_verified",
+    "deliverable": true,
+    "catch_all": false,
+    "reachable": true,
+    "classification": {
+     "email": "a@acme.com",
+     "valid_syntax": true,
+     "local_part": "a",
+     "domain": "acme.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "a@acme.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": {
+     "email": "a@acme.com",
+     "valid_syntax": true,
+     "local_part": "a",
+     "domain": "acme.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "info@acme.com",
+   "scenario": "good",
+   "result": {
+    "email": "info@acme.com",
+    "confidence": "smtp_verified",
+    "deliverable": true,
+    "catch_all": false,
+    "reachable": true,
+    "classification": {
+     "email": "info@acme.com",
+     "valid_syntax": true,
+     "local_part": "info",
+     "domain": "acme.com",
+     "is_role": true,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "info@acme.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "info@acme.com",
+    "confidence": "generic",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": {
+     "email": "info@acme.com",
+     "valid_syntax": true,
+     "local_part": "info",
+     "domain": "acme.com",
+     "is_role": true,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "bad@acme.com",
+   "scenario": "good",
+   "result": {
+    "email": "",
+    "confidence": "",
+    "deliverable": false,
+    "catch_all": false,
+    "reachable": true,
+    "classification": {
+     "email": "bad@acme.com",
+     "valid_syntax": true,
+     "local_part": "bad",
+     "domain": "acme.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "bad@acme.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "bad@acme.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": {
+     "email": "bad@acme.com",
+     "valid_syntax": true,
+     "local_part": "bad",
+     "domain": "acme.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "x@catchall.com",
+   "scenario": "good",
+   "result": {
+    "email": "x@catchall.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": true,
+    "reachable": true,
+    "classification": {
+     "email": "x@catchall.com",
+     "valid_syntax": true,
+     "local_part": "x",
+     "domain": "catchall.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "x@catchall.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "x@catchall.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": {
+     "email": "x@catchall.com",
+     "valid_syntax": true,
+     "local_part": "x",
+     "domain": "catchall.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "y@nomx.com",
+   "scenario": "good",
+   "result": {
+    "email": "y@nomx.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": {
+     "email": "y@nomx.com",
+     "valid_syntax": true,
+     "local_part": "y",
+     "domain": "nomx.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "y@nomx.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "y@nomx.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": {
+     "email": "y@nomx.com",
+     "valid_syntax": true,
+     "local_part": "y",
+     "domain": "nomx.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "not-an-email",
+   "scenario": "good",
+   "result": {
+    "email": "not-an-email",
+    "confidence": "",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": {
+     "email": "not-an-email",
+     "valid_syntax": false,
+     "local_part": "",
+     "domain": "",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "not-an-email",
+   "scenario": "blocked",
+   "result": {
+    "email": "not-an-email",
+    "confidence": "",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": {
+     "email": "not-an-email",
+     "valid_syntax": false,
+     "local_part": "",
+     "domain": "",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "z@acme.com",
+   "scenario": "good",
+   "result": {
+    "email": "z@acme.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": true,
+    "classification": {
+     "email": "z@acme.com",
+     "valid_syntax": true,
+     "local_part": "z",
+     "domain": "acme.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "z@acme.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "z@acme.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": {
+     "email": "z@acme.com",
+     "valid_syntax": true,
+     "local_part": "z",
+     "domain": "acme.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "u@gmail.com",
+   "scenario": "good",
+   "result": {
+    "email": "u@gmail.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": {
+     "email": "u@gmail.com",
+     "valid_syntax": true,
+     "local_part": "u",
+     "domain": "gmail.com",
+     "is_role": false,
+     "is_free": true,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "email": "u@gmail.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "u@gmail.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": {
+     "email": "u@gmail.com",
+     "valid_syntax": true,
+     "local_part": "u",
+     "domain": "gmail.com",
+     "is_role": false,
+     "is_free": true,
+     "is_disposable": false
+    }
+   }
+  }
+ ],
+ "pick_best_email": [
+  {
+   "name": "first_deliverable_wins",
+   "candidates": [
+    "a@acme.com",
+    "b@acme.com"
+   ],
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "rcpt": {
+      "a@acme.com": 550,
+      "b@acme.com": 250
+     }
+    }
+   },
+   "smtp_enabled": true,
+   "result": {
+    "email": "b@acme.com",
+    "confidence": "smtp_verified",
+    "deliverable": true,
+    "catch_all": false,
+    "reachable": true,
+    "classification": {
+     "email": "b@acme.com",
+     "valid_syntax": true,
+     "local_part": "b",
+     "domain": "acme.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "name": "catch_all_returns_first_pattern",
+   "candidates": [
+    "a@acme.com",
+    "b@acme.com"
+   ],
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "rcpt_default": 250
+    }
+   },
+   "smtp_enabled": true,
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": true,
+    "reachable": true,
+    "classification": {
+     "email": "a@acme.com",
+     "valid_syntax": true,
+     "local_part": "a",
+     "domain": "acme.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "name": "all_rejected_empty_result",
+   "candidates": [
+    "a@acme.com",
+    "b@acme.com"
+   ],
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "rcpt_default": 550
+    }
+   },
+   "smtp_enabled": true,
+   "result": {
+    "email": "",
+    "confidence": "",
+    "deliverable": false,
+    "catch_all": false,
+    "reachable": true,
+    "classification": null
+   }
+  },
+  {
+   "name": "blocked_port_pattern_if_mx",
+   "candidates": [
+    "a@acme.com"
+   ],
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "connect_error": "oserror"
+    }
+   },
+   "smtp_enabled": true,
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": {
+     "email": "a@acme.com",
+     "valid_syntax": true,
+     "local_part": "a",
+     "domain": "acme.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "name": "blocked_port_no_mx_empty",
+   "candidates": [
+    "a@nomx.com"
+   ],
+   "mx": {},
+   "smtp": {},
+   "smtp_enabled": true,
+   "result": {
+    "email": "",
+    "confidence": "",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": null
+   }
+  },
+  {
+   "name": "all_soft_pattern_if_mx",
+   "candidates": [
+    "a@acme.com",
+    "b@acme.com"
+   ],
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "rcpt_default": 450
+    }
+   },
+   "smtp_enabled": true,
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": true,
+    "classification": {
+     "email": "a@acme.com",
+     "valid_syntax": true,
+     "local_part": "a",
+     "domain": "acme.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "name": "smtp_disabled_pattern_if_mx",
+   "candidates": [
+    "a@acme.com"
+   ],
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {}
+   },
+   "smtp_enabled": false,
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": {
+     "email": "a@acme.com",
+     "valid_syntax": true,
+     "local_part": "a",
+     "domain": "acme.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "name": "filters_blank_and_no_at",
+   "candidates": [
+    "",
+    "nope",
+    "a@acme.com"
+   ],
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "rcpt_default": 250
+    }
+   },
+   "smtp_enabled": true,
+   "result": {
+    "email": "a@acme.com",
+    "confidence": "smtp_verified",
+    "deliverable": true,
+    "catch_all": false,
+    "reachable": true,
+    "classification": {
+     "email": "a@acme.com",
+     "valid_syntax": true,
+     "local_part": "a",
+     "domain": "acme.com",
+     "is_role": false,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  },
+  {
+   "name": "no_candidates",
+   "candidates": [],
+   "mx": {},
+   "smtp": {},
+   "smtp_enabled": true,
+   "result": {
+    "email": "",
+    "confidence": "",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": false,
+    "classification": null
+   }
+  },
+  {
+   "name": "role_candidate_classification",
+   "candidates": [
+    "info@acme.com"
+   ],
+   "mx": {
+    "acme.com": [
+     [
+      10,
+      "m"
+     ]
+    ]
+   },
+   "smtp": {
+    "m": {
+     "random_prefix": "abcdefghijklmnop",
+     "random_code": 550,
+     "rcpt_default": 450
+    }
+   },
+   "smtp_enabled": true,
+   "result": {
+    "email": "info@acme.com",
+    "confidence": "pattern",
+    "deliverable": null,
+    "catch_all": false,
+    "reachable": true,
+    "classification": {
+     "email": "info@acme.com",
+     "valid_syntax": true,
+     "local_part": "info",
+     "domain": "acme.com",
+     "is_role": true,
+     "is_free": false,
+     "is_disposable": false
+    }
+   }
+  }
+ ],
+ "smtp_verifier": [
+  {
+   "email": "a@acme.com",
+   "scenario": "good",
+   "result": {
+    "email": "a@acme.com",
+    "status": "valid",
+    "source": "smtp",
+    "confidence": 0.95,
+    "detail": "rcpt_accepted",
+    "attempts": []
+   }
+  },
+  {
+   "email": "a@acme.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "a@acme.com",
+    "status": "unknown",
+    "source": "smtp",
+    "confidence": 0.0,
+    "detail": "unreachable",
+    "attempts": []
+   }
+  },
+  {
+   "email": "info@acme.com",
+   "scenario": "good",
+   "result": {
+    "email": "info@acme.com",
+    "status": "valid",
+    "source": "smtp",
+    "confidence": 0.95,
+    "detail": "rcpt_accepted",
+    "attempts": []
+   }
+  },
+  {
+   "email": "info@acme.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "info@acme.com",
+    "status": "unknown",
+    "source": "smtp",
+    "confidence": 0.0,
+    "detail": "unreachable",
+    "attempts": []
+   }
+  },
+  {
+   "email": "bad@acme.com",
+   "scenario": "good",
+   "result": {
+    "email": "bad@acme.com",
+    "status": "invalid",
+    "source": "smtp",
+    "confidence": 0.9,
+    "detail": "rcpt_rejected",
+    "attempts": []
+   }
+  },
+  {
+   "email": "bad@acme.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "bad@acme.com",
+    "status": "unknown",
+    "source": "smtp",
+    "confidence": 0.0,
+    "detail": "unreachable",
+    "attempts": []
+   }
+  },
+  {
+   "email": "x@catchall.com",
+   "scenario": "good",
+   "result": {
+    "email": "x@catchall.com",
+    "status": "catch_all",
+    "source": "smtp",
+    "confidence": 0.5,
+    "detail": "catch_all",
+    "attempts": []
+   }
+  },
+  {
+   "email": "x@catchall.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "x@catchall.com",
+    "status": "unknown",
+    "source": "smtp",
+    "confidence": 0.0,
+    "detail": "unreachable",
+    "attempts": []
+   }
+  },
+  {
+   "email": "y@nomx.com",
+   "scenario": "good",
+   "result": {
+    "email": "y@nomx.com",
+    "status": "unknown",
+    "source": "smtp",
+    "confidence": 0.0,
+    "detail": "unreachable",
+    "attempts": []
+   }
+  },
+  {
+   "email": "y@nomx.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "y@nomx.com",
+    "status": "unknown",
+    "source": "smtp",
+    "confidence": 0.0,
+    "detail": "unreachable",
+    "attempts": []
+   }
+  },
+  {
+   "email": "not-an-email",
+   "scenario": "good",
+   "result": {
+    "email": "not-an-email",
+    "status": "invalid",
+    "source": "smtp",
+    "confidence": 0.9,
+    "detail": "no_domain",
+    "attempts": []
+   }
+  },
+  {
+   "email": "not-an-email",
+   "scenario": "blocked",
+   "result": {
+    "email": "not-an-email",
+    "status": "invalid",
+    "source": "smtp",
+    "confidence": 0.9,
+    "detail": "no_domain",
+    "attempts": []
+   }
+  },
+  {
+   "email": "z@acme.com",
+   "scenario": "good",
+   "result": {
+    "email": "z@acme.com",
+    "status": "unknown",
+    "source": "smtp",
+    "confidence": 0.0,
+    "detail": "soft",
+    "attempts": []
+   }
+  },
+  {
+   "email": "z@acme.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "z@acme.com",
+    "status": "unknown",
+    "source": "smtp",
+    "confidence": 0.0,
+    "detail": "unreachable",
+    "attempts": []
+   }
+  },
+  {
+   "email": "u@gmail.com",
+   "scenario": "good",
+   "result": {
+    "email": "u@gmail.com",
+    "status": "unknown",
+    "source": "smtp",
+    "confidence": 0.0,
+    "detail": "unreachable",
+    "attempts": []
+   }
+  },
+  {
+   "email": "u@gmail.com",
+   "scenario": "blocked",
+   "result": {
+    "email": "u@gmail.com",
+    "status": "unknown",
+    "source": "smtp",
+    "confidence": 0.0,
+    "detail": "unreachable",
+    "attempts": []
+   }
+  }
+ ]
+}

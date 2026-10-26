@@ -1,0 +1,1570 @@
+{
+ "cascade": [
+  {
+   "name": "first_definitive_stops",
+   "email": "a@b.co",
+   "verifiers": [
+    {
+     "name": "v1",
+     "spec": [
+      "valid",
+      "v1",
+      0.95,
+      "ok"
+     ],
+     "available": true
+    },
+    {
+     "name": "v2",
+     "spec": [
+      "invalid",
+      "v",
+      0.0,
+      ""
+     ],
+     "available": true
+    }
+   ],
+   "calls": [
+    1,
+    0
+   ],
+   "result": {
+    "email": "a@b.co",
+    "status": "valid",
+    "source": "v1",
+    "confidence": 0.95,
+    "detail": "ok",
+    "attempts": [
+     {
+      "provider": "v1",
+      "status": "valid",
+      "detail": "ok"
+     }
+    ],
+    "is_definitive": true,
+    "deliverable": true
+   }
+  },
+  {
+   "name": "unknown_falls_through_to_definitive",
+   "email": "a@b.co",
+   "verifiers": [
+    {
+     "name": "v1",
+     "spec": [
+      "unknown",
+      "v1",
+      0.0,
+      "soft"
+     ],
+     "available": true
+    },
+    {
+     "name": "v2",
+     "spec": [
+      "invalid",
+      "v2",
+      0.9,
+      "rej"
+     ],
+     "available": true
+    }
+   ],
+   "calls": [
+    1,
+    1
+   ],
+   "result": {
+    "email": "a@b.co",
+    "status": "invalid",
+    "source": "v2",
+    "confidence": 0.9,
+    "detail": "rej",
+    "attempts": [
+     {
+      "provider": "v1",
+      "status": "unknown",
+      "detail": "soft"
+     },
+     {
+      "provider": "v2",
+      "status": "invalid",
+      "detail": "rej"
+     }
+    ],
+    "is_definitive": true,
+    "deliverable": false
+   }
+  },
+  {
+   "name": "all_unknown_returns_last",
+   "email": "a@b.co",
+   "verifiers": [
+    {
+     "name": "v1",
+     "spec": [
+      "unknown",
+      "v1",
+      0,
+      "a"
+     ],
+     "available": true
+    },
+    {
+     "name": "v2",
+     "spec": [
+      "unknown",
+      "v2",
+      0,
+      "b"
+     ],
+     "available": true
+    }
+   ],
+   "calls": [
+    1,
+    1
+   ],
+   "result": {
+    "email": "a@b.co",
+    "status": "unknown",
+    "source": "v2",
+    "confidence": 0,
+    "detail": "b",
+    "attempts": [
+     {
+      "provider": "v1",
+      "status": "unknown",
+      "detail": "a"
+     },
+     {
+      "provider": "v2",
+      "status": "unknown",
+      "detail": "b"
+     }
+    ],
+    "is_definitive": false,
+    "deliverable": false
+   }
+  },
+  {
+   "name": "catch_all_is_definitive",
+   "email": "a@b.co",
+   "verifiers": [
+    {
+     "name": "v1",
+     "spec": [
+      "catch_all",
+      "v1",
+      0.5,
+      "ca"
+     ],
+     "available": true
+    },
+    {
+     "name": "v2",
+     "spec": [
+      "valid",
+      "v",
+      0.0,
+      ""
+     ],
+     "available": true
+    }
+   ],
+   "calls": [
+    1,
+    0
+   ],
+   "result": {
+    "email": "a@b.co",
+    "status": "catch_all",
+    "source": "v1",
+    "confidence": 0.5,
+    "detail": "ca",
+    "attempts": [
+     {
+      "provider": "v1",
+      "status": "catch_all",
+      "detail": "ca"
+     }
+    ],
+    "is_definitive": true,
+    "deliverable": true
+   }
+  },
+  {
+   "name": "exception_recorded_and_continues",
+   "email": "a@b.co",
+   "verifiers": [
+    {
+     "name": "v1",
+     "spec": {
+      "raises": "RuntimeError"
+     },
+     "available": true
+    },
+    {
+     "name": "v2",
+     "spec": [
+      "valid",
+      "v2",
+      0.95,
+      ""
+     ],
+     "available": true
+    }
+   ],
+   "calls": [
+    1,
+    1
+   ],
+   "result": {
+    "email": "a@b.co",
+    "status": "valid",
+    "source": "v2",
+    "confidence": 0.95,
+    "detail": "",
+    "attempts": [
+     {
+      "provider": "v1",
+      "status": "error",
+      "detail": "RuntimeError"
+     },
+     {
+      "provider": "v2",
+      "status": "valid",
+      "detail": ""
+     }
+    ],
+    "is_definitive": true,
+    "deliverable": true
+   }
+  },
+  {
+   "name": "all_exceptions_returns_no_verifier_unknown",
+   "email": "a@b.co",
+   "verifiers": [
+    {
+     "name": "v1",
+     "spec": {
+      "raises": "ValueError"
+     },
+     "available": true
+    },
+    {
+     "name": "v2",
+     "spec": {
+      "raises": "TimeoutError"
+     },
+     "available": true
+    }
+   ],
+   "calls": [
+    1,
+    1
+   ],
+   "result": {
+    "email": "a@b.co",
+    "status": "unknown",
+    "source": "",
+    "confidence": 0.0,
+    "detail": "no_verifier",
+    "attempts": [
+     {
+      "provider": "v1",
+      "status": "error",
+      "detail": "ValueError"
+     },
+     {
+      "provider": "v2",
+      "status": "error",
+      "detail": "TimeoutError"
+     }
+    ],
+    "is_definitive": false,
+    "deliverable": false
+   }
+  },
+  {
+   "name": "exception_after_unknown_keeps_unknown_attempts",
+   "email": "a@b.co",
+   "verifiers": [
+    {
+     "name": "v1",
+     "spec": [
+      "unknown",
+      "v1",
+      0,
+      "soft"
+     ],
+     "available": true
+    },
+    {
+     "name": "v2",
+     "spec": {
+      "raises": "KeyError"
+     },
+     "available": true
+    }
+   ],
+   "calls": [
+    1,
+    1
+   ],
+   "result": {
+    "email": "a@b.co",
+    "status": "unknown",
+    "source": "v1",
+    "confidence": 0,
+    "detail": "soft",
+    "attempts": [
+     {
+      "provider": "v1",
+      "status": "unknown",
+      "detail": "soft"
+     },
+     {
+      "provider": "v2",
+      "status": "error",
+      "detail": "KeyError"
+     }
+    ],
+    "is_definitive": false,
+    "deliverable": false
+   }
+  },
+  {
+   "name": "empty_chain",
+   "email": "a@b.co",
+   "verifiers": [],
+   "calls": [],
+   "result": {
+    "email": "a@b.co",
+    "status": "unknown",
+    "source": "",
+    "confidence": 0.0,
+    "detail": "no_verifier",
+    "attempts": [],
+    "is_definitive": false,
+    "deliverable": false
+   }
+  },
+  {
+   "name": "blank_email",
+   "email": "",
+   "verifiers": [
+    {
+     "name": "v1",
+     "spec": [
+      "valid",
+      "v",
+      0.0,
+      ""
+     ],
+     "available": true
+    }
+   ],
+   "calls": [
+    0
+   ],
+   "result": {
+    "email": "",
+    "status": "invalid",
+    "source": "syntax",
+    "confidence": 0.9,
+    "detail": "bad_syntax",
+    "attempts": [],
+    "is_definitive": true,
+    "deliverable": false
+   }
+  },
+  {
+   "name": "no_at_sign",
+   "email": "nope",
+   "verifiers": [
+    {
+     "name": "v1",
+     "spec": [
+      "valid",
+      "v",
+      0.0,
+      ""
+     ],
+     "available": true
+    }
+   ],
+   "calls": [
+    0
+   ],
+   "result": {
+    "email": "nope",
+    "status": "invalid",
+    "source": "syntax",
+    "confidence": 0.9,
+    "detail": "bad_syntax",
+    "attempts": [],
+    "is_definitive": true,
+    "deliverable": false
+   }
+  },
+  {
+   "name": "none_email_blank",
+   "email": null,
+   "verifiers": [
+    {
+     "name": "v1",
+     "spec": [
+      "valid",
+      "v",
+      0.0,
+      ""
+     ],
+     "available": true
+    }
+   ],
+   "calls": [
+    0
+   ],
+   "result": {
+    "email": "",
+    "status": "invalid",
+    "source": "syntax",
+    "confidence": 0.9,
+    "detail": "bad_syntax",
+    "attempts": [],
+    "is_definitive": true,
+    "deliverable": false
+   }
+  },
+  {
+   "name": "unknown_status_string_not_definitive",
+   "email": "a@b.co",
+   "verifiers": [
+    {
+     "name": "v1",
+     "spec": [
+      "weird",
+      "v1",
+      0.4,
+      "w"
+     ],
+     "available": true
+    },
+    {
+     "name": "v2",
+     "spec": [
+      "valid",
+      "v",
+      0.0,
+      ""
+     ],
+     "available": true
+    }
+   ],
+   "calls": [
+    1,
+    1
+   ],
+   "result": {
+    "email": "a@b.co",
+    "status": "valid",
+    "source": "v",
+    "confidence": 0.0,
+    "detail": "",
+    "attempts": [
+     {
+      "provider": "v1",
+      "status": "weird",
+      "detail": "w"
+     },
+     {
+      "provider": "v2",
+      "status": "valid",
+      "detail": ""
+     }
+    ],
+    "is_definitive": true,
+    "deliverable": true
+   }
+  },
+  {
+   "name": "source_empty_keeps_empty",
+   "email": "a@b.co",
+   "verifiers": [
+    {
+     "name": "v1",
+     "spec": [
+      "valid",
+      "",
+      0.9,
+      ""
+     ],
+     "available": true
+    }
+   ],
+   "calls": [
+    1
+   ],
+   "result": {
+    "email": "a@b.co",
+    "status": "valid",
+    "source": "",
+    "confidence": 0.9,
+    "detail": "",
+    "attempts": [
+     {
+      "provider": "v1",
+      "status": "valid",
+      "detail": ""
+     }
+    ],
+    "is_definitive": true,
+    "deliverable": true
+   }
+  },
+  {
+   "name": "attempts_chain_three",
+   "email": "a@b.co",
+   "verifiers": [
+    {
+     "name": "v1",
+     "spec": [
+      "unknown",
+      "v1",
+      0,
+      "x"
+     ],
+     "available": true
+    },
+    {
+     "name": "v2",
+     "spec": [
+      "unknown",
+      "v2",
+      0,
+      "y"
+     ],
+     "available": true
+    },
+    {
+     "name": "v3",
+     "spec": [
+      "valid",
+      "v3",
+      0.9,
+      "z"
+     ],
+     "available": true
+    }
+   ],
+   "calls": [
+    1,
+    1,
+    1
+   ],
+   "result": {
+    "email": "a@b.co",
+    "status": "valid",
+    "source": "v3",
+    "confidence": 0.9,
+    "detail": "z",
+    "attempts": [
+     {
+      "provider": "v1",
+      "status": "unknown",
+      "detail": "x"
+     },
+     {
+      "provider": "v2",
+      "status": "unknown",
+      "detail": "y"
+     },
+     {
+      "provider": "v3",
+      "status": "valid",
+      "detail": "z"
+     }
+    ],
+    "is_definitive": true,
+    "deliverable": true
+   }
+  }
+ ],
+ "cached": [
+  {
+   "name": "miss_then_hit_definitive",
+   "steps": [
+    {
+     "email": "a@b.co",
+     "at": 0,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "valid",
+        "reacher",
+        0.95,
+        "rcpt_accepted"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "valid",
+      "source": "reacher",
+      "confidence": 0.95,
+      "detail": "rcpt_accepted",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "valid",
+        "detail": "rcpt_accepted"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": true
+     }
+    },
+    {
+     "email": "a@b.co",
+     "at": 3600,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "invalid",
+        "v",
+        0.0,
+        ""
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      0
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "valid",
+      "source": "reacher",
+      "confidence": 0.95,
+      "detail": "rcpt_accepted",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "valid",
+        "detail": "cache_hit"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": true
+     }
+    }
+   ]
+  },
+  {
+   "name": "unknown_cached_one_day",
+   "steps": [
+    {
+     "email": "a@b.co",
+     "at": 0,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "unknown",
+        "reacher",
+        0,
+        "soft"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "unknown",
+      "source": "reacher",
+      "confidence": 0,
+      "detail": "soft",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "unknown",
+        "detail": "soft"
+       }
+      ],
+      "is_definitive": false,
+      "deliverable": false
+     }
+    },
+    {
+     "email": "a@b.co",
+     "at": 3600,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "valid",
+        "reacher",
+        0.95,
+        "now"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      0
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "unknown",
+      "source": "reacher",
+      "confidence": 0.0,
+      "detail": "soft",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "unknown",
+        "detail": "cache_hit"
+       }
+      ],
+      "is_definitive": false,
+      "deliverable": false
+     }
+    },
+    {
+     "email": "a@b.co",
+     "at": 172800,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "valid",
+        "reacher",
+        0.95,
+        "later"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "valid",
+      "source": "reacher",
+      "confidence": 0.95,
+      "detail": "later",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "valid",
+        "detail": "later"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": true
+     }
+    }
+   ]
+  },
+  {
+   "name": "transient_error_details_not_cached",
+   "steps": [
+    {
+     "email": "a@b.co",
+     "at": 0,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "unknown",
+        "reacher",
+        0,
+        "timeout"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "unknown",
+      "source": "reacher",
+      "confidence": 0,
+      "detail": "timeout",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "unknown",
+        "detail": "timeout"
+       }
+      ],
+      "is_definitive": false,
+      "deliverable": false
+     }
+    },
+    {
+     "email": "a@b.co",
+     "at": 1,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "valid",
+        "reacher",
+        0.95,
+        "ok"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "valid",
+      "source": "reacher",
+      "confidence": 0.95,
+      "detail": "ok",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "valid",
+        "detail": "ok"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": true
+     }
+    }
+   ]
+  },
+  {
+   "name": "breaker_open_not_cached",
+   "steps": [
+    {
+     "email": "a@b.co",
+     "at": 0,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "unknown",
+        "reacher",
+        0,
+        "breaker_open"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "unknown",
+      "source": "reacher",
+      "confidence": 0,
+      "detail": "breaker_open",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "unknown",
+        "detail": "breaker_open"
+       }
+      ],
+      "is_definitive": false,
+      "deliverable": false
+     }
+    },
+    {
+     "email": "a@b.co",
+     "at": 1,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "valid",
+        "reacher",
+        0.95,
+        "ok"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "valid",
+      "source": "reacher",
+      "confidence": 0.95,
+      "detail": "ok",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "valid",
+        "detail": "ok"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": true
+     }
+    }
+   ]
+  },
+  {
+   "name": "cache_hit_unknown_continues_to_next_verifier",
+   "steps": [
+    {
+     "email": "a@b.co",
+     "at": 0,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "unknown",
+        "reacher",
+        0,
+        "soft"
+       ],
+       "available": true
+      },
+      {
+       "name": "smtp",
+       "spec": [
+        "valid",
+        "smtp",
+        0.95,
+        "rcpt_accepted"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1,
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "valid",
+      "source": "smtp",
+      "confidence": 0.95,
+      "detail": "rcpt_accepted",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "unknown",
+        "detail": "soft"
+       },
+       {
+        "provider": "smtp",
+        "status": "valid",
+        "detail": "rcpt_accepted"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": true
+     }
+    },
+    {
+     "email": "a@b.co",
+     "at": 10,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "invalid",
+        "reacher",
+        0.9,
+        "x"
+       ],
+       "available": true
+      },
+      {
+       "name": "smtp",
+       "spec": [
+        "invalid",
+        "smtp",
+        0.9,
+        "y"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      0,
+      0
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "valid",
+      "source": "smtp",
+      "confidence": 0.95,
+      "detail": "rcpt_accepted",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "unknown",
+        "detail": "cache_hit"
+       },
+       {
+        "provider": "smtp",
+        "status": "valid",
+        "detail": "cache_hit"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": true
+     }
+    }
+   ]
+  },
+  {
+   "name": "per_verifier_keys_independent",
+   "steps": [
+    {
+     "email": "a@b.co",
+     "at": 0,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "unknown",
+        "reacher",
+        0,
+        "soft"
+       ],
+       "available": true
+      },
+      {
+       "name": "smtp",
+       "spec": [
+        "invalid",
+        "smtp",
+        0.9,
+        "rcpt_rejected"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1,
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "invalid",
+      "source": "smtp",
+      "confidence": 0.9,
+      "detail": "rcpt_rejected",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "unknown",
+        "detail": "soft"
+       },
+       {
+        "provider": "smtp",
+        "status": "invalid",
+        "detail": "rcpt_rejected"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": false
+     }
+    },
+    {
+     "email": "a@b.co",
+     "at": 5,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "valid",
+        "v",
+        0.0,
+        ""
+       ],
+       "available": true
+      },
+      {
+       "name": "smtp",
+       "spec": [
+        "valid",
+        "v",
+        0.0,
+        ""
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      0,
+      0
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "invalid",
+      "source": "smtp",
+      "confidence": 0.9,
+      "detail": "rcpt_rejected",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "unknown",
+        "detail": "cache_hit"
+       },
+       {
+        "provider": "smtp",
+        "status": "invalid",
+        "detail": "cache_hit"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "cache_hit_source_defaults_to_verifier_name",
+   "steps": [
+    {
+     "email": "a@b.co",
+     "at": 0,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "valid",
+        "",
+        0.9,
+        ""
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "valid",
+      "source": "",
+      "confidence": 0.9,
+      "detail": "",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "valid",
+        "detail": ""
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": true
+     }
+    },
+    {
+     "email": "a@b.co",
+     "at": 5,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "invalid",
+        "v",
+        0.0,
+        ""
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      0
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "valid",
+      "source": "reacher",
+      "confidence": 0.9,
+      "detail": "",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "valid",
+        "detail": "cache_hit"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": true
+     }
+    }
+   ]
+  },
+  {
+   "name": "exception_not_cached",
+   "steps": [
+    {
+     "email": "a@b.co",
+     "at": 0,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": {
+        "raises": "RuntimeError"
+       },
+       "available": true
+      }
+     ],
+     "calls": [
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "unknown",
+      "source": "",
+      "confidence": 0.0,
+      "detail": "no_verifier",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "error",
+        "detail": "RuntimeError"
+       }
+      ],
+      "is_definitive": false,
+      "deliverable": false
+     }
+    },
+    {
+     "email": "a@b.co",
+     "at": 1,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "valid",
+        "reacher",
+        0.9,
+        "ok"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "valid",
+      "source": "reacher",
+      "confidence": 0.9,
+      "detail": "ok",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "valid",
+        "detail": "ok"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": true
+     }
+    }
+   ]
+  },
+  {
+   "name": "no_reacher_no_cache",
+   "steps": [
+    {
+     "email": "a@b.co",
+     "at": 0,
+     "verifiers": [
+      {
+       "name": "smtp",
+       "spec": [
+        "valid",
+        "smtp",
+        0.95,
+        "ok"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "valid",
+      "source": "smtp",
+      "confidence": 0.95,
+      "detail": "ok",
+      "attempts": [
+       {
+        "provider": "smtp",
+        "status": "valid",
+        "detail": "ok"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": true
+     }
+    },
+    {
+     "email": "a@b.co",
+     "at": 5,
+     "verifiers": [
+      {
+       "name": "smtp",
+       "spec": [
+        "invalid",
+        "smtp",
+        0.9,
+        "later"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "invalid",
+      "source": "smtp",
+      "confidence": 0.9,
+      "detail": "later",
+      "attempts": [
+       {
+        "provider": "smtp",
+        "status": "invalid",
+        "detail": "later"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "case_insensitive_email_shares_entry",
+   "steps": [
+    {
+     "email": "A@B.CO",
+     "at": 0,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "valid",
+        "reacher",
+        0.95,
+        "ok"
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      1
+     ],
+     "result": {
+      "email": "A@B.CO",
+      "status": "valid",
+      "source": "reacher",
+      "confidence": 0.95,
+      "detail": "ok",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "valid",
+        "detail": "ok"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": true
+     }
+    },
+    {
+     "email": "a@b.co",
+     "at": 5,
+     "verifiers": [
+      {
+       "name": "reacher",
+       "spec": [
+        "invalid",
+        "v",
+        0.0,
+        ""
+       ],
+       "available": true
+      }
+     ],
+     "calls": [
+      0
+     ],
+     "result": {
+      "email": "a@b.co",
+      "status": "valid",
+      "source": "reacher",
+      "confidence": 0.95,
+      "detail": "ok",
+      "attempts": [
+       {
+        "provider": "reacher",
+        "status": "valid",
+        "detail": "cache_hit"
+       }
+      ],
+      "is_definitive": true,
+      "deliverable": true
+     }
+    }
+   ]
+  }
+ ],
+ "available_verifiers": [
+  {
+   "name": "filters_unavailable",
+   "available": [
+    "a",
+    "c"
+   ],
+   "after_register": [
+    "front",
+    "a",
+    "b",
+    "c",
+    "back"
+   ]
+  },
+  {
+   "name": "raising_is_available_skipped",
+   "available": [
+    "b"
+   ],
+   "after_register": [
+    "front",
+    "a",
+    "b",
+    "back"
+   ]
+  },
+  {
+   "name": "none",
+   "available": [],
+   "after_register": [
+    "front",
+    "back"
+   ]
+  }
+ ],
+ "vendor_status": [
+  {
+   "raw": "valid",
+   "status": "valid"
+  },
+  {
+   "raw": "VALID",
+   "status": "valid"
+  },
+  {
+   "raw": "Deliverable",
+   "status": "valid"
+  },
+  {
+   "raw": "ok",
+   "status": "valid"
+  },
+  {
+   "raw": "safe",
+   "status": "valid"
+  },
+  {
+   "raw": "invalid",
+   "status": "invalid"
+  },
+  {
+   "raw": "undeliverable",
+   "status": "invalid"
+  },
+  {
+   "raw": "bad",
+   "status": "invalid"
+  },
+  {
+   "raw": "rejected",
+   "status": "invalid"
+  },
+  {
+   "raw": "disposable",
+   "status": "invalid"
+  },
+  {
+   "raw": "catch_all",
+   "status": "catch_all"
+  },
+  {
+   "raw": "catchall",
+   "status": "catch_all"
+  },
+  {
+   "raw": "accept_all",
+   "status": "catch_all"
+  },
+  {
+   "raw": "accept-all",
+   "status": "catch_all"
+  },
+  {
+   "raw": "unknown_catch_all",
+   "status": "catch_all"
+  },
+  {
+   "raw": "risky",
+   "status": "unknown"
+  },
+  {
+   "raw": "unknown",
+   "status": "unknown"
+  },
+  {
+   "raw": "",
+   "status": "unknown"
+  },
+  {
+   "raw": null,
+   "status": "unknown"
+  },
+  {
+   "raw": " valid",
+   "status": "unknown"
+  },
+  {
+   "raw": "catch-all",
+   "status": "unknown"
+  },
+  {
+   "raw": "ACCEPT_ALL",
+   "status": "catch_all"
+  }
+ ],
+ "clock_base": 1800000000.0
+}

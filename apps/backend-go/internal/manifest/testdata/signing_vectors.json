@@ -1,0 +1,717 @@
+{
+ "signature_version": "1",
+ "test_keys": {
+  "key-a": "fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=",
+  "key-b": "t+TLloosiYcObcQppQgEbAgdlpkbddHx8yya8cgCEfA="
+ },
+ "canonical": [
+  {
+   "name": "simple",
+   "yaml": "b: 1\na: 2\n",
+   "canonical": "{\"a\":2,\"b\":1}",
+   "sha256": "d3626ac30a87e6f7a6428233b3c68299976865fa5508e4267c5415c76af7a772"
+  },
+  {
+   "name": "nested_sorted",
+   "yaml": "z: {y: 1, x: [3, 2, 1]}\na: null\n",
+   "canonical": "{\"a\":null,\"z\":{\"x\":[3,2,1],\"y\":1}}",
+   "sha256": "7962721eeed151f8d41d9669829c7cabe65d18fad40893750a198f291b66a78a"
+  },
+  {
+   "name": "unicode_not_escaped",
+   "yaml": "name: 日本語 é 😀\nk: \"\\u00e9\"\n",
+   "canonical": "{\"k\":\"é\",\"name\":\"日本語 é 😀\"}",
+   "sha256": "ce46673ee7edb0db7620afaf9855eb9d1da8aa58935134b523ed8505ddafccb2"
+  },
+  {
+   "name": "floats",
+   "yaml": "a: 1.0\nb: 1.5e3\nc: 1e3\nd: 0.1\ne: -0.0\nf: 1.0e+3\ng: 123456789.123456789\nh: 1e-7\ni: 1.0e-7\nj: 100000000000000000000.0\n",
+   "canonical": "{\"a\":1.0,\"b\":\"1.5e3\",\"c\":\"1e3\",\"d\":0.1,\"e\":-0.0,\"f\":1000.0,\"g\":123456789.12345679,\"h\":\"1e-7\",\"i\":1e-07,\"j\":1e+20}",
+   "sha256": "20b566e4882acf3a517171279c24d6adb93c1b7c2036822af985bf71a9b40985"
+  },
+  {
+   "name": "ints",
+   "yaml": "a: 0x1f\nb: 0o17\nc: 017\nd: 1_000\ne: -5\nf: 12345678901234567890\ng: 0b101\nh: +7\ni: 08\nj: 1:30\n",
+   "canonical": "{\"a\":31,\"b\":\"0o17\",\"c\":15,\"d\":1000,\"e\":-5,\"f\":12345678901234567890,\"g\":5,\"h\":7,\"i\":\"08\",\"j\":90}",
+   "sha256": "168f2e027690e22af075a464f92d35445a8d48159bbcccb7f9351e4ceb641305"
+  },
+  {
+   "name": "yaml11_bools",
+   "yaml": "a: yes\nb: No\nc: on\nd: OFF\ne: true\nf: True\ng: TRUE\nh: y\ni: n\nj: 'yes'\n",
+   "canonical": "{\"a\":true,\"b\":false,\"c\":true,\"d\":false,\"e\":true,\"f\":true,\"g\":true,\"h\":\"y\",\"i\":\"n\",\"j\":\"yes\"}",
+   "sha256": "c4283ec76164ec7cb25146626a87da43fc8a8580d48089b74dc2856f72759de2"
+  },
+  {
+   "name": "nulls",
+   "yaml": "a: ~\nb: null\nc: Null\nd:\ne: NULL\nf: ''\n",
+   "canonical": "{\"a\":null,\"b\":null,\"c\":null,\"d\":null,\"e\":null,\"f\":\"\"}",
+   "sha256": "51e290235af6f838a5c9eb3802563bbc1c63f03f4ef9e052ad3a955df8c40754"
+  },
+  {
+   "name": "specials",
+   "yaml": "a: .inf\nb: -.inf\nc: .nan\n",
+   "canonical": "{\"a\":Infinity,\"b\":-Infinity,\"c\":NaN}",
+   "sha256": "27fa75028571a04f3a22d814ef8a47c5ea954fd205bc8348d31cd63eb7b3faea"
+  },
+  {
+   "name": "date",
+   "yaml": "d: 2026-08-29\n",
+   "error": "TypeError",
+   "message": "Object of type date is not JSON serializable"
+  },
+  {
+   "name": "timestamp",
+   "yaml": "t: 2026-08-29 10:00:00\n",
+   "error": "TypeError",
+   "message": "Object of type datetime is not JSON serializable"
+  },
+  {
+   "name": "timestamp_tz",
+   "yaml": "t: 2026-08-29T10:00:00Z\n",
+   "error": "TypeError",
+   "message": "Object of type datetime is not JSON serializable"
+  },
+  {
+   "name": "anchors_aliases",
+   "yaml": "base: &b {x: 1}\nuse: *b\nlist: [*b, *b]\n",
+   "canonical": "{\"base\":{\"x\":1},\"list\":[{\"x\":1},{\"x\":1}],\"use\":{\"x\":1}}",
+   "sha256": "8f896b0a818005ab2bab034774e877b968745f6a556abce89cd706ad3cc06c3a"
+  },
+  {
+   "name": "merge_key",
+   "yaml": "base: &b {x: 1, y: 2}\nuse:\n  <<: *b\n  y: 3\n",
+   "canonical": "{\"base\":{\"x\":1,\"y\":2},\"use\":{\"x\":1,\"y\":3}}",
+   "sha256": "04396ee57bea13afdfcbef81dcff9b1f3cb45ebf0607df04b447bcb544787131"
+  },
+  {
+   "name": "duplicate_keys_last_wins",
+   "yaml": "a: 1\na: 2\n",
+   "canonical": "{\"a\":2}",
+   "sha256": "7e8059f495589fcd981232cc11d00b00da3802c01d688fa1cf1f6bed6e5bb33c"
+  },
+  {
+   "name": "int_key",
+   "yaml": "1: a\n2: b\n",
+   "canonical": "{\"1\":\"a\",\"2\":\"b\"}",
+   "sha256": "a71fc868af5e004c2efbfdf16bb2b679c348f2e25065b30b06df846eb32074a5"
+  },
+  {
+   "name": "bool_key",
+   "yaml": "true: a\n",
+   "canonical": "{\"true\":\"a\"}",
+   "sha256": "ff5d20afd20d1a37b58a42f58fa4abd805135a7dfb75f4c36889cecbfb6dc4ab"
+  },
+  {
+   "name": "null_key",
+   "yaml": "~: a\n",
+   "canonical": "{\"null\":\"a\"}",
+   "sha256": "de37a73feac26197ededdeb1d918525bd6c54861892988ba4a59421a948170d5"
+  },
+  {
+   "name": "mixed_keys",
+   "yaml": "1: a\nb: c\n",
+   "error": "TypeError",
+   "message": "'<' not supported between instances of 'str' and 'int'"
+  },
+  {
+   "name": "multiline_literal",
+   "yaml": "a: |\n  line1\n  line2\nb: >\n  folded\n  text\n",
+   "canonical": "{\"a\":\"line1\\nline2\\n\",\"b\":\"folded text\\n\"}",
+   "sha256": "3934157632d733f0f84509a8b4c70626a44145a1365a89baba9708b6039d864f"
+  },
+  {
+   "name": "quotes_backslash",
+   "yaml": "a: 'it''s'\nb: \"q\\\"uote\\\\\"\nc: \"tab\\there\"\n",
+   "canonical": "{\"a\":\"it's\",\"b\":\"q\\\"uote\\\\\",\"c\":\"tab\\there\"}",
+   "sha256": "7aae80d0b1a434272b44d6c93df36eaa392044606f891f489e663d995901c969"
+  },
+  {
+   "name": "control_chars",
+   "yaml": "a: \"\\x00\\x1f\\x7f\\u2028\"\n",
+   "canonical": "{\"a\":\"\\u0000\\u001f \"}",
+   "sha256": "aab2769b4adc06569222a920aa8c805bd8c4aac3cd78ddd6567b03769e799abb"
+  },
+  {
+   "name": "empty_containers",
+   "yaml": "a: []\nb: {}\nc: ''\n",
+   "canonical": "{\"a\":[],\"b\":{},\"c\":\"\"}",
+   "sha256": "12db860d7676bcec84a4ea9fa9a3e39e8931c41b10d064b23ced53f06e15caae"
+  },
+  {
+   "name": "set_tag",
+   "yaml": "a: !!set {x, y}\n",
+   "error": "TypeError",
+   "message": "Object of type set is not JSON serializable"
+  },
+  {
+   "name": "binary_tag",
+   "yaml": "a: !!binary aGVsbG8=\n",
+   "error": "TypeError",
+   "message": "Object of type bytes is not JSON serializable"
+  },
+  {
+   "name": "not_a_mapping_list",
+   "yaml": "- a\n- b\n",
+   "error": "ValueError",
+   "message": "manifest is not a mapping"
+  },
+  {
+   "name": "not_a_mapping_scalar",
+   "yaml": "hello\n",
+   "error": "ValueError",
+   "message": "manifest is not a mapping"
+  },
+  {
+   "name": "empty_document",
+   "yaml": "",
+   "error": "ValueError",
+   "message": "manifest is not a mapping"
+  },
+  {
+   "name": "only_comment",
+   "yaml": "# c\n",
+   "error": "ValueError",
+   "message": "manifest is not a mapping"
+  },
+  {
+   "name": "explicit_tag_str",
+   "yaml": "a: !!str 123\nb: !!int '7'\nb2: !!float '1'\n",
+   "canonical": "{\"a\":\"123\",\"b\":7,\"b2\":1.0}",
+   "sha256": "f3bd4400ff01eb27bba4ee8340dfedc29d6bb088e9e80fee28f432a2d145c712"
+  },
+  {
+   "name": "long_string",
+   "yaml": "a: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n",
+   "canonical": "{\"a\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}",
+   "sha256": "6ee0363bfb11146318088781a77da86e2b355dac665d8cdcd174b7bb8e440bca"
+  },
+  {
+   "name": "string_numbers_quoted",
+   "yaml": "a: '1'\nb: \"1.0\"\nc: '0x1f'\n",
+   "canonical": "{\"a\":\"1\",\"b\":\"1.0\",\"c\":\"0x1f\"}",
+   "sha256": "9b5caa81f20c997bbc9cf49eb2273941187de942158386c712585d2558e0ecda"
+  },
+  {
+   "name": "octal_like_string_port",
+   "yaml": "a: 0.5\nb: .5\nc: 5.\n",
+   "canonical": "{\"a\":0.5,\"b\":0.5,\"c\":5.0}",
+   "sha256": "6f29daa206615d2e2fbcb7d2a1f636a9efdd2eb6c3e23609d93801152165539e"
+  },
+  {
+   "name": "sexagesimal",
+   "yaml": "a: 190:20:30\nb: 1:20\n",
+   "canonical": "{\"a\":685230,\"b\":80}",
+   "sha256": "4753c56215273fa313377ac371063c0a0920f734a779d9e93d61e4fbe0806ad2"
+  },
+  {
+   "name": "tilde_in_string",
+   "yaml": "a: ~x\n",
+   "canonical": "{\"a\":\"~x\"}",
+   "sha256": "d81a51db45e41929896f9d41c761357a5b9fdf61d67176b61e3a2318a7709ee7"
+  },
+  {
+   "name": "colon_values",
+   "yaml": "a: x:y\nb: 'a: b'\n",
+   "canonical": "{\"a\":\"x:y\",\"b\":\"a: b\"}",
+   "sha256": "eb3c56681bc52b932ef39d9afeee329feb25b0bfb7c342b4f08009f65c304d11"
+  },
+  {
+   "name": "key_with_spaces",
+   "yaml": "a b: 1\n'c d': 2\n",
+   "canonical": "{\"a b\":1,\"c d\":2}",
+   "sha256": "f5f865c7c4100a8abf1e04185066bb460e1e124fce29c2d961ed5a58cdf16c91"
+  },
+  {
+   "name": "deep_nesting",
+   "yaml": "a: {b: {b: {b: {b: {b: {b: {b: {b: {b: {b: {b: {b: {b: {b: {b: {b: {b: {b: {b: {b: 1}}}}}}}}}}}}}}}}}}}}\n",
+   "canonical": "{\"a\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":{\"b\":1}}}}}}}}}}}}}}}}}}}}}",
+   "sha256": "92a9f95ccb17ffc67f19721c00a540d24831a7615c8dcfcf720f61d52253d6a1"
+  },
+  {
+   "name": "unicode_keys_sorted",
+   "yaml": "é: 1\nz: 2\na: 3\nÉ: 4\n日: 5\n",
+   "canonical": "{\"a\":3,\"z\":2,\"É\":4,\"é\":1,\"日\":5}",
+   "sha256": "ae4833578401e310e6c93270a53d05293d3f5e3c9ad6e64e8c5b75f8bc693fee"
+  },
+  {
+   "name": "surrogate_astral_key_order",
+   "yaml": "\"\\U0001F600\": 1\n\"\\uFB01\": 2\n",
+   "canonical": "{\"ﬁ\":2,\"😀\":1}",
+   "sha256": "f95f01f7635708fc22c45f783a60405c3db223110693d1a6527afdcd5462ba96"
+  },
+  {
+   "name": "bom_prefixed",
+   "yaml": "﻿a: 1\n",
+   "canonical": "{\"a\":1}",
+   "sha256": "015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862"
+  },
+  {
+   "name": "crlf",
+   "yaml": "a: 1\r\nb: 2\r\n",
+   "canonical": "{\"a\":1,\"b\":2}",
+   "sha256": "43258cff783fe7036d8a43033f830adfc60ec037382473548ac742b888292777"
+  },
+  {
+   "name": "tab_indent_error",
+   "yaml": "a:\n\tb: 1\n",
+   "error": "ScannerError",
+   "message": "while scanning for the next token\nfound character '\\t' that cannot start any token\n  in \"<unicode string>\", line 2, column 1:\n    \tb: 1\n    ^"
+  },
+  {
+   "name": "unclosed_flow",
+   "yaml": "a: {b: 1\n",
+   "error": "ParserError",
+   "message": "while parsing a flow mapping\n  in \"<unicode string>\", line 1, column 4:\n    a: {b: 1\n       ^\nexpected ',' or '}', but got '<stream end>'\n  in \"<unicode string>\", line 2, column 1:\n    \n    ^"
+  },
+  {
+   "name": "shipped_style_manifest",
+   "yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "canonical": "{\"auth\":{\"env_var\":\"CONTRACT_KEY\",\"param\":\"X-API-Key\",\"type\":\"header\"},\"author\":\"OpenGTM\",\"capabilities\":[\"email\"],\"capability\":\"email\",\"cost_per_lookup\":0.05,\"default_confidence\":0.8,\"description\":\"signed test manifest\",\"display_name\":\"Contract Email\",\"manifest_version\":\"1\",\"name\":\"contract_email\",\"request\":{\"body\":{\"domain\":\"{{input.domain}}\"},\"method\":\"POST\",\"url\":\"https://api.example.test/email\"},\"response\":{\"mappings\":{\"email\":\"data.email\"}}}",
+   "sha256": "041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5"
+  }
+ ],
+ "verify": [
+  {
+   "name": "trusted",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "trusted",
+    "key_id": "key-a",
+    "publisher": "Contract Publisher"
+   }
+  },
+  {
+   "name": "trusted_publisher_defaults_to_key_id",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\"}]}",
+   "result": {
+    "status": "trusted",
+    "key_id": "key-a",
+    "publisher": "key-a"
+   }
+  },
+  {
+   "name": "trusted_formatting_only_change",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings: {email: data.email}\n# trailing comment\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "trusted",
+    "key_id": "key-a",
+    "publisher": "Contract Publisher"
+   }
+  },
+  {
+   "name": "trusted_key_order_change",
+   "manifest": "name: contract_email\nmanifest_version: \"1\"\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "trusted",
+    "key_id": "key-a",
+    "publisher": "Contract Publisher"
+   }
+  },
+  {
+   "name": "trusted_extra_envelope_fields_ignored",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"extra\": 1,\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "trusted",
+    "key_id": "key-a",
+    "publisher": "Contract Publisher"
+   }
+  },
+  {
+   "name": "trusted_unicode_manifest",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract é 日本語\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"1a92341236e367d1a0924bd26b6776f11d18f39931e22cefc847792cc00be2d7\",\n  \"signature\": \"YuzFpXPXG9UtW8uAnuRdDyvjLJMB/fyBQI3yEhlEQKB1y9F9qjjPVlGC9L/amWvz5jR4IFnfv6IS6uqxc1+KAw==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "trusted",
+    "key_id": "key-a",
+    "publisher": "Contract Publisher"
+   }
+  },
+  {
+   "name": "unsigned",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": null,
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "unsigned",
+    "key_id": null,
+    "publisher": null
+   }
+  },
+  {
+   "name": "untrusted_unknown_key_id",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-b\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"dxXGKhOwBLDC+ktweXdpfEWq8DeKntAMdQ4jm84PnLwSyzQrhPXk1f8AXkP137z+TvOnJ+1BbLPjZhgqYZ4lBw==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "untrusted",
+    "key_id": "key-b",
+    "publisher": null
+   }
+  },
+  {
+   "name": "untrusted_trust_store_missing",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": null,
+   "result": {
+    "status": "untrusted",
+    "key_id": "key-a",
+    "publisher": null
+   }
+  },
+  {
+   "name": "untrusted_key_id_missing_in_envelope",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "untrusted",
+    "key_id": null,
+    "publisher": null
+   }
+  },
+  {
+   "name": "untrusted_key_id_not_string",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": 5,\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "untrusted",
+    "key_id": 5,
+    "publisher": null
+   }
+  },
+  {
+   "name": "untrusted_checked_before_digest",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 9.99\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-b\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"dxXGKhOwBLDC+ktweXdpfEWq8DeKntAMdQ4jm84PnLwSyzQrhPXk1f8AXkP137z+TvOnJ+1BbLPjZhgqYZ4lBw==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "untrusted",
+    "key_id": "key-b",
+    "publisher": null
+   }
+  },
+  {
+   "name": "tampered_manifest_field",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 9.99\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "manifest digest mismatch"
+   }
+  },
+  {
+   "name": "tampered_signature_byte",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"B8+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": ""
+   }
+  },
+  {
+   "name": "tampered_digest",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "manifest digest mismatch"
+   }
+  },
+  {
+   "name": "tampered_digest_uppercase",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041F55BD96FB8AFAF5509C1334392A255C2AEFA67D4BA3C69A3D68736BCA85E5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "manifest digest mismatch"
+   }
+  },
+  {
+   "name": "wrong_key_claimed_trusted",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"dxXGKhOwBLDC+ktweXdpfEWq8DeKntAMdQ4jm84PnLwSyzQrhPXk1f8AXkP137z+TvOnJ+1BbLPjZhgqYZ4lBw==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": ""
+   }
+  },
+  {
+   "name": "bad_signature_version",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"2\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "unsupported connector signature envelope"
+   }
+  },
+  {
+   "name": "bad_signature_version_int",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": 1\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "unsupported connector signature envelope"
+   }
+  },
+  {
+   "name": "bad_algorithm",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"RSA\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "unsupported connector signature envelope"
+   }
+  },
+  {
+   "name": "envelope_not_json",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "not json",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": null,
+    "publisher": null,
+    "error": "Expecting value: line 1 column 1 (char 0)"
+   }
+  },
+  {
+   "name": "envelope_json_list",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "[1]",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": null,
+    "publisher": null,
+    "error": "'list' object has no attribute 'get'"
+   }
+  },
+  {
+   "name": "envelope_empty",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": null,
+    "publisher": null,
+    "error": "Expecting value: line 1 column 1 (char 0)"
+   }
+  },
+  {
+   "name": "signature_bad_base64",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"***\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "Only base64 data is allowed"
+   }
+  },
+  {
+   "name": "signature_wrong_length",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"c2hvcnQ=\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": ""
+   }
+  },
+  {
+   "name": "signature_missing",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "'signature'"
+   }
+  },
+  {
+   "name": "digest_missing",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "manifest digest mismatch"
+   }
+  },
+  {
+   "name": "trust_store_bad_version",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 2, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "invalid connector trust store"
+   }
+  },
+  {
+   "name": "trust_store_keys_not_list",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": {}}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "invalid connector trust store"
+   }
+  },
+  {
+   "name": "trust_store_not_json",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "nope",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "Expecting value: line 1 column 1 (char 0)"
+   }
+  },
+  {
+   "name": "trust_store_entry_bad_public_key",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"AAAA\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "An Ed25519 public key is 32 bytes long"
+   }
+  },
+  {
+   "name": "trust_store_entry_missing_public_key",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "'public_key'"
+   }
+  },
+  {
+   "name": "trust_store_other_key_registered_for_id",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"t+TLloosiYcObcQppQgEbAgdlpkbddHx8yya8cgCEfA=\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": ""
+   }
+  },
+  {
+   "name": "trust_store_duplicate_key_id_last_wins",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"t+TLloosiYcObcQppQgEbAgdlpkbddHx8yya8cgCEfA=\"}, {\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "trusted",
+    "key_id": "key-a",
+    "publisher": "Contract Publisher"
+   }
+  },
+  {
+   "name": "manifest_not_mapping",
+   "manifest": "- a\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "manifest is not a mapping"
+   }
+  },
+  {
+   "name": "manifest_empty",
+   "manifest": "",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "manifest is not a mapping"
+   }
+  },
+  {
+   "name": "manifest_invalid_yaml",
+   "manifest": "a: {",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}]}",
+   "result": {
+    "status": "invalid",
+    "key_id": "key-a",
+    "publisher": null,
+    "error": "while parsing a flow node\nexpected the node content, but found '<stream end>'\n  in \"<unicode string>\", line 1, column 5:\n    a: {\n        ^"
+   }
+  },
+  {
+   "name": "trusted_second_key",
+   "manifest": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+   "signature": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-b\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"dxXGKhOwBLDC+ktweXdpfEWq8DeKntAMdQ4jm84PnLwSyzQrhPXk1f8AXkP137z+TvOnJ+1BbLPjZhgqYZ4lBw==\",\n  \"signature_version\": \"1\"\n}\n",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"key-a\", \"public_key\": \"fCA8FrdZuUQ8f4hEmb/qfIqdUtCOUEUolBEenrvTR7E=\", \"publisher\": \"Contract Publisher\"}, {\"key_id\": \"key-b\", \"public_key\": \"t+TLloosiYcObcQppQgEbAgdlpkbddHx8yya8cgCEfA=\", \"publisher\": \"B\"}]}",
+   "result": {
+    "status": "trusted",
+    "key_id": "key-b",
+    "publisher": "B"
+   }
+  }
+ ]
+}

@@ -1,0 +1,2310 @@
+{
+ "interval_minutes_table": {
+  "hourly": 60,
+  "daily": 1440,
+  "weekly": 10080
+ },
+ "default_staleness_days": 30,
+ "now": "2026-09-01T12:00:00+00:00",
+ "interval_minutes": [
+  {
+   "policy": null,
+   "minutes": {
+    "value": null
+   }
+  },
+  {
+   "policy": {},
+   "minutes": {
+    "value": null
+   }
+  },
+  {
+   "policy": {
+    "interval": null
+   },
+   "minutes": {
+    "value": null
+   }
+  },
+  {
+   "policy": {
+    "interval": ""
+   },
+   "minutes": {
+    "value": null
+   }
+  },
+  {
+   "policy": {
+    "interval": 0
+   },
+   "minutes": {
+    "value": null
+   }
+  },
+  {
+   "policy": {
+    "interval": "hourly"
+   },
+   "minutes": {
+    "value": 60
+   }
+  },
+  {
+   "policy": {
+    "interval": "HOURLY"
+   },
+   "minutes": {
+    "value": 60
+   }
+  },
+  {
+   "policy": {
+    "interval": "Daily"
+   },
+   "minutes": {
+    "value": 1440
+   }
+  },
+  {
+   "policy": {
+    "interval": "weekly"
+   },
+   "minutes": {
+    "value": 10080
+   }
+  },
+  {
+   "policy": {
+    "interval": " weekly"
+   },
+   "minutes": {
+    "value": null
+   }
+  },
+  {
+   "policy": {
+    "interval": "monthly"
+   },
+   "minutes": {
+    "value": null
+   }
+  },
+  {
+   "policy": {
+    "interval": 45
+   },
+   "minutes": {
+    "value": 45
+   }
+  },
+  {
+   "policy": {
+    "interval": 12.9
+   },
+   "minutes": {
+    "value": 12
+   }
+  },
+  {
+   "policy": {
+    "interval": -5
+   },
+   "minutes": {
+    "value": -5
+   }
+  },
+  {
+   "policy": {
+    "interval": true
+   },
+   "minutes": {
+    "value": 1
+   }
+  },
+  {
+   "policy": {
+    "interval": false
+   },
+   "minutes": {
+    "value": null
+   }
+  },
+  {
+   "policy": {
+    "interval": "45"
+   },
+   "minutes": {
+    "value": null
+   }
+  },
+  {
+   "policy": {
+    "interval": 1e+30
+   },
+   "minutes": {
+    "value": 1000000000000000019884624838656
+   }
+  },
+  {
+   "policy": {
+    "interval": 10000000000.0
+   },
+   "minutes": {
+    "value": 10000000000
+   }
+  },
+  {
+   "policy": {
+    "interval": [
+     60
+    ]
+   },
+   "minutes": {
+    "value": null
+   }
+  },
+  {
+   "policy": {
+    "interval": {
+     "m": 1
+    }
+   },
+   "minutes": {
+    "value": null
+   }
+  },
+  {
+   "policy": {
+    "interval": 0.4
+   },
+   "minutes": {
+    "value": 0
+   }
+  },
+  {
+   "policy": {
+    "enabled": true
+   },
+   "minutes": {
+    "value": null
+   }
+  },
+  {
+   "policy": {
+    "interval": "ВЕЕКLY"
+   },
+   "minutes": {
+    "value": null
+   }
+  },
+  {
+   "policy": {
+    "interval": "<nan>"
+   },
+   "note": "float nan cannot be stored in JSON; see below",
+   "minutes": {
+    "error": "ValueError",
+    "message": "cannot convert float NaN to integer"
+   }
+  },
+  {
+   "policy": {
+    "interval": "<inf>"
+   },
+   "minutes": {
+    "error": "OverflowError",
+    "message": "cannot convert float infinity to integer"
+   }
+  }
+ ],
+ "stale_row_columns": [
+  {
+   "name": "no_overlays_everything_stale",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 2,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    },
+    {
+     "id": "phone",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "email",
+     "phone"
+    ],
+    "2": [
+     "email",
+     "phone"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "complete_and_fresh_not_stale",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "email",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {},
+   "batch_size_independent": true
+  },
+  {
+   "name": "complete_but_older_than_default_30d",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "email",
+     "status": "complete",
+     "updated_days_ago": 31,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "email"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "exactly_30d_old_is_not_stale_boundary",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "email",
+     "status": "complete",
+     "updated_days_ago": 30,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {},
+   "batch_size_independent": true
+  },
+  {
+   "name": "ttl_override_by_column_id",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "email",
+     "status": "complete",
+     "updated_days_ago": 5,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {
+    "email": 3
+   },
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "email"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "ttl_override_by_target_field",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "col",
+     "status": "complete",
+     "updated_days_ago": 5,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "col",
+     "type": "enrichment",
+     "target_field": "email"
+    }
+   ],
+   "ttl_map": {
+    "email": 3
+   },
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "col"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "target_field_beats_id_for_ttl",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "email",
+     "status": "complete",
+     "updated_days_ago": 5,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment",
+     "target_field": "phone"
+    }
+   ],
+   "ttl_map": {
+    "email": 1,
+    "phone": 10
+   },
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {},
+   "batch_size_independent": true
+  },
+  {
+   "name": "ttl_zero_everything_stale",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "email",
+     "status": "complete",
+     "updated_days_ago": 0,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {
+    "email": 0
+   },
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {},
+   "batch_size_independent": true
+  },
+  {
+   "name": "status_error_is_stale",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "email",
+     "status": "error",
+     "updated_days_ago": 0,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "email"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "status_none_is_stale",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "email",
+     "status": null,
+     "updated_days_ago": 0,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "email"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "status_pending_running_skipped_stale",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 2,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 3,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "email",
+     "status": "pending",
+     "updated_days_ago": 0,
+     "workbook_id": "wb1"
+    },
+    {
+     "lead_id": 2,
+     "column_id": "email",
+     "status": "running",
+     "updated_days_ago": 0,
+     "workbook_id": "wb1"
+    },
+    {
+     "lead_id": 3,
+     "column_id": "email",
+     "status": "skipped",
+     "updated_days_ago": 0,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "email"
+    ],
+    "2": [
+     "email"
+    ],
+    "3": [
+     "email"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "updated_at_null_is_stale",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "email",
+     "status": "complete",
+     "updated_days_ago": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "email"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "linked_lead_id_is_the_overlay_key",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": 100,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 2,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 100,
+     "column_id": "email",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    },
+    {
+     "lead_id": 1,
+     "column_id": "email",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "2": [
+     "email"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "overlay_keyed_by_row_id_ignored_when_lead_linked",
+   "rows": [
+    {
+     "id": 5,
+     "lead_id": 77,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 5,
+     "column_id": "email",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "5": [
+     "email"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "other_workbook_overlay_ignored",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "email",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb2"
+    }
+   ],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "email"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "other_workbook_rows_ignored",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb2"
+    },
+    {
+     "id": 2,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [],
+   "columns": [
+    {
+     "id": "email",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "2": [
+     "email"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "column_order_preserved",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [],
+   "columns": [
+    {
+     "id": "zeta",
+     "type": "enrichment"
+    },
+    {
+     "id": "alpha",
+     "type": "enrichment"
+    },
+    {
+     "id": "mid",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "zeta",
+     "alpha",
+     "mid"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "duplicate_column_ids_collapse",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [],
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment"
+    },
+    {
+     "id": "a",
+     "type": "enrichment"
+    },
+    {
+     "id": "b",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "a",
+     "b"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "column_without_id_skipped",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [],
+   "columns": [
+    {
+     "type": "enrichment"
+    },
+    {
+     "id": "a",
+     "type": "enrichment"
+    },
+    {
+     "id": ""
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "a"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "no_columns_empty",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [],
+   "columns": [],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {},
+   "batch_size_independent": true
+  },
+  {
+   "name": "no_rows_empty",
+   "rows": [],
+   "overlays": [],
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {},
+   "batch_size_independent": true
+  },
+  {
+   "name": "mixed_cells",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 2,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 3,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 4,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "a",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    },
+    {
+     "lead_id": 1,
+     "column_id": "b",
+     "status": "complete",
+     "updated_days_ago": 40,
+     "workbook_id": "wb1"
+    },
+    {
+     "lead_id": 2,
+     "column_id": "a",
+     "status": "error",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    },
+    {
+     "lead_id": 2,
+     "column_id": "b",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    },
+    {
+     "lead_id": 4,
+     "column_id": "a",
+     "status": "complete",
+     "updated_days_ago": 2,
+     "workbook_id": "wb1"
+    },
+    {
+     "lead_id": 4,
+     "column_id": "b",
+     "status": "complete",
+     "updated_days_ago": 2,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment"
+    },
+    {
+     "id": "b",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {
+    "a": 10,
+    "b": 50
+   },
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "2": [
+     "a"
+    ],
+    "3": [
+     "a",
+     "b"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "row_ids_non_contiguous",
+   "rows": [
+    {
+     "id": 5,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 50,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 500,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 50,
+     "column_id": "a",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "5": [
+     "a"
+    ],
+    "500": [
+     "a"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "fractional_ttl_days",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "a",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {
+    "a": 0.5
+   },
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "a"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "negative_ttl_nothing_older",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "a",
+     "status": "complete",
+     "updated_days_ago": 0,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {
+    "a": -1
+   },
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "1": [
+     "a"
+    ]
+   },
+   "batch_size_independent": true
+  },
+  {
+   "name": "many_rows_paging",
+   "rows": [
+    {
+     "id": 1,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 2,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 3,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 4,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 5,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 6,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 7,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 8,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 9,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    },
+    {
+     "id": 10,
+     "lead_id": null,
+     "workbook_id": "wb1"
+    }
+   ],
+   "overlays": [
+    {
+     "lead_id": 1,
+     "column_id": "a",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    },
+    {
+     "lead_id": 3,
+     "column_id": "a",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    },
+    {
+     "lead_id": 5,
+     "column_id": "a",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    },
+    {
+     "lead_id": 7,
+     "column_id": "a",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    },
+    {
+     "lead_id": 9,
+     "column_id": "a",
+     "status": "complete",
+     "updated_days_ago": 1,
+     "workbook_id": "wb1"
+    }
+   ],
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment"
+    }
+   ],
+   "ttl_map": {},
+   "now": "2026-09-01T12:00:00+00:00",
+   "result": {
+    "2": [
+     "a"
+    ],
+    "4": [
+     "a"
+    ],
+    "6": [
+     "a"
+    ],
+    "8": [
+     "a"
+    ],
+    "10": [
+     "a"
+    ]
+   },
+   "batch_size_independent": true
+  }
+ ],
+ "set_refresh_policy": [
+  {
+   "name": "enabled_hourly_enqueues_next",
+   "policy": {
+    "enabled": true,
+    "interval": "hourly"
+   },
+   "active_chain_exists": false,
+   "result": {
+    "refresh_policy": {
+     "enabled": true,
+     "interval": "hourly"
+    },
+    "next_in_minutes": 60
+   },
+   "stored_policy": {
+    "enabled": true,
+    "interval": "hourly"
+   },
+   "jobs": [
+    {
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w1",
+      "workspace_id": "ws-a"
+     },
+     "status": "pending",
+     "priority": 1,
+     "max_retries": 3,
+     "next_run_at": "2026-09-01T13:00:00+00:00"
+    }
+   ],
+   "commits": 2
+  },
+  {
+   "name": "enabled_daily_upper",
+   "policy": {
+    "enabled": true,
+    "interval": "DAILY"
+   },
+   "active_chain_exists": false,
+   "result": {
+    "refresh_policy": {
+     "enabled": true,
+     "interval": "DAILY"
+    },
+    "next_in_minutes": 1440
+   },
+   "stored_policy": {
+    "enabled": true,
+    "interval": "DAILY"
+   },
+   "jobs": [
+    {
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w1",
+      "workspace_id": "ws-a"
+     },
+     "status": "pending",
+     "priority": 1,
+     "max_retries": 3,
+     "next_run_at": "2026-09-02T12:00:00+00:00"
+    }
+   ],
+   "commits": 2
+  },
+  {
+   "name": "active_chain_not_forked",
+   "policy": {
+    "enabled": true,
+    "interval": "weekly"
+   },
+   "active_chain_exists": true,
+   "result": {
+    "refresh_policy": {
+     "enabled": true,
+     "interval": "weekly"
+    },
+    "next_in_minutes": 10080
+   },
+   "stored_policy": {
+    "enabled": true,
+    "interval": "weekly"
+   },
+   "jobs": [],
+   "commits": 1
+  },
+  {
+   "name": "disabled_no_enqueue_no_next",
+   "policy": {
+    "enabled": false,
+    "interval": "daily"
+   },
+   "active_chain_exists": false,
+   "result": {
+    "refresh_policy": {
+     "enabled": false,
+     "interval": "daily"
+    },
+    "next_in_minutes": null
+   },
+   "stored_policy": {
+    "enabled": false,
+    "interval": "daily"
+   },
+   "jobs": [],
+   "commits": 1
+  },
+  {
+   "name": "unknown_interval_no_enqueue",
+   "policy": {
+    "enabled": true,
+    "interval": "monthly"
+   },
+   "active_chain_exists": false,
+   "result": {
+    "refresh_policy": {
+     "enabled": true,
+     "interval": "monthly"
+    },
+    "next_in_minutes": null
+   },
+   "stored_policy": {
+    "enabled": true,
+    "interval": "monthly"
+   },
+   "jobs": [],
+   "commits": 1
+  },
+  {
+   "name": "numeric_interval_string_not_recognised",
+   "policy": {
+    "enabled": true,
+    "interval": "45"
+   },
+   "active_chain_exists": false,
+   "result": {
+    "refresh_policy": {
+     "enabled": true,
+     "interval": "45"
+    },
+    "next_in_minutes": null
+   },
+   "stored_policy": {
+    "enabled": true,
+    "interval": "45"
+   },
+   "jobs": [],
+   "commits": 1
+  },
+  {
+   "name": "numeric_interval_int_minutes",
+   "policy": {
+    "enabled": true,
+    "interval": 45
+   },
+   "active_chain_exists": false,
+   "result": {
+    "refresh_policy": {
+     "enabled": true,
+     "interval": 45
+    },
+    "next_in_minutes": 45
+   },
+   "stored_policy": {
+    "enabled": true,
+    "interval": 45
+   },
+   "jobs": [
+    {
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w1",
+      "workspace_id": "ws-a"
+     },
+     "status": "pending",
+     "priority": 1,
+     "max_retries": 3,
+     "next_run_at": "2026-09-01T12:45:00+00:00"
+    }
+   ],
+   "commits": 2
+  },
+  {
+   "name": "zero_interval_no_enqueue",
+   "policy": {
+    "enabled": true,
+    "interval": 0
+   },
+   "active_chain_exists": false,
+   "result": {
+    "refresh_policy": {
+     "enabled": true,
+     "interval": 0
+    },
+    "next_in_minutes": null
+   },
+   "stored_policy": {
+    "enabled": true,
+    "interval": 0
+   },
+   "jobs": [],
+   "commits": 1
+  },
+  {
+   "name": "no_interval_key",
+   "policy": {
+    "enabled": true
+   },
+   "active_chain_exists": false,
+   "result": {
+    "refresh_policy": {
+     "enabled": true
+    },
+    "next_in_minutes": null
+   },
+   "stored_policy": {
+    "enabled": true
+   },
+   "jobs": [],
+   "commits": 1
+  },
+  {
+   "name": "tenant_of_chain_is_the_workbooks_workspace",
+   "policy": {
+    "enabled": true,
+    "interval": "daily"
+   },
+   "active_chain_exists": false,
+   "result": {
+    "refresh_policy": {
+     "enabled": true,
+     "interval": "daily"
+    },
+    "next_in_minutes": 1440
+   },
+   "stored_policy": {
+    "enabled": true,
+    "interval": "daily"
+   },
+   "jobs": [
+    {
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w1",
+      "workspace_id": "ws-z"
+     },
+     "status": "pending",
+     "priority": 1,
+     "max_retries": 3,
+     "next_run_at": "2026-09-02T12:00:00+00:00"
+    }
+   ],
+   "commits": 2
+  },
+  {
+   "name": "workbook_not_found",
+   "policy": {
+    "enabled": true,
+    "interval": "daily"
+   },
+   "active_chain_exists": false,
+   "result": {
+    "error": "workbook_not_found"
+   },
+   "stored_policy": null,
+   "jobs": [],
+   "commits": 0
+  }
+ ],
+ "handle_refresh_workbook": [
+  {
+   "name": "reenqueues_when_enabled",
+   "payload": {
+    "workbook_id": "w1",
+    "workspace_id": "ws-a"
+   },
+   "policy": {
+    "enabled": true,
+    "interval": "daily"
+   },
+   "result": {
+    "value": null
+   },
+   "jobs": [
+    {
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w1",
+      "workspace_id": "ws-a"
+     },
+     "status": "pending",
+     "priority": 1,
+     "max_retries": 3,
+     "next_run_at": "2026-09-02T12:00:00+00:00"
+    }
+   ]
+  },
+  {
+   "name": "reason_defaults_scheduled_and_payload_has_workspace",
+   "payload": {
+    "workbook_id": "w1",
+    "workspace_id": "ws-a",
+    "reason": "manual"
+   },
+   "policy": {
+    "enabled": true,
+    "interval": "hourly"
+   },
+   "result": {
+    "value": null
+   },
+   "jobs": [
+    {
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w1",
+      "workspace_id": "ws-a"
+     },
+     "status": "pending",
+     "priority": 1,
+     "max_retries": 3,
+     "next_run_at": "2026-09-01T13:00:00+00:00"
+    }
+   ]
+  },
+  {
+   "name": "disabled_does_not_reenqueue",
+   "payload": {
+    "workbook_id": "w1",
+    "workspace_id": "ws-a"
+   },
+   "policy": {
+    "enabled": false,
+    "interval": "daily"
+   },
+   "result": {
+    "value": null
+   },
+   "jobs": []
+  },
+  {
+   "name": "no_interval_does_not_reenqueue",
+   "payload": {
+    "workbook_id": "w1",
+    "workspace_id": "ws-a"
+   },
+   "policy": {
+    "enabled": true
+   },
+   "result": {
+    "value": null
+   },
+   "jobs": []
+  },
+  {
+   "name": "empty_policy",
+   "payload": {
+    "workbook_id": "w1",
+    "workspace_id": "ws-a"
+   },
+   "policy": {},
+   "result": {
+    "value": null
+   },
+   "jobs": []
+  },
+  {
+   "name": "missing_workspace_fails_loud",
+   "payload": {
+    "workbook_id": "w1"
+   },
+   "policy": {
+    "enabled": true,
+    "interval": "daily"
+   },
+   "result": {
+    "error": "ValueError",
+    "message": "workspace_scope requires a non-empty workspace_id (empty would yield zero rows under RLS and silently mask the bug)."
+   },
+   "jobs": []
+  },
+  {
+   "name": "workbook_gone",
+   "payload": {
+    "workbook_id": "w1",
+    "workspace_id": "ws-a"
+   },
+   "policy": null,
+   "result": {
+    "value": null
+   },
+   "jobs": []
+  }
+ ],
+ "handle_signal_scan": [
+  {
+   "name": "trigger_matching_policy",
+   "payload": {},
+   "workspaces": [
+    "ws-a"
+   ],
+   "failing_workspace": null,
+   "workbooks": {
+    "ws-a": [
+     {
+      "id": "w1",
+      "workspace_id": "ws-a",
+      "refresh_policy": {
+       "enabled": true,
+       "on_signal": [
+        "hiring"
+       ]
+      }
+     },
+     {
+      "id": "w2",
+      "workspace_id": "ws-a",
+      "refresh_policy": {
+       "enabled": true,
+       "on_signal": [
+        "growth"
+       ]
+      }
+     },
+     {
+      "id": "w3",
+      "workspace_id": "ws-a",
+      "refresh_policy": {
+       "enabled": false,
+       "on_signal": [
+        "hiring"
+       ]
+      }
+     },
+     {
+      "id": "w4",
+      "workspace_id": "ws-a",
+      "refresh_policy": {}
+     }
+    ]
+   },
+   "result": {
+    "value": null
+   },
+   "trigger_pass": [
+    {
+     "workspace": "ws-a",
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w1",
+      "reason": "signal",
+      "workspace_id": "ws-a"
+     },
+     "status": "pending",
+     "priority": 2,
+     "max_retries": 3,
+     "next_run_at": "2026-09-01T12:00:00+00:00"
+    },
+    {
+     "workspace": "ws-a",
+     "activity": {
+      "workbook_id": "w1",
+      "kind": "signal",
+      "message": "signal trigger → refresh (hiring)",
+      "workspace_id": "ws-a"
+     }
+    }
+   ],
+   "next_scan": [
+    {
+     "job_type": "signal_scan",
+     "payload": {
+      "interval_minutes": 1440
+     },
+     "fire_key": "signal_scan:2026-09-02T12:00:00+00:00",
+     "next_run_at": "2026-09-02T12:00:00+00:00",
+     "priority": 1,
+     "max_retries": 3,
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "name": "two_workspaces_each_only_own_workbooks",
+   "payload": {},
+   "workspaces": [
+    "ws-a",
+    "ws-b"
+   ],
+   "failing_workspace": null,
+   "workbooks": {
+    "ws-a": [
+     {
+      "id": "w1",
+      "workspace_id": "ws-a",
+      "refresh_policy": {
+       "enabled": true,
+       "on_signal": [
+        "funding"
+       ]
+      }
+     }
+    ],
+    "ws-b": [
+     {
+      "id": "w9",
+      "workspace_id": "ws-b",
+      "refresh_policy": {
+       "enabled": true,
+       "on_signal": [
+        "news",
+        "hiring"
+       ]
+      }
+     }
+    ]
+   },
+   "result": {
+    "value": null
+   },
+   "trigger_pass": [
+    {
+     "workspace": "ws-a",
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w1",
+      "reason": "signal",
+      "workspace_id": "ws-a"
+     },
+     "status": "pending",
+     "priority": 2,
+     "max_retries": 3,
+     "next_run_at": "2026-09-01T12:00:00+00:00"
+    },
+    {
+     "workspace": "ws-a",
+     "activity": {
+      "workbook_id": "w1",
+      "kind": "signal",
+      "message": "signal trigger → refresh (funding)",
+      "workspace_id": "ws-a"
+     }
+    },
+    {
+     "workspace": "ws-b",
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w9",
+      "reason": "signal",
+      "workspace_id": "ws-b"
+     },
+     "status": "pending",
+     "priority": 2,
+     "max_retries": 3,
+     "next_run_at": "2026-09-01T12:00:00+00:00"
+    },
+    {
+     "workspace": "ws-b",
+     "activity": {
+      "workbook_id": "w9",
+      "kind": "signal",
+      "message": "signal trigger → refresh (hiring, news)",
+      "workspace_id": "ws-b"
+     }
+    }
+   ],
+   "next_scan": [
+    {
+     "job_type": "signal_scan",
+     "payload": {
+      "interval_minutes": 1440
+     },
+     "fire_key": "signal_scan:2026-09-02T12:00:00+00:00",
+     "next_run_at": "2026-09-02T12:00:00+00:00",
+     "priority": 1,
+     "max_retries": 3,
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "name": "belt_filter_excludes_foreign_workspace_rows",
+   "payload": {},
+   "workspaces": [
+    "ws-a"
+   ],
+   "failing_workspace": null,
+   "workbooks": {
+    "ws-a": [
+     {
+      "id": "w1",
+      "workspace_id": "ws-a",
+      "refresh_policy": {
+       "enabled": true,
+       "on_signal": [
+        "hiring"
+       ]
+      }
+     },
+     {
+      "id": "wx",
+      "workspace_id": "ws-other",
+      "refresh_policy": {
+       "enabled": true,
+       "on_signal": [
+        "hiring"
+       ]
+      }
+     }
+    ]
+   },
+   "result": {
+    "value": null
+   },
+   "trigger_pass": [
+    {
+     "workspace": "ws-a",
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w1",
+      "reason": "signal",
+      "workspace_id": "ws-a"
+     },
+     "status": "pending",
+     "priority": 2,
+     "max_retries": 3,
+     "next_run_at": "2026-09-01T12:00:00+00:00"
+    },
+    {
+     "workspace": "ws-a",
+     "activity": {
+      "workbook_id": "w1",
+      "kind": "signal",
+      "message": "signal trigger → refresh (hiring)",
+      "workspace_id": "ws-a"
+     }
+    }
+   ],
+   "next_scan": [
+    {
+     "job_type": "signal_scan",
+     "payload": {
+      "interval_minutes": 1440
+     },
+     "fire_key": "signal_scan:2026-09-02T12:00:00+00:00",
+     "next_run_at": "2026-09-02T12:00:00+00:00",
+     "priority": 1,
+     "max_retries": 3,
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "name": "one_failing_workspace_does_not_abort_others",
+   "payload": {},
+   "workspaces": [
+    "ws-a",
+    "ws-bad",
+    "ws-b"
+   ],
+   "failing_workspace": "ws-bad",
+   "workbooks": {
+    "ws-a": [
+     {
+      "id": "w1",
+      "workspace_id": "ws-a",
+      "refresh_policy": {
+       "enabled": true,
+       "on_signal": [
+        "hiring"
+       ]
+      }
+     }
+    ],
+    "ws-b": [
+     {
+      "id": "w9",
+      "workspace_id": "ws-b",
+      "refresh_policy": {
+       "enabled": true,
+       "on_signal": [
+        "hiring"
+       ]
+      }
+     }
+    ]
+   },
+   "result": {
+    "value": null
+   },
+   "trigger_pass": [
+    {
+     "workspace": "ws-a",
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w1",
+      "reason": "signal",
+      "workspace_id": "ws-a"
+     },
+     "status": "pending",
+     "priority": 2,
+     "max_retries": 3,
+     "next_run_at": "2026-09-01T12:00:00+00:00"
+    },
+    {
+     "workspace": "ws-a",
+     "activity": {
+      "workbook_id": "w1",
+      "kind": "signal",
+      "message": "signal trigger → refresh (hiring)",
+      "workspace_id": "ws-a"
+     }
+    },
+    {
+     "workspace": "ws-b",
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w9",
+      "reason": "signal",
+      "workspace_id": "ws-b"
+     },
+     "status": "pending",
+     "priority": 2,
+     "max_retries": 3,
+     "next_run_at": "2026-09-01T12:00:00+00:00"
+    },
+    {
+     "workspace": "ws-b",
+     "activity": {
+      "workbook_id": "w9",
+      "kind": "signal",
+      "message": "signal trigger → refresh (hiring)",
+      "workspace_id": "ws-b"
+     }
+    }
+   ],
+   "next_scan": [
+    {
+     "job_type": "signal_scan",
+     "payload": {
+      "interval_minutes": 1440
+     },
+     "fire_key": "signal_scan:2026-09-02T12:00:00+00:00",
+     "next_run_at": "2026-09-02T12:00:00+00:00",
+     "priority": 1,
+     "max_retries": 3,
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "name": "custom_signal_types_payload",
+   "payload": {
+    "signal_types": [
+     "tech_change"
+    ]
+   },
+   "workspaces": [
+    "ws-a"
+   ],
+   "failing_workspace": null,
+   "workbooks": {
+    "ws-a": [
+     {
+      "id": "w1",
+      "workspace_id": "ws-a",
+      "refresh_policy": {
+       "enabled": true,
+       "on_signal": [
+        "hiring"
+       ]
+      }
+     },
+     {
+      "id": "w2",
+      "workspace_id": "ws-a",
+      "refresh_policy": {
+       "enabled": true,
+       "on_signal": [
+        "tech_change",
+        "x"
+       ]
+      }
+     }
+    ]
+   },
+   "result": {
+    "value": null
+   },
+   "trigger_pass": [
+    {
+     "workspace": "ws-a",
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w2",
+      "reason": "signal",
+      "workspace_id": "ws-a"
+     },
+     "status": "pending",
+     "priority": 2,
+     "max_retries": 3,
+     "next_run_at": "2026-09-01T12:00:00+00:00"
+    },
+    {
+     "workspace": "ws-a",
+     "activity": {
+      "workbook_id": "w2",
+      "kind": "signal",
+      "message": "signal trigger → refresh (tech_change)",
+      "workspace_id": "ws-a"
+     }
+    }
+   ],
+   "next_scan": [
+    {
+     "job_type": "signal_scan",
+     "payload": {
+      "interval_minutes": 1440
+     },
+     "fire_key": "signal_scan:2026-09-02T12:00:00+00:00",
+     "next_run_at": "2026-09-02T12:00:00+00:00",
+     "priority": 1,
+     "max_retries": 3,
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "name": "empty_signal_types_defaults",
+   "payload": {
+    "signal_types": []
+   },
+   "workspaces": [
+    "ws-a"
+   ],
+   "failing_workspace": null,
+   "workbooks": {
+    "ws-a": [
+     {
+      "id": "w1",
+      "workspace_id": "ws-a",
+      "refresh_policy": {
+       "enabled": true,
+       "on_signal": [
+        "news"
+       ]
+      }
+     }
+    ]
+   },
+   "result": {
+    "value": null
+   },
+   "trigger_pass": [
+    {
+     "workspace": "ws-a",
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w1",
+      "reason": "signal",
+      "workspace_id": "ws-a"
+     },
+     "status": "pending",
+     "priority": 2,
+     "max_retries": 3,
+     "next_run_at": "2026-09-01T12:00:00+00:00"
+    },
+    {
+     "workspace": "ws-a",
+     "activity": {
+      "workbook_id": "w1",
+      "kind": "signal",
+      "message": "signal trigger → refresh (news)",
+      "workspace_id": "ws-a"
+     }
+    }
+   ],
+   "next_scan": [
+    {
+     "job_type": "signal_scan",
+     "payload": {
+      "interval_minutes": 1440
+     },
+     "fire_key": "signal_scan:2026-09-02T12:00:00+00:00",
+     "next_run_at": "2026-09-02T12:00:00+00:00",
+     "priority": 1,
+     "max_retries": 3,
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "name": "custom_interval_minutes",
+   "payload": {
+    "interval_minutes": 90
+   },
+   "workspaces": [],
+   "failing_workspace": null,
+   "workbooks": {},
+   "result": {
+    "value": null
+   },
+   "trigger_pass": [],
+   "next_scan": [
+    {
+     "job_type": "signal_scan",
+     "payload": {
+      "interval_minutes": 90
+     },
+     "fire_key": "signal_scan:2026-09-01T13:30:00+00:00",
+     "next_run_at": "2026-09-01T13:30:00+00:00",
+     "priority": 1,
+     "max_retries": 3,
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "name": "string_interval_minutes_coerced",
+   "payload": {
+    "interval_minutes": "30"
+   },
+   "workspaces": [],
+   "failing_workspace": null,
+   "workbooks": {},
+   "result": {
+    "value": null
+   },
+   "trigger_pass": [],
+   "next_scan": [
+    {
+     "job_type": "signal_scan",
+     "payload": {
+      "interval_minutes": 30
+     },
+     "fire_key": "signal_scan:2026-09-01T12:30:00+00:00",
+     "next_run_at": "2026-09-01T12:30:00+00:00",
+     "priority": 1,
+     "max_retries": 3,
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "name": "scan_failure_is_swallowed",
+   "payload": {},
+   "workspaces": [
+    "ws-a"
+   ],
+   "failing_workspace": null,
+   "workbooks": {
+    "ws-a": [
+     {
+      "id": "w1",
+      "workspace_id": "ws-a",
+      "refresh_policy": {
+       "enabled": true,
+       "on_signal": [
+        "hiring"
+       ]
+      }
+     }
+    ]
+   },
+   "result": {
+    "value": null
+   },
+   "trigger_pass": [
+    {
+     "workspace": "ws-a",
+     "type": "refresh_workbook",
+     "payload": {
+      "workbook_id": "w1",
+      "reason": "signal",
+      "workspace_id": "ws-a"
+     },
+     "status": "pending",
+     "priority": 2,
+     "max_retries": 3,
+     "next_run_at": "2026-09-01T12:00:00+00:00"
+    },
+    {
+     "workspace": "ws-a",
+     "activity": {
+      "workbook_id": "w1",
+      "kind": "signal",
+      "message": "signal trigger → refresh (hiring)",
+      "workspace_id": "ws-a"
+     }
+    }
+   ],
+   "next_scan": [
+    {
+     "job_type": "signal_scan",
+     "payload": {
+      "interval_minutes": 1440
+     },
+     "fire_key": "signal_scan:2026-09-02T12:00:00+00:00",
+     "next_run_at": "2026-09-02T12:00:00+00:00",
+     "priority": 1,
+     "max_retries": 3,
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "name": "no_workspaces",
+   "payload": {},
+   "workspaces": [],
+   "failing_workspace": null,
+   "workbooks": {},
+   "result": {
+    "value": null
+   },
+   "trigger_pass": [],
+   "next_scan": [
+    {
+     "job_type": "signal_scan",
+     "payload": {
+      "interval_minutes": 1440
+     },
+     "fire_key": "signal_scan:2026-09-02T12:00:00+00:00",
+     "next_run_at": "2026-09-02T12:00:00+00:00",
+     "priority": 1,
+     "max_retries": 3,
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "name": "list_workspaces_failure",
+   "payload": {},
+   "workspaces": "RAISE",
+   "failing_workspace": null,
+   "workbooks": {},
+   "result": {
+    "value": null
+   },
+   "trigger_pass": [],
+   "next_scan": [
+    {
+     "job_type": "signal_scan",
+     "payload": {
+      "interval_minutes": 1440
+     },
+     "fire_key": "signal_scan:2026-09-02T12:00:00+00:00",
+     "next_run_at": "2026-09-02T12:00:00+00:00",
+     "priority": 1,
+     "max_retries": 3,
+     "executor": "python"
+    }
+   ]
+  }
+ ],
+ "notes": [
+  "handle_signal_scan activity messages join `on_signal & fired_types` (a Python set): the order of the signal types in the message is hash-order dependent; compare as a set. Vectors are generated with PYTHONHASHSEED=0."
+ ]
+}

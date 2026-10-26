@@ -1,0 +1,4546 @@
+{
+ "cases": [
+  {
+   "name": "empty",
+   "columns": [],
+   "changed": [
+    "a"
+   ],
+   "refs": {},
+   "cycle_blocked": [],
+   "topo_order": [],
+   "independent": [],
+   "downstream": {
+    "value": []
+   },
+   "downstream_not_output": {
+    "value": []
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {}
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {}
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {}
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {}
+    }
+   ],
+   "referencing": {}
+  },
+  {
+   "name": "single_lead_field",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": []
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a"
+   ],
+   "independent": [
+    "a"
+   ],
+   "downstream": {
+    "value": []
+   },
+   "downstream_not_output": {
+    "value": []
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": []
+   }
+  },
+  {
+   "name": "chain_in_order",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "c",
+     "name": "c",
+     "type": "ai_formula",
+     "prompt": "{b}"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [],
+    "b": [
+     "a"
+    ],
+    "c": [
+     "b"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b",
+    "c"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "b",
+     "c"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b",
+     "c"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": [
+        "b"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": [
+        "b"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": [
+        "b"
+       ]
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "b"
+    ],
+    "b": [
+     "c"
+    ],
+    "c": []
+   }
+  },
+  {
+   "name": "chain_reversed_config_order",
+   "columns": [
+    {
+     "id": "c",
+     "name": "c",
+     "type": "ai_formula",
+     "prompt": "{b}"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "c": [
+     "b"
+    ],
+    "b": [
+     "a"
+    ],
+    "a": []
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b",
+    "c"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "b",
+     "c"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b",
+     "c"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "c": {
+       "value": [
+        "b"
+       ]
+      },
+      "b": {
+       "value": []
+      },
+      "a": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "c": {
+       "value": [
+        "b"
+       ]
+      },
+      "b": {
+       "value": []
+      },
+      "a": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "c": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "a": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "c": {
+       "value": [
+        "b"
+       ]
+      },
+      "b": {
+       "value": []
+      },
+      "a": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "c": [],
+    "b": [
+     "c"
+    ],
+    "a": [
+     "b"
+    ]
+   }
+  },
+  {
+   "name": "diamond",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "c",
+     "name": "c",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "d",
+     "name": "d",
+     "type": "ai_formula",
+     "prompt": "{b} {c}"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [],
+    "b": [
+     "a"
+    ],
+    "c": [
+     "a"
+    ],
+    "d": [
+     "b",
+     "c"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b",
+    "c",
+    "d"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "b",
+     "c",
+     "d"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b",
+     "c",
+     "d"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      },
+      "d": {
+       "value": [
+        "b",
+        "c"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      },
+      "d": {
+       "value": [
+        "b",
+        "c"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      },
+      "d": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      },
+      "d": {
+       "value": [
+        "b",
+        "c"
+       ]
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "b",
+     "c"
+    ],
+    "b": [
+     "d"
+    ],
+    "c": [
+     "d"
+    ],
+    "d": []
+   }
+  },
+  {
+   "name": "independent_pair",
+   "columns": [
+    {
+     "id": "x",
+     "name": "x",
+     "type": "ai_formula",
+     "prompt": "x"
+    },
+    {
+     "id": "y",
+     "name": "y",
+     "type": "ai_formula",
+     "prompt": "y"
+    }
+   ],
+   "changed": [
+    "x"
+   ],
+   "refs": {
+    "x": [],
+    "y": []
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "x",
+    "y"
+   ],
+   "independent": [
+    "x",
+    "y"
+   ],
+   "downstream": {
+    "value": []
+   },
+   "downstream_not_output": {
+    "value": []
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "x": {
+       "value": []
+      },
+      "y": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "x": {
+       "value": []
+      },
+      "y": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "x": {
+       "value": []
+      },
+      "y": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "x": {
+       "value": []
+      },
+      "y": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "x": [],
+    "y": []
+   }
+  },
+  {
+   "name": "ref_by_name_case_insensitive",
+   "columns": [
+    {
+     "id": "c1",
+     "name": "Company Name",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{company name}"
+    }
+   ],
+   "changed": [
+    "c1"
+   ],
+   "refs": {
+    "c1": [],
+    "b": [
+     "company name"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "c1",
+    "b"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "b"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "c1": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "c1": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "c1": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "c1": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "c1": [
+     "b"
+    ],
+    "b": []
+   }
+  },
+  {
+   "name": "ref_underscore_alias",
+   "columns": [
+    {
+     "id": "c1",
+     "name": "Company Name",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    }
+   ],
+   "changed": [
+    "c1"
+   ],
+   "refs": {
+    "c1": [],
+    "b": [
+     "company_name"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "c1",
+    "b"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "b"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "c1": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "c1": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "c1": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "c1": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "c1": [
+     "b"
+    ],
+    "b": []
+   }
+  },
+  {
+   "name": "ref_id_beats_name",
+   "columns": [
+    {
+     "id": "x",
+     "name": "y",
+     "type": "lead_field"
+    },
+    {
+     "id": "y",
+     "name": "Z",
+     "type": "lead_field"
+    },
+    {
+     "id": "q",
+     "name": "q",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    }
+   ],
+   "changed": [
+    "y"
+   ],
+   "refs": {
+    "x": [],
+    "y": [],
+    "q": [
+     "y"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "x",
+    "y",
+    "q"
+   ],
+   "independent": [
+    "x"
+   ],
+   "downstream": {
+    "value": [
+     "q"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "q"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "x": {
+       "value": []
+      },
+      "y": {
+       "value": []
+      },
+      "q": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "x": {
+       "value": []
+      },
+      "y": {
+       "value": []
+      },
+      "q": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "x": {
+       "value": []
+      },
+      "y": {
+       "value": []
+      },
+      "q": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "x": {
+       "value": []
+      },
+      "y": {
+       "value": []
+      },
+      "q": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "x": [],
+    "y": [
+     "q"
+    ],
+    "q": []
+   }
+  },
+  {
+   "name": "duplicate_display_names_ambiguous",
+   "columns": [
+    {
+     "id": "a",
+     "name": "Dup",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "Dup",
+     "type": "lead_field"
+    },
+    {
+     "id": "c",
+     "name": "c",
+     "type": "ai_formula",
+     "prompt": "{dup}"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [],
+    "b": [],
+    "c": [
+     "dup"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b",
+    "c"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "c"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "c"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "c"
+    ],
+    "b": [
+     "c"
+    ],
+    "c": []
+   }
+  },
+  {
+   "name": "self_reference",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [
+     "a"
+    ]
+   },
+   "cycle_blocked": [
+    "a"
+   ],
+   "topo_order": [
+    "a"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "a"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "a"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": []
+   }
+  },
+  {
+   "name": "self_condition_is_not_a_cycle",
+   "columns": [
+    {
+     "id": "e",
+     "name": "Email",
+     "type": "enrichment",
+     "condition": "{Email} == \"\""
+    }
+   ],
+   "changed": [
+    "e"
+   ],
+   "refs": {
+    "e": [
+     "Email"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "e"
+   ],
+   "independent": [
+    "e"
+   ],
+   "downstream": {
+    "value": [
+     "e"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "e"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "e": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "e": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "e": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "e": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "e": []
+   }
+  },
+  {
+   "name": "two_cycle",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "ai_formula",
+     "prompt": "{b}"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [
+     "b"
+    ],
+    "b": [
+     "a"
+    ]
+   },
+   "cycle_blocked": [
+    "a",
+    "b"
+   ],
+   "topo_order": [
+    "a",
+    "b"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "b"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": [
+        "b"
+       ]
+      },
+      "b": {
+       "value": [
+        "a"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": [
+        "b"
+       ]
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": [
+        "b"
+       ]
+      },
+      "b": {
+       "value": [
+        "a"
+       ]
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "b"
+    ],
+    "b": [
+     "a"
+    ]
+   }
+  },
+  {
+   "name": "three_cycle_with_downstream",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "ai_formula",
+     "prompt": "{c}"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "c",
+     "name": "c",
+     "type": "ai_formula",
+     "prompt": "{b}"
+    },
+    {
+     "id": "d",
+     "name": "d",
+     "type": "ai_formula",
+     "prompt": "{c}"
+    },
+    {
+     "id": "e",
+     "name": "e",
+     "type": "ai_formula",
+     "prompt": "none"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [
+     "c"
+    ],
+    "b": [
+     "a"
+    ],
+    "c": [
+     "b"
+    ],
+    "d": [
+     "c"
+    ],
+    "e": []
+   },
+   "cycle_blocked": [
+    "a",
+    "b",
+    "c",
+    "d"
+   ],
+   "topo_order": [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e"
+   ],
+   "independent": [
+    "e"
+   ],
+   "downstream": {
+    "value": [
+     "b",
+     "c",
+     "d"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b",
+     "c",
+     "d"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": [
+        "c"
+       ]
+      },
+      "b": {
+       "value": [
+        "a"
+       ]
+      },
+      "c": {
+       "value": [
+        "b"
+       ]
+      },
+      "d": {
+       "value": [
+        "c"
+       ]
+      },
+      "e": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": [
+        "c"
+       ]
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": [
+        "b"
+       ]
+      },
+      "d": {
+       "value": [
+        "c"
+       ]
+      },
+      "e": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      },
+      "d": {
+       "value": []
+      },
+      "e": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": [
+        "c"
+       ]
+      },
+      "b": {
+       "value": [
+        "a"
+       ]
+      },
+      "c": {
+       "value": [
+        "b"
+       ]
+      },
+      "d": {
+       "value": [
+        "c"
+       ]
+      },
+      "e": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "b"
+    ],
+    "b": [
+     "c"
+    ],
+    "c": [
+     "a",
+     "d"
+    ],
+    "d": [],
+    "e": []
+   }
+  },
+  {
+   "name": "cycle_through_condition_only",
+   "columns": [
+    {
+     "id": "l",
+     "name": "l",
+     "type": "lead_field"
+    },
+    {
+     "id": "a",
+     "name": "a",
+     "type": "ai_formula",
+     "prompt": "x",
+     "condition": "{b} == 1"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{l}"
+    }
+   ],
+   "changed": [
+    "l"
+   ],
+   "refs": {
+    "l": [],
+    "a": [
+     "b"
+    ],
+    "b": [
+     "l"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "l",
+    "b",
+    "a"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "b",
+     "a"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b",
+     "a"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "l": {
+       "value": []
+      },
+      "a": {
+       "value": [
+        "b"
+       ]
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "l": {
+       "value": []
+      },
+      "a": {
+       "value": [
+        "b"
+       ]
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "l": {
+       "value": []
+      },
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "l": {
+       "value": []
+      },
+      "a": {
+       "value": [
+        "b"
+       ]
+      },
+      "b": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "l": [
+     "b"
+    ],
+    "a": [],
+    "b": [
+     "a"
+    ]
+   }
+  },
+  {
+   "name": "lead_field_cycle_not_executable",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "lead_field",
+     "prompt": "{b}"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "lead_field",
+     "prompt": "{a}"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [
+     "b"
+    ],
+    "b": [
+     "a"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "b"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "b"
+    ],
+    "b": [
+     "a"
+    ]
+   }
+  },
+  {
+   "name": "formula_refs_skip_literals",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "lead_field"
+    },
+    {
+     "id": "f",
+     "name": "F",
+     "type": "formula",
+     "formula": "{a} + \"{b}\" + '{b}' # {b}\n"
+    }
+   ],
+   "changed": [
+    "b"
+   ],
+   "refs": {
+    "a": [],
+    "b": [],
+    "f": [
+     "a"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b",
+    "f"
+   ],
+   "independent": [
+    "b"
+   ],
+   "downstream": {
+    "value": []
+   },
+   "downstream_not_output": {
+    "value": []
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "f": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "f": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "f": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "f": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "f"
+    ],
+    "b": [],
+    "f": []
+   }
+  },
+  {
+   "name": "formula_cycle_hidden_in_literal_not_a_cycle",
+   "columns": [
+    {
+     "id": "f",
+     "name": "F",
+     "type": "formula",
+     "formula": "\"{g}\""
+    },
+    {
+     "id": "g",
+     "name": "G",
+     "type": "formula",
+     "formula": "{f}"
+    }
+   ],
+   "changed": [
+    "f"
+   ],
+   "refs": {
+    "f": [],
+    "g": [
+     "f"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "f",
+    "g"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "g"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "g"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "f": {
+       "value": []
+      },
+      "g": {
+       "value": [
+        "f"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "f": {
+       "value": []
+      },
+      "g": {
+       "value": [
+        "f"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "f": {
+       "value": []
+      },
+      "g": {
+       "value": [
+        "f"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "f": {
+       "value": []
+      },
+      "g": {
+       "value": [
+        "f"
+       ]
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "f": [
+     "g"
+    ],
+    "g": []
+   }
+  },
+  {
+   "name": "formula_real_cycle",
+   "columns": [
+    {
+     "id": "f",
+     "name": "F",
+     "type": "formula",
+     "formula": "{g}"
+    },
+    {
+     "id": "g",
+     "name": "G",
+     "type": "formula",
+     "formula": "{f}"
+    }
+   ],
+   "changed": [
+    "f"
+   ],
+   "refs": {
+    "f": [
+     "g"
+    ],
+    "g": [
+     "f"
+    ]
+   },
+   "cycle_blocked": [
+    "f",
+    "g"
+   ],
+   "topo_order": [
+    "f",
+    "g"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "g"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "g"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "f": {
+       "value": [
+        "g"
+       ]
+      },
+      "g": {
+       "value": [
+        "f"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "f": {
+       "value": [
+        "g"
+       ]
+      },
+      "g": {
+       "value": [
+        "f"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "f": {
+       "value": [
+        "g"
+       ]
+      },
+      "g": {
+       "value": [
+        "f"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "f": {
+       "value": [
+        "g"
+       ]
+      },
+      "g": {
+       "value": [
+        "f"
+       ]
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "f": [
+     "g"
+    ],
+    "g": [
+     "f"
+    ]
+   }
+  },
+  {
+   "name": "http_fields_headers_body",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "lead_field"
+    },
+    {
+     "id": "c",
+     "name": "c",
+     "type": "lead_field"
+    },
+    {
+     "id": "d",
+     "name": "d",
+     "type": "lead_field"
+    },
+    {
+     "id": "h",
+     "name": "h",
+     "type": "http",
+     "http_url": "https://x/{a}",
+     "http_headers": {
+      "k": "{b}",
+      "n": {
+       "m": [
+        "{c}"
+       ]
+      }
+     },
+     "http_body": {
+      "q": "{d}"
+     }
+    }
+   ],
+   "changed": [
+    "c"
+   ],
+   "refs": {
+    "a": [],
+    "b": [],
+    "c": [],
+    "d": [],
+    "h": [
+     "a",
+     "b",
+     "c",
+     "d"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b",
+    "c",
+    "d",
+    "h"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "h"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "h"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      },
+      "d": {
+       "value": []
+      },
+      "h": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      },
+      "d": {
+       "value": []
+      },
+      "h": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      },
+      "d": {
+       "value": []
+      },
+      "h": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "c": {
+       "value": []
+      },
+      "d": {
+       "value": []
+      },
+      "h": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "h"
+    ],
+    "b": [
+     "h"
+    ],
+    "c": [
+     "h"
+    ],
+    "d": [
+     "h"
+    ],
+    "h": []
+   }
+  },
+  {
+   "name": "input_columns_and_goal",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "lead_field"
+    },
+    {
+     "id": "x",
+     "name": "x",
+     "type": "agent",
+     "goal": "find {a}",
+     "input_columns": [
+      "a",
+      " B ",
+      "",
+      3
+     ]
+    }
+   ],
+   "changed": [
+    "b"
+   ],
+   "refs": {
+    "a": [],
+    "b": [],
+    "x": [
+     "B",
+     "a"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b",
+    "x"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "x"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "x"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "x": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "x": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "x": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "x": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "x"
+    ],
+    "b": [
+     "x"
+    ],
+    "x": []
+   }
+  },
+  {
+   "name": "output_sheets_columns",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "lead_field"
+    },
+    {
+     "id": "o",
+     "name": "O",
+     "type": "output",
+     "destination": "Sheets",
+     "destination_config": {
+      "columns": [
+       "a",
+       " B ",
+       5
+      ]
+     }
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [],
+    "b": [],
+    "o": [
+     "B",
+     "a"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b",
+    "o"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "o"
+    ]
+   },
+   "downstream_not_output": {
+    "value": []
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "o": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "o": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "o": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "o": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "o"
+    ],
+    "b": [
+     "o"
+    ],
+    "o": []
+   }
+  },
+  {
+   "name": "output_crm_field_map",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "lead_field"
+    },
+    {
+     "id": "o",
+     "name": "O",
+     "type": "output",
+     "destination": "crm",
+     "destination_config": {
+      "field_map": {
+       "a": "x",
+       "B": "{b}"
+      }
+     }
+    }
+   ],
+   "changed": [
+    "b"
+   ],
+   "refs": {
+    "a": [],
+    "b": [],
+    "o": [
+     "B",
+     "a",
+     "b"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b",
+    "o"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "o"
+    ]
+   },
+   "downstream_not_output": {
+    "value": []
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "o": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "o": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "o": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "o": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "o"
+    ],
+    "b": [
+     "o"
+    ],
+    "o": []
+   }
+  },
+  {
+   "name": "output_instantly_placeholder",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "lead_field"
+    },
+    {
+     "id": "o",
+     "name": "O",
+     "type": "output",
+     "destination": "instantly",
+     "destination_config": {
+      "field_map": {
+       "{a} {b}": "x",
+       "b": "y"
+      }
+     }
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [],
+    "b": [],
+    "o": [
+     "a",
+     "b"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b",
+    "o"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "o"
+    ]
+   },
+   "downstream_not_output": {
+    "value": []
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "o": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "o": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "o": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "o": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "o"
+    ],
+    "b": [
+     "o"
+    ],
+    "o": []
+   }
+  },
+  {
+   "name": "output_cycle_with_producer",
+   "columns": [
+    {
+     "id": "o",
+     "name": "O",
+     "type": "output",
+     "destination": "crm",
+     "destination_config": {
+      "field_map": {
+       "w": "x"
+      }
+     }
+    },
+    {
+     "id": "w",
+     "name": "W",
+     "type": "ai_formula",
+     "prompt": "{o}"
+    }
+   ],
+   "changed": [
+    "w"
+   ],
+   "refs": {
+    "o": [
+     "w"
+    ],
+    "w": [
+     "o"
+    ]
+   },
+   "cycle_blocked": [
+    "o",
+    "w"
+   ],
+   "topo_order": [
+    "o",
+    "w"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "o",
+     "w"
+    ]
+   },
+   "downstream_not_output": {
+    "value": []
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "o": {
+       "value": [
+        "w"
+       ]
+      },
+      "w": {
+       "value": [
+        "o"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "o": {
+       "value": [
+        "w"
+       ]
+      },
+      "w": {
+       "value": [
+        "o"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "o": {
+       "value": [
+        "w"
+       ]
+      },
+      "w": {
+       "value": [
+        "o"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "o": {
+       "value": [
+        "w"
+       ]
+      },
+      "w": {
+       "value": [
+        "o"
+       ]
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "o": [
+     "w"
+    ],
+    "w": [
+     "o"
+    ]
+   }
+  },
+  {
+   "name": "null_and_wrong_types",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": null,
+     "input_columns": null,
+     "http_headers": null
+    },
+    {
+     "id": "b",
+     "name": null,
+     "type": "ai_formula",
+     "prompt": 5,
+     "formula": [
+      "x"
+     ],
+     "input_columns": []
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [],
+    "b": []
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b"
+   ],
+   "independent": [
+    "a",
+    "b"
+   ],
+   "downstream": {
+    "value": []
+   },
+   "downstream_not_output": {
+    "value": []
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [],
+    "b": []
+   }
+  },
+  {
+   "name": "non_executable_downstream_of_cycle",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "ai_formula",
+     "prompt": "{b}"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "lead_field"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [
+     "b"
+    ],
+    "b": [
+     "a"
+    ],
+    "z": []
+   },
+   "cycle_blocked": [
+    "a",
+    "b"
+   ],
+   "topo_order": [
+    "a",
+    "b",
+    "z"
+   ],
+   "independent": [
+    "z"
+   ],
+   "downstream": {
+    "value": [
+     "b"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": [
+        "b"
+       ]
+      },
+      "b": {
+       "value": [
+        "a"
+       ]
+      },
+      "z": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": [
+        "b"
+       ]
+      },
+      "b": {
+       "value": []
+      },
+      "z": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "z": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": [
+        "b"
+       ]
+      },
+      "b": {
+       "value": [
+        "a"
+       ]
+      },
+      "z": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "b"
+    ],
+    "b": [
+     "a"
+    ],
+    "z": []
+   }
+  },
+  {
+   "name": "wide_fanout_stable_order",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    },
+    {
+     "id": "c0",
+     "name": "c0",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "c1",
+     "name": "c1",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "c2",
+     "name": "c2",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "c3",
+     "name": "c3",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "c4",
+     "name": "c4",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "c5",
+     "name": "c5",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "c6",
+     "name": "c6",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "c7",
+     "name": "c7",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [],
+    "c0": [
+     "a"
+    ],
+    "c1": [
+     "a"
+    ],
+    "c2": [
+     "a"
+    ],
+    "c3": [
+     "a"
+    ],
+    "c4": [
+     "a"
+    ],
+    "c5": [
+     "a"
+    ],
+    "c6": [
+     "a"
+    ],
+    "c7": [
+     "a"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "c0",
+    "c1",
+    "c2",
+    "c3",
+    "c4",
+    "c5",
+    "c6",
+    "c7"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "c0",
+     "c1",
+     "c2",
+     "c3",
+     "c4",
+     "c5",
+     "c6",
+     "c7"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "c0",
+     "c1",
+     "c2",
+     "c3",
+     "c4",
+     "c5",
+     "c6",
+     "c7"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "c0": {
+       "value": []
+      },
+      "c1": {
+       "value": []
+      },
+      "c2": {
+       "value": []
+      },
+      "c3": {
+       "value": []
+      },
+      "c4": {
+       "value": []
+      },
+      "c5": {
+       "value": []
+      },
+      "c6": {
+       "value": []
+      },
+      "c7": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "c0": {
+       "value": []
+      },
+      "c1": {
+       "value": []
+      },
+      "c2": {
+       "value": []
+      },
+      "c3": {
+       "value": []
+      },
+      "c4": {
+       "value": []
+      },
+      "c5": {
+       "value": []
+      },
+      "c6": {
+       "value": []
+      },
+      "c7": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "c0": {
+       "value": []
+      },
+      "c1": {
+       "value": []
+      },
+      "c2": {
+       "value": []
+      },
+      "c3": {
+       "value": []
+      },
+      "c4": {
+       "value": []
+      },
+      "c5": {
+       "value": []
+      },
+      "c6": {
+       "value": []
+      },
+      "c7": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "c0": {
+       "value": []
+      },
+      "c1": {
+       "value": []
+      },
+      "c2": {
+       "value": []
+      },
+      "c3": {
+       "value": []
+      },
+      "c4": {
+       "value": []
+      },
+      "c5": {
+       "value": []
+      },
+      "c6": {
+       "value": []
+      },
+      "c7": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "c0",
+     "c1",
+     "c2",
+     "c3",
+     "c4",
+     "c5",
+     "c6",
+     "c7"
+    ],
+    "c0": [],
+    "c1": [],
+    "c2": [],
+    "c3": [],
+    "c4": [],
+    "c5": [],
+    "c6": [],
+    "c7": []
+   }
+  },
+  {
+   "name": "reverse_dependency_chain_8",
+   "columns": [
+    {
+     "id": "c0",
+     "name": "c0",
+     "type": "ai_formula",
+     "prompt": "{c1}"
+    },
+    {
+     "id": "c1",
+     "name": "c1",
+     "type": "ai_formula",
+     "prompt": "{c2}"
+    },
+    {
+     "id": "c2",
+     "name": "c2",
+     "type": "ai_formula",
+     "prompt": "{c3}"
+    },
+    {
+     "id": "c3",
+     "name": "c3",
+     "type": "ai_formula",
+     "prompt": "{c4}"
+    },
+    {
+     "id": "c4",
+     "name": "c4",
+     "type": "ai_formula",
+     "prompt": "{c5}"
+    },
+    {
+     "id": "c5",
+     "name": "c5",
+     "type": "ai_formula",
+     "prompt": "{c6}"
+    },
+    {
+     "id": "c6",
+     "name": "c6",
+     "type": "ai_formula",
+     "prompt": "{c7}"
+    },
+    {
+     "id": "c7",
+     "name": "c7",
+     "type": "lead_field"
+    }
+   ],
+   "changed": [
+    "c7"
+   ],
+   "refs": {
+    "c0": [
+     "c1"
+    ],
+    "c1": [
+     "c2"
+    ],
+    "c2": [
+     "c3"
+    ],
+    "c3": [
+     "c4"
+    ],
+    "c4": [
+     "c5"
+    ],
+    "c5": [
+     "c6"
+    ],
+    "c6": [
+     "c7"
+    ],
+    "c7": []
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "c7",
+    "c6",
+    "c5",
+    "c4",
+    "c3",
+    "c2",
+    "c1",
+    "c0"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "c6",
+     "c5",
+     "c4",
+     "c3",
+     "c2",
+     "c1",
+     "c0"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "c6",
+     "c5",
+     "c4",
+     "c3",
+     "c2",
+     "c1",
+     "c0"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "c0": {
+       "value": [
+        "c1"
+       ]
+      },
+      "c1": {
+       "value": [
+        "c2"
+       ]
+      },
+      "c2": {
+       "value": [
+        "c3"
+       ]
+      },
+      "c3": {
+       "value": [
+        "c4"
+       ]
+      },
+      "c4": {
+       "value": [
+        "c5"
+       ]
+      },
+      "c5": {
+       "value": [
+        "c6"
+       ]
+      },
+      "c6": {
+       "value": []
+      },
+      "c7": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "c0": {
+       "value": [
+        "c1"
+       ]
+      },
+      "c1": {
+       "value": [
+        "c2"
+       ]
+      },
+      "c2": {
+       "value": [
+        "c3"
+       ]
+      },
+      "c3": {
+       "value": [
+        "c4"
+       ]
+      },
+      "c4": {
+       "value": [
+        "c5"
+       ]
+      },
+      "c5": {
+       "value": [
+        "c6"
+       ]
+      },
+      "c6": {
+       "value": []
+      },
+      "c7": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "c0": {
+       "value": [
+        "c1"
+       ]
+      },
+      "c1": {
+       "value": [
+        "c2"
+       ]
+      },
+      "c2": {
+       "value": [
+        "c3"
+       ]
+      },
+      "c3": {
+       "value": [
+        "c4"
+       ]
+      },
+      "c4": {
+       "value": [
+        "c5"
+       ]
+      },
+      "c5": {
+       "value": [
+        "c6"
+       ]
+      },
+      "c6": {
+       "value": []
+      },
+      "c7": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "c0": {
+       "value": [
+        "c1"
+       ]
+      },
+      "c1": {
+       "value": [
+        "c2"
+       ]
+      },
+      "c2": {
+       "value": [
+        "c3"
+       ]
+      },
+      "c3": {
+       "value": [
+        "c4"
+       ]
+      },
+      "c4": {
+       "value": [
+        "c5"
+       ]
+      },
+      "c5": {
+       "value": [
+        "c6"
+       ]
+      },
+      "c6": {
+       "value": []
+      },
+      "c7": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "c0": [],
+    "c1": [
+     "c0"
+    ],
+    "c2": [
+     "c1"
+    ],
+    "c3": [
+     "c2"
+    ],
+    "c4": [
+     "c3"
+    ],
+    "c5": [
+     "c4"
+    ],
+    "c6": [
+     "c5"
+    ],
+    "c7": [
+     "c6"
+    ]
+   }
+  },
+  {
+   "name": "unicode_names",
+   "columns": [
+    {
+     "id": "a",
+     "name": "Société",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{société}"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [],
+    "b": [
+     "société"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "b"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "b"
+    ],
+    "b": []
+   }
+  },
+  {
+   "name": "whitespace_in_ref",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{ a }"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [],
+    "b": [
+     "a"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "b"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "b"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "b"
+    ],
+    "b": []
+   }
+  },
+  {
+   "name": "downstream_of_lead_field_attr",
+   "columns": [
+    {
+     "id": "e",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{Email}"
+    }
+   ],
+   "changed": [
+    "email"
+   ],
+   "refs": {
+    "e": [],
+    "b": [
+     "Email"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "e",
+    "b"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "b"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "e": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "e": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "e": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "e": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "e": [
+     "b"
+    ],
+    "b": []
+   }
+  },
+  {
+   "name": "target_field_tainting",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    },
+    {
+     "id": "e",
+     "name": "E",
+     "type": "enrichment",
+     "target_field": "email",
+     "prompt": "{a}"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{email}"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [],
+    "e": [
+     "a"
+    ],
+    "b": [
+     "email"
+    ]
+   },
+   "cycle_blocked": [],
+   "topo_order": [
+    "a",
+    "e",
+    "b"
+   ],
+   "independent": [
+    "b"
+   ],
+   "downstream": {
+    "value": [
+     "e",
+     "b"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "e",
+     "b"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "e": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "e": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "e": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "e": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "e"
+    ],
+    "e": [],
+    "b": []
+   }
+  },
+  {
+   "name": "mixed_two_components",
+   "columns": [
+    {
+     "id": "a",
+     "name": "a",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "b",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "x",
+     "name": "x",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "refs": {
+    "a": [],
+    "b": [
+     "a"
+    ],
+    "x": [
+     "y"
+    ],
+    "y": [
+     "x"
+    ]
+   },
+   "cycle_blocked": [
+    "x",
+    "y"
+   ],
+   "topo_order": [
+    "a",
+    "b",
+    "x",
+    "y"
+   ],
+   "independent": [],
+   "downstream": {
+    "value": [
+     "b"
+    ]
+   },
+   "downstream_not_output": {
+    "value": [
+     "b"
+    ]
+   },
+   "unavailable": [
+    {
+     "row": {},
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "x": {
+       "value": [
+        "y"
+       ]
+      },
+      "y": {
+       "value": [
+        "x"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": "v"
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "x": {
+       "value": [
+        "y"
+       ]
+      },
+      "y": {
+       "value": [
+        "x"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": 0,
+      "b": false,
+      "c": ""
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "x": {
+       "value": [
+        "y"
+       ]
+      },
+      "y": {
+       "value": [
+        "x"
+       ]
+      }
+     }
+    },
+    {
+     "row": {
+      "a": null
+     },
+     "by_column": {
+      "a": {
+       "value": []
+      },
+      "b": {
+       "value": []
+      },
+      "x": {
+       "value": [
+        "y"
+       ]
+      },
+      "y": {
+       "value": [
+        "x"
+       ]
+      }
+     }
+    }
+   ],
+   "referencing": {
+    "a": [
+     "b"
+    ],
+    "b": [],
+    "x": [
+     "y"
+    ],
+    "y": [
+     "x"
+    ]
+   }
+  }
+ ],
+ "reference_indexes": {
+  "columns": [
+   {
+    "id": "id1",
+    "name": "Alpha Beta",
+    "type": "lead_field"
+   },
+   {
+    "id": "alpha_beta",
+    "name": "Other",
+    "type": "lead_field"
+   },
+   {
+    "id": "x",
+    "name": "ALPHA BETA",
+    "type": "lead_field"
+   },
+   {
+    "id": "y",
+    "name": "y",
+    "type": "ai_formula"
+   }
+  ],
+  "cases": [
+   {
+    "ref": "id1",
+    "indexes": [
+     0
+    ]
+   },
+   {
+    "ref": "alpha_beta",
+    "indexes": [
+     1
+    ]
+   },
+   {
+    "ref": "Alpha Beta",
+    "indexes": [
+     0
+    ]
+   },
+   {
+    "ref": "alpha beta",
+    "indexes": [
+     0,
+     2
+    ]
+   },
+   {
+    "ref": "ALPHA BETA",
+    "indexes": [
+     2
+    ]
+   },
+   {
+    "ref": "alpha_beta ",
+    "indexes": []
+   },
+   {
+    "ref": "nope",
+    "indexes": []
+   },
+   {
+    "ref": "",
+    "indexes": []
+   },
+   {
+    "ref": "Other",
+    "indexes": [
+     1
+    ]
+   },
+   {
+    "ref": "x",
+    "indexes": [
+     2
+    ]
+   },
+   {
+    "ref": "X",
+    "indexes": [
+     2
+    ]
+   },
+   {
+    "ref": "Y",
+    "indexes": [
+     3
+    ]
+   }
+  ]
+ }
+}

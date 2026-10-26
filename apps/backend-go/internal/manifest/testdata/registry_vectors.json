@@ -1,0 +1,1235 @@
+{
+ "catalog_optional": {
+  "ok": true,
+  "manifest_version": "1",
+  "signature_policy": "optional",
+  "count": 4,
+  "connectors": [
+   {
+    "path": "company_size/leadmagic_company.yaml",
+    "manifest_sha256": "3e8dcae915734a53fe99f0a5c8eba5c7ddeab971c0a216885a53d927ee695c65",
+    "signature": {
+     "status": "unsigned",
+     "key_id": null,
+     "publisher": null
+    },
+    "manifest_version": "1",
+    "id": "leadmagic_company",
+    "name": "LeadMagic Company Search",
+    "author": "OpenGTM",
+    "homepage": "https://leadmagic.io",
+    "license": "Apache-2.0",
+    "description": "LeadMagic /company-search — domain → firmographics (employee count, industry).",
+    "capabilities": [
+     "company_size",
+     "description"
+    ],
+    "tags": [
+     "company",
+     "firmographics",
+     "byok"
+    ],
+    "cost_per_lookup": 0.05,
+    "default_confidence": 0.8,
+    "credential_key": "LEADMAGIC_API_KEY"
+   },
+   {
+    "path": "email/leadmagic.yaml",
+    "manifest_sha256": "af9f891b09c6ab8da27d6ce233c03433ac1f247d8acc2b75e224787e6c2ca663",
+    "signature": {
+     "status": "unsigned",
+     "key_id": null,
+     "publisher": null
+    },
+    "manifest_version": "1",
+    "id": "leadmagic_email",
+    "name": "LeadMagic Email Finder",
+    "author": "OpenGTM",
+    "homepage": "https://leadmagic.io",
+    "license": "Apache-2.0",
+    "description": "LeadMagic /email-finder — first/last + domain → work email.",
+    "capabilities": [
+     "email"
+    ],
+    "tags": [
+     "email",
+     "enrichment",
+     "byok"
+    ],
+    "cost_per_lookup": 0.05,
+    "default_confidence": 0.8,
+    "credential_key": "LEADMAGIC_API_KEY"
+   },
+   {
+    "path": "phone/leadmagic_mobile.yaml",
+    "manifest_sha256": "1742778bbf154bc28ef504b258493236184f06fb922496091d735b1c08593653",
+    "signature": {
+     "status": "unsigned",
+     "key_id": null,
+     "publisher": null
+    },
+    "manifest_version": "1",
+    "id": "leadmagic_mobile",
+    "name": "LeadMagic Mobile Finder",
+    "author": "OpenGTM",
+    "homepage": "https://leadmagic.io",
+    "license": "Apache-2.0",
+    "description": "LeadMagic /mobile-finder — LinkedIn profile or work email → mobile number.",
+    "capabilities": [
+     "mobile_phone",
+     "phone"
+    ],
+    "tags": [
+     "phone",
+     "enrichment",
+     "byok"
+    ],
+    "cost_per_lookup": 0.05,
+    "default_confidence": 0.8,
+    "credential_key": "LEADMAGIC_API_KEY"
+   },
+   {
+    "path": "phone/prospeo_mobile.yaml",
+    "manifest_sha256": "591eb8221de19a34c2003f3df0022ba18696e48d857fd126fc3e677c6fd5ac2a",
+    "signature": {
+     "status": "unsigned",
+     "key_id": null,
+     "publisher": null
+    },
+    "manifest_version": "1",
+    "id": "prospeo_mobile",
+    "name": "Prospeo Mobile Finder",
+    "author": "OpenGTM",
+    "homepage": "https://prospeo.io",
+    "license": "Apache-2.0",
+    "description": "Prospeo /mobile-finder — LinkedIn profile URL → verified mobile number.",
+    "capabilities": [
+     "mobile_phone"
+    ],
+    "tags": [
+     "phone",
+     "enrichment",
+     "byok"
+    ],
+    "cost_per_lookup": 0.1,
+    "default_confidence": 0.8,
+    "credential_key": "PROSPEO_API_KEY"
+   }
+  ],
+  "errors": []
+ },
+ "catalog_required": {
+  "ok": false,
+  "manifest_version": "1",
+  "signature_policy": "required",
+  "count": 0,
+  "connectors": [],
+  "errors": [
+   {
+    "path": "/home/user/code/OpenGTM/legacy/python/apps/api/services/leadgen/enrichment/declarative/manifests/company_size/leadmagic_company.yaml",
+    "error": "connector signature is unsigned:"
+   },
+   {
+    "path": "/home/user/code/OpenGTM/legacy/python/apps/api/services/leadgen/enrichment/declarative/manifests/email/leadmagic.yaml",
+    "error": "connector signature is unsigned:"
+   },
+   {
+    "path": "/home/user/code/OpenGTM/legacy/python/apps/api/services/leadgen/enrichment/declarative/manifests/phone/leadmagic_mobile.yaml",
+    "error": "connector signature is unsigned:"
+   },
+   {
+    "path": "/home/user/code/OpenGTM/legacy/python/apps/api/services/leadgen/enrichment/declarative/manifests/phone/prospeo_mobile.yaml",
+    "error": "connector signature is unsigned:"
+   }
+  ]
+ },
+ "shipped": [
+  {
+   "path": "company_size/leadmagic_company.yaml",
+   "text": "# LeadMagic company-search — declarative provider manifest.\n# Spec: LeadMagic/leadmagic-openapi (POST /company-search). Cost: 1 credit.\n# Returns DetailedCompany; we map employee_count + industry. Inert until\n# LEADMAGIC_API_KEY is set.\nmanifest_version: \"1\"\nname: leadmagic_company\ndisplay_name: LeadMagic Company Search\nauthor: OpenGTM\nhomepage: https://leadmagic.io\ntags: [company, firmographics, byok]\ncapability: company_size\ncapabilities: [company_size, description]\ndescription: LeadMagic /company-search — domain → firmographics (employee count, industry).\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth:\n  type: header\n  param: X-API-Key\n  env_var: LEADMAGIC_API_KEY\nrequest:\n  method: POST\n  url: https://api.leadmagic.io/company-search\n  headers:\n    Content-Type: application/json\n  body:\n    company_domain: \"{{input.domain}}\"\n    company_name: \"{{input.company}}\"\n  timeout: 20\nresponse:\n  mappings:\n    company_size: \"$.employee_count\"\n    description: \"$.description\"\n"
+  },
+  {
+   "path": "email/leadmagic.yaml",
+   "text": "# LeadMagic email-finder — declarative provider manifest.\n# Spec: LeadMagic/leadmagic-openapi (leadmagic-openapi-3.1.json). Cost: 1 credit.\n# Demonstrates the YAML-only provider pattern (no Python). Inactive until\n# LEADMAGIC_API_KEY is set in settings/env.\nmanifest_version: \"1\"\nname: leadmagic_email\ndisplay_name: LeadMagic Email Finder\nauthor: OpenGTM\nhomepage: https://leadmagic.io\ntags: [email, enrichment, byok]\ncapability: email\ncapabilities: [email]\ndescription: LeadMagic /email-finder — first/last + domain → work email.\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth:\n  type: header\n  param: X-API-Key\n  env_var: LEADMAGIC_API_KEY\nrequest:\n  method: POST\n  url: https://api.leadmagic.io/email-finder\n  headers:\n    Content-Type: application/json\n  body:\n    first_name: \"{{input.first_name}}\"\n    last_name: \"{{input.last_name}}\"\n    domain: \"{{input.domain}}\"\n    company_name: \"{{input.company}}\"\n  timeout: 20\nresponse:\n  mappings:\n    email: \"$.email\"\n"
+  },
+  {
+   "path": "phone/leadmagic_mobile.yaml",
+   "text": "# LeadMagic mobile-finder — declarative provider manifest.\n# Spec: LeadMagic/leadmagic-openapi (POST /mobile-finder; body accepts\n# profile_url / work_email / personal_email — \"provide at least one\"; 200\n# response: {message, credits_consumed, mobile_number|null}). Cost: 1 credit\n# (0 if not found). Inert until LEADMAGIC_API_KEY is set.\n#\n# Primary capability is mobile_phone (person DIRECT DIAL, Clay-parity\n# \"mobile phone\" waterfall); also fills the generic phone field for\n# back-compat with the capability registry.\nmanifest_version: \"1\"\nname: leadmagic_mobile\ndisplay_name: LeadMagic Mobile Finder\nauthor: OpenGTM\nhomepage: https://leadmagic.io\ntags: [phone, enrichment, byok]\ncapability: mobile_phone\ncapabilities: [mobile_phone, phone]\ndescription: LeadMagic /mobile-finder — LinkedIn profile or work email → mobile number.\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth:\n  type: header\n  param: X-API-Key\n  env_var: LEADMAGIC_API_KEY\nrequest:\n  method: POST\n  url: https://api.leadmagic.io/mobile-finder\n  headers:\n    Content-Type: application/json\n  body:\n    profile_url: \"{{input.linkedin_url}}\"\n    work_email: \"{{input.email}}\"\n  timeout: 20\nresponse:\n  mappings:\n    mobile_phone: \"$.mobile_number\"\n    phone: \"$.mobile_number\"\n"
+  },
+  {
+   "path": "phone/prospeo_mobile.yaml",
+   "text": "# Prospeo mobile-finder — declarative provider manifest.\n# Spec: prospeo.io/api/mobile-finder — POST https://api.prospeo.io/mobile-finder,\n# auth header X-KEY, JSON body {\"url\": \"<linkedin profile url>\"}. Success\n# response: {\"error\": false, \"response\": {\"raw_format\": \"+9725236800..\",\n# \"international_format\": ..., \"national_format\": ..., ...}}; errors come as\n# {\"error\": true, \"message\": \"...\"} (endpoint + X-KEY + raw_format verified\n# against vendor docs; body param `url` per vendor mobile-finder page).\n# BYOK: inert until PROSPEO_API_KEY is set (same key as the prospeo email\n# provider). Cost approximate — Prospeo bills mobile hits at a premium over\n# email credits; refine from your plan's pricing.\nmanifest_version: \"1\"\nname: prospeo_mobile\ndisplay_name: Prospeo Mobile Finder\nauthor: OpenGTM\nhomepage: https://prospeo.io\ntags: [phone, enrichment, byok]\ncapability: mobile_phone\ncapabilities: [mobile_phone]\ndescription: Prospeo /mobile-finder — LinkedIn profile URL → verified mobile number.\ndefault_confidence: 0.8\ncost_per_lookup: 0.10\nauth:\n  type: header\n  param: X-KEY\n  env_var: PROSPEO_API_KEY\nrequest:\n  method: POST\n  url: https://api.prospeo.io/mobile-finder\n  headers:\n    Content-Type: application/json\n  body:\n    url: \"{{input.linkedin_url}}\"\n  timeout: 20\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings:\n    mobile_phone: \"$.response.raw_format\"\n"
+  }
+ ],
+ "loaded": [
+  {
+   "name": "leadmagic_company",
+   "capability": "company_size",
+   "all_capabilities": [
+    "company_size",
+    "description"
+   ],
+   "catalog_entry": {
+    "manifest_version": "1",
+    "id": "leadmagic_company",
+    "name": "LeadMagic Company Search",
+    "author": "OpenGTM",
+    "homepage": "https://leadmagic.io",
+    "license": "Apache-2.0",
+    "description": "LeadMagic /company-search — domain → firmographics (employee count, industry).",
+    "capabilities": [
+     "company_size",
+     "description"
+    ],
+    "tags": [
+     "company",
+     "firmographics",
+     "byok"
+    ],
+    "cost_per_lookup": 0.05,
+    "default_confidence": 0.8,
+    "credential_key": "LEADMAGIC_API_KEY"
+   }
+  },
+  {
+   "name": "leadmagic_email",
+   "capability": "email",
+   "all_capabilities": [
+    "email"
+   ],
+   "catalog_entry": {
+    "manifest_version": "1",
+    "id": "leadmagic_email",
+    "name": "LeadMagic Email Finder",
+    "author": "OpenGTM",
+    "homepage": "https://leadmagic.io",
+    "license": "Apache-2.0",
+    "description": "LeadMagic /email-finder — first/last + domain → work email.",
+    "capabilities": [
+     "email"
+    ],
+    "tags": [
+     "email",
+     "enrichment",
+     "byok"
+    ],
+    "cost_per_lookup": 0.05,
+    "default_confidence": 0.8,
+    "credential_key": "LEADMAGIC_API_KEY"
+   }
+  },
+  {
+   "name": "leadmagic_mobile",
+   "capability": "mobile_phone",
+   "all_capabilities": [
+    "mobile_phone",
+    "phone"
+   ],
+   "catalog_entry": {
+    "manifest_version": "1",
+    "id": "leadmagic_mobile",
+    "name": "LeadMagic Mobile Finder",
+    "author": "OpenGTM",
+    "homepage": "https://leadmagic.io",
+    "license": "Apache-2.0",
+    "description": "LeadMagic /mobile-finder — LinkedIn profile or work email → mobile number.",
+    "capabilities": [
+     "mobile_phone",
+     "phone"
+    ],
+    "tags": [
+     "phone",
+     "enrichment",
+     "byok"
+    ],
+    "cost_per_lookup": 0.05,
+    "default_confidence": 0.8,
+    "credential_key": "LEADMAGIC_API_KEY"
+   }
+  },
+  {
+   "name": "prospeo_mobile",
+   "capability": "mobile_phone",
+   "all_capabilities": [
+    "mobile_phone"
+   ],
+   "catalog_entry": {
+    "manifest_version": "1",
+    "id": "prospeo_mobile",
+    "name": "Prospeo Mobile Finder",
+    "author": "OpenGTM",
+    "homepage": "https://prospeo.io",
+    "license": "Apache-2.0",
+    "description": "Prospeo /mobile-finder — LinkedIn profile URL → verified mobile number.",
+    "capabilities": [
+     "mobile_phone"
+    ],
+    "tags": [
+     "phone",
+     "enrichment",
+     "byok"
+    ],
+    "cost_per_lookup": 0.1,
+    "default_confidence": 0.8,
+    "credential_key": "PROSPEO_API_KEY"
+   }
+  }
+ ],
+ "directory_rules": [
+  {
+   "name": "valid_unsigned_optional",
+   "files": {
+    "email/c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/c.yaml",
+      "manifest_sha256": "041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "contract_email",
+      "name": "Contract Email",
+      "author": "OpenGTM",
+      "homepage": "",
+      "license": "Apache-2.0",
+      "description": "signed test manifest",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [],
+      "cost_per_lookup": 0.05,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_KEY"
+     }
+    ],
+    "errors": []
+   }
+  },
+  {
+   "name": "valid_unsigned_required_rejected",
+   "files": {
+    "email/c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "required",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "required",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "connector signature is unsigned:"
+     }
+    ]
+   }
+  },
+  {
+   "name": "valid_signed_required",
+   "files": {
+    "email/c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+    "email/c.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "required",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "required",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/c.yaml",
+      "manifest_sha256": "041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5",
+      "signature": {
+       "status": "trusted",
+       "key_id": "key-a",
+       "publisher": "Contract Publisher"
+      },
+      "manifest_version": "1",
+      "id": "contract_email",
+      "name": "Contract Email",
+      "author": "OpenGTM",
+      "homepage": "",
+      "license": "Apache-2.0",
+      "description": "signed test manifest",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [],
+      "cost_per_lookup": 0.05,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_KEY"
+     }
+    ],
+    "errors": []
+   }
+  },
+  {
+   "name": "bad_name_pattern",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: Bad-Name\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     }
+    ]
+   }
+  },
+  {
+   "name": "short_name",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: ab\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     }
+    ]
+   }
+  },
+  {
+   "name": "duplicate_names",
+   "files": {
+    "a.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+    "b.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "a.yaml",
+      "manifest_sha256": "041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "contract_email",
+      "name": "Contract Email",
+      "author": "OpenGTM",
+      "homepage": "",
+      "license": "Apache-2.0",
+      "description": "signed test manifest",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [],
+      "cost_per_lookup": 0.05,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_KEY"
+     }
+    ],
+    "errors": [
+     {
+      "path": "b.yaml",
+      "error": "duplicate provider id 'contract_email'"
+     }
+    ]
+   }
+  },
+  {
+   "name": "http_url_rejected",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: http://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "connector request URL must use HTTPS"
+     }
+    ]
+   }
+  },
+  {
+   "name": "bad_method",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: DELETE\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "request.method must be GET, POST, PUT, or PATCH"
+     }
+    ]
+   }
+  },
+  {
+   "name": "lowercase_method_ok",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: post\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "c.yaml",
+      "manifest_sha256": "165a966a67c6ea2980b1a35fe3165bfb804c3aa3b939f7db6a7bc188ef2d5d81",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "contract_email",
+      "name": "Contract Email",
+      "author": "OpenGTM",
+      "homepage": "",
+      "license": "Apache-2.0",
+      "description": "signed test manifest",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [],
+      "cost_per_lookup": 0.05,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_KEY"
+     }
+    ],
+    "errors": []
+   }
+  },
+  {
+   "name": "empty_mappings",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings: {}\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "response.mappings must not be empty"
+     }
+    ]
+   }
+  },
+  {
+   "name": "confidence_out_of_range",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 1.5\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "confidence must be 0..1 and cost must be non-negative"
+     }
+    ]
+   }
+  },
+  {
+   "name": "negative_cost",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: -1\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "confidence must be 0..1 and cost must be non-negative"
+     }
+    ]
+   }
+  },
+  {
+   "name": "timeout_zero",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  timeout: 0\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "request.timeout must be between 0 and 120 seconds"
+     }
+    ]
+   }
+  },
+  {
+   "name": "timeout_too_big",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  timeout: 121\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "request.timeout must be between 0 and 120 seconds"
+     }
+    ]
+   }
+  },
+  {
+   "name": "authenticated_without_env_var",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "authenticated connectors require auth.env_var"
+     }
+    ]
+   }
+  },
+  {
+   "name": "auth_none_without_env_var_ok",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: none}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "c.yaml",
+      "manifest_sha256": "a2fb93ab316e7336f6bbb0655a78e20112d04b44cd25ea4a6377063be5ab4849",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "contract_email",
+      "name": "Contract Email",
+      "author": "OpenGTM",
+      "homepage": "",
+      "license": "Apache-2.0",
+      "description": "signed test manifest",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [],
+      "cost_per_lookup": 0.05,
+      "default_confidence": 0.8,
+      "credential_key": null
+     }
+    ],
+    "errors": []
+   }
+  },
+  {
+   "name": "signed_untrusted_rejected",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+    "c.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-b\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"dxXGKhOwBLDC+ktweXdpfEWq8DeKntAMdQ4jm84PnLwSyzQrhPXk1f8AXkP137z+TvOnJ+1BbLPjZhgqYZ4lBw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "connector signature is untrusted:"
+     }
+    ]
+   }
+  },
+  {
+   "name": "signed_tampered_rejected",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.06\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n",
+    "c.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"key-a\",\n  \"manifest_sha256\": \"041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5\",\n  \"signature\": \"Bs+ElCPBhm8Mq3yBtSJ6o6ikne4+r2qr3GvnHVBLKbHKs6Tc87Z4UnmBp3rV2DLX6oClGkMpQ6Iq5/BQvOt4BQ==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "connector signature is invalid: manifest digest mismatch"
+     }
+    ]
+   }
+  },
+  {
+   "name": "unknown_manifest_version",
+   "files": {
+    "c.yaml": "manifest_version: \"2\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "1 validation error for ProviderManifest\nmanifest_version\n  Input should be '1' [type=literal_error, input_value='2', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+     }
+    ]
+   }
+  },
+  {
+   "name": "missing_required_fields",
+   "files": {
+    "c.yaml": "name: only_name\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "c.yaml",
+      "error": "2 validation errors for ProviderManifest\ncapability\n  Field required [type=missing, input_value={'name': 'only_name', 'request': {}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.url\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+     }
+    ]
+   }
+  },
+  {
+   "name": "body_alias_for_body_template",
+   "files": {
+    "c.yaml": "manifest_version: \"1\"\nname: contract_email\ndisplay_name: Contract Email\nauthor: OpenGTM\ncapability: email\ncapabilities: [email]\ndescription: signed test manifest\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth: {type: header, param: X-API-Key, env_var: CONTRACT_KEY}\nrequest:\n  method: POST\n  url: https://api.example.test/email\n  body:\n    domain: \"{{input.domain}}\"\nresponse:\n  mappings:\n    email: data.email\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "c.yaml",
+      "manifest_sha256": "041f55bd96fb8afaf5509c1334392a255c2aefa67d4ba3c69a3d68736bca85e5",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "contract_email",
+      "name": "Contract Email",
+      "author": "OpenGTM",
+      "homepage": "",
+      "license": "Apache-2.0",
+      "description": "signed test manifest",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [],
+      "cost_per_lookup": 0.05,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_KEY"
+     }
+    ],
+    "errors": []
+   }
+  },
+  {
+   "name": "empty_directory",
+   "files": {},
+   "policy": "optional",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": []
+   }
+  },
+  {
+   "name": "catalog_entry_defaults",
+   "files": {
+    "c.yaml": "name: minimal_one\ncapability: email\nrequest: {url: 'https://x.test/'}\nresponse: {mappings: {email: a}}\n"
+   },
+   "policy": "optional",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "c.yaml",
+      "manifest_sha256": "4fc50491ad9483f847d90aaa427ca0cf439d53969eb466ea1f6d8982fba92fba",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "minimal_one",
+      "name": "Minimal One",
+      "author": "community",
+      "homepage": "",
+      "license": "Apache-2.0",
+      "description": "",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [],
+      "cost_per_lookup": 0.0,
+      "default_confidence": 0.7,
+      "credential_key": null
+     }
+    ],
+    "errors": []
+   }
+  }
+ ],
+ "capability_pool": [
+  {
+   "name": "hunter",
+   "capabilities": [
+    "email"
+   ],
+   "available": true
+  },
+  {
+   "name": "apollo",
+   "capabilities": [
+    "email",
+    "phone"
+   ],
+   "available": true
+  },
+  {
+   "name": "snov",
+   "capabilities": [
+    "email"
+   ],
+   "available": false
+  },
+  {
+   "name": "broken",
+   "capabilities": [
+    "email"
+   ],
+   "available": "raises"
+  },
+  {
+   "name": "legacy",
+   "capabilities": [
+    "email"
+   ],
+   "available": "no_is_available"
+  },
+  {
+   "name": "phoneonly",
+   "capabilities": [
+    "phone"
+   ],
+   "available": true
+  },
+  {
+   "name": "prospeo",
+   "capabilities": [
+    "email",
+    "phone"
+   ],
+   "available": true
+  }
+ ],
+ "resolution": [
+  {
+   "name": "explicit_priority_first_available",
+   "capability": "email",
+   "kwargs": {
+    "priority": [
+     "snov",
+     "apollo",
+     "hunter"
+    ]
+   },
+   "default_priority": {},
+   "resolve": {
+    "value": "apollo"
+   },
+   "resolve_chain": {
+    "value": [
+     "apollo",
+     "hunter",
+     "legacy",
+     "prospeo"
+    ]
+   }
+  },
+  {
+   "name": "explicit_priority_skips_wrong_capability",
+   "capability": "email",
+   "kwargs": {
+    "priority": [
+     "phoneonly",
+     "hunter"
+    ]
+   },
+   "default_priority": {},
+   "resolve": {
+    "value": "hunter"
+   },
+   "resolve_chain": {
+    "value": [
+     "hunter",
+     "apollo",
+     "legacy",
+     "prospeo"
+    ]
+   }
+  },
+  {
+   "name": "explicit_priority_unknown_provider_skipped",
+   "capability": "email",
+   "kwargs": {
+    "priority": [
+     "nope",
+     "hunter"
+    ]
+   },
+   "default_priority": {},
+   "resolve": {
+    "value": "hunter"
+   },
+   "resolve_chain": {
+    "value": [
+     "hunter",
+     "apollo",
+     "legacy",
+     "prospeo"
+    ]
+   }
+  },
+  {
+   "name": "workspace_override_used_when_no_priority",
+   "capability": "email",
+   "kwargs": {
+    "workspace_overrides": {
+     "email": [
+      "apollo",
+      "hunter"
+     ]
+    }
+   },
+   "default_priority": {},
+   "resolve": {
+    "value": "apollo"
+   },
+   "resolve_chain": {
+    "value": [
+     "apollo",
+     "hunter",
+     "legacy",
+     "prospeo"
+    ]
+   }
+  },
+  {
+   "name": "priority_beats_override",
+   "capability": "email",
+   "kwargs": {
+    "priority": [
+     "hunter"
+    ],
+    "workspace_overrides": {
+     "email": [
+      "apollo"
+     ]
+    }
+   },
+   "default_priority": {},
+   "resolve": {
+    "value": "hunter"
+   },
+   "resolve_chain": {
+    "value": [
+     "hunter",
+     "apollo",
+     "legacy",
+     "prospeo"
+    ]
+   }
+  },
+  {
+   "name": "default_priority_used",
+   "capability": "email",
+   "kwargs": {},
+   "default_priority": {
+    "email": [
+     "prospeo",
+     "hunter"
+    ]
+   },
+   "resolve": {
+    "value": "prospeo"
+   },
+   "resolve_chain": {
+    "value": [
+     "prospeo",
+     "hunter",
+     "apollo",
+     "legacy"
+    ]
+   }
+  },
+  {
+   "name": "fallback_registry_order_when_priority_exhausted",
+   "capability": "email",
+   "kwargs": {
+    "priority": [
+     "snov"
+    ]
+   },
+   "default_priority": {},
+   "resolve": {
+    "value": "hunter"
+   },
+   "resolve_chain": {
+    "value": [
+     "hunter",
+     "apollo",
+     "legacy",
+     "prospeo"
+    ]
+   }
+  },
+  {
+   "name": "is_available_raising_is_unavailable",
+   "capability": "email",
+   "kwargs": {
+    "priority": [
+     "broken",
+     "hunter"
+    ]
+   },
+   "default_priority": {},
+   "resolve": {
+    "value": "hunter"
+   },
+   "resolve_chain": {
+    "value": [
+     "hunter",
+     "apollo",
+     "legacy",
+     "prospeo"
+    ]
+   }
+  },
+  {
+   "name": "provider_without_is_available_is_available",
+   "capability": "email",
+   "kwargs": {
+    "priority": [
+     "legacy"
+    ]
+   },
+   "default_priority": {},
+   "resolve": {
+    "value": "legacy"
+   },
+   "resolve_chain": {
+    "value": [
+     "legacy",
+     "hunter",
+     "apollo",
+     "prospeo"
+    ]
+   }
+  },
+  {
+   "name": "empty_priority_list_falls_to_default_then_registry",
+   "capability": "email",
+   "kwargs": {
+    "priority": []
+   },
+   "default_priority": {
+    "email": [
+     "apollo"
+    ]
+   },
+   "resolve": {
+    "value": "apollo"
+   },
+   "resolve_chain": {
+    "value": [
+     "apollo",
+     "hunter",
+     "legacy",
+     "prospeo"
+    ]
+   }
+  },
+  {
+   "name": "override_for_other_capability_ignored",
+   "capability": "email",
+   "kwargs": {
+    "workspace_overrides": {
+     "phone": [
+      "apollo"
+     ]
+    }
+   },
+   "default_priority": {
+    "email": [
+     "prospeo"
+    ]
+   },
+   "resolve": {
+    "value": "prospeo"
+   },
+   "resolve_chain": {
+    "value": [
+     "prospeo",
+     "hunter",
+     "apollo",
+     "legacy"
+    ]
+   }
+  },
+  {
+   "name": "phone_capability",
+   "capability": "phone",
+   "kwargs": {},
+   "default_priority": {},
+   "resolve": {
+    "value": "apollo"
+   },
+   "resolve_chain": {
+    "value": [
+     "apollo",
+     "phoneonly",
+     "prospeo"
+    ]
+   }
+  },
+  {
+   "name": "nothing_available",
+   "capability": "company_size",
+   "kwargs": {},
+   "default_priority": {},
+   "resolve": {
+    "error": "CapabilityUnsatisfied",
+    "message": "No available provider for capability 'company_size'. Tried (in priority order): []. Configure an API key for one of them.",
+    "tried": []
+   },
+   "resolve_chain": {
+    "value": []
+   }
+  },
+  {
+   "name": "only_unavailable",
+   "capability": "email",
+   "kwargs": {
+    "priority": [
+     "snov",
+     "broken"
+    ]
+   },
+   "default_priority": {},
+   "resolve": {
+    "value": "hunter"
+   },
+   "resolve_chain": {
+    "value": [
+     "hunter",
+     "apollo",
+     "legacy",
+     "prospeo"
+    ]
+   }
+  }
+ ]
+}

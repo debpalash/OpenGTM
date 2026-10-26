@@ -1,0 +1,2274 @@
+{
+ "ttl": {
+  "default_days": 30,
+  "by_field": {
+   "email": 30,
+   "phone": 60,
+   "linkedin_url": 90,
+   "company_size": 90,
+   "description": 180,
+   "founded_year": 365
+  }
+ },
+ "norm": {
+  "domain": [
+   {
+    "in": "",
+    "out": ""
+   },
+   {
+    "in": "acme.com",
+    "out": "acme.com"
+   },
+   {
+    "in": "https://www.acme.com/",
+    "out": "acme.com"
+   },
+   {
+    "in": "WWW.ACME.COM",
+    "out": "acme.com"
+   },
+   {
+    "in": "http://a.b.c.d",
+    "out": "c.d"
+   },
+   {
+    "in": "x",
+    "out": "x"
+   },
+   {
+    "in": "a..b",
+    "out": "a.b"
+   },
+   {
+    "in": ".a.b",
+    "out": "a.b"
+   },
+   {
+    "in": "https://acme.com?x=1",
+    "out": "acme.com"
+   },
+   {
+    "in": "https://acme.com#frag",
+    "out": "acme.com#frag"
+   },
+   {
+    "in": "acme.com/",
+    "out": "acme.com"
+   },
+   {
+    "in": "www.www.acme.com",
+    "out": "acme.com"
+   },
+   {
+    "in": "http://www.https://a.b",
+    "out": "https:"
+   }
+  ],
+  "company": [
+   {
+    "in": "",
+    "out": ""
+   },
+   {
+    "in": "Acme Inc",
+    "out": "acme"
+   },
+   {
+    "in": "ACME, LLC",
+    "out": "acme"
+   },
+   {
+    "in": "acme l.l.c",
+    "out": "acme"
+   },
+   {
+    "in": "Foo Bar Co.",
+    "out": "foobar"
+   },
+   {
+    "in": "Group Holdings",
+    "out": ""
+   },
+   {
+    "in": "Holding",
+    "out": ""
+   },
+   {
+    "in": "SA",
+    "out": ""
+   },
+   {
+    "in": "sa",
+    "out": ""
+   },
+   {
+    "in": "Cosa",
+    "out": "cosa"
+   },
+   {
+    "in": "ágil sa",
+    "out": "gil"
+   }
+  ],
+  "name": [
+   {
+    "in": "",
+    "out": ""
+   },
+   {
+    "in": " A  B ",
+    "out": "a b"
+   },
+   {
+    "in": "ÉCOLE",
+    "out": "école"
+   },
+   {
+    "in": "x\ty",
+    "out": "x y"
+   },
+   {
+    "in": "İ",
+    "out": "i̇"
+   }
+  ]
+ },
+ "canonical_key": [
+  {
+   "name": "person_basic",
+   "lead": {
+    "website": "https://www.Acme.com/about",
+    "company": "Acme Inc",
+    "contact_person": "  Ada   Lovelace "
+   },
+   "norm_domain": "acme.com",
+   "norm_company": "acme",
+   "norm_name": "ada lovelace",
+   "keys": {
+    "email": "93c7bc388e96b930b9cbce8d",
+    "phone": "cda386e0530ad76f71542e15",
+    "linkedin_url": "47676de561bf481dfe3a6058",
+    "contact_person": "a0b746660ac804f83a0f6629",
+    "contact_title": "756896a9b89cf8fc4755d59d",
+    "company_size": "d37fcbfe08bc3442a9f73f27",
+    "description": "46646fca243e6d1e5f24156a",
+    "founded_year": "6ac85bfa7f96372b03d08abe",
+    "city": "6c91942dc7a4860db2bc3deb",
+    "website": "5377e0e6d56da43cf4a8a999",
+    "": "4983babaf3bbc2e636f64b0f",
+    "Email": "35cd04d76f0a685db04f154b"
+   }
+  },
+  {
+   "name": "person_no_website_company_fallback",
+   "lead": {
+    "website": "",
+    "company": "Acme Inc.",
+    "contact_person": "Ada Lovelace"
+   },
+   "norm_domain": "",
+   "norm_company": "acme",
+   "norm_name": "ada lovelace",
+   "keys": {
+    "email": "3582c715203cfd5923bea417",
+    "phone": "a78b4e77432e7a420750f1a3",
+    "linkedin_url": "e26f310dfd8689697aba73ec",
+    "contact_person": "852dc6501aa5e2296e56f68c",
+    "contact_title": "ed7d237a58232d75fac48f1d",
+    "company_size": "b5d14f61cb56b0e75190b97f",
+    "description": "85b27762b5715ca05b5e4758",
+    "founded_year": "e10f2f47b667a11c08152bb9",
+    "city": "7d43d22978462a11a9c0d9bb",
+    "website": "fcb56c04d7fcb552d6ea18fe",
+    "": "1ab03a31fac84f31df4af1ab",
+    "Email": "e3189bbcd2380cef80a7bb22"
+   }
+  },
+  {
+   "name": "person_no_org",
+   "lead": {
+    "website": "",
+    "company": "",
+    "contact_person": "Ada"
+   },
+   "norm_domain": "",
+   "norm_company": "",
+   "norm_name": "ada",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": null,
+    "description": null,
+    "founded_year": null,
+    "city": null,
+    "website": null,
+    "": null,
+    "Email": null
+   }
+  },
+  {
+   "name": "person_no_name",
+   "lead": {
+    "website": "acme.com",
+    "company": "Acme",
+    "contact_person": ""
+   },
+   "norm_domain": "acme.com",
+   "norm_company": "acme",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "d37fcbfe08bc3442a9f73f27",
+    "description": "46646fca243e6d1e5f24156a",
+    "founded_year": "6ac85bfa7f96372b03d08abe",
+    "city": "6c91942dc7a4860db2bc3deb",
+    "website": "5377e0e6d56da43cf4a8a999",
+    "": "4983babaf3bbc2e636f64b0f",
+    "Email": "35cd04d76f0a685db04f154b"
+   }
+  },
+  {
+   "name": "company_domain",
+   "lead": {
+    "website": "http://acme.com",
+    "company": "x",
+    "contact_person": ""
+   },
+   "norm_domain": "acme.com",
+   "norm_company": "x",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "d37fcbfe08bc3442a9f73f27",
+    "description": "46646fca243e6d1e5f24156a",
+    "founded_year": "6ac85bfa7f96372b03d08abe",
+    "city": "6c91942dc7a4860db2bc3deb",
+    "website": "5377e0e6d56da43cf4a8a999",
+    "": "4983babaf3bbc2e636f64b0f",
+    "Email": "35cd04d76f0a685db04f154b"
+   }
+  },
+  {
+   "name": "company_name_fallback",
+   "lead": {
+    "website": "",
+    "company": "Acme Corporation Ltd",
+    "contact_person": ""
+   },
+   "norm_domain": "",
+   "norm_company": "acme",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "b5d14f61cb56b0e75190b97f",
+    "description": "85b27762b5715ca05b5e4758",
+    "founded_year": "e10f2f47b667a11c08152bb9",
+    "city": "7d43d22978462a11a9c0d9bb",
+    "website": "fcb56c04d7fcb552d6ea18fe",
+    "": "1ab03a31fac84f31df4af1ab",
+    "Email": "e3189bbcd2380cef80a7bb22"
+   }
+  },
+  {
+   "name": "no_identity",
+   "lead": {
+    "website": "",
+    "company": "",
+    "contact_person": "Ada"
+   },
+   "norm_domain": "",
+   "norm_company": "",
+   "norm_name": "ada",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": null,
+    "description": null,
+    "founded_year": null,
+    "city": null,
+    "website": null,
+    "": null,
+    "Email": null
+   }
+  },
+  {
+   "name": "accents_company",
+   "lead": {
+    "website": "",
+    "company": "Société Générale S.A.",
+    "contact_person": ""
+   },
+   "norm_domain": "",
+   "norm_company": "socitgnralesa",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "c81e8b1a1d98bb38d0d5bf22",
+    "description": "1e35c9ebd35125ce2df44311",
+    "founded_year": "4b419ae246d9ca5530b5ef94",
+    "city": "d9e892934c4cc3ffbbb3dcf5",
+    "website": "727fbb0382925da6f185b7e7",
+    "": "4260fcea48af2fdfb9d9d005",
+    "Email": "91db9f35eabde15b1eaa4045"
+   }
+  },
+  {
+   "name": "accents_person",
+   "lead": {
+    "website": "société.fr",
+    "company": "",
+    "contact_person": "Éloïse Müller"
+   },
+   "norm_domain": "société.fr",
+   "norm_company": "",
+   "norm_name": "éloïse müller",
+   "keys": {
+    "email": "f16e3c3612a02d88e9ed64af",
+    "phone": "5e2fce7f30226d550a7c6dbf",
+    "linkedin_url": "ad77d5fa67dd57bdeb1b39f3",
+    "contact_person": "6461cb9711a866411767dbf9",
+    "contact_title": "e6bb80d1d3f70e13e1af0e60",
+    "company_size": "078baa1d9b584f6c437b9ac3",
+    "description": "377232ddda37643717cc8efc",
+    "founded_year": "5106fbf9add9ba63217c4777",
+    "city": "5a8d7278870d66884c632255",
+    "website": "d15567bf0ea07132c57d734b",
+    "": "ae52825d4b595260cdbf1f7d",
+    "Email": "23dd86bffad572061f030e4b"
+   }
+  },
+  {
+   "name": "unicode_domain",
+   "lead": {
+    "website": "https://日本.jp/path?q=1",
+    "company": "",
+    "contact_person": ""
+   },
+   "norm_domain": "日本.jp",
+   "norm_company": "",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "e49aa92db39c65f6aa6de8c5",
+    "description": "54062dd40b51b0dd51cc9939",
+    "founded_year": "2b8ec009142834300f457c0a",
+    "city": "7f106c510022884a6f853219",
+    "website": "e65b6a211a6651139c8d6af4",
+    "": "20b3be524ce42160cb1c32be",
+    "Email": "fea029fe0d59330cea3c21c0"
+   }
+  },
+  {
+   "name": "subdomain_collapses_to_two_labels",
+   "lead": {
+    "website": "https://blog.eu.acme.co.uk/x",
+    "company": "",
+    "contact_person": ""
+   },
+   "norm_domain": "co.uk",
+   "norm_company": "",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "c7acaf1b377e047ddd1b838d",
+    "description": "131a607b45ea5b94c7cb1d1c",
+    "founded_year": "8735c507caf30dcb54ae58eb",
+    "city": "6d84d7303691e4af7df873ac",
+    "website": "3e54ec4241f4a584802bd580",
+    "": "ad398e6fe027859a5a6c9729",
+    "Email": "12fcd46fad15fc95f1253f8f"
+   }
+  },
+  {
+   "name": "www_only",
+   "lead": {
+    "website": "www.",
+    "company": "Acme",
+    "contact_person": ""
+   },
+   "norm_domain": "",
+   "norm_company": "acme",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "b5d14f61cb56b0e75190b97f",
+    "description": "85b27762b5715ca05b5e4758",
+    "founded_year": "e10f2f47b667a11c08152bb9",
+    "city": "7d43d22978462a11a9c0d9bb",
+    "website": "fcb56c04d7fcb552d6ea18fe",
+    "": "1ab03a31fac84f31df4af1ab",
+    "Email": "e3189bbcd2380cef80a7bb22"
+   }
+  },
+  {
+   "name": "single_label_domain",
+   "lead": {
+    "website": "localhost",
+    "company": "",
+    "contact_person": ""
+   },
+   "norm_domain": "localhost",
+   "norm_company": "",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "88e883afc14f94239e79a7fa",
+    "description": "aab926b24978e1e34f0671d2",
+    "founded_year": "a91c06668c30ab0e9b61f4a7",
+    "city": "ec346713b839220d5e2d6a42",
+    "website": "18e0b326ca3874ecb348a2e0",
+    "": "f1d8da2716d619f9db620f2a",
+    "Email": "9fba4b9e22cafa46fb8e5088"
+   }
+  },
+  {
+   "name": "port_and_query",
+   "lead": {
+    "website": "acme.com:8080/x",
+    "company": "",
+    "contact_person": ""
+   },
+   "norm_domain": "acme.com:8080",
+   "norm_company": "",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "e9df4efed8ad3b0b66eef3a8",
+    "description": "c7b1f93f70cefe9c8ac6394c",
+    "founded_year": "00b98dc9352542b19cc802b5",
+    "city": "f19884de884cf8e6fde6733e",
+    "website": "0ae9b083cb99faba4031d6eb",
+    "": "c4e766f6c17a4b0c50904380",
+    "Email": "f6495bc8dfc8c31c4d49369c"
+   }
+  },
+  {
+   "name": "uppercase_scheme",
+   "lead": {
+    "website": "HTTPS://ACME.COM",
+    "company": "",
+    "contact_person": ""
+   },
+   "norm_domain": "acme.com",
+   "norm_company": "",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "d37fcbfe08bc3442a9f73f27",
+    "description": "46646fca243e6d1e5f24156a",
+    "founded_year": "6ac85bfa7f96372b03d08abe",
+    "city": "6c91942dc7a4860db2bc3deb",
+    "website": "5377e0e6d56da43cf4a8a999",
+    "": "4983babaf3bbc2e636f64b0f",
+    "Email": "35cd04d76f0a685db04f154b"
+   }
+  },
+  {
+   "name": "whitespace_website",
+   "lead": {
+    "website": "  acme.com  ",
+    "company": "",
+    "contact_person": ""
+   },
+   "norm_domain": "acme.com",
+   "norm_company": "",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "d37fcbfe08bc3442a9f73f27",
+    "description": "46646fca243e6d1e5f24156a",
+    "founded_year": "6ac85bfa7f96372b03d08abe",
+    "city": "6c91942dc7a4860db2bc3deb",
+    "website": "5377e0e6d56da43cf4a8a999",
+    "": "4983babaf3bbc2e636f64b0f",
+    "Email": "35cd04d76f0a685db04f154b"
+   }
+  },
+  {
+   "name": "trailing_dots",
+   "lead": {
+    "website": "acme.com.",
+    "company": "",
+    "contact_person": ""
+   },
+   "norm_domain": "acme.com",
+   "norm_company": "",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "d37fcbfe08bc3442a9f73f27",
+    "description": "46646fca243e6d1e5f24156a",
+    "founded_year": "6ac85bfa7f96372b03d08abe",
+    "city": "6c91942dc7a4860db2bc3deb",
+    "website": "5377e0e6d56da43cf4a8a999",
+    "": "4983babaf3bbc2e636f64b0f",
+    "Email": "35cd04d76f0a685db04f154b"
+   }
+  },
+  {
+   "name": "legal_suffix_only_company",
+   "lead": {
+    "website": "",
+    "company": "Inc",
+    "contact_person": ""
+   },
+   "norm_domain": "",
+   "norm_company": "",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": null,
+    "description": null,
+    "founded_year": null,
+    "city": null,
+    "website": null,
+    "": null,
+    "Email": null
+   }
+  },
+  {
+   "name": "legal_suffix_inside_word",
+   "lead": {
+    "website": "",
+    "company": "Incredible Cogs Group Holdings",
+    "contact_person": ""
+   },
+   "norm_domain": "",
+   "norm_company": "incrediblecogs",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "3ed4cd5c05e4d38a3fdf6489",
+    "description": "86cdcef0c012757d8e0c5b73",
+    "founded_year": "e8d4228a1eb67e3f2cd26d40",
+    "city": "7d2486fd61b438075009ff56",
+    "website": "38183ca7ce9710bd87d86451",
+    "": "97062fdc7819c3be466732ea",
+    "Email": "0900296d81e55957a465d681"
+   }
+  },
+  {
+   "name": "punctuation_company",
+   "lead": {
+    "website": "",
+    "company": "A.C.M.E. & Sons, Ltd.",
+    "contact_person": ""
+   },
+   "norm_domain": "",
+   "norm_company": "acmesons",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "af7851814ca6b53ad1d5501c",
+    "description": "01818366cd3d3d94ed568b8d",
+    "founded_year": "20d838746611162e51797653",
+    "city": "9c252335b4a1eb45a7d70643",
+    "website": "0759e9db20ad0dbc2773c527",
+    "": "6aba774cbb52fe3247e3a5ed",
+    "Email": "d76a53689704c08a8bb11390"
+   }
+  },
+  {
+   "name": "pvt_ltd_variants",
+   "lead": {
+    "website": "",
+    "company": "Zenith Robotics Pvt. Ltd.",
+    "contact_person": ""
+   },
+   "norm_domain": "",
+   "norm_company": "zenithrobotics",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "7ee8891b3da1d9488282452a",
+    "description": "7472c5374cc879e64e7325fe",
+    "founded_year": "f01d7e8c448ed4ab40b37255",
+    "city": "05369a7124148df4938b768a",
+    "website": "bd1f0c8982602309cddc8bdf",
+    "": "5e93f5f473909b9d29482e94",
+    "Email": "811c8ca0c633e7a6894b0eae"
+   }
+  },
+  {
+   "name": "none_fields",
+   "lead": {
+    "website": null,
+    "company": null,
+    "contact_person": null
+   },
+   "norm_domain": "",
+   "norm_company": "",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": null,
+    "description": null,
+    "founded_year": null,
+    "city": null,
+    "website": null,
+    "": null,
+    "Email": null
+   }
+  },
+  {
+   "name": "long_company",
+   "lead": {
+    "website": "",
+    "company": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "contact_person": ""
+   },
+   "norm_domain": "",
+   "norm_company": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "a0b7116b1bb6f0cceecbe07a",
+    "description": "ce27ce88c8d67fc4c9c57319",
+    "founded_year": "56fba7a86a63931eaf3fe31f",
+    "city": "6734bb6c83d03e503b085653",
+    "website": "540546818886506658fd32f5",
+    "": "c68ea3b63a2e59ba6e00147a",
+    "Email": "1710faf6f6cc486e40b5f1cf"
+   }
+  },
+  {
+   "name": "digits_company",
+   "lead": {
+    "website": "",
+    "company": "123 Corp",
+    "contact_person": ""
+   },
+   "norm_domain": "",
+   "norm_company": "123",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "8d784af15a94e902a8c965ec",
+    "description": "404656eba4b40871e2e41ae8",
+    "founded_year": "d57f3ad08f67f62da2829f84",
+    "city": "0396ff63ed0075b82f3da97c",
+    "website": "64c4e0a617cbb2ef91697f70",
+    "": "12ebd3d6ddd3ba777d935bd4",
+    "Email": "f775f48ce27ad1edf2d6717f"
+   }
+  },
+  {
+   "name": "mixed_case_person",
+   "lead": {
+    "website": "acme.com",
+    "company": "",
+    "contact_person": "ADA lovelace"
+   },
+   "norm_domain": "acme.com",
+   "norm_company": "",
+   "norm_name": "ada lovelace",
+   "keys": {
+    "email": "93c7bc388e96b930b9cbce8d",
+    "phone": "cda386e0530ad76f71542e15",
+    "linkedin_url": "47676de561bf481dfe3a6058",
+    "contact_person": "a0b746660ac804f83a0f6629",
+    "contact_title": "756896a9b89cf8fc4755d59d",
+    "company_size": "d37fcbfe08bc3442a9f73f27",
+    "description": "46646fca243e6d1e5f24156a",
+    "founded_year": "6ac85bfa7f96372b03d08abe",
+    "city": "6c91942dc7a4860db2bc3deb",
+    "website": "5377e0e6d56da43cf4a8a999",
+    "": "4983babaf3bbc2e636f64b0f",
+    "Email": "35cd04d76f0a685db04f154b"
+   }
+  },
+  {
+   "name": "tab_newline_person",
+   "lead": {
+    "website": "acme.com",
+    "company": "",
+    "contact_person": "Ada\tLovelace\n"
+   },
+   "norm_domain": "acme.com",
+   "norm_company": "",
+   "norm_name": "ada lovelace",
+   "keys": {
+    "email": "93c7bc388e96b930b9cbce8d",
+    "phone": "cda386e0530ad76f71542e15",
+    "linkedin_url": "47676de561bf481dfe3a6058",
+    "contact_person": "a0b746660ac804f83a0f6629",
+    "contact_title": "756896a9b89cf8fc4755d59d",
+    "company_size": "d37fcbfe08bc3442a9f73f27",
+    "description": "46646fca243e6d1e5f24156a",
+    "founded_year": "6ac85bfa7f96372b03d08abe",
+    "city": "6c91942dc7a4860db2bc3deb",
+    "website": "5377e0e6d56da43cf4a8a999",
+    "": "4983babaf3bbc2e636f64b0f",
+    "Email": "35cd04d76f0a685db04f154b"
+   }
+  },
+  {
+   "name": "middle_dot_domain",
+   "lead": {
+    "website": "https://acme.com/a/b",
+    "company": "",
+    "contact_person": ""
+   },
+   "norm_domain": "acme.com",
+   "norm_company": "",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": "d37fcbfe08bc3442a9f73f27",
+    "description": "46646fca243e6d1e5f24156a",
+    "founded_year": "6ac85bfa7f96372b03d08abe",
+    "city": "6c91942dc7a4860db2bc3deb",
+    "website": "5377e0e6d56da43cf4a8a999",
+    "": "4983babaf3bbc2e636f64b0f",
+    "Email": "35cd04d76f0a685db04f154b"
+   }
+  },
+  {
+   "name": "missing_attributes",
+   "lead": {},
+   "norm_domain": "",
+   "norm_company": "",
+   "norm_name": "",
+   "keys": {
+    "email": null,
+    "phone": null,
+    "linkedin_url": null,
+    "contact_person": null,
+    "contact_title": null,
+    "company_size": null,
+    "description": null,
+    "founded_year": null,
+    "city": null,
+    "website": null,
+    "": null,
+    "Email": null
+   }
+  }
+ ],
+ "email_key": [
+  {
+   "email": "a@b.co",
+   "verifier": "reacher",
+   "key": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054:reacher"
+  },
+  {
+   "email": "A@B.CO",
+   "verifier": "reacher",
+   "key": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054:reacher"
+  },
+  {
+   "email": " a@b.co ",
+   "verifier": "smtp",
+   "key": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054:smtp"
+  },
+  {
+   "email": "",
+   "verifier": "x",
+   "key": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855:x"
+  },
+  {
+   "email": "é@ü.de",
+   "verifier": "v",
+   "key": "fea2a55496a130374e50f969d695b05f6387df5a75f0a6bec1eaf045bdac02ab:v"
+  },
+  {
+   "email": "a@b.co",
+   "verifier": "",
+   "key": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054:"
+  },
+  {
+   "email": "a@b.co",
+   "verifier": "r:x",
+   "key": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054:r:x"
+  },
+  {
+   "email": null,
+   "verifier": "v",
+   "key": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855:v"
+  }
+ ],
+ "email_ttl": {
+  "definitive_days": 14,
+  "unknown_days": 1
+ },
+ "cache_sequences": [
+  {
+   "name": "hit_then_expiry_email_30d",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "key": "k1",
+      "field": "email",
+      "value": "a@b.co",
+      "confidence": 0.9,
+      "provider": "hunter_io"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k1",
+      "field": "email",
+      "at": 1
+     },
+     "result": {
+      "value": "a@b.co",
+      "confidence": 0.9,
+      "provider": "hunter_io"
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k1",
+      "field": "email",
+      "at": 2591999.0
+     },
+     "result": {
+      "value": "a@b.co",
+      "confidence": 0.9,
+      "provider": "hunter_io"
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k1",
+      "field": "email",
+      "at": 2592000.0
+     },
+     "result": {
+      "value": "a@b.co",
+      "confidence": 0.9,
+      "provider": "hunter_io"
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k1",
+      "field": "email",
+      "at": 2592001.0
+     },
+     "result": null
+    }
+   ],
+   "rows_left": 1
+  },
+  {
+   "name": "per_field_ttls",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "email",
+      "value": "v"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "phone",
+      "value": "v"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "linkedin_url",
+      "value": "v"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "company_size",
+      "value": "v"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "description",
+      "value": "v"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "founded_year",
+      "value": "v"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "city",
+      "value": "v"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email",
+      "at": 2505601.0
+     },
+     "result": {
+      "value": "v",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email",
+      "at": 2678401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email",
+      "at": 5270401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email",
+      "at": 7862401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email",
+      "at": 15638401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email",
+      "at": 31622401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "phone",
+      "at": 2505601.0
+     },
+     "result": {
+      "value": "v",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "phone",
+      "at": 2678401.0
+     },
+     "result": {
+      "value": "v",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "phone",
+      "at": 5270401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "phone",
+      "at": 7862401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "phone",
+      "at": 15638401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "phone",
+      "at": 31622401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "city",
+      "at": 2505601.0
+     },
+     "result": {
+      "value": "v",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "city",
+      "at": 2678401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "city",
+      "at": 5270401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "city",
+      "at": 7862401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "city",
+      "at": 15638401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "city",
+      "at": 31622401.0
+     },
+     "result": null
+    }
+   ],
+   "rows_left": 7
+  },
+  {
+   "name": "explicit_ttl_overrides",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "email",
+      "value": "v",
+      "ttl_days": 1
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email",
+      "at": 86399.0
+     },
+     "result": {
+      "value": "v",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email",
+      "at": 86401.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "phone",
+      "value": "v",
+      "ttl_days": 0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "phone",
+      "at": 0
+     },
+     "result": {
+      "value": "v",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "phone",
+      "at": 1
+     },
+     "result": {
+      "value": "v",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    }
+   ],
+   "rows_left": 2
+  },
+  {
+   "name": "empty_values_not_stored",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "email",
+      "value": ""
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "email",
+      "value": null
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "email",
+      "value": []
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "",
+      "field": "email",
+      "value": "v"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "",
+      "field": "email"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "email",
+      "value": 0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email"
+     },
+     "result": {
+      "value": "0",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k2",
+      "field": "email",
+      "value": false
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k2",
+      "field": "email"
+     },
+     "result": {
+      "value": "False",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    }
+   ],
+   "rows_left": 2
+  },
+  {
+   "name": "value_coerced_to_text",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "a",
+      "value": 12
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "a"
+     },
+     "result": {
+      "value": "12",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "b",
+      "value": 1.5
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "b"
+     },
+     "result": {
+      "value": "1.5",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "c",
+      "value": true
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "c"
+     },
+     "result": {
+      "value": "True",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "d",
+      "value": [
+       "x"
+      ]
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "d"
+     },
+     "result": {
+      "value": "['x']",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "e",
+      "value": {
+       "a": 1
+      }
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "e"
+     },
+     "result": {
+      "value": "{'a': 1}",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "f",
+      "value": 1e+16
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "f"
+     },
+     "result": {
+      "value": "1e+16",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    }
+   ],
+   "rows_left": 6
+  },
+  {
+   "name": "confidence_and_provider_defaults",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "email",
+      "value": "v"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email"
+     },
+     "result": {
+      "value": "v",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "phone",
+      "value": "v",
+      "confidence": null,
+      "provider": null
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "phone"
+     },
+     "result": {
+      "value": "v",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "x",
+      "value": "v",
+      "confidence": 0.123456789,
+      "provider": "p"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "x"
+     },
+     "result": {
+      "value": "v",
+      "confidence": 0.123456789,
+      "provider": "p"
+     }
+    }
+   ],
+   "rows_left": 3
+  },
+  {
+   "name": "overwrite_resets_ttl_and_provider",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "email",
+      "value": "old",
+      "provider": "a",
+      "confidence": 0.1
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "email",
+      "value": "new",
+      "provider": "b",
+      "confidence": 0.9
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email"
+     },
+     "result": {
+      "value": "new",
+      "confidence": 0.9,
+      "provider": "b"
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email",
+      "at": 1728000.0
+     },
+     "result": {
+      "value": "new",
+      "confidence": 0.9,
+      "provider": "b"
+     }
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "email",
+      "value": "newer",
+      "provider": "c",
+      "at": 2160000.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email",
+      "at": 3456000.0
+     },
+     "result": {
+      "value": "newer",
+      "confidence": 0.0,
+      "provider": "c"
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email",
+      "at": 4838400.0
+     },
+     "result": null
+    }
+   ],
+   "rows_left": 1
+  },
+  {
+   "name": "same_key_different_fields",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "email",
+      "value": "e"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "phone",
+      "value": "p"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "email"
+     },
+     "result": {
+      "value": "e",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "phone"
+     },
+     "result": {
+      "value": "p",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "city"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "other",
+      "field": "email"
+     },
+     "result": null
+    }
+   ],
+   "rows_left": 2
+  },
+  {
+   "name": "purge_expired",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "key": "a",
+      "field": "email",
+      "value": "v"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "b",
+      "field": "phone",
+      "value": "v"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "key": "c",
+      "field": "description",
+      "value": "v"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "purge",
+      "at": 2678400.0
+     },
+     "result": 1
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "a",
+      "field": "email",
+      "at": 2678400.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "b",
+      "field": "phone",
+      "at": 2678400.0
+     },
+     "result": {
+      "value": "v",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    },
+    {
+     "op": {
+      "op": "purge",
+      "at": 5270400.0
+     },
+     "result": 1
+    },
+    {
+     "op": {
+      "op": "purge",
+      "at": 34560000.0
+     },
+     "result": 1
+    },
+    {
+     "op": {
+      "op": "purge",
+      "at": 34646400.0
+     },
+     "result": 0
+    }
+   ],
+   "rows_left": 0
+  },
+  {
+   "name": "get_unknown_and_empty_key",
+   "steps": [
+    {
+     "op": {
+      "op": "get",
+      "key": "nope",
+      "field": "email"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "",
+      "field": "email"
+     },
+     "result": null
+    }
+   ],
+   "rows_left": 0
+  },
+  {
+   "name": "unicode_values",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "key": "k",
+      "field": "description",
+      "value": "日本語 é 😀"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "key": "k",
+      "field": "description"
+     },
+     "result": {
+      "value": "日本語 é 😀",
+      "confidence": 0.0,
+      "provider": "cache"
+     }
+    }
+   ],
+   "rows_left": 1
+  }
+ ],
+ "email_cache_sequences": [
+  {
+   "name": "definitive_14d",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "email": "A@B.co",
+      "verifier": "reacher",
+      "status": "valid",
+      "source": "reacher",
+      "detail": "rcpt_accepted",
+      "confidence": 0.95
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "reacher",
+      "at": 1123200.0
+     },
+     "result": {
+      "status": "valid",
+      "source": "reacher",
+      "detail": "rcpt_accepted",
+      "confidence": 0.95
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "reacher",
+      "at": 1209601.0
+     },
+     "result": null
+    }
+   ],
+   "rows_left": 1
+  },
+  {
+   "name": "unknown_1d",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "email": "a@b.co",
+      "verifier": "smtp",
+      "status": "unknown",
+      "detail": "soft"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "smtp",
+      "at": 86399.0
+     },
+     "result": {
+      "status": "unknown",
+      "source": "",
+      "detail": "soft",
+      "confidence": 0.0
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "smtp",
+      "at": 86401.0
+     },
+     "result": null
+    }
+   ],
+   "rows_left": 1
+  },
+  {
+   "name": "statuses",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "email": "a@b.co",
+      "verifier": "v",
+      "status": "valid"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "email": "a@b.co",
+      "verifier": "v",
+      "status": "invalid"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "email": "a@b.co",
+      "verifier": "v",
+      "status": "catch_all"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "email": "a@b.co",
+      "verifier": "v",
+      "status": "unknown"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "email": "a@b.co",
+      "verifier": "v",
+      "status": "weird"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "v",
+      "at": 172800.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "v",
+      "at": 1296000.0
+     },
+     "result": null
+    }
+   ],
+   "rows_left": 1
+  },
+  {
+   "name": "verifier_is_part_of_key",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "email": "a@b.co",
+      "verifier": "reacher",
+      "status": "valid"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "smtp"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "reacher"
+     },
+     "result": {
+      "status": "valid",
+      "source": "",
+      "detail": "",
+      "confidence": 0.0
+     }
+    }
+   ],
+   "rows_left": 1
+  },
+  {
+   "name": "case_and_whitespace_normalised",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "email": "  A@B.CO ",
+      "verifier": "v",
+      "status": "valid"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "v"
+     },
+     "result": {
+      "status": "valid",
+      "source": "",
+      "detail": "",
+      "confidence": 0.0
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "A@b.co  ",
+      "verifier": "v"
+     },
+     "result": {
+      "status": "valid",
+      "source": "",
+      "detail": "",
+      "confidence": 0.0
+     }
+    }
+   ],
+   "rows_left": 1
+  },
+  {
+   "name": "blank_inputs_ignored",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "email": "",
+      "verifier": "v",
+      "status": "valid"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "email": "a@b.co",
+      "verifier": "",
+      "status": "valid"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "email": "a@b.co",
+      "verifier": "v",
+      "status": ""
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "",
+      "verifier": "v"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": ""
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "v"
+     },
+     "result": null
+    }
+   ],
+   "rows_left": 0
+  },
+  {
+   "name": "explicit_ttl",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "email": "a@b.co",
+      "verifier": "v",
+      "status": "valid",
+      "ttl_days": 3
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "v",
+      "at": 259199.0
+     },
+     "result": {
+      "status": "valid",
+      "source": "",
+      "detail": "",
+      "confidence": 0.0
+     }
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "v",
+      "at": 259201.0
+     },
+     "result": null
+    }
+   ],
+   "rows_left": 1
+  },
+  {
+   "name": "defaults_blank_source_detail",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "email": "a@b.co",
+      "verifier": "v",
+      "status": "valid"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "v"
+     },
+     "result": {
+      "status": "valid",
+      "source": "",
+      "detail": "",
+      "confidence": 0.0
+     }
+    }
+   ],
+   "rows_left": 1
+  },
+  {
+   "name": "purge",
+   "steps": [
+    {
+     "op": {
+      "op": "set",
+      "email": "a@b.co",
+      "verifier": "v",
+      "status": "unknown"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "set",
+      "email": "c@d.co",
+      "verifier": "v",
+      "status": "valid"
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "purge",
+      "at": 172800.0
+     },
+     "result": 1
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "a@b.co",
+      "verifier": "v",
+      "at": 172800.0
+     },
+     "result": null
+    },
+    {
+     "op": {
+      "op": "get",
+      "email": "c@d.co",
+      "verifier": "v",
+      "at": 172800.0
+     },
+     "result": {
+      "status": "valid",
+      "source": "",
+      "detail": "",
+      "confidence": 0.0
+     }
+    },
+    {
+     "op": {
+      "op": "purge",
+      "at": 1728000.0
+     },
+     "result": 1
+    }
+   ],
+   "rows_left": 0
+  }
+ ],
+ "clock_base": 1800000000.0
+}
