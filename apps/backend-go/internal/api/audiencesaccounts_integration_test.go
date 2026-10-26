@@ -23,7 +23,7 @@ type accMember struct {
 	snap string
 }
 
-// accSeed inserts an audience with the given members (explicit member ids advance the sequence past them).
+// accSeed inserts an audience with the given members (member ids come from the sequence, which the seed loader moved past the seeded ids).
 func accSeed(t *testing.T, ws, aud string, members []accMember) {
 	t.Helper()
 	ctx := context.Background()
@@ -32,14 +32,11 @@ func accSeed(t *testing.T, ws, aud string, members []accMember) {
 		aud, ws, len(members)); err != nil {
 		t.Fatal(err)
 	}
-	for i, m := range members {
-		if _, err := c.Exec(ctx, `INSERT INTO audience_members (id, workspace_id, audience_id, lead_id, snapshot) VALUES ($1, $2, $3, $4, $5::json)`,
-			5000+i, ws, aud, m.lead, m.snap); err != nil {
+	for _, m := range members {
+		if _, err := c.Exec(ctx, `INSERT INTO audience_members (workspace_id, audience_id, lead_id, snapshot) VALUES ($1, $2, $3, $4::json)`,
+			ws, aud, m.lead, m.snap); err != nil {
 			t.Fatal(err)
 		}
-	}
-	if _, err := c.Exec(ctx, `SELECT setval(pg_get_serial_sequence('audience_members', 'id'), GREATEST(1000, (SELECT max(id) FROM audience_members)))`); err != nil {
-		t.Fatal(err)
 	}
 }
 
@@ -90,7 +87,13 @@ func TestAccountsMatchesFixtures(t *testing.T) {
 			replay(n)
 		}
 	}
-	// The recording refreshed the "Everyone" audience (10 -> 15 members) before this read.
+	// The recording refreshed the "Everyone" audience (10 -> 15 members) before this read, after earlier
+	// fixtures had titled leads 14, 6 and 5 (the seed's lead rows have no title; the member snapshots do).
+	for id, title := range map[int]string{14: "Boss", 6: "COO", 5: "CTO"} {
+		if _, err := audOwner(t).Exec(context.Background(), `UPDATE leads SET contact_title = $1 WHERE id = $2 AND workspace_id = 'ws-alpha'`, title, id); err != nil {
+			t.Fatal(err)
+		}
+	}
 	if _, err := audiencerefresh.Refresh(context.Background(), e.pool, "ws-alpha", "aud-act-2", audiencerefresh.Deps{
 		AudienceEvents: nopEmitter{}, ExecutorFor: func(string) string { return "python" }, PageSize: 500}); err != nil {
 		t.Fatal(err)
