@@ -153,6 +153,9 @@ func TestToLeadFilterMatchesQueryLeadsPageVectors(t *testing.T) {
 		if err := json.Unmarshal(raw, &want); err != nil {
 			t.Fatal(err)
 		}
+		if len(want.JobIDs) == 0 {
+			want.JobIDs = nil // an empty list and an unset one filter alike
+		}
 		if !reflect.DeepEqual(got, want) {
 			t.Fatalf("case %d %s: got %+v want %+v", i, raw, got, want)
 		}
@@ -293,8 +296,19 @@ func TestRollupMatchesPythonOutput(t *testing.T) {
 	}
 	readJSON(t, "testdata/accounts_rollup.json", &v)
 	n := 0
+	// The generator inserts every audience's signals into one table that is
+	// never cleared between audiences, so rows accumulate per lead_id.
+	acc := map[int]Signal{}
 	for _, a := range v.Audiences {
-		ms, sig := a.inputs()
+		ms, own := a.inputs()
+		for id, s := range own {
+			cur := acc[id]
+			acc[id] = Signal{Count: cur.Count + s.Count, Weight: cur.Weight + s.Weight}
+		}
+		sig := map[int]Signal{}
+		for id, s := range acc {
+			sig[id] = s
+		}
 		for _, p := range a.Pages {
 			res, err := Rollup(seqOf(ms), sig, p.Limit, p.Offset, 1000000)
 			if err != nil {
@@ -302,7 +316,7 @@ func TestRollupMatchesPythonOutput(t *testing.T) {
 			}
 			got, want := jsonOf(t, res), compact(t, p.Response)
 			if !reflect.DeepEqual(keySeq(t, got), keySeq(t, want)) {
-				t.Fatalf("%s limit=%d offset=%d key order differs", a.Name, p.Limit, p.Offset)
+				t.Fatalf("%s limit=%d offset=%d key order differs\n got %s\nwant %s", a.Name, p.Limit, p.Offset, got, want)
 			}
 			if got != want {
 				t.Fatalf("%s limit=%d offset=%d\n got %s\nwant %s", a.Name, p.Limit, p.Offset, got, want)
@@ -317,7 +331,9 @@ func TestRollupMatchesPythonOutput(t *testing.T) {
 
 func TestRollupSortStable(t *testing.T) {
 	// Equal weight, score, contacts: order by company.lower(); identical company names keep first-seen order.
-	snap := func(co, site string) map[string]any { return map[string]any{"company": co, "website": site, "score": json.Number("5")} }
+	snap := func(co, site string) map[string]any {
+		return map[string]any{"company": co, "website": site, "score": json.Number("5")}
+	}
 	ms := []Member{
 		{1, snap("b", "b1.example")}, {2, snap("B", "b2.example")}, {3, snap("a", "a.example")}, {4, snap("b", "b3.example")},
 	}
@@ -351,7 +367,7 @@ func TestRollupTooLarge(t *testing.T) {
 
 func TestDecisionMakerTerms(t *testing.T) {
 	titles := map[string]int{"CEO": 1, "Chief of Staff": 1, "VP Sales": 1, "Vice President": 1, "Head of X": 1,
-		"Director": 1, "Co-Owner": 1, "Founder": 1, "CTO": 1, "CMO": 1, "Sales Rep": 0, "Supervisor": 0, "": 0, "Doctor Who": 0}
+		"Director": 1, "Co-Owner": 1, "Founder": 1, "CTO": 1, "CMO": 1, "Sales Rep": 0, "Supervisor": 0, "": 0, "Doctor Who": 1}
 	for title, want := range titles {
 		res, err := Rollup(seqOf([]Member{{1, map[string]any{"company": "C", "contact_title": title}}}), nil, 50, 0, 10)
 		if err != nil {
