@@ -22,3 +22,11 @@ mailscout_verify imports the mailscout library (SMTP pattern verification) and r
 social_finder_provider DDGS search through the Python proxy client
 staffspy_provider imports staffspy
 website_scraper_provider Python StealthClient scraper
+
+# --- firmographic group (Task 14) ---
+# All ten HTTP modules (ipinfo, gleif, companies_house, mca_registry,
+# wikidata_provider, sec_edgar, jsonld_firmographics, tech_stack_provider,
+# ats_hiring, google_maps) are ported in internal/providers/firmo and so are not
+# listed. The helpers they used from job_tech_intent (analyze_job_text) are
+# ported inside firmo/jobintent.go; the module itself stays listed above because
+# jobspy_signals still imports it in the Python worker.
