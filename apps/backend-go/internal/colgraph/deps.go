@@ -375,3 +375,15 @@ func UnavailableDeps(column Col, cols []Col, row map[string]any) []string {
 	}
 	return missing
 }
+
+// FormulaReferences is the sorted set of {column} references a formula evaluates
+// (formula_column.formula_references).
+func FormulaReferences(expr string) []string {
+	set := formulaReferences(expr)
+	out := make([]string, 0, len(set))
+	for r := range set {
+		out = append(out, r)
+	}
+	sort.Strings(out)
+	return out
+}

@@ -51,7 +51,13 @@ var egressCheck = func(raw string) error { return egress.CheckURL(raw, true) }
 var (
 	defaultHTTPOnce   sync.Once
 	defaultHTTPClient *http.Client
+	// testTransport replaces the wire transport under the guarded client. Only _test files
+	// assign it; production always dials through egress.
+	testTransport http.RoundTripper
 )
+
+// allowedMethods: the verbs the http column sends (the vectors pin DELETE passthrough).
+var allowedMethods = map[string]bool{"GET": true, "HEAD": true, "POST": true, "PUT": true, "PATCH": true, "DELETE": true}
 
 // RunHTTPColumn is http_column.execute_http_column: expand the templates against row
 // (column id or name -> value), vet the resulting URL, send one request without following
@@ -83,6 +89,9 @@ func RunHTTPColumn(ctx context.Context, c *http.Client, col HTTPColumn, row map[
 	method := pyUpper(col.Method)
 	if method == "" {
 		method = "GET"
+	}
+	if !allowedMethods[method] {
+		return fail("unsupported_method")
 	}
 
 	// headers (secrets are expanded only here, and never toward a row-chosen host)
@@ -172,11 +181,14 @@ func RunHTTPColumn(ctx context.Context, c *http.Client, col HTTPColumn, row map[
 		req.Header.Set("Content-Type", "application/json")
 	}
 
-	if c == nil {
-		defaultHTTPOnce.Do(func() { defaultHTTPClient = egress.NewClient(nil) })
-		c = defaultHTTPClient
+	// The caller's client is deliberately ignored: only the dial-time-guarded egress client
+	// may carry a row-controlled URL (a pre-flight check alone is open to DNS rebinding).
+	_ = c
+	defaultHTTPOnce.Do(func() { defaultHTTPClient = egress.NewClient(nil) })
+	cc := *defaultHTTPClient
+	if testTransport != nil {
+		cc.Transport = testTransport
 	}
-	cc := *c
 	cc.Timeout = 0 // the context carries the deadline
 	// A redirect can turn an approved public URL into a private or metadata target: never
 	// follow, surface the 3xx instead.
@@ -218,7 +230,7 @@ func RunHTTPColumn(ctx context.Context, c *http.Client, col HTTPColumn, row map[
 
 	extract := pyStripSpace(col.JSONPath)
 	if extract == "" { // no extractor: the raw text, truncated
-		text := truncChars(decodeBody(raw, resp.Header.Get("Content-Type")), httpMaxRaw)
+		text := truncChars(redact(decodeBody(raw, resp.Header.Get("Content-Type")), used), httpMaxRaw)
 		if text == "" {
 			return fail("empty")
 		}
@@ -239,6 +251,9 @@ func RunHTTPColumn(ctx context.Context, c *http.Client, col HTTPColumn, row map[
 			return fail("no_match")
 		}
 		value = truncChars(s, httpMaxRaw)
+	}
+	if sv, ok := value.(string); ok {
+		value = redact(sv, used)
 	}
 	return HTTPResult{Success: true, Value: value}, nil
 }

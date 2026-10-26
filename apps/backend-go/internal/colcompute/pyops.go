@@ -10,8 +10,8 @@ import (
 // Resource caps: Python would grind or die with MemoryError; the evaluator refuses
 // with a FormulaError instead (documented deviation).
 const (
-	maxResultLen = 1 << 22 // characters / items in any string, list or bytes result
-	maxIntBits   = 1 << 18 // bits in any integer result
+	maxResultLen = 1 << 20 // characters / items in any string, list or bytes result
+	maxIntBits   = 1 << 16 // bits in any integer result
 )
 
 func checkInt(i *big.Int) *big.Int {

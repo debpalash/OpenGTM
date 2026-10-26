@@ -101,22 +101,6 @@ func matchPlaceholder(rs []rune, at int) (group string, end int, ok bool) {
 	return string(rs[at+1 : k]), k + 1, true
 }
 
-// FormulaReferences are the {column} references an expression evaluates, excluding string
-// literals and comments, de-duplicated and sorted.
-func FormulaReferences(expr string) []string {
-	seen := map[string]bool{}
-	replaceFormulaReferences(expr, func(raw string) string {
-		seen[pyStripSpace(raw)] = true
-		return raw
-	})
-	out := make([]string, 0, len(seen))
-	for k := range seen {
-		out = append(out, k)
-	}
-	sort.Strings(out)
-	return out
-}
-
 // ---- evaluation ----
 
 type kv struct {
@@ -253,7 +237,10 @@ type evaluator struct {
 	vars     map[string]any
 	deadline time.Time
 	count    int
+	alloc    int // cumulative size of produced values, bounded by maxAllocBudget
 }
+
+const maxAllocBudget = 16 << 20
 
 func (ev *evaluator) tick() {
 	ev.count++
@@ -265,7 +252,26 @@ func (ev *evaluator) tick() {
 	}
 }
 
+// eval evaluates n and charges the size of the produced value to the allocation budget.
 func (ev *evaluator) eval(n *node) any {
+	v := ev.evalNode(n)
+	switch x := v.(type) {
+	case string:
+		ev.alloc += len(x)
+	case []byte:
+		ev.alloc += len(x)
+	case []any:
+		ev.alloc += 16 * len(x)
+	case *big.Int:
+		ev.alloc += x.BitLen() / 8
+	}
+	if ev.alloc > maxAllocBudget {
+		raise("FormulaError", "formula allocation budget exceeded")
+	}
+	return v
+}
+
+func (ev *evaluator) evalNode(n *node) any {
 	ev.tick()
 	switch n.kind {
 	case "Expression":
