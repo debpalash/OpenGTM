@@ -59,6 +59,14 @@ func (f *fakeHubSpot) count() int {
 	return f.requests
 }
 
+// hsErr writes HubSpot's error body in the vendor's key order (status, message, category).
+func hsErr(w http.ResponseWriter, status int, msg, category string) {
+	m, _ := json.Marshal(msg)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	fmt.Fprintf(w, `{"status":"error","message":%s,"category":%q}`, m, category)
+}
+
 func hsJSON(w http.ResponseWriter, status int, v any) {
 	b, _ := json.Marshal(v)
 	w.Header().Set("Content-Type", "application/json")
@@ -88,9 +96,9 @@ func (f *fakeHubSpot) serve(w http.ResponseWriter, r *http.Request) {
 		if f.echoTok {
 			msg += " " + tok
 		}
-		hsJSON(w, 401, map[string]any{"status": "error", "message": msg, "category": "EXPIRED_AUTHENTICATION"})
+		hsErr(w, 401, msg, "EXPIRED_AUTHENTICATION")
 	case tok != hsGood && tok != hsConnect:
-		hsJSON(w, 401, map[string]any{"status": "error", "message": "Authentication credentials not found.", "category": "INVALID_AUTHENTICATION"})
+		hsErr(w, 401, "Authentication credentials not found.", "INVALID_AUTHENTICATION")
 	case r.Method == "GET" && r.URL.Path == "/account-info/v3/details":
 		hsJSON(w, 200, map[string]any{"portalId": 4242424, "accountType": "STANDARD", "timeZone": "UTC", "currency": "USD"})
 	case r.Method == "POST" && r.URL.Path == "/crm/v3/objects/contacts/search":
@@ -127,7 +135,7 @@ func (f *fakeHubSpot) serve(w http.ResponseWriter, r *http.Request) {
 		}
 		_ = json.Unmarshal(body, &q)
 		if q.Properties["email"] == "info@eco.example.com" {
-			hsJSON(w, 409, map[string]any{"status": "error", "message": "Contact already exists. Existing ID: 777", "category": "CONFLICT"})
+			hsErr(w, 409, "Contact already exists. Existing ID: 777", "CONFLICT")
 			return
 		}
 		f.mu.Lock()
@@ -139,7 +147,7 @@ func (f *fakeHubSpot) serve(w http.ResponseWriter, r *http.Request) {
 		var limit int
 		fmt.Sscan(r.URL.Query().Get("limit"), &limit)
 		if limit < 1 || limit > 100 {
-			hsJSON(w, 400, map[string]any{"status": "error", "message": "limit must be between 1 and 100", "category": "VALIDATION_ERROR"})
+			hsErr(w, 400, "limit must be between 1 and 100", "VALIDATION_ERROR")
 			return
 		}
 		hsJSON(w, 200, map[string]any{"results": hsContacts[:min(limit, len(hsContacts))]})
@@ -172,15 +180,16 @@ func newHubspotEnv(t *testing.T) hubspotEnv {
 	t.Cleanup(func() { newHubSpotClient = old })
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
-	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Flags: config.Flags{PGLeadStore: true},
+	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Flags: config.Flags{PGLeadStore: true, GoConnectorRoutesEnabled: true},
 		Envelope: envl, Getenv: getenv}
 	RegisterHubspot(r, d)
 	e := hubspotEnv{leadsEnv: leadsEnv{mcpEnv{env: env{h: r.Handler(), st: st}, pool: pool}}, fake: fake, res: res}
 	e.purge()
 	e.purgeSecrets()
-	t.Cleanup(e.purge)
-	t.Cleanup(e.purgeSecrets)
 	e.seedLeads(t)
+	// registered after the workspaces' own cleanups so they run first (LIFO)
+	t.Cleanup(e.purgeSecrets)
+	t.Cleanup(e.purge)
 	e.seed(t, "erin", pythonHash, true, "user", false)
 	ownerExec(t, `SELECT setval(pg_get_serial_sequence('leads','id'),
 		GREATEST(1000, (SELECT COALESCE(max(id), 0) FROM leads), (SELECT last_value FROM leads_id_seq)))`)
