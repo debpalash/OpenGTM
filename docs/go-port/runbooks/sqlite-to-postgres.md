@@ -2,8 +2,10 @@
 
 Moves the identity-plane, settings, chat, function and memory SQLite stores into PostgreSQL so
 the Go API can serve them. Schema is owned by Alembic (head `e1f5a9b3d7c2`); Go never runs DDL.
-Run Python commands from `legacy/python/` (host, via `uv run`) with `DATABASE_URL` set to the
-**owner** PostgreSQL URL (the backfill needs the table owner, not the runtime role).
+Every Python command below is run from `legacy/python/` via `uv run` (`uv run python -m ...`) with
+`DATABASE_URL` set to the **owner** PostgreSQL URL (the backfill needs the table owner, not the
+runtime role). Every `docker compose` command is run from the **repo root**. Each code block states
+its working directory in a leading `# cwd:` comment; do not rely on a `cd` carrying over between blocks.
 
 ## Variables used throughout
 
@@ -11,8 +13,13 @@ Run Python commands from `legacy/python/` (host, via `uv run`) with `DATABASE_UR
 # The LIVE data dir: the repo-root ./data that docker-compose mounts at /app/data.
 # This is NOT legacy/python/data (a stale dev copy). Use an absolute path.
 export DATA_DIR=/abs/path/to/OpenGTM/data
-export DATABASE_URL=postgresql+psycopg://<owner>:<pw>@<host>:5432/<db>   # SQLAlchemy form, for Python
-export OWNER_PG_URL=postgresql://<owner>:<pw>@<host>:5432/<db>           # plain form, for psql
+export DATABASE_URL=postgresql+psycopg://<owner>:<pw>@<host>:5432/<db>   # SQLAlchemy form, read by the Python CLIs
+
+# psql connection: password NEVER on argv (visible in `ps` / /proc/*/cmdline and shell history).
+export PGHOST=<host> PGPORT=5432 PGUSER=<owner> PGDATABASE=<db>
+# Provide the password via ~/.pgpass (chmod 600, line: host:5432:db:owner:password),
+# or a PGSERVICEFILE, or export PGPASSWORD in an interactive subshell (read -rs PGPASSWORD).
+# Never put it in a URL passed to psql, and never pass --pg-url: the stores CLI defaults to $DATABASE_URL.
 ```
 
 > **Prerequisite: rewire Docker/compose to `legacy/python` before cutover (known open item).**
@@ -35,13 +42,13 @@ exists. During the cutover window everything is stopped, so this order is applie
 ## 1. Pre-flight
 
 ```bash
+# cwd: legacy/python
 export SQLITE_STORES_BACKEND=sqlite          # must be sqlite until step 6
-cd legacy/python                             # Python/uv commands run from here; `docker compose` commands from the repo root
 
 # integrity-checked PostgreSQL + $DATA_DIR backup (refuses to overwrite an existing archive)
 BACKUP=backups/pre-stores-cutover-$(date +%Y%m%d%H%M).tar.gz
-python -m apps.api.cli backup --output "$BACKUP" --data-dir "$DATA_DIR"
-python -m apps.api.cli backup-verify "$BACKUP"
+uv run python -m apps.api.cli backup --output "$BACKUP" --data-dir "$DATA_DIR"
+uv run python -m apps.api.cli backup-verify "$BACKUP"
 
 # record source counts (compare with the verify output in step 5)
 sqlite3 "$DATA_DIR"/workspaces.db 'select count(*) from workspaces'
@@ -51,12 +58,11 @@ sqlite3 "$DATA_DIR"/workspaces.db 'select count(*) from user_active_workspace'
 sqlite3 "$DATA_DIR"/data.db       'select count(*) from settings'
 sqlite3 "$DATA_DIR"/chat_history.db 'select count(*) from conversations'
 sqlite3 "$DATA_DIR"/chat_history.db 'select count(*) from messages'
-
-# optional: preview what backfill will copy, writes nothing
-python -m apps.api.scripts.sqlite_stores.cli backfill --data-dir "$DATA_DIR" --dry-run
 ```
 
-Do not proceed if the backup does not verify.
+Do not proceed if the backup does not verify. (Archives made before the PostgreSQL dump digest was
+added carry no `postgres` manifest key; they still verify against the per-file inventory and print a
+warning.) The backfill dry-run needs the migrated schema, so it runs after step 3 (see 3b).
 
 ## 2. Stop services
 
@@ -70,17 +76,28 @@ to the SQLite files or PostgreSQL from here until step 6.
 ## 3. Migrate PostgreSQL to the new head
 
 ```bash
+# cwd: repo root
 docker compose run --rm migrate                 # requires the rewired image (see prerequisite)
+```
 
-# host-side equivalent (from legacy/python/, DATABASE_URL = owner URL):
+```bash
+# cwd: legacy/python   (host-side equivalent; DATABASE_URL = owner URL)
 YUPCHA_DB_INIT=alembic uv run alembic upgrade head
 uv run alembic current                          # expect: e1f5a9b3d7c2 (head)
+```
+
+### 3b. Optional dry-run (needs the migrated schema)
+
+```bash
+# cwd: legacy/python
+uv run python -m apps.api.scripts.sqlite_stores.cli backfill --data-dir "$DATA_DIR" --dry-run   # writes nothing
 ```
 
 ## 4. Backfill
 
 ```bash
-python -m apps.api.scripts.sqlite_stores.cli backfill --data-dir "$DATA_DIR"
+# cwd: legacy/python
+uv run python -m apps.api.scripts.sqlite_stores.cli backfill --data-dir "$DATA_DIR"
 ```
 
 Idempotent (`INSERT ... ON CONFLICT DO UPDATE`); safe to re-run. It reads SQLite through the `sqlite3`
@@ -88,6 +105,27 @@ backup API into a temp copy, sets `app.workspace_id` per tenant batch for FORCE-
 copies secret ciphertext (`enc:v1:` / `enc:v2:vault:`) verbatim; nothing is decrypted. It fails closed
 (exit 1) on unparseable values. Orphans (members/active-workspace rows whose `user_id` has no row in
 `users`) are reported, not fatal.
+
+Guard rails:
+
+- **Wrong/empty `DATA_DIR`.** If `workspaces.db` is absent from `--data-dir`, `backfill` and `verify`
+  exit 1 with a clear message. Pass `--allow-missing workspaces` only if the install truly has no
+  `workspaces.db`. Any other absent store file (`data.db`, `chat_history.db`, ...) prints a `warning:`
+  line on stderr naming the missing file(s); read it, a typo in `$DATA_DIR` shows up here.
+- **Dangling foreign keys.** SQLite never enforced foreign keys, PostgreSQL does. Before any write the
+  backfill checks every enforced parent key (members/settings/SCIM -> `workspaces`, OIDC identities
+  and member permissions -> `workspace_members`, SCIM group members -> `workspace_scim_groups`). A
+  violation aborts with `BackfillError` naming the table and the offending key ids (workspace ids,
+  user ids, group ids; never secret values) and `Nothing was written`. To resolve: in a **copy** of
+  the source SQLite file (never edit the live one), delete the orphan child rows or insert the
+  missing parent, point `--data-dir` at the copy (or fix in place after the stop in step 2), and re-run.
+- **Cutover marker.** The PG-only `__stores_backend` row in `app_settings` is never copied to or from
+  SQLite (backfill, verify and export-back all ignore it).
+- **Chat message order.** SQLite chat timestamps have 1 s resolution. Messages sharing the same second
+  within a conversation get ordinal microsecond offsets in SQLite rowid order, so the PostgreSQL order
+  matches the old order. API output is unchanged.
+- Conversations with a NULL or empty `workspace_id`/`user_id` are skipped (and counted under `skipped`)
+  because they are invisible today.
 
 Per-workspace leads/signals ledgers (`leads.db`, `signals.db`, `workspaces/<slug>/leads.db`) are copied
 by the existing `apps/api/scripts/migrate_sqlite_to_pg.py` (run it only if the ledgers have not already
@@ -98,7 +136,8 @@ check its output against the step 5 ledger counts. The stores CLI only verifies 
 ## 5. Verify (gate)
 
 ```bash
-python -m apps.api.scripts.sqlite_stores.cli verify --data-dir "$DATA_DIR" --pg-url "$DATABASE_URL"
+# cwd: legacy/python   (--pg-url defaults to $DATABASE_URL; do not pass the URL on argv)
+uv run python -m apps.api.scripts.sqlite_stores.cli verify --data-dir "$DATA_DIR"
 echo $?     # must be 0
 ```
 
@@ -118,11 +157,14 @@ cut over yet; roll back by simply restarting services (step 7a).
 # 6.1 flip the flag in .env (api, worker, scheduler all read it)
 SQLITE_STORES_BACKEND=postgres
 
-# 6.2 insert the marker (owner role). The startup guard refuses sqlite mode once this exists.
-psql "$OWNER_PG_URL" -c "INSERT INTO app_settings(key, value) VALUES ('__stores_backend','postgres')
-                         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value"
+# 6.2 record the cutover marker (idempotent upsert). Every Python entrypoint (API, worker,
+#     scheduler, job child, CLI) then refuses to start with SQLITE_STORES_BACKEND=sqlite, and the
+#     guard fails closed if it cannot read the marker.
+# cwd: legacy/python
+SQLITE_STORES_BACKEND=postgres uv run python -m apps.api.cli mark-cutover
 
 # 6.3 start in deploy order: migrate (already done) -> Go worker -> Python API
+# cwd: repo root
 docker compose --profile go up -d worker-go
 docker compose up -d api worker scheduler
 ```
@@ -148,9 +190,10 @@ throwaway field or a value you are happy to keep.
 SQLite files are still authoritative and unchanged.
 
 ```bash
+# cwd: repo root
 docker compose stop api worker scheduler worker-go
 # .env: SQLITE_STORES_BACKEND=sqlite
-psql "$OWNER_PG_URL" -c "DELETE FROM app_settings WHERE key = '__stores_backend'"
+psql -c "DELETE FROM app_settings WHERE key = '__stores_backend'"    # uses PG* env + ~/.pgpass, no password on argv
 docker compose up -d api worker scheduler
 ```
 
@@ -160,13 +203,16 @@ and the flag at `sqlite`, the API refuses to start by design.)
 ### 7b. After writes (PostgreSQL has newer data than the SQLite files)
 
 ```bash
+# cwd: repo root
 docker compose stop api worker scheduler worker-go
 
+# cwd: legacy/python
 # rebuild SQLite files from PostgreSQL into a NEW directory (never writes into $DATA_DIR itself, refuses --out == --data-dir)
-python -m apps.api.scripts.sqlite_stores.cli export-back --out "$DATA_DIR/rollback" --data-dir "$DATA_DIR"
+uv run python -m apps.api.scripts.sqlite_stores.cli export-back --out "$DATA_DIR/rollback" --data-dir "$DATA_DIR"
 
-# verify the export against PostgreSQL: must exit 0
-python -m apps.api.scripts.sqlite_stores.cli verify --data-dir "$DATA_DIR/rollback" --pg-url "$DATABASE_URL"
+# verify the export against PostgreSQL: must exit 0. --skip-ledgers is required here: the rollback
+# export never contains leads/signals ledgers (see below), so comparing them would always mismatch.
+uv run python -m apps.api.scripts.sqlite_stores.cli verify --data-dir "$DATA_DIR/rollback" --skip-ledgers
 ```
 
 `export-back` writes `workspaces.db`, `data.db`, `chat_history.db`, `functions.db`, `chat_memory.db`
@@ -175,21 +221,28 @@ into `$DATA_DIR/rollback/`. It snapshots the existing `$DATA_DIR/data.db` read-o
 copying the whole file over `$DATA_DIR/data.db` is safe. Chat, functions and memory stores are repointed to
 PostgreSQL by the same flag, so the same rollback covers them.
 
+The export directory is created `0700` and its files `0600` (they contain settings values and secret
+ciphertext); keep them that way.
+
 Keep the originals before overwriting, then copy:
 
 ```bash
+# cwd: any (paths are absolute via $DATA_DIR)
 mkdir -p "$DATA_DIR"/pre-rollback && cd "$DATA_DIR"
 cp -p workspaces.db data.db chat_history.db functions.db chat_memory.db pre-rollback/ 2>/dev/null || true
 cp -p data.db-wal data.db-shm pre-rollback/ 2>/dev/null || true   # sidecars, if present
 rm -f data.db-wal data.db-shm                    # stale sidecars must not be replayed onto the restored file
 for f in workspaces.db data.db chat_history.db functions.db chat_memory.db; do cp -p rollback/$f $f; done
 
-psql "$OWNER_PG_URL" -c "DELETE FROM app_settings WHERE key = '__stores_backend'"
+psql -c "DELETE FROM app_settings WHERE key = '__stores_backend'"    # PG* env + ~/.pgpass, no password on argv
 # .env: SQLITE_STORES_BACKEND=sqlite
+# cwd: repo root
 docker compose up -d api worker scheduler        # worker-go: --profile go up -d worker-go
 ```
 
-`export-back` does not touch leads/signals ledgers; those stay in PostgreSQL either way. Re-verify
+**Scope: leads/signals ledgers are out of this plan's rollback.** `export-back` does not write them
+(they were already migrated to PostgreSQL by `migrate_sqlite_to_pg.py` and stay there either way), which
+is why the 7b verify uses `--skip-ledgers`. The cutover gate in step 5 still compares them. Re-verify
 after restart: `GET /api/workspaces` matches, and the workspace secrets saved during the window read
 back masked.
 
