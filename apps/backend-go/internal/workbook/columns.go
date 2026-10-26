@@ -115,9 +115,6 @@ func validateGoColumn(c column) error {
 		return nil
 	}
 	t := c.target()
-	if structuredFields[t] {
-		return refuse("column %q targets structured field %q", c.ID, t)
-	}
 	if t == "email" {
 		if v, ok := c.cfg["verify"]; !ok || manifest.PyTruthy(v) {
 			return refuse("column %q needs email verification", c.ID)

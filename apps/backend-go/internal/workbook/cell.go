@@ -554,6 +554,9 @@ loop:
 			success, _ := call.resp["success"].(bool)
 			fields, _ := call.resp["fields"].(map[string]any)
 			if success && len(fields) > 0 {
+				if err := rs.writeBackFields(ctx, lead, fields, target, name); err != nil {
+					return cellOutcome{}, err
+				}
 				if v, ok := fields[target]; ok && manifest.PyTruthy(v) && v != "N/A" {
 					val, perr := cellScalar(v)
 					if perr != nil {
