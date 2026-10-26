@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/auth"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -124,6 +125,7 @@ func Workspace(st *Store) httpx.Middleware {
 			wc := WorkspaceCtx{User: p.User, WorkspaceID: wsID, Slug: ws.Slug, Role: role, Claims: p.Claims, Pool: st.pool}
 			ctx = context.WithValue(ctx, wsKey{}, wc)
 			ctx = context.WithValue(ctx, metaKey{}, Meta{ActorUserID: uid, ActorRole: role, WorkspaceID: wsID})
+			audit.SetActor(ctx, uid, role, wsID) // visible to the global audit middleware
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

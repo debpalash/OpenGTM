@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/api"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/auth"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -93,9 +94,9 @@ func run() error {
 // in tests that only exercise routes that do not touch the database.
 func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool) *httpx.Router {
 	r := httpx.NewRouter()
-	// Outermost first. TODO(task 7): add audit.Middleware here, after
-	// RequestID (it needs the request id) and inside CORS/Gzip.
-	r.Use(httpx.RequestID(), httpx.CORS(cfg.CORSOrigins), httpx.Gzip(gzipMinSize))
+	// Outermost first. audit.Middleware sits after RequestID (it needs the id)
+	// and inside CORS/Gzip; it owns the holder identity.Workspace fills.
+	r.Use(httpx.RequestID(), httpx.CORS(cfg.CORSOrigins), httpx.Gzip(gzipMinSize), audit.Middleware(pool, log))
 
 	// Distinct from FastAPI's /health, which nginx keeps routing to Python.
 	r.Handle("GET /healthz", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
