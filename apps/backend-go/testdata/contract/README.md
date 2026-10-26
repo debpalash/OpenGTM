@@ -49,3 +49,14 @@ Review `git diff` of the fixtures after re-recording: a changed fixture is a cha
 - `POST /Groups` with a non-numeric member `value` answers `409 SCIM group already exists` in both
   (FastAPI's blanket `except Exception` swallows the 400); PUT/PATCH answer 400. Fixture
   `scim_groups/create_nonnumeric_member`.
+- `GET /api/settings/llm-usage`: FastAPI reads `db.get_llm_usage()` from the lead store, and the shared
+  PostgreSQL lead store does not persist LLM usage (it answers an empty list). Go reads
+  `llm_usage_daily` (tenant table, FORCE RLS) instead, so a populated table yields real rows where FastAPI
+  returns none: a deliberate improvement. Fixtures `llm_usage_empty` / `llm_usage_with_date` record the
+  empty FastAPI answer; populated behaviour is covered by `TestLLMUsageTenantIsolation`.
+- `PUT /api/settings/enrichment-perf` returns the stored values without the `defaults` key (only GET
+  includes it); Go matches the recorded fixture `perf_put_clamp`, not the plan text.
+- `GET /api/settings/system`: an environment variable that is set but empty counts as unset (FastAPI keeps
+  the empty string; a non-integer `API_PORT` is a 500 in both).
+- `settings.yaml` fixtures need `ENRICH_*` and enrichment API keys absent from `app_settings` and no
+  `DEBUG`/`API_*`/`CORS_ORIGINS`/`GOOGLE_API_KEY`/`LINKEDIN_LI_AT_COOKIE` in the FastAPI environment.
