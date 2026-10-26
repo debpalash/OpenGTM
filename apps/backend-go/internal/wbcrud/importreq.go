@@ -147,11 +147,15 @@ func streamImportObject(r io.Reader) (*Obj, error) {
 			o.Set(key, v)
 			continue
 		}
-		v, err := streamRows(dec)
+		v, limit, err := streamRows(dec)
 		if err != nil {
 			return nil, err
 		}
 		o.Set(key, v)
+		if limit {
+			// more than MaxImportRows rows: stop decoding, the 422 is certain
+			return o, nil
+		}
 	}
 	if _, err := dec.Token(); err != nil { // '}'
 		return nil, err
@@ -165,10 +169,10 @@ func streamImportObject(r io.Reader) (*Obj, error) {
 	return o, nil
 }
 
-func streamRows(dec *json.Decoder) (any, error) {
+func streamRows(dec *json.Decoder) (rows any, limit bool, err error) {
 	tok, err := dec.Token()
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	d, isDelim := tok.(json.Delim)
 	switch {
@@ -177,35 +181,42 @@ func streamRows(dec *json.Decoder) (any, error) {
 		for dec.More() {
 			v, err := decodeOrdered(dec, true)
 			if err != nil {
-				return nil, err
+				return nil, false, err
 			}
 			elems = append(elems, v)
+			if len(elems) > MaxImportRows {
+				return elems, true, nil
+			}
 		}
 		if _, err := dec.Token(); err != nil {
-			return nil, err
+			return nil, false, err
 		}
-		return elems, nil
+		return elems, false, nil
 	case isDelim: // '{'
 		obj := NewObj()
 		for dec.More() {
 			kt, err := dec.Token()
 			if err != nil {
-				return nil, err
+				return nil, false, err
 			}
 			k, _ := kt.(string)
 			v, err := decodeOrdered(dec, true)
 			if err != nil {
-				return nil, err
+				return nil, false, err
 			}
 			obj.Set(k, v)
 		}
 		if _, err := dec.Token(); err != nil {
-			return nil, err
+			return nil, false, err
 		}
-		return obj, nil
+		return obj, false, nil
 	}
-	return tok, nil
+	return tok, false, nil
 }
+
+// maxImportItemErrors caps the per-element errors of rows and mapping (pydantic
+// lists every one; an array of millions of scalars must not build millions).
+const maxImportItemErrors = 100
 
 var sourceSystems = map[string]bool{"auto": true, "clay": true, "generic": true}
 
@@ -227,7 +238,7 @@ func validateImport(o *Obj) (ImportRequest, []httpx.FieldError) {
 		for i, el := range list {
 			if row, ok := el.(*Obj); ok {
 				req.Rows = append(req.Rows, row)
-			} else {
+			} else if len(errs)-n < maxImportItemErrors {
 				errs = append(errs, fe("dict_type", "Input should be a valid dictionary", []any{"body", "rows", i}, el)...)
 			}
 		}
@@ -251,7 +262,7 @@ func validateImport(o *Obj) (ImportRequest, []httpx.FieldError) {
 			errs = append(errs, fe("dict_type", "Input should be a valid dictionary", []any{"body", "mapping"}, mv)...)
 		} else {
 			m := make(CSVMapping, mo.Len())
-			bad := false
+			bad, nm := false, 0
 			for _, k := range mo.Keys() {
 				v, _ := mo.Get(k)
 				switch t := v.(type) {
@@ -262,6 +273,9 @@ func validateImport(o *Obj) (ImportRequest, []httpx.FieldError) {
 					m[k] = &s
 				default:
 					bad = true
+					if nm++; nm > maxImportItemErrors {
+						continue
+					}
 					errs = append(errs, fe("string_type", "Input should be a valid string", []any{"body", "mapping", k}, v)...)
 				}
 			}

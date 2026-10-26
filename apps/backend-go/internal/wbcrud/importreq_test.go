@@ -178,3 +178,34 @@ func TestDeepNestingIsRejectedNotFatal(t *testing.T) {
 		t.Errorf("100 levels refused: %v %v", err, errs)
 	}
 }
+
+type countingReader struct {
+	r io.Reader
+	n int64
+}
+
+func (c *countingReader) Read(p []byte) (int, error) {
+	n, err := c.r.Read(p)
+	c.n += int64(n)
+	return n, err
+}
+
+func TestRowLimitStopsDecodingEarly(t *testing.T) {
+	body := `{"rows":[` + strings.Repeat(`{},`, 2_000_000) + `{}]}`
+	cr := &countingReader{r: strings.NewReader(body)}
+	_, errs, err := ReadImportRequest(cr, 64<<20)
+	if err != nil || len(errs) != 1 || errs[0].Type != "too_long" || errs[0].Ctx["actual_length"] != MaxImportRows+1 {
+		t.Fatalf("err=%v errs=%v", err, errs)
+	}
+	if cr.n > 1<<20 {
+		t.Errorf("read %d of %d bytes after the row limit was crossed", cr.n, len(body))
+	}
+}
+
+func TestItemErrorsAreCapped(t *testing.T) {
+	body := `{"rows":[` + strings.Repeat(`1,`, 100000) + `1],"mapping":{` + strings.Repeat(`"a":1,`, 5) + `"b":1}}`
+	_, errs, err := ReadImportRequest(strings.NewReader(body), 64<<20)
+	if err != nil || len(errs) < 2 || len(errs) > 2*maxImportItemErrors {
+		t.Fatalf("err=%v errs=%d", err, len(errs))
+	}
+}
