@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http/httptest"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -71,11 +72,19 @@ func newOseqEnv(t *testing.T) oseqEnv {
 		('seq-out-b-01','ws-beta','Beta sequence','beta tenant',CAST('[{"step_number": 0, "subject": "Beta intro", "body_html": "<p>Hello from beta.</p>", "delay_hours": 0}]' AS json),'draft',50,9,18,'UTC','consent_contract',0,0,false,'2026-08-29 08:30:00+00','2026-08-29 08:30:00+00')`, oseqStepsA1)
 	for i, st := range []string{"pending", "scheduled", "sent", "opened", "replied", "bounced", "failed", "suppressed", "completed", "skipped"} {
 		ownerExec(t, `INSERT INTO outreach_enrollments (id, workspace_id, sequence_id, lead_id, to_email_snapshot, consent_source, consent_at, current_step, status)
-			VALUES ($1,'ws-alpha','seq-out-a-01',$2,'x'||$2||'@contract.example.com','manual_enroll','2026-08-29 07:30:00+00',0,$3)`, 900000+i, i+1, st)
+			VALUES ($1,'ws-alpha','seq-out-a-01',$2,$4,'manual_enroll','2026-08-29 07:30:00+00',0,$3)`, 900000+i, i+1, st, "x"+strconv.Itoa(i)+"@contract.example.com")
 	}
 	for i := 0; i < 6; i++ {
 		ownerExec(t, `INSERT INTO outreach_sends (workspace_id, sequence_id, enrollment_id, lead_id, step_number, to_email, subject, status, idempotency_key, charged_usd, migrated, error)
-			VALUES ('ws-alpha','seq-out-a-01',$1,$2,0,'x@contract.example.com','s','sent','oseq-'||$2,0,false,'')`, 900000+i, i+1)
+			VALUES ('ws-alpha','seq-out-a-01',$1,$2,0,'x@contract.example.com','s','sent',$3,0,false,'')`, 900000+i, i+1, "oseq-"+strconv.Itoa(i))
+	}
+	for i := 0; i < 3; i++ { // ws-beta: three scheduled enrollments, six sent rows
+		ownerExec(t, `INSERT INTO outreach_enrollments (id, workspace_id, sequence_id, lead_id, to_email_snapshot, consent_source, consent_at, current_step, status)
+			VALUES ($1,'ws-beta','seq-out-b-01',$2,$3,'manual_enroll','2026-08-29 07:30:00+00',0,'scheduled')`, 910000+i, 17+i, "b"+strconv.Itoa(i)+"@contract.example.com")
+	}
+	for i := 0; i < 6; i++ {
+		ownerExec(t, `INSERT INTO outreach_sends (workspace_id, sequence_id, enrollment_id, lead_id, step_number, to_email, subject, status, idempotency_key, charged_usd, migrated, error)
+			VALUES ('ws-beta','seq-out-b-01',$1,17,$2,'b@contract.example.com','s','sent',$3,0,false,'')`, 910000, i, "oseqb-"+strconv.Itoa(i))
 	}
 	d := Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Flags: config.Flags{PGLeadStore: true, Outreach: config.OutreachSettings{GoRoutesEnabled: true}}}
 	r := httpx.NewRouter()
@@ -117,6 +126,15 @@ func oseqNormalize(got, want any, ids map[string]string) any {
 		g, ok := got.(map[string]any)
 		if !ok {
 			return got
+		}
+		if id, _ := w["id"].(string); oseqNormUUID.MatchString(id) { // a row created during the run: its timestamps are volatile
+			for _, k := range []string{"created_at", "updated_at"} {
+				if _, ok := g[k].(string); ok {
+					if wv, ok := w[k].(string); ok {
+						g[k] = wv
+					}
+				}
+			}
 		}
 		for k, wv := range w {
 			if gv, ok := g[k]; ok {
