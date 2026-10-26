@@ -43,3 +43,40 @@ func TestSchemaHasEnrichmentCacheTables(t *testing.T) {
 		}
 	}
 }
+
+func TestSchemaHasOutreachMessageLookup(t *testing.T) {
+	s := schemaSQL(t)
+	fn := regexp.MustCompile(`(?s)CREATE FUNCTION public\.outreach_send_by_message_id\(p_message_id text\)\s+RETURNS TABLE\(workspace_id text, send_id integer, sequence_id text, enrollment_id integer, to_email text\)(.*?)\$\$;`)
+	m := fn.FindStringSubmatch(s)
+	if m == nil {
+		t.Fatal("outreach_send_by_message_id function missing or wrong return columns")
+	}
+	for _, want := range []string{"SECURITY DEFINER", "SET search_path TO 'pg_catalog', 'public', 'pg_temp'"} {
+		if !strings.Contains(m[1], want) {
+			t.Errorf("function missing %q", want)
+		}
+	}
+
+	rls := []string{"outreach_sequences", "outreach_enrollments", "outreach_sends", "outreach_suppressions",
+		"outreach_inbound_messages", "outreach_drafts"}
+	noRLS := []string{"outreach_schedules", "outreach_inbound_schedules"}
+	for _, tbl := range append(append([]string{}, rls...), noRLS...) {
+		if !strings.Contains(s, "CREATE TABLE public."+tbl+" (") {
+			t.Errorf("%s: table missing", tbl)
+		}
+	}
+	forced := 0
+	for _, tbl := range rls {
+		if strings.Contains(s, "ALTER TABLE ONLY public."+tbl+" FORCE ROW LEVEL SECURITY;") {
+			forced++
+		}
+	}
+	for _, tbl := range noRLS {
+		if strings.Contains(s, "ALTER TABLE ONLY public."+tbl+" FORCE ROW LEVEL SECURITY;") {
+			t.Errorf("%s: unexpected RLS", tbl)
+		}
+	}
+	if forced != len(rls) {
+		t.Errorf("forced RLS on %d outreach tables, want %d", forced, len(rls))
+	}
+}
