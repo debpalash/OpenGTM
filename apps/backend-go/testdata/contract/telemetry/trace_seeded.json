@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/rows/1/cells/summary/trace"
+  },
+  "response": {
+    "body": {
+      "column_id": "summary",
+      "goal": "summarize",
+      "lead_id": 1,
+      "outcome": "ok",
+      "steps": [
+        {
+          "action": "search",
+          "step": 1
+        }
+      ],
+      "total_cost_usd": 0.01,
+      "workbook_id": "wb-alpha-2"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

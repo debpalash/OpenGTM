@@ -1,0 +1,1568 @@
+{
+ "selected_cell_count": [
+  {
+   "rows": [
+    1,
+    2,
+    3
+   ],
+   "columns": [
+    "a",
+    "b",
+    "c"
+   ],
+   "row_columns": null,
+   "want": 9
+  },
+  {
+   "rows": [],
+   "columns": [],
+   "row_columns": null,
+   "want": 0
+  },
+  {
+   "rows": [],
+   "columns": [
+    "a",
+    "b",
+    "c"
+   ],
+   "row_columns": null,
+   "want": 0
+  },
+  {
+   "rows": [
+    1,
+    2,
+    3
+   ],
+   "columns": [],
+   "row_columns": null,
+   "want": 0
+  },
+  {
+   "rows": [
+    1,
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "a"
+   ],
+   "row_columns": null,
+   "want": 2
+  },
+  {
+   "rows": [
+    1.0,
+    2
+   ],
+   "columns": [
+    "a",
+    "b",
+    "c"
+   ],
+   "row_columns": null,
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    true
+   ],
+   "columns": [
+    "a",
+    "b",
+    "c"
+   ],
+   "row_columns": null,
+   "want": null
+  },
+  {
+   "rows": [
+    0,
+    1
+   ],
+   "columns": [
+    "a",
+    "b",
+    "c"
+   ],
+   "row_columns": null,
+   "want": null
+  },
+  {
+   "rows": [
+    -1
+   ],
+   "columns": [
+    "a",
+    "b",
+    "c"
+   ],
+   "row_columns": null,
+   "want": null
+  },
+  {
+   "rows": [
+    1
+   ],
+   "columns": [
+    "a",
+    ""
+   ],
+   "row_columns": null,
+   "want": null
+  },
+  {
+   "rows": [
+    1
+   ],
+   "columns": [
+    "a",
+    2
+   ],
+   "row_columns": null,
+   "want": null
+  },
+  {
+   "rows": [
+    1
+   ],
+   "columns": [
+    null
+   ],
+   "row_columns": null,
+   "want": null
+  },
+  {
+   "rows": null,
+   "columns": [
+    "a",
+    "b",
+    "c"
+   ],
+   "row_columns": null,
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2,
+    3
+   ],
+   "columns": null,
+   "row_columns": null,
+   "want": null
+  },
+  {
+   "rows": "1",
+   "columns": [
+    "a",
+    "b",
+    "c"
+   ],
+   "row_columns": null,
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2,
+    3
+   ],
+   "columns": "abc",
+   "row_columns": null,
+   "want": null
+  },
+  {
+   "rows": {
+    "1": 1
+   },
+   "columns": [
+    "a",
+    "b",
+    "c"
+   ],
+   "row_columns": null,
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "1": [
+     "a"
+    ],
+    "2": [
+     "a",
+     "b"
+    ]
+   },
+   "want": 3
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "1": [
+     "a",
+     "a"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "want": 2
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "1": [
+     "a"
+    ]
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "1": [
+     "a"
+    ],
+    "2": [
+     "a"
+    ],
+    "3": [
+     "a"
+    ]
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "1": [
+     "z"
+    ],
+    "2": [
+     "a"
+    ]
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "1": [],
+    "2": []
+   },
+   "want": 0
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "1": "a",
+    "2": [
+     "a"
+    ]
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "1": [
+     1
+    ],
+    "2": [
+     "a"
+    ]
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "1": [
+     ""
+    ],
+    "2": [
+     "a"
+    ]
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "01": [
+     "a"
+    ],
+    "2": [
+     "a"
+    ]
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "+1": [
+     "a"
+    ],
+    "2": [
+     "a"
+    ]
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    " 1": [
+     "a"
+    ],
+    "2": [
+     "a"
+    ]
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "٣": [
+     "a"
+    ],
+    "2": [
+     "a"
+    ]
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "1": [
+     "a"
+    ],
+    "x": [
+     "a"
+    ]
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "0": [
+     "a"
+    ],
+    "2": [
+     "a"
+    ]
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1,
+    2
+   ],
+   "columns": [
+    "a",
+    "b"
+   ],
+   "row_columns": {
+    "-1": [
+     "a"
+    ],
+    "2": [
+     "a"
+    ]
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1
+   ],
+   "columns": [
+    "a"
+   ],
+   "row_columns": {},
+   "want": null
+  },
+  {
+   "rows": [],
+   "columns": [],
+   "row_columns": {},
+   "want": 0
+  },
+  {
+   "rows": [],
+   "columns": [
+    "a"
+   ],
+   "row_columns": {},
+   "want": 0
+  },
+  {
+   "rows": [
+    1
+   ],
+   "columns": [
+    "a"
+   ],
+   "row_columns": [],
+   "want": null
+  },
+  {
+   "rows": [
+    1
+   ],
+   "columns": [
+    "a"
+   ],
+   "row_columns": "x",
+   "want": null
+  },
+  {
+   "rows": [
+    1
+   ],
+   "columns": [
+    "a"
+   ],
+   "row_columns": 0,
+   "want": null
+  },
+  {
+   "rows": [
+    1
+   ],
+   "columns": [
+    "a"
+   ],
+   "row_columns": false,
+   "want": null
+  },
+  {
+   "rows": [
+    1
+   ],
+   "columns": [
+    "a"
+   ],
+   "row_columns": [
+    1
+   ],
+   "want": null
+  },
+  {
+   "rows": [
+    1
+   ],
+   "columns": [
+    "a"
+   ],
+   "row_columns": {
+    "1": null
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    1
+   ],
+   "columns": [
+    "a"
+   ],
+   "row_columns": {
+    "1": {
+     "a": 1
+    }
+   },
+   "want": null
+  },
+  {
+   "rows": [
+    100000000000000000000,
+    5
+   ],
+   "columns": [
+    "a"
+   ],
+   "row_columns": null,
+   "want": 2
+  },
+  {
+   "rows": [
+    100000000000000000000
+   ],
+   "columns": [
+    "a"
+   ],
+   "row_columns": {
+    "100000000000000000000": [
+     "a"
+    ]
+   },
+   "want": 1
+  },
+  {
+   "rows": [
+    1.5
+   ],
+   "columns": [
+    "a"
+   ],
+   "row_columns": null,
+   "want": null
+  },
+  {
+   "rows": [
+    9223372036854775808
+   ],
+   "columns": [
+    "a"
+   ],
+   "row_columns": null,
+   "want": 1
+  }
+ ],
+ "output_attempts": [
+  {
+   "in": null,
+   "want": null
+  },
+  {
+   "in": [],
+   "want": null
+  },
+  {
+   "in": "x",
+   "want": null
+  },
+  {
+   "in": 0,
+   "want": null
+  },
+  {
+   "in": {},
+   "want": {
+    "total": 0,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 0
+   }
+  },
+  {
+   "in": {
+    "a": {
+     "state": "dispatch_claimed"
+    }
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 1,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 0
+   }
+  },
+  {
+   "in": {
+    "a": {
+     "state": "recorded",
+     "result": {
+      "success": true
+     }
+    }
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 1,
+    "failed": 0,
+    "unknown": 0
+   }
+  },
+  {
+   "in": {
+    "a": {
+     "state": "recorded",
+     "result": {
+      "success": false
+     }
+    }
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 1,
+    "unknown": 0
+   }
+  },
+  {
+   "in": {
+    "a": {
+     "state": "recorded",
+     "result": {}
+    }
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 1
+   }
+  },
+  {
+   "in": {
+    "a": {
+     "state": "recorded",
+     "result": {
+      "success": null
+     }
+    }
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 1
+   }
+  },
+  {
+   "in": {
+    "a": {
+     "state": "recorded",
+     "result": {
+      "success": 1
+     }
+    }
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 1
+   }
+  },
+  {
+   "in": {
+    "a": {
+     "state": "recorded",
+     "result": {
+      "success": "true"
+     }
+    }
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 1
+   }
+  },
+  {
+   "in": {
+    "a": {
+     "state": "recorded",
+     "result": null
+    }
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 1
+   }
+  },
+  {
+   "in": {
+    "a": {
+     "state": "recorded",
+     "result": []
+    }
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 1
+   }
+  },
+  {
+   "in": {
+    "a": {
+     "state": "recorded"
+    }
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 1
+   }
+  },
+  {
+   "in": {
+    "a": {
+     "state": "other"
+    }
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 1
+   }
+  },
+  {
+   "in": {
+    "a": {}
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 1
+   }
+  },
+  {
+   "in": {
+    "a": "x"
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 1
+   }
+  },
+  {
+   "in": {
+    "a": null
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 1
+   }
+  },
+  {
+   "in": {
+    "a": []
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 1
+   }
+  },
+  {
+   "in": {
+    "a": 1
+   },
+   "want": {
+    "total": 1,
+    "awaiting_receipt": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "unknown": 1
+   }
+  },
+  {
+   "in": {
+    "a": {
+     "state": "dispatch_claimed"
+    },
+    "b": {
+     "state": "recorded",
+     "result": {
+      "success": true
+     }
+    },
+    "c": {
+     "state": "recorded",
+     "result": {
+      "success": false
+     }
+    },
+    "d": {
+     "state": "recorded",
+     "result": {}
+    },
+    "e": "junk",
+    "f": {
+     "state": "dispatch_claimed",
+     "result": {
+      "success": true
+     }
+    }
+   },
+   "want": {
+    "total": 6,
+    "awaiting_receipt": 2,
+    "succeeded": 1,
+    "failed": 1,
+    "unknown": 2
+   }
+  }
+ ],
+ "budget_strings": [
+  {
+   "in": " 5 ",
+   "want": "5.0"
+  },
+  {
+   "in": "5.",
+   "want": "5.0"
+  },
+  {
+   "in": ".5",
+   "want": "0.5"
+  },
+  {
+   "in": "1e3",
+   "want": "1000.0"
+  },
+  {
+   "in": "1_0",
+   "want": "10.0"
+  },
+  {
+   "in": "+5",
+   "want": "5.0"
+  },
+  {
+   "in": "0x10",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "nan",
+   "err": "finite_number",
+   "msg": "Input should be a finite number",
+   "ctx": null
+  },
+  {
+   "in": "NaN",
+   "err": "finite_number",
+   "msg": "Input should be a finite number",
+   "ctx": null
+  },
+  {
+   "in": "Infinity",
+   "err": "finite_number",
+   "msg": "Input should be a finite number",
+   "ctx": null
+  },
+  {
+   "in": "-0",
+   "want": "-0.0"
+  },
+  {
+   "in": "1e999",
+   "err": "finite_number",
+   "msg": "Input should be a finite number",
+   "ctx": null
+  },
+  {
+   "in": "",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "5 5",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "1,5",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "1e",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "5\n",
+   "want": "5.0"
+  },
+  {
+   "in": "\t5",
+   "want": "5.0"
+  },
+  {
+   "in": "1__0",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "_1",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "1_",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "1_.5",
+   "want": "1.5"
+  },
+  {
+   "in": "1e1_0",
+   "want": "10000000000.0"
+  },
+  {
+   "in": "-0.0",
+   "want": "-0.0"
+  },
+  {
+   "in": "1E5",
+   "want": "100000.0"
+  },
+  {
+   "in": "+.5e-2",
+   "want": "0.005"
+  },
+  {
+   "in": "-inf",
+   "err": "finite_number",
+   "msg": "Input should be a finite number",
+   "ctx": null
+  },
+  {
+   "in": "1._5",
+   "want": "1.5"
+  },
+  {
+   "in": "1.5_",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "1_e5",
+   "want": "100000.0"
+  },
+  {
+   "in": "1e_5",
+   "want": "100000.0"
+  },
+  {
+   "in": "1e5_",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "1e+_5",
+   "want": "100000.0"
+  },
+  {
+   "in": "1_.",
+   "want": "1.0"
+  },
+  {
+   "in": "_.5",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "1._",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "._5",
+   "want": "0.5"
+  },
+  {
+   "in": "+_1",
+   "want": "1.0"
+  },
+  {
+   "in": "1_2_3",
+   "want": "123.0"
+  },
+  {
+   "in": "1_2.3_4e5_6",
+   "want": "1.234e+57"
+  },
+  {
+   "in": "-_5",
+   "err": "greater_than_equal",
+   "msg": "Input should be greater than or equal to 0",
+   "ctx": {
+    "ge": 0.0
+   }
+  },
+  {
+   "in": "1 _0",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "٣",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "１２",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "0.1e400",
+   "err": "finite_number",
+   "msg": "Input should be a finite number",
+   "ctx": null
+  },
+  {
+   "in": "00012",
+   "want": "12.0"
+  },
+  {
+   "in": "abc",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "-1",
+   "err": "greater_than_equal",
+   "msg": "Input should be greater than or equal to 0",
+   "ctx": {
+    "ge": 0.0
+   }
+  },
+  {
+   "in": "-1e-7",
+   "err": "greater_than_equal",
+   "msg": "Input should be greater than or equal to 0",
+   "ctx": {
+    "ge": 0.0
+   }
+  },
+  {
+   "in": "-0",
+   "want": "-0.0"
+  },
+  {
+   "in": "1e308",
+   "want": "1e+308"
+  },
+  {
+   "in": "1.7976931348623157e308",
+   "want": "1.7976931348623157e+308"
+  },
+  {
+   "in": "4.9e-324",
+   "want": "5e-324"
+  },
+  {
+   "in": "123456789012345678901234567890",
+   "want": "1.2345678901234568e+29"
+  },
+  {
+   "in": "0.1",
+   "want": "0.1"
+  },
+  {
+   "in": "0.30000000000000004",
+   "want": "0.30000000000000004"
+  },
+  {
+   "in": ".",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "+",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "-",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "e5",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  },
+  {
+   "in": "1e+5",
+   "want": "100000.0"
+  },
+  {
+   "in": "1e-5",
+   "want": "1e-05"
+  },
+  {
+   "in": "٣.٥",
+   "err": "float_parsing",
+   "msg": "Input should be a valid number, unable to parse string as a number",
+   "ctx": null
+  }
+ ],
+ "int_strings": [
+  {
+   "in": "2.0",
+   "want": "2"
+  },
+  {
+   "in": " 7 ",
+   "want": "7"
+  },
+  {
+   "in": "+7",
+   "want": "7"
+  },
+  {
+   "in": "-7",
+   "want": "-7"
+  },
+  {
+   "in": "1_0",
+   "want": "10"
+  },
+  {
+   "in": "1e1",
+   "err": "int_parsing"
+  },
+  {
+   "in": "1.5",
+   "err": "int_parsing"
+  },
+  {
+   "in": "1.",
+   "err": "int_parsing"
+  },
+  {
+   "in": ".5",
+   "err": "int_parsing"
+  },
+  {
+   "in": "2.50",
+   "err": "int_parsing"
+  },
+  {
+   "in": "0x1",
+   "err": "int_parsing"
+  },
+  {
+   "in": "١",
+   "err": "int_parsing"
+  },
+  {
+   "in": "5\n",
+   "want": "5"
+  },
+  {
+   "in": "00012",
+   "want": "12"
+  },
+  {
+   "in": "1__0",
+   "err": "int_parsing"
+  },
+  {
+   "in": "_1",
+   "err": "int_parsing"
+  },
+  {
+   "in": "1_",
+   "err": "int_parsing"
+  },
+  {
+   "in": "1_.0",
+   "err": "int_parsing"
+  },
+  {
+   "in": "1.0_0",
+   "err": "int_parsing"
+  },
+  {
+   "in": "100000000000000000000.0",
+   "want": "100000000000000000000"
+  },
+  {
+   "in": "-0",
+   "want": "0"
+  },
+  {
+   "in": "-0.0",
+   "want": "0"
+  },
+  {
+   "in": "nan",
+   "err": "int_parsing"
+  },
+  {
+   "in": "inf",
+   "err": "int_parsing"
+  },
+  {
+   "in": "",
+   "err": "int_parsing"
+  },
+  {
+   "in": "  ",
+   "err": "int_parsing"
+  },
+  {
+   "in": "1 0",
+   "err": "int_parsing"
+  },
+  {
+   "in": "+",
+   "err": "int_parsing"
+  },
+  {
+   "in": "-",
+   "err": "int_parsing"
+  },
+  {
+   "in": "12abc",
+   "err": "int_parsing"
+  },
+  {
+   "in": "999999999999999999999999999999",
+   "want": "999999999999999999999999999999"
+  },
+  {
+   "in": "2147483647",
+   "want": "2147483647"
+  },
+  {
+   "in": "2147483648",
+   "want": "2147483648"
+  },
+  {
+   "in": "-2147483648",
+   "want": "-2147483648"
+  },
+  {
+   "in": "-2147483649",
+   "want": "-2147483649"
+  },
+  {
+   "in": "1_0.0",
+   "want": "10"
+  },
+  {
+   "in": "3.000",
+   "want": "3"
+  },
+  {
+   "in": "0.0",
+   "want": "0"
+  },
+  {
+   "in": "-1.0",
+   "want": "-1"
+  }
+ ],
+ "exposure": [
+  {
+   "micro": null,
+   "want": "0.0"
+  },
+  {
+   "micro": 0,
+   "want": "0"
+  },
+  {
+   "micro": 1,
+   "want": "1e-06"
+  },
+  {
+   "micro": 2000,
+   "want": "0.002"
+  },
+  {
+   "micro": 999999,
+   "want": "0.999999"
+  },
+  {
+   "micro": 1000000,
+   "want": "1"
+  },
+  {
+   "micro": 1500000,
+   "want": "1.5"
+  },
+  {
+   "micro": 2500000,
+   "want": "2.5"
+  },
+  {
+   "micro": 3000000,
+   "want": "3"
+  },
+  {
+   "micro": 10000000,
+   "want": "10"
+  },
+  {
+   "micro": 123456789,
+   "want": "123.456789"
+  },
+  {
+   "micro": 1000000000000000,
+   "want": "1000000000"
+  },
+  {
+   "micro": 1000000000000001,
+   "want": "1000000000.000001"
+  },
+  {
+   "micro": 9007199254740993,
+   "want": "9007199254.740993"
+  },
+  {
+   "micro": 5,
+   "want": "5e-06"
+  }
+ ],
+ "rounds": [
+  {
+   "x": 1.23456789,
+   "nd": 4,
+   "want": "1.2346"
+  },
+  {
+   "x": 5e-05,
+   "nd": 4,
+   "want": "0.0001"
+  },
+  {
+   "x": 0.00015,
+   "nd": 4,
+   "want": "0.0001"
+  },
+  {
+   "x": 2.5e-05,
+   "nd": 4,
+   "want": "0.0"
+  },
+  {
+   "x": 1e-09,
+   "nd": 6,
+   "want": "0.0"
+  },
+  {
+   "x": -1e-09,
+   "nd": 6,
+   "want": "-0.0"
+  },
+  {
+   "x": 11.26543211,
+   "nd": 6,
+   "want": "11.265432"
+  },
+  {
+   "x": 0.30000000000000004,
+   "nd": 6,
+   "want": "0.3"
+  },
+  {
+   "x": 1e+300,
+   "nd": 4,
+   "want": "1e+300"
+  },
+  {
+   "x": 5e-07,
+   "nd": 6,
+   "want": "0.0"
+  },
+  {
+   "x": 4.9e-07,
+   "nd": 6,
+   "want": "0.0"
+  },
+  {
+   "x": 5e-07,
+   "nd": 6,
+   "want": "0.0"
+  },
+  {
+   "x": 1.0000005,
+   "nd": 6,
+   "want": "1.000001"
+  },
+  {
+   "x": 2.675,
+   "nd": 2,
+   "want": "2.67"
+  },
+  {
+   "x": 123456.1234565,
+   "nd": 6,
+   "want": "123456.123457"
+  },
+  {
+   "x": -0.0,
+   "nd": 6,
+   "want": "-0.0"
+  },
+  {
+   "x": 7.0000005,
+   "nd": 6,
+   "want": "7.0"
+  },
+  {
+   "x": 0.5,
+   "nd": 6,
+   "want": "0.5"
+  }
+ ]
+}
