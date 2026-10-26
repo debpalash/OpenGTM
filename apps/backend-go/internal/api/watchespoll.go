@@ -13,16 +13,16 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/watchsvc"
 )
 
-// registerWatchesPoll registers POST /api/watches/{id}/poll (editor; signals.write) and
-// GET /api/watches/{id}/signals (any workspace member). Every route answers 404 `intent poller
+// registerWatchesPoll registers POST /api/watches/{watch_id}/poll (editor; signals.write) and
+// GET /api/watches/{watch_id}/signals (any workspace member). Every route answers 404 `intent poller
 // disabled`, then 409 `intent_poller_requires_pg_lead_store`, after the role gate and the query
 // validation (FastAPI resolves dependencies and query params before the handler body).
 func registerWatchesPoll(r *httpx.Router, d Deps) {
 	p := watchPollRoutes{d: d, svc: d.pollWatchService()}
 	read := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity)}
 	write := append(append([]httpx.Middleware{}, read...), identity.RequireRole("signals.write", "editor", "admin"))
-	r.Handle("POST /api/watches/{id}/poll", http.HandlerFunc(p.poll), write...)
-	r.Handle("GET /api/watches/{id}/signals", http.HandlerFunc(p.signals), read...)
+	r.Handle("POST /api/watches/{watch_id}/poll", http.HandlerFunc(p.poll), write...)
+	r.Handle("GET /api/watches/{watch_id}/signals", http.HandlerFunc(p.signals), read...)
 }
 
 // pollWatchService builds the watch service the poll and signals routes use. Poll-now enqueues
@@ -77,7 +77,7 @@ func (p watchPollRoutes) poll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	wc, _ := identity.WorkspaceFrom(r.Context())
-	res, err := p.svc.PollNow(r.Context(), wc.WorkspaceID, r.PathValue("id"))
+	res, err := p.svc.PollNow(r.Context(), wc.WorkspaceID, r.PathValue("watch_id"))
 	if err != nil {
 		p.fail(w, "poll-now", err)
 		return
@@ -104,7 +104,7 @@ func (p watchPollRoutes) signals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	wc, _ := identity.WorkspaceFrom(r.Context())
-	page, err := p.svc.Signals(r.Context(), wc.WorkspaceID, r.PathValue("id"), watchsvc.SignalsQuery{
+	page, err := p.svc.Signals(r.Context(), wc.WorkspaceID, r.PathValue("watch_id"), watchsvc.SignalsQuery{
 		SignalType: q.Get("signal_type"), Limit: limit, Offset: offset, Cursor: q.Get("cursor")})
 	if err != nil {
 		p.fail(w, "signals", err)
