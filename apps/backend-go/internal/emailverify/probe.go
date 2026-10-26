@@ -116,6 +116,11 @@ func probeHost(ctx context.Context, d Deps, p DomainProbe, candidates []string) 
 	if d.NewSession == nil {
 		return p
 	}
+	release, err := d.memo().acquire(ctx, strings.ToLower(p.MXHost))
+	if err != nil {
+		return p
+	}
+	defer release()
 	ctx, cancel := context.WithTimeout(ctx, d.Timeout())
 	defer cancel()
 	sess := d.NewSession()

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net"
+	"sync/atomic"
 	"testing"
 )
 
@@ -13,14 +14,14 @@ func TestNewDialContextRefusesBlockedAndAllowsPublic(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer ln.Close()
-	hits := 0
+	var hits atomic.Int32
 	go func() {
 		for {
 			c, err := ln.Accept()
 			if err != nil {
 				return
 			}
-			hits++
+			hits.Add(1)
 			c.Close()
 		}
 	}()
@@ -31,8 +32,8 @@ func TestNewDialContextRefusesBlockedAndAllowsPublic(t *testing.T) {
 			t.Fatalf("env %q: err = %v, want ErrBlocked (allowlist ignored outside test/bench)", env, err)
 		}
 	}
-	if hits != 0 {
-		t.Fatalf("blocked dial reached the listener %d times", hits)
+	if hits.Load() != 0 {
+		t.Fatalf("blocked dial reached the listener %d times", hits.Load())
 	}
 	c, err := NewDialContext("test", []string{"127.0.0.1"})(context.Background(), "tcp", addr)
 	if err != nil {

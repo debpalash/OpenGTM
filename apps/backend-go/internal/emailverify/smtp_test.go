@@ -271,3 +271,70 @@ func TestSMTPProbeBudgetAndCancel(t *testing.T) {
 
 var _ = bufio.NewReader
 var _ = strconv.Itoa
+
+// slowSession counts concurrent connections to prove the per-MX limit.
+type slowSession struct {
+	cur, max *int32
+	mu       *sync.Mutex
+}
+
+func (s slowSession) Connect(context.Context, string, int) error {
+	s.mu.Lock()
+	*s.cur++
+	if *s.cur > *s.max {
+		*s.max = *s.cur
+	}
+	s.mu.Unlock()
+	time.Sleep(20 * time.Millisecond)
+	s.mu.Lock()
+	*s.cur--
+	s.mu.Unlock()
+	return errors.New("stop")
+}
+func (slowSession) EhloOrHelo(string) error  { return nil }
+func (slowSession) Helo(string) error        { return nil }
+func (slowSession) Mail(string) (int, error) { return 250, nil }
+func (slowSession) Rcpt(string) (int, error) { return 250, nil }
+func (slowSession) Quit() error              { return nil }
+func (slowSession) Close()                   {}
+
+func TestProbeLimitsConcurrentSessionsPerMX(t *testing.T) {
+	var cur, max int32
+	var mu sync.Mutex
+	d := NewDeps()
+	d.Resolver = resolverFunc(func(context.Context, string) ([]*net.MX, error) {
+		return []*net.MX{{Pref: 1, Host: "mx.acme.test."}}, nil
+	})
+	d.NewSession = func() SMTPSession { return slowSession{&cur, &max, &mu} }
+	var wg sync.WaitGroup
+	for i := 0; i < 12; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_, _ = ProbeDomain(context.Background(), d, "acme.test", []string{"a@acme.test"})
+		}()
+	}
+	wg.Wait()
+	if max > 2 || max == 0 {
+		t.Fatalf("max concurrent sessions to one MX = %d, want 1..2", max)
+	}
+}
+
+func TestSMTPReplyLineCap(t *testing.T) {
+	ln, _ := net.Listen("tcp", "127.0.0.1:0")
+	defer ln.Close()
+	go func() {
+		c, err := ln.Accept()
+		if err != nil {
+			return
+		}
+		defer c.Close()
+		_, _ = c.Write([]byte("220 " + strings.Repeat("x", 100000) + "\r\n"))
+		time.Sleep(time.Second)
+	}()
+	d := liveDeps(t, "test", map[string]string{"big.test": "127.0.0.1"}, ln.Addr().(*net.TCPAddr).Port)
+	p, err := ProbeDomain(context.Background(), d, "big.test", []string{"a@big.test"})
+	if err != nil || p.Reachable {
+		t.Fatalf("oversized greeting line must fail the probe: %+v %v", p, err)
+	}
+}

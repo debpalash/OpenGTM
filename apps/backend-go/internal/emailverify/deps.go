@@ -128,6 +128,7 @@ type memo struct {
 	mu       sync.Mutex
 	mx       map[string]memoEntry[string]
 	catchAll map[string]memoEntry[bool]
+	sems     map[string]chan struct{}
 }
 
 type memoEntry[T any] struct {
@@ -136,7 +137,7 @@ type memoEntry[T any] struct {
 }
 
 func newMemo() *memo {
-	return &memo{mx: map[string]memoEntry[string]{}, catchAll: map[string]memoEntry[bool]{}}
+	return &memo{mx: map[string]memoEntry[string]{}, catchAll: map[string]memoEntry[bool]{}, sems: map[string]chan struct{}{}}
 }
 
 func memoGet[T any](m map[string]memoEntry[T], k string, now time.Time) (T, bool) {
@@ -163,4 +164,29 @@ func memoPut[T any](m map[string]memoEntry[T], k string, v T, now time.Time) {
 		}
 	}
 	m[k] = memoEntry[T]{v: v, exp: now.Add(cacheTTL)}
+}
+
+// maxPerMX bounds concurrent SMTP sessions to one MX host, so N parallel
+// cascades for one domain do not hammer the same server; later ones wait and
+// then usually hit the catch-all memory.
+const maxPerMX = 2
+
+// acquire takes a slot for host (waiting for ctx) and returns its release.
+func (m *memo) acquire(ctx context.Context, host string) (func(), error) {
+	m.mu.Lock()
+	ch, ok := m.sems[host]
+	if !ok {
+		if len(m.sems) >= cacheMax {
+			m.sems = map[string]chan struct{}{} // idle semaphores are cheap to recreate
+		}
+		ch = make(chan struct{}, maxPerMX)
+		m.sems[host] = ch
+	}
+	m.mu.Unlock()
+	select {
+	case ch <- struct{}{}:
+		return func() { <-ch }, nil
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
 }

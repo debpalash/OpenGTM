@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"net/textproto"
 	"strconv"
 	"strings"
 	"sync"
@@ -53,7 +52,7 @@ type netSession struct {
 
 	mu   sync.Mutex
 	conn net.Conn
-	r    *textproto.Reader
+	r    *bufio.Reader
 	done chan struct{}
 }
 
@@ -79,7 +78,7 @@ func (s *netSession) Connect(ctx context.Context, host string, port int) error {
 	done := make(chan struct{})
 	s.mu.Lock()
 	s.conn, s.done = conn, done
-	s.r = textproto.NewReader(bufio.NewReader(io.LimitReader(conn, maxReplyBytes)))
+	s.r = bufio.NewReaderSize(io.LimitReader(conn, maxReplyBytes), 1024)
 	s.mu.Unlock()
 	go func() { // abort a blocked read as soon as the caller's context ends
 		select {
@@ -99,33 +98,70 @@ func (s *netSession) Connect(ctx context.Context, host string, port int) error {
 	return nil
 }
 
-// reply reads one (possibly multi-line) response.
-func (s *netSession) reply() (int, error) {
-	if s.r == nil {
-		return 0, ErrDisconnected
-	}
-	code, _, err := s.r.ReadResponse(0)
-	if err == nil {
-		return code, nil
-	}
-	var perr textproto.ProtocolError
+// maxLine is the RFC 5321 reply line limit (512 bytes including CRLF).
+const maxLine = 512
+
+func (s *netSession) snapshot() (net.Conn, *bufio.Reader) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.conn, s.r
+}
+
+// readLine reads one CRLF line of at most maxLine bytes; a longer line is a
+// protocol error and is never buffered whole.
+func readLine(r *bufio.Reader) (string, error) {
+	line, err := r.ReadSlice('\n')
 	switch {
-	case errors.Is(err, io.EOF), errors.Is(err, io.ErrUnexpectedEOF), errors.Is(err, net.ErrClosed):
-		return 0, ErrDisconnected
-	case errors.As(err, &perr):
-		return 0, fmt.Errorf("%w: %v", ErrSMTP, err)
+	case errors.Is(err, bufio.ErrBufferFull):
+		return "", fmt.Errorf("%w: reply line too long", ErrSMTP)
+	case err != nil && len(line) == 0:
+		return "", err
+	case err != nil:
+		return "", io.ErrUnexpectedEOF
 	}
-	return 0, err
+	if len(line) > maxLine {
+		return "", fmt.Errorf("%w: reply line too long", ErrSMTP)
+	}
+	return strings.TrimRight(string(line), "\r\n"), nil
+}
+
+// reply reads one (possibly multi-line) response and returns its code.
+func (s *netSession) reply() (int, error) {
+	_, r := s.snapshot()
+	if r == nil {
+		return 0, ErrDisconnected
+	}
+	for {
+		line, err := readLine(r)
+		if err != nil {
+			if errors.Is(err, ErrSMTP) {
+				return 0, err
+			}
+			if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) || errors.Is(err, net.ErrClosed) {
+				return 0, ErrDisconnected
+			}
+			return 0, err
+		}
+		if len(line) < 3 {
+			return 0, fmt.Errorf("%w: short reply", ErrSMTP)
+		}
+		code, cerr := strconv.Atoi(line[:3])
+		if cerr != nil || (len(line) > 3 && line[3] != ' ' && line[3] != '-') {
+			return 0, fmt.Errorf("%w: malformed reply", ErrSMTP)
+		}
+		if len(line) == 3 || line[3] == ' ' {
+			return code, nil
+		}
+	}
 }
 
 func (s *netSession) send(line string) error {
-	if s.conn == nil {
+	conn, _ := s.snapshot()
+	if conn == nil {
 		return ErrDisconnected
 	}
-	if _, err := io.WriteString(s.conn, line+"\r\n"); err != nil {
-		return err
-	}
-	return nil
+	_, err := io.WriteString(conn, line+"\r\n")
+	return err
 }
 
 func (s *netSession) cmd(line string) (int, error) {
@@ -201,7 +237,7 @@ func (s *netSession) Rcpt(addr string) (int, error) {
 }
 
 func (s *netSession) Quit() error {
-	if s.conn == nil {
+	if c, _ := s.snapshot(); c == nil {
 		return ErrDisconnected
 	}
 	_, err := s.cmd("QUIT")
