@@ -10,6 +10,7 @@ require (
 	github.com/redis/go-redis/v9 v9.23.0
 	github.com/stripe/stripe-go/v87 v87.0.0
 	golang.org/x/crypto v0.45.0
+	golang.org/x/net v0.47.0
 	golang.org/x/text v0.31.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -52,7 +53,6 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250106144421-5f5ef82da422 // indirect
