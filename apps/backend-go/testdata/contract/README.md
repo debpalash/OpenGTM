@@ -234,3 +234,29 @@ its leads from `testdata/leads/seed.json` (generated from the constants of `cont
   `/similar` is capped to 10,000 (the answer is the same: no workspace page holds more).
 - `workspace_id` on `/api/leads` is accepted and ignored: the caller's workspace always applies (FastAPI behaves the same).
 - JSON bodies keep U+2028 / U+2029 raw, as Python's `ensure_ascii=False` does.
+
+## Budget, cost, runs, activity, cell trace (Task 19): deviations
+
+Fixtures `telemetry/*` (cases `legacy/python/scripts/contract_cases/telemetry.yaml`; seed `contract_seed.py`, then
+`psql -v ON_ERROR_STOP=1 < testdata/wbcrud/telemetry_extra.sql` as a superuser, FastAPI as a non-superuser role). The Go
+tests load the same extras from that file (`-- @ws <id>` sections run inside `InWorkspace`); activity ids are mapped to the
+1..6 FastAPI's fresh database assigned (the shared test database's serial is not reset). Expected values of the number /
+helper vectors (`telemetry_vectors.json`) come from the real Python (`scripts/dump_telemetry_vectors.py`).
+- `GET /{id}/cost` with a positive cap and any `reserved` / `dispatched` / `uncertain` spend row: FastAPI answers 500
+  (`SUM(bigint)` is a `Decimal`, `float - Decimal` raises `TypeError`); Go answers the figure
+  (`remaining_usd = round(cap - spent - reserved - uncertain, 6)`). `reserved_usd` / `uncertain_usd` keep the Decimal
+  serialisation quirk: `0.0` when no row, an integer when the sum is a whole number of USD (`1`, not `1.0`), else a float
+  (`0.002`, `1e-06`). Covered by `TestCostCappedWithExposureAnswers200NotPython500`; no fixture.
+- `GET /{id}/runs?before_id=` >= 2**31 and `GET /{id}/rows/{lead_id}/cells/{col}/trace` with `lead_id` outside int4: FastAPI
+  answers 500 (integer out of range); Go answers 422 `less_than_equal` (`le` 2147483647) / `greater_than_equal` (`ge`
+  -2147483648). No fixtures.
+- `GET /{id}/activity?limit=<negative>`: FastAPI bounds only `le=500`, a negative `LIMIT` is a Postgres error (500); Go answers
+  422 `greater_than_equal` (`ge` 0), as for entities. Rows tied on `created_at` are ordered by `id` desc (FastAPI: unspecified).
+- `PUT /{id}/budget` body with a JSON `NaN` / `Infinity` literal: FastAPI parses it, then fails to serialise its own 422 (500);
+  Go answers the simplified `json_invalid` 422. Strings are parsed with pydantic's lax rules (`"7.5"`, `" 5 "`, `"1_0"`;
+  `"inf"` / `"nan"` -> `finite_number`), booleans count as 1.0 / 0.0, as recorded. `updated_at` is stamped only when the cap
+  really changes (NULL -> 0.0 included), like an ORM attribute assignment.
+- A `run_workbook` job whose payload is not a JSON object (never written by the queue): FastAPI raises `AttributeError` in the
+  runs list, Go reads it as an empty payload; a scalar payload never matches (`->>` on a scalar would raise in Postgres).
+- `selected_cell_count` / `output_attempts` / `result` follow `workbooks.py` exactly (vectors); `execution_result` is shown only
+  when its `retry_count` equals the job's (`NULL` counts as 0, `1.0` and `true` equal 1).
