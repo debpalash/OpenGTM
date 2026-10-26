@@ -18,7 +18,7 @@ func TestRuntimeRoleCanUseMirrorsAndLedgers(t *testing.T) {
 	ctx := context.Background()
 	mirrors := map[string]bool{"scheduled_triggers": true, "watch_schedules": true}
 	for _, tbl := range []string{"scheduled_triggers", "watch_schedules", "trigger_runs", "trigger_action_results",
-		"trigger_cap_reservations", "poll_budget_ledger", "watch_subscriptions", "automation_rules"} {
+		"trigger_cap_reservations", "poll_budget_ledger", "watch_subscriptions", "triggers"} {
 		for _, priv := range []string{"SELECT", "INSERT", "UPDATE", "DELETE"} {
 			var ok bool
 			if err := pool.QueryRow(ctx, `SELECT has_table_privilege(current_user, $1, $2)`, "public."+tbl, priv).Scan(&ok); err != nil {

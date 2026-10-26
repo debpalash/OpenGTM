@@ -255,6 +255,37 @@ check_connectors_matrix() { # $1 = expected upstream for Go-eligible routes (py|
 }
 # ===== end plan 07 =====
 
+# ===== plan 08: automations and watches (all 18 routes ported, none retained) =====
+check_automations_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
+  local want="$1" r
+  echo "== automations/watches split ($1) =="
+  for r in "POST /api/automations/triggers" "GET /api/automations/triggers" "GET /api/automations/triggers/x" \
+           "PATCH /api/automations/triggers/x" "DELETE /api/automations/triggers/x" "POST /api/automations/triggers/x/pause" \
+           "POST /api/automations/triggers/x/resume" "POST /api/automations/triggers/x/preview" \
+           "POST /api/automations/triggers/x/run" "GET /api/automations/triggers/x/runs?limit=5" "GET /api/automations/runs/7" \
+           "POST /api/watches" "GET /api/watches" "GET /api/watches?limit=5" "GET /api/watches/x" "PATCH /api/watches/x" \
+           "DELETE /api/watches/x" "POST /api/watches/x/poll" "GET /api/watches/x/signals"; do
+    set -- $r
+    expect "$r X-Upstream" "$(hdr "$1" "$2" X-Upstream)" "$want"
+    expect "$r X-Stub     " "$(hdr "$1" "$2" X-Stub)" "$want"
+    expect "$r X-Seen-Uri " "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+  done
+  # Lookalikes stay on Python at every percentage (no retained route exists under either prefix).
+  for r in "GET /api/automations" "GET /api/automationsx/triggers" "GET /api/watchesx" "GET /api/watches-x/1"; do
+    set -- $r
+    expect "unmatched $r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
+    expect "unmatched $r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
+  done
+  # Proxy settings of each plan 08 location equal `location /api/`.
+  local T; T="$(docker exec "$RUN-gw" nginx -T 2>/dev/null)"
+  blk() { printf '%s\n' "$T" | awk -v pat="$1" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f' | grep -E 'proxy_(read_timeout|send_timeout|buffering|http_version)' | sed 's/^[[:space:]]*//' | sort; }
+  local l
+  for l in '~ ^/api/automations/' '~ ^/api/watches(/|$)'; do
+    expect "timeouts/buffering of '$l' == '/api/'" "$(blk "$l")" "$(blk "/api/")"
+  done
+}
+# ===== end plan 08 =====
+
 echo "== nginx -t =="
 start_gateway 0
 if docker exec "$RUN-gw" nginx -t 2>&1; then echo "  ok   nginx -t"; else echo "  FAIL nginx -t"; FAIL=1; fi
@@ -262,11 +293,13 @@ check_matrix py 0%
 check_workbook_matrix py
 check_enrichment_matrix py
 check_connectors_matrix py
+check_automations_matrix py
 start_gateway 100
 docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @100%"; FAIL=1; }
 check_matrix go 100%
 check_workbook_matrix go
 check_enrichment_matrix go
 check_connectors_matrix go
+check_automations_matrix go
 
 [ "$FAIL" = 0 ] && echo "ALL PASS" || { echo "FAILED"; exit 1; }
