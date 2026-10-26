@@ -522,6 +522,12 @@ Fixtures `connectors/*` (profiles `default`, `catalog_ok` = default minus `contr
   scripts can key differently from Python's `str.casefold`.
 - Timeout text is `timeout` (Python's is empty). Production clients use `ambitionbox.NewEgress` (SSRF-safe dialer, Base pinned).
 
+Routes (plan 07 Task 18, `internal/api/ambitionboxroutes.go`, D4; replayed against `testdata/contract/ambitionbox`):
+- `GET /companies` and `/collect` with `location` or `company_type` (collect: `location`) answer 422 `{"detail": "<NotImplementedError text>"}`; Python 500. An empty value is no filter, as Python.
+- An upstream failure (`*UpstreamError`, also the 20 s route deadline or a client disconnect) answers 502 `{"detail":"AmbitionBox upstream error"}`; Python 500. The vendor body never reaches the client.
+- `POST /imports`: an unknown or foreign `workbook_id` answers 404 `{"detail":"workbook not found in the active workspace"}`; a non-AmbitionBox workbook without `replace_existing` answers 409 `{"detail":"existing non-AmbitionBox workbooks require replace_existing=true"}`; Python 500 for both. The active-run 409 keeps Python's `connector_run_active` body.
+- Every read has a 20 s overall deadline and honours the request context (Python has neither). `company_id` beyond int64 is a 422 `int_parsing`.
+
 ## Email data (plan 07 Task 14): deviations
 
 `internal/emaildata` serves the 7 `/api/data` routes over the legacy GLOBAL `email_data`/`links` tables (no workspace_id; global admin only, plan 07 D5). Replayed against the recorded `testdata/contract/datacrm` fixtures. Deviations from Python:
