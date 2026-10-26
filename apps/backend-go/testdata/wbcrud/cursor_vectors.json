@@ -1,0 +1,541 @@
+{
+ "row_encode": [
+  {
+   "position": 0,
+   "id": 1,
+   "cursor": "WzAsMV0"
+  },
+  {
+   "position": 7,
+   "id": 42,
+   "cursor": "WzcsNDJd"
+  },
+  {
+   "position": 100000,
+   "id": 2147483647,
+   "cursor": "WzEwMDAwMCwyMTQ3NDgzNjQ3XQ"
+  },
+  {
+   "position": 3,
+   "id": 9,
+   "cursor": "WzMsOV0"
+  }
+ ],
+ "row_decode": [
+  {
+   "name": "valid",
+   "cursor": "WzUsOV0",
+   "ok": true,
+   "result": [
+    5,
+    9
+   ]
+  },
+  {
+   "name": "padded_input",
+   "cursor": "WzUsOV0==",
+   "ok": true,
+   "result": [
+    5,
+    9
+   ]
+  },
+  {
+   "name": "stringy_ints",
+   "cursor": "WyI1IiwiOSJd",
+   "ok": true,
+   "result": [
+    5,
+    9
+   ]
+  },
+  {
+   "name": "float_ints",
+   "cursor": "WzUuMCw5LjBd",
+   "ok": true,
+   "result": [
+    5,
+    9
+   ]
+  },
+  {
+   "name": "negative_position",
+   "cursor": "Wy0xLDld",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "zero_id",
+   "cursor": "WzUsMF0",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "three_items",
+   "cursor": "WzEsMiwzXQ",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "one_item",
+   "cursor": "WzFd",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "dict_payload",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsxLDJdfQ",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "null_item",
+   "cursor": "W251bGwsMl0",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "not_json",
+   "cursor": "aGVsbG8",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "not_base64",
+   "cursor": "!!!",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "empty",
+   "cursor": "",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "string_payload",
+   "cursor": "ImFiYyI",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "object_item",
+   "cursor": "W3siYSI6MX0sMl0",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  }
+ ],
+ "query_encode": [
+  {
+   "values": [
+    "acme",
+    3,
+    11
+   ],
+   "id": 7,
+   "scope": "s",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiYWNtZSIsMywxMV19"
+  },
+  {
+   "values": [
+    "",
+    0,
+    1
+   ],
+   "id": 7,
+   "scope": "s",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiIiwwLDFdfQ"
+  },
+  {
+   "values": [
+    "Ünïcode ☃ 😀",
+    5,
+    12
+   ],
+   "id": 7,
+   "scope": "s",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiXHUwMGRjblx1MDBlZmNvZGUgXHUyNjAzIFx1ZDgzZFx1ZGUwMCIsNSwxMl19"
+  },
+  {
+   "values": [
+    "quote \" back\\ slash / < > & \n tab\t",
+    1,
+    2
+   ],
+   "id": 7,
+   "scope": "s",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsicXVvdGUgXCIgYmFja1xcIHNsYXNoIC8gPCA-ICYgXG4gdGFiXHQiLDEsMl19"
+  },
+  {
+   "values": [
+    "a",
+    "b",
+    2,
+    3
+   ],
+   "id": 7,
+   "scope": "s",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiYSIsImIiLDIsM119"
+  },
+  {
+   "values": [
+    "x",
+    null,
+    4
+   ],
+   "id": 7,
+   "scope": "s",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsieCIsbnVsbCw0XX0"
+  },
+  {
+   "values": [
+    "only"
+   ],
+   "id": 7,
+   "scope": "s",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsib25seSJdfQ"
+  },
+  {
+   "values": [
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    3,
+    99
+   ],
+   "id": 99,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "cursor": "eyJ2IjoyLCJyb3ciOjk5LCJzY29wZSI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJkaWdlc3QiOiI3ZDg3ZWQzYzM5NjI1NWZkOGZhNGFjOTc0MWIxYTI2MjA2YTMyYmE4MDUzOWNhOTQ5NWY0YWY5MGFiZWZkOWRlIn0"
+  },
+  {
+   "values": [
+    "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+    1,
+    5
+   ],
+   "id": 5,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "cursor": "eyJ2IjoyLCJyb3ciOjUsInNjb3BlIjoiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsImRpZ2VzdCI6IjlmYzcxYTY4OGNmZTQzMmQ1NmQ3OTg5M2NmYjE0Mzg1Mzc5OGQ5YzE0Njg0YjJkODU2OWQ5MDNkMmM3ODY1ODUifQ"
+  }
+ ],
+ "query_decode": [
+  {
+   "name": "v1_valid",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiYWNtZSIsMywxMV19",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": true,
+   "result": {
+    "values": [
+     "acme",
+     3,
+     11
+    ]
+   }
+  },
+  {
+   "name": "v1_wrong_count",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiYWNtZSIsMywxMV19",
+   "expected_terms": 4,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "v1_values_not_list",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOiJ4In0",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "v1_wrong_version",
+   "cursor": "eyJ2IjozLCJ2YWx1ZXMiOlsiYSIsMSwyXX0",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "v1_missing_version",
+   "cursor": "eyJ2YWx1ZXMiOlsiYSIsMSwyXX0",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "v1_list_payload",
+   "cursor": "WzEsMiwzXQ",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor"
+  },
+  {
+   "name": "v1_not_json",
+   "cursor": "bm9wZQ",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor; restart pagination"
+  },
+  {
+   "name": "v1_not_base64",
+   "cursor": "***",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor; restart pagination"
+  },
+  {
+   "name": "v1_empty",
+   "cursor": "",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor; restart pagination"
+  },
+  {
+   "name": "v1_unicode",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiXHUwMGRjblx1MDBlZiBcdTI2MDMiLDEsMl19",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": true,
+   "result": {
+    "values": [
+     "Ünï ☃",
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "name": "v2_matching_scope",
+   "cursor": "eyJ2IjoyLCJyb3ciOjk5LCJzY29wZSI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJkaWdlc3QiOiI3ZDg3ZWQzYzM5NjI1NWZkOGZhNGFjOTc0MWIxYTI2MjA2YTMyYmE4MDUzOWNhOTQ5NWY0YWY5MGFiZWZkOWRlIn0",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": true,
+   "result": {
+    "needs_lookup": true
+   }
+  },
+  {
+   "name": "v2_scope_mismatch",
+   "cursor": "eyJ2IjoyLCJyb3ciOjk5LCJzY29wZSI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJkaWdlc3QiOiI3ZDg3ZWQzYzM5NjI1NWZkOGZhNGFjOTc0MWIxYTI2MjA2YTMyYmE4MDUzOWNhOTQ5NWY0YWY5MGFiZWZkOWRlIn0",
+   "expected_terms": 3,
+   "scope": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor; restart pagination"
+  },
+  {
+   "name": "v2_row_not_int",
+   "cursor": "eyJ2IjoyLCJyb3ciOiI5Iiwic2NvcGUiOiJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIiwiZGlnZXN0IjoiZCJ9",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor; restart pagination"
+  },
+  {
+   "name": "v2_row_bool",
+   "cursor": "eyJ2IjoyLCJyb3ciOnRydWUsInNjb3BlIjoiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsImRpZ2VzdCI6ImQifQ",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor; restart pagination"
+  },
+  {
+   "name": "v2_row_zero",
+   "cursor": "eyJ2IjoyLCJyb3ciOjAsInNjb3BlIjoiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsImRpZ2VzdCI6ImQifQ",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor; restart pagination"
+  },
+  {
+   "name": "v2_row_float",
+   "cursor": "eyJ2IjoyLCJyb3ciOjEuMCwic2NvcGUiOiJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIiwiZGlnZXN0IjoiZCJ9",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor; restart pagination"
+  },
+  {
+   "name": "v2_missing_scope",
+   "cursor": "eyJ2IjoyLCJyb3ciOjEsImRpZ2VzdCI6ImQifQ",
+   "expected_terms": 3,
+   "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid workbook row cursor; restart pagination"
+  }
+ ],
+ "v2_expect": {
+  "row": 99,
+  "scope": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "digest": "7d87ed3c396255fd8fa4ac9741b1a26206a32ba80539ca9495f4af90abefd9de"
+ },
+ "conn_encode": [
+  {
+   "created_at": "2026-10-26T10:00:00.123456+00:00",
+   "id": "run_abc",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0xMC0yNlQxMDowMDowMC4xMjM0NTYrMDA6MDAiLCJydW5fYWJjIl19",
+   "utc": "2026-10-26T10:00:00.123456+00:00"
+  },
+  {
+   "created_at": "2026-01-02T03:04:05+00:00",
+   "id": "run_zero_micro",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0wMS0wMlQwMzowNDowNSswMDowMCIsInJ1bl96ZXJvX21pY3JvIl19",
+   "utc": "2026-01-02T03:04:05+00:00"
+  },
+  {
+   "created_at": "2026-10-26T10:00:00.000005+00:00",
+   "id": "run_5us",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0xMC0yNlQxMDowMDowMC4wMDAwMDUrMDA6MDAiLCJydW5fNXVzIl19",
+   "utc": "2026-10-26T10:00:00.000005+00:00"
+  },
+  {
+   "created_at": "2026-06-01T12:00:00.001000+05:30",
+   "id": "run_offset",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0wNi0wMVQxMjowMDowMC4wMDEwMDArMDU6MzAiLCJydW5fb2Zmc2V0Il19",
+   "utc": "2026-06-01T06:30:00.001000+00:00"
+  }
+ ],
+ "conn_decode": [
+  {
+   "name": "valid",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0xMC0yNlQxMDowMDowMC4xMjM0NTYrMDA6MDAiLCJydW5fYWJjIl19",
+   "ok": true,
+   "result": {
+    "utc": "2026-10-26T10:00:00.123456+00:00",
+    "id": "run_abc"
+   }
+  },
+  {
+   "name": "naive_iso",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0xMC0yNlQxMDowMDowMCIsInIxIl19",
+   "ok": true,
+   "result": {
+    "utc": "2026-10-26T10:00:00+00:00",
+    "id": "r1"
+   }
+  },
+  {
+   "name": "naive_iso_micro",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0xMC0yNlQxMDowMDowMC4yNTAwMDAiLCJyMSJdfQ",
+   "ok": true,
+   "result": {
+    "utc": "2026-10-26T10:00:00.250000+00:00",
+    "id": "r1"
+   }
+  },
+  {
+   "name": "z_suffix",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0xMC0yNlQxMDowMDowMFoiLCJyMSJdfQ",
+   "ok": true,
+   "result": {
+    "utc": "2026-10-26T10:00:00+00:00",
+    "id": "r1"
+   }
+  },
+  {
+   "name": "offset",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0xMC0yNlQxMDowMDowMCswNTozMCIsInIxIl19",
+   "ok": true,
+   "result": {
+    "utc": "2026-10-26T04:30:00+00:00",
+    "id": "r1"
+   }
+  },
+  {
+   "name": "space_separator",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0xMC0yNiAxMDowMDowMCIsInIxIl19",
+   "ok": true,
+   "result": {
+    "utc": "2026-10-26T10:00:00+00:00",
+    "id": "r1"
+   }
+  },
+  {
+   "name": "date_only",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0xMC0yNiIsInIxIl19",
+   "ok": true,
+   "result": {
+    "utc": "2026-10-26T00:00:00+00:00",
+    "id": "r1"
+   }
+  },
+  {
+   "name": "bad_date",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsibm90LWEtZGF0ZSIsInIxIl19",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid connector run cursor"
+  },
+  {
+   "name": "id_not_string",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0xMC0yNlQxMDowMDowMCIsNV19",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid connector run cursor"
+  },
+  {
+   "name": "date_not_string",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsyMDI2MTAyNiwicjEiXX0",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid connector run cursor"
+  },
+  {
+   "name": "wrong_count",
+   "cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0xMC0yNlQxMDowMDowMCIsInIxIiwieCJdfQ",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid connector run cursor"
+  },
+  {
+   "name": "row_cursor_shape",
+   "cursor": "WzEsMl0",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid connector run cursor"
+  },
+  {
+   "name": "not_base64",
+   "cursor": "%%%",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid connector run cursor"
+  },
+  {
+   "name": "not_json",
+   "cursor": "enp6",
+   "ok": false,
+   "status": 400,
+   "detail": "Invalid connector run cursor"
+  }
+ ]
+}
