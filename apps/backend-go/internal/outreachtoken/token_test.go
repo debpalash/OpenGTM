@@ -4,14 +4,18 @@ import (
 	"encoding/json"
 	"math/rand"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
 )
 
 type vectors struct {
-	DerivedKeys []struct{ Name, Master, SigningKeyHex string `json:"signing_key_hex"` } `json:"derived_keys"`
-	Mints       []struct {
+	DerivedKeys []struct {
+		Name, Master  string
+		SigningKeyHex string `json:"signing_key_hex"`
+	} `json:"derived_keys"`
+	Mints []struct {
 		Name, Master, Email, Token string
 		Now                        float64
 		WorkspaceID                string `json:"workspace_id"`
@@ -20,16 +24,17 @@ type vectors struct {
 	} `json:"mints"`
 	Verifies []struct {
 		Name, Master, Token string
-		AllowExpired        bool     `json:"allow_expired"`
-		Now                 float64  `json:"now"`
-		Expected            *Payload `json:"expected"`
+		AllowExpired        bool           `json:"allow_expired"`
+		Now                 float64        `json:"now"`
+		Expected            map[string]any `json:"expected"`
 	} `json:"verifies"`
 	URLs []struct {
-		BaseURL, Master, Email, URL string
-		Now                         float64
-		WorkspaceID                 string `json:"workspace_id"`
-		SequenceID                  string `json:"sequence_id"`
-		TTLDays                     int    `json:"ttl_days"`
+		BaseURL            string `json:"base_url"`
+		Master, Email, URL string
+		Now                float64
+		WorkspaceID        string `json:"workspace_id"`
+		SequenceID         string `json:"sequence_id"`
+		TTLDays            int    `json:"ttl_days"`
 	} `json:"urls"`
 }
 
@@ -56,20 +61,42 @@ func TestVerifiesPythonMintedTokens(t *testing.T) {
 	for _, c := range v.Verifies {
 		s := NewSigner([]byte(c.Master), "", 90, at(c.Now))
 		got, ok := s.Verify(c.Token, c.AllowExpired)
-		if c.Expected == nil {
+		want, valid := expectedPayload(c.Expected)
+		if !valid {
+			// nil: Python returns None; python_raises: Python 500s; ws of a
+			// non-string type: Python accepts, Go rejects (documented, stricter).
 			if ok {
-				t.Errorf("%s: expected invalid", c.Name)
+				t.Errorf("%s: expected invalid, got %+v", c.Name, got)
 			}
 			continue
 		}
-		if !ok || got != *c.Expected {
-			t.Errorf("%s: got %+v ok=%v want %+v", c.Name, got, ok, *c.Expected)
+		if !ok || got != want {
+			t.Errorf("%s: got %+v ok=%v want %+v", c.Name, got, ok, want)
 		}
 	}
 }
 
-// Go output for the fixed inputs and time equals the bytes Python produced, so
-// Python verifies Go tokens (same bytes in, same verifier).
+func expectedPayload(e map[string]any) (Payload, bool) {
+	if e == nil || e["python_raises"] != nil {
+		return Payload{}, false
+	}
+	var p Payload
+	var ok bool
+	if p.WS, ok = e["ws"].(string); !ok {
+		return Payload{}, false
+	}
+	p.Email, _ = e["email"].(string)
+	p.Seq, _ = e["seq"].(string)
+	switch x := e["exp"].(type) {
+	case float64:
+		p.Exp = int64(x)
+	case string:
+		n, _ := strconv.ParseInt(x, 10, 64)
+		p.Exp = n
+	}
+	return p, true
+}
+
 func TestPythonVerifiesGoTokens(t *testing.T) {
 	v := load(t)
 	for _, m := range v.Mints {
