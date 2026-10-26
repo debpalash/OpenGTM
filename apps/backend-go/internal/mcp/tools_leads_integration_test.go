@@ -214,7 +214,8 @@ func TestCreateLeadDedupSemanticsMatchUpsert(t *testing.T) {
 	var a, b, c struct {
 		LeadID int64 `json:"lead_id"`
 	}
-	for raw, p := range map[string]any{first: &a, second: &b, diffCase: &c} {
+	for i, p := range []any{&a, &b, &c} {
+		raw := []string{first, second, diffCase}[i]
 		if err := json.Unmarshal([]byte(raw), p); err != nil {
 			t.Fatal(raw, err)
 		}
@@ -355,48 +356,51 @@ func TestDeleteLeadCrossTenantNoop(t *testing.T) {
 	}
 }
 
+// Each scenario owns its own env (the test DB lock is per testing.T).
 func TestLeadWritesRequireCapabilityRoleAndFlag(t *testing.T) {
-	// capability missing
-	e := newLeadEnv(t, "editor")
-	s := e.server(leadWriteTools(e.d)...)
-	e.ctx.Capabilities = ReadCaps
-	if got := e.call(s, "create_lead", Args{"company": "X"}); !strings.Contains(got, "capability not granted") {
-		t.Fatal(got)
-	}
-	e.wantAudit(t, 1, "denied", "capability not granted")
-
-	// flag off
-	e = newLeadEnv(t, "admin")
-	e.cfg.WriteEnabled = false
-	s = e.server(leadWriteTools(e.d)...)
-	for _, n := range []string{"create_lead", "update_lead", "delete_lead"} {
-		if got := e.call(s, n, Args{"company": "X", "lead_id": float64(e.ids[0])}); got != `{"error": "mcp writes disabled"}` {
-			t.Fatalf("%s: %s", n, got)
+	t.Run("capability missing", func(t *testing.T) {
+		e := newLeadEnv(t, "editor")
+		s := e.server(leadWriteTools(e.d)...)
+		e.ctx.Capabilities = ReadCaps
+		if got := e.call(s, "create_lead", Args{"company": "X"}); !strings.Contains(got, "capability not granted") {
+			t.Fatal(got)
 		}
-	}
-	if _, _, _, _, _, found := e.leadRow(t, e.ids[0]); !found {
-		t.Fatal("deleted with writes disabled")
-	}
-
-	// editor: may create and update, never delete
-	e = newLeadEnv(t, "editor")
-	s = e.server(leadWriteTools(e.d)...)
-	if got := e.call(s, "delete_lead", Args{"lead_id": float64(e.ids[0])}); got != `{"error": "insufficient workspace role"}` {
-		t.Fatal(got)
-	}
-	if _, _, _, _, _, found := e.leadRow(t, e.ids[0]); !found {
-		t.Fatal("editor deleted a lead")
-	}
-	if got := e.call(s, "create_lead", Args{"company": "Okay"}); !strings.Contains(got, `"status": "created"`) {
-		t.Fatal(got)
-	}
-
-	// viewer (downgraded after minting): nothing
-	e = newLeadEnv(t, "viewer")
-	s = e.server(leadWriteTools(e.d)...)
-	for _, n := range []string{"create_lead", "update_lead"} {
-		if got := e.call(s, n, Args{"company": "X", "lead_id": float64(e.ids[0])}); got != `{"error": "insufficient workspace role"}` {
-			t.Fatalf("%s: %s", n, got)
+		e.wantAudit(t, 1, "denied", "capability not granted")
+	})
+	t.Run("flag off", func(t *testing.T) {
+		e := newLeadEnv(t, "admin")
+		e.cfg.WriteEnabled = false
+		s := e.server(leadWriteTools(e.d)...)
+		for _, n := range []string{"create_lead", "update_lead", "delete_lead"} {
+			if got := e.call(s, n, Args{"company": "X", "lead_id": float64(e.ids[0])}); got != `{"error": "mcp writes disabled"}` {
+				t.Fatalf("%s: %s", n, got)
+			}
 		}
-	}
+		if _, _, _, _, _, found := e.leadRow(t, e.ids[0]); !found {
+			t.Fatal("deleted with writes disabled")
+		}
+	})
+	t.Run("editor may not delete", func(t *testing.T) {
+		e := newLeadEnv(t, "editor")
+		s := e.server(leadWriteTools(e.d)...)
+		if got := e.call(s, "delete_lead", Args{"lead_id": float64(e.ids[0])}); got != `{"error": "insufficient workspace role"}` {
+			t.Fatal(got)
+		}
+		if _, _, _, _, _, found := e.leadRow(t, e.ids[0]); !found {
+			t.Fatal("editor deleted a lead")
+		}
+		if got := e.call(s, "create_lead", Args{"company": "Okay"}); !strings.Contains(got, `"status": "created"`) {
+			t.Fatal(got)
+		}
+	})
+	t.Run("viewer downgraded", func(t *testing.T) {
+		e := newLeadEnv(t, "viewer")
+		s := e.server(leadWriteTools(e.d)...)
+		for _, n := range []string{"create_lead", "update_lead"} {
+			if got := e.call(s, n, Args{"company": "X", "lead_id": float64(e.ids[0])}); got != `{"error": "insufficient workspace role"}` {
+				t.Fatalf("%s: %s", n, got)
+			}
+		}
+		e.wantAudit(t, 2, "denied", "insufficient workspace role")
+	})
 }
