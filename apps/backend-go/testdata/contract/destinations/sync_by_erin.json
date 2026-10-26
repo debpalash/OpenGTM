@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations/dst-act-smartlead/sync"
+  },
+  "response": {
+    "body": {
+      "attempted": 0,
+      "created_at": "2026-10-26T17:05:53.447892",
+      "destination_id": "dst-act-smartlead",
+      "error": null,
+      "failed": 0,
+      "finished_at": null,
+      "id": "00000000-0000-4000-8000-000000002133",
+      "skipped": 0,
+      "started_at": null,
+      "status": "pending",
+      "succeeded": 0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 202
+  }
+}

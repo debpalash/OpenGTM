@@ -1,0 +1,75 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-act-2/members?before_id=8&offset=2&limit=3"
+  },
+  "response": {
+    "body": [
+      {
+        "id": 5,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 6,
+        "snapshot": {
+          "city": "Mumbai",
+          "company": "Zenith Robotics Pvt Ltd",
+          "contact_person": "Rhea Kapoor",
+          "contact_title": "CEO",
+          "email": "hello@zenithrobotics.example.com",
+          "id": 6,
+          "phone": "+91 22 5550 1001",
+          "score": 65,
+          "score_tier": "warm",
+          "status": "qualified",
+          "website": "https://zenithrobotics.example.com"
+        }
+      },
+      {
+        "id": 4,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 5,
+        "snapshot": {
+          "city": "",
+          "company": "Nordlicht GmbH",
+          "contact_person": "",
+          "contact_title": "",
+          "email": "kontakt@nordlicht.example.com",
+          "id": 5,
+          "phone": "",
+          "score": 80,
+          "score_tier": "hot",
+          "status": "contacted",
+          "website": "https://nordlicht.example.com"
+        }
+      },
+      {
+        "id": 3,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 4,
+        "snapshot": {
+          "city": "Pune",
+          "company": "\u00c9co Solutions Pvt Ltd",
+          "contact_person": "Isha Rao",
+          "contact_title": "Founder",
+          "email": "info@eco.example.com",
+          "id": 4,
+          "phone": "+91 20 5550 0004",
+          "score": 80,
+          "score_tier": "hot",
+          "status": "new",
+          "website": "https://eco.example.com:8443/home"
+        }
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

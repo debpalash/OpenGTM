@@ -1,0 +1,45 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "destination_type": "hubspot",
+      "field_map": {
+        "city": "city",
+        "company": "name",
+        "contact_title": "jobtitle",
+        "email": "email"
+      },
+      "name": "Field map"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {},
+      "created_at": "2026-10-26T17:05:47.961727",
+      "destination_type": "hubspot",
+      "enabled": true,
+      "field_map": {
+        "city": "city",
+        "company": "name",
+        "contact_title": "jobtitle",
+        "email": "email"
+      },
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002097",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "Field map",
+      "updated_at": "2026-10-26T17:05:47.961727"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

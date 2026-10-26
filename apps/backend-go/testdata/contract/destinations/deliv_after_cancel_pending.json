@@ -1,0 +1,46 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/runs/run-act-sf1/deliveries"
+  },
+  "response": {
+    "body": [
+      {
+        "attempts": 0,
+        "created_at": "2026-08-28T14:30:05",
+        "delivered_at": null,
+        "destination_id": "dst-act-salesforce",
+        "error": "Run cancelled before delivery",
+        "external_id": null,
+        "id": 15,
+        "lead_id": 14,
+        "operation": "upsert",
+        "run_id": "run-act-sf1",
+        "status": "cancelled",
+        "summary": null
+      },
+      {
+        "attempts": 1,
+        "created_at": "2026-08-28T14:30:06",
+        "delivered_at": null,
+        "destination_id": "dst-act-salesforce",
+        "error": "Run cancelled before delivery",
+        "external_id": null,
+        "id": 16,
+        "lead_id": 6,
+        "operation": "upsert",
+        "run_id": "run-act-sf1",
+        "status": "cancelled",
+        "summary": null
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

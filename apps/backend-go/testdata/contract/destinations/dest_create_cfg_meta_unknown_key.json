@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "consent_attested": true,
+        "consent_source": "s",
+        "custom_audience_id": "1",
+        "segment_id": "2"
+      },
+      "destination_type": "meta_ads",
+      "name": "cfg 30"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "unsupported ad destination config: segment_id"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

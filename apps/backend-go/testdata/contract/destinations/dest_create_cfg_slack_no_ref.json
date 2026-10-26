@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {},
+      "destination_type": "slack",
+      "name": "cfg 57"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "slack webhook_secret_ref is required"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "request": {
+    "body": {
+      "filters": {
+        "has_phone": false
+      },
+      "name": "Filter has_phone_false"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": {
+      "consecutive_refresh_failures": 0,
+      "created_at": "2026-10-26T17:05:44.667056",
+      "description": "",
+      "filters": {
+        "has_phone": false
+      },
+      "id": "00000000-0000-4000-8000-000000002024",
+      "last_refresh_error": null,
+      "member_count": 9,
+      "name": "Filter has_phone_false",
+      "next_refresh_at": "2026-10-26T18:05:44.702979",
+      "refresh_enabled": true,
+      "refresh_health": "healthy",
+      "refresh_interval_minutes": 60,
+      "refreshed_at": "2026-10-26T17:05:44.680399",
+      "updated_at": "2026-10-26T17:05:44.701135"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "platform": "meta_ads",
+  "operation": "remove",
+  "scenario": "success_no_session_id",
+  "config": {
+    "custom_audience_id": "6001234567890",
+    "consent_attested": true,
+    "consent_source": "web form v3"
+  },
+  "secrets": {
+    "META_ACCESS_TOKEN": "ctk_meta_access_token_0001",
+    "LINKEDIN_ACCESS_TOKEN": "ctk_linkedin_access_token_0001",
+    "GOOGLE_ADS_ACCESS_TOKEN": "ctk_google_ads_access_token_0001",
+    "GOOGLE_ADS_DEVELOPER_TOKEN": "ctk_google_ads_developer_token_0001"
+  },
+  "input_snapshots": [
+    {
+      "email": "b5fc85e55755f9e0d030a10ab4429b6b2944855f9a0d60077fe832becbc41d72",
+      "phone": "a696cc8e59411a133ae216ed61f4993c097a6272e0eaab9c2d1017223c5d9514"
+    },
+    {
+      "email": "5ff860bf1190596c7188ab851db691f0f3169c453936e9e1eba2f9a47f7a0018"
+    },
+    {
+      "phone": "c8c368aed27e08f0cdddd07e0a2565caf8eebe12327087d763d07926e823d4d5"
+    },
+    {
+      "email": "RAW@Example.com"
+    },
+    {
+      "email": "B5FC85E55755F9E0D030A10AB4429B6B2944855F9A0D60077FE832BECBC41D72"
+    }
+  ],
+  "http_exchanges": [
+    {
+      "request": {
+        "method": "DELETE",
+        "url": "https://graph.facebook.com/v23.0/6001234567890/users",
+        "headers": {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        "form": {
+          "access_token": "{{secret:META_ACCESS_TOKEN}}",
+          "payload": {
+            "schema": [
+              "EMAIL",
+              "PHONE"
+            ],
+            "data": [
+              [
+                "b5fc85e55755f9e0d030a10ab4429b6b2944855f9a0d60077fe832becbc41d72",
+                "a696cc8e59411a133ae216ed61f4993c097a6272e0eaab9c2d1017223c5d9514"
+              ],
+              [
+                "5ff860bf1190596c7188ab851db691f0f3169c453936e9e1eba2f9a47f7a0018",
+                ""
+              ],
+              [
+                "",
+                "c8c368aed27e08f0cdddd07e0a2565caf8eebe12327087d763d07926e823d4d5"
+              ],
+              [
+                "e1776763ee4a4bb30b926ed1bfb3c203cc87c35558689cea0aaca3c7db3481d9",
+                ""
+              ],
+              [
+                "b5fc85e55755f9e0d030a10ab4429b6b2944855f9a0d60077fe832becbc41d72",
+                ""
+              ]
+            ]
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": {
+          "num_received": 4
+        }
+      }
+    }
+  ],
+  "unrouted_requests": [],
+  "result": {
+    "success": true,
+    "summary": "removed 5 hashed users",
+    "error": null,
+    "external_id": "6001234567890"
+  }
+}

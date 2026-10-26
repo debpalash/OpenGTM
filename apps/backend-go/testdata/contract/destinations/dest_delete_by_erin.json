@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/audience-destinations/00000000-0000-4000-8000-000000002096"
+  },
+  "response": {
+    "body": null,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 204
+  }
+}

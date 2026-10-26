@@ -1,0 +1,57 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-act-2/members?limit=2"
+  },
+  "response": {
+    "body": [
+      {
+        "id": 12,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 16,
+        "snapshot": {
+          "city": "Austin",
+          "company": "=SUM(1,2) Spreadsheet Inc",
+          "contact_person": "@mallory",
+          "contact_title": "",
+          "email": "+cmd@sheet.example.com",
+          "id": 16,
+          "phone": "+91 (22) 123-4567",
+          "score": 50,
+          "score_tier": "cold",
+          "status": "new",
+          "website": "https://sheet.example.com"
+        }
+      },
+      {
+        "id": 11,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 14,
+        "snapshot": {
+          "city": "Austin",
+          "company": "Hot Pursuit Labs",
+          "contact_person": "Sam Lee",
+          "contact_title": "Chief Executive Officer",
+          "email": "ceo@hotpursuit.example.com",
+          "id": 14,
+          "phone": "+1 512 555 0014",
+          "score": 95,
+          "score_tier": "hot",
+          "status": "negotiating",
+          "website": "https://hotpursuit.example.com"
+        }
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

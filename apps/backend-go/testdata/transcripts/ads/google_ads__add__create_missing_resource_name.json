@@ -1,0 +1,67 @@
+{
+  "platform": "google_ads",
+  "operation": "add",
+  "scenario": "create_missing_resource_name",
+  "config": {
+    "customer_id": "1234567890",
+    "user_list_id": "9876543210",
+    "consent_attested": true,
+    "consent_source": "web form v3"
+  },
+  "secrets": {
+    "META_ACCESS_TOKEN": "ctk_meta_access_token_0001",
+    "LINKEDIN_ACCESS_TOKEN": "ctk_linkedin_access_token_0001",
+    "GOOGLE_ADS_ACCESS_TOKEN": "ctk_google_ads_access_token_0001",
+    "GOOGLE_ADS_DEVELOPER_TOKEN": "ctk_google_ads_developer_token_0001"
+  },
+  "input_snapshots": [
+    {
+      "email": "Ada@Example.com",
+      "phone": "+1 (512) 555-0014"
+    },
+    {
+      "email": " bob@example.com "
+    },
+    {
+      "phone": "+91 22 5550 1001"
+    },
+    {
+      "email": "no-identifiers-here",
+      "phone": "12"
+    }
+  ],
+  "http_exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://googleads.googleapis.com/v23/customers/1234567890/offlineUserDataJobs:create",
+        "headers": {
+          "authorization": "Bearer {{secret:GOOGLE_ADS_ACCESS_TOKEN}}",
+          "content-type": "application/json",
+          "developer-token": "{{secret:GOOGLE_ADS_DEVELOPER_TOKEN}}"
+        },
+        "json": {
+          "job": {
+            "type": "CUSTOMER_MATCH_USER_LIST",
+            "customerMatchUserListMetadata": {
+              "userList": "customers/1234567890/userLists/9876543210",
+              "consent": {
+                "adUserData": "GRANTED",
+                "adPersonalization": "GRANTED"
+              }
+            }
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": {}
+      }
+    }
+  ],
+  "unrouted_requests": [],
+  "raises": "KeyError: 'resourceName'"
+}

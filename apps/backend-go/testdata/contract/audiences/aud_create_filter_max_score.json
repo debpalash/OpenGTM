@@ -1,0 +1,39 @@
+{
+  "request": {
+    "body": {
+      "filters": {
+        "max_score": 50
+      },
+      "name": "Filter max_score"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": {
+      "consecutive_refresh_failures": 0,
+      "created_at": "2026-10-26T17:05:44.884970",
+      "description": "",
+      "filters": {
+        "max_score": 50
+      },
+      "id": "00000000-0000-4000-8000-000000002032",
+      "last_refresh_error": null,
+      "member_count": 6,
+      "name": "Filter max_score",
+      "next_refresh_at": "2026-10-26T18:05:44.917095",
+      "refresh_enabled": true,
+      "refresh_health": "healthy",
+      "refresh_interval_minutes": 60,
+      "refreshed_at": "2026-10-26T17:05:44.898317",
+      "updated_at": "2026-10-26T17:05:44.915838"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

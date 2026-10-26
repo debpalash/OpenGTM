@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/runs/run-act-hub2/deliveries?status=pending"
+  },
+  "response": {
+    "body": [
+      {
+        "attempts": 0,
+        "created_at": "2026-08-28T14:00:06",
+        "delivered_at": null,
+        "destination_id": "dst-act-hubspot",
+        "error": null,
+        "external_id": null,
+        "id": 13,
+        "lead_id": 7,
+        "operation": "upsert",
+        "run_id": "run-act-hub2",
+        "status": "pending",
+        "summary": null
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

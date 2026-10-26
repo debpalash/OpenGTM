@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "destination_type": "salesforce",
+      "enabled": "perhaps",
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "perhaps",
+          "loc": [
+            "body",
+            "enabled"
+          ],
+          "msg": "Input should be a valid boolean, unable to interpret input",
+          "type": "bool_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

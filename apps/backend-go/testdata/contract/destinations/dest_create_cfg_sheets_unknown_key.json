@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "columns": [
+          "a"
+        ],
+        "spreadsheet_id": "s",
+        "tab": "x"
+      },
+      "destination_type": "google_sheets",
+      "name": "cfg 43"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "unsupported google_sheets config: tab"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

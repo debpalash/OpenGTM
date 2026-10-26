@@ -1,0 +1,2369 @@
+{
+  "note": "Slack message = message_template.format_map(_SafeFields(str(value) or '' for None)).strip()[:3000], posted through _act_webhook as {url, method POST, headers {Idempotency-Key}, body {text, metadata{event_type, event_payload{destination_id, lead_id}}}}. Python str.format semantics apply in full (object reprs print their address, masked here as 0xADDR): attribute and index access ({company.__class__}), conversions (!r), format specs, and exceptions (raises) that the engine turns into a failed delivery. Missing keys render ''. Positional fields raise IndexError.",
+  "cases": [
+    {
+      "template": "New audience member: {company} {contact_person} {email}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "New audience member: Acme Ada ada@acme.test",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "New audience member: Acme Ada ada@acme.test",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acme",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acme",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{missing}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company} {missing} {email}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acme  ada@acme.test",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acme  ada@acme.test",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{{literal}} {company}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "{literal} Acme",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "{literal} Acme",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{{{company}}}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "{Acme}",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "{Acme}",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "}} {{",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "} {",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "} {",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company!r}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "'Acme'",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "'Acme'",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company!s}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acme",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acme",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company!a}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "'Acme'",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "'Acme'",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company:>10}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acme",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acme",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company:<10}|",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acme      |",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acme      |",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company:^11}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acme",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acme",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company:.3}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acm",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acm",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company:*>12}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "********Acme",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "********Acme",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{score:05d}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Unknown format code 'd' for object of type 'str'",
+      "result": null
+    },
+    {
+      "template": "{score}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "80",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "80",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{score:>5}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "80",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "80",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company.upper}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "<built-in method upper of str object at 0xADDR>",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "<built-in method upper of str object at 0xADDR>",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company.__class__}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "<class 'str'>",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "<class 'str'>",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company.__class__.__name__}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "str",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "str",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company.__len__}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "<method-wrapper '__len__' of str object at 0xADDR>",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "<method-wrapper '__len__' of str object at 0xADDR>",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company[0]}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "A",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "A",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company[0:3]}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "TypeError: string indices must be integers, not 'str'",
+      "result": null
+    },
+    {
+      "template": "{company[-1]}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "TypeError: string indices must be integers, not 'str'",
+      "result": null
+    },
+    {
+      "template": "{company[99]}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "IndexError: string index out of range",
+      "result": null
+    },
+    {
+      "template": "{0}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Format string contains positional fields",
+      "result": null
+    },
+    {
+      "template": "{}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Format string contains positional fields",
+      "result": null
+    },
+    {
+      "template": "{1}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Format string contains positional fields",
+      "result": null
+    },
+    {
+      "template": "{ company }",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company }",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{ company}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company:}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acme",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acme",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company:{email}}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Invalid format specifier 'ada@acme.test' for object of type 'str'",
+      "result": null
+    },
+    {
+      "template": "{company!x}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Unknown conversion specifier x",
+      "result": null
+    },
+    {
+      "template": "{company",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: expected '}' before end of string",
+      "result": null
+    },
+    {
+      "template": "company}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Single '}' encountered in format string",
+      "result": null
+    },
+    {
+      "template": "{",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Single '{' encountered in format string",
+      "result": null
+    },
+    {
+      "template": "}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Single '}' encountered in format string",
+      "result": null
+    },
+    {
+      "template": "{{",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "{",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "{",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "}}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "}",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "}",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "New audience member: Acme Ada ada@acme.test",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "New audience member: Acme Ada ada@acme.test",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "   ",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "\n{company}\n",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acme",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acme",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "  {company}  ",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acme",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acme",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "Ünï {company} 東京 😀",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Ünï Acme 東京 😀",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Ünï Acme 東京 😀",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{city}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{phone}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{nothing}x{nothing}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "x",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "x",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}{company}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "AcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcme",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "AcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcmeAcme",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company}yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acmeyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acmeyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{a.b}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "AttributeError: 'str' object has no attribute 'b'",
+      "result": null
+    },
+    {
+      "template": "{a[0]}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "IndexError: string index out of range",
+      "result": null
+    },
+    {
+      "template": "{company:%Y}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Invalid format specifier '%Y' for object of type 'str'",
+      "result": null
+    },
+    {
+      "template": "{email:>{score}}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "ada@acme.test",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "ada@acme.test",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{__class__}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{self}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{__init__}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company.__doc__}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "str(object='') -> str\nstr(bytes_or_buffer[, encoding[, errors]]) -> str\n\nCreate a new string object from the given object. If encoding or\nerrors is specified, then the object must expose a data buffer\nthat will be decoded using the given encoding and error handler.\nOtherwise, returns the result of object.__str__() (if defined)\nor repr(object).\nencoding defaults to 'utf-8'.\nerrors defaults to 'strict'.",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "str(object='') -> str\nstr(bytes_or_buffer[, encoding[, errors]]) -> str\n\nCreate a new string object from the given object. If encoding or\nerrors is specified, then the object must expose a data buffer\nthat will be decoded using the given encoding and error handler.\nOtherwise, returns the result of object.__str__() (if defined)\nor repr(object).\nencoding defaults to 'utf-8'.\nerrors defaults to 'strict'.",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{score.real}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "AttributeError: 'str' object has no attribute 'real'",
+      "result": null
+    },
+    {
+      "template": "{score.__class__.__mro__}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "(<class 'str'>, <class 'object'>)",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "(<class 'str'>, <class 'object'>)",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company.format}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "<built-in method format of str object at 0xADDR>",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "<built-in method format of str object at 0xADDR>",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{ }",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{!r}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Format string contains positional fields",
+      "result": null
+    },
+    {
+      "template": "{:>5}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Format string contains positional fields",
+      "result": null
+    },
+    {
+      "template": "{company} {email}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acme ada@acme.test",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acme ada@acme.test",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company}\t\t{email}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acme\t\tada@acme.test",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acme\t\tada@acme.test",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "a{company}b{company}c",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "aAcmebAcmec",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "aAcmebAcmec",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{COMPANY}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{Company}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company:s}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "Acme",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "Acme",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company:d}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Unknown format code 'd' for object of type 'str'",
+      "result": null
+    },
+    {
+      "template": "{score:s}",
+      "snapshot": {
+        "company": "Acme",
+        "contact_person": "Ada",
+        "email": "ada@acme.test",
+        "city": null,
+        "phone": "",
+        "score": 80,
+        "id": 5
+      },
+      "text": "80",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "dest:dest-1:lead:5:abc"
+        },
+        "body": {
+          "text": "80",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 5
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "template": "{company}|{email}|{score}|{flag}|{tags}|{meta}|{unicode}|{id}",
+      "snapshot": {
+        "company": null,
+        "email": "",
+        "score": 0.5,
+        "flag": false,
+        "tags": [
+          "a",
+          "b"
+        ],
+        "meta": {
+          "k": 1
+        },
+        "unicode": "é",
+        "id": 9
+      },
+      "text": "||0.5|False|['a', 'b']|{'k': 1}|é|9",
+      "webhook": {
+        "url": "https://hooks.slack.test/services/T/B/placeholder",
+        "method": "POST",
+        "headers": {
+          "Idempotency-Key": "k"
+        },
+        "body": {
+          "text": "||0.5|False|['a', 'b']|{'k': 1}|é|9",
+          "metadata": {
+            "event_type": "opengtm_audience_member",
+            "event_payload": {
+              "destination_id": "dest-1",
+              "lead_id": 9
+            }
+          }
+        }
+      },
+      "raises": null,
+      "result": {
+        "success": true,
+        "summary": "",
+        "error": null
+      }
+    },
+    {
+      "template": "{company:>4}|{score:.3f}",
+      "snapshot": {
+        "company": null,
+        "email": "",
+        "score": 0.5,
+        "flag": false,
+        "tags": [
+          "a",
+          "b"
+        ],
+        "meta": {
+          "k": 1
+        },
+        "unicode": "é",
+        "id": 9
+      },
+      "text": null,
+      "webhook": null,
+      "raises": "ValueError: Unknown format code 'f' for object of type 'str'",
+      "result": null
+    }
+  ]
+}

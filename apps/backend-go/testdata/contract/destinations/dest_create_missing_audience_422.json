@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "destination_type": "salesforce",
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "destination_type": "salesforce",
+            "name": "x"
+          },
+          "loc": [
+            "body",
+            "audience_id"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

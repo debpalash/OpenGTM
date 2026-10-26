@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/dst-beta-crm/inbound-receipts"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 50,
+      "next_cursor": null,
+      "offset": 0,
+      "receipts": [
+        {
+          "applied_fields": [
+            "email"
+          ],
+          "conflict_policy": "fill_missing",
+          "created_at": "2026-08-28T11:00:00",
+          "destination_id": "dst-beta-crm",
+          "error": null,
+          "external_event_id": "evt-b-1",
+          "external_record_id": "hs-b17",
+          "id": "rcp-beta-1",
+          "ignored_fields": [],
+          "lead_id": 17,
+          "provider": "hubspot",
+          "status": "applied"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

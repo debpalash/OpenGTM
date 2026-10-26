@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-2",
+      "config": {
+        "method": "PUT",
+        "url": "https://hooks.example.test/new"
+      },
+      "destination_type": "webhook",
+      "name": "webhook destination"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "A destination with this name already exists for the audience"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

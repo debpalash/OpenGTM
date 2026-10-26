@@ -1,0 +1,96 @@
+{
+  "platform": "linkedin_ads",
+  "operation": "add",
+  "scenario": "rejected_elements",
+  "config": {
+    "segment_id": "41234567",
+    "consent_attested": true,
+    "consent_source": "web form v3"
+  },
+  "secrets": {
+    "META_ACCESS_TOKEN": "ctk_meta_access_token_0001",
+    "LINKEDIN_ACCESS_TOKEN": "ctk_linkedin_access_token_0001",
+    "GOOGLE_ADS_ACCESS_TOKEN": "ctk_google_ads_access_token_0001",
+    "GOOGLE_ADS_DEVELOPER_TOKEN": "ctk_google_ads_developer_token_0001"
+  },
+  "input_snapshots": [
+    {
+      "email": "Ada@Example.com",
+      "phone": "+1 (512) 555-0014"
+    },
+    {
+      "email": " bob@example.com "
+    },
+    {
+      "phone": "+91 22 5550 1001"
+    },
+    {
+      "email": "no-identifiers-here",
+      "phone": "12"
+    }
+  ],
+  "http_exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://api.linkedin.com/rest/dmpSegments/41234567/users",
+        "headers": {
+          "authorization": "Bearer {{secret:LINKEDIN_ACCESS_TOKEN}}",
+          "content-type": "application/json",
+          "linkedin-version": "202607",
+          "x-restli-method": "BATCH_CREATE",
+          "x-restli-protocol-version": "2.0.0"
+        },
+        "json": {
+          "elements": [
+            {
+              "action": "ADD",
+              "userIds": [
+                {
+                  "idType": "SHA256_EMAIL",
+                  "idValue": "b5fc85e55755f9e0d030a10ab4429b6b2944855f9a0d60077fe832becbc41d72"
+                }
+              ]
+            },
+            {
+              "action": "ADD",
+              "userIds": [
+                {
+                  "idType": "SHA256_EMAIL",
+                  "idValue": "5ff860bf1190596c7188ab851db691f0f3169c453936e9e1eba2f9a47f7a0018"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": {
+          "elements": [
+            {
+              "status": 201
+            },
+            {
+              "status": 400,
+              "message": "PII a@b.co"
+            },
+            {
+              "status": 403
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "unrouted_requests": [],
+  "result": {
+    "success": false,
+    "summary": "",
+    "error": "LinkedIn returned an incomplete batch response (expected=2, received=3)",
+    "external_id": "41234567"
+  }
+}

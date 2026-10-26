@@ -1,0 +1,41 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "campaign_id": "1",
+        "skip_if_in_campaign": false
+      },
+      "destination_type": "instantly",
+      "name": "Instantly skip false"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "campaign_id": "1",
+        "skip_if_in_campaign": false
+      },
+      "created_at": "2026-10-26T17:05:48.056941",
+      "destination_type": "instantly",
+      "enabled": true,
+      "field_map": {},
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002101",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "Instantly skip false",
+      "updated_at": "2026-10-26T17:05:48.056941"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

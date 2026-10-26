@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations/dst-act-salesforce/inbound-token"
+  },
+  "response": {
+    "body": {
+      "created_at": "2026-10-26T17:05:53.062563",
+      "expires_at": "2027-01-24T17:05:53.071179+00:00",
+      "prefix": "dsi_00000003",
+      "token": "<redacted>",
+      "warning": "Copy this token now; it will not be shown again."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

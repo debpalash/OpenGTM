@@ -1,0 +1,261 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/__contract/schedules"
+  },
+  "response": {
+    "body": [
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002000",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002002",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002006",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002008",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002010",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002012",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002014",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002016",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002018",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002020",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002022",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002024",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002026",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002028",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002030",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002032",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002034",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002036",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002038",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002040",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002042",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002044",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002046",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002048",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002050",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002052",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002054",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002056",
+        "enabled": false,
+        "has_next": false,
+        "matches_audience": true,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002060",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002062",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002064",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "00000000-0000-4000-8000-000000002068",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "audience_id": "aud-act-2",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "aud-act-3",
+        "enabled": false,
+        "has_next": false,
+        "matches_audience": true,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "audience_id": "aud-beta-act",
+        "enabled": true,
+        "has_next": true,
+        "matches_audience": false,
+        "workspace_id": "ws-beta"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

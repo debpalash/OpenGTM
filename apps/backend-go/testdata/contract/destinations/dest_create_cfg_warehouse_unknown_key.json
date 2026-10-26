@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "table": "t",
+        "url": "https://w.example.test"
+      },
+      "destination_type": "warehouse_http",
+      "name": "cfg 15"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "unsupported warehouse config: table"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

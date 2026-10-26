@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "external_event_id": "evt-x",
+      "fields": {}
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations/inbound/dst-act-hubspot"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid or revoked destination token"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

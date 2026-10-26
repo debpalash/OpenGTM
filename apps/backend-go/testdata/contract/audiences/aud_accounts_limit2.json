@@ -1,0 +1,88 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-act-2/accounts?limit=2"
+  },
+  "response": {
+    "body": {
+      "accounts": [
+        {
+          "avg_score": 95.0,
+          "company": "Hot Pursuit Labs",
+          "contacts": 1,
+          "decision_makers": 1,
+          "email_coverage_pct": 100,
+          "key": "hotpursuit.example.com",
+          "phone_coverage_pct": 100,
+          "profiles": [
+            {
+              "email": "ceo@hotpursuit.example.com",
+              "lead_id": 14,
+              "name": "Sam Lee",
+              "title": "Chief Executive Officer"
+            }
+          ],
+          "signal_count": 10,
+          "signal_weight": 82,
+          "website": "https://hotpursuit.example.com",
+          "with_email": 1,
+          "with_phone": 1
+        },
+        {
+          "avg_score": 60.0,
+          "company": "Zenith Robotics Pvt Ltd",
+          "contacts": 3,
+          "decision_makers": 3,
+          "email_coverage_pct": 33,
+          "key": "zenithrobotics.example.com",
+          "phone_coverage_pct": 33,
+          "profiles": [
+            {
+              "email": "hello@zenithrobotics.example.com",
+              "lead_id": 6,
+              "name": "Rhea Kapoor",
+              "title": "CEO"
+            },
+            {
+              "email": "",
+              "lead_id": 7,
+              "name": "Lead 7",
+              "title": "VP Engineering"
+            },
+            {
+              "email": "",
+              "lead_id": 9,
+              "name": "Lead 9",
+              "title": "Head of Sales"
+            }
+          ],
+          "signal_count": 7,
+          "signal_weight": 60,
+          "website": "https://zenithrobotics.example.com",
+          "with_email": 1,
+          "with_phone": 1
+        }
+      ],
+      "pagination": {
+        "limit": 2,
+        "next_offset": 2,
+        "offset": 0,
+        "total": 8
+      },
+      "summary": {
+        "account_count": 8,
+        "accounts_with_decision_makers": 4,
+        "accounts_with_signals": 4,
+        "contact_count": 10
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,1677 @@
+{
+  "note": "_validate_filters(dict) (422 detail is 'Value error, <message>' at loc body.filters); create_model/patch_model are the pydantic results of the whole model. models/patches: AudienceCreate/AudiencePatch field rules and model_dump(exclude_unset).",
+  "cases": [
+    {
+      "name": "empty",
+      "filters": {},
+      "ok": true,
+      "result": {},
+      "create_model": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      },
+      "patch_model": {
+        "ok": {
+          "name": null,
+          "description": null,
+          "filters": {},
+          "refresh_enabled": null,
+          "refresh_interval_minutes": null
+        }
+      }
+    },
+    {
+      "name": "city",
+      "filters": {
+        "city": "Austin"
+      },
+      "ok": true,
+      "result": {
+        "city": "Austin"
+      },
+      "create_model": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {
+            "city": "Austin"
+          },
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      },
+      "patch_model": {
+        "ok": {
+          "name": null,
+          "description": null,
+          "filters": {
+            "city": "Austin"
+          },
+          "refresh_enabled": null,
+          "refresh_interval_minutes": null
+        }
+      }
+    },
+    {
+      "name": "every_key",
+      "filters": {
+        "city": "a",
+        "state": "b",
+        "score_tier": "hot",
+        "status": "new",
+        "source": "s",
+        "company_size": "1-10",
+        "specialization": "x",
+        "has_email": true,
+        "has_phone": false,
+        "has_website": true,
+        "min_score": 1,
+        "max_score": 2,
+        "search": "q",
+        "job_ids": [
+          "j"
+        ]
+      },
+      "ok": true,
+      "result": {
+        "city": "a",
+        "state": "b",
+        "score_tier": "hot",
+        "status": "new",
+        "source": "s",
+        "company_size": "1-10",
+        "specialization": "x",
+        "has_email": true,
+        "has_phone": false,
+        "has_website": true,
+        "min_score": 1,
+        "max_score": 2,
+        "search": "q",
+        "job_ids": [
+          "j"
+        ]
+      },
+      "create_model": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {
+            "city": "a",
+            "state": "b",
+            "score_tier": "hot",
+            "status": "new",
+            "source": "s",
+            "company_size": "1-10",
+            "specialization": "x",
+            "has_email": true,
+            "has_phone": false,
+            "has_website": true,
+            "min_score": 1,
+            "max_score": 2,
+            "search": "q",
+            "job_ids": [
+              "j"
+            ]
+          },
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      },
+      "patch_model": {
+        "ok": {
+          "name": null,
+          "description": null,
+          "filters": {
+            "city": "a",
+            "state": "b",
+            "score_tier": "hot",
+            "status": "new",
+            "source": "s",
+            "company_size": "1-10",
+            "specialization": "x",
+            "has_email": true,
+            "has_phone": false,
+            "has_website": true,
+            "min_score": 1,
+            "max_score": 2,
+            "search": "q",
+            "job_ids": [
+              "j"
+            ]
+          },
+          "refresh_enabled": null,
+          "refresh_interval_minutes": null
+        }
+      }
+    },
+    {
+      "name": "unknown_one",
+      "filters": {
+        "bogus": 1
+      },
+      "ok": false,
+      "error": "unsupported audience filters: bogus",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, unsupported audience filters: bogus"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, unsupported audience filters: bogus"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unknown_two_sorted",
+      "filters": {
+        "zeta": 1,
+        "alpha": 2
+      },
+      "ok": false,
+      "error": "unsupported audience filters: alpha, zeta",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, unsupported audience filters: alpha, zeta"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, unsupported audience filters: alpha, zeta"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unknown_and_valid",
+      "filters": {
+        "city": "a",
+        "nope": 1
+      },
+      "ok": false,
+      "error": "unsupported audience filters: nope",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, unsupported audience filters: nope"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, unsupported audience filters: nope"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unknown_case_sensitive",
+      "filters": {
+        "City": "a"
+      },
+      "ok": false,
+      "error": "unsupported audience filters: City",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, unsupported audience filters: City"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, unsupported audience filters: City"
+          }
+        ]
+      }
+    },
+    {
+      "name": "has_email_string",
+      "filters": {
+        "has_email": "yes"
+      },
+      "ok": false,
+      "error": "has_email must be a boolean",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, has_email must be a boolean"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, has_email must be a boolean"
+          }
+        ]
+      }
+    },
+    {
+      "name": "has_email_int",
+      "filters": {
+        "has_email": 1
+      },
+      "ok": false,
+      "error": "has_email must be a boolean",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, has_email must be a boolean"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, has_email must be a boolean"
+          }
+        ]
+      }
+    },
+    {
+      "name": "has_email_null",
+      "filters": {
+        "has_email": null
+      },
+      "ok": false,
+      "error": "has_email must be a boolean",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, has_email must be a boolean"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, has_email must be a boolean"
+          }
+        ]
+      }
+    },
+    {
+      "name": "has_phone_zero",
+      "filters": {
+        "has_phone": 0
+      },
+      "ok": false,
+      "error": "has_phone must be a boolean",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, has_phone must be a boolean"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, has_phone must be a boolean"
+          }
+        ]
+      }
+    },
+    {
+      "name": "has_website_list",
+      "filters": {
+        "has_website": [
+          true
+        ]
+      },
+      "ok": false,
+      "error": "has_website must be a boolean",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, has_website must be a boolean"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, has_website must be a boolean"
+          }
+        ]
+      }
+    },
+    {
+      "name": "min_score_string",
+      "filters": {
+        "min_score": "5"
+      },
+      "ok": false,
+      "error": "min_score must be an integer",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score must be an integer"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score must be an integer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "min_score_float",
+      "filters": {
+        "min_score": 5.0
+      },
+      "ok": false,
+      "error": "min_score must be an integer",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score must be an integer"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score must be an integer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "min_score_bool",
+      "filters": {
+        "min_score": true
+      },
+      "ok": false,
+      "error": "min_score must be an integer",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score must be an integer"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score must be an integer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "min_score_null",
+      "filters": {
+        "min_score": null
+      },
+      "ok": false,
+      "error": "min_score must be an integer",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score must be an integer"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score must be an integer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "max_score_bool_false",
+      "filters": {
+        "max_score": false
+      },
+      "ok": false,
+      "error": "max_score must be an integer",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, max_score must be an integer"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, max_score must be an integer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "max_score_float",
+      "filters": {
+        "max_score": 1.5
+      },
+      "ok": false,
+      "error": "max_score must be an integer",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, max_score must be an integer"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, max_score must be an integer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "min_gt_max",
+      "filters": {
+        "min_score": 70,
+        "max_score": 10
+      },
+      "ok": false,
+      "error": "min_score cannot exceed max_score",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score cannot exceed max_score"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score cannot exceed max_score"
+          }
+        ]
+      }
+    },
+    {
+      "name": "min_eq_max",
+      "filters": {
+        "min_score": 5,
+        "max_score": 5
+      },
+      "ok": true,
+      "result": {
+        "min_score": 5,
+        "max_score": 5
+      },
+      "create_model": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {
+            "min_score": 5,
+            "max_score": 5
+          },
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      },
+      "patch_model": {
+        "ok": {
+          "name": null,
+          "description": null,
+          "filters": {
+            "min_score": 5,
+            "max_score": 5
+          },
+          "refresh_enabled": null,
+          "refresh_interval_minutes": null
+        }
+      }
+    },
+    {
+      "name": "min_lt_max",
+      "filters": {
+        "min_score": 1,
+        "max_score": 2
+      },
+      "ok": true,
+      "result": {
+        "min_score": 1,
+        "max_score": 2
+      },
+      "create_model": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {
+            "min_score": 1,
+            "max_score": 2
+          },
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      },
+      "patch_model": {
+        "ok": {
+          "name": null,
+          "description": null,
+          "filters": {
+            "min_score": 1,
+            "max_score": 2
+          },
+          "refresh_enabled": null,
+          "refresh_interval_minutes": null
+        }
+      }
+    },
+    {
+      "name": "negative_range_ok",
+      "filters": {
+        "min_score": -10,
+        "max_score": -5
+      },
+      "ok": true,
+      "result": {
+        "min_score": -10,
+        "max_score": -5
+      },
+      "create_model": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {
+            "min_score": -10,
+            "max_score": -5
+          },
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      },
+      "patch_model": {
+        "ok": {
+          "name": null,
+          "description": null,
+          "filters": {
+            "min_score": -10,
+            "max_score": -5
+          },
+          "refresh_enabled": null,
+          "refresh_interval_minutes": null
+        }
+      }
+    },
+    {
+      "name": "negative_inverted",
+      "filters": {
+        "min_score": -5,
+        "max_score": -10
+      },
+      "ok": false,
+      "error": "min_score cannot exceed max_score",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score cannot exceed max_score"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score cannot exceed max_score"
+          }
+        ]
+      }
+    },
+    {
+      "name": "only_min",
+      "filters": {
+        "min_score": 99
+      },
+      "ok": true,
+      "result": {
+        "min_score": 99
+      },
+      "create_model": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {
+            "min_score": 99
+          },
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      },
+      "patch_model": {
+        "ok": {
+          "name": null,
+          "description": null,
+          "filters": {
+            "min_score": 99
+          },
+          "refresh_enabled": null,
+          "refresh_interval_minutes": null
+        }
+      }
+    },
+    {
+      "name": "only_max",
+      "filters": {
+        "max_score": 0
+      },
+      "ok": true,
+      "result": {
+        "max_score": 0
+      },
+      "create_model": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {
+            "max_score": 0
+          },
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      },
+      "patch_model": {
+        "ok": {
+          "name": null,
+          "description": null,
+          "filters": {
+            "max_score": 0
+          },
+          "refresh_enabled": null,
+          "refresh_interval_minutes": null
+        }
+      }
+    },
+    {
+      "name": "huge_ints",
+      "filters": {
+        "min_score": 1000000000000000000,
+        "max_score": 10000000000000000000
+      },
+      "ok": true,
+      "result": {
+        "min_score": 1000000000000000000,
+        "max_score": 10000000000000000000
+      },
+      "create_model": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {
+            "min_score": 1000000000000000000,
+            "max_score": 10000000000000000000
+          },
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      },
+      "patch_model": {
+        "ok": {
+          "name": null,
+          "description": null,
+          "filters": {
+            "min_score": 1000000000000000000,
+            "max_score": 10000000000000000000
+          },
+          "refresh_enabled": null,
+          "refresh_interval_minutes": null
+        }
+      }
+    },
+    {
+      "name": "bool_error_before_compare",
+      "filters": {
+        "min_score": true,
+        "max_score": 0
+      },
+      "ok": false,
+      "error": "min_score must be an integer",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score must be an integer"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, min_score must be an integer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "order_bool_then_int_msg",
+      "filters": {
+        "has_email": "x",
+        "min_score": "y"
+      },
+      "ok": false,
+      "error": "has_email must be a boolean",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, has_email must be a boolean"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, has_email must be a boolean"
+          }
+        ]
+      }
+    },
+    {
+      "name": "types_not_checked",
+      "filters": {
+        "city": 5,
+        "state": null,
+        "score_tier": [],
+        "search": {
+          "a": 1
+        },
+        "job_ids": "not-a-list",
+        "specialization": 1.5
+      },
+      "ok": true,
+      "result": {
+        "city": 5,
+        "state": null,
+        "score_tier": [],
+        "search": {
+          "a": 1
+        },
+        "job_ids": "not-a-list",
+        "specialization": 1.5
+      },
+      "create_model": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {
+            "city": 5,
+            "state": null,
+            "score_tier": [],
+            "search": {
+              "a": 1
+            },
+            "job_ids": "not-a-list",
+            "specialization": 1.5
+          },
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      },
+      "patch_model": {
+        "ok": {
+          "name": null,
+          "description": null,
+          "filters": {
+            "city": 5,
+            "state": null,
+            "score_tier": [],
+            "search": {
+              "a": 1
+            },
+            "job_ids": "not-a-list",
+            "specialization": 1.5
+          },
+          "refresh_enabled": null,
+          "refresh_interval_minutes": null
+        }
+      }
+    },
+    {
+      "name": "job_ids_empty",
+      "filters": {
+        "job_ids": []
+      },
+      "ok": true,
+      "result": {
+        "job_ids": []
+      },
+      "create_model": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {
+            "job_ids": []
+          },
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      },
+      "patch_model": {
+        "ok": {
+          "name": null,
+          "description": null,
+          "filters": {
+            "job_ids": []
+          },
+          "refresh_enabled": null,
+          "refresh_interval_minutes": null
+        }
+      }
+    },
+    {
+      "name": "unicode_values",
+      "filters": {
+        "city": "東京",
+        "search": "Ünï"
+      },
+      "ok": true,
+      "result": {
+        "city": "東京",
+        "search": "Ünï"
+      },
+      "create_model": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {
+            "city": "東京",
+            "search": "Ünï"
+          },
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      },
+      "patch_model": {
+        "ok": {
+          "name": null,
+          "description": null,
+          "filters": {
+            "city": "東京",
+            "search": "Ünï"
+          },
+          "refresh_enabled": null,
+          "refresh_interval_minutes": null
+        }
+      }
+    },
+    {
+      "name": "both_bool_and_unknown",
+      "filters": {
+        "has_phone": "x",
+        "extra": 1
+      },
+      "ok": false,
+      "error": "unsupported audience filters: extra",
+      "create_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, unsupported audience filters: extra"
+          }
+        ]
+      },
+      "patch_model": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Value error, unsupported audience filters: extra"
+          }
+        ]
+      }
+    }
+  ],
+  "models": [
+    {
+      "name": "defaults",
+      "body": {
+        "name": "n"
+      },
+      "create": {
+        "ok": {
+          "name": "n",
+          "description": "",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      }
+    },
+    {
+      "name": "strip",
+      "body": {
+        "name": "  padded  "
+      },
+      "create": {
+        "ok": {
+          "name": "padded",
+          "description": "",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      }
+    },
+    {
+      "name": "blank",
+      "body": {
+        "name": "   "
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "name"
+            ],
+            "msg": "Value error, name cannot be blank"
+          }
+        ]
+      }
+    },
+    {
+      "name": "empty",
+      "body": {
+        "name": ""
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "string_too_short",
+            "loc": [
+              "name"
+            ],
+            "msg": "String should have at least 1 character"
+          }
+        ]
+      }
+    },
+    {
+      "name": "long_200",
+      "body": {
+        "name": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
+      },
+      "create": {
+        "ok": {
+          "name": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+          "description": "",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      }
+    },
+    {
+      "name": "long_201",
+      "body": {
+        "name": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "string_too_long",
+            "loc": [
+              "name"
+            ],
+            "msg": "String should have at most 200 characters"
+          }
+        ]
+      }
+    },
+    {
+      "name": "desc_2000",
+      "body": {
+        "name": "n",
+        "description": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      "create": {
+        "ok": {
+          "name": "n",
+          "description": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      }
+    },
+    {
+      "name": "desc_2001",
+      "body": {
+        "name": "n",
+        "description": "ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "string_too_long",
+            "loc": [
+              "description"
+            ],
+            "msg": "String should have at most 2000 characters"
+          }
+        ]
+      }
+    },
+    {
+      "name": "interval_14",
+      "body": {
+        "name": "n",
+        "refresh_interval_minutes": 14
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "greater_than_equal",
+            "loc": [
+              "refresh_interval_minutes"
+            ],
+            "msg": "Input should be greater than or equal to 15"
+          }
+        ]
+      }
+    },
+    {
+      "name": "interval_15",
+      "body": {
+        "name": "n",
+        "refresh_interval_minutes": 15
+      },
+      "create": {
+        "ok": {
+          "name": "n",
+          "description": "",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 15
+        }
+      }
+    },
+    {
+      "name": "interval_10080",
+      "body": {
+        "name": "n",
+        "refresh_interval_minutes": 10080
+      },
+      "create": {
+        "ok": {
+          "name": "n",
+          "description": "",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 10080
+        }
+      }
+    },
+    {
+      "name": "interval_10081",
+      "body": {
+        "name": "n",
+        "refresh_interval_minutes": 10081
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "less_than_equal",
+            "loc": [
+              "refresh_interval_minutes"
+            ],
+            "msg": "Input should be less than or equal to 10080"
+          }
+        ]
+      }
+    },
+    {
+      "name": "interval_string_number",
+      "body": {
+        "name": "n",
+        "refresh_interval_minutes": "30"
+      },
+      "create": {
+        "ok": {
+          "name": "n",
+          "description": "",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 30
+        }
+      }
+    },
+    {
+      "name": "interval_float_whole",
+      "body": {
+        "name": "n",
+        "refresh_interval_minutes": 30.0
+      },
+      "create": {
+        "ok": {
+          "name": "n",
+          "description": "",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 30
+        }
+      }
+    },
+    {
+      "name": "interval_float_frac",
+      "body": {
+        "name": "n",
+        "refresh_interval_minutes": 30.5
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "int_from_float",
+            "loc": [
+              "refresh_interval_minutes"
+            ],
+            "msg": "Input should be a valid integer, got a number with a fractional part"
+          }
+        ]
+      }
+    },
+    {
+      "name": "interval_bool",
+      "body": {
+        "name": "n",
+        "refresh_interval_minutes": true
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "greater_than_equal",
+            "loc": [
+              "refresh_interval_minutes"
+            ],
+            "msg": "Input should be greater than or equal to 15"
+          }
+        ]
+      }
+    },
+    {
+      "name": "enabled_string_true",
+      "body": {
+        "name": "n",
+        "refresh_enabled": "true"
+      },
+      "create": {
+        "ok": {
+          "name": "n",
+          "description": "",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      }
+    },
+    {
+      "name": "enabled_int_1",
+      "body": {
+        "name": "n",
+        "refresh_enabled": 1
+      },
+      "create": {
+        "ok": {
+          "name": "n",
+          "description": "",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      }
+    },
+    {
+      "name": "enabled_int_2",
+      "body": {
+        "name": "n",
+        "refresh_enabled": 2
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "bool_parsing",
+            "loc": [
+              "refresh_enabled"
+            ],
+            "msg": "Input should be a valid boolean, unable to interpret input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "enabled_word",
+      "body": {
+        "name": "n",
+        "refresh_enabled": "maybe"
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "bool_parsing",
+            "loc": [
+              "refresh_enabled"
+            ],
+            "msg": "Input should be a valid boolean, unable to interpret input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing_name",
+      "body": {},
+      "create": {
+        "errors": [
+          {
+            "type": "missing",
+            "loc": [
+              "name"
+            ],
+            "msg": "Field required"
+          }
+        ]
+      }
+    },
+    {
+      "name": "name_number",
+      "body": {
+        "name": 5
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "string_type",
+            "loc": [
+              "name"
+            ],
+            "msg": "Input should be a valid string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "name_null",
+      "body": {
+        "name": null
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "string_type",
+            "loc": [
+              "name"
+            ],
+            "msg": "Input should be a valid string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "filters_list",
+      "body": {
+        "name": "n",
+        "filters": []
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "dict_type",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Input should be a valid dictionary"
+          }
+        ]
+      }
+    },
+    {
+      "name": "filters_null",
+      "body": {
+        "name": "n",
+        "filters": null
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "dict_type",
+            "loc": [
+              "filters"
+            ],
+            "msg": "Input should be a valid dictionary"
+          }
+        ]
+      }
+    },
+    {
+      "name": "extra_field_ignored",
+      "body": {
+        "name": "n",
+        "nope": 1
+      },
+      "create": {
+        "ok": {
+          "name": "n",
+          "description": "",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      }
+    },
+    {
+      "name": "unicode_strip",
+      "body": {
+        "name": "  x  "
+      },
+      "create": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      }
+    },
+    {
+      "name": "tab_newline_strip",
+      "body": {
+        "name": "\t x\n"
+      },
+      "create": {
+        "ok": {
+          "name": "x",
+          "description": "",
+          "filters": {},
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60
+        }
+      }
+    }
+  ],
+  "patches": [
+    {
+      "name": "empty",
+      "body": {},
+      "ok": true,
+      "model_dump_exclude_unset": {}
+    },
+    {
+      "name": "name_null",
+      "body": {
+        "name": null
+      },
+      "ok": true,
+      "model_dump_exclude_unset": {
+        "name": null
+      }
+    },
+    {
+      "name": "name_strip",
+      "body": {
+        "name": " a "
+      },
+      "ok": true,
+      "model_dump_exclude_unset": {
+        "name": "a"
+      }
+    },
+    {
+      "name": "name_blank",
+      "body": {
+        "name": " "
+      },
+      "ok": false,
+      "errors": [
+        {
+          "type": "value_error",
+          "loc": [
+            "name"
+          ],
+          "msg": "Value error, name cannot be blank"
+        }
+      ]
+    },
+    {
+      "name": "desc_null",
+      "body": {
+        "description": null
+      },
+      "ok": true,
+      "model_dump_exclude_unset": {
+        "description": null
+      }
+    },
+    {
+      "name": "filters_null",
+      "body": {
+        "filters": null
+      },
+      "ok": true,
+      "model_dump_exclude_unset": {
+        "filters": null
+      }
+    },
+    {
+      "name": "enabled_null",
+      "body": {
+        "refresh_enabled": null
+      },
+      "ok": true,
+      "model_dump_exclude_unset": {
+        "refresh_enabled": null
+      }
+    },
+    {
+      "name": "interval_null",
+      "body": {
+        "refresh_interval_minutes": null
+      },
+      "ok": true,
+      "model_dump_exclude_unset": {
+        "refresh_interval_minutes": null
+      }
+    },
+    {
+      "name": "interval_14",
+      "body": {
+        "refresh_interval_minutes": 14
+      },
+      "ok": false,
+      "errors": [
+        {
+          "type": "greater_than_equal",
+          "loc": [
+            "refresh_interval_minutes"
+          ],
+          "msg": "Input should be greater than or equal to 15"
+        }
+      ]
+    },
+    {
+      "name": "unset_vs_null",
+      "body": {
+        "name": "x",
+        "description": null
+      },
+      "ok": true,
+      "model_dump_exclude_unset": {
+        "name": "x",
+        "description": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,329 @@
+{
+  "note": "_fingerprint = sha256(json.dumps(payload, sort_keys=True, separators=(',', ':'), default=str)): ensure_ascii=True (non-ASCII and astral characters are \\u-escaped, surrogate pairs for astral), floats use Python repr (1e+16, 1e-05), ints are arbitrary precision. Idempotency keys: dest:<destination>:lead:<lead>:<fingerprint> and ...:remove:<fingerprint>.",
+  "cases": [
+    {
+      "payload": {},
+      "canonical": "{}",
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "payload": {
+        "a": 1
+      },
+      "canonical": "{\"a\":1}",
+      "sha256": "015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862"
+    },
+    {
+      "payload": {
+        "b": 1,
+        "a": 2
+      },
+      "canonical": "{\"a\":2,\"b\":1}",
+      "sha256": "d3626ac30a87e6f7a6428233b3c68299976865fa5508e4267c5415c76af7a772"
+    },
+    {
+      "payload": {
+        "a": {
+          "z": 1,
+          "y": [
+            3,
+            2,
+            1
+          ]
+        }
+      },
+      "canonical": "{\"a\":{\"y\":[3,2,1],\"z\":1}}",
+      "sha256": "9f1e5b6f138b85c517ec92a59980e9a5ddc31848f3e66774240b05ec4d9d7f50"
+    },
+    {
+      "payload": {
+        "é": "ü",
+        "東": "京"
+      },
+      "canonical": "{\"\\u00e9\":\"\\u00fc\",\"\\u6771\":\"\\u4eac\"}",
+      "sha256": "4f527d590280fa20df46894cc34257af64cba0c84cc6af19037a73fb71835e96"
+    },
+    {
+      "payload": {
+        "emoji": "😀",
+        "astral": "𝄞"
+      },
+      "canonical": "{\"astral\":\"\\ud834\\udd1e\",\"emoji\":\"\\ud83d\\ude00\"}",
+      "sha256": "845f642b7b3a183c3b1beea95ae5264eeef560af2e22f25da46acf67fe11fb2a"
+    },
+    {
+      "payload": {
+        "quote": "a\"b\\c/d",
+        "ctrl": "\u0001\u001f\t\n\r\b\f"
+      },
+      "canonical": "{\"ctrl\":\"\\u0001\\u001f\\t\\n\\r\\b\\f\",\"quote\":\"a\\\"b\\\\c/d\"}",
+      "sha256": "a2bf9c14bfb52f2d140406dd2b5a103424a9f3e2960dc066eb1b367fc7c5f1fc"
+    },
+    {
+      "payload": {
+        "f": 1.0
+      },
+      "canonical": "{\"f\":1.0}",
+      "sha256": "3fd3fc1b51eda523c1a53ef3f4a23cba8cd162372e92dc962cad30c6b39e26d0"
+    },
+    {
+      "payload": {
+        "f": 0.1
+      },
+      "canonical": "{\"f\":0.1}",
+      "sha256": "59e0492137bd5891160f9f69bb080ca4eb7d63f34cf4cc1d22661c11911eec8a"
+    },
+    {
+      "payload": {
+        "f": 1e+16
+      },
+      "canonical": "{\"f\":1e+16}",
+      "sha256": "cc7920f9ef023e5d5081ec89d5019d6c52f953e750bb17347a19639000e0a1c4"
+    },
+    {
+      "payload": {
+        "f": 1e+22
+      },
+      "canonical": "{\"f\":1e+22}",
+      "sha256": "4aac839cf9d6865a188c866ddb990d4a5832130070ad4284b134b187c86cff99"
+    },
+    {
+      "payload": {
+        "f": 1.5e-07
+      },
+      "canonical": "{\"f\":1.5e-07}",
+      "sha256": "bc1252f4eded657ffb9fb074cd5bae79bcba28ee9918f4006c6a92c5b58afcbd"
+    },
+    {
+      "payload": {
+        "f": -0.0
+      },
+      "canonical": "{\"f\":-0.0}",
+      "sha256": "cbe63677919c1944999a18b63fdc939e97b906aa1d79f16f90c0c3fd899b0a95"
+    },
+    {
+      "payload": {
+        "f": 123456789.12345679
+      },
+      "canonical": "{\"f\":123456789.12345679}",
+      "sha256": "f47f5e3998384c555531ca4b87d1776e59bf13d628a1d643afd499b5ce7b2750"
+    },
+    {
+      "payload": {
+        "f": 1e-05
+      },
+      "canonical": "{\"f\":1e-05}",
+      "sha256": "3e65591fab34fcc60fe8b55a21d5b5a76325ecb943157e5a27c25f5049f4d242"
+    },
+    {
+      "payload": {
+        "f": 100000.0
+      },
+      "canonical": "{\"f\":100000.0}",
+      "sha256": "c5861adc3e198b5e5e37066af300bf33a17ae2462f5fddda4d4d6e115b44ecd5"
+    },
+    {
+      "payload": {
+        "f": 1000000000000000.0
+      },
+      "canonical": "{\"f\":1000000000000000.0}",
+      "sha256": "ee5e73b497950369867d55eda8da9cb8564cdc304de2e1938e79c8c6ef136b85"
+    },
+    {
+      "payload": {
+        "f": 12345678901234567890
+      },
+      "canonical": "{\"f\":12345678901234567890}",
+      "sha256": "b7cc6032001984c6fe6683ab330dc62d3aef05fc8f1c082b13947848522bed1b"
+    },
+    {
+      "payload": {
+        "i": 9223372036854775808
+      },
+      "canonical": "{\"i\":9223372036854775808}",
+      "sha256": "0bb47efae162bd62f6617c512e5f3278f30c0b15f294863e962e1ca13c056a49"
+    },
+    {
+      "payload": {
+        "i": -9223372036854775808
+      },
+      "canonical": "{\"i\":-9223372036854775808}",
+      "sha256": "2f90c3dc32b733c6da35ad181eca832f8a245396c9e401758622239677abb26e"
+    },
+    {
+      "payload": {
+        "i": 10000000000000000000000000
+      },
+      "canonical": "{\"i\":10000000000000000000000000}",
+      "sha256": "bb9785ca16ace8fcadc526fd4f546697c4bec174a6edb6cfb2d2d34be120c19b"
+    },
+    {
+      "payload": {
+        "n": null,
+        "t": true,
+        "f": false
+      },
+      "canonical": "{\"f\":false,\"n\":null,\"t\":true}",
+      "sha256": "22e00dc2f7b01420f940fbdbfbdf34fa0667cc6500186495023ba37722cbd05e"
+    },
+    {
+      "payload": {
+        "list": [
+          null,
+          true,
+          1,
+          1.5,
+          "s",
+          [],
+          {}
+        ]
+      },
+      "canonical": "{\"list\":[null,true,1,1.5,\"s\",[],{}]}",
+      "sha256": "118160601718ae6b96b49fe15cea9092fa9ce1deab82902efe8b642c62d815ff"
+    },
+    {
+      "payload": {
+        "nested": {
+          "a": {
+            "b": {
+              "c": {
+                "d": 1
+              }
+            }
+          }
+        }
+      },
+      "canonical": "{\"nested\":{\"a\":{\"b\":{\"c\":{\"d\":1}}}}}",
+      "sha256": "8423ead39baedf6b6d41a1a9856846db3fbacd6ab71e312b6ba2bcc101084375"
+    },
+    {
+      "payload": {
+        "k1": 1,
+        "K1": 2,
+        "k10": 3,
+        "k2": 4
+      },
+      "canonical": "{\"K1\":2,\"k1\":1,\"k10\":3,\"k2\":4}",
+      "sha256": "aba7150fe3d1baa87f6dc9030aaff99cc710b058b8d30c1442abff0b75e0eda8"
+    },
+    {
+      "payload": {
+        "": 1,
+        " ": 2
+      },
+      "canonical": "{\"\":1,\" \":2}",
+      "sha256": "1a651d4c91befa823d945cced4af8dd159f7c67366f948f3c543fb47bf01e3e3"
+    },
+    {
+      "payload": {
+        "a b": 1,
+        "a_b": 2,
+        "a-b": 3
+      },
+      "canonical": "{\"a b\":1,\"a-b\":3,\"a_b\":2}",
+      "sha256": "6e29d46c2b1ee256c821c4d880db0e4bcf755290a3ac6c79788e22527de3c4c4"
+    },
+    {
+      "payload": {
+        "u": "  "
+      },
+      "canonical": "{\"u\":\"\\u2028\\u2029\"}",
+      "sha256": "a488e22c11b2ef842f3cc40ea9c06fb300e34a1ac2383429abe0e19bb2619d53"
+    },
+    {
+      "payload": {
+        "del": "",
+        "nbsp": " "
+      },
+      "canonical": "{\"del\":\"\\u007f\",\"nbsp\":\"\\u00a0\"}",
+      "sha256": "34c4762d1af64333a0a57e078c5211a145004dc5c9fc642dd1f067459484c74b"
+    },
+    {
+      "payload": {
+        "bmp": "￿",
+        "pair": "😀"
+      },
+      "canonical": "{\"bmp\":\"\\uffff\",\"pair\":\"\\ud83d\\ude00\"}",
+      "sha256": "bad54eceb33693b314385ba0ab410e0e2bc024704d237025ef8ccbaa22f52e79"
+    },
+    {
+      "payload": {
+        "big_float_list": [
+          1e+300,
+          1.7976931348623157e+308,
+          5e-324
+        ]
+      },
+      "canonical": "{\"big_float_list\":[1e+300,1.7976931348623157e+308,5e-324]}",
+      "sha256": "26fd2277190511cc113e91acf75dfdeeb1f6318e97d4bb956266e9283b38b6af"
+    },
+    {
+      "payload": {
+        "sorted_keys_unicode": {
+          "é": 1,
+          "e": 2,
+          "z": 3,
+          "Z": 4,
+          "10": 5,
+          "9": 6
+        }
+      },
+      "canonical": "{\"sorted_keys_unicode\":{\"10\":5,\"9\":6,\"Z\":4,\"e\":2,\"z\":3,\"\\u00e9\":1}}",
+      "sha256": "2a6af8ee9b7b70b985557fdbf80e26ffc898f6e1047a70bc3907eab2c734a74b"
+    },
+    {
+      "payload": {
+        "s": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "canonical": "{\"s\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}",
+      "sha256": "abdfb8868818db3afa5b7185c2b334031d7d53e838d18144cb7c767cfe8e1745"
+    },
+    {
+      "payload": {
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "+1 512 555 0014",
+        "score": 95,
+        "city": "Austin"
+      },
+      "canonical": "{\"city\":\"Austin\",\"company\":\"Acme\",\"email\":\"a@b.co\",\"phone\":\"+1 512 555 0014\",\"score\":95}",
+      "sha256": "b17d4315a03b8f43c5ac3e3da7de83284eccd4f3744444be29ba1057dffbf1b6"
+    }
+  ],
+  "keys": [
+    {
+      "destination_id": "dest-1",
+      "lead_id": 5,
+      "payload": {
+        "a": 1
+      },
+      "idempotency_key": "dest:dest-1:lead:5:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+      "remove_key": "dest:dest-1:lead:5:remove:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862"
+    },
+    {
+      "destination_id": "d",
+      "lead_id": 0,
+      "payload": {},
+      "idempotency_key": "dest:d:lead:0:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "remove_key": "dest:d:lead:0:remove:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "destination_id": "0f8e-4",
+      "lead_id": 12,
+      "payload": {
+        "email": "x"
+      },
+      "idempotency_key": "dest:0f8e-4:lead:12:7466a63dd2739391985402f9d6b8a3c194eeaff31d60e8c29f1f52c53bfa5a21",
+      "remove_key": "dest:0f8e-4:lead:12:remove:7466a63dd2739391985402f9d6b8a3c194eeaff31d60e8c29f1f52c53bfa5a21"
+    },
+    {
+      "destination_id": "é",
+      "lead_id": 3,
+      "payload": {
+        "a": 1
+      },
+      "idempotency_key": "dest:é:lead:3:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+      "remove_key": "dest:é:lead:3:remove:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862"
+    }
+  ]
+}

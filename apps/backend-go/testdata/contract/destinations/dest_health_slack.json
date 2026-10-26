@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/dst-act-slack/health"
+  },
+  "response": {
+    "body": {
+      "consecutive_unhealthy_runs": 0,
+      "delivery_counts": {
+        "failed": 0,
+        "succeeded": 0,
+        "total": 0
+      },
+      "destination_id": "dst-act-slack",
+      "health_status": "unverified",
+      "last_error": null,
+      "last_success_at": null,
+      "latest_run": null,
+      "recent_failures": [],
+      "run_counts": {},
+      "success_rate": null
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

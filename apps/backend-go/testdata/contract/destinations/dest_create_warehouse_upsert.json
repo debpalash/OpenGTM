@@ -1,0 +1,47 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "dataset": "ds",
+        "header_name": "X-Auth",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "mode": "upsert",
+        "url": "https://w.example.test/x"
+      },
+      "destination_type": "warehouse_http",
+      "name": "Warehouse upsert"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "dataset": "ds",
+        "header_name": "X-Auth",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "mode": "upsert",
+        "url": "https://w.example.test/x"
+      },
+      "created_at": "2026-10-26T17:05:48.099958",
+      "destination_type": "warehouse_http",
+      "enabled": true,
+      "field_map": {},
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002103",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "Warehouse upsert",
+      "updated_at": "2026-10-26T17:05:48.099958"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

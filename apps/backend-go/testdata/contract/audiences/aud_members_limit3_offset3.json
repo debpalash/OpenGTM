@@ -1,0 +1,75 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-act-2/members?limit=3&offset=3"
+  },
+  "response": {
+    "body": [
+      {
+        "id": 9,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 10,
+        "snapshot": {
+          "city": "Delhi",
+          "company": "Quantum Foods",
+          "contact_person": "",
+          "contact_title": "Owner",
+          "email": "info@quantumfoods.example.com",
+          "id": 10,
+          "phone": "+91 11 5550 0010",
+          "score": 55,
+          "score_tier": "warm",
+          "status": "contacted",
+          "website": "https://quantumfoods.example.com"
+        }
+      },
+      {
+        "id": 8,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 9,
+        "snapshot": {
+          "city": "Mumbai",
+          "company": "Zenith Robotics Solutions",
+          "contact_person": "",
+          "contact_title": "Head of Sales",
+          "email": "",
+          "id": 9,
+          "phone": "",
+          "score": 50,
+          "score_tier": "cold",
+          "status": "new",
+          "website": "zenithrobotics.example.com"
+        }
+      },
+      {
+        "id": 7,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 8,
+        "snapshot": {
+          "city": "Mumbai",
+          "company": "Zenith Robotics",
+          "contact_person": "",
+          "contact_title": "",
+          "email": "sales@zenithrobotics.example.com",
+          "id": 8,
+          "phone": "+91-22-5550-1001",
+          "score": 50,
+          "score_tier": "cold",
+          "status": "new",
+          "website": ""
+        }
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

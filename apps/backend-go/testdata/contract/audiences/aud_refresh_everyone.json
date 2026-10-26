@@ -1,0 +1,38 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences/aud-act-2/refresh"
+  },
+  "response": {
+    "body": {
+      "audience": {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-08-27T08:30:00",
+        "description": "Empty filter: every lead",
+        "filters": {},
+        "id": "aud-act-2",
+        "last_refresh_error": null,
+        "member_count": 15,
+        "name": "Everyone",
+        "next_refresh_at": "2026-09-01T11:00:00",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 120,
+        "refreshed_at": "2026-10-26T17:05:54.528268",
+        "updated_at": "2026-10-26T17:05:54.584903"
+      },
+      "changed": 10,
+      "entered": 5,
+      "exited": 0,
+      "unchanged": 0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

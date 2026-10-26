@@ -1,0 +1,3463 @@
+{
+  "note": "list_audience_accounts(audience, limit, offset) over members (id asc) + SignalRow counts/weights joined on lead_id. Each signals entry is `count` rows for the lead whose weights sum to weight_total (the first carries the weight). `foreign_noise`: one member and one signal of workspace 'other' exist and must not leak. avg_score = round(total/contacts, 1), coverage = round(n/contacts*100) (banker's rounding).",
+  "audiences": [
+    {
+      "name": "rich",
+      "members": [
+        {
+          "id": 1,
+          "company": "Big Co",
+          "website": "https://www.bigco.example",
+          "email": "p1@bigco.example",
+          "phone": "",
+          "contact_person": "Person 1",
+          "contact_title": "CEO",
+          "score": 90
+        },
+        {
+          "id": 2,
+          "company": "Big Co",
+          "website": "https://www.bigco.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "Person 2",
+          "contact_title": "VP of Sales",
+          "score": 80
+        },
+        {
+          "id": 3,
+          "company": "Big Co",
+          "website": "https://www.bigco.example",
+          "email": "p3@bigco.example",
+          "phone": "555",
+          "contact_person": "Person 3",
+          "contact_title": "Sales Rep",
+          "score": 10
+        },
+        {
+          "id": 4,
+          "company": "Big Co",
+          "website": "https://www.bigco.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "Head of Growth",
+          "score": 70
+        },
+        {
+          "id": 5,
+          "company": "Big Co",
+          "website": "https://www.bigco.example",
+          "email": "p5@bigco.example",
+          "phone": "",
+          "contact_person": "Person 5",
+          "contact_title": "Doctor Who",
+          "score": 5
+        },
+        {
+          "id": 6,
+          "company": "Big Co",
+          "website": "https://www.bigco.example",
+          "email": "",
+          "phone": "555",
+          "contact_person": "Person 6",
+          "contact_title": "Supervisor",
+          "score": 5
+        },
+        {
+          "id": 7,
+          "company": "Big Co",
+          "website": "https://www.bigco.example",
+          "email": "p7@bigco.example",
+          "phone": "",
+          "contact_person": "Person 7",
+          "contact_title": "Chief of Staff",
+          "score": 60
+        },
+        {
+          "id": 8,
+          "company": "Big Co",
+          "website": "https://www.bigco.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "Vice President",
+          "score": 50
+        },
+        {
+          "id": 9,
+          "company": "Big Co",
+          "website": "https://www.bigco.example",
+          "email": "p9@bigco.example",
+          "phone": "555",
+          "contact_person": "Person 9",
+          "contact_title": "Owner/Founder",
+          "score": 40
+        },
+        {
+          "id": 10,
+          "company": "Big Co",
+          "website": "https://www.bigco.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "Person 10",
+          "contact_title": "Director of X",
+          "score": 30
+        },
+        {
+          "id": 11,
+          "company": "Big Co",
+          "website": "https://www.bigco.example",
+          "email": "p11@bigco.example",
+          "phone": "",
+          "contact_person": "Person 11",
+          "contact_title": "cMo",
+          "score": 20
+        },
+        {
+          "id": 12,
+          "company": "Big Co",
+          "website": "https://www.bigco.example",
+          "email": "",
+          "phone": "555",
+          "contact_person": "",
+          "contact_title": "intern",
+          "score": 1
+        },
+        {
+          "id": 20,
+          "company": "Small Co",
+          "website": "smallco.example",
+          "email": "a@smallco.example",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "CTO",
+          "score": "7.5"
+        },
+        {
+          "id": 21,
+          "company": "small co",
+          "website": "",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": null
+        },
+        {
+          "id": 22,
+          "company": "SMALL  CO",
+          "website": "",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "founder",
+          "score": true
+        },
+        {
+          "id": 23,
+          "company": "Ünï Co",
+          "website": "",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 3
+        },
+        {
+          "id": 24,
+          "company": "ünï co",
+          "website": "",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 4
+        }
+      ],
+      "signals": [
+        {
+          "lead_id": 1,
+          "count": 3,
+          "weight_total": 10
+        },
+        {
+          "lead_id": 2,
+          "count": 1,
+          "weight_total": 5
+        },
+        {
+          "lead_id": 20,
+          "count": 2,
+          "weight_total": 40
+        },
+        {
+          "lead_id": 24,
+          "count": 1,
+          "weight_total": 1
+        }
+      ],
+      "foreign_noise": true,
+      "pages": [
+        {
+          "limit": 50,
+          "offset": 0,
+          "response": {
+            "accounts": [
+              {
+                "key": "smallco.example",
+                "company": "Small Co",
+                "website": "smallco.example",
+                "contacts": 1,
+                "with_email": 1,
+                "with_phone": 0,
+                "decision_makers": 1,
+                "signal_count": 2,
+                "signal_weight": 40,
+                "profiles": [
+                  {
+                    "lead_id": 20,
+                    "name": "Lead 20",
+                    "title": "CTO",
+                    "email": "a@smallco.example"
+                  }
+                ],
+                "avg_score": 7.5,
+                "email_coverage_pct": 100,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "bigco.example",
+                "company": "Big Co",
+                "website": "https://www.bigco.example",
+                "contacts": 12,
+                "with_email": 6,
+                "with_phone": 4,
+                "decision_makers": 9,
+                "signal_count": 4,
+                "signal_weight": 15,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Person 1",
+                    "title": "CEO",
+                    "email": "p1@bigco.example"
+                  },
+                  {
+                    "lead_id": 2,
+                    "name": "Person 2",
+                    "title": "VP of Sales",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 3,
+                    "name": "Person 3",
+                    "title": "Sales Rep",
+                    "email": "p3@bigco.example"
+                  },
+                  {
+                    "lead_id": 4,
+                    "name": "Lead 4",
+                    "title": "Head of Growth",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 5,
+                    "name": "Person 5",
+                    "title": "Doctor Who",
+                    "email": "p5@bigco.example"
+                  },
+                  {
+                    "lead_id": 6,
+                    "name": "Person 6",
+                    "title": "Supervisor",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Person 7",
+                    "title": "Chief of Staff",
+                    "email": "p7@bigco.example"
+                  },
+                  {
+                    "lead_id": 8,
+                    "name": "Lead 8",
+                    "title": "Vice President",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 9,
+                    "name": "Person 9",
+                    "title": "Owner/Founder",
+                    "email": "p9@bigco.example"
+                  },
+                  {
+                    "lead_id": 10,
+                    "name": "Person 10",
+                    "title": "Director of X",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 38.4,
+                "email_coverage_pct": 50,
+                "phone_coverage_pct": 33
+              },
+              {
+                "key": "company:ünï co",
+                "company": "Ünï Co",
+                "website": "",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 1,
+                "profiles": [
+                  {
+                    "lead_id": 23,
+                    "name": "Lead 23",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 24,
+                    "name": "Lead 24",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 3.5,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "company:small co",
+                "company": "small co",
+                "website": "",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 1,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 21,
+                    "name": "Lead 21",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 22,
+                    "name": "Lead 22",
+                    "title": "founder",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.5,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              }
+            ],
+            "summary": {
+              "account_count": 4,
+              "contact_count": 17,
+              "accounts_with_signals": 3,
+              "accounts_with_decision_makers": 3
+            },
+            "pagination": {
+              "limit": 50,
+              "offset": 0,
+              "next_offset": null,
+              "total": 4
+            }
+          }
+        },
+        {
+          "limit": 2,
+          "offset": 0,
+          "response": {
+            "accounts": [
+              {
+                "key": "smallco.example",
+                "company": "Small Co",
+                "website": "smallco.example",
+                "contacts": 1,
+                "with_email": 1,
+                "with_phone": 0,
+                "decision_makers": 1,
+                "signal_count": 2,
+                "signal_weight": 40,
+                "profiles": [
+                  {
+                    "lead_id": 20,
+                    "name": "Lead 20",
+                    "title": "CTO",
+                    "email": "a@smallco.example"
+                  }
+                ],
+                "avg_score": 7.5,
+                "email_coverage_pct": 100,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "bigco.example",
+                "company": "Big Co",
+                "website": "https://www.bigco.example",
+                "contacts": 12,
+                "with_email": 6,
+                "with_phone": 4,
+                "decision_makers": 9,
+                "signal_count": 4,
+                "signal_weight": 15,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Person 1",
+                    "title": "CEO",
+                    "email": "p1@bigco.example"
+                  },
+                  {
+                    "lead_id": 2,
+                    "name": "Person 2",
+                    "title": "VP of Sales",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 3,
+                    "name": "Person 3",
+                    "title": "Sales Rep",
+                    "email": "p3@bigco.example"
+                  },
+                  {
+                    "lead_id": 4,
+                    "name": "Lead 4",
+                    "title": "Head of Growth",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 5,
+                    "name": "Person 5",
+                    "title": "Doctor Who",
+                    "email": "p5@bigco.example"
+                  },
+                  {
+                    "lead_id": 6,
+                    "name": "Person 6",
+                    "title": "Supervisor",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Person 7",
+                    "title": "Chief of Staff",
+                    "email": "p7@bigco.example"
+                  },
+                  {
+                    "lead_id": 8,
+                    "name": "Lead 8",
+                    "title": "Vice President",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 9,
+                    "name": "Person 9",
+                    "title": "Owner/Founder",
+                    "email": "p9@bigco.example"
+                  },
+                  {
+                    "lead_id": 10,
+                    "name": "Person 10",
+                    "title": "Director of X",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 38.4,
+                "email_coverage_pct": 50,
+                "phone_coverage_pct": 33
+              }
+            ],
+            "summary": {
+              "account_count": 4,
+              "contact_count": 17,
+              "accounts_with_signals": 3,
+              "accounts_with_decision_makers": 3
+            },
+            "pagination": {
+              "limit": 2,
+              "offset": 0,
+              "next_offset": 2,
+              "total": 4
+            }
+          }
+        },
+        {
+          "limit": 2,
+          "offset": 2,
+          "response": {
+            "accounts": [
+              {
+                "key": "company:ünï co",
+                "company": "Ünï Co",
+                "website": "",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 1,
+                "profiles": [
+                  {
+                    "lead_id": 23,
+                    "name": "Lead 23",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 24,
+                    "name": "Lead 24",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 3.5,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "company:small co",
+                "company": "small co",
+                "website": "",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 1,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 21,
+                    "name": "Lead 21",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 22,
+                    "name": "Lead 22",
+                    "title": "founder",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.5,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              }
+            ],
+            "summary": {
+              "account_count": 4,
+              "contact_count": 17,
+              "accounts_with_signals": 3,
+              "accounts_with_decision_makers": 3
+            },
+            "pagination": {
+              "limit": 2,
+              "offset": 2,
+              "next_offset": null,
+              "total": 4
+            }
+          }
+        },
+        {
+          "limit": 3,
+          "offset": 1,
+          "response": {
+            "accounts": [
+              {
+                "key": "bigco.example",
+                "company": "Big Co",
+                "website": "https://www.bigco.example",
+                "contacts": 12,
+                "with_email": 6,
+                "with_phone": 4,
+                "decision_makers": 9,
+                "signal_count": 4,
+                "signal_weight": 15,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Person 1",
+                    "title": "CEO",
+                    "email": "p1@bigco.example"
+                  },
+                  {
+                    "lead_id": 2,
+                    "name": "Person 2",
+                    "title": "VP of Sales",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 3,
+                    "name": "Person 3",
+                    "title": "Sales Rep",
+                    "email": "p3@bigco.example"
+                  },
+                  {
+                    "lead_id": 4,
+                    "name": "Lead 4",
+                    "title": "Head of Growth",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 5,
+                    "name": "Person 5",
+                    "title": "Doctor Who",
+                    "email": "p5@bigco.example"
+                  },
+                  {
+                    "lead_id": 6,
+                    "name": "Person 6",
+                    "title": "Supervisor",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Person 7",
+                    "title": "Chief of Staff",
+                    "email": "p7@bigco.example"
+                  },
+                  {
+                    "lead_id": 8,
+                    "name": "Lead 8",
+                    "title": "Vice President",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 9,
+                    "name": "Person 9",
+                    "title": "Owner/Founder",
+                    "email": "p9@bigco.example"
+                  },
+                  {
+                    "lead_id": 10,
+                    "name": "Person 10",
+                    "title": "Director of X",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 38.4,
+                "email_coverage_pct": 50,
+                "phone_coverage_pct": 33
+              },
+              {
+                "key": "company:ünï co",
+                "company": "Ünï Co",
+                "website": "",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 1,
+                "profiles": [
+                  {
+                    "lead_id": 23,
+                    "name": "Lead 23",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 24,
+                    "name": "Lead 24",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 3.5,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "company:small co",
+                "company": "small co",
+                "website": "",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 1,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 21,
+                    "name": "Lead 21",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 22,
+                    "name": "Lead 22",
+                    "title": "founder",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.5,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              }
+            ],
+            "summary": {
+              "account_count": 4,
+              "contact_count": 17,
+              "accounts_with_signals": 3,
+              "accounts_with_decision_makers": 3
+            },
+            "pagination": {
+              "limit": 3,
+              "offset": 1,
+              "next_offset": null,
+              "total": 4
+            }
+          }
+        },
+        {
+          "limit": 1,
+          "offset": 100000,
+          "response": {
+            "accounts": [],
+            "summary": {
+              "account_count": 4,
+              "contact_count": 17,
+              "accounts_with_signals": 3,
+              "accounts_with_decision_makers": 3
+            },
+            "pagination": {
+              "limit": 1,
+              "offset": 100000,
+              "next_offset": null,
+              "total": 4
+            }
+          }
+        },
+        {
+          "limit": 200,
+          "offset": 0,
+          "response": {
+            "accounts": [
+              {
+                "key": "smallco.example",
+                "company": "Small Co",
+                "website": "smallco.example",
+                "contacts": 1,
+                "with_email": 1,
+                "with_phone": 0,
+                "decision_makers": 1,
+                "signal_count": 2,
+                "signal_weight": 40,
+                "profiles": [
+                  {
+                    "lead_id": 20,
+                    "name": "Lead 20",
+                    "title": "CTO",
+                    "email": "a@smallco.example"
+                  }
+                ],
+                "avg_score": 7.5,
+                "email_coverage_pct": 100,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "bigco.example",
+                "company": "Big Co",
+                "website": "https://www.bigco.example",
+                "contacts": 12,
+                "with_email": 6,
+                "with_phone": 4,
+                "decision_makers": 9,
+                "signal_count": 4,
+                "signal_weight": 15,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Person 1",
+                    "title": "CEO",
+                    "email": "p1@bigco.example"
+                  },
+                  {
+                    "lead_id": 2,
+                    "name": "Person 2",
+                    "title": "VP of Sales",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 3,
+                    "name": "Person 3",
+                    "title": "Sales Rep",
+                    "email": "p3@bigco.example"
+                  },
+                  {
+                    "lead_id": 4,
+                    "name": "Lead 4",
+                    "title": "Head of Growth",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 5,
+                    "name": "Person 5",
+                    "title": "Doctor Who",
+                    "email": "p5@bigco.example"
+                  },
+                  {
+                    "lead_id": 6,
+                    "name": "Person 6",
+                    "title": "Supervisor",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Person 7",
+                    "title": "Chief of Staff",
+                    "email": "p7@bigco.example"
+                  },
+                  {
+                    "lead_id": 8,
+                    "name": "Lead 8",
+                    "title": "Vice President",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 9,
+                    "name": "Person 9",
+                    "title": "Owner/Founder",
+                    "email": "p9@bigco.example"
+                  },
+                  {
+                    "lead_id": 10,
+                    "name": "Person 10",
+                    "title": "Director of X",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 38.4,
+                "email_coverage_pct": 50,
+                "phone_coverage_pct": 33
+              },
+              {
+                "key": "company:ünï co",
+                "company": "Ünï Co",
+                "website": "",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 1,
+                "profiles": [
+                  {
+                    "lead_id": 23,
+                    "name": "Lead 23",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 24,
+                    "name": "Lead 24",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 3.5,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "company:small co",
+                "company": "small co",
+                "website": "",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 1,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 21,
+                    "name": "Lead 21",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 22,
+                    "name": "Lead 22",
+                    "title": "founder",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.5,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              }
+            ],
+            "summary": {
+              "account_count": 4,
+              "contact_count": 17,
+              "accounts_with_signals": 3,
+              "accounts_with_decision_makers": 3
+            },
+            "pagination": {
+              "limit": 200,
+              "offset": 0,
+              "next_offset": null,
+              "total": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "rounding",
+      "members": [
+        {
+          "id": 1,
+          "company": "Round Co",
+          "website": "round.example",
+          "email": "e@x",
+          "phone": "1",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 1
+        },
+        {
+          "id": 2,
+          "company": "Round Co",
+          "website": "round.example",
+          "email": "",
+          "phone": "1",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        },
+        {
+          "id": 3,
+          "company": "Round Co",
+          "website": "round.example",
+          "email": "",
+          "phone": "1",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        },
+        {
+          "id": 4,
+          "company": "Round Co",
+          "website": "round.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        },
+        {
+          "id": 5,
+          "company": "Round Co",
+          "website": "round.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        },
+        {
+          "id": 6,
+          "company": "Round Co",
+          "website": "round.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        },
+        {
+          "id": 7,
+          "company": "Round Co",
+          "website": "round.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        },
+        {
+          "id": 8,
+          "company": "Round Co",
+          "website": "round.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        },
+        {
+          "id": 11,
+          "company": "Four Co",
+          "website": "four.example",
+          "email": "e",
+          "phone": "p",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 1
+        },
+        {
+          "id": 12,
+          "company": "Four Co",
+          "website": "four.example",
+          "email": "",
+          "phone": "p",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        },
+        {
+          "id": 13,
+          "company": "Four Co",
+          "website": "four.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        },
+        {
+          "id": 14,
+          "company": "Four Co",
+          "website": "four.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        },
+        {
+          "id": 21,
+          "company": "Third Co",
+          "website": "third.example",
+          "email": "e",
+          "phone": "p",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 3
+        },
+        {
+          "id": 22,
+          "company": "Third Co",
+          "website": "third.example",
+          "email": "e",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 3
+        },
+        {
+          "id": 23,
+          "company": "Third Co",
+          "website": "third.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 4
+        },
+        {
+          "id": 31,
+          "company": "Eight Co",
+          "website": "eight.example",
+          "email": "e",
+          "phone": "p",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 1
+        },
+        {
+          "id": 32,
+          "company": "Eight Co",
+          "website": "eight.example",
+          "email": "e",
+          "phone": "p",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        },
+        {
+          "id": 33,
+          "company": "Eight Co",
+          "website": "eight.example",
+          "email": "e",
+          "phone": "p",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 1
+        },
+        {
+          "id": 34,
+          "company": "Eight Co",
+          "website": "eight.example",
+          "email": "e",
+          "phone": "p",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        },
+        {
+          "id": 35,
+          "company": "Eight Co",
+          "website": "eight.example",
+          "email": "e",
+          "phone": "p",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 1
+        },
+        {
+          "id": 36,
+          "company": "Eight Co",
+          "website": "eight.example",
+          "email": "",
+          "phone": "p",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        },
+        {
+          "id": 37,
+          "company": "Eight Co",
+          "website": "eight.example",
+          "email": "",
+          "phone": "p",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 1
+        },
+        {
+          "id": 38,
+          "company": "Eight Co",
+          "website": "eight.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 0
+        }
+      ],
+      "signals": [],
+      "foreign_noise": true,
+      "pages": [
+        {
+          "limit": 50,
+          "offset": 0,
+          "response": {
+            "accounts": [
+              {
+                "key": "round.example",
+                "company": "Round Co",
+                "website": "round.example",
+                "contacts": 8,
+                "with_email": 1,
+                "with_phone": 3,
+                "decision_makers": 0,
+                "signal_count": 4,
+                "signal_weight": 15,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Lead 1",
+                    "title": "",
+                    "email": "e@x"
+                  },
+                  {
+                    "lead_id": 2,
+                    "name": "Lead 2",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 3,
+                    "name": "Lead 3",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 4,
+                    "name": "Lead 4",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 5,
+                    "name": "Lead 5",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 6,
+                    "name": "Lead 6",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Lead 7",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 8,
+                    "name": "Lead 8",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.1,
+                "email_coverage_pct": 12,
+                "phone_coverage_pct": 38
+              },
+              {
+                "key": "third.example",
+                "company": "Third Co",
+                "website": "third.example",
+                "contacts": 3,
+                "with_email": 2,
+                "with_phone": 1,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 21,
+                    "name": "Lead 21",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 22,
+                    "name": "Lead 22",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 23,
+                    "name": "Lead 23",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 3.3,
+                "email_coverage_pct": 67,
+                "phone_coverage_pct": 33
+              },
+              {
+                "key": "eight.example",
+                "company": "Eight Co",
+                "website": "eight.example",
+                "contacts": 8,
+                "with_email": 5,
+                "with_phone": 7,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 31,
+                    "name": "Lead 31",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 32,
+                    "name": "Lead 32",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 33,
+                    "name": "Lead 33",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 34,
+                    "name": "Lead 34",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 35,
+                    "name": "Lead 35",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 36,
+                    "name": "Lead 36",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 37,
+                    "name": "Lead 37",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 38,
+                    "name": "Lead 38",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.5,
+                "email_coverage_pct": 62,
+                "phone_coverage_pct": 88
+              },
+              {
+                "key": "four.example",
+                "company": "Four Co",
+                "website": "four.example",
+                "contacts": 4,
+                "with_email": 1,
+                "with_phone": 2,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 11,
+                    "name": "Lead 11",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 12,
+                    "name": "Lead 12",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 13,
+                    "name": "Lead 13",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 14,
+                    "name": "Lead 14",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.2,
+                "email_coverage_pct": 25,
+                "phone_coverage_pct": 50
+              }
+            ],
+            "summary": {
+              "account_count": 4,
+              "contact_count": 23,
+              "accounts_with_signals": 1,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 50,
+              "offset": 0,
+              "next_offset": null,
+              "total": 4
+            }
+          }
+        },
+        {
+          "limit": 2,
+          "offset": 0,
+          "response": {
+            "accounts": [
+              {
+                "key": "round.example",
+                "company": "Round Co",
+                "website": "round.example",
+                "contacts": 8,
+                "with_email": 1,
+                "with_phone": 3,
+                "decision_makers": 0,
+                "signal_count": 4,
+                "signal_weight": 15,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Lead 1",
+                    "title": "",
+                    "email": "e@x"
+                  },
+                  {
+                    "lead_id": 2,
+                    "name": "Lead 2",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 3,
+                    "name": "Lead 3",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 4,
+                    "name": "Lead 4",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 5,
+                    "name": "Lead 5",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 6,
+                    "name": "Lead 6",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Lead 7",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 8,
+                    "name": "Lead 8",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.1,
+                "email_coverage_pct": 12,
+                "phone_coverage_pct": 38
+              },
+              {
+                "key": "third.example",
+                "company": "Third Co",
+                "website": "third.example",
+                "contacts": 3,
+                "with_email": 2,
+                "with_phone": 1,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 21,
+                    "name": "Lead 21",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 22,
+                    "name": "Lead 22",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 23,
+                    "name": "Lead 23",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 3.3,
+                "email_coverage_pct": 67,
+                "phone_coverage_pct": 33
+              }
+            ],
+            "summary": {
+              "account_count": 4,
+              "contact_count": 23,
+              "accounts_with_signals": 1,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 2,
+              "offset": 0,
+              "next_offset": 2,
+              "total": 4
+            }
+          }
+        },
+        {
+          "limit": 2,
+          "offset": 2,
+          "response": {
+            "accounts": [
+              {
+                "key": "eight.example",
+                "company": "Eight Co",
+                "website": "eight.example",
+                "contacts": 8,
+                "with_email": 5,
+                "with_phone": 7,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 31,
+                    "name": "Lead 31",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 32,
+                    "name": "Lead 32",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 33,
+                    "name": "Lead 33",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 34,
+                    "name": "Lead 34",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 35,
+                    "name": "Lead 35",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 36,
+                    "name": "Lead 36",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 37,
+                    "name": "Lead 37",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 38,
+                    "name": "Lead 38",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.5,
+                "email_coverage_pct": 62,
+                "phone_coverage_pct": 88
+              },
+              {
+                "key": "four.example",
+                "company": "Four Co",
+                "website": "four.example",
+                "contacts": 4,
+                "with_email": 1,
+                "with_phone": 2,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 11,
+                    "name": "Lead 11",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 12,
+                    "name": "Lead 12",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 13,
+                    "name": "Lead 13",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 14,
+                    "name": "Lead 14",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.2,
+                "email_coverage_pct": 25,
+                "phone_coverage_pct": 50
+              }
+            ],
+            "summary": {
+              "account_count": 4,
+              "contact_count": 23,
+              "accounts_with_signals": 1,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 2,
+              "offset": 2,
+              "next_offset": null,
+              "total": 4
+            }
+          }
+        },
+        {
+          "limit": 3,
+          "offset": 1,
+          "response": {
+            "accounts": [
+              {
+                "key": "third.example",
+                "company": "Third Co",
+                "website": "third.example",
+                "contacts": 3,
+                "with_email": 2,
+                "with_phone": 1,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 21,
+                    "name": "Lead 21",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 22,
+                    "name": "Lead 22",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 23,
+                    "name": "Lead 23",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 3.3,
+                "email_coverage_pct": 67,
+                "phone_coverage_pct": 33
+              },
+              {
+                "key": "eight.example",
+                "company": "Eight Co",
+                "website": "eight.example",
+                "contacts": 8,
+                "with_email": 5,
+                "with_phone": 7,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 31,
+                    "name": "Lead 31",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 32,
+                    "name": "Lead 32",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 33,
+                    "name": "Lead 33",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 34,
+                    "name": "Lead 34",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 35,
+                    "name": "Lead 35",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 36,
+                    "name": "Lead 36",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 37,
+                    "name": "Lead 37",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 38,
+                    "name": "Lead 38",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.5,
+                "email_coverage_pct": 62,
+                "phone_coverage_pct": 88
+              },
+              {
+                "key": "four.example",
+                "company": "Four Co",
+                "website": "four.example",
+                "contacts": 4,
+                "with_email": 1,
+                "with_phone": 2,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 11,
+                    "name": "Lead 11",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 12,
+                    "name": "Lead 12",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 13,
+                    "name": "Lead 13",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 14,
+                    "name": "Lead 14",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.2,
+                "email_coverage_pct": 25,
+                "phone_coverage_pct": 50
+              }
+            ],
+            "summary": {
+              "account_count": 4,
+              "contact_count": 23,
+              "accounts_with_signals": 1,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 3,
+              "offset": 1,
+              "next_offset": null,
+              "total": 4
+            }
+          }
+        },
+        {
+          "limit": 1,
+          "offset": 100000,
+          "response": {
+            "accounts": [],
+            "summary": {
+              "account_count": 4,
+              "contact_count": 23,
+              "accounts_with_signals": 1,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 1,
+              "offset": 100000,
+              "next_offset": null,
+              "total": 4
+            }
+          }
+        },
+        {
+          "limit": 200,
+          "offset": 0,
+          "response": {
+            "accounts": [
+              {
+                "key": "round.example",
+                "company": "Round Co",
+                "website": "round.example",
+                "contacts": 8,
+                "with_email": 1,
+                "with_phone": 3,
+                "decision_makers": 0,
+                "signal_count": 4,
+                "signal_weight": 15,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Lead 1",
+                    "title": "",
+                    "email": "e@x"
+                  },
+                  {
+                    "lead_id": 2,
+                    "name": "Lead 2",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 3,
+                    "name": "Lead 3",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 4,
+                    "name": "Lead 4",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 5,
+                    "name": "Lead 5",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 6,
+                    "name": "Lead 6",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Lead 7",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 8,
+                    "name": "Lead 8",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.1,
+                "email_coverage_pct": 12,
+                "phone_coverage_pct": 38
+              },
+              {
+                "key": "third.example",
+                "company": "Third Co",
+                "website": "third.example",
+                "contacts": 3,
+                "with_email": 2,
+                "with_phone": 1,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 21,
+                    "name": "Lead 21",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 22,
+                    "name": "Lead 22",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 23,
+                    "name": "Lead 23",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 3.3,
+                "email_coverage_pct": 67,
+                "phone_coverage_pct": 33
+              },
+              {
+                "key": "eight.example",
+                "company": "Eight Co",
+                "website": "eight.example",
+                "contacts": 8,
+                "with_email": 5,
+                "with_phone": 7,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 31,
+                    "name": "Lead 31",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 32,
+                    "name": "Lead 32",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 33,
+                    "name": "Lead 33",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 34,
+                    "name": "Lead 34",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 35,
+                    "name": "Lead 35",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 36,
+                    "name": "Lead 36",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 37,
+                    "name": "Lead 37",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 38,
+                    "name": "Lead 38",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.5,
+                "email_coverage_pct": 62,
+                "phone_coverage_pct": 88
+              },
+              {
+                "key": "four.example",
+                "company": "Four Co",
+                "website": "four.example",
+                "contacts": 4,
+                "with_email": 1,
+                "with_phone": 2,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 11,
+                    "name": "Lead 11",
+                    "title": "",
+                    "email": "e"
+                  },
+                  {
+                    "lead_id": 12,
+                    "name": "Lead 12",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 13,
+                    "name": "Lead 13",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 14,
+                    "name": "Lead 14",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.2,
+                "email_coverage_pct": 25,
+                "phone_coverage_pct": 50
+              }
+            ],
+            "summary": {
+              "account_count": 4,
+              "contact_count": 23,
+              "accounts_with_signals": 1,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 200,
+              "offset": 0,
+              "next_offset": null,
+              "total": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "ordering",
+      "members": [
+        {
+          "id": 1,
+          "company": "Zed",
+          "website": "z.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 50
+        },
+        {
+          "id": 2,
+          "company": "alpha",
+          "website": "a.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 50
+        },
+        {
+          "id": 3,
+          "company": "Beta",
+          "website": "b.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 50
+        },
+        {
+          "id": 4,
+          "company": "beta2",
+          "website": "b2.example",
+          "email": "e",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 50
+        },
+        {
+          "id": 5,
+          "company": "Gamma",
+          "website": "g.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 90
+        },
+        {
+          "id": 6,
+          "company": "Delta",
+          "website": "d.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 10
+        },
+        {
+          "id": 7,
+          "company": "Delta2",
+          "website": "d.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 10
+        },
+        {
+          "id": 8,
+          "company": "Eps",
+          "website": "e.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 50
+        },
+        {
+          "id": 9,
+          "company": "eps2",
+          "website": "e.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 50
+        },
+        {
+          "id": 10,
+          "company": "Sig",
+          "website": "s.example",
+          "email": "",
+          "phone": "",
+          "contact_person": "",
+          "contact_title": "",
+          "score": 50
+        }
+      ],
+      "signals": [
+        {
+          "lead_id": 10,
+          "count": 1,
+          "weight_total": 100
+        },
+        {
+          "lead_id": 6,
+          "count": 1,
+          "weight_total": 100
+        },
+        {
+          "lead_id": 7,
+          "count": 0,
+          "weight_total": 0
+        },
+        {
+          "lead_id": 3,
+          "count": 5,
+          "weight_total": 5
+        },
+        {
+          "lead_id": 4,
+          "count": 5,
+          "weight_total": 5
+        }
+      ],
+      "foreign_noise": true,
+      "pages": [
+        {
+          "limit": 50,
+          "offset": 0,
+          "response": {
+            "accounts": [
+              {
+                "key": "s.example",
+                "company": "Sig",
+                "website": "s.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 100,
+                "profiles": [
+                  {
+                    "lead_id": 10,
+                    "name": "Lead 10",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "d.example",
+                "company": "Delta",
+                "website": "d.example",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 100,
+                "profiles": [
+                  {
+                    "lead_id": 6,
+                    "name": "Lead 6",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Lead 7",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 10.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "z.example",
+                "company": "Zed",
+                "website": "z.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 3,
+                "signal_weight": 10,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Lead 1",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "a.example",
+                "company": "alpha",
+                "website": "a.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 5,
+                "profiles": [
+                  {
+                    "lead_id": 2,
+                    "name": "Lead 2",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "b.example",
+                "company": "Beta",
+                "website": "b.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 5,
+                "signal_weight": 5,
+                "profiles": [
+                  {
+                    "lead_id": 3,
+                    "name": "Lead 3",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "b2.example",
+                "company": "beta2",
+                "website": "b2.example",
+                "contacts": 1,
+                "with_email": 1,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 5,
+                "signal_weight": 5,
+                "profiles": [
+                  {
+                    "lead_id": 4,
+                    "name": "Lead 4",
+                    "title": "",
+                    "email": "e"
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 100,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "g.example",
+                "company": "Gamma",
+                "website": "g.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 5,
+                    "name": "Lead 5",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 90.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "e.example",
+                "company": "Eps",
+                "website": "e.example",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 8,
+                    "name": "Lead 8",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 9,
+                    "name": "Lead 9",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              }
+            ],
+            "summary": {
+              "account_count": 8,
+              "contact_count": 10,
+              "accounts_with_signals": 6,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 50,
+              "offset": 0,
+              "next_offset": null,
+              "total": 8
+            }
+          }
+        },
+        {
+          "limit": 2,
+          "offset": 0,
+          "response": {
+            "accounts": [
+              {
+                "key": "s.example",
+                "company": "Sig",
+                "website": "s.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 100,
+                "profiles": [
+                  {
+                    "lead_id": 10,
+                    "name": "Lead 10",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "d.example",
+                "company": "Delta",
+                "website": "d.example",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 100,
+                "profiles": [
+                  {
+                    "lead_id": 6,
+                    "name": "Lead 6",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Lead 7",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 10.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              }
+            ],
+            "summary": {
+              "account_count": 8,
+              "contact_count": 10,
+              "accounts_with_signals": 6,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 2,
+              "offset": 0,
+              "next_offset": 2,
+              "total": 8
+            }
+          }
+        },
+        {
+          "limit": 2,
+          "offset": 2,
+          "response": {
+            "accounts": [
+              {
+                "key": "z.example",
+                "company": "Zed",
+                "website": "z.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 3,
+                "signal_weight": 10,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Lead 1",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "a.example",
+                "company": "alpha",
+                "website": "a.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 5,
+                "profiles": [
+                  {
+                    "lead_id": 2,
+                    "name": "Lead 2",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              }
+            ],
+            "summary": {
+              "account_count": 8,
+              "contact_count": 10,
+              "accounts_with_signals": 6,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 2,
+              "offset": 2,
+              "next_offset": 4,
+              "total": 8
+            }
+          }
+        },
+        {
+          "limit": 3,
+          "offset": 1,
+          "response": {
+            "accounts": [
+              {
+                "key": "d.example",
+                "company": "Delta",
+                "website": "d.example",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 100,
+                "profiles": [
+                  {
+                    "lead_id": 6,
+                    "name": "Lead 6",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Lead 7",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 10.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "z.example",
+                "company": "Zed",
+                "website": "z.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 3,
+                "signal_weight": 10,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Lead 1",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "a.example",
+                "company": "alpha",
+                "website": "a.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 5,
+                "profiles": [
+                  {
+                    "lead_id": 2,
+                    "name": "Lead 2",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              }
+            ],
+            "summary": {
+              "account_count": 8,
+              "contact_count": 10,
+              "accounts_with_signals": 6,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 3,
+              "offset": 1,
+              "next_offset": 4,
+              "total": 8
+            }
+          }
+        },
+        {
+          "limit": 1,
+          "offset": 100000,
+          "response": {
+            "accounts": [],
+            "summary": {
+              "account_count": 8,
+              "contact_count": 10,
+              "accounts_with_signals": 6,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 1,
+              "offset": 100000,
+              "next_offset": null,
+              "total": 8
+            }
+          }
+        },
+        {
+          "limit": 200,
+          "offset": 0,
+          "response": {
+            "accounts": [
+              {
+                "key": "s.example",
+                "company": "Sig",
+                "website": "s.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 100,
+                "profiles": [
+                  {
+                    "lead_id": 10,
+                    "name": "Lead 10",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "d.example",
+                "company": "Delta",
+                "website": "d.example",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 100,
+                "profiles": [
+                  {
+                    "lead_id": 6,
+                    "name": "Lead 6",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Lead 7",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 10.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "z.example",
+                "company": "Zed",
+                "website": "z.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 3,
+                "signal_weight": 10,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Lead 1",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "a.example",
+                "company": "alpha",
+                "website": "a.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 1,
+                "signal_weight": 5,
+                "profiles": [
+                  {
+                    "lead_id": 2,
+                    "name": "Lead 2",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "b.example",
+                "company": "Beta",
+                "website": "b.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 5,
+                "signal_weight": 5,
+                "profiles": [
+                  {
+                    "lead_id": 3,
+                    "name": "Lead 3",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "b2.example",
+                "company": "beta2",
+                "website": "b2.example",
+                "contacts": 1,
+                "with_email": 1,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 5,
+                "signal_weight": 5,
+                "profiles": [
+                  {
+                    "lead_id": 4,
+                    "name": "Lead 4",
+                    "title": "",
+                    "email": "e"
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 100,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "g.example",
+                "company": "Gamma",
+                "website": "g.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 5,
+                    "name": "Lead 5",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 90.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "e.example",
+                "company": "Eps",
+                "website": "e.example",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 8,
+                    "name": "Lead 8",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 9,
+                    "name": "Lead 9",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 50.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              }
+            ],
+            "summary": {
+              "account_count": 8,
+              "contact_count": 10,
+              "accounts_with_signals": 6,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 200,
+              "offset": 0,
+              "next_offset": null,
+              "total": 8
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "sparse",
+      "members": [
+        {
+          "id": 1
+        },
+        {
+          "id": 2,
+          "company": null
+        },
+        {
+          "id": 3,
+          "company": "",
+          "website": ""
+        },
+        {
+          "id": 4,
+          "company": "Only Company"
+        },
+        {
+          "id": 5,
+          "website": "https://nocompany.example"
+        },
+        {
+          "id": 6,
+          "contact_person": "P",
+          "company": "Only Company"
+        },
+        {
+          "id": 7,
+          "score": "12"
+        },
+        {
+          "id": 8,
+          "email": "x",
+          "phone": "y",
+          "company": "Unknown account"
+        }
+      ],
+      "signals": [
+        {
+          "lead_id": 1,
+          "count": 1,
+          "weight_total": 1
+        }
+      ],
+      "foreign_noise": true,
+      "pages": [
+        {
+          "limit": 50,
+          "offset": 0,
+          "response": {
+            "accounts": [
+              {
+                "key": "company:only company",
+                "company": "Only Company",
+                "website": "",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 6,
+                "signal_weight": 105,
+                "profiles": [
+                  {
+                    "lead_id": 4,
+                    "name": "Lead 4",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 6,
+                    "name": "P",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "company:unknown account",
+                "company": "Unknown account",
+                "website": "",
+                "contacts": 5,
+                "with_email": 1,
+                "with_phone": 1,
+                "decision_makers": 0,
+                "signal_count": 10,
+                "signal_weight": 21,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Lead 1",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 2,
+                    "name": "Lead 2",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 3,
+                    "name": "Lead 3",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Lead 7",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 8,
+                    "name": "Lead 8",
+                    "title": "",
+                    "email": "x"
+                  }
+                ],
+                "avg_score": 2.4,
+                "email_coverage_pct": 20,
+                "phone_coverage_pct": 20
+              },
+              {
+                "key": "nocompany.example",
+                "company": "nocompany.example",
+                "website": "https://nocompany.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 5,
+                    "name": "Lead 5",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              }
+            ],
+            "summary": {
+              "account_count": 3,
+              "contact_count": 8,
+              "accounts_with_signals": 2,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 50,
+              "offset": 0,
+              "next_offset": null,
+              "total": 3
+            }
+          }
+        },
+        {
+          "limit": 2,
+          "offset": 0,
+          "response": {
+            "accounts": [
+              {
+                "key": "company:only company",
+                "company": "Only Company",
+                "website": "",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 6,
+                "signal_weight": 105,
+                "profiles": [
+                  {
+                    "lead_id": 4,
+                    "name": "Lead 4",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 6,
+                    "name": "P",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "company:unknown account",
+                "company": "Unknown account",
+                "website": "",
+                "contacts": 5,
+                "with_email": 1,
+                "with_phone": 1,
+                "decision_makers": 0,
+                "signal_count": 10,
+                "signal_weight": 21,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Lead 1",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 2,
+                    "name": "Lead 2",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 3,
+                    "name": "Lead 3",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Lead 7",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 8,
+                    "name": "Lead 8",
+                    "title": "",
+                    "email": "x"
+                  }
+                ],
+                "avg_score": 2.4,
+                "email_coverage_pct": 20,
+                "phone_coverage_pct": 20
+              }
+            ],
+            "summary": {
+              "account_count": 3,
+              "contact_count": 8,
+              "accounts_with_signals": 2,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 2,
+              "offset": 0,
+              "next_offset": 2,
+              "total": 3
+            }
+          }
+        },
+        {
+          "limit": 2,
+          "offset": 2,
+          "response": {
+            "accounts": [
+              {
+                "key": "nocompany.example",
+                "company": "nocompany.example",
+                "website": "https://nocompany.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 5,
+                    "name": "Lead 5",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              }
+            ],
+            "summary": {
+              "account_count": 3,
+              "contact_count": 8,
+              "accounts_with_signals": 2,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 2,
+              "offset": 2,
+              "next_offset": null,
+              "total": 3
+            }
+          }
+        },
+        {
+          "limit": 3,
+          "offset": 1,
+          "response": {
+            "accounts": [
+              {
+                "key": "company:unknown account",
+                "company": "Unknown account",
+                "website": "",
+                "contacts": 5,
+                "with_email": 1,
+                "with_phone": 1,
+                "decision_makers": 0,
+                "signal_count": 10,
+                "signal_weight": 21,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Lead 1",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 2,
+                    "name": "Lead 2",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 3,
+                    "name": "Lead 3",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Lead 7",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 8,
+                    "name": "Lead 8",
+                    "title": "",
+                    "email": "x"
+                  }
+                ],
+                "avg_score": 2.4,
+                "email_coverage_pct": 20,
+                "phone_coverage_pct": 20
+              },
+              {
+                "key": "nocompany.example",
+                "company": "nocompany.example",
+                "website": "https://nocompany.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 5,
+                    "name": "Lead 5",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              }
+            ],
+            "summary": {
+              "account_count": 3,
+              "contact_count": 8,
+              "accounts_with_signals": 2,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 3,
+              "offset": 1,
+              "next_offset": null,
+              "total": 3
+            }
+          }
+        },
+        {
+          "limit": 1,
+          "offset": 100000,
+          "response": {
+            "accounts": [],
+            "summary": {
+              "account_count": 3,
+              "contact_count": 8,
+              "accounts_with_signals": 2,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 1,
+              "offset": 100000,
+              "next_offset": null,
+              "total": 3
+            }
+          }
+        },
+        {
+          "limit": 200,
+          "offset": 0,
+          "response": {
+            "accounts": [
+              {
+                "key": "company:only company",
+                "company": "Only Company",
+                "website": "",
+                "contacts": 2,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 6,
+                "signal_weight": 105,
+                "profiles": [
+                  {
+                    "lead_id": 4,
+                    "name": "Lead 4",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 6,
+                    "name": "P",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              },
+              {
+                "key": "company:unknown account",
+                "company": "Unknown account",
+                "website": "",
+                "contacts": 5,
+                "with_email": 1,
+                "with_phone": 1,
+                "decision_makers": 0,
+                "signal_count": 10,
+                "signal_weight": 21,
+                "profiles": [
+                  {
+                    "lead_id": 1,
+                    "name": "Lead 1",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 2,
+                    "name": "Lead 2",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 3,
+                    "name": "Lead 3",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 7,
+                    "name": "Lead 7",
+                    "title": "",
+                    "email": ""
+                  },
+                  {
+                    "lead_id": 8,
+                    "name": "Lead 8",
+                    "title": "",
+                    "email": "x"
+                  }
+                ],
+                "avg_score": 2.4,
+                "email_coverage_pct": 20,
+                "phone_coverage_pct": 20
+              },
+              {
+                "key": "nocompany.example",
+                "company": "nocompany.example",
+                "website": "https://nocompany.example",
+                "contacts": 1,
+                "with_email": 0,
+                "with_phone": 0,
+                "decision_makers": 0,
+                "signal_count": 0,
+                "signal_weight": 0,
+                "profiles": [
+                  {
+                    "lead_id": 5,
+                    "name": "Lead 5",
+                    "title": "",
+                    "email": ""
+                  }
+                ],
+                "avg_score": 0.0,
+                "email_coverage_pct": 0,
+                "phone_coverage_pct": 0
+              }
+            ],
+            "summary": {
+              "account_count": 3,
+              "contact_count": 8,
+              "accounts_with_signals": 2,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 200,
+              "offset": 0,
+              "next_offset": null,
+              "total": 3
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "empty",
+      "members": [],
+      "signals": [],
+      "foreign_noise": true,
+      "pages": [
+        {
+          "limit": 50,
+          "offset": 0,
+          "response": {
+            "accounts": [],
+            "summary": {
+              "account_count": 0,
+              "contact_count": 0,
+              "accounts_with_signals": 0,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 50,
+              "offset": 0,
+              "next_offset": null,
+              "total": 0
+            }
+          }
+        },
+        {
+          "limit": 2,
+          "offset": 0,
+          "response": {
+            "accounts": [],
+            "summary": {
+              "account_count": 0,
+              "contact_count": 0,
+              "accounts_with_signals": 0,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 2,
+              "offset": 0,
+              "next_offset": null,
+              "total": 0
+            }
+          }
+        },
+        {
+          "limit": 2,
+          "offset": 2,
+          "response": {
+            "accounts": [],
+            "summary": {
+              "account_count": 0,
+              "contact_count": 0,
+              "accounts_with_signals": 0,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 2,
+              "offset": 2,
+              "next_offset": null,
+              "total": 0
+            }
+          }
+        },
+        {
+          "limit": 3,
+          "offset": 1,
+          "response": {
+            "accounts": [],
+            "summary": {
+              "account_count": 0,
+              "contact_count": 0,
+              "accounts_with_signals": 0,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 3,
+              "offset": 1,
+              "next_offset": null,
+              "total": 0
+            }
+          }
+        },
+        {
+          "limit": 1,
+          "offset": 100000,
+          "response": {
+            "accounts": [],
+            "summary": {
+              "account_count": 0,
+              "contact_count": 0,
+              "accounts_with_signals": 0,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 1,
+              "offset": 100000,
+              "next_offset": null,
+              "total": 0
+            }
+          }
+        },
+        {
+          "limit": 200,
+          "offset": 0,
+          "response": {
+            "accounts": [],
+            "summary": {
+              "account_count": 0,
+              "contact_count": 0,
+              "accounts_with_signals": 0,
+              "accounts_with_decision_makers": 0
+            },
+            "pagination": {
+              "limit": 200,
+              "offset": 0,
+              "next_offset": null,
+              "total": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

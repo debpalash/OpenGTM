@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "consent_attested": true,
+        "consent_source": "changed",
+        "custom_audience_id": "42"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/audience-destinations/00000000-0000-4000-8000-000000002084"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "consent_attested": true,
+        "consent_source": "changed",
+        "custom_audience_id": "42"
+      },
+      "created_at": "2026-10-26T17:05:47.647067",
+      "destination_type": "meta_ads",
+      "enabled": true,
+      "field_map": {},
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002084",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "Created meta_ads",
+      "updated_at": "2026-10-26T17:05:50.214020"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

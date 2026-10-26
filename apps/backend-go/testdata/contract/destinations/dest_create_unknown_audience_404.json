@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "does-not-exist",
+      "destination_type": "salesforce",
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "Audience not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

@@ -1,0 +1,482 @@
+{
+  "note": "_map_payload(snapshot, field_map): an empty field_map copies the whole snapshot; otherwise only mapped sources whose value is not None/'' (0, False, [] and {} are kept), output keys in field_map order.",
+  "cases": [
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {},
+      "result": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      }
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": null,
+      "result": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      }
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "company": "account_name"
+      },
+      "result": {
+        "account_name": "Acme"
+      }
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "company": "account_name",
+        "email": "email"
+      },
+      "result": {
+        "account_name": "Acme",
+        "email": "a@b.co"
+      }
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "phone": "p"
+      },
+      "result": {}
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "city": "c"
+      },
+      "result": {}
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "score": "s"
+      },
+      "result": {
+        "s": 0
+      }
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "flag": "f"
+      },
+      "result": {
+        "f": false
+      }
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "zero": "z"
+      },
+      "result": {
+        "z": 0.0
+      }
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "missing": "m"
+      },
+      "result": {}
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "company": "x",
+        "email": "x"
+      },
+      "result": {
+        "x": "a@b.co"
+      }
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "company": "a",
+        "email": "b",
+        "id": "c"
+      },
+      "result": {
+        "a": "Acme",
+        "b": "a@b.co",
+        "c": 7
+      }
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "tags": "t",
+        "meta": "m"
+      },
+      "result": {
+        "t": [
+          "x"
+        ],
+        "m": {
+          "b": 1,
+          "a": 2
+        }
+      }
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "company": ""
+      },
+      "result": {
+        "": "Acme"
+      }
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "": "x"
+      },
+      "result": {}
+    },
+    {
+      "snapshot": {
+        "id": 7,
+        "company": "Acme",
+        "email": "a@b.co",
+        "phone": "",
+        "city": null,
+        "score": 0,
+        "tags": [
+          "x"
+        ],
+        "meta": {
+          "b": 1,
+          "a": 2
+        },
+        "flag": false,
+        "zero": 0.0
+      },
+      "field_map": {
+        "company": "é"
+      },
+      "result": {
+        "é": "Acme"
+      }
+    },
+    {
+      "snapshot": {},
+      "field_map": {
+        "a": "b"
+      },
+      "result": {}
+    },
+    {
+      "snapshot": {
+        "a": 1
+      },
+      "field_map": {},
+      "result": {
+        "a": 1
+      }
+    },
+    {
+      "snapshot": {
+        "a": null,
+        "b": ""
+      },
+      "field_map": {},
+      "result": {
+        "a": null,
+        "b": ""
+      }
+    },
+    {
+      "snapshot": {
+        "a": 0,
+        "b": false,
+        "c": [],
+        "d": {}
+      },
+      "field_map": {
+        "a": "A",
+        "b": "B",
+        "c": "C",
+        "d": "D"
+      },
+      "result": {
+        "A": 0,
+        "B": false,
+        "C": [],
+        "D": {}
+      }
+    }
+  ]
+}

@@ -1,0 +1,635 @@
+{
+  "note": "hash_email: whitespace removed (any unicode space), lower(), sha256 hex, '' unless it contains '@'. hash_phone: strips non-digits (unicode digits count: re \\D is unicode-aware), sha256 hex of the digits, '' unless 7..15 digits. hashed_identifiers reads phone then mobile_phone. identifiers_supported: linkedin_ads needs email; others email or phone. Inputs of non-string type are str()-ed.",
+  "hash_email": [
+    {
+      "input": "a@b.co",
+      "hash": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
+    },
+    {
+      "input": "A@B.CO",
+      "hash": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
+    },
+    {
+      "input": "  a@b.co ",
+      "hash": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
+    },
+    {
+      "input": "a @b.co",
+      "hash": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
+    },
+    {
+      "input": "a\t@\nb.co",
+      "hash": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
+    },
+    {
+      "input": "ab.co",
+      "hash": ""
+    },
+    {
+      "input": "",
+      "hash": ""
+    },
+    {
+      "input": null,
+      "hash": ""
+    },
+    {
+      "input": "@",
+      "hash": "c3641f8544d7c02f3580b07c0f9887f0c6a27ff5ab1d4a3e29caf197cfc299ae"
+    },
+    {
+      "input": "a@",
+      "hash": "3efc70fdfac3626c6472e4869413bbf3ac94e11c8ee49d1c429fe85c86f7b3e0"
+    },
+    {
+      "input": "@b",
+      "hash": "acccfb2fd5bc2f7832cb32b967f93805385ec208534193f4194338ff4ae01a27"
+    },
+    {
+      "input": "a@b@c",
+      "hash": "2b5ed2699e7f0e07e3b715fdea81efc57d48f2176fdaaf274e16b4d8c982661c"
+    },
+    {
+      "input": "Jörg@Bücher.de",
+      "hash": "7caabf763674bd1027611ab39c3dc6ed917697a7c4be9c24a6a0c6b3eda5135b"
+    },
+    {
+      "input": "x+tag@Gmail.com",
+      "hash": "75501ee23d3bb300a54258d03bec7697a8e6bcc0c3c2969f8a8c5996c7340e23"
+    },
+    {
+      "input": "x.y@gmail.com",
+      "hash": "06ec0e29ae4e0eab42a48bdcb92726d584773441936f81aff385b300241046ac"
+    },
+    {
+      "input": "a@b.co ",
+      "hash": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
+    },
+    {
+      "input": "a @b.co",
+      "hash": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
+    },
+    {
+      "input": "ａ@b.co",
+      "hash": "7c5de60d661b1f1c38cad0fb29afa15a356a5b92a2c81504068e21769181795b"
+    },
+    {
+      "input": "İ@b.co",
+      "hash": "4592dd706b4308f8c9e6af56ec98f8892df58eaf981517417a02c99fe031f1a3"
+    },
+    {
+      "input": "ẞ@b.co",
+      "hash": "21edaa5d2554a9c9d7a9af1d872f4a927d9cdbb437a7457f0d01da4f5da0bec2"
+    },
+    {
+      "input": 5,
+      "hash": ""
+    },
+    {
+      "input": true,
+      "hash": ""
+    },
+    {
+      "input": [
+        "a@b.co"
+      ],
+      "hash": "5bb53deac3eb26f88563497f94bb2c1ae56f4d0801ff08a00325c6375e7797e4"
+    },
+    {
+      "input": " ",
+      "hash": ""
+    },
+    {
+      "input": "A@B.CO\r\n",
+      "hash": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
+    },
+    {
+      "input": "user name@x.com",
+      "hash": "572b63395cd40d61a7a0ceabf0d12fa030aa0d9daf5715a03ee47b9fe1f3a1c7"
+    },
+    {
+      "input": "​a@b.co",
+      "hash": "faecf9646b61ba5de8bd11cd91a1bf1ce1568ec9fb46d9d7d4374219d7d07eea"
+    },
+    {
+      "input": "a@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.coa@b.co",
+      "hash": "4e573227f55ca1f904fc036f995273ae2b8f39582f4b95241edbf23ed66c7e7d"
+    }
+  ],
+  "hash_phone": [
+    {
+      "input": "+1 (512) 555-0014",
+      "hash": "a696cc8e59411a133ae216ed61f4993c097a6272e0eaab9c2d1017223c5d9514"
+    },
+    {
+      "input": "5125550014",
+      "hash": "2e7d689aa4abb61cca1c791f847d413c9dc5948fb1a5ed68499b1db69e5508a3"
+    },
+    {
+      "input": "512-555-0014",
+      "hash": "2e7d689aa4abb61cca1c791f847d413c9dc5948fb1a5ed68499b1db69e5508a3"
+    },
+    {
+      "input": "555-0014",
+      "hash": "127119b5235e81b6473d183da1676a1af2dcd8ed7a00a600dc4bba1c5f203025"
+    },
+    {
+      "input": "5550014",
+      "hash": "127119b5235e81b6473d183da1676a1af2dcd8ed7a00a600dc4bba1c5f203025"
+    },
+    {
+      "input": "55500",
+      "hash": ""
+    },
+    {
+      "input": "1234567",
+      "hash": "8bb0cf6eb9b17d0f7d22b456f121257dc1254e1f01665370476383ea776df414"
+    },
+    {
+      "input": "123456",
+      "hash": ""
+    },
+    {
+      "input": "123456789012345",
+      "hash": "e27a7686b8028cfee7b57d954c3abccfb2a701968925f52bbd482e77be5de0bb"
+    },
+    {
+      "input": "1234567890123456",
+      "hash": ""
+    },
+    {
+      "input": "",
+      "hash": ""
+    },
+    {
+      "input": null,
+      "hash": ""
+    },
+    {
+      "input": "abc",
+      "hash": ""
+    },
+    {
+      "input": "+91 22 5550 1001",
+      "hash": "c8c368aed27e08f0cdddd07e0a2565caf8eebe12327087d763d07926e823d4d5"
+    },
+    {
+      "input": "+91-22-5550-1001 ext 5",
+      "hash": "4f6210675e59032750ff7bef6fddc02982832821067b29a9cc5bb12f804e2fe8"
+    },
+    {
+      "input": "(0) 20 7946 0958",
+      "hash": "b836458990b2939fc83b05a25ec2c4cf39a7f663f9ef39b922b467836bbebe99"
+    },
+    {
+      "input": "００１２３４５６７８９",
+      "hash": "016e3b8e52428d2cd4704f8f0aee4f4b38a7b4a0195a4a8fc087aa1c3857fd5d"
+    },
+    {
+      "input": "١٢٣٤٥٦٧٨٩٠",
+      "hash": "110eb7daa925eca66a2e617fc1c222b0c3b757317f6e001c58fd6a6a63959e87"
+    },
+    {
+      "input": "tel:+15125550014",
+      "hash": "a696cc8e59411a133ae216ed61f4993c097a6272e0eaab9c2d1017223c5d9514"
+    },
+    {
+      "input": "5.125550014E9",
+      "hash": "2f68a5454de1364ebe9ea3b1e11379f206b79622f9767513f5d056bd7d84f686"
+    },
+    {
+      "input": 5125550014,
+      "hash": "2e7d689aa4abb61cca1c791f847d413c9dc5948fb1a5ed68499b1db69e5508a3"
+    },
+    {
+      "input": 55500.0,
+      "hash": ""
+    },
+    {
+      "input": true,
+      "hash": ""
+    },
+    {
+      "input": " 5125550014 ",
+      "hash": "2e7d689aa4abb61cca1c791f847d413c9dc5948fb1a5ed68499b1db69e5508a3"
+    },
+    {
+      "input": "512 555 0014",
+      "hash": "2e7d689aa4abb61cca1c791f847d413c9dc5948fb1a5ed68499b1db69e5508a3"
+    },
+    {
+      "input": "+44 (0)20 7946 0958",
+      "hash": "40f19965b0d0ebba641dbd9309c3ac18542d9ad976c47f8d35347daea67ee2c2"
+    },
+    {
+      "input": "0000000",
+      "hash": "20fdf64da3cd2c78ec3c033d2ac628bacf701711fa99435ee37bef0304800dc5"
+    },
+    {
+      "input": "00000000000000000",
+      "hash": ""
+    }
+  ],
+  "hashed_identifiers": [
+    {
+      "snapshot": {},
+      "identifiers": {}
+    },
+    {
+      "snapshot": {
+        "email": "A@B.co"
+      },
+      "identifiers": {
+        "email": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
+      }
+    },
+    {
+      "snapshot": {
+        "phone": "555-1234567"
+      },
+      "identifiers": {
+        "phone": "3c95277da5fd0da6a1a44ee3fdf56d20af6c6d242695a40e18e6e90dc3c5872c"
+      }
+    },
+    {
+      "snapshot": {
+        "mobile_phone": "555-1234567"
+      },
+      "identifiers": {
+        "phone": "3c95277da5fd0da6a1a44ee3fdf56d20af6c6d242695a40e18e6e90dc3c5872c"
+      }
+    },
+    {
+      "snapshot": {
+        "phone": "",
+        "mobile_phone": "555-1234567"
+      },
+      "identifiers": {
+        "phone": "3c95277da5fd0da6a1a44ee3fdf56d20af6c6d242695a40e18e6e90dc3c5872c"
+      }
+    },
+    {
+      "snapshot": {
+        "phone": "123",
+        "mobile_phone": "555-1234567"
+      },
+      "identifiers": {}
+    },
+    {
+      "snapshot": {
+        "email": "x",
+        "phone": "1234567"
+      },
+      "identifiers": {
+        "phone": "8bb0cf6eb9b17d0f7d22b456f121257dc1254e1f01665370476383ea776df414"
+      }
+    },
+    {
+      "snapshot": {
+        "email": "x@y.z",
+        "phone": "1234567",
+        "mobile_phone": "7654321"
+      },
+      "identifiers": {
+        "email": "b8e30d1addc62fa00ee5c1c6d01b5e006963c1b178e6b35458daf6c44875468d",
+        "phone": "8bb0cf6eb9b17d0f7d22b456f121257dc1254e1f01665370476383ea776df414"
+      }
+    },
+    {
+      "snapshot": {
+        "email": null,
+        "phone": null
+      },
+      "identifiers": {}
+    },
+    {
+      "snapshot": {
+        "email": 5,
+        "phone": 5551234567
+      },
+      "identifiers": {
+        "phone": "3c95277da5fd0da6a1a44ee3fdf56d20af6c6d242695a40e18e6e90dc3c5872c"
+      }
+    },
+    {
+      "snapshot": {
+        "email": "a@b.co",
+        "phone": "n/a"
+      },
+      "identifiers": {
+        "email": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
+      }
+    },
+    {
+      "snapshot": {
+        "email": "",
+        "phone": "+1 555 123 4567"
+      },
+      "identifiers": {
+        "phone": "d6736136ea896c1bfdc553e0e86e702c70d060d805696ca3e4e9e0961353860a"
+      }
+    },
+    {
+      "snapshot": {
+        "company": "No contact"
+      },
+      "identifiers": {}
+    }
+  ],
+  "identifiers_supported": [
+    {
+      "type": "meta_ads",
+      "identifiers": {},
+      "supported": false
+    },
+    {
+      "type": "meta_ads",
+      "identifiers": {
+        "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "meta_ads",
+      "identifiers": {
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "meta_ads",
+      "identifiers": {
+        "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "meta_ads",
+      "identifiers": {
+        "email": ""
+      },
+      "supported": false
+    },
+    {
+      "type": "meta_ads",
+      "identifiers": {
+        "phone": ""
+      },
+      "supported": false
+    },
+    {
+      "type": "meta_ads",
+      "identifiers": {
+        "email": "",
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "google_ads",
+      "identifiers": {},
+      "supported": false
+    },
+    {
+      "type": "google_ads",
+      "identifiers": {
+        "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "google_ads",
+      "identifiers": {
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "google_ads",
+      "identifiers": {
+        "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "google_ads",
+      "identifiers": {
+        "email": ""
+      },
+      "supported": false
+    },
+    {
+      "type": "google_ads",
+      "identifiers": {
+        "phone": ""
+      },
+      "supported": false
+    },
+    {
+      "type": "google_ads",
+      "identifiers": {
+        "email": "",
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "linkedin_ads",
+      "identifiers": {},
+      "supported": false
+    },
+    {
+      "type": "linkedin_ads",
+      "identifiers": {
+        "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "linkedin_ads",
+      "identifiers": {
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": false
+    },
+    {
+      "type": "linkedin_ads",
+      "identifiers": {
+        "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "linkedin_ads",
+      "identifiers": {
+        "email": ""
+      },
+      "supported": false
+    },
+    {
+      "type": "linkedin_ads",
+      "identifiers": {
+        "phone": ""
+      },
+      "supported": false
+    },
+    {
+      "type": "linkedin_ads",
+      "identifiers": {
+        "email": "",
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": false
+    },
+    {
+      "type": "webhook",
+      "identifiers": {},
+      "supported": false
+    },
+    {
+      "type": "webhook",
+      "identifiers": {
+        "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "webhook",
+      "identifiers": {
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "webhook",
+      "identifiers": {
+        "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "webhook",
+      "identifiers": {
+        "email": ""
+      },
+      "supported": false
+    },
+    {
+      "type": "webhook",
+      "identifiers": {
+        "phone": ""
+      },
+      "supported": false
+    },
+    {
+      "type": "webhook",
+      "identifiers": {
+        "email": "",
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "bogus",
+      "identifiers": {},
+      "supported": false
+    },
+    {
+      "type": "bogus",
+      "identifiers": {
+        "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "bogus",
+      "identifiers": {
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "bogus",
+      "identifiers": {
+        "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "bogus",
+      "identifiers": {
+        "email": ""
+      },
+      "supported": false
+    },
+    {
+      "type": "bogus",
+      "identifiers": {
+        "phone": ""
+      },
+      "supported": false
+    },
+    {
+      "type": "bogus",
+      "identifiers": {
+        "email": "",
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "",
+      "identifiers": {},
+      "supported": false
+    },
+    {
+      "type": "",
+      "identifiers": {
+        "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "",
+      "identifiers": {
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "",
+      "identifiers": {
+        "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    },
+    {
+      "type": "",
+      "identifiers": {
+        "email": ""
+      },
+      "supported": false
+    },
+    {
+      "type": "",
+      "identifiers": {
+        "phone": ""
+      },
+      "supported": false
+    },
+    {
+      "type": "",
+      "identifiers": {
+        "email": "",
+        "phone": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "supported": true
+    }
+  ]
+}

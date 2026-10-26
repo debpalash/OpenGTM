@@ -1,0 +1,46 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/runs/run-act-w5/deliveries?status=success"
+  },
+  "response": {
+    "body": [
+      {
+        "attempts": 1,
+        "created_at": "2026-08-28T09:00:05",
+        "delivered_at": "2026-08-28T09:00:10",
+        "destination_id": "dst-act-webhook",
+        "error": null,
+        "external_id": null,
+        "id": 5,
+        "lead_id": 14,
+        "operation": "upsert",
+        "run_id": "run-act-w5",
+        "status": "success",
+        "summary": "POST 202"
+      },
+      {
+        "attempts": 1,
+        "created_at": "2026-08-28T09:00:15",
+        "delivered_at": "2026-08-28T09:00:20",
+        "destination_id": "dst-act-webhook",
+        "error": null,
+        "external_id": null,
+        "id": 6,
+        "lead_id": 6,
+        "operation": "upsert",
+        "run_id": "run-act-w5",
+        "status": "success",
+        "summary": "POST 200"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

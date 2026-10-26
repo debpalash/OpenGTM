@@ -1,0 +1,2197 @@
+{
+  "note": "sync_warehouse_export(workspace, destination, export) against a scripted pinned_get. request: POST url, headers (Content-Type application/x-ndjson, Idempotency-Key warehouse:<destination>:<run>, <header_name or Authorization>: secret), timeout 30.0, streamed body (= manifest line + records; sha256/bytes/first line recorded). success summary 'exported N rows; sha256=<first 12 of records_sha256>'; external_id: x-job-id, else location, else json job_id, else json id (str), None when none/invalid. Non-2xx: 'warehouse HTTP <code>: <text[:300]>'. The secret value appears only as {{secret:WAREHOUSE_AUTH}}.",
+  "cases": [
+    {
+      "name": "success_x_job_id",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 202,
+        "text": "",
+        "headers": {
+          "x-job-id": "job-42"
+        },
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": "job-42"
+      }
+    },
+    {
+      "name": "success_location",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 201,
+        "text": "",
+        "headers": {
+          "location": "https://w.example.test/jobs/7"
+        },
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": "https://w.example.test/jobs/7"
+      }
+    },
+    {
+      "name": "success_x_job_id_beats_location",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "",
+        "headers": {
+          "x-job-id": "j",
+          "location": "l"
+        },
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": "j"
+      }
+    },
+    {
+      "name": "success_json_job_id",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "{}",
+        "headers": {},
+        "json": {
+          "job_id": "j-1",
+          "id": "i-1"
+        },
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": "j-1"
+      }
+    },
+    {
+      "name": "success_json_id",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "{}",
+        "headers": {},
+        "json": {
+          "id": 99
+        },
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": "99"
+      }
+    },
+    {
+      "name": "success_json_job_id_int",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "{}",
+        "headers": {},
+        "json": {
+          "job_id": 0
+        },
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "success_json_empty",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "{}",
+        "headers": {},
+        "json": {},
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "success_json_null_values",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "{}",
+        "headers": {},
+        "json": {
+          "job_id": null,
+          "id": null
+        },
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "success_not_json",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "ok",
+        "headers": {},
+        "json": null,
+        "json_raises": true
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "success_json_list",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "[]",
+        "headers": {},
+        "json": [
+          1,
+          2
+        ],
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "success_json_string",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "\"x\"",
+        "headers": {},
+        "json": "x",
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "success_empty_header_value",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "",
+        "headers": {
+          "x-job-id": ""
+        },
+        "json": {
+          "id": "from-body"
+        },
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": "from-body"
+      }
+    },
+    {
+      "name": "custom_header_name",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "header_name": "X-Api-Auth"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "",
+        "headers": {},
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "X-Api-Auth": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "blank_header_name_falls_back",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "header_name": ""
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "",
+        "headers": {},
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "status_199",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 199,
+        "text": "early",
+        "headers": {},
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "warehouse HTTP 199: early",
+        "external_id": null
+      }
+    },
+    {
+      "name": "status_204",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 204,
+        "text": "",
+        "headers": {},
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "status_299",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 299,
+        "text": "",
+        "headers": {},
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "status_300",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 300,
+        "text": "multiple",
+        "headers": {},
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "warehouse HTTP 300: multiple",
+        "external_id": null
+      }
+    },
+    {
+      "name": "status_302",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 302,
+        "text": "moved",
+        "headers": {
+          "location": "https://elsewhere.example/"
+        },
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "warehouse HTTP 302: moved",
+        "external_id": null
+      }
+    },
+    {
+      "name": "status_400_text",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 400,
+        "text": "bad request: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "headers": {},
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "warehouse HTTP 400: bad request: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "external_id": null
+      }
+    },
+    {
+      "name": "status_401_empty",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 401,
+        "text": "",
+        "headers": {},
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "warehouse HTTP 401: ",
+        "external_id": null
+      }
+    },
+    {
+      "name": "status_500_unicode",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 500,
+        "text": "ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ",
+        "headers": {},
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "warehouse HTTP 500: ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ünï ",
+        "external_id": null
+      }
+    },
+    {
+      "name": "status_503_exact_300",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 503,
+        "text": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+        "headers": {},
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "warehouse HTTP 503: yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+        "external_id": null
+      }
+    },
+    {
+      "name": "status_503_301",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 503,
+        "text": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+        "headers": {},
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "warehouse HTTP 503: yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+        "external_id": null
+      }
+    },
+    {
+      "name": "secret_missing",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": null,
+      "request": null,
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "warehouse authentication secret is missing",
+        "external_id": null
+      }
+    },
+    {
+      "name": "secret_ref_blank",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": ""
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": null,
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "raises": "AttributeError: 'NoneType' object has no attribute 'status_code'"
+    },
+    {
+      "name": "send_raises",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": null,
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "6a585c01e7cfc85883becd3f87f11abfd59fbfecb9d3ad31b120c9e0cb24ad9b",
+        "body_bytes": 374,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "raises": "RuntimeError: connection refused"
+    },
+    {
+      "name": "one_row",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 5,
+          "payload": {
+            "a": 1
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "",
+        "headers": {
+          "x-job-id": "j1"
+        },
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "1f23252e15b82e80713680f7ca4aaf957c73f21a119fd070adff8b021f7a2ebd",
+        "body_bytes": 324,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"2b9207579b5a63f40a178c698d1fde14829e55d276531647059ab1b98709ef64\",\"row_count\":1,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 1 rows; sha256=2b9207579b5a",
+        "error": null,
+        "external_id": "j1"
+      }
+    },
+    {
+      "name": "many_rows_summary",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "i": 1
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "i": 2
+          }
+        },
+        {
+          "lead_id": 3,
+          "payload": {
+            "i": 3
+          }
+        },
+        {
+          "lead_id": 4,
+          "payload": {
+            "i": 4
+          }
+        },
+        {
+          "lead_id": 5,
+          "payload": {
+            "i": 5
+          }
+        },
+        {
+          "lead_id": 6,
+          "payload": {
+            "i": 6
+          }
+        },
+        {
+          "lead_id": 7,
+          "payload": {
+            "i": 7
+          }
+        },
+        {
+          "lead_id": 8,
+          "payload": {
+            "i": 8
+          }
+        },
+        {
+          "lead_id": 9,
+          "payload": {
+            "i": 9
+          }
+        },
+        {
+          "lead_id": 10,
+          "payload": {
+            "i": 10
+          }
+        },
+        {
+          "lead_id": 11,
+          "payload": {
+            "i": 11
+          }
+        },
+        {
+          "lead_id": 12,
+          "payload": {
+            "i": 12
+          }
+        },
+        {
+          "lead_id": 13,
+          "payload": {
+            "i": 13
+          }
+        },
+        {
+          "lead_id": 14,
+          "payload": {
+            "i": 14
+          }
+        },
+        {
+          "lead_id": 15,
+          "payload": {
+            "i": 15
+          }
+        },
+        {
+          "lead_id": 16,
+          "payload": {
+            "i": 16
+          }
+        },
+        {
+          "lead_id": 17,
+          "payload": {
+            "i": 17
+          }
+        },
+        {
+          "lead_id": 18,
+          "payload": {
+            "i": 18
+          }
+        },
+        {
+          "lead_id": 19,
+          "payload": {
+            "i": 19
+          }
+        },
+        {
+          "lead_id": 20,
+          "payload": {
+            "i": 20
+          }
+        },
+        {
+          "lead_id": 21,
+          "payload": {
+            "i": 21
+          }
+        },
+        {
+          "lead_id": 22,
+          "payload": {
+            "i": 22
+          }
+        },
+        {
+          "lead_id": 23,
+          "payload": {
+            "i": 23
+          }
+        },
+        {
+          "lead_id": 24,
+          "payload": {
+            "i": 24
+          }
+        },
+        {
+          "lead_id": 25,
+          "payload": {
+            "i": 25
+          }
+        },
+        {
+          "lead_id": 26,
+          "payload": {
+            "i": 26
+          }
+        },
+        {
+          "lead_id": 27,
+          "payload": {
+            "i": 27
+          }
+        },
+        {
+          "lead_id": 28,
+          "payload": {
+            "i": 28
+          }
+        },
+        {
+          "lead_id": 29,
+          "payload": {
+            "i": 29
+          }
+        },
+        {
+          "lead_id": 30,
+          "payload": {
+            "i": 30
+          }
+        },
+        {
+          "lead_id": 31,
+          "payload": {
+            "i": 31
+          }
+        },
+        {
+          "lead_id": 32,
+          "payload": {
+            "i": 32
+          }
+        },
+        {
+          "lead_id": 33,
+          "payload": {
+            "i": 33
+          }
+        },
+        {
+          "lead_id": 34,
+          "payload": {
+            "i": 34
+          }
+        },
+        {
+          "lead_id": 35,
+          "payload": {
+            "i": 35
+          }
+        },
+        {
+          "lead_id": 36,
+          "payload": {
+            "i": 36
+          }
+        },
+        {
+          "lead_id": 37,
+          "payload": {
+            "i": 37
+          }
+        },
+        {
+          "lead_id": 38,
+          "payload": {
+            "i": 38
+          }
+        },
+        {
+          "lead_id": 39,
+          "payload": {
+            "i": 39
+          }
+        },
+        {
+          "lead_id": 40,
+          "payload": {
+            "i": 40
+          }
+        },
+        {
+          "lead_id": 41,
+          "payload": {
+            "i": 41
+          }
+        },
+        {
+          "lead_id": 42,
+          "payload": {
+            "i": 42
+          }
+        },
+        {
+          "lead_id": 43,
+          "payload": {
+            "i": 43
+          }
+        },
+        {
+          "lead_id": 44,
+          "payload": {
+            "i": 44
+          }
+        },
+        {
+          "lead_id": 45,
+          "payload": {
+            "i": 45
+          }
+        },
+        {
+          "lead_id": 46,
+          "payload": {
+            "i": 46
+          }
+        },
+        {
+          "lead_id": 47,
+          "payload": {
+            "i": 47
+          }
+        },
+        {
+          "lead_id": 48,
+          "payload": {
+            "i": 48
+          }
+        },
+        {
+          "lead_id": 49,
+          "payload": {
+            "i": 49
+          }
+        },
+        {
+          "lead_id": 50,
+          "payload": {
+            "i": 50
+          }
+        },
+        {
+          "lead_id": 51,
+          "payload": {
+            "i": 51
+          }
+        },
+        {
+          "lead_id": 52,
+          "payload": {
+            "i": 52
+          }
+        },
+        {
+          "lead_id": 53,
+          "payload": {
+            "i": 53
+          }
+        },
+        {
+          "lead_id": 54,
+          "payload": {
+            "i": 54
+          }
+        },
+        {
+          "lead_id": 55,
+          "payload": {
+            "i": 55
+          }
+        },
+        {
+          "lead_id": 56,
+          "payload": {
+            "i": 56
+          }
+        },
+        {
+          "lead_id": 57,
+          "payload": {
+            "i": 57
+          }
+        },
+        {
+          "lead_id": 58,
+          "payload": {
+            "i": 58
+          }
+        },
+        {
+          "lead_id": 59,
+          "payload": {
+            "i": 59
+          }
+        },
+        {
+          "lead_id": 60,
+          "payload": {
+            "i": 60
+          }
+        },
+        {
+          "lead_id": 61,
+          "payload": {
+            "i": 61
+          }
+        },
+        {
+          "lead_id": 62,
+          "payload": {
+            "i": 62
+          }
+        },
+        {
+          "lead_id": 63,
+          "payload": {
+            "i": 63
+          }
+        },
+        {
+          "lead_id": 64,
+          "payload": {
+            "i": 64
+          }
+        },
+        {
+          "lead_id": 65,
+          "payload": {
+            "i": 65
+          }
+        },
+        {
+          "lead_id": 66,
+          "payload": {
+            "i": 66
+          }
+        },
+        {
+          "lead_id": 67,
+          "payload": {
+            "i": 67
+          }
+        },
+        {
+          "lead_id": 68,
+          "payload": {
+            "i": 68
+          }
+        },
+        {
+          "lead_id": 69,
+          "payload": {
+            "i": 69
+          }
+        },
+        {
+          "lead_id": 70,
+          "payload": {
+            "i": 70
+          }
+        },
+        {
+          "lead_id": 71,
+          "payload": {
+            "i": 71
+          }
+        },
+        {
+          "lead_id": 72,
+          "payload": {
+            "i": 72
+          }
+        },
+        {
+          "lead_id": 73,
+          "payload": {
+            "i": 73
+          }
+        },
+        {
+          "lead_id": 74,
+          "payload": {
+            "i": 74
+          }
+        },
+        {
+          "lead_id": 75,
+          "payload": {
+            "i": 75
+          }
+        },
+        {
+          "lead_id": 76,
+          "payload": {
+            "i": 76
+          }
+        },
+        {
+          "lead_id": 77,
+          "payload": {
+            "i": 77
+          }
+        },
+        {
+          "lead_id": 78,
+          "payload": {
+            "i": 78
+          }
+        },
+        {
+          "lead_id": 79,
+          "payload": {
+            "i": 79
+          }
+        },
+        {
+          "lead_id": 80,
+          "payload": {
+            "i": 80
+          }
+        },
+        {
+          "lead_id": 81,
+          "payload": {
+            "i": 81
+          }
+        },
+        {
+          "lead_id": 82,
+          "payload": {
+            "i": 82
+          }
+        },
+        {
+          "lead_id": 83,
+          "payload": {
+            "i": 83
+          }
+        },
+        {
+          "lead_id": 84,
+          "payload": {
+            "i": 84
+          }
+        },
+        {
+          "lead_id": 85,
+          "payload": {
+            "i": 85
+          }
+        },
+        {
+          "lead_id": 86,
+          "payload": {
+            "i": 86
+          }
+        },
+        {
+          "lead_id": 87,
+          "payload": {
+            "i": 87
+          }
+        },
+        {
+          "lead_id": 88,
+          "payload": {
+            "i": 88
+          }
+        },
+        {
+          "lead_id": 89,
+          "payload": {
+            "i": 89
+          }
+        },
+        {
+          "lead_id": 90,
+          "payload": {
+            "i": 90
+          }
+        },
+        {
+          "lead_id": 91,
+          "payload": {
+            "i": 91
+          }
+        },
+        {
+          "lead_id": 92,
+          "payload": {
+            "i": 92
+          }
+        },
+        {
+          "lead_id": 93,
+          "payload": {
+            "i": 93
+          }
+        },
+        {
+          "lead_id": 94,
+          "payload": {
+            "i": 94
+          }
+        },
+        {
+          "lead_id": 95,
+          "payload": {
+            "i": 95
+          }
+        },
+        {
+          "lead_id": 96,
+          "payload": {
+            "i": 96
+          }
+        },
+        {
+          "lead_id": 97,
+          "payload": {
+            "i": 97
+          }
+        },
+        {
+          "lead_id": 98,
+          "payload": {
+            "i": 98
+          }
+        },
+        {
+          "lead_id": 99,
+          "payload": {
+            "i": 99
+          }
+        },
+        {
+          "lead_id": 100,
+          "payload": {
+            "i": 100
+          }
+        },
+        {
+          "lead_id": 101,
+          "payload": {
+            "i": 101
+          }
+        },
+        {
+          "lead_id": 102,
+          "payload": {
+            "i": 102
+          }
+        },
+        {
+          "lead_id": 103,
+          "payload": {
+            "i": 103
+          }
+        },
+        {
+          "lead_id": 104,
+          "payload": {
+            "i": 104
+          }
+        },
+        {
+          "lead_id": 105,
+          "payload": {
+            "i": 105
+          }
+        },
+        {
+          "lead_id": 106,
+          "payload": {
+            "i": 106
+          }
+        },
+        {
+          "lead_id": 107,
+          "payload": {
+            "i": 107
+          }
+        },
+        {
+          "lead_id": 108,
+          "payload": {
+            "i": 108
+          }
+        },
+        {
+          "lead_id": 109,
+          "payload": {
+            "i": 109
+          }
+        },
+        {
+          "lead_id": 110,
+          "payload": {
+            "i": 110
+          }
+        },
+        {
+          "lead_id": 111,
+          "payload": {
+            "i": 111
+          }
+        },
+        {
+          "lead_id": 112,
+          "payload": {
+            "i": 112
+          }
+        },
+        {
+          "lead_id": 113,
+          "payload": {
+            "i": 113
+          }
+        },
+        {
+          "lead_id": 114,
+          "payload": {
+            "i": 114
+          }
+        },
+        {
+          "lead_id": 115,
+          "payload": {
+            "i": 115
+          }
+        },
+        {
+          "lead_id": 116,
+          "payload": {
+            "i": 116
+          }
+        },
+        {
+          "lead_id": 117,
+          "payload": {
+            "i": 117
+          }
+        },
+        {
+          "lead_id": 118,
+          "payload": {
+            "i": 118
+          }
+        },
+        {
+          "lead_id": 119,
+          "payload": {
+            "i": 119
+          }
+        },
+        {
+          "lead_id": 120,
+          "payload": {
+            "i": 120
+          }
+        },
+        {
+          "lead_id": 121,
+          "payload": {
+            "i": 121
+          }
+        },
+        {
+          "lead_id": 122,
+          "payload": {
+            "i": 122
+          }
+        },
+        {
+          "lead_id": 123,
+          "payload": {
+            "i": 123
+          }
+        },
+        {
+          "lead_id": 124,
+          "payload": {
+            "i": 124
+          }
+        },
+        {
+          "lead_id": 125,
+          "payload": {
+            "i": 125
+          }
+        },
+        {
+          "lead_id": 126,
+          "payload": {
+            "i": 126
+          }
+        },
+        {
+          "lead_id": 127,
+          "payload": {
+            "i": 127
+          }
+        },
+        {
+          "lead_id": 128,
+          "payload": {
+            "i": 128
+          }
+        },
+        {
+          "lead_id": 129,
+          "payload": {
+            "i": 129
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "",
+        "headers": {
+          "x-job-id": "j1"
+        },
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "08829013ae18377d755707eed058c6ea51c2b0456040071ddd2eb5760f0b5dab",
+        "body_bytes": 4338,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"opengtm_audience\",\"destination_id\":\"dest-9\",\"mode\":\"snapshot\",\"records_sha256\":\"8ef44f0b3a14027697ae987a80be08761226d1b168f5bf4aea32d7244c12abd3\",\"row_count\":129,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 129 rows; sha256=8ef44f0b3a14",
+        "error": null,
+        "external_id": "j1"
+      }
+    },
+    {
+      "name": "mode_upsert_dataset",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "dataset": "d",
+        "mode": "upsert"
+      },
+      "secret": "{{secret:WAREHOUSE_AUTH}}",
+      "rows": [
+        {
+          "lead_id": 1,
+          "payload": {
+            "company": "Acme"
+          }
+        },
+        {
+          "lead_id": 2,
+          "payload": {
+            "company": "Zed"
+          }
+        }
+      ],
+      "response": {
+        "status": 200,
+        "text": "",
+        "headers": {
+          "x-job-id": "j"
+        },
+        "json": null,
+        "json_raises": false
+      },
+      "request": {
+        "url": "https://w.example.test/ingest",
+        "headers": {
+          "Content-Type": "application/x-ndjson",
+          "Idempotency-Key": "warehouse:dest-9:run-9",
+          "Authorization": "{{secret:WAREHOUSE_AUTH}}"
+        },
+        "method": "POST",
+        "timeout": 30.0,
+        "body_sha256": "58e7d49a729f986c3543ecaa7062dbeab8d5a16d99fe0d5e6556482b83e4a624",
+        "body_bytes": 357,
+        "body_first_line": "{\"_manifest\":{\"audience_id\":\"aud-9\",\"dataset\":\"d\",\"destination_id\":\"dest-9\",\"mode\":\"upsert\",\"records_sha256\":\"1b0c8c3785f44fd6d15a81993f7d1fc272e3e7d86336b4ed395cacef3417d44c\",\"row_count\":2,\"run_id\":\"run-9\",\"type\":\"opengtm.audience.export\",\"version\":1,\"workspace_id\":\"ws-vec\"}}"
+      },
+      "result": {
+        "success": true,
+        "summary": "exported 2 rows; sha256=1b0c8c3785f4",
+        "error": null,
+        "external_id": "j"
+      }
+    }
+  ]
+}

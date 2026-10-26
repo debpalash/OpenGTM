@@ -1,0 +1,41 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-3",
+      "config": {
+        "method": "PUT",
+        "url": "https://hooks.example.test/new"
+      },
+      "destination_type": "webhook",
+      "name": "webhook destination"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-3",
+      "config": {
+        "method": "PUT",
+        "url": "https://hooks.example.test/new"
+      },
+      "created_at": "2026-10-26T17:05:48.192364",
+      "destination_type": "webhook",
+      "enabled": true,
+      "field_map": {},
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002107",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "webhook destination",
+      "updated_at": "2026-10-26T17:05:48.192364"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-act-2/accounts?offset=50"
+  },
+  "response": {
+    "body": {
+      "accounts": [],
+      "pagination": {
+        "limit": 50,
+        "next_offset": null,
+        "offset": 50,
+        "total": 8
+      },
+      "summary": {
+        "account_count": 8,
+        "accounts_with_decision_makers": 4,
+        "accounts_with_signals": 4,
+        "contact_count": 10
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

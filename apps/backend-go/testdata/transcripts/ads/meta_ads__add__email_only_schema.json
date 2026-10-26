@@ -1,0 +1,61 @@
+{
+  "platform": "meta_ads",
+  "operation": "add",
+  "scenario": "email_only_schema",
+  "config": {
+    "custom_audience_id": "6001234567890",
+    "consent_attested": true,
+    "consent_source": "web form v3"
+  },
+  "secrets": {
+    "META_ACCESS_TOKEN": "ctk_meta_access_token_0001",
+    "LINKEDIN_ACCESS_TOKEN": "ctk_linkedin_access_token_0001",
+    "GOOGLE_ADS_ACCESS_TOKEN": "ctk_google_ads_access_token_0001",
+    "GOOGLE_ADS_DEVELOPER_TOKEN": "ctk_google_ads_developer_token_0001"
+  },
+  "input_snapshots": [
+    {
+      "email": "a@b.co"
+    }
+  ],
+  "http_exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v23.0/6001234567890/users",
+        "headers": {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        "form": {
+          "access_token": "{{secret:META_ACCESS_TOKEN}}",
+          "payload": {
+            "schema": [
+              "EMAIL"
+            ],
+            "data": [
+              [
+                "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
+              ]
+            ]
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": {
+          "session_id": 2
+        }
+      }
+    }
+  ],
+  "unrouted_requests": [],
+  "result": {
+    "success": true,
+    "summary": "added 1 hashed users",
+    "error": null,
+    "external_id": "2"
+  }
+}

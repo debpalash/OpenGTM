@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "consent_attested": true,
+        "consent_source": "s",
+        "customer_id": "2",
+        "segment_id": "1"
+      },
+      "destination_type": "linkedin_ads",
+      "name": "cfg 35"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "unsupported ad destination config: customer_id"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

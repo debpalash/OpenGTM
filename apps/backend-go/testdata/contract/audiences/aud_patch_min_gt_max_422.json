@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": {
+      "filters": {
+        "max_score": 1,
+        "min_score": 9
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/audiences/00000000-0000-4000-8000-000000002006"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "error": {}
+          },
+          "input": {
+            "max_score": 1,
+            "min_score": 9
+          },
+          "loc": [
+            "body",
+            "filters"
+          ],
+          "msg": "Value error, min_score cannot exceed max_score",
+          "type": "value_error"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

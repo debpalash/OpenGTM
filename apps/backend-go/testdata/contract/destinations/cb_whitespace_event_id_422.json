@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "external_event_id": "   ",
+      "lead_id": 5
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations/inbound/dst-act-hubspot"
+  },
+  "response": {
+    "body": {
+      "detail": "external_event_id is required"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {},
+      "destination_type": "instantly",
+      "name": "cfg 37"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "instantly campaign_id is required"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

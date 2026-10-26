@@ -1,0 +1,208 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-act-2/members"
+  },
+  "response": {
+    "body": [
+      {
+        "id": 12,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 16,
+        "snapshot": {
+          "city": "Austin",
+          "company": "=SUM(1,2) Spreadsheet Inc",
+          "contact_person": "@mallory",
+          "contact_title": "",
+          "email": "+cmd@sheet.example.com",
+          "id": 16,
+          "phone": "+91 (22) 123-4567",
+          "score": 50,
+          "score_tier": "cold",
+          "status": "new",
+          "website": "https://sheet.example.com"
+        }
+      },
+      {
+        "id": 11,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 14,
+        "snapshot": {
+          "city": "Austin",
+          "company": "Hot Pursuit Labs",
+          "contact_person": "Sam Lee",
+          "contact_title": "Chief Executive Officer",
+          "email": "ceo@hotpursuit.example.com",
+          "id": 14,
+          "phone": "+1 512 555 0014",
+          "score": 95,
+          "score_tier": "hot",
+          "status": "negotiating",
+          "website": "https://hotpursuit.example.com"
+        }
+      },
+      {
+        "id": 10,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 13,
+        "snapshot": {
+          "city": "Berlin",
+          "company": "Dead Letter Co",
+          "contact_person": "",
+          "contact_title": "Intern",
+          "email": "",
+          "id": 13,
+          "phone": "",
+          "score": 10,
+          "score_tier": "unqualified",
+          "status": "dead",
+          "website": ""
+        }
+      },
+      {
+        "id": 9,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 10,
+        "snapshot": {
+          "city": "Delhi",
+          "company": "Quantum Foods",
+          "contact_person": "",
+          "contact_title": "Owner",
+          "email": "info@quantumfoods.example.com",
+          "id": 10,
+          "phone": "+91 11 5550 0010",
+          "score": 55,
+          "score_tier": "warm",
+          "status": "contacted",
+          "website": "https://quantumfoods.example.com"
+        }
+      },
+      {
+        "id": 8,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 9,
+        "snapshot": {
+          "city": "Mumbai",
+          "company": "Zenith Robotics Solutions",
+          "contact_person": "",
+          "contact_title": "Head of Sales",
+          "email": "",
+          "id": 9,
+          "phone": "",
+          "score": 50,
+          "score_tier": "cold",
+          "status": "new",
+          "website": "zenithrobotics.example.com"
+        }
+      },
+      {
+        "id": 7,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 8,
+        "snapshot": {
+          "city": "Mumbai",
+          "company": "Zenith Robotics",
+          "contact_person": "",
+          "contact_title": "",
+          "email": "sales@zenithrobotics.example.com",
+          "id": 8,
+          "phone": "+91-22-5550-1001",
+          "score": 50,
+          "score_tier": "cold",
+          "status": "new",
+          "website": ""
+        }
+      },
+      {
+        "id": 6,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 7,
+        "snapshot": {
+          "city": "Mumbai",
+          "company": "Zenith Robotics Private Limited",
+          "contact_person": "",
+          "contact_title": "VP Engineering",
+          "email": "",
+          "id": 7,
+          "phone": "",
+          "score": 65,
+          "score_tier": "warm",
+          "status": "new",
+          "website": "https://www.zenithrobotics.example.com"
+        }
+      },
+      {
+        "id": 5,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 6,
+        "snapshot": {
+          "city": "Mumbai",
+          "company": "Zenith Robotics Pvt Ltd",
+          "contact_person": "Rhea Kapoor",
+          "contact_title": "CEO",
+          "email": "hello@zenithrobotics.example.com",
+          "id": 6,
+          "phone": "+91 22 5550 1001",
+          "score": 65,
+          "score_tier": "warm",
+          "status": "qualified",
+          "website": "https://zenithrobotics.example.com"
+        }
+      },
+      {
+        "id": 4,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 5,
+        "snapshot": {
+          "city": "",
+          "company": "Nordlicht GmbH",
+          "contact_person": "",
+          "contact_title": "",
+          "email": "kontakt@nordlicht.example.com",
+          "id": 5,
+          "phone": "",
+          "score": 80,
+          "score_tier": "hot",
+          "status": "contacted",
+          "website": "https://nordlicht.example.com"
+        }
+      },
+      {
+        "id": 3,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 4,
+        "snapshot": {
+          "city": "Pune",
+          "company": "\u00c9co Solutions Pvt Ltd",
+          "contact_person": "Isha Rao",
+          "contact_title": "Founder",
+          "email": "info@eco.example.com",
+          "id": 4,
+          "phone": "+91 20 5550 0004",
+          "score": 80,
+          "score_tier": "hot",
+          "status": "new",
+          "website": "https://eco.example.com:8443/home"
+        }
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

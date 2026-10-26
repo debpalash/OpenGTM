@@ -1,0 +1,167 @@
+{
+  "note": "resolve_token(raw, destination_id) over the seeded tokens (sha256(raw) lookup; valid only when not revoked, bound to the destination and expires_at is set and in the future; a missing expires_at is invalid; a naive expires_at is read as UTC). A valid hit stamps last_used_at. The error text is the 401 detail ('WWW-Authenticate: Bearer').",
+  "tokens": [
+    {
+      "id": "t-active",
+      "workspace_id": "ws-a",
+      "destination_id": "dest-a",
+      "raw": "raw-active",
+      "expires_at": "2100-01-01T00:00:00+00:00",
+      "revoked_at": null
+    },
+    {
+      "id": "t-expired",
+      "workspace_id": "ws-a",
+      "destination_id": "dest-a",
+      "raw": "raw-expired",
+      "expires_at": "2020-01-01T00:00:00+00:00",
+      "revoked_at": null
+    },
+    {
+      "id": "t-noexp",
+      "workspace_id": "ws-a",
+      "destination_id": "dest-a",
+      "raw": "raw-noexp",
+      "expires_at": null,
+      "revoked_at": null
+    },
+    {
+      "id": "t-revoked",
+      "workspace_id": "ws-a",
+      "destination_id": "dest-a",
+      "raw": "raw-revoked",
+      "expires_at": "2100-01-01T00:00:00+00:00",
+      "revoked_at": "2026-01-01T00:00:00"
+    },
+    {
+      "id": "t-other-ws",
+      "workspace_id": "ws-b",
+      "destination_id": "dest-b",
+      "raw": "raw-other",
+      "expires_at": "2100-01-01T00:00:00+00:00",
+      "revoked_at": null
+    },
+    {
+      "id": "t-naive-future",
+      "workspace_id": "ws-a",
+      "destination_id": "dest-a",
+      "raw": "raw-naive",
+      "expires_at": "2100-01-01T00:00:00",
+      "revoked_at": null
+    }
+  ],
+  "cases": [
+    {
+      "raw": "raw-active",
+      "destination_id": "dest-a",
+      "ok": true,
+      "workspace_id": "ws-a",
+      "last_used_at_set_afterwards": true
+    },
+    {
+      "raw": "raw-active",
+      "destination_id": "dest-b",
+      "ok": false,
+      "error": "invalid or revoked destination token",
+      "last_used_at_set_afterwards": true
+    },
+    {
+      "raw": "raw-active",
+      "destination_id": "nope",
+      "ok": false,
+      "error": "invalid or revoked destination token",
+      "last_used_at_set_afterwards": true
+    },
+    {
+      "raw": "raw-expired",
+      "destination_id": "dest-a",
+      "ok": false,
+      "error": "invalid or revoked destination token",
+      "last_used_at_set_afterwards": false
+    },
+    {
+      "raw": "raw-noexp",
+      "destination_id": "dest-a",
+      "ok": false,
+      "error": "invalid or revoked destination token",
+      "last_used_at_set_afterwards": false
+    },
+    {
+      "raw": "raw-revoked",
+      "destination_id": "dest-a",
+      "ok": false,
+      "error": "invalid or revoked destination token",
+      "last_used_at_set_afterwards": false
+    },
+    {
+      "raw": "raw-other",
+      "destination_id": "dest-b",
+      "ok": true,
+      "workspace_id": "ws-b",
+      "last_used_at_set_afterwards": true
+    },
+    {
+      "raw": "raw-other",
+      "destination_id": "dest-a",
+      "ok": false,
+      "error": "invalid or revoked destination token",
+      "last_used_at_set_afterwards": true
+    },
+    {
+      "raw": "raw-naive",
+      "destination_id": "dest-a",
+      "ok": true,
+      "workspace_id": "ws-a",
+      "last_used_at_set_afterwards": true
+    },
+    {
+      "raw": "unknown",
+      "destination_id": "dest-a",
+      "ok": false,
+      "error": "invalid or revoked destination token",
+      "last_used_at_set_afterwards": null
+    },
+    {
+      "raw": "",
+      "destination_id": "dest-a",
+      "ok": false,
+      "error": "invalid or revoked destination token",
+      "last_used_at_set_afterwards": null
+    },
+    {
+      "raw": null,
+      "destination_id": "dest-a",
+      "ok": false,
+      "error": "invalid or revoked destination token",
+      "last_used_at_set_afterwards": null
+    },
+    {
+      "raw": "RAW-ACTIVE",
+      "destination_id": "dest-a",
+      "ok": false,
+      "error": "invalid or revoked destination token",
+      "last_used_at_set_afterwards": null
+    },
+    {
+      "raw": " raw-active",
+      "destination_id": "dest-a",
+      "ok": false,
+      "error": "invalid or revoked destination token",
+      "last_used_at_set_afterwards": null
+    },
+    {
+      "raw": "raw-active",
+      "destination_id": "DEST-A",
+      "ok": false,
+      "error": "invalid or revoked destination token",
+      "last_used_at_set_afterwards": true
+    },
+    {
+      "raw": "raw-active",
+      "destination_id": "",
+      "ok": false,
+      "error": "invalid or revoked destination token",
+      "last_used_at_set_afterwards": true
+    }
+  ]
+}

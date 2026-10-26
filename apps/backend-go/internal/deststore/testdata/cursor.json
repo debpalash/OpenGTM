@@ -1,0 +1,342 @@
+{
+  "note": "history cursor = urlsafe-b64 (no padding) of compact JSON [created_at.isoformat(), id]; decode treats a naive timestamp as UTC and returns an aware datetime (created_at is the isoformat of that aware value). status 422 detail 'invalid <label> cursor' for every ValueError/TypeError/UnicodeDecodeError/JSONDecodeError/binascii.Error; 'crash' = an exception outside that tuple would 500 (none expected).",
+  "encode": [
+    {
+      "created_at": "2026-08-27T10:00:00",
+      "id": "run-1",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIiwicnVuLTEiXQ"
+    },
+    {
+      "created_at": "2026-08-27T10:00:00.500000",
+      "id": "run-1",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwLjUwMDAwMCIsInJ1bi0xIl0"
+    },
+    {
+      "created_at": "2026-08-27T10:00:00.000001",
+      "id": "x",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwLjAwMDAwMSIsIngiXQ"
+    },
+    {
+      "created_at": "2026-08-27T10:00:00+00:00",
+      "id": "run-1",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwKzAwOjAwIiwicnVuLTEiXQ"
+    },
+    {
+      "created_at": "2026-08-27T10:00:00.123456+00:00",
+      "id": "00000000-0000-4000-8000-000000002000",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwLjEyMzQ1NiswMDowMCIsIjAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMjAwMCJd"
+    },
+    {
+      "created_at": "2026-08-27T15:30:00+05:30",
+      "id": "ist",
+      "cursor": "WyIyMDI2LTA4LTI3VDE1OjMwOjAwKzA1OjMwIiwiaXN0Il0"
+    },
+    {
+      "created_at": "0001-01-01T00:00:00",
+      "id": "min",
+      "cursor": "WyIwMDAxLTAxLTAxVDAwOjAwOjAwIiwibWluIl0"
+    },
+    {
+      "created_at": "9999-12-31T23:59:59.999999",
+      "id": "max",
+      "cursor": "WyI5OTk5LTEyLTMxVDIzOjU5OjU5Ljk5OTk5OSIsIm1heCJd"
+    },
+    {
+      "created_at": "2026-08-27T10:00:00",
+      "id": "é/ü\"quote\\",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIiwiXHUwMGU5L1x1MDBmY1wicXVvdGVcXCJd"
+    },
+    {
+      "created_at": "2026-08-27T10:00:00",
+      "id": "",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIiwiIl0"
+    },
+    {
+      "created_at": "2026-08-27T10:00:00",
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIiwiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIl0"
+    }
+  ],
+  "decode": [
+    {
+      "name": "valid_naive",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIiwicnVuLTEiXQ",
+      "ok": true,
+      "created_at": "2026-08-27T10:00:00+00:00",
+      "id": "run-1"
+    },
+    {
+      "name": "valid_aware",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwKzAwOjAwIiwicnVuLTEiXQ",
+      "ok": true,
+      "created_at": "2026-08-27T10:00:00+00:00",
+      "id": "run-1"
+    },
+    {
+      "name": "valid_offset",
+      "cursor": "WyIyMDI2LTA4LTI3VDE1OjMwOjAwKzA1OjMwIiwicnVuLTEiXQ",
+      "ok": true,
+      "created_at": "2026-08-27T15:30:00+05:30",
+      "id": "run-1"
+    },
+    {
+      "name": "valid_micro",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwLjUiLCJydW4tMSJd",
+      "ok": true,
+      "created_at": "2026-08-27T10:00:00.500000+00:00",
+      "id": "run-1"
+    },
+    {
+      "name": "valid_z_suffix",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwWiIsInJ1bi0xIl0",
+      "ok": true,
+      "created_at": "2026-08-27T10:00:00+00:00",
+      "id": "run-1"
+    },
+    {
+      "name": "valid_date_only",
+      "cursor": "WyIyMDI2LTA4LTI3IiwicnVuLTEiXQ",
+      "ok": true,
+      "created_at": "2026-08-27T00:00:00+00:00",
+      "id": "run-1"
+    },
+    {
+      "name": "valid_space_sep",
+      "cursor": "WyIyMDI2LTA4LTI3IDEwOjAwOjAwIiwicnVuLTEiXQ",
+      "ok": true,
+      "created_at": "2026-08-27T10:00:00+00:00",
+      "id": "run-1"
+    },
+    {
+      "name": "valid_padded",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIiwicnVuLTEiXQ==",
+      "ok": true,
+      "created_at": "2026-08-27T10:00:00+00:00",
+      "id": "run-1"
+    },
+    {
+      "name": "valid_std_alphabet",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIiwiYT8+Il0",
+      "ok": true,
+      "created_at": "2026-08-27T10:00:00+00:00",
+      "id": "a?>"
+    },
+    {
+      "name": "valid_extra_spaces",
+      "cursor": "WyAiMjAyNi0wOC0yN1QxMDowMDowMCIgLCAicnVuLTEiIF0",
+      "ok": true,
+      "created_at": "2026-08-27T10:00:00+00:00",
+      "id": "run-1"
+    },
+    {
+      "name": "valid_empty_id",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIiwiIl0",
+      "ok": true,
+      "created_at": "2026-08-27T10:00:00+00:00",
+      "id": ""
+    },
+    {
+      "name": "valid_unicode_id",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIiwiw6kiXQ",
+      "ok": true,
+      "created_at": "2026-08-27T10:00:00+00:00",
+      "id": "é"
+    },
+    {
+      "name": "valid_week_date",
+      "cursor": "WyIyMDI2LVczNS00VDEwOjAwOjAwIiwieCJd",
+      "ok": true,
+      "created_at": "2026-08-27T10:00:00+00:00",
+      "id": "x"
+    },
+    {
+      "name": "valid_basic_format",
+      "cursor": "WyIyMDI2MDgyN1QxMDAwMDAiLCJ4Il0",
+      "ok": true,
+      "created_at": "2026-08-27T10:00:00+00:00",
+      "id": "x"
+    },
+    {
+      "name": "garbage",
+      "cursor": "not-base64!!",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "not_json",
+      "cursor": "bm90anNvbg",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "object",
+      "cursor": "eyJhIjoxfQ",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "one_element",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIl0",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "three_elements",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIiwieCIsInkiXQ",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "id_int",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIiw1XQ",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "id_null",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIixudWxsXQ",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "bad_iso",
+      "cursor": "WyJ5ZXN0ZXJkYXkiLCJ4Il0",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "iso_int",
+      "cursor": "WzUsIngiXQ",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "iso_null",
+      "cursor": "W251bGwsIngiXQ",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "json_null",
+      "cursor": "bnVsbA",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "json_string",
+      "cursor": "ImFiYyI",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "empty_list",
+      "cursor": "W10",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "bad_utf8",
+      "cursor": "_w",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "bad_utf8_2",
+      "cursor": "gP8",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "empty",
+      "cursor": "",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "single_char",
+      "cursor": "A",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "only_padding",
+      "cursor": "====",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "whitespace",
+      "cursor": "  ",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "nested_json_bomb",
+      "cursor": "W1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW11dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV0",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "year_zero",
+      "cursor": "WyIwMDAwLTAxLTAxVDAwOjAwOjAwIiwieCJd",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "month13",
+      "cursor": "WyIyMDI2LTEzLTAxVDAwOjAwOjAwIiwieCJd",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "leap_day_invalid",
+      "cursor": "WyIyMDI2LTAyLTI5VDEwOjAwOjAwIiwieCJd",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "offset_beyond",
+      "cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwKzI1OjAwIiwieCJd",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "label_destination_run",
+      "cursor": "!!",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid destination run cursor"
+    },
+    {
+      "name": "label_inbound_receipt",
+      "cursor": "!!",
+      "ok": false,
+      "status": 422,
+      "detail": "invalid inbound receipt cursor"
+    }
+  ]
+}

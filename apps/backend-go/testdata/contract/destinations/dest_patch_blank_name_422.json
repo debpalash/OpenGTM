@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "name": "  "
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/audience-destinations/00000000-0000-4000-8000-000000002080"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "error": {}
+          },
+          "input": "  ",
+          "loc": [
+            "body",
+            "name"
+          ],
+          "msg": "Value error, name cannot be blank",
+          "type": "value_error"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

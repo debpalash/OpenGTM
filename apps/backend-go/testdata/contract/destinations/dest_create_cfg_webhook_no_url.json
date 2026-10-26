@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {},
+      "destination_type": "webhook",
+      "name": "cfg 7"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "webhook requires an http(s) URL without embedded credentials"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

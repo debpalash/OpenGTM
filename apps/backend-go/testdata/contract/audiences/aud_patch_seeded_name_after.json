@@ -1,0 +1,687 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": [
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.164528",
+        "description": "",
+        "filters": {},
+        "id": "00000000-0000-4000-8000-000000002006",
+        "last_refresh_error": null,
+        "member_count": 15,
+        "name": "Filter state",
+        "next_refresh_at": "2026-10-26T18:05:44.193510",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:46.795219",
+        "updated_at": "2026-10-26T17:05:46.793963"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.112952",
+        "description": "",
+        "filters": {
+          "city": "Mumbai"
+        },
+        "id": "00000000-0000-4000-8000-000000002004",
+        "last_refresh_error": null,
+        "member_count": 4,
+        "name": "City renamed",
+        "next_refresh_at": "2026-10-26T18:05:44.146309",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:46.621882",
+        "updated_at": "2026-10-26T17:05:46.619413"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:43.975289",
+        "description": "new description",
+        "filters": {},
+        "id": "00000000-0000-4000-8000-000000002000",
+        "last_refresh_error": null,
+        "member_count": 15,
+        "name": "Renamed defaults",
+        "next_refresh_at": "2026-10-26T17:20:46.591863",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 15,
+        "refreshed_at": "2026-10-26T17:05:46.489339",
+        "updated_at": "2026-10-26T17:05:46.590511"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.775386",
+        "description": "\u00e9moji-free",
+        "filters": {},
+        "id": "00000000-0000-4000-8000-000000002064",
+        "last_refresh_error": null,
+        "member_count": 15,
+        "name": "\u00dcn\u00efcode \u6771\u4eac audience",
+        "next_refresh_at": "2026-10-26T18:05:45.806514",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:45.788563",
+        "updated_at": "2026-10-26T17:05:45.805071"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.731904",
+        "description": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "filters": {},
+        "id": "00000000-0000-4000-8000-000000002062",
+        "last_refresh_error": null,
+        "member_count": 15,
+        "name": "Long description",
+        "next_refresh_at": "2026-10-26T18:05:45.759862",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:45.742672",
+        "updated_at": "2026-10-26T17:05:45.758679"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.687796",
+        "description": "",
+        "filters": {},
+        "id": "00000000-0000-4000-8000-000000002060",
+        "last_refresh_error": null,
+        "member_count": 15,
+        "name": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+        "next_refresh_at": "2026-10-26T18:05:45.714078",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:45.697519",
+        "updated_at": "2026-10-26T17:05:45.712416"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.642302",
+        "description": "",
+        "filters": {},
+        "id": "00000000-0000-4000-8000-000000002058",
+        "last_refresh_error": null,
+        "member_count": 15,
+        "name": "Erin audience",
+        "next_refresh_at": "2026-10-26T18:05:45.670851",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:45.653906",
+        "updated_at": "2026-10-26T17:05:45.669842"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.597062",
+        "description": "",
+        "filters": {},
+        "id": "00000000-0000-4000-8000-000000002056",
+        "last_refresh_error": null,
+        "member_count": 15,
+        "name": "Refresh disabled",
+        "next_refresh_at": null,
+        "refresh_enabled": false,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:45.610666",
+        "updated_at": "2026-10-26T17:05:45.619922"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.547160",
+        "description": "",
+        "filters": {},
+        "id": "00000000-0000-4000-8000-000000002054",
+        "last_refresh_error": null,
+        "member_count": 15,
+        "name": "Interval 10080",
+        "next_refresh_at": "2026-11-02T17:05:45.579772",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 10080,
+        "refreshed_at": "2026-10-26T17:05:45.559454",
+        "updated_at": "2026-10-26T17:05:45.577975"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.492088",
+        "description": "",
+        "filters": {},
+        "id": "00000000-0000-4000-8000-000000002052",
+        "last_refresh_error": null,
+        "member_count": 15,
+        "name": "Interval 15",
+        "next_refresh_at": "2026-10-26T17:20:45.530375",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 15,
+        "refreshed_at": "2026-10-26T17:05:45.507535",
+        "updated_at": "2026-10-26T17:05:45.528023"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.428136",
+        "description": "d",
+        "filters": {},
+        "id": "00000000-0000-4000-8000-000000002050",
+        "last_refresh_error": null,
+        "member_count": 15,
+        "name": "Padded name",
+        "next_refresh_at": "2026-10-26T18:05:45.466650",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:45.442502",
+        "updated_at": "2026-10-26T17:05:45.464403"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.364226",
+        "description": "",
+        "filters": {
+          "max_score": 1000000
+        },
+        "id": "00000000-0000-4000-8000-000000002048",
+        "last_refresh_error": null,
+        "member_count": 13,
+        "name": "Filter big_max",
+        "next_refresh_at": "2026-10-26T18:05:45.404401",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:45.379445",
+        "updated_at": "2026-10-26T17:05:45.401490"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.300878",
+        "description": "",
+        "filters": {
+          "min_score": -5
+        },
+        "id": "00000000-0000-4000-8000-000000002046",
+        "last_refresh_error": null,
+        "member_count": 13,
+        "name": "Filter negative_min",
+        "next_refresh_at": "2026-10-26T18:05:45.341273",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:45.316626",
+        "updated_at": "2026-10-26T17:05:45.339481"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.236087",
+        "description": "",
+        "filters": {
+          "city": "Mumbai",
+          "has_email": true,
+          "min_score": 60
+        },
+        "id": "00000000-0000-4000-8000-000000002044",
+        "last_refresh_error": null,
+        "member_count": 1,
+        "name": "Filter combo",
+        "next_refresh_at": "2026-10-26T18:05:45.275768",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:45.251343",
+        "updated_at": "2026-10-26T17:05:45.274119"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.142296",
+        "description": "",
+        "filters": {
+          "city": "",
+          "search": "",
+          "status": ""
+        },
+        "id": "00000000-0000-4000-8000-000000002042",
+        "last_refresh_error": null,
+        "member_count": 15,
+        "name": "Filter empty_strings",
+        "next_refresh_at": "2026-10-26T18:05:45.174182",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:45.155889",
+        "updated_at": "2026-10-26T17:05:45.172736"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.093895",
+        "description": "",
+        "filters": {
+          "job_ids": [
+            "job-1",
+            "job-2"
+          ]
+        },
+        "id": "00000000-0000-4000-8000-000000002040",
+        "last_refresh_error": null,
+        "member_count": 0,
+        "name": "Filter job_ids",
+        "next_refresh_at": "2026-10-26T18:05:45.119695",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:45.106879",
+        "updated_at": "2026-10-26T17:05:45.118365"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.038310",
+        "description": "",
+        "filters": {
+          "search": "zenith"
+        },
+        "id": "00000000-0000-4000-8000-000000002038",
+        "last_refresh_error": null,
+        "member_count": 4,
+        "name": "Filter search",
+        "next_refresh_at": "2026-10-26T18:05:45.073418",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:45.051258",
+        "updated_at": "2026-10-26T17:05:45.071900"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.989727",
+        "description": "",
+        "filters": {
+          "max_score": 80,
+          "min_score": 80
+        },
+        "id": "00000000-0000-4000-8000-000000002036",
+        "last_refresh_error": null,
+        "member_count": 2,
+        "name": "Filter min_equals_max",
+        "next_refresh_at": "2026-10-26T18:05:45.018520",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:45.002867",
+        "updated_at": "2026-10-26T17:05:45.017246"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.935200",
+        "description": "",
+        "filters": {
+          "max_score": 65,
+          "min_score": 50
+        },
+        "id": "00000000-0000-4000-8000-000000002034",
+        "last_refresh_error": null,
+        "member_count": 7,
+        "name": "Filter score_range",
+        "next_refresh_at": "2026-10-26T18:05:44.970705",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.949498",
+        "updated_at": "2026-10-26T17:05:44.968891"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.884970",
+        "description": "",
+        "filters": {
+          "max_score": 50
+        },
+        "id": "00000000-0000-4000-8000-000000002032",
+        "last_refresh_error": null,
+        "member_count": 6,
+        "name": "Filter max_score",
+        "next_refresh_at": "2026-10-26T18:05:44.917095",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.898317",
+        "updated_at": "2026-10-26T17:05:44.915838"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.825093",
+        "description": "",
+        "filters": {
+          "min_score": 65
+        },
+        "id": "00000000-0000-4000-8000-000000002030",
+        "last_refresh_error": null,
+        "member_count": 6,
+        "name": "Filter min_score",
+        "next_refresh_at": "2026-10-26T18:05:44.862267",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.837552",
+        "updated_at": "2026-10-26T17:05:44.860994"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.776616",
+        "description": "",
+        "filters": {
+          "has_website": false
+        },
+        "id": "00000000-0000-4000-8000-000000002028",
+        "last_refresh_error": null,
+        "member_count": 2,
+        "name": "Filter has_website_false",
+        "next_refresh_at": "2026-10-26T18:05:44.807130",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.788284",
+        "updated_at": "2026-10-26T17:05:44.805760"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.723346",
+        "description": "",
+        "filters": {
+          "has_website": true
+        },
+        "id": "00000000-0000-4000-8000-000000002026",
+        "last_refresh_error": null,
+        "member_count": 13,
+        "name": "Filter has_website_true",
+        "next_refresh_at": "2026-10-26T18:05:44.758000",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.736512",
+        "updated_at": "2026-10-26T17:05:44.756858"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.667056",
+        "description": "",
+        "filters": {
+          "has_phone": false
+        },
+        "id": "00000000-0000-4000-8000-000000002024",
+        "last_refresh_error": null,
+        "member_count": 9,
+        "name": "Filter has_phone_false",
+        "next_refresh_at": "2026-10-26T18:05:44.702979",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.680399",
+        "updated_at": "2026-10-26T17:05:44.701135"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.613355",
+        "description": "",
+        "filters": {
+          "has_phone": true
+        },
+        "id": "00000000-0000-4000-8000-000000002022",
+        "last_refresh_error": null,
+        "member_count": 6,
+        "name": "Filter has_phone_true",
+        "next_refresh_at": "2026-10-26T18:05:44.643753",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.625700",
+        "updated_at": "2026-10-26T17:05:44.642610"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.560230",
+        "description": "",
+        "filters": {
+          "has_email": false
+        },
+        "id": "00000000-0000-4000-8000-000000002020",
+        "last_refresh_error": null,
+        "member_count": 5,
+        "name": "Filter has_email_false",
+        "next_refresh_at": "2026-10-26T18:05:44.593176",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.575904",
+        "updated_at": "2026-10-26T17:05:44.591976"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.500570",
+        "description": "",
+        "filters": {
+          "has_email": true
+        },
+        "id": "00000000-0000-4000-8000-000000002018",
+        "last_refresh_error": null,
+        "member_count": 10,
+        "name": "Filter has_email_true",
+        "next_refresh_at": "2026-10-26T18:05:44.538335",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.515128",
+        "updated_at": "2026-10-26T17:05:44.537037"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.444189",
+        "description": "",
+        "filters": {
+          "specialization": "robot"
+        },
+        "id": "00000000-0000-4000-8000-000000002016",
+        "last_refresh_error": null,
+        "member_count": 2,
+        "name": "Filter specialization",
+        "next_refresh_at": "2026-10-26T18:05:44.482416",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.461022",
+        "updated_at": "2026-10-26T17:05:44.481222"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.391100",
+        "description": "",
+        "filters": {
+          "company_size": "51-200"
+        },
+        "id": "00000000-0000-4000-8000-000000002014",
+        "last_refresh_error": null,
+        "member_count": 3,
+        "name": "Filter company_size",
+        "next_refresh_at": "2026-10-26T18:05:44.423969",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.403801",
+        "updated_at": "2026-10-26T17:05:44.421840"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.332309",
+        "description": "",
+        "filters": {
+          "source": "contract"
+        },
+        "id": "00000000-0000-4000-8000-000000002012",
+        "last_refresh_error": null,
+        "member_count": 7,
+        "name": "Filter source",
+        "next_refresh_at": "2026-10-26T18:05:44.371972",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.345143",
+        "updated_at": "2026-10-26T17:05:44.370402"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.272183",
+        "description": "",
+        "filters": {
+          "status": "new"
+        },
+        "id": "00000000-0000-4000-8000-000000002010",
+        "last_refresh_error": null,
+        "member_count": 10,
+        "name": "Filter status",
+        "next_refresh_at": "2026-10-26T18:05:44.310962",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.284502",
+        "updated_at": "2026-10-26T17:05:44.308835"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.214333",
+        "description": "",
+        "filters": {
+          "score_tier": "hot"
+        },
+        "id": "00000000-0000-4000-8000-000000002008",
+        "last_refresh_error": null,
+        "member_count": 3,
+        "name": "Filter score_tier",
+        "next_refresh_at": "2026-10-26T18:05:44.249046",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:44.228005",
+        "updated_at": "2026-10-26T17:05:44.246587"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:44.058274",
+        "description": "all fourteen keys",
+        "filters": {
+          "city": "Austin",
+          "company_size": "51-200",
+          "has_email": true,
+          "has_phone": true,
+          "has_website": true,
+          "job_ids": [
+            "job-x"
+          ],
+          "max_score": 100,
+          "min_score": 10,
+          "score_tier": "hot",
+          "search": "Hot",
+          "source": "contract",
+          "specialization": "Analytics",
+          "state": "TX",
+          "status": "negotiating"
+        },
+        "id": "00000000-0000-4000-8000-000000002002",
+        "last_refresh_error": null,
+        "member_count": 0,
+        "name": "Every filter",
+        "next_refresh_at": "2026-10-26T17:20:44.093228",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 15,
+        "refreshed_at": "2026-10-26T17:05:44.071771",
+        "updated_at": "2026-10-26T17:05:44.090936"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-08-29T10:00:00",
+        "description": "",
+        "filters": {},
+        "id": "aud-alpha-1",
+        "last_refresh_error": null,
+        "member_count": 1,
+        "name": "Hot accounts",
+        "next_refresh_at": null,
+        "refresh_enabled": true,
+        "refresh_health": "unverified",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": null,
+        "updated_at": "2026-08-29T10:00:00"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-08-27T08:30:00",
+        "description": "Empty filter: every lead",
+        "filters": {},
+        "id": "aud-act-2",
+        "last_refresh_error": null,
+        "member_count": 10,
+        "name": "Everyone",
+        "next_refresh_at": "2026-09-01T11:00:00",
+        "refresh_enabled": true,
+        "refresh_health": "unverified",
+        "refresh_interval_minutes": 120,
+        "refreshed_at": "2026-08-28T10:00:00",
+        "updated_at": "2026-08-28T10:00:00"
+      },
+      {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-08-27T08:00:00",
+        "description": "Dynamic Austin segment",
+        "filters": {
+          "city": "Austin",
+          "has_email": true,
+          "min_score": 50
+        },
+        "id": "aud-act-1",
+        "last_refresh_error": null,
+        "member_count": 2,
+        "name": "Austin hot leads",
+        "next_refresh_at": "2026-09-01T10:00:00",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-08-28T09:00:00",
+        "updated_at": "2026-08-28T09:00:00"
+      },
+      {
+        "consecutive_refresh_failures": 2,
+        "created_at": "2026-08-27T09:00:00",
+        "description": "Refresh disabled",
+        "filters": {
+          "has_phone": true,
+          "status": "qualified"
+        },
+        "id": "aud-act-3",
+        "last_refresh_error": "OperationalError: connection refused",
+        "member_count": 0,
+        "name": "Paused qualified",
+        "next_refresh_at": null,
+        "refresh_enabled": false,
+        "refresh_health": "degraded",
+        "refresh_interval_minutes": 1440,
+        "refreshed_at": null,
+        "updated_at": "2026-08-27T09:00:00"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

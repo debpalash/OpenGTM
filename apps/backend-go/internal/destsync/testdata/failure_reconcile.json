@@ -1,0 +1,4679 @@
+{
+  "note": "reconcile_destination_job_failure(job_id, payload, error, will_retry) at the frozen clock 2026-08-29T10:40:00Z. message = str(error or 'destination sync attempt failed')[:1000]. Terminal runs (completed, completed_with_errors, failed, cancelled) and unknown runs: nothing. cancelling: _finish_cancelled (pending/in_flight deliveries -> cancelled 'Run cancelled before delivery', counters from the ledger, run cancelled 'Cancellation completed', last_success_at when any succeeded). retry: run pending, error 'Queue retry scheduled: <msg>', finished_at NULL, in_flight deliveries -> pending with that error. final: run failed 'Final failure: <msg>' (may exceed 1000 chars by the prefix), pending/in_flight deliveries -> failed with that error, counters recomputed (attempted = attempts>0), destination degraded with last_error = run.error. Payload ids are strip()-ed; empty ones raise ValueError.",
+  "cases": [
+    {
+      "name": "retry_running_mixed_deliveries",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "worker killed",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "pending",
+            "error": "Queue retry scheduled: worker killed",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 1,
+            "error": "Queue retry scheduled: worker killed"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "retry_pending_run",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "worker killed",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "pending",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "pending",
+            "error": "Queue retry scheduled: worker killed",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 1,
+            "error": "Queue retry scheduled: worker killed"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "retry_error_none",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": null,
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "pending",
+            "error": "Queue retry scheduled: destination sync attempt failed",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 1,
+            "error": "Queue retry scheduled: destination sync attempt failed"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "retry_error_empty",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "pending",
+            "error": "Queue retry scheduled: destination sync attempt failed",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 1,
+            "error": "Queue retry scheduled: destination sync attempt failed"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "retry_error_1200_chars",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "pending",
+            "error": "Queue retry scheduled: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 1,
+            "error": "Queue retry scheduled: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "retry_error_unicode",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "échec 東京",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "pending",
+            "error": "Queue retry scheduled: échec 東京",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 1,
+            "error": "Queue retry scheduled: échec 東京"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "retry_no_deliveries",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "pending",
+            "error": "Queue retry scheduled: x",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "retry_destination_missing",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": null
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "pending",
+            "error": "Queue retry scheduled: x",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 1,
+            "error": "Queue retry scheduled: x"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": null
+      }
+    },
+    {
+      "name": "retry_cancelling_run_finishes_cancelled",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "cancelling",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "cancelled",
+            "error": "Cancellation completed",
+            "attempted": 4,
+            "succeeded": 1,
+            "failed": 1,
+            "skipped": 1,
+            "finished_at": "2026-08-29T10:40:00"
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": "Run cancelled before delivery"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 0,
+            "error": "Run cancelled before delivery"
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": "2026-08-29T10:40:00"
+        }
+      }
+    },
+    {
+      "name": "retry_terminal_completed_ignored",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "completed",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "completed",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "retry_terminal_completed_with_errors_ignored",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "completed_with_errors",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "completed_with_errors",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "retry_terminal_failed_ignored",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "failed",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "pending",
+            "error": "Queue retry scheduled: x",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 1,
+            "error": "Queue retry scheduled: x"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "retry_terminal_cancelled_ignored",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "cancelled",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "cancelled",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "retry_run_missing",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "retry_other_workspace",
+      "payload": {
+        "workspace_id": "ws-other",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "final_running_mixed_deliveries",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "worker killed",
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "failed",
+            "error": "Final failure: worker killed",
+            "attempted": 4,
+            "succeeded": 1,
+            "failed": 3,
+            "skipped": 1,
+            "finished_at": "2026-08-29T10:40:00"
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 1,
+            "error": "Final failure: worker killed"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 0,
+            "error": "Final failure: worker killed"
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "Final failure: worker killed",
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "final_pending_run",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "worker killed",
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "pending",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "failed",
+            "error": "Final failure: worker killed",
+            "attempted": 4,
+            "succeeded": 1,
+            "failed": 3,
+            "skipped": 1,
+            "finished_at": "2026-08-29T10:40:00"
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 1,
+            "error": "Final failure: worker killed"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 0,
+            "error": "Final failure: worker killed"
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "Final failure: worker killed",
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "final_error_none",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": null,
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "failed",
+            "error": "Final failure: destination sync attempt failed",
+            "attempted": 4,
+            "succeeded": 1,
+            "failed": 3,
+            "skipped": 1,
+            "finished_at": "2026-08-29T10:40:00"
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 1,
+            "error": "Final failure: destination sync attempt failed"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 0,
+            "error": "Final failure: destination sync attempt failed"
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "Final failure: destination sync attempt failed",
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "final_error_empty",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "",
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "failed",
+            "error": "Final failure: destination sync attempt failed",
+            "attempted": 4,
+            "succeeded": 1,
+            "failed": 3,
+            "skipped": 1,
+            "finished_at": "2026-08-29T10:40:00"
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 1,
+            "error": "Final failure: destination sync attempt failed"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 0,
+            "error": "Final failure: destination sync attempt failed"
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "Final failure: destination sync attempt failed",
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "final_error_1200_chars",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "failed",
+            "error": "Final failure: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "attempted": 4,
+            "succeeded": 1,
+            "failed": 3,
+            "skipped": 1,
+            "finished_at": "2026-08-29T10:40:00"
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 1,
+            "error": "Final failure: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 0,
+            "error": "Final failure: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "Final failure: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "final_error_unicode",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "échec 東京",
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "failed",
+            "error": "Final failure: échec 東京",
+            "attempted": 4,
+            "succeeded": 1,
+            "failed": 3,
+            "skipped": 1,
+            "finished_at": "2026-08-29T10:40:00"
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 1,
+            "error": "Final failure: échec 東京"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 0,
+            "error": "Final failure: échec 東京"
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "Final failure: échec 東京",
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "final_no_deliveries",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "failed",
+            "error": "Final failure: x",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": "2026-08-29T10:40:00"
+          }
+        ],
+        "deliveries": [],
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "Final failure: x",
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "final_destination_missing",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": null
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "failed",
+            "error": "Final failure: x",
+            "attempted": 4,
+            "succeeded": 1,
+            "failed": 3,
+            "skipped": 1,
+            "finished_at": "2026-08-29T10:40:00"
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 1,
+            "error": "Final failure: x"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 0,
+            "error": "Final failure: x"
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": null
+      }
+    },
+    {
+      "name": "final_cancelling_run_finishes_cancelled",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "cancelling",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "cancelled",
+            "error": "Cancellation completed",
+            "attempted": 4,
+            "succeeded": 1,
+            "failed": 1,
+            "skipped": 1,
+            "finished_at": "2026-08-29T10:40:00"
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": "Run cancelled before delivery"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 0,
+            "error": "Run cancelled before delivery"
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": "2026-08-29T10:40:00"
+        }
+      }
+    },
+    {
+      "name": "final_terminal_completed_ignored",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "completed",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "completed",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "final_terminal_completed_with_errors_ignored",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "completed_with_errors",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "completed_with_errors",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "final_terminal_failed_ignored",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "failed",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "failed",
+            "error": "Final failure: x",
+            "attempted": 4,
+            "succeeded": 1,
+            "failed": 3,
+            "skipped": 1,
+            "finished_at": "2026-08-29T10:40:00"
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 1,
+            "error": "Final failure: x"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 0,
+            "error": "Final failure: x"
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "Final failure: x",
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "final_terminal_cancelled_ignored",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "cancelled",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "cancelled",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "final_run_missing",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": false,
+      "before": {
+        "runs": [],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "final_other_workspace",
+      "payload": {
+        "workspace_id": "ws-other",
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": false,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "payload_invalid_0",
+      "payload": {},
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": {
+        "type": "ValueError",
+        "message": "destination failure payload requires workspace_id and run_id"
+      },
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "payload_invalid_1",
+      "payload": {
+        "workspace_id": "ws-vec"
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": {
+        "type": "ValueError",
+        "message": "destination failure payload requires workspace_id and run_id"
+      },
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "payload_invalid_2",
+      "payload": {
+        "run_id": "run-1"
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": {
+        "type": "ValueError",
+        "message": "destination failure payload requires workspace_id and run_id"
+      },
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "payload_invalid_3",
+      "payload": {
+        "workspace_id": "  ",
+        "run_id": " "
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": {
+        "type": "ValueError",
+        "message": "destination failure payload requires workspace_id and run_id"
+      },
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "payload_invalid_4",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "run_id": null
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": {
+        "type": "ValueError",
+        "message": "destination failure payload requires workspace_id and run_id"
+      },
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    },
+    {
+      "name": "payload_ids_stripped",
+      "payload": {
+        "workspace_id": " ws-vec ",
+        "run_id": " run-1 "
+      },
+      "error": "x",
+      "will_retry": true,
+      "before": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "running",
+            "error": "old",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "in_flight",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      },
+      "raises": null,
+      "after": {
+        "runs": [
+          {
+            "id": "run-1",
+            "status": "pending",
+            "error": "Queue retry scheduled: x",
+            "attempted": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "skipped": 0,
+            "finished_at": null
+          }
+        ],
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "status": "success",
+            "attempts": 1,
+            "error": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 1,
+            "error": "Queue retry scheduled: x"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "status": "pending",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 4,
+            "run_id": "run-1",
+            "status": "failed",
+            "attempts": 2,
+            "error": null
+          },
+          {
+            "id": 5,
+            "run_id": "run-1",
+            "status": "skipped",
+            "attempts": 0,
+            "error": null
+          },
+          {
+            "id": 6,
+            "run_id": "run-1",
+            "status": "cancelled",
+            "attempts": 1,
+            "error": null
+          }
+        ],
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": null
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": {
+      "name": "x"
+    },
+    "headers": {},
+    "method": "PATCH",
+    "path": "/api/audience-destinations/dst-act-slack"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "method": "patch",
+        "url": "http://h.example.test"
+      },
+      "destination_type": "webhook",
+      "name": "wh lower ok"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "method": "patch",
+        "url": "http://h.example.test"
+      },
+      "created_at": "2026-10-26T17:05:48.760288",
+      "destination_type": "webhook",
+      "enabled": true,
+      "field_map": {},
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002109",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "wh lower ok",
+      "updated_at": "2026-10-26T17:05:48.760288"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

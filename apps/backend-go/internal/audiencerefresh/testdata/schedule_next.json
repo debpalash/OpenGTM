@@ -1,0 +1,1326 @@
+{
+  "note": "schedule_next(db, audience, now=...): cancels pending 'audience_refresh:<id>:%' jobs (LIKE prefix, status pending only), then, when refresh_enabled, minutes = max(15, min(int(interval or 60), 10080)), next_at = now + minutes, fire_key 'audience_refresh:<id>:<next_at isoformat>' (aware -> '+00:00'), enqueue_job_once (dedupes on an ACTIVE job with the same fire_key; payload gains 'fire_key'; executor from audience_refresh_executor; priority 1, max_retries 3, workspace_id NULL on the job row), audience.next_refresh_at and the audience_schedules mirror (upsert) get next_at (naive in storage). Disabled: next_refresh_at NULL, mirror enabled False.",
+  "cases": [
+    {
+      "name": "interval_60",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T11:40:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T11:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T11:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "interval_15",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 15
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T10:55:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T10:55:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:55:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T10:55:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:55:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:55:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "interval_14",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 14
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T10:55:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T10:55:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:55:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T10:55:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:55:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:55:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "interval_1",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 1
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T10:55:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T10:55:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:55:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T10:55:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:55:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:55:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "interval_0",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 0
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T11:40:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T11:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T11:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "interval_None",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": null
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T11:40:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T11:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T11:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "interval_10080",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 10080
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-09-05T10:40:00+00:00",
+      "audience_next_refresh_at": "2026-09-05T10:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-09-05T10:40:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-09-05T10:40:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-09-05T10:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-09-05T10:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "interval_10081",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 10081
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-09-05T10:40:00+00:00",
+      "audience_next_refresh_at": "2026-09-05T10:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-09-05T10:40:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-09-05T10:40:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-09-05T10:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-09-05T10:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "interval_99999",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 99999
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-09-05T10:40:00+00:00",
+      "audience_next_refresh_at": "2026-09-05T10:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-09-05T10:40:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-09-05T10:40:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-09-05T10:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-09-05T10:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "interval_-5",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": -5
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T10:55:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T10:55:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:55:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T10:55:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:55:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:55:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "interval_'30'",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": "30"
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T11:10:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T11:10:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:10:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:10:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T11:10:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:10:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "interval_'abc'",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": "abc"
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "raises": "ValueError: invalid literal for int() with base 10: 'abc'",
+      "audience_next_refresh_at": "2026-01-01T00:00:00",
+      "jobs_after": [],
+      "schedule_after": []
+    },
+    {
+      "name": "interval_30.7",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 30.7
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T11:10:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T11:10:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:10:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:10:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T11:10:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:10:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "interval_True",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": true
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T10:55:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T10:55:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:55:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T10:55:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:55:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:55:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "enabled_false_clears",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": false,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": null,
+      "audience_next_refresh_at": null,
+      "jobs_after": [],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": null,
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "name": "enabled_false_cancels_pending_only",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": false,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1:2026-01-01T00:00:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        },
+        {
+          "id": 2,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1:2026-02-01T00:00:00+00:00",
+          "status": "processing",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        },
+        {
+          "id": 3,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1:2026-03-01T00:00:00+00:00",
+          "status": "completed",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        },
+        {
+          "id": 4,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-2:2026-03-01T00:00:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        }
+      ],
+      "mirror_before_exists": true,
+      "returned": null,
+      "audience_next_refresh_at": null,
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1:2026-01-01T00:00:00+00:00",
+          "status": "cancelled",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        },
+        {
+          "id": 2,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1:2026-02-01T00:00:00+00:00",
+          "status": "processing",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        },
+        {
+          "id": 3,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1:2026-03-01T00:00:00+00:00",
+          "status": "completed",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        },
+        {
+          "id": 4,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-2:2026-03-01T00:00:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": null,
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "name": "enabled_cancels_previous_pending_then_enqueues",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1:2026-01-01T00:00:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        }
+      ],
+      "mirror_before_exists": true,
+      "returned": "2026-08-29T11:40:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T11:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1:2026-01-01T00:00:00+00:00",
+          "status": "cancelled",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        },
+        {
+          "id": 2,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T11:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "existing_active_same_fire_key_is_deduplicated",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+          "status": "processing",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        }
+      ],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T11:40:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T11:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+          "status": "processing",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "existing_pending_same_fire_key_is_cancelled_first",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        }
+      ],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T11:40:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T11:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+          "status": "cancelled",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        },
+        {
+          "id": 2,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T11:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "other_audience_pending_untouched",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-10:2026-01-01T00:00:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        }
+      ],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T11:40:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T11:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-10:2026-01-01T00:00:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        },
+        {
+          "id": 2,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T11:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "like_prefix_does_not_overmatch",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1x:2026-01-01T00:00:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        }
+      ],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T11:40:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T11:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:aud-1x:2026-01-01T00:00:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        },
+        {
+          "id": 2,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T11:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "go_executor",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "go",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T11:40:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T11:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+          "status": "pending",
+          "executor": "go",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T11:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "microseconds_in_now",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T10:40:00.123456+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T11:40:00.123456+00:00",
+      "audience_next_refresh_at": "2026-08-29T11:40:00.123456",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00.123456+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00.123456+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T11:40:00.123456",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:40:00.123456",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "now_with_offset",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T16:10:00+05:30",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T17:10:00+05:30",
+      "audience_next_refresh_at": "2026-08-29T17:10:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T17:10:00+05:30"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T17:10:00+05:30",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T17:10:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T17:10:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "now_near_midnight_rollover",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-12-31T23:30:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2027-01-01T00:30:00+00:00",
+      "audience_next_refresh_at": "2027-01-01T00:30:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2027-01-01T00:30:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2027-01-01T00:30:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2027-01-01T00:30:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2027-01-01T00:30:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "interval_week",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 10080
+      },
+      "now": "2026-02-21T12:00:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-02-28T12:00:00+00:00",
+      "audience_next_refresh_at": "2026-02-28T12:00:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-02-28T12:00:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-02-28T12:00:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-02-28T12:00:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-02-28T12:00:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "mirror_exists_is_updated",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": true,
+      "returned": "2026-08-29T11:40:00+00:00",
+      "audience_next_refresh_at": "2026-08-29T11:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T11:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "mirror_enabled_flag_follows_audience",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": false,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T10:40:00+00:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": true,
+      "returned": null,
+      "audience_next_refresh_at": null,
+      "jobs_after": [],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": null,
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "name": "now_naive_utc_clock",
+      "audience": {
+        "id": "aud-1",
+        "workspace_id": "ws-vec",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60
+      },
+      "now": "2026-08-29T10:40:00",
+      "executor": "python",
+      "jobs_before": [],
+      "mirror_before_exists": false,
+      "returned": "2026-08-29T11:40:00",
+      "audience_next_refresh_at": "2026-08-29T11:40:00",
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "aud-1",
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00"
+          },
+          "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T11:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "aud-1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "enabled": true
+        }
+      ]
+    }
+  ]
+}

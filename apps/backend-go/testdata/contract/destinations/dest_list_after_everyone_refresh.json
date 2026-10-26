@@ -1,0 +1,372 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations?audience_id=aud-act-2"
+  },
+  "response": {
+    "body": [
+      {
+        "audience_id": "aud-act-2",
+        "config": {
+          "message_template": "New audience member: {company} {email}",
+          "webhook_secret_ref": "SLACK_WEBHOOK"
+        },
+        "created_at": "2026-08-27T10:11:00",
+        "destination_type": "slack",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "dst-act-slack",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": {
+          "attempted": 0,
+          "created_at": "2026-10-26T17:05:54.576209",
+          "destination_id": "dst-act-slack",
+          "error": null,
+          "failed": 0,
+          "finished_at": null,
+          "id": "00000000-0000-4000-8000-000000002140",
+          "skipped": 0,
+          "started_at": null,
+          "status": "pending",
+          "succeeded": 0
+        },
+        "name": "slack destination",
+        "updated_at": "2026-08-28T12:11:00"
+      },
+      {
+        "audience_id": "aud-act-2",
+        "config": {
+          "base_id": "appContract001",
+          "idempotency_field": "OpenGTM ID",
+          "table": "Leads",
+          "typecast": true
+        },
+        "created_at": "2026-08-27T10:10:00",
+        "destination_type": "airtable",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "dst-act-airtable",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": {
+          "attempted": 0,
+          "created_at": "2026-10-26T17:05:54.568706",
+          "destination_id": "dst-act-airtable",
+          "error": null,
+          "failed": 0,
+          "finished_at": null,
+          "id": "00000000-0000-4000-8000-000000002139",
+          "skipped": 0,
+          "started_at": null,
+          "status": "pending",
+          "succeeded": 0
+        },
+        "name": "airtable destination",
+        "updated_at": "2026-08-28T12:10:00"
+      },
+      {
+        "audience_id": "aud-act-2",
+        "config": {
+          "columns": [
+            "company",
+            "email",
+            "city",
+            "score"
+          ],
+          "range": "Sheet1!A:D",
+          "spreadsheet_id": "sheet-contract-001"
+        },
+        "created_at": "2026-08-27T10:09:00",
+        "destination_type": "google_sheets",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "dst-act-google_sheets",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": {
+          "attempted": 0,
+          "created_at": "2026-10-26T17:05:54.560953",
+          "destination_id": "dst-act-google_sheets",
+          "error": null,
+          "failed": 0,
+          "finished_at": null,
+          "id": "00000000-0000-4000-8000-000000002138",
+          "skipped": 0,
+          "started_at": null,
+          "status": "pending",
+          "succeeded": 0
+        },
+        "name": "google_sheets destination",
+        "updated_at": "2026-08-28T12:09:00"
+      },
+      {
+        "audience_id": "aud-act-2",
+        "config": {
+          "campaign_id": "4242",
+          "settings": {
+            "ignore_global_block_list": false
+          }
+        },
+        "created_at": "2026-08-27T10:08:00",
+        "destination_type": "smartlead",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "dst-act-smartlead",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": {
+          "attempted": 0,
+          "created_at": "2026-10-26T17:05:53.447892",
+          "destination_id": "dst-act-smartlead",
+          "error": null,
+          "failed": 0,
+          "finished_at": null,
+          "id": "00000000-0000-4000-8000-000000002133",
+          "skipped": 0,
+          "started_at": null,
+          "status": "pending",
+          "succeeded": 0
+        },
+        "name": "smartlead destination",
+        "updated_at": "2026-08-28T12:08:00"
+      },
+      {
+        "audience_id": "aud-act-2",
+        "config": {
+          "campaign_id": "camp-instantly-001",
+          "skip_if_in_campaign": true
+        },
+        "created_at": "2026-08-27T10:07:00",
+        "destination_type": "instantly",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "dst-act-instantly",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": {
+          "attempted": 0,
+          "created_at": "2026-10-26T17:05:54.552597",
+          "destination_id": "dst-act-instantly",
+          "error": null,
+          "failed": 0,
+          "finished_at": null,
+          "id": "00000000-0000-4000-8000-000000002137",
+          "skipped": 0,
+          "started_at": null,
+          "status": "pending",
+          "succeeded": 0
+        },
+        "name": "instantly destination",
+        "updated_at": "2026-08-28T12:07:00"
+      },
+      {
+        "audience_id": "aud-act-2",
+        "config": {
+          "consent_attested": true,
+          "consent_source": "web form v3",
+          "segment_id": "41234567"
+        },
+        "created_at": "2026-08-27T10:06:00",
+        "destination_type": "linkedin_ads",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "dst-act-linkedin_ads",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": {
+          "attempted": 0,
+          "created_at": "2026-10-26T17:05:53.478361",
+          "destination_id": "dst-act-linkedin_ads",
+          "error": null,
+          "failed": 0,
+          "finished_at": null,
+          "id": "00000000-0000-4000-8000-000000002134",
+          "skipped": 0,
+          "started_at": null,
+          "status": "pending",
+          "succeeded": 0
+        },
+        "name": "linkedin_ads destination",
+        "updated_at": "2026-08-28T12:06:00"
+      },
+      {
+        "audience_id": "aud-act-2",
+        "config": {
+          "consent_attested": true,
+          "consent_source": "web form v3",
+          "customer_id": "1234567890",
+          "login_customer_id": "5550001111",
+          "user_list_id": "9876543210"
+        },
+        "created_at": "2026-08-27T10:05:00",
+        "destination_type": "google_ads",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "dst-act-google_ads",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": {
+          "attempted": 0,
+          "created_at": "2026-10-26T17:05:54.539959",
+          "destination_id": "dst-act-google_ads",
+          "error": null,
+          "failed": 0,
+          "finished_at": null,
+          "id": "00000000-0000-4000-8000-000000002136",
+          "skipped": 0,
+          "started_at": null,
+          "status": "pending",
+          "succeeded": 0
+        },
+        "name": "google_ads destination",
+        "updated_at": "2026-08-28T12:05:00"
+      },
+      {
+        "audience_id": "aud-act-2",
+        "config": {
+          "api_version": "v23.0",
+          "consent_attested": true,
+          "consent_source": "web form v3",
+          "custom_audience_id": "6001234567890"
+        },
+        "created_at": "2026-08-27T10:04:00",
+        "destination_type": "meta_ads",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "dst-act-meta_ads",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": {
+          "attempted": 1,
+          "created_at": "2026-08-28T13:30:00",
+          "destination_id": "dst-act-meta_ads",
+          "error": "Cancellation requested",
+          "failed": 0,
+          "finished_at": null,
+          "id": "run-act-meta1",
+          "skipped": 0,
+          "started_at": "2026-08-28T13:30:00",
+          "status": "cancelling",
+          "succeeded": 0
+        },
+        "name": "meta_ads destination",
+        "updated_at": "2026-08-28T12:04:00"
+      },
+      {
+        "audience_id": "aud-act-2",
+        "config": {
+          "dataset": "opengtm_audience",
+          "header_name": "Authorization",
+          "header_secret_ref": "WAREHOUSE_AUTH",
+          "mode": "snapshot",
+          "url": "https://warehouse.example.test/ingest"
+        },
+        "created_at": "2026-08-27T10:03:00",
+        "destination_type": "warehouse_http",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "degraded",
+        "id": "dst-act-warehouse_http",
+        "last_error": "2 deliveries failed",
+        "last_success_at": null,
+        "latest_run": {
+          "attempted": 3,
+          "created_at": "2026-08-28T13:00:00",
+          "destination_id": "dst-act-warehouse_http",
+          "error": null,
+          "failed": 2,
+          "finished_at": null,
+          "id": "run-act-wh1",
+          "skipped": 0,
+          "started_at": "2026-08-28T13:00:00",
+          "status": "pending",
+          "succeeded": 1
+        },
+        "name": "warehouse_http destination",
+        "updated_at": "2026-08-28T12:03:00"
+      },
+      {
+        "audience_id": "aud-act-2",
+        "config": {
+          "inbound_conflict_policy": "fill_missing"
+        },
+        "created_at": "2026-08-27T10:01:00",
+        "destination_type": "hubspot",
+        "enabled": true,
+        "field_map": {
+          "company": "name",
+          "contact_title": "jobtitle"
+        },
+        "health_status": "unverified",
+        "id": "dst-act-hubspot",
+        "last_error": null,
+        "last_success_at": "2026-08-28T11:00:00",
+        "latest_run": {
+          "attempted": 0,
+          "created_at": "2026-08-28T14:00:00",
+          "destination_id": "dst-act-hubspot",
+          "error": "Cancellation requested",
+          "failed": 0,
+          "finished_at": null,
+          "id": "run-act-hub2",
+          "skipped": 0,
+          "started_at": "2026-08-28T14:00:00",
+          "status": "cancelling",
+          "succeeded": 0
+        },
+        "name": "hubspot destination",
+        "updated_at": "2026-08-28T12:01:00"
+      },
+      {
+        "audience_id": "aud-act-2",
+        "config": {
+          "method": "POST",
+          "url": "https://hooks.example.test/audience"
+        },
+        "created_at": "2026-08-27T10:00:00",
+        "destination_type": "webhook",
+        "enabled": true,
+        "field_map": {
+          "company": "account_name",
+          "email": "email"
+        },
+        "health_status": "healthy",
+        "id": "dst-act-webhook",
+        "last_error": null,
+        "last_success_at": "2026-08-28T11:00:00",
+        "latest_run": {
+          "attempted": 3,
+          "created_at": "2026-08-28T10:00:00",
+          "destination_id": "dst-act-webhook",
+          "error": null,
+          "failed": 3,
+          "finished_at": null,
+          "id": "run-act-w6",
+          "skipped": 0,
+          "started_at": "2026-08-28T10:00:00",
+          "status": "pending",
+          "succeeded": 0
+        },
+        "name": "webhook destination",
+        "updated_at": "2026-08-28T12:00:00"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

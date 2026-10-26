@@ -1,0 +1,48 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "columns": [
+          "company",
+          "email"
+        ],
+        "spreadsheet_id": "sheet-new"
+      },
+      "destination_type": "google_sheets",
+      "field_map": {},
+      "name": "Created google_sheets"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "columns": [
+          "company",
+          "email"
+        ],
+        "spreadsheet_id": "sheet-new"
+      },
+      "created_at": "2026-10-26T17:05:47.769386",
+      "destination_type": "google_sheets",
+      "enabled": true,
+      "field_map": {},
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002089",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "Created google_sheets",
+      "updated_at": "2026-10-26T17:05:47.769386"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

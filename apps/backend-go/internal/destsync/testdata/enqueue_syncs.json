@@ -1,0 +1,548 @@
+{
+  "note": "enqueue_audience_syncs(db, workspace, audience): for every ENABLED destination of the audience without a pending/running/cancelling run, insert a run (status pending, requested_by 'audience_refresh', id = counter uuid 00000000-0000-4000-8000-0000000000NN, committed before the job) and queue_service.add_job('audience_destination_sync', {workspace_id, run_id}, fire_key 'destination_sync:<run>', executor from destination_executor(type, workspace)). Returns the number enqueued. The queue row carries workspace_id and priority 1.",
+  "cases": [
+    {
+      "name": "enabled_destinations_each_get_a_run",
+      "go_dest_types": [],
+      "destinations": [
+        {
+          "id": "d1",
+          "type": "webhook"
+        },
+        {
+          "id": "d2",
+          "type": "hubspot"
+        },
+        {
+          "id": "d3",
+          "type": "warehouse_http"
+        }
+      ],
+      "existing_runs": [],
+      "enqueued": 3,
+      "new_runs": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "destination_id": "d1",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000002",
+          "destination_id": "d2",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000003",
+          "destination_id": "d3",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        }
+      ],
+      "jobs": [
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000001"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000001",
+          "executor": "python",
+          "priority": 1
+        },
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000002"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000002",
+          "executor": "python",
+          "priority": 1
+        },
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000003"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000003",
+          "executor": "python",
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "name": "disabled_skipped",
+      "go_dest_types": [],
+      "destinations": [
+        {
+          "id": "d1",
+          "type": "webhook"
+        },
+        {
+          "id": "d2",
+          "type": "webhook",
+          "enabled": false
+        }
+      ],
+      "existing_runs": [],
+      "enqueued": 1,
+      "new_runs": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "destination_id": "d1",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        }
+      ],
+      "jobs": [
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000001"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000001",
+          "executor": "python",
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "name": "active_pending_run_skips",
+      "go_dest_types": [],
+      "destinations": [
+        {
+          "id": "d1",
+          "type": "webhook"
+        },
+        {
+          "id": "d2",
+          "type": "webhook"
+        }
+      ],
+      "existing_runs": [
+        {
+          "destination_id": "d1",
+          "status": "pending"
+        }
+      ],
+      "enqueued": 1,
+      "new_runs": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "destination_id": "d2",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        }
+      ],
+      "jobs": [
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000001"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000001",
+          "executor": "python",
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "name": "active_running_run_skips",
+      "go_dest_types": [],
+      "destinations": [
+        {
+          "id": "d1",
+          "type": "webhook"
+        },
+        {
+          "id": "d2",
+          "type": "webhook"
+        }
+      ],
+      "existing_runs": [
+        {
+          "destination_id": "d1",
+          "status": "running"
+        }
+      ],
+      "enqueued": 1,
+      "new_runs": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "destination_id": "d2",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        }
+      ],
+      "jobs": [
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000001"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000001",
+          "executor": "python",
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "name": "active_cancelling_run_skips",
+      "go_dest_types": [],
+      "destinations": [
+        {
+          "id": "d1",
+          "type": "webhook"
+        },
+        {
+          "id": "d2",
+          "type": "webhook"
+        }
+      ],
+      "existing_runs": [
+        {
+          "destination_id": "d1",
+          "status": "cancelling"
+        }
+      ],
+      "enqueued": 1,
+      "new_runs": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "destination_id": "d2",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        }
+      ],
+      "jobs": [
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000001"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000001",
+          "executor": "python",
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "name": "terminal_completed_run_does_not_skip",
+      "go_dest_types": [],
+      "destinations": [
+        {
+          "id": "d1",
+          "type": "webhook"
+        }
+      ],
+      "existing_runs": [
+        {
+          "destination_id": "d1",
+          "status": "completed"
+        }
+      ],
+      "enqueued": 1,
+      "new_runs": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "destination_id": "d1",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        }
+      ],
+      "jobs": [
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000001"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000001",
+          "executor": "python",
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "name": "terminal_completed_with_errors_run_does_not_skip",
+      "go_dest_types": [],
+      "destinations": [
+        {
+          "id": "d1",
+          "type": "webhook"
+        }
+      ],
+      "existing_runs": [
+        {
+          "destination_id": "d1",
+          "status": "completed_with_errors"
+        }
+      ],
+      "enqueued": 1,
+      "new_runs": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "destination_id": "d1",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        }
+      ],
+      "jobs": [
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000001"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000001",
+          "executor": "python",
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "name": "terminal_failed_run_does_not_skip",
+      "go_dest_types": [],
+      "destinations": [
+        {
+          "id": "d1",
+          "type": "webhook"
+        }
+      ],
+      "existing_runs": [
+        {
+          "destination_id": "d1",
+          "status": "failed"
+        }
+      ],
+      "enqueued": 1,
+      "new_runs": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "destination_id": "d1",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        }
+      ],
+      "jobs": [
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000001"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000001",
+          "executor": "python",
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "name": "terminal_cancelled_run_does_not_skip",
+      "go_dest_types": [],
+      "destinations": [
+        {
+          "id": "d1",
+          "type": "webhook"
+        }
+      ],
+      "existing_runs": [
+        {
+          "destination_id": "d1",
+          "status": "cancelled"
+        }
+      ],
+      "enqueued": 1,
+      "new_runs": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "destination_id": "d1",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        }
+      ],
+      "jobs": [
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000001"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000001",
+          "executor": "python",
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "name": "other_audience_and_workspace_ignored",
+      "go_dest_types": [],
+      "destinations": [
+        {
+          "id": "d1",
+          "type": "webhook"
+        },
+        {
+          "id": "d2",
+          "type": "webhook",
+          "audience_id": "aud-2"
+        },
+        {
+          "id": "d3",
+          "type": "webhook",
+          "workspace_id": "ws-other"
+        }
+      ],
+      "existing_runs": [],
+      "enqueued": 1,
+      "new_runs": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "destination_id": "d1",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        }
+      ],
+      "jobs": [
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000001"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000001",
+          "executor": "python",
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "name": "go_executor_routing_by_type",
+      "go_dest_types": [
+        "slack",
+        "meta_ads"
+      ],
+      "destinations": [
+        {
+          "id": "d1",
+          "type": "webhook"
+        },
+        {
+          "id": "d2",
+          "type": "slack"
+        },
+        {
+          "id": "d3",
+          "type": "meta_ads"
+        }
+      ],
+      "existing_runs": [],
+      "enqueued": 3,
+      "new_runs": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "destination_id": "d1",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000002",
+          "destination_id": "d2",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000003",
+          "destination_id": "d3",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        }
+      ],
+      "jobs": [
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000001"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000001",
+          "executor": "python",
+          "priority": 1
+        },
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000002"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000002",
+          "executor": "go",
+          "priority": 1
+        },
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000003"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000003",
+          "executor": "go",
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "name": "no_destinations",
+      "go_dest_types": [],
+      "destinations": [],
+      "existing_runs": [],
+      "enqueued": 0,
+      "new_runs": [],
+      "jobs": []
+    },
+    {
+      "name": "active_run_on_other_destination_irrelevant",
+      "go_dest_types": [],
+      "destinations": [
+        {
+          "id": "d1",
+          "type": "webhook"
+        }
+      ],
+      "existing_runs": [
+        {
+          "destination_id": "d2",
+          "status": "running"
+        }
+      ],
+      "enqueued": 1,
+      "new_runs": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "destination_id": "d1",
+          "status": "pending",
+          "requested_by": "audience_refresh"
+        }
+      ],
+      "jobs": [
+        {
+          "type": "audience_destination_sync",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "run_id": "00000000-0000-4000-8000-000000000001"
+          },
+          "fire_key": "destination_sync:00000000-0000-4000-8000-000000000001",
+          "executor": "python",
+          "priority": 1
+        }
+      ]
+    }
+  ]
+}

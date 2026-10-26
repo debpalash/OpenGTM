@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "mode": "append",
+        "url": "https://w.example.test"
+      },
+      "destination_type": "warehouse_http",
+      "name": "cfg 21"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "warehouse mode must be snapshot or upsert"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

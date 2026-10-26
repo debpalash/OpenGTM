@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences/aud-beta-act/refresh"
+  },
+  "response": {
+    "body": {
+      "audience": {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-08-27T09:30:00",
+        "description": "",
+        "filters": {
+          "source": "contract"
+        },
+        "id": "aud-beta-act",
+        "last_refresh_error": null,
+        "member_count": 3,
+        "name": "Beta CRM audience",
+        "next_refresh_at": "2026-09-01T12:00:00",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:47.271140",
+        "updated_at": "2026-10-26T17:05:47.262456"
+      },
+      "changed": 1,
+      "entered": 2,
+      "exited": 0,
+      "unchanged": 0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

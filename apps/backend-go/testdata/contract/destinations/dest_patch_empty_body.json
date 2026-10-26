@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/audience-destinations/00000000-0000-4000-8000-000000002080"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "method": "POST",
+        "url": "https://hooks.example.test/changed"
+      },
+      "created_at": "2026-10-26T17:05:47.540367",
+      "destination_type": "webhook",
+      "enabled": false,
+      "field_map": {
+        "email": "e"
+      },
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002080",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "Renamed webhook",
+      "updated_at": "2026-10-26T17:05:49.971444"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

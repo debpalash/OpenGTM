@@ -1,0 +1,54 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-beta-act/accounts"
+  },
+  "response": {
+    "body": {
+      "accounts": [
+        {
+          "avg_score": 70.0,
+          "company": "Zenith Robotics Pvt Ltd",
+          "contacts": 1,
+          "decision_makers": 1,
+          "email_coverage_pct": 100,
+          "key": "zenithrobotics.example.com",
+          "phone_coverage_pct": 0,
+          "profiles": [
+            {
+              "email": "beta@zenithrobotics.example.com",
+              "lead_id": 17,
+              "name": "Lead 17",
+              "title": "Director"
+            }
+          ],
+          "signal_count": 3,
+          "signal_weight": 23,
+          "website": "https://zenithrobotics.example.com",
+          "with_email": 1,
+          "with_phone": 0
+        }
+      ],
+      "pagination": {
+        "limit": 50,
+        "next_offset": null,
+        "offset": 0,
+        "total": 1
+      },
+      "summary": {
+        "account_count": 1,
+        "accounts_with_decision_makers": 1,
+        "accounts_with_signals": 1,
+        "contact_count": 1
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

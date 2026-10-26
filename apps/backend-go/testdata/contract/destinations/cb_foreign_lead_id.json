@@ -1,0 +1,37 @@
+{
+  "request": {
+    "body": {
+      "external_event_id": "evt-cb-7",
+      "fields": {
+        "jobtitle": "X"
+      },
+      "lead_id": 17
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations/inbound/dst-act-hubspot"
+  },
+  "response": {
+    "body": {
+      "applied_fields": [],
+      "conflict_policy": "fill_missing",
+      "created_at": "2026-10-26T17:05:52.361098",
+      "destination_id": "dst-act-hubspot",
+      "error": "No workspace lead matched the callback",
+      "external_event_id": "evt-cb-7",
+      "external_record_id": null,
+      "id": "00000000-0000-4000-8000-000000002120",
+      "ignored_fields": [],
+      "lead_id": 17,
+      "provider": "hubspot",
+      "replay": false,
+      "status": "unmatched"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

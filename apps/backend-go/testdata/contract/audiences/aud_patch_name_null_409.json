@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "name": null
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/audiences/00000000-0000-4000-8000-000000002006"
+  },
+  "response": {
+    "body": {
+      "detail": "An audience with this name already exists"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}
