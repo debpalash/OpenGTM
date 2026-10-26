@@ -58,8 +58,8 @@ func TestDumpsKeyOrderPreserved(t *testing.T) {
 }
 
 func TestDumpsEnsureASCIISurrogates(t *testing.T) {
-	got, err := Dumps("é😀 \x7f\x01", 0)
-	if err != nil || string(got) != `"é😀 \u007f\u0001"` {
+	got, err := Dumps("\u00e9\U0001F600\u2028\x7f\x01", 0)
+	if err != nil || string(got) != `"\u00e9\ud83d\ude00\u2028\u007f\u0001"` {
 		t.Fatalf("%q %v", got, err)
 	}
 	if _, err := Dumps("bad\xff", 0); err == nil {
