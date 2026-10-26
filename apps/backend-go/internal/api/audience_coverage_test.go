@@ -301,7 +301,7 @@ func TestEveryDestinationTypeHasDriverOrPort(t *testing.T) {
 		t.Errorf("native types must validate without ports: %v", err)
 	}
 	if err := none.ValidateTypes([]string{"slack"}); err == nil {
-		t.Error("a configured-but-unwired type must be a startup error, not a silent fallback")
+		t.Error("ValidateTypes must reject a type without a wired port (the worker warns and hands those rows back; it does not call this at boot)")
 	}
 }
 
