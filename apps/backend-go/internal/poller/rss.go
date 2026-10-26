@@ -65,6 +65,7 @@ type xnode struct {
 	local string
 	attrs map[string]string // un-prefixed attributes only (ET keys prefixed ones as {ns}name)
 	text  string
+	tb    *strings.Builder
 	kids  []*xnode
 }
 
@@ -93,6 +94,7 @@ func parseTree(src []byte) (*xnode, error) {
 		}
 		switch t := tok.(type) {
 		case xml.Directive:
+			var budget int64
 			for _, m := range entityDeclRE.FindAllSubmatch(t, 64) {
 				val := string(m[2])
 				if len(m[3]) > 0 {
@@ -100,6 +102,12 @@ func parseTree(src []byte) (*xnode, error) {
 				}
 				if len(val) <= 4096 {
 					dec.Entity[string(m[1])] = val
+					// the decoder expands references before we see the token, so
+					// bound the total expansion up front from the raw reference count
+					budget += int64(bytes.Count(src, []byte("&"+string(m[1])+";"))) * int64(len(val))
+					if budget > maxEntityExpansion {
+						return nil, errors.New("entity expansion too large")
+					}
 				}
 			}
 		case xml.StartElement:
@@ -126,6 +134,9 @@ func parseTree(src []byte) (*xnode, error) {
 				p.kids = append(p.kids, n)
 			}
 			stack = append(stack, n)
+			if len(stack) > maxFeedDepth {
+				return nil, errors.New("feed nested too deeply")
+			}
 		case xml.EndElement:
 			stack = stack[:len(stack)-1]
 		case xml.CharData:
@@ -136,10 +147,26 @@ func parseTree(src []byte) (*xnode, error) {
 				continue
 			}
 			p := stack[len(stack)-1]
-			if len(p.kids) == 0 { // ET .text is only the text before the first child
-				p.text += string(t)
+			if len(p.kids) == 0 && (p.tb == nil || p.tb.Len() < maxNodeText) { // ET .text is only the text before the first child
+				if p.tb == nil {
+					p.tb = &strings.Builder{}
+				}
+				room := maxNodeText - p.tb.Len()
+				if len(t) > room {
+					t = t[:room]
+				}
+				p.tb.Write(t)
 			}
 		}
+	}
+	if root != nil {
+		root.walk(func(n *xnode) bool {
+			if n.tb != nil {
+				n.text = strings.ToValidUTF8(n.tb.String(), "\ufffd")
+				n.tb = nil
+			}
+			return true
+		})
 	}
 	if root == nil || len(stack) != 0 {
 		return nil, errors.New("no element found")
