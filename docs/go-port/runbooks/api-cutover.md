@@ -23,8 +23,14 @@ http-level only, so it lives in its own file. Responses on Go-eligible routes ca
    members from PostgreSQL; Go must not serve traffic before Python runs on Postgres.
 2. **Migrate before starting api-go.** The Go schema gate is an exact match on Alembic head
    `e1f5a9b3d7c2`; api-go refuses to start on any other revision. Run the Python migration first.
-3. `SECRET_KEY` identical on `api` and `api-go` (tokens must cross over), not the insecure default
-   outside dev `APP_ENV`.
+3. `SECRET_KEY` identical on `api` and `api-go` (tokens must cross over). api-go refuses to start when
+   `SECRET_KEY` is empty, the insecure default, or shorter than 32 bytes, unless `APP_ENV` is EXPLICITLY a
+   dev value (`dev`, `development`, `test`, `testing`, `local`). An unset `APP_ENV` counts as non-dev
+   (fail closed; Python treats it as dev), so set `APP_ENV` on the `api-go` service.
+   `MCP_TOKEN_TTL_DAYS=0` (or negative) is accepted and means MCP tokens never expire, as in Python.
+   `DATABASE_URL` must use a non-superuser, NOBYPASSRLS role: api-go queries `pg_roles` at startup and
+   refuses to start otherwise (`PG_RLS_REQUIRE_SAFE_ROLE=false` downgrades it to a CRITICAL log, same as
+   Python; not recommended).
 4. The two nginx mounts below are ALREADY in `docker-compose.yml` (nginx would not start without them, since `default.conf` includes both files). The `api-go` service is not added yet; use this snippet:
 
 ```yaml
@@ -44,7 +50,7 @@ http-level only, so it lives in its own file. Responses on Go-eligible routes ca
       APP_ENV: ${APP_ENV}
     depends_on: *same-as-api             # copy the `api` service's depends_on (db, migrations)
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8000/healthz"]
+      test: ["CMD", "/api", "-healthcheck"]   # distroless: no wget/shell; checks 127.0.0.1:<port of API_ADDR>/healthz
 ```
 
 ## Canary ramp
