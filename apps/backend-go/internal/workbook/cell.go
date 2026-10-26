@@ -304,14 +304,14 @@ func (rs *runState) enrichCell(ctx context.Context, lead map[string]any, col col
 	if err := checkOwner(ctx, rs.deps.Pool, rs.claim, wb); err != nil {
 		return cellOutcome{}, err
 	}
+	// A dependency error returns before Python's "running" broadcast.
+	if derr := rs.dependencyError(lead, col); derr != "" {
+		return rs.failDependent(ctx, lead, col, derr)
+	}
 	// "running" is broadcast only: Python writes it in the same uncommitted
 	// session that the result then overwrites.
 	rs.publish(ctx, map[string]any{"type": "cell_update", "leadId": leadID, "rowId": rowID,
 		"colId": col.ID, "status": "running", "value": nil})
-
-	if derr := rs.dependencyError(lead, col); derr != "" {
-		return rs.failDependent(ctx, lead, col, derr)
-	}
 	out, err := rs.safeWaterfall(ctx, lead, col, rowID, leadID)
 	if err != nil {
 		if a := abortErr(ctx, err); a != nil {
