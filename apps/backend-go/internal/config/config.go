@@ -300,6 +300,10 @@ type APIConfig struct {
 	// Workbook CRUD (plan 04).
 	Flags   Flags
 	DataDir string // DATA_DIR; default <cwd>/data
+
+	// Leads, signals and events (plan 05).
+	RedisURL      string // REDIS_URL; empty means heartbeat-only SSE
+	SSEMaxStreams int    // SSE_MAX_STREAMS (default 1000, >= 1)
 }
 
 // FilesAPIMode values: hardened (default) requires auth + global admin and a
@@ -418,11 +422,16 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	if c.DataDir = strings.TrimSpace(get("DATA_DIR")); c.DataDir == "" {
 		c.DataDir = "data"
 	}
+	c.RedisURL = strings.TrimSpace(get("REDIS_URL"))
+	if c.SSEMaxStreams, err = intVar(get, "SSE_MAX_STREAMS", 1000, 1, 1000000); err != nil {
+		return APIConfig{}, err
+	}
 	return c, nil
 }
 
 func (c APIConfig) redacted() APIConfig {
 	c.DatabaseURL = redactURL(c.DatabaseURL)
+	c.RedisURL = redactURL(c.RedisURL)
 	if c.StripeSecretKey != "" {
 		c.StripeSecretKey = "[redacted]"
 	}
@@ -464,6 +473,8 @@ func (c APIConfig) LogValue() slog.Value {
 		slog.Bool("intent_poller_enabled", r.Flags.IntentPollerEnabled),
 		slog.String("files_api_mode", r.Flags.FilesAPIMode),
 		slog.String("data_dir", r.DataDir),
+		slog.String("redis_url", r.RedisURL),
+		slog.Int("sse_max_streams", r.SSEMaxStreams),
 	)
 }
 

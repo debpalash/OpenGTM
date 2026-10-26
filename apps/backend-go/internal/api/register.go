@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/auth"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
@@ -27,6 +28,10 @@ type Deps struct {
 	// Workbook CRUD (plan 04).
 	Flags   config.Flags
 	DataDir string
+
+	// Leads, signals and events (plan 05). Redis may be nil (heartbeat-only SSE).
+	Redis         *redis.Client
+	SSEMaxStreams int
 
 	// Settings routes (plan 03). RegisterSettings is a no-op when any is nil.
 	Registry *settings.Registry
@@ -84,4 +89,7 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterEntities(r, d)
 	RegisterAnalytics(r, d)
 	RegisterSystem(r, d)
+	RegisterLeads(r, d)
+	RegisterSignals(r, d)
+	RegisterEvents(r, d)
 }
