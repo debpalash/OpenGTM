@@ -194,18 +194,58 @@ func ParseAddBody(raw []byte) (Column, []httpx.FieldError) {
 	return col, FastAPIModelErrors(cerrs)
 }
 
-// FastAPIModelErrors rewrites NormalizeRequestColumn's "model_type" errors
-// (pydantic model_validate) into what FastAPI answers for a request body: it
-// validates with from_attributes=True, so a non-object model value reports
-// model_attributes_type. Recorded in fixtures columns/add_column_null.
+// FastAPIModelErrors rewrites NormalizeRequestColumn's errors into what FastAPI
+// answers for a request body. It validates with from_attributes=True, so a
+// non-object model value reports model_attributes_type instead of model_type
+// (fixture columns/add_column_null), and pydantic's ctx (the violated ge/gt
+// bound) is part of the 422 body (fixture columns/add_bad_types).
 func FastAPIModelErrors(errs []httpx.FieldError) []httpx.FieldError {
 	for i := range errs {
-		if errs[i].Type == "model_type" {
-			errs[i].Type = "model_attributes_type"
-			errs[i].Msg = "Input should be a valid dictionary or object to extract fields from"
+		e := &errs[i]
+		switch e.Type {
+		case "model_type":
+			e.Type = "model_attributes_type"
+			e.Msg = "Input should be a valid dictionary or object to extract fields from"
+		case "greater_than_equal", "greater_than":
+			if f, ok := boundField(e.Loc); ok {
+				if e.Type == "greater_than_equal" && f.ge != nil {
+					e.Ctx = map[string]any{"ge": boundNumber(f, *f.ge)}
+				} else if e.Type == "greater_than" && f.gt != nil {
+					e.Ctx = map[string]any{"gt": boundNumber(f, *f.gt)}
+				}
+			}
 		}
 	}
 	return errs
+}
+
+// boundField finds the field a bound error refers to (the last loc element,
+// inside policy when the loc passes through it).
+func boundField(loc []any) (field, bool) {
+	if len(loc) == 0 {
+		return field{}, false
+	}
+	name, _ := loc[len(loc)-1].(string)
+	fields := columnFields
+	for _, l := range loc {
+		if l == "policy" && len(loc) > 0 && loc[len(loc)-1] != "policy" {
+			fields = policyFields
+		}
+	}
+	for _, f := range fields {
+		if f.name == name {
+			return f, true
+		}
+	}
+	return field{}, false
+}
+
+// boundNumber renders a bound like pydantic: a float field's bound prints as 0.0.
+func boundNumber(f field, n int) json.Number {
+	if f.kind == kFloat {
+		return json.Number(pyFloat(float64(n)))
+	}
+	return json.Number(strconv.Itoa(n))
 }
 
 // ParseDeleteBody validates the optional ColumnDeleteRequest. A missing or null
