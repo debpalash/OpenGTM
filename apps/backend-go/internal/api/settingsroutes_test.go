@@ -196,8 +196,8 @@ func TestProviderKeyWrittenByPythonDecrypts(t *testing.T) {
 		t.Fatal(err)
 	}
 	_, ps := listProviders(t, e, hdr)
-	if ps["groq"]["configured"] != true || ps["groq"]["api_key_masked"] != "••••••••" {
-		t.Fatalf("%v", ps["groq"]) // 17 chars: sk-test-valid-key is >= 16 -> prefix mask
+	if ps["groq"]["configured"] != true || ps["groq"]["api_key_masked"] != "sk-test-••••-key" {
+		t.Fatalf("%v", ps["groq"])
 	}
 }
 
