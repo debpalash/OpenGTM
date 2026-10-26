@@ -494,3 +494,15 @@ Tasks in a wave touch disjoint files and may run concurrently (up to 6 agents at
 ## User decisions
 
 (none yet; the defaults above apply until the user objects)
+
+## User decisions (2026-10-26) — defaults applied under the standing rules
+
+- D1: job ledger stays in the leadgen collection plan; `collect`, `/api/jobs*`, lead enrich stay on Python.
+- D2: `generate-column` (LLM) moves with the copilot/LLM plan; stays on Python here.
+- D3: `meta/provider-accuracy` stays on Python (offline eval); `provider-stats` is ported.
+- D4: Go debits and enqueues in one transaction (documented deviation: Python can lose credits on enqueue failure).
+- D5: provider cache in new Postgres tables with RLS keyed by workspace (Python Alembic task + Go schema sync).
+- D6: `POST /sources` and `/sources/{col}/run` ported (run enqueues `source_workbook` for Python); `GET /sources/{col}/preview` stays on Python.
+- D7: `github.com/coder/websocket` (pinned) is the only new module, for the workbook WebSocket.
+- D8: Python boundary is one synchronous `POST /internal/provider-call` (bearer token, timeout + process kill); credentials resolved on the Python side; output columns and jobs containing them stay on Python until the destinations plan.
+- D9: all new Go paths default off; rollout by workspace cohort with sticky `run` routing; unreachable Python worker → hand job back to Python.
