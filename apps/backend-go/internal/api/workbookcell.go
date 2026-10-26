@@ -8,7 +8,9 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -55,6 +57,7 @@ func (noSecrets) Get(context.Context, string, string) (string, string, error) { 
 // cellRoutes serves POST /api/workbooks/{workbook_id}/rows/{row_id}/cells/{col_id}/run.
 type cellRoutes struct {
 	d    Deps
+	py   string // validated PYTHON_API_URL (empty = proxy unavailable)
 	deps workbook.Deps
 	log  *slog.Logger
 	http *http.Client
@@ -77,6 +80,7 @@ func registerWorkbookCell(r *httpx.Router, d Deps) {
 	if d.PyWorker != nil {
 		h.deps.Py = d.PyWorker
 	}
+	h.py = validPythonURL(d.getenv()("PYTHON_API_URL"), log)
 	// slowapi wraps the endpoint, so authentication, role and path validation answer first
 	// and only a request that reaches the endpoint spends the 120/min budget.
 	mws := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity),
@@ -85,6 +89,21 @@ func registerWorkbookCell(r *httpx.Router, d Deps) {
 		mws = append(mws, d.Limiter.Limit("120/minute"))
 	}
 	r.Handle("POST /api/workbooks/{workbook_id}/rows/{row_id}/cells/{col_id}/run", http.HandlerFunc(h.run), mws...)
+}
+
+// validPythonURL checks PYTHON_API_URL once: an absolute http(s) URL with a host and no
+// credentials. Anything else is logged and treated as unset (the proxy answers 502).
+func validPythonURL(raw string, log *slog.Logger) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+	u, err := url.Parse(raw)
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Hostname() == "" || u.User != nil {
+		log.Error("PYTHON_API_URL is not an http(s) URL with a host; the cell run proxy is disabled")
+		return ""
+	}
+	return strings.TrimRight(raw, "/")
 }
 
 // validatePath is FastAPI's `row_id: int` path validation.
@@ -117,6 +136,10 @@ func (h *cellRoutes) run(w http.ResponseWriter, r *http.Request) {
 		WorkspaceID: wc.WorkspaceID, WorkbookID: r.PathValue("workbook_id"), RowID: rowID.Int64(),
 		ColumnID: r.PathValue("col_id"), Force: force})
 	switch {
+	case errors.Is(err, workbook.ErrClientGone), err == nil && r.Context().Err() != nil:
+		// The client left. Before dispatch nothing ran; after it the cell was still persisted
+		// (the run is detached), only this answer is dropped.
+		httpx.Detail(w, 499, "Client Closed Request")
 	case err == nil:
 		httpx.WriteJSON(w, http.StatusOK, res)
 	case errors.Is(err, workbook.ErrWorkbookNotFound):
@@ -194,11 +217,15 @@ var hopByHop = map[string]bool{"Connection": true, "Keep-Alive": true, "Proxy-Au
 	"Proxy-Authorization": true, "Te": true, "Trailer": true, "Transfer-Encoding": true, "Upgrade": true,
 	"Host": true, "Content-Length": true}
 
+// spoofable headers state a client address: never taken from the caller.
+var spoofable = map[string]bool{"X-Forwarded-For": true, "X-Real-Ip": true, "Forwarded": true, "X-Forwarded-Host": true,
+	"X-Forwarded-Proto": true}
+
 // proxy sends the request to the Python API and relays its answer (status, headers, body)
 // unchanged. nginx cannot route on the request body or the column type, so output columns
 // reach this process and are forwarded; PYTHON_API_URL names the FastAPI base URL.
 func (h *cellRoutes) proxy(w http.ResponseWriter, r *http.Request, body []byte, reason string) {
-	base := strings.TrimRight(strings.TrimSpace(h.d.getenv()("PYTHON_API_URL")), "/")
+	base := h.py
 	if base == "" {
 		h.log.Error("cell run needs the python api but PYTHON_API_URL is not set", "reason", reason)
 		httpx.Detail(w, http.StatusBadGateway, "Python API is not configured")
@@ -210,12 +237,16 @@ func (h *cellRoutes) proxy(w http.ResponseWriter, r *http.Request, body []byte, 
 		return
 	}
 	for k, vs := range r.Header {
-		if hopByHop[http.CanonicalHeaderKey(k)] {
+		if hopByHop[http.CanonicalHeaderKey(k)] || spoofable[http.CanonicalHeaderKey(k)] {
 			continue
 		}
 		for _, v := range vs {
 			req.Header.Add(k, v)
 		}
+	}
+	// Python's per-IP limiter keys on the forwarded client address: state the real peer.
+	if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		req.Header.Set("X-Forwarded-For", host)
 	}
 	resp, err := h.http.Do(req)
 	if err != nil {
@@ -228,6 +259,13 @@ func (h *cellRoutes) proxy(w http.ResponseWriter, r *http.Request, body []byte, 
 		return
 	}
 	defer resp.Body.Close()
+	reply, err := io.ReadAll(io.LimitReader(resp.Body, cellProxyMaxReply+1))
+	if err != nil || len(reply) > cellProxyMaxReply {
+		// Never relay a truncated body after a status line was sent.
+		h.log.Error("python api reply unreadable or too large", "reason", reason, "bytes", len(reply))
+		httpx.Detail(w, http.StatusBadGateway, "Python API unavailable")
+		return
+	}
 	for k, vs := range resp.Header {
 		if hopByHop[http.CanonicalHeaderKey(k)] {
 			continue
@@ -237,5 +275,5 @@ func (h *cellRoutes) proxy(w http.ResponseWriter, r *http.Request, body []byte, 
 		}
 	}
 	w.WriteHeader(resp.StatusCode)
-	_, _ = io.Copy(w, io.LimitReader(resp.Body, cellProxyMaxReply))
+	_, _ = w.Write(reply)
 }
