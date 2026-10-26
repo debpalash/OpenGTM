@@ -1,0 +1,99 @@
+{
+ "vendor": "ambitionbox",
+ "scenario": "search_client_error_exhausted",
+ "call": {
+  "function": "search_companies",
+  "args": {
+   "page": 1
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+    "headers": {
+     "accept": "application/json",
+     "appid": "125",
+     "content-type": "application/json",
+     "origin": "https://www.ambitionbox.com",
+     "referer": "https://www.ambitionbox.com/list-of-companies",
+     "systemid": "local",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    },
+    "json": {
+     "isFilterApplied": true,
+     "page": "1",
+     "sortBy": "popular",
+     "limit": 20
+    },
+    "timeout_total": 15
+   },
+   "response": {
+    "raises": "ClientConnectionError",
+    "message": "connection reset"
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+    "headers": {
+     "accept": "application/json",
+     "appid": "125",
+     "content-type": "application/json",
+     "origin": "https://www.ambitionbox.com",
+     "referer": "https://www.ambitionbox.com/list-of-companies",
+     "systemid": "local",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    },
+    "json": {
+     "isFilterApplied": true,
+     "page": "1",
+     "sortBy": "popular",
+     "limit": 20
+    },
+    "timeout_total": 15
+   },
+   "response": {
+    "raises": "ClientConnectionError",
+    "message": "connection reset"
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+    "headers": {
+     "accept": "application/json",
+     "appid": "125",
+     "content-type": "application/json",
+     "origin": "https://www.ambitionbox.com",
+     "referer": "https://www.ambitionbox.com/list-of-companies",
+     "systemid": "local",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    },
+    "json": {
+     "isFilterApplied": true,
+     "page": "1",
+     "sortBy": "popular",
+     "limit": 20
+    },
+    "timeout_total": 15
+   },
+   "response": {
+    "raises": "ClientConnectionError",
+    "message": "connection reset"
+   }
+  }
+ ],
+ "sleeps": [
+  0.5,
+  1.0
+ ],
+ "raises": {
+  "type": "RuntimeError",
+  "message": "AmbitionBox request failed after 3 attempts: connection reset"
+ }
+}

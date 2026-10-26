@@ -1,0 +1,20 @@
+{
+ "vendor": "instantly",
+ "scenario": "add_no_key",
+ "call": {
+  "function": "add_lead_to_campaign",
+  "args": {
+   "campaign_id": "camp-1",
+   "lead": {
+    "email": "a@b.co"
+   }
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Instantly not connected (set INSTANTLY_API_KEY)"
+ }
+}

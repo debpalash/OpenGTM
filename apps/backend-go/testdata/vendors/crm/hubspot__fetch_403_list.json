@@ -1,0 +1,39 @@
+{
+ "vendor": "hubspot",
+ "scenario": "fetch_403_list",
+ "call": {
+  "function": "fetch_contacts",
+  "args": {
+   "limit": 5,
+   "list_id": "77"
+  }
+ },
+ "secrets": {
+  "HUBSPOT_TOKEN": "ctk_hubspot_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.hubapi.com/crm/v3/lists/77/memberships?limit=5",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 403,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"message\":\"forbidden\"}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "HubSpot token invalid or expired (HTTP 403)"
+ }
+}

@@ -1,0 +1,15 @@
+{
+ "vendor": "hubspot",
+ "scenario": "status_no_token",
+ "call": {
+  "function": "test_connection",
+  "args": {}
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "connected": false,
+  "error": "No HubSpot token configured"
+ }
+}

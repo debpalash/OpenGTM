@@ -1,0 +1,69 @@
+{
+ "vendor": "salesforce",
+ "scenario": "push_single_name_contact",
+ "call": {
+  "function": "push_lead_as_contact",
+  "args": {
+   "lead": {
+    "id": 12,
+    "company": "Globex",
+    "email": "hello@globex.example.com",
+    "contact_person": "Cher",
+    "score": 55
+   }
+  }
+ },
+ "secrets": {
+  "SALESFORCE_INSTANCE_URL": "https://contract.my.salesforce.com",
+  "SALESFORCE_ACCESS_TOKEN": "ctk_salesforce_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "{{secret:SALESFORCE_INSTANCE_URL}}/services/data/v59.0/query?q=SELECT+Id+FROM+Lead+WHERE+Email+%3D+%27hello%40globex.example.com%27+LIMIT+1",
+    "headers": {
+     "authorization": "Bearer {{secret:SALESFORCE_ACCESS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"totalSize\":0,\"done\":true,\"records\":[]}"
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "{{secret:SALESFORCE_INSTANCE_URL}}/services/data/v59.0/sobjects/Lead",
+    "headers": {
+     "authorization": "Bearer {{secret:SALESFORCE_ACCESS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"Company\":\"Globex\",\"Email\":\"hello@globex.example.com\",\"LastName\":\"Cher\"}",
+    "json": {
+     "Company": "Globex",
+     "Email": "hello@globex.example.com",
+     "LastName": "Cher"
+    }
+   },
+   "response": {
+    "status": 201,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"id\":\"00Q3\",\"success\":true}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": true,
+  "action": "created",
+  "salesforce_id": "00Q3"
+ }
+}

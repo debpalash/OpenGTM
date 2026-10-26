@@ -1,0 +1,96 @@
+{
+ "vendor": "hubspot",
+ "scenario": "push_create_429",
+ "call": {
+  "function": "push_lead_as_contact",
+  "args": {
+   "lead": {
+    "id": 11,
+    "company": "Acme 01",
+    "email": "info@acme01.example.com",
+    "phone": "+1-555-0101",
+    "website": "https://acme01.example.com",
+    "city": "Austin",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://linkedin.com/in/ada",
+    "score": 80
+   }
+  }
+ },
+ "secrets": {
+  "HUBSPOT_TOKEN": "ctk_hubspot_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"filterGroups\":[{\"filters\":[{\"propertyName\":\"email\",\"operator\":\"EQ\",\"value\":\"info@acme01.example.com\"}]}],\"limit\":1}",
+    "json": {
+     "filterGroups": [
+      {
+       "filters": [
+        {
+         "propertyName": "email",
+         "operator": "EQ",
+         "value": "info@acme01.example.com"
+        }
+       ]
+      }
+     ],
+     "limit": 1
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"total\":0,\"results\":[]}"
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"properties\":{\"company\":\"Acme 01\",\"email\":\"info@acme01.example.com\",\"phone\":\"+1-555-0101\",\"website\":\"https://acme01.example.com\",\"city\":\"Austin\",\"firstname\":\"Ada\",\"lastname\":\"Lovelace\",\"jobtitle\":\"CTO\",\"hs_linkedinid\":\"https://linkedin.com/in/ada\",\"hs_lead_status\":\"80\"}}",
+    "json": {
+     "properties": {
+      "company": "Acme 01",
+      "email": "info@acme01.example.com",
+      "phone": "+1-555-0101",
+      "website": "https://acme01.example.com",
+      "city": "Austin",
+      "firstname": "Ada",
+      "lastname": "Lovelace",
+      "jobtitle": "CTO",
+      "hs_linkedinid": "https://linkedin.com/in/ada",
+      "hs_lead_status": "80"
+     }
+    }
+   },
+   "response": {
+    "status": 429,
+    "headers": {
+     "content-type": "application/json",
+     "retry-after": "2"
+    },
+    "body": "{\"status\":\"error\",\"message\":\"You have reached your secondly limit.\",\"category\":\"RATE_LIMITS\"}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "HTTP 429: {\"status\":\"error\",\"message\":\"You have reached your secondly limit.\",\"category\":\"RATE_LIMITS\"}"
+ }
+}

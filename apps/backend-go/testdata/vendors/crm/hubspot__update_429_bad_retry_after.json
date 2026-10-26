@@ -1,0 +1,98 @@
+{
+ "vendor": "hubspot",
+ "scenario": "update_429_bad_retry_after",
+ "call": {
+  "function": "update_contact_by_id",
+  "args": {
+   "contact_id": "501",
+   "properties": {
+    "phone": "+1555"
+   }
+  }
+ },
+ "secrets": {
+  "HUBSPOT_TOKEN": "ctk_hubspot_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "PATCH",
+    "url": "https://api.hubapi.com/crm/v3/objects/contacts/501",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"properties\":{\"phone\":\"+1555\"}}",
+    "json": {
+     "properties": {
+      "phone": "+1555"
+     }
+    }
+   },
+   "response": {
+    "status": 429,
+    "headers": {
+     "content-type": "application/json",
+     "retry-after": "soon"
+    },
+    "body": "{\"message\":\"slow\"}"
+   }
+  },
+  {
+   "request": {
+    "method": "PATCH",
+    "url": "https://api.hubapi.com/crm/v3/objects/contacts/501",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"properties\":{\"phone\":\"+1555\"}}",
+    "json": {
+     "properties": {
+      "phone": "+1555"
+     }
+    }
+   },
+   "response": {
+    "status": 429,
+    "headers": {
+     "content-type": "application/json",
+     "retry-after": "-5"
+    },
+    "body": "{\"message\":\"slow\"}"
+   }
+  },
+  {
+   "request": {
+    "method": "PATCH",
+    "url": "https://api.hubapi.com/crm/v3/objects/contacts/501",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"properties\":{\"phone\":\"+1555\"}}",
+    "json": {
+     "properties": {
+      "phone": "+1555"
+     }
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"id\":\"501\"}"
+   }
+  }
+ ],
+ "sleeps": [
+  1.0,
+  0.0
+ ],
+ "result": {
+  "success": true,
+  "action": "updated",
+  "hubspot_id": "501"
+ }
+}

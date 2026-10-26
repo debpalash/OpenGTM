@@ -1,0 +1,85 @@
+{
+ "vendor": "hubspot",
+ "scenario": "push_create_single_name",
+ "call": {
+  "function": "push_lead_as_contact",
+  "args": {
+   "lead": {
+    "id": 12,
+    "company": "Globex",
+    "email": "hello@globex.example.com",
+    "contact_person": "Cher",
+    "score": 55
+   }
+  }
+ },
+ "secrets": {
+  "HUBSPOT_TOKEN": "ctk_hubspot_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"filterGroups\":[{\"filters\":[{\"propertyName\":\"email\",\"operator\":\"EQ\",\"value\":\"hello@globex.example.com\"}]}],\"limit\":1}",
+    "json": {
+     "filterGroups": [
+      {
+       "filters": [
+        {
+         "propertyName": "email",
+         "operator": "EQ",
+         "value": "hello@globex.example.com"
+        }
+       ]
+      }
+     ],
+     "limit": 1
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"total\":0,\"results\":[]}"
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"properties\":{\"company\":\"Globex\",\"email\":\"hello@globex.example.com\",\"firstname\":\"Cher\",\"hs_lead_status\":\"55\"}}",
+    "json": {
+     "properties": {
+      "company": "Globex",
+      "email": "hello@globex.example.com",
+      "firstname": "Cher",
+      "hs_lead_status": "55"
+     }
+    }
+   },
+   "response": {
+    "status": 201,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"id\":\"902\"}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": true,
+  "action": "created",
+  "hubspot_id": "902"
+ }
+}

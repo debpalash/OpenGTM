@@ -1,0 +1,21 @@
+{
+ "vendor": "airtable",
+ "scenario": "push_no_token",
+ "call": {
+  "function": "push_record",
+  "args": {
+   "fields": {
+    "Company": "A"
+   },
+   "base_id": "appCONTRACT01",
+   "table": "tblX"
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Airtable not connected (set AIRTABLE_TOKEN)"
+ }
+}

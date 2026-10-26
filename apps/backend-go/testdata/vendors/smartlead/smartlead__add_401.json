@@ -1,0 +1,47 @@
+{
+ "vendor": "smartlead",
+ "scenario": "add_401",
+ "call": {
+  "function": "add_lead_to_campaign",
+  "args": {
+   "campaign_id": "4242",
+   "lead": {
+    "email": "a@b.co"
+   }
+  }
+ },
+ "secrets": {
+  "SMARTLEAD_API_KEY": "ctk_smartlead_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://server.smartlead.ai/api/v1/campaigns/4242/leads?api_key={{secret:SMARTLEAD_API_KEY}}",
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"lead_list\":[{\"email\":\"a@b.co\"}]}",
+    "json": {
+     "lead_list": [
+      {
+       "email": "a@b.co"
+      }
+     ]
+    }
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"message\":\"Invalid API key\"}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Smartlead auth failed (invalid SMARTLEAD_API_KEY)"
+ }
+}

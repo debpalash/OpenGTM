@@ -1,0 +1,22 @@
+{
+ "vendor": "airtable",
+ "scenario": "upsert_incomplete_config",
+ "call": {
+  "function": "upsert_record",
+  "args": {
+   "fields": {},
+   "base_id": "appCONTRACT01",
+   "table": "tblX",
+   "idempotency_key": ""
+  }
+ },
+ "secrets": {
+  "AIRTABLE_TOKEN": "ctk_airtable_alpha_0001"
+ },
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Airtable upsert configuration is incomplete"
+ }
+}

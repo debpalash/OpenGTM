@@ -1,0 +1,22 @@
+{
+ "vendor": "smartlead",
+ "scenario": "add_no_campaign",
+ "call": {
+  "function": "add_lead_to_campaign",
+  "args": {
+   "campaign_id": "",
+   "lead": {
+    "email": "a@b.co"
+   }
+  }
+ },
+ "secrets": {
+  "SMARTLEAD_API_KEY": "ctk_smartlead_alpha_0001"
+ },
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Smartlead campaign_id is required"
+ }
+}

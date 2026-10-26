@@ -1,0 +1,168 @@
+{
+ "vendor": "ambitionbox",
+ "scenario": "jobs_ok",
+ "call": {
+  "function": "get_company_jobs",
+  "args": {
+   "company_id": 777,
+   "page": 2
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/jobs-services/v0/jobs/company/777?page=2",
+    "headers": {
+     "accept": "application/json",
+     "appid": "125",
+     "content-type": "application/json",
+     "origin": "https://www.ambitionbox.com",
+     "referer": "https://www.ambitionbox.com/list-of-companies",
+     "systemid": "local",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    },
+    "json": null,
+    "timeout_total": 15
+   },
+   "response": {
+    "status": 200,
+    "body": {
+     "jobs": [
+      {
+       "jobId": "J777-0",
+       "title": "Engineer 0",
+       "company": "Contract Company 777",
+       "companyId": 777,
+       "companyRating": 3.84,
+       "jobProfile": "Engineering",
+       "locations": [
+        "Pune"
+       ],
+       "minExp": 0,
+       "maxExp": 0,
+       "skills": [
+        "go",
+        "sql"
+       ],
+       "postedOn": "2026-08-20",
+       "portal": "ambitionbox",
+       "jdpUrl": "/jobs/engineer-0-jdp"
+      },
+      {
+       "jobId": "J777-1",
+       "title": "Engineer 1",
+       "company": "Contract Company 777",
+       "companyId": 777,
+       "companyRating": 3.84,
+       "jobProfile": "Engineering",
+       "locations": [
+        "Pune"
+       ],
+       "minExp": 1,
+       "maxExp": 3,
+       "skills": [
+        "go",
+        "sql"
+       ],
+       "postedOn": "2026-08-20",
+       "portal": "ambitionbox",
+       "jdpUrl": "/jobs/engineer-1-jdp"
+      },
+      {
+       "jobId": "J777-2",
+       "title": "Engineer 2",
+       "company": "Contract Company 777",
+       "companyId": 777,
+       "companyRating": 3.84,
+       "jobProfile": "Engineering",
+       "locations": [
+        "Pune"
+       ],
+       "minExp": 2,
+       "maxExp": 4,
+       "skills": [
+        "go",
+        "sql"
+       ],
+       "postedOn": "2026-08-20",
+       "portal": "ambitionbox",
+       "jdpUrl": "/jobs/engineer-2-jdp"
+      }
+     ],
+     "pagination": {
+      "count": 3,
+      "currentPage": 1,
+      "totalPages": 1
+     }
+    }
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "jobs": [
+   {
+    "job_id": "J777-0",
+    "title": "Engineer 0",
+    "company": "Contract Company 777",
+    "company_id": 777,
+    "company_rating": 3.8,
+    "job_profile": "Engineering",
+    "locations": [
+     "Pune"
+    ],
+    "experience": "0+ yrs",
+    "skills": [
+     "go",
+     "sql"
+    ],
+    "posted_on": "2026-08-20",
+    "portal": "ambitionbox",
+    "url": "https://www.ambitionbox.com/jobs/engineer-0-jdp"
+   },
+   {
+    "job_id": "J777-1",
+    "title": "Engineer 1",
+    "company": "Contract Company 777",
+    "company_id": 777,
+    "company_rating": 3.8,
+    "job_profile": "Engineering",
+    "locations": [
+     "Pune"
+    ],
+    "experience": "1-3 yrs",
+    "skills": [
+     "go",
+     "sql"
+    ],
+    "posted_on": "2026-08-20",
+    "portal": "ambitionbox",
+    "url": "https://www.ambitionbox.com/jobs/engineer-1-jdp"
+   },
+   {
+    "job_id": "J777-2",
+    "title": "Engineer 2",
+    "company": "Contract Company 777",
+    "company_id": 777,
+    "company_rating": 3.8,
+    "job_profile": "Engineering",
+    "locations": [
+     "Pune"
+    ],
+    "experience": "2-4 yrs",
+    "skills": [
+     "go",
+     "sql"
+    ],
+    "posted_on": "2026-08-20",
+    "portal": "ambitionbox",
+    "url": "https://www.ambitionbox.com/jobs/engineer-2-jdp"
+   }
+  ],
+  "total": 3,
+  "page": 1,
+  "total_pages": 1
+ }
+}

@@ -1,0 +1,20 @@
+{
+ "vendor": "ambitionbox",
+ "scenario": "search_company_type_not_implemented",
+ "call": {
+  "function": "search_companies",
+  "args": {
+   "page": 1,
+   "company_type": [
+    "Public"
+   ]
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "raises": {
+  "type": "NotImplementedError",
+  "message": "AmbitionBox's gateway ignores company_type filters -- refusing to return silently unfiltered results"
+ }
+}

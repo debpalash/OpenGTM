@@ -1,0 +1,60 @@
+{
+ "vendor": "airtable",
+ "scenario": "upsert_no_records",
+ "call": {
+  "function": "upsert_record",
+  "args": {
+   "fields": {
+    "Company": "Acme"
+   },
+   "base_id": "appCONTRACT01",
+   "table": "tblX",
+   "idempotency_key": "k"
+  }
+ },
+ "secrets": {
+  "AIRTABLE_TOKEN": "ctk_airtable_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "PATCH",
+    "url": "https://api.airtable.com/v0/appCONTRACT01/tblX",
+    "headers": {
+     "authorization": "Bearer {{secret:AIRTABLE_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"performUpsert\":{\"fieldsToMergeOn\":[\"OpenGTM ID\"]},\"records\":[{\"fields\":{\"Company\":\"Acme\",\"OpenGTM ID\":\"k\"}}],\"typecast\":true}",
+    "json": {
+     "performUpsert": {
+      "fieldsToMergeOn": [
+       "OpenGTM ID"
+      ]
+     },
+     "records": [
+      {
+       "fields": {
+        "Company": "Acme",
+        "OpenGTM ID": "k"
+       }
+      }
+     ],
+     "typecast": true
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"records\":[],\"createdRecords\":[],\"updatedRecords\":[]}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": true,
+  "record_id": null,
+  "operation": "updated"
+ }
+}

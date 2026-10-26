@@ -1,0 +1,35 @@
+{
+ "vendor": "hubspot",
+ "scenario": "status_401",
+ "call": {
+  "function": "test_connection",
+  "args": {}
+ },
+ "secrets": {
+  "HUBSPOT_TOKEN": "ctk_hubspot_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.hubapi.com/account-info/v3/details",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"status\":\"error\",\"message\":\"Authentication credentials not found.\",\"category\":\"INVALID_AUTHENTICATION\"}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "connected": false,
+  "error": "HTTP 401: {\"status\":\"error\",\"message\":\"Authentication credentials not found.\",\"category\":\"INVALID_AUTHENTICATION\"}"
+ }
+}

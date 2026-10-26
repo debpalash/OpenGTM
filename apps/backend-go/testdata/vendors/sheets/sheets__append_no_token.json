@@ -1,0 +1,20 @@
+{
+ "vendor": "sheets",
+ "scenario": "append_no_token",
+ "call": {
+  "function": "append_row",
+  "args": {
+   "spreadsheet_id": "sheet-contract-01",
+   "values": [
+    "a"
+   ]
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Google Sheets not connected (set GOOGLE_SHEETS_TOKEN — an OAuth2 access token)"
+ }
+}

@@ -1,0 +1,110 @@
+{
+ "vendor": "sheets",
+ "scenario": "cell_guard_table",
+ "call": {
+  "function": "_cell_table",
+  "args": {
+   "values": [
+    null,
+    "",
+    "plain",
+    "=1+1",
+    "+1 555",
+    "+15550100",
+    "-3",
+    "-3.25",
+    "+4.",
+    "@x",
+    "\tx",
+    "\rx",
+    "-",
+    "0",
+    0,
+    false,
+    3.5,
+    [
+     "a"
+    ]
+   ]
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": [
+  {
+   "value": null,
+   "cell": ""
+  },
+  {
+   "value": "",
+   "cell": ""
+  },
+  {
+   "value": "plain",
+   "cell": "plain"
+  },
+  {
+   "value": "=1+1",
+   "cell": "'=1+1"
+  },
+  {
+   "value": "+1 555",
+   "cell": "'+1 555"
+  },
+  {
+   "value": "+15550100",
+   "cell": "+15550100"
+  },
+  {
+   "value": "-3",
+   "cell": "-3"
+  },
+  {
+   "value": "-3.25",
+   "cell": "-3.25"
+  },
+  {
+   "value": "+4.",
+   "cell": "'+4."
+  },
+  {
+   "value": "@x",
+   "cell": "'@x"
+  },
+  {
+   "value": "\tx",
+   "cell": "'\tx"
+  },
+  {
+   "value": "\rx",
+   "cell": "'\rx"
+  },
+  {
+   "value": "-",
+   "cell": "'-"
+  },
+  {
+   "value": "0",
+   "cell": "0"
+  },
+  {
+   "value": 0,
+   "cell": "0"
+  },
+  {
+   "value": false,
+   "cell": "False"
+  },
+  {
+   "value": 3.5,
+   "cell": "3.5"
+  },
+  {
+   "value": [
+    "a"
+   ],
+   "cell": "['a']"
+  }
+ ]
+}

@@ -1,0 +1,46 @@
+{
+ "vendor": "hubspot",
+ "scenario": "update_5xx",
+ "call": {
+  "function": "update_contact_by_id",
+  "args": {
+   "contact_id": "501",
+   "properties": {
+    "phone": "+1555"
+   }
+  }
+ },
+ "secrets": {
+  "HUBSPOT_TOKEN": "ctk_hubspot_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "PATCH",
+    "url": "https://api.hubapi.com/crm/v3/objects/contacts/501",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"properties\":{\"phone\":\"+1555\"}}",
+    "json": {
+     "properties": {
+      "phone": "+1555"
+     }
+    }
+   },
+   "response": {
+    "status": 500,
+    "headers": {
+     "content-type": "text/html"
+    },
+    "body": "<html><body>Bad gateway</body></html>"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "HTTP 500: <html><body>Bad gateway</body></html>"
+ }
+}

@@ -1,0 +1,80 @@
+{
+ "vendor": "salesforce",
+ "scenario": "push_update_rejected",
+ "call": {
+  "function": "push_lead_as_contact",
+  "args": {
+   "lead": {
+    "id": 11,
+    "company": "Acme 01",
+    "email": "info@acme01.example.com",
+    "phone": "+1-555-0101",
+    "website": "https://acme01.example.com",
+    "city": "Austin",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://linkedin.com/in/ada",
+    "score": 80
+   }
+  }
+ },
+ "secrets": {
+  "SALESFORCE_INSTANCE_URL": "https://contract.my.salesforce.com",
+  "SALESFORCE_ACCESS_TOKEN": "ctk_salesforce_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "{{secret:SALESFORCE_INSTANCE_URL}}/services/data/v59.0/query?q=SELECT+Id+FROM+Lead+WHERE+Email+%3D+%27info%40acme01.example.com%27+LIMIT+1",
+    "headers": {
+     "authorization": "Bearer {{secret:SALESFORCE_ACCESS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"totalSize\":1,\"done\":true,\"records\":[{\"attributes\":{\"type\":\"Contact\"},\"Id\":\"00Q9\"}]}"
+   }
+  },
+  {
+   "request": {
+    "method": "PATCH",
+    "url": "{{secret:SALESFORCE_INSTANCE_URL}}/services/data/v59.0/sobjects/Lead/00Q9",
+    "headers": {
+     "authorization": "Bearer {{secret:SALESFORCE_ACCESS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"Company\":\"Acme 01\",\"Email\":\"info@acme01.example.com\",\"Phone\":\"+1-555-0101\",\"Website\":\"https://acme01.example.com\",\"City\":\"Austin\",\"Title\":\"CTO\",\"FirstName\":\"Ada\",\"LastName\":\"Lovelace\"}",
+    "json": {
+     "Company": "Acme 01",
+     "Email": "info@acme01.example.com",
+     "Phone": "+1-555-0101",
+     "Website": "https://acme01.example.com",
+     "City": "Austin",
+     "Title": "CTO",
+     "FirstName": "Ada",
+     "LastName": "Lovelace"
+    }
+   },
+   "response": {
+    "status": 400,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "[{\"message\":\"bad field\",\"errorCode\":\"INVALID_FIELD\"}]"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "action": "updated",
+  "salesforce_id": "00Q9",
+  "error": "HTTP 400: [{\"message\":\"bad field\",\"errorCode\":\"INVALID_FIELD\"}]"
+ }
+}

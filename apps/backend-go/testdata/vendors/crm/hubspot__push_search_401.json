@@ -1,0 +1,95 @@
+{
+ "vendor": "hubspot",
+ "scenario": "push_search_401",
+ "call": {
+  "function": "push_lead_as_contact",
+  "args": {
+   "lead": {
+    "id": 11,
+    "company": "Acme 01",
+    "email": "info@acme01.example.com",
+    "phone": "+1-555-0101",
+    "website": "https://acme01.example.com",
+    "city": "Austin",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://linkedin.com/in/ada",
+    "score": 80
+   }
+  }
+ },
+ "secrets": {
+  "HUBSPOT_TOKEN": "ctk_hubspot_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"filterGroups\":[{\"filters\":[{\"propertyName\":\"email\",\"operator\":\"EQ\",\"value\":\"info@acme01.example.com\"}]}],\"limit\":1}",
+    "json": {
+     "filterGroups": [
+      {
+       "filters": [
+        {
+         "propertyName": "email",
+         "operator": "EQ",
+         "value": "info@acme01.example.com"
+        }
+       ]
+      }
+     ],
+     "limit": 1
+    }
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"status\":\"error\",\"message\":\"Authentication credentials not found.\",\"category\":\"INVALID_AUTHENTICATION\"}"
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"properties\":{\"company\":\"Acme 01\",\"email\":\"info@acme01.example.com\",\"phone\":\"+1-555-0101\",\"website\":\"https://acme01.example.com\",\"city\":\"Austin\",\"firstname\":\"Ada\",\"lastname\":\"Lovelace\",\"jobtitle\":\"CTO\",\"hs_linkedinid\":\"https://linkedin.com/in/ada\",\"hs_lead_status\":\"80\"}}",
+    "json": {
+     "properties": {
+      "company": "Acme 01",
+      "email": "info@acme01.example.com",
+      "phone": "+1-555-0101",
+      "website": "https://acme01.example.com",
+      "city": "Austin",
+      "firstname": "Ada",
+      "lastname": "Lovelace",
+      "jobtitle": "CTO",
+      "hs_linkedinid": "https://linkedin.com/in/ada",
+      "hs_lead_status": "80"
+     }
+    }
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"status\":\"error\",\"message\":\"Authentication credentials not found.\",\"category\":\"INVALID_AUTHENTICATION\"}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "HTTP 401: {\"status\":\"error\",\"message\":\"Authentication credentials not found.\",\"category\":\"INVALID_AUTHENTICATION\"}"
+ }
+}
