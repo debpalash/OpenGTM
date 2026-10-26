@@ -94,3 +94,22 @@ PY_URL=http://127.0.0.1:8000 GO_URL=http://127.0.0.1:8001 CHECK_EMAIL=... CHECK_
 - Data rollback is not needed: Go writes only rows Python already reads. Known response (not data)
   deviation: a workspace slug collision returns 409 on Go where Python returns 500; no extra rows are
   created in that case. Go also requires `exp` on tokens (Python tolerates absence; all minted tokens carry it).
+
+## Required deploy step before Python is retired: tenancy backfill
+
+Python runs `ensure_tenancy_backfill(admin.id)` at every boot (`legacy/python/apps/api/main.py:100-116`): it picks the oldest global admin and gives that user a workspace membership and a default workspace. **Go has no equivalent.** While the Python API still boots, nothing is lost. A Go-only boot against a fresh or restored database leaves the global admin without memberships, so every workspace-scoped route answers 403.
+
+Before Python is retired (and before the first Go-only start of any new environment), run the backfill once from the Python tree, or insert the rows by hand:
+
+```bash
+cd legacy/python && uv run python -c "
+from apps.api.database import SessionLocal
+from apps.api.models import User
+from apps.api.services.workspace.manager import ensure_tenancy_backfill
+db = SessionLocal()
+admin = db.query(User).filter((User.is_admin == True) | (User.role.in_(['admin','superadmin']))).order_by(User.id.asc()).first()
+assert admin, 'no admin user'
+ensure_tenancy_backfill(admin.id)"
+```
+
+Verify: `SELECT count(*) FROM workspace_members WHERE user_id = <admin id>;` is at least 1 and `user_active_workspace` has a row for the admin. Record the step in the deploy checklist of the release that retires Python.
