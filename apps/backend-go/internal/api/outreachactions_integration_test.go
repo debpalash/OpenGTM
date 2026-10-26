@@ -89,6 +89,8 @@ var oactSuppress = [][]any{
 func oactPurge() {
 	oseqPurge()
 	for _, q := range []string{`DELETE FROM outreach_suppressions WHERE workspace_id IN ('ws-alpha','ws-beta')`,
+		// the explicit-id leads seeded by newOactEnv (19, 20) must not outlive the test: another package's default-id insert would collide
+		`DELETE FROM leads WHERE workspace_id = 'ws-alpha' AND id IN (19, 20)`,
 		`DELETE FROM workspace_settings WHERE workspace_id IN ('ws-alpha','ws-beta')`,
 		`DELETE FROM jobs WHERE type = 'send' AND workspace_id IN ('ws-alpha','ws-beta')`,
 		`DROP TRIGGER IF EXISTS oact_fail_schedule ON outreach_schedules`} {
