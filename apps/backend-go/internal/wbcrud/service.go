@@ -338,7 +338,7 @@ func (s *Service) UpdateIfChanged(ctx context.Context, tx pgx.Tx, ws string, w W
 		metaChanged = true
 	}
 	if p.SetFilterCriteria {
-		nb, err := json.Marshal(p.FilterCriteria)
+		nb, err := marshalNoEscape(p.FilterCriteria)
 		if err != nil {
 			return w, false, err
 		}
@@ -352,7 +352,7 @@ func (s *Service) UpdateIfChanged(ctx context.Context, tx pgx.Tx, ws string, w W
 	colsChanged := false
 	if p.Columns != nil {
 		var err error
-		if colsJSON, err = json.Marshal(*p.Columns); err != nil {
+		if colsJSON, err = marshalNoEscape(*p.Columns); err != nil {
 			return w, false, err
 		}
 		cur := w.Columns
@@ -383,4 +383,16 @@ func (s *Service) UpdateIfChanged(ctx context.Context, tx pgx.Tx, ws string, w W
 	}
 	out.TotalRows = w.TotalRows
 	return out, true, nil
+}
+
+// marshalNoEscape is json.Marshal without HTML escaping, so stored json column
+// text carries "<" and "&" as Python's json.dumps does.
+func marshalNoEscape(v any) ([]byte, error) {
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	if err := enc.Encode(v); err != nil {
+		return nil, err
+	}
+	return bytes.TrimRight(buf.Bytes(), "\n"), nil
 }
