@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/scim/v2/alpha/Groups?filter=userName%20eq%20%22x%22"
+  },
+  "response": {
+    "body": {
+      "detail": "Only displayName eq filtering is supported"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

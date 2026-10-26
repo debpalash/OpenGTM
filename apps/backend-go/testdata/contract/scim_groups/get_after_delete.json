@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/scim/v2/alpha/Groups/400e90fd-a2b4-4db1-803e-0135fca81caa"
+  },
+  "response": {
+    "body": {
+      "detail": "SCIM group not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

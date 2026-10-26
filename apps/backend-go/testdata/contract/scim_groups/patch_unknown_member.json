@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "Operations": [
+        {
+          "op": "add",
+          "path": "members",
+          "value": [
+            {
+              "value": "99999"
+            }
+          ]
+        }
+      ],
+      "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/scim/v2/alpha/Groups/400e90fd-a2b4-4db1-803e-0135fca81caa"
+  },
+  "response": {
+    "body": {
+      "detail": "SCIM user 99999 not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

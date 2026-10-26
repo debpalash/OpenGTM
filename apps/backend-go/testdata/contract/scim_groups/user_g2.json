@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "displayName": "Two",
+      "userName": "group.two"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/scim/v2/alpha/Users"
+  },
+  "response": {
+    "body": {
+      "active": true,
+      "displayName": "Two",
+      "externalId": "",
+      "id": "5",
+      "meta": {
+        "created": "2026-10-26T07:22:54.948350+00:00",
+        "lastModified": "2026-10-26T07:22:54.948350+00:00",
+        "location": "/scim/v2/alpha/Users/5",
+        "resourceType": "User"
+      },
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User"
+      ],
+      "userName": "group.two"
+    },
+    "headers": {
+      "content-type": "application/scim+json"
+    },
+    "status": 201
+  }
+}
