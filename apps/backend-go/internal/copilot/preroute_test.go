@@ -28,6 +28,7 @@ type preFake struct {
 	hold   bool // keep the stream open after the lines until the client goes away
 	gone   chan struct{}
 	opened chan struct{}
+	pause  chan struct{} // a line equal to "PAUSE" blocks until pause is closed
 }
 
 func newPreFake(t *testing.T, lines ...string) *preFake {
@@ -41,10 +42,23 @@ func newPreFake(t *testing.T, lines ...string) *preFake {
 		f.mu.Unlock()
 		w.Header().Set("Content-Type", "application/x-ndjson")
 		for _, l := range f.lines {
+			if l == "PAUSE" {
+				w.WriteHeader(200)
+				w.(http.Flusher).Flush()
+				f.opened <- struct{}{}
+				select {
+				case <-f.pause:
+				case <-r.Context().Done():
+					return
+				}
+				continue
+			}
 			_, _ = io.WriteString(w, l+"\n")
 			w.(http.Flusher).Flush()
 		}
-		f.opened <- struct{}{}
+		if !f.hasPause() {
+			f.opened <- struct{}{}
+		}
 		if f.hold {
 			<-r.Context().Done()
 			f.gone <- struct{}{}
@@ -251,5 +265,48 @@ func TestPreRouteBadSSEFrameIsProtocolError(t *testing.T) {
 	handled, out, err := runPre(t, preTurn(f), "m", false)
 	if !handled || err == nil || !strings.Contains(out, errTextInterrupted) {
 		t.Fatalf("handled=%v out=%q err=%v", handled, out, err)
+	}
+}
+
+func (f *preFake) hasPause() bool {
+	for _, l := range f.lines {
+		if l == "PAUSE" {
+			return true
+		}
+	}
+	return false
+}
+
+func TestSlowPreRouteNoneFallsThrough(t *testing.T) {
+	f := newPreFake(t, "PAUSE", `{"t":"none"}`)
+	f.pause = make(chan struct{})
+	tn := preTurn(f)
+	tick := make(chan time.Time)
+	tn.NewTicker = func(time.Duration) (<-chan time.Time, func()) { return tick, func() {} }
+	rec := newRec()
+	w, _ := ssestream.New(rec, nil)
+	type res struct {
+		handled bool
+		err     error
+	}
+	done := make(chan res, 1)
+	go func() { h, err := tn.PreRoute(context.Background(), w, "m", false); done <- res{h, err} }()
+	<-f.opened
+	tick <- time.Now()
+	deadline := time.After(3 * time.Second)
+	for rec.String() == "" {
+		select {
+		case <-deadline:
+			t.Fatal("no keepalive written")
+		case <-time.After(5 * time.Millisecond):
+		}
+	}
+	close(f.pause)
+	r := <-done
+	if r.err != nil || r.handled {
+		t.Fatalf("handled=%v err=%v: a keepalive must not count as output", r.handled, r.err)
+	}
+	if got := rec.String(); got != ": keepalive\n\n" {
+		t.Fatalf("written %q", got)
 	}
 }
