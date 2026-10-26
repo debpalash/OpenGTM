@@ -22,8 +22,8 @@ func EvalCondition(cond any, row map[string]any) bool {
 
 // EvalConditionCols is evaluate_condition with the workbook column config, so
 // a {Display Name} resolves to the column's value. Row keys are visited in
-// sorted order (Python uses dict insertion order; only two display names that
-// collide with each other and with no id can tell the difference).
+// column config order, then the remaining keys sorted (Python uses dict
+// insertion order of lead_data).
 //
 // Deviation: a non-string, truthy condition raises in Python; here it fails
 // closed (false), like an unparseable one.
@@ -86,11 +86,26 @@ func newCondValues(row map[string]any, cols []Col) *condValues {
 		}
 		nameOf[id] = id
 	}
+	// Python iterates lead_data order; the closest deterministic proxy is the
+	// column config order, then any remaining keys sorted.
 	ids := make([]string, 0, len(row))
-	for k := range row {
-		ids = append(ids, k)
+	seenID := map[string]bool{}
+	for _, c := range cols {
+		if id, ok := c.Get("id").(string); ok && !seenID[id] {
+			if _, in := row[id]; in {
+				seenID[id] = true
+				ids = append(ids, id)
+			}
+		}
 	}
-	sort.Strings(ids)
+	var rest []string
+	for k := range row {
+		if !seenID[k] {
+			rest = append(rest, k)
+		}
+	}
+	sort.Strings(rest)
+	ids = append(ids, rest...)
 	values := map[string]string{}
 	aliases := map[string]string{}
 	var aliasKeys []string
