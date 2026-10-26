@@ -24,7 +24,9 @@ const DefaultBatchRows = 5000
 const (
 	errScheduledOff = "legal hold or scheduled retention disabled"
 	errHoldMidRun   = "Legal hold enabled during retention enforcement"
-	noMessage       = "retention enforcement failed"
+	// errDisabledMidRun: Go hardening, a scheduler-requested run stops when the policy is disabled.
+	errDisabledMidRun = "Retention disabled during scheduled enforcement"
+	noMessage         = "retention enforcement failed"
 )
 
 // Deps is what enforcement and reconcile need.
@@ -246,13 +248,14 @@ func (d Deps) deleteAll(ctx context.Context, ws string, run gen.RetRunGetRow, co
 				if err != nil {
 					return fmt.Errorf("retention: re-read run: %w", err)
 				}
-				var hold bool
+				var hold, disabled bool
 				switch p, err := q.RetPolicyLockShared(ctx, ws); {
 				case errors.Is(err, pgx.ErrNoRows):
 				case err != nil:
 					return fmt.Errorf("retention: re-read policy: %w", err)
 				default:
 					hold = p.LegalHold
+					disabled = !p.Enabled && run.RequestedBy.String == "scheduler"
 				}
 				if st.Status == "cancelled" {
 					body, _ := json.Marshal(counts)
@@ -264,6 +267,14 @@ func (d Deps) deleteAll(ctx context.Context, ws string, run gen.RetRunGetRow, co
 				}
 				if hold {
 					msg := errHoldMidRun
+					if err := finish(ctx, tx, ws, run.ID, "cancelled", counts, &msg, d.now()); err != nil {
+						return err
+					}
+					stopped = true
+					return nil
+				}
+				if disabled {
+					msg := errDisabledMidRun
 					if err := finish(ctx, tx, ws, run.ID, "cancelled", counts, &msg, d.now()); err != nil {
 						return err
 					}

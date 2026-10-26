@@ -666,3 +666,37 @@ func sumCounts(c Counts) (n int64) {
 
 var _ = tenancy.InWorkspace
 var _ pgx.Tx
+
+// Go hardening (Python checks the policy only at the start): disabling retention stops a
+// scheduler-requested purge at the next batch boundary, like a legal hold. A manual run is
+// an explicit operator action and is not stopped by `enabled`.
+func TestEnforceStopsScheduledRunWhenDisabledMidRun(t *testing.T) {
+	for _, tc := range []struct{ requestedBy, wantStatus string }{{"scheduler", "cancelled"}, {"manual", "completed"}} {
+		t.Run(tc.requestedBy, func(t *testing.T) {
+			e := setupEnf(t)
+			v := loadVectors(t, e.wsMap())
+			e.seed(t, v, vecNow)
+			a := e.prefix + "wsA"
+			e.putPolicy(t, a, true, false, minimumDays)
+			run := e.putRun(t, a, "pending", tc.requestedBy, minimumDays)
+			d := e.deps()
+			d.BatchRows = 2
+			var batches int32
+			d.AfterBatch = func(string, int64) {
+				if atomic.AddInt32(&batches, 1) == 2 {
+					e.putPolicy(t, a, false, false, minimumDays)
+				}
+			}
+			if err := Enforce(context.Background(), d, a, run); err != nil {
+				t.Fatal(err)
+			}
+			r := e.getRun(t, run)
+			if r.Status != tc.wantStatus {
+				t.Fatalf("run %+v, want %s", r, tc.wantStatus)
+			}
+			if tc.wantStatus == "cancelled" && (r.Error != "Retention disabled during scheduled enforcement" || atomic.LoadInt32(&batches) != 2) {
+				t.Fatalf("run %+v after %d batches", r, batches)
+			}
+		})
+	}
+}
