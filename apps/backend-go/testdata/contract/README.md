@@ -386,3 +386,10 @@ writes nothing. No fixture; tests named in parentheses.
   saved-view column, `Selected workbook rows changed`, template registry errors). Each is asserted by a Go
   unit test; the list is `uncoveredGuardAllowlist` in the test.
 - nginx: retained workbook routes always reach Python; asserted by `scripts/nginx-routing-check.sh`.
+
+## Platform credit debit (plan 06 Task 6): deviations
+
+- `CheckAndDebit` scopes the run idempotency key per workspace. Python's `credit_ledger_entries.idempotency_key` (`run:<run_id>`) is unique across all workspaces, so a run id already used by workspace A made workspace B's debit a silent replay (B ran uncharged; vectors `same_run_id_two_workspaces`, `two_workspaces_isolated` step 5). Go writes `run:<run_id>@ws:<workspace_id>` (sha256 of the run id when over the 160-char column), still treats a legacy `run:<run_id>` row in the same workspace as a replay, and keeps `run_id` raw. Go never runs DDL, so the global unique index is unchanged and cannot collide. Proven by `TestDebitTenantIsolation` and the two vector steps asserted as deviations in `TestCheckAndDebitMatchesVectors`.
+- A no-op debit (disabled, cost rounds to <= 0) reads the balance but never creates the zero `workspace_credits` row Python's `get_balance` creates; `NaN` cost is a no-op.
+- The debit runs in the caller's transaction (never commits), so Task 24 debits and enqueues atomically (decision D4).
+- `ProjectedPlatformCost` uses a default catalog where only `research` (0.05, `RESEARCH_VENDOR_COST`) is platform-billed, exactly Python's `byok=False` set; Task 19 wires `vendorcatalog` through `billing.SetCostCatalog`.
