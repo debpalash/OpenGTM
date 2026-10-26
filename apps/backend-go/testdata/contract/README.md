@@ -554,3 +554,40 @@ Routes (plan 07 Task 18, `internal/api/ambitionboxroutes.go`, D4; replayed again
 - D4: `GET /api/crm/hubspot/contacts` `limit` above 1000 answers 422 (`less_than_equal`; fixture `contacts_limit_100000` was 200). `limit` 0 and negatives reach HubSpot, which rejects them, and the route answers 200 with an empty list, as Python.
 - Contacts are passed through exactly as HubSpot sent them (key order and non-object elements), as Python.
 - Security: the HubSpot token lookup fails closed. A secret-store or decryption error means "not connected" and no request is sent; Python falls back to the `HUBSPOT_TOKEN` environment variable on any error.
+
+## Certification (plan 07 Task 4): deviations
+
+- Naive timestamps (no zone) in certification evidence and validity windows are read as UTC. Python reads them in the process-local zone; the vectors were recorded with `TZ=UTC`, so the two agree only on a UTC host. `parseTime` accepts ISO extended forms only (not the Python 3.11 basic `YYYYMMDD` or week-date forms).
+
+## Email data routes (plan 07 Task 17): deviations
+
+Route level, on top of the service deviations in "Email data (plan 07 Task 14)":
+1. Negative `limit` or `offset` answers 422 `greater_than_equal` (`emaildata.PagingErrors`); Python 500.
+2. A NUL byte in a filter or patch value answers 422 `{"type":"value_error","loc":["query"|"body"],"msg":"Value error, string contains a NUL byte"}`; Python 500. The shape is Go's own (no Python fixture).
+3. Ids beyond the int4 range (path or body) match nothing: PATCH 404 (the detail prints the number), DELETE `{"status":"not found"}`, dropped from `mark-used`; Python answers a driver 500. `limit`/`offset` beyond int64 are clamped and there is no maximum `limit`, as Python.
+4. `mark-used` and PATCH bodies are capped at 1 MiB (422 `value_error`); Python has no cap.
+
+## Plan 07 coverage and rollout (Task 19)
+
+Coverage tests (`internal/api/connectors_coverage_test.go`): `TestEveryPythonConnectorRouteIsPortedOrRetained` (19 Python route decorators of `connectors.py`, `hubspot.py`, `ambitionbox.py` and `crm.py` = `/api/data`; 19 ported, 0 retained, see `retained_connector_routes.txt`), `TestEveryConnectorRouteHasFixture`, `TestDeviationsDocumented`, and the integration test `TestRuntimeRoleCanReadWriteEmailData`.
+
+Open decisions and where their deviations are listed above: D3 (Salesforce SSRF guard: "Salesforce client (plan 07 Task 10)"), D4 (crash and hardening answers: "Connector catalog", "AmbitionBox", "Email data", "HubSpot routes"), D5 (`/api/data` stays global, global-admin gate on the route group, exact parity; tenant scoping is a schema and product change).
+
+### Plan 07 fixture recording procedure
+
+Fixtures under `connectors/`, `hubspot/`, `datacrm/`, `ambitionbox/`, the vectors under `internal/<pkg>/testdata` and the vendor transcripts under `testdata/vendors/` are recorded from the real Python code, never hand-written. Use `TZ=UTC` (this machine runs IST; naive timestamps shift by +05:30 otherwise).
+
+```sh
+docker exec opengtm-go-test-pg psql -U postgres -c "CREATE DATABASE opengtm_contract_p07" \
+  -c "CREATE ROLE contract_app_p07 LOGIN PASSWORD '<x>' NOSUPERUSER NOBYPASSRLS" -c "GRANT yupcha_app TO contract_app_p07"
+cd legacy/python
+export SQLITE_STORES_BACKEND=postgres SECRET_KEY=<test-only> APP_ENV=test TZ=UTC RUN_INLINE_WORKER=0 PG_LEAD_STORE=true PYTHONPATH=.
+DATABASE_URL=<superuser url> uv run alembic upgrade head
+# per profile: reseed, start the fake-vendor server as the NON-superuser role, record, stop it
+DATABASE_URL=<superuser url> CONTRACT_SEED_CONFIRM=yes CONTRACT_SEED_CONNECTORS=yes uv run python scripts/contract_seed.py
+DATABASE_URL=<app role url> uv run python scripts/record_vendor_transcripts.py serve --port 8417 [--policy required|--exclude contract_badname.yaml] &
+python3 scripts/contract_record.py --base http://127.0.0.1:8417 --out ../../apps/backend-go/testdata/contract \
+    --cases scripts/contract_cases/connectors.yaml --profile default|catalog_ok|required
+```
+
+Profiles: `default` (signature policy optional, full manifest dir), `catalog_ok` (`--exclude contract_badname.yaml`), `required` (`--policy required`). Vendor transcripts: `uv run python scripts/record_vendor_transcripts.py`. Vectors: `DATABASE_URL=<any opengtm_* db at head> uv run python scripts/gen_connector_vectors.py`. Check: `uv run python scripts/contract_record.py --cases scripts/contract_cases/connectors.yaml --check` (complete and byte-identical). Drop the temporary database and role and stop the server afterwards. The fake-vendor server pins the certification clock (2026-09-01T12:00:00Z), the export filename clock and the run/workbook ids created by `POST /imports`; fixtures depend on the seed and case order.
