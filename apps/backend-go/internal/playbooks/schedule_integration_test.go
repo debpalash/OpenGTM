@@ -433,3 +433,41 @@ func TestBootstrapOccurrenceKeysAreHandledLikeSchedule(t *testing.T) {
 		t.Fatalf("%v", status)
 	}
 }
+
+// Python's enqueue_job_once leaves jobs.workspace_id NULL: PATCH/DELETE/RemoveSchedule must
+// still cancel those pending occurrences (exact fire-key shape, payload workspace and
+// playbook must match), and never another tenant's or another playbook's.
+func TestCancelCoversPythonEnqueuedNullWorkspaceJobs(t *testing.T) {
+	e := setup(t)
+	pb := e.schedulable(t, e.ws, e.mkPlaybook(t, e.ws, "pynull"), e.aud, 30)
+	other := e.schedulable(t, e.ws, e.mkPlaybook(t, e.ws, "pynull-other"), e.aud, 30)
+	ins := func(key, ws, pbID string) {
+		t.Helper()
+		if _, err := e.pool.Exec(context.Background(), `INSERT INTO jobs (executor,type,payload,priority,fire_key,status,created_at,next_run_at,max_retries,retry_count)
+VALUES ('python','research_playbook_schedule',json_build_object('workspace_id',$1::text,'playbook_id',$2::text),1,$3,'pending',(now() AT TIME ZONE 'UTC'),(now() AT TIME ZONE 'UTC'),3,0)`, ws, pbID, key); err != nil {
+			t.Fatal(err)
+		}
+	}
+	mine := "playbook_schedule:" + pb.ID + ":2026-06-01T00:00:00+00:00"
+	boot := "playbook_schedule:" + pb.ID + ":bootstrap"
+	foreignPayload := "playbook_schedule:" + pb.ID + ":2026-06-02T00:00:00+00:00"
+	otherPb := "playbook_schedule:" + other.ID + ":2026-06-01T00:00:00+00:00"
+	ins(mine, e.ws, pb.ID)
+	ins(boot, e.ws, pb.ID)
+	ins(foreignPayload, e.ws2, pb.ID) // payload names another workspace: not this tenant's
+	ins(otherPb, e.ws, other.ID)
+	if err := e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error { return RemoveSchedule(ctx, tx, pb.ID) }); err != nil {
+		t.Fatal(err)
+	}
+	status := func(k string) (s string) {
+		if err := e.pool.QueryRow(context.Background(), `SELECT status FROM jobs WHERE fire_key=$1`, k).Scan(&s); err != nil {
+			t.Fatal(err)
+		}
+		return
+	}
+	for k, want := range map[string]string{mine: "cancelled", boot: "cancelled", foreignPayload: "pending", otherPb: "pending"} {
+		if got := status(k); got != want {
+			t.Errorf("%s: %s, want %s", k, got, want)
+		}
+	}
+}

@@ -84,7 +84,10 @@ WHERE playbook_id = sqlc.arg(playbook_id)::text AND workspace_id = sqlc.arg(work
 -- name: PbCancelScheduleJobs :exec
 UPDATE jobs SET status = 'cancelled'
 WHERE type = 'research_playbook_schedule' AND status = 'pending'
-  AND workspace_id = sqlc.arg(workspace_id)::text
+  -- Python's enqueue_job_once leaves jobs.workspace_id NULL: those match on the payload's
+  -- workspace and the fire key's playbook (the key is exact-shape checked below).
+  AND (workspace_id = sqlc.arg(workspace_id)::text
+       OR (workspace_id IS NULL AND payload->>'workspace_id' = sqlc.arg(workspace_id)::text))
   AND starts_with(fire_key, sqlc.arg(fire_prefix)::text)
   -- the exact key shape only: a playbook whose id extends this one's ('a' vs 'a:b')
   -- has keys that also start with the prefix; the remainder must be one occurrence.
