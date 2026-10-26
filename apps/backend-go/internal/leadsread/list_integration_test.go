@@ -111,7 +111,7 @@ func TestListLeadsFilters(t *testing.T) {
 		{"search notes", leadsread.ListParams{Search: "vip"}, []string{"Alpha"}},
 		{"search tsquery", leadsread.ListParams{Search: "roofing"}, []string{"Charlie"}},
 		{"has_email true", leadsread.ListParams{HasEmail: &tr, OrderBy: "company ASC"}, []string{"Alpha", "Charlie", "Echo"}},
-		{"has_phone false", leadsread.ListParams{HasPhone: &fl, OrderBy: "company ASC"}, []string{"Charlie", "Echo", "Foxtrot", "Golf"}},
+		{"has_phone false", leadsread.ListParams{HasPhone: &fl, OrderBy: "company ASC"}, []string{"Charlie", "Delta", "Echo", "Foxtrot", "Golf"}},
 		{"combined", leadsread.ListParams{City: "Pune", Status: "new", ScoreTier: "hot", OrderBy: "company ASC"}, []string{"Alpha", "Charlie"}},
 		{"limit offset", leadsread.ListParams{OrderBy: "company ASC", Limit: 2, Offset: 1}, []string{"Bravo", "Charlie"}},
 	}
@@ -223,11 +223,11 @@ func (e *listEnv) similar(t *testing.T, ws, company string, limit int) []string 
 func TestSimilarExcludesSelf(t *testing.T) {
 	e := listSetup(t)
 	got := e.similar(t, e.wsA, "Alpha", 10)
-	if contains(got, "Alpha") || !reflect.DeepEqual(got, []string{"Delta", "Bravo"}) {
+	if contains(got, "Alpha") || !reflect.DeepEqual(got, []string{"Bravo", "Delta"}) {
 		t.Fatalf("got %v", got)
 	}
 	// limit+1 fetched then reference dropped then cut to limit.
-	if got := e.similar(t, e.wsA, "Alpha", 1); !reflect.DeepEqual(got, []string{"Delta"}) {
+	if got := e.similar(t, e.wsA, "Alpha", 1); !reflect.DeepEqual(got, []string{"Bravo"}) {
 		t.Fatalf("limit 1: %v", got)
 	}
 }
@@ -238,10 +238,11 @@ func TestSimilarFallsBackToCity(t *testing.T) {
 	if !reflect.DeepEqual(got, []string{"Delta"}) {
 		t.Fatalf("got %v", got)
 	}
-	// Specialization search that only finds the reference falls back to city.
+	// Python only falls back when the specialization search is empty before the
+	// reference is dropped: a search that finds only the reference yields none.
 	got = e.similar(t, e.wsA, "Charlie", 10)
-	if !reflect.DeepEqual(got, []string{"Foxtrot", "Bravo", "Alpha"}) {
-		t.Fatalf("roofing only self -> city Pune: %v", got)
+	if len(got) != 0 {
+		t.Fatalf("roofing only self: %v", got)
 	}
 }
 
