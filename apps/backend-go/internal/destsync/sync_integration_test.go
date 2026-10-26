@@ -41,8 +41,31 @@ const (
 
 // ---------------------------------------------------------------- scripted ports
 
+// pyBool decodes a Python-truthy scripted value (the transcripts script 1, 0 and "" as results).
+type pyBool bool
+
+func (b *pyBool) UnmarshalJSON(raw []byte) error {
+	var v any
+	if err := json.Unmarshal(raw, &v); err != nil {
+		return err
+	}
+	switch x := v.(type) {
+	case nil:
+		*b = false
+	case bool:
+		*b = pyBool(x)
+	case float64:
+		*b = x != 0
+	case string:
+		*b = x != ""
+	default:
+		*b = true
+	}
+	return nil
+}
+
 type entry struct {
-	Success    bool   `json:"success"`
+	Success    pyBool `json:"success"`
 	Summary    string `json:"summary"`
 	Error      string `json:"error"`
 	ExternalID string `json:"external_id"`
@@ -111,7 +134,7 @@ func (f *fakePorts) Deliver(ctx context.Context, dest destdeliver.Destination, l
 	if e.Raise != "" { // Python's _deliver raised; the engine's catch is the Deliverer's contract here
 		return destdeliver.Result{Error: trunc(e.Raise, 500)}
 	}
-	return destdeliver.Result{Success: e.Success, Summary: e.Summary, Error: e.Error, ExternalID: e.ExternalID}
+	return destdeliver.Result{Success: bool(e.Success), Summary: e.Summary, Error: e.Error, ExternalID: e.ExternalID}
 }
 
 func (f *fakePorts) SyncBatch(ctx context.Context, ws, destType string, cfg map[string]any, snaps []map[string]any, op string) (adsdrv.Result, error) {
@@ -124,7 +147,7 @@ func (f *fakePorts) SyncBatch(ctx context.Context, ws, destType string, cfg map[
 	if e.Raise != "" {
 		return adsdrv.Result{}, errors.New(e.Raise)
 	}
-	return adsdrv.Result{Success: e.Success, Summary: e.Summary, Error: e.Error, ExternalID: e.ExternalID}, nil
+	return adsdrv.Result{Success: bool(e.Success), Summary: e.Summary, Error: e.Error, ExternalID: e.ExternalID}, nil
 }
 
 func (f *fakePorts) Sync(ctx context.Context, ws string, dest warehouse.DestRef, b *warehouse.Buffer) (warehouse.Result, error) {
@@ -141,7 +164,7 @@ func (f *fakePorts) Sync(ctx context.Context, ws string, dest warehouse.DestRef,
 	if e.Raise != "" {
 		return warehouse.Result{}, errors.New(e.Raise)
 	}
-	return warehouse.Result{Success: e.Success, Summary: e.Summary, Error: e.Error, ExternalID: e.ExternalID}, nil
+	return warehouse.Result{Success: bool(e.Success), Summary: e.Summary, Error: e.Error, ExternalID: e.ExternalID}, nil
 }
 
 func trunc(s string, n int) string {
@@ -176,18 +199,26 @@ func cleanWS(ctx context.Context, pool *pgxpool.Pool) {
 
 func newHarness(t *testing.T, script map[string][]entry, tune func(*Deps)) *harness {
 	t.Helper()
-	pool := testpg.NewAppPool(t, 24)
+	pool := testpg.NewAppPool(t, 24) // holds a database-wide advisory lock until the test ends: one harness per test
 	ctx := context.Background()
 	owner, err := pgxpool.New(ctx, os.Getenv("TEST_DATABASE_URL"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Cleanup(owner.Close)
-	cleanWS(ctx, pool)
 	t.Cleanup(func() { cleanWS(ctx, pool) })
-	h := &harness{t: t, ctx: ctx, pool: pool, owner: owner, fake: newFake(script), logs: &bytes.Buffer{}}
+	h := &harness{t: t, ctx: ctx, pool: pool, owner: owner}
+	h.again(script, tune)
+	return h
+}
+
+// again wipes the workspaces and installs a fresh engine and script (for tests that run
+// several independent scenarios).
+func (h *harness) again(script map[string][]entry, tune func(*Deps)) *harness {
+	cleanWS(h.ctx, h.pool)
+	h.fake, h.logs, h.leaseCalls, h.lease = newFake(script), &bytes.Buffer{}, 0, nil
 	d := Deps{
-		Pool: pool, Deliverer: h.fake, Ads: h.fake, Warehouse: h.fake,
+		Pool: h.pool, Deliverer: h.fake, Ads: h.fake, Warehouse: h.fake,
 		LeaseEvery: -1, Log: slog.New(slog.NewTextHandler(h.logs, &slog.HandlerOptions{Level: slog.LevelDebug})),
 		Lease: func(context.Context, *queue.Claim) (bool, error) {
 			h.leaseCalls++
@@ -523,6 +554,8 @@ func jsonEq(a, b json.RawMessage) bool {
 	return reflect.DeepEqual(x, y)
 }
 
+func ptr(s string) *string { return &s }
+
 func jstr(v any) string { b, _ := json.Marshal(v); return string(b) }
 
 func TestSyncMatchesPythonTranscripts(t *testing.T) {
@@ -641,6 +674,12 @@ func TestSyncMatchesPythonTranscripts(t *testing.T) {
 				byKey[d.Key] = d
 			}
 			for _, w := range out.Deliveries {
+				if w.Operation == "remove" && w.Status == "pending" && out.Run.Status == "cancelled" {
+					// Python bug, not ported: the removal rows of a batch that is cancelled before its
+					// request are only written after _finish_cancelled ran, so they stay `pending` in a
+					// finished run. Go writes them first, so the cancel closes them like every other open row.
+					w.Status, w.Error = "cancelled", ptr("Run cancelled before delivery")
+				}
 				g, ok := byKey[w.Key]
 				if !ok {
 					t.Errorf("missing delivery %s", w.Key)
@@ -665,8 +704,8 @@ func TestSyncMatchesPythonTranscripts(t *testing.T) {
 					t.Errorf("call %d:\n got  %s\n want %s", i, jstr(h.fake.calls[i]), jstr(out.Calls[i]))
 				}
 			}
-			if out.Raises == nil && h.eng.checks != out.Checks {
-				t.Errorf("%d cancellation checks, want %d", h.eng.checks, out.Checks)
+			if out.Raises == nil && int(h.eng.checks.Load()) != out.Checks {
+				t.Errorf("%d cancellation checks, want %d", h.eng.checks.Load(), out.Checks)
 			}
 			if (out.Fired == nil) != (fired == "") || (out.Fired != nil && *out.Fired != fired) {
 				t.Errorf("cancel fired %q, want %v", fired, out.Fired)
@@ -729,6 +768,15 @@ func TestFailureReconcileMatchesPythonVectors(t *testing.T) {
 			dest := c.Before.Dest
 			if dest == nil {
 				t.Skip("destination row absent: unreachable under the FK")
+			}
+			known := map[string]bool{}
+			for _, r := range c.Before.Runs {
+				known[r.ID] = true
+			}
+			for _, d := range c.Before.Deliveries {
+				if !known[d.RunID] {
+					t.Skip("deliveries of a run that does not exist: unreachable under the FK")
+				}
 			}
 			h.seedDest(ws, destSeed{Health: dest.Health})
 			if dest.LastError != nil {
@@ -805,7 +853,7 @@ func TestIdempotentRedeliverySkipsSuccess(t *testing.T) {
 		t.Fatalf("run-2 = %+v", *r)
 	}
 	// a job retried mid-run (run still running, member 1 already settled success in this run)
-	h2 := newHarness(t, nil, nil)
+	h2 := h.again(nil, nil)
 	h2.seedDest(wsVec, destSeed{})
 	h2.seedMembers(wsVec, snaps(3)...)
 	h2.seedRun(wsVec, "run-1", "running", "2026-08-02 09:00:01")
@@ -876,9 +924,14 @@ func adCfg() string {
 }
 
 func TestAdBatchSettlesAllRowsTogether(t *testing.T) {
+	var h *harness
 	for _, ok := range []bool{true, false} {
-		script := map[string][]entry{"ad": {{Success: ok, Summary: "added 3 hashed users", Error: map[bool]string{true: "", false: "platform said no"}[ok], ExternalID: "sess-1"}}}
-		h := newHarness(t, script, nil)
+		script := map[string][]entry{"ad": {{Success: pyBool(ok), Summary: "added 3 hashed users", Error: map[bool]string{true: "", false: "platform said no"}[ok], ExternalID: "sess-1"}}}
+		if h == nil {
+			h = newHarness(t, script, nil)
+		} else {
+			h.again(script, nil)
+		}
 		h.seedDest(wsVec, destSeed{Type: "meta_ads", Config: adCfg()})
 		h.seedMembers(wsVec, snaps(3)...)
 		h.seedRun(wsVec, "run-1", "pending", "")
@@ -1088,7 +1141,7 @@ func TestCancelBeforeMemberAndBeforeBatch(t *testing.T) {
 	}
 
 	// before the ad batch (the check after the last member)
-	h2 := newHarness(t, nil, nil)
+	h2 := h.again(nil, nil)
 	h2.seedDest(wsVec, destSeed{Type: "meta_ads", Config: adCfg()})
 	h2.seedMembers(wsVec, snaps(2)...)
 	h2.seedRun(wsVec, "run-1", "pending", "")
@@ -1196,7 +1249,7 @@ func TestHealthAndLastSuccess(t *testing.T) {
 		t.Fatalf("run %+v dest %+v %s", *r, *d, str(d.LastError))
 	}
 	// only failures: last_success_at keeps its old value (NULL here)
-	h2 := newHarness(t, map[string][]entry{"deliver": {{Error: "e"}}}, nil)
+	h2 := h.again(map[string][]entry{"deliver": {{Error: "e"}}}, nil)
 	h2.seedDest(wsVec, destSeed{})
 	h2.seedMembers(wsVec, snap(1))
 	h2.seedRun(wsVec, "run-1", "pending", "")
@@ -1345,7 +1398,8 @@ func TestSecretsRedactedFromLedgerAndLogs(t *testing.T) {
 			t.Errorf("ledger error leaks or overruns: %d chars", len([]rune(str(d.Error))))
 		}
 	}
-	h2 := newHarness(t, map[string][]entry{"ad": {{Raise: leak}}}, nil)
+	logs1 := h.logs.String()
+	h2 := h.again(map[string][]entry{"ad": {{Raise: leak}}}, nil)
 	h2.seedDest(wsVec, destSeed{Type: "meta_ads", Config: adCfg()})
 	h2.seedMembers(wsVec, snap(1))
 	h2.seedRun(wsVec, "run-1", "pending", "")
@@ -1355,9 +1409,9 @@ func TestSecretsRedactedFromLedgerAndLogs(t *testing.T) {
 			t.Errorf("ad batch error: %d chars leak=%v", len([]rune(str(d.Error))), strings.Contains(str(d.Error), "TOPSECRET"))
 		}
 	}
-	for _, hh := range []*harness{h, h2} {
-		if strings.Contains(hh.logs.String(), "TOPSECRET") || strings.Contains(hh.logs.String(), "u1@x.test") {
-			t.Errorf("logs hold a secret or identifier: %s", hh.logs.String())
+	for _, l := range []string{logs1, h2.logs.String()} {
+		if strings.Contains(l, "TOPSECRET") || strings.Contains(l, "u1@x.test") {
+			t.Errorf("logs hold a secret or identifier: %s", l)
 		}
 	}
 }
