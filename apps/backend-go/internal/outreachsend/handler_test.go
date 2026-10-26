@@ -2,9 +2,16 @@ package outreachsend
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"net"
 	"net/textproto"
 	"os"
+	"strings"
+	"syscall"
 	"testing"
 	"time"
 
@@ -160,5 +167,40 @@ func TestClassifyTextMatchesPythonShape(t *testing.T) {
 		if got := smtpclient.IsHardBounce(classifyText(err, err.Error())); got != c.hard {
 			t.Errorf("%d %s: hard=%v want %v", c.code, c.msg, got, c.hard)
 		}
+	}
+}
+
+// Transport failures are never recipient bounces, and their stored text carries no
+// address or port (a "dial tcp 52.1.2.3:587" line contains a 5xx-looking token).
+func TestClassifySendErrorTransportNeverHard(t *testing.T) {
+	cases := map[string]error{
+		"refused":         &net.OpError{Op: "dial", Net: "tcp", Addr: &net.TCPAddr{IP: net.ParseIP("52.1.2.3"), Port: 587}, Err: syscall.ECONNREFUSED},
+		"refused_wrapped": fmt.Errorf("smtp: %w", &net.OpError{Op: "dial", Net: "tcp", Addr: &net.TCPAddr{IP: net.ParseIP("52.1.2.3"), Port: 587}, Err: syscall.ECONNREFUSED}),
+		"timeout":         fmt.Errorf("smtp: %w", context.DeadlineExceeded),
+		"io_timeout":      &net.OpError{Op: "read", Net: "tcp", Addr: &net.TCPAddr{IP: net.ParseIP("52.1.2.3"), Port: 587}, Err: os.ErrDeadlineExceeded},
+		"dns":             &net.DNSError{Err: "no such host", Name: "smtp5.example.com", IsNotFound: true},
+		"tls":             &tls.CertificateVerificationError{Err: x509.UnknownAuthorityError{}},
+		"tls_alert":       tls.AlertError(40),
+		"opaque":          errors.New("dial tcp 52.1.2.3:587: some unclassified failure 550"),
+	}
+	for name, err := range cases {
+		text, hard := classifySendError(err)
+		if hard {
+			t.Errorf("%s: transport error classified as a hard bounce", name)
+		}
+		for _, bad := range []string{"52.1.2.3", "587", "smtp5.example.com", "550"} {
+			if strings.Contains(text, bad) {
+				t.Errorf("%s: stored text %q leaks %q", name, text, bad)
+			}
+		}
+		if text == "" {
+			t.Errorf("%s: empty text", name)
+		}
+	}
+	if text, hard := classifySendError(&textproto.Error{Code: 550, Msg: "5.1.1 user unknown"}); !hard || !strings.Contains(text, "550") {
+		t.Errorf("protocol 550: %q %v", text, hard)
+	}
+	if _, hard := classifySendError(&textproto.Error{Code: 535, Msg: "5.7.8 bad credentials"}); hard {
+		t.Error("535 is not a hard bounce (Python parity)")
 	}
 }

@@ -5,6 +5,8 @@ package outreachsend
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -13,6 +15,7 @@ import (
 	"io"
 	"mime"
 	"mime/multipart"
+	"net"
 	"net/mail"
 	"net/textproto"
 	"os"
@@ -21,6 +24,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"syscall"
 	"testing"
 	"time"
 
@@ -980,5 +984,37 @@ func TestSendFlowCompleteWithoutDateHeader(t *testing.T) {
 	}
 	if strings.Contains(string(e.mail.calls[0].msg), "\r\nDate:") {
 		t.Fatal("Python adds no Date header")
+	}
+}
+
+// A transport outage must never bounce the send or suppress the recipient.
+func TestTransportFailureNotBounced(t *testing.T) {
+	addr := &net.TCPAddr{IP: net.ParseIP("52.1.2.3"), Port: 587}
+	cases := map[string]error{
+		"refused": &net.OpError{Op: "dial", Net: "tcp", Addr: addr, Err: syscall.ECONNREFUSED},
+		"timeout": &net.OpError{Op: "read", Net: "tcp", Addr: addr, Err: os.ErrDeadlineExceeded},
+		"tls":     &tls.CertificateVerificationError{Err: x509.UnknownAuthorityError{}},
+	}
+	for name, merr := range cases {
+		t.Run(name, func(t *testing.T) {
+			e := newEnv(t, uniqWS(t))
+			e.seedBasic(t)
+			e.mail.err = merr
+			if err := e.h.Handle(context.Background(), e.payload(nil)); err == nil {
+				t.Fatal("transport failure must return an error for the queue retry")
+			}
+			s := e.send(t, e.idem(1, 0))
+			if s.Status != "failed" || s.BouncedAt != nil || strings.Contains(s.Error, "52.1.2.3") || strings.Contains(s.Error, "587") {
+				t.Fatalf("row %+v", s)
+			}
+			if en := e.enr(t, 1); en.Status != "failed" {
+				t.Fatalf("enrollment %q", en.Status)
+			}
+			e.tx(t, func(tx pgx.Tx) {
+				if sup, _ := outreachstore.IsSuppressed(context.Background(), tx, e.ws, "ann@example.com"); sup {
+					t.Fatal("recipient suppressed on a transport outage")
+				}
+			})
+		})
 	}
 }
