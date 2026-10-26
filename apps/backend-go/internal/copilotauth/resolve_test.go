@@ -72,8 +72,7 @@ func TestToolUserIDFailsClosed(t *testing.T) {
 	if err != nil || got == nil || *got != 7 {
 		t.Fatalf("got %v %v", got, err)
 	}
-	got, err = (Resolved{WorkspaceID: "w", SelfHost: true}).ToolUserID()
-	if err != nil || got != nil {
-		t.Fatalf("self-host: %v %v", got, err)
+	if (Resolved{WorkspaceID: "w"}).IsSelfHost() {
+		t.Fatal("hand-built Resolved must not be self-host")
 	}
 }

@@ -128,7 +128,7 @@ func TestOwnerIsMember(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.WorkspaceID != "t10-ws-own" || got.Slug != "t10-slug-own" || got.UserID == nil || *got.UserID != owner.ID || got.SelfHost {
+	if got.WorkspaceID != "t10-ws-own" || got.Slug != "t10-slug-own" || got.UserID == nil || *got.UserID != owner.ID || got.IsSelfHost() {
 		t.Fatalf("%+v", got)
 	}
 	if id, perr := got.ToolUserID(); perr != nil || id == nil || *id != owner.ID {
@@ -172,7 +172,7 @@ func TestSelfHostBindsActiveWorkspace(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.WorkspaceID != "t10-ws-self" || got.Slug != "t10-slug-self" || got.UserID != nil || !got.SelfHost {
+	if got.WorkspaceID != "t10-ws-self" || got.Slug != "t10-slug-self" || got.UserID != nil || !got.IsSelfHost() {
 		t.Fatalf("%+v", got)
 	}
 	if id, terr := got.ToolUserID(); terr != nil || id != nil {
