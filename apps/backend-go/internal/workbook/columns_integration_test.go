@@ -23,10 +23,11 @@ import (
 
 // fakeRunner is a providerrun.Runner stand-in.
 type fakeRunner struct {
-	mu    sync.Mutex
-	calls []string
-	ins   []providers.Input
-	fn    func(ctx context.Context, provider string, in providers.Input) (providers.Output, error)
+	mu      sync.Mutex
+	calls   []string
+	ins     []providers.Input
+	keyless map[string]bool
+	fn      func(ctx context.Context, provider string, in providers.Input) (providers.Output, error)
 }
 
 func (f *fakeRunner) Run(ctx context.Context, _ string, provider string, in providers.Input, _ time.Duration) (providers.Output, error) {
@@ -35,6 +36,11 @@ func (f *fakeRunner) Run(ctx context.Context, _ string, provider string, in prov
 	f.ins = append(f.ins, in)
 	f.mu.Unlock()
 	return f.fn(ctx, provider, in)
+}
+
+// Configured makes fakeRunner a credential-prechecking runner.
+func (f *fakeRunner) Configured(_ context.Context, _, provider string) (bool, error) {
+	return !f.keyless[provider], nil
 }
 
 func obj(kv ...any) *providers.Obj {
@@ -430,4 +436,56 @@ func TestRunnerPathWritesNoLedgerRowOfItsOwn(t *testing.T) {
 		t.Fatalf("worker wrote %d ledger rows although the runner owns the ledger", n)
 	}
 	_ = http.StatusOK
+}
+
+// A keyless paid provider is skipped as "not configured" before any hold; the
+// next provider runs (Python never created an attempt for a missing key).
+func TestKeylessPaidProviderIsSkippedWithoutAttempt(t *testing.T) {
+	e := setup(t, wsA)
+	e.seed(wsA, "wb-keyless", `[{"id":"c1","type":"waterfall","name":"C1","target_field":"founded_year","waterfall":["paidnokey","freepy"]}]`, 1, 10)
+	fr := &fakeRunner{keyless: map[string]bool{"paidnokey": true}, fn: func(_ context.Context, p string, _ providers.Input) (providers.Output, error) {
+		if p == "paidnokey" {
+			return providers.Output{Error: "not configured"}, nil
+		}
+		return providers.Output{Confidence: 0.7, Extra: obj("founded_year", "1999")}, nil
+	}}
+	d := e.deps(newSim(t, nil), nil)
+	d.Runner = fr
+	c := e.claim(wsA, payloadNoManifests(wsA, "wb-keyless", map[string]float64{"paidnokey": 0.05, "freepy": 0}, nil))
+	res, err := workbook.Run(e.ctx, d, c)
+	if err != nil || res.Completed != 1 {
+		t.Fatalf("%+v %v", res, err)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_spend_attempts`); n != 0 {
+		t.Fatalf("a keyless provider created %d attempts", n)
+	}
+	if strings.Join(fr.calls, ",") != "freepy" {
+		t.Fatalf("provider calls %v", fr.calls)
+	}
+}
+
+// A provider the runner does not know cannot reach a vendor: the attempt
+// settles at 0 and the waterfall moves on.
+func TestUnknownPaidProviderSettlesAtZero(t *testing.T) {
+	e := setup(t, wsA)
+	e.seed(wsA, "wb-unkpaid", `[{"id":"c1","type":"waterfall","name":"C1","target_field":"founded_year","waterfall":["ghostpaid","freepy"]}]`, 1, 10)
+	fr := &fakeRunner{fn: func(_ context.Context, p string, _ providers.Input) (providers.Output, error) {
+		if p == "ghostpaid" {
+			return providers.Output{}, pyworker.ErrUnknownProvider
+		}
+		return providers.Output{Confidence: 0.7, Extra: obj("founded_year", "1999")}, nil
+	}}
+	d := e.deps(newSim(t, nil), nil)
+	d.Runner = fr
+	c := e.claim(wsA, payloadNoManifests(wsA, "wb-unkpaid", map[string]float64{"ghostpaid": 0.05, "freepy": 0}, nil))
+	res, err := workbook.Run(e.ctx, d, c)
+	if err != nil || res.Completed != 1 {
+		t.Fatalf("%+v %v", res, err)
+	}
+	if st := e.str(wsA, `SELECT status FROM workbook_spend_attempts WHERE provider='ghostpaid'`); st != "settled" {
+		t.Fatalf("unknown provider attempt is %q, want settled", st)
+	}
+	if n := e.one(wsA, `SELECT coalesce(sum(settled_microusd),0) FROM workbook_spend_attempts WHERE provider='ghostpaid'`); n != 0 {
+		t.Fatalf("charged %d", n)
+	}
 }
