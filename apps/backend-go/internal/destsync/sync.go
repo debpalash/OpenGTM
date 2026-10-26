@@ -149,6 +149,7 @@ type runState struct {
 	dest     deststore.Destination
 	cfg      map[string]any
 	fieldMap map[string]any
+	fieldOrd []string
 	dd       destdeliver.Destination
 	ref      warehouse.DestRef
 	ads      bool // meta_ads | google_ads | linkedin_ads
@@ -290,7 +291,7 @@ func (e *Engine) begin(ctx context.Context, rs *runState) (proceed bool, err err
 		if rs.cfg, err = decodeObj(dest.Config); err != nil {
 			return fmt.Errorf("destsync: destination config: %w", err)
 		}
-		if rs.fieldMap, err = decodeObj(dest.FieldMap); err != nil {
+		if rs.fieldMap, rs.fieldOrd, err = destdeliver.DecodeOrdered(dest.FieldMap); err != nil {
 			return fmt.Errorf("destsync: destination field map: %w", err)
 		}
 		e.race("before_start")
@@ -308,7 +309,7 @@ func (e *Engine) begin(ctx context.Context, rs *runState) (proceed bool, err err
 		return false, err
 	}
 	d := rs.dest
-	rs.dd = destdeliver.Destination{ID: d.ID, WorkspaceID: d.WorkspaceID, AudienceID: d.AudienceID, Type: d.Type, Config: rs.cfg, FieldMap: rs.fieldMap}
+	rs.dd = destdeliver.Destination{ID: d.ID, WorkspaceID: d.WorkspaceID, AudienceID: d.AudienceID, Type: d.Type, Config: rs.cfg, FieldMap: rs.fieldMap, FieldMapOrder: rs.fieldOrd}
 	rs.ref = warehouse.DestRef{ID: d.ID, AudienceID: d.AudienceID, Config: rs.cfg}
 	rs.ads, rs.wh = isAdType(d.Type), d.Type == "warehouse_http"
 	return true, nil
@@ -401,7 +402,7 @@ func (e *Engine) oneMember(ctx context.Context, rs *runState, m member, buf *war
 	if err != nil {
 		return nil, true, err
 	}
-	mapped := destdeliver.MapPayload(snapshot, rs.fieldMap)
+	mapped := destdeliver.MapPayloadOrdered(snapshot, rs.fieldMap, rs.fieldOrd)
 	var hashed map[string]string
 	if rs.ads {
 		hashed = adsdrv.HashedIdentifiers(snapshot)

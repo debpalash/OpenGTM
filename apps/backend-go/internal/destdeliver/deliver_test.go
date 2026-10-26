@@ -181,10 +181,27 @@ func destOf(m map[string]any) Destination {
 // vectors -------------------------------------------------------------------------------
 
 func TestMapPayloadMatchesVectors(t *testing.T) {
-	cases := loadVec(t, "../destsync/testdata/map_payload.json")["cases"].([]any)
+	path := "../destsync/testdata/map_payload.json"
+	cases := loadVec(t, path)["cases"].([]any)
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var rawCases struct {
+		Cases []struct {
+			FieldMap json.RawMessage `json:"field_map"`
+		} `json:"cases"`
+	}
+	if err := json.Unmarshal(raw, &rawCases); err != nil {
+		t.Fatal(err)
+	}
 	for i, c := range cases {
 		c := asMap(c)
-		got := MapPayload(asMap(c["snapshot"]), asMap(c["field_map"]))
+		fm, order, err := DecodeOrdered(rawCases.Cases[i].FieldMap)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got := MapPayloadOrdered(asMap(c["snapshot"]), fm, order)
 		if canon(t, got) != canon(t, c["result"]) {
 			t.Errorf("case %d: got %s want %s", i, canon(t, got), canon(t, c["result"]))
 		}
@@ -557,3 +574,23 @@ func TestSecretsNeverInResults(t *testing.T) {
 type resultWebhook struct{ r Result }
 
 func (p resultWebhook) Send(context.Context, WebhookRequest) (Result, error) { return p.r, nil }
+
+// Duplicate targets: the later source in stored order wins, on every call (Python dict order).
+func TestMapPayloadDuplicateTargetLastWins(t *testing.T) {
+	snap := map[string]any{"company": "Acme", "email": "a@b.co"}
+	for _, tc := range []struct{ raw, want string }{
+		{`{"company":"x","email":"x"}`, "a@b.co"},
+		{`{"email":"x","company":"x"}`, "Acme"},
+		{`{"email":"x","company":"x","email":"x"}`, "Acme"}, // repeated key keeps first position
+	} {
+		fm, order, err := DecodeOrdered([]byte(tc.raw))
+		if err != nil {
+			t.Fatal(err)
+		}
+		for i := 0; i < 50; i++ {
+			if got := MapPayloadOrdered(snap, fm, order)["x"]; got != tc.want {
+				t.Fatalf("%s: got %v want %s", tc.raw, got, tc.want)
+			}
+		}
+	}
+}

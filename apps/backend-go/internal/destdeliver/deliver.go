@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -27,6 +28,10 @@ type Destination struct {
 	Type        string // exact, case-sensitive (Python compared the stored string)
 	Config      map[string]any
 	FieldMap    map[string]any
+	// FieldMapOrder is FieldMap's keys in stored (insertion) order, as Python iterates
+	// field_map.items(). When two sources map to one target the later key wins. Empty means
+	// sorted order (deterministic, but not Python's for duplicate targets).
+	FieldMapOrder []string
 }
 
 // Deliverer delivers one lead snapshot to one destination through the provider Ports. It makes
@@ -53,9 +58,15 @@ func New(ports Ports, timeout time.Duration) *Deliverer {
 	return &Deliverer{ports: ports, timeout: timeout}
 }
 
-// MapPayload is Python _map_payload: an empty field map copies the snapshot; otherwise
-// {target: snapshot[source]} for sources whose value is neither None nor "".
+// MapPayload is MapPayloadOrdered with sorted source order.
 func MapPayload(snapshot, fieldMap map[string]any) map[string]any {
+	return MapPayloadOrdered(snapshot, fieldMap, nil)
+}
+
+// MapPayloadOrdered is Python _map_payload: an empty field map copies the snapshot; otherwise
+// {target: snapshot[source]} for sources whose value is neither None nor "", visited in order
+// (the last source wins a shared target). A nil or incomplete order falls back to sorted keys.
+func MapPayloadOrdered(snapshot, fieldMap map[string]any, order []string) map[string]any {
 	out := make(map[string]any, len(snapshot))
 	if len(fieldMap) == 0 {
 		for k, v := range snapshot {
@@ -63,7 +74,18 @@ func MapPayload(snapshot, fieldMap map[string]any) map[string]any {
 		}
 		return out
 	}
-	for source, target := range fieldMap {
+	if len(order) != len(fieldMap) {
+		order = make([]string, 0, len(fieldMap))
+		for k := range fieldMap {
+			order = append(order, k)
+		}
+		sort.Strings(order)
+	}
+	for _, source := range order {
+		target, ok := fieldMap[source]
+		if !ok {
+			continue
+		}
 		v, ok := snapshot[source]
 		if !ok || v == nil {
 			continue
@@ -74,6 +96,42 @@ func MapPayload(snapshot, fieldMap map[string]any) map[string]any {
 		out[pyKey(target)] = v
 	}
 	return out
+}
+
+// DecodeOrdered decodes a JSON object with exact numbers and returns its keys in first-seen
+// order; a repeated key keeps its first position and last value, as Python json.loads does.
+// Anything that is not an object decodes to an empty map.
+func DecodeOrdered(raw []byte) (map[string]any, []string, error) {
+	raw = bytes.TrimSpace(raw)
+	if len(raw) == 0 || raw[0] != '{' {
+		return map[string]any{}, nil, nil
+	}
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber()
+	if _, err := dec.Token(); err != nil {
+		return nil, nil, err
+	}
+	m := map[string]any{}
+	var order []string
+	for dec.More() {
+		kt, err := dec.Token()
+		if err != nil {
+			return nil, nil, err
+		}
+		k, _ := kt.(string)
+		var v any
+		if err := dec.Decode(&v); err != nil {
+			return nil, nil, err
+		}
+		if _, seen := m[k]; !seen {
+			order = append(order, k)
+		}
+		m[k] = v
+	}
+	if _, err := dec.Token(); err != nil {
+		return nil, nil, err
+	}
+	return m, order, nil
 }
 
 func pyKey(v any) string {
@@ -239,7 +297,7 @@ func (d *Deliverer) Deliver(ctx context.Context, dest Destination, leadID int, s
 }
 
 func (d *Deliverer) deliver(ctx context.Context, dest Destination, leadID int, snapshot map[string]any, idem string, sec *secretSet) Result {
-	mapped := MapPayload(snapshot, dest.FieldMap)
+	mapped := MapPayloadOrdered(snapshot, dest.FieldMap, dest.FieldMapOrder)
 	switch dest.Type {
 	case "webhook":
 		if d.ports.Webhook == nil {
