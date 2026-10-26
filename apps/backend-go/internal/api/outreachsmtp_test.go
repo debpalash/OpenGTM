@@ -5,6 +5,17 @@ import (
 	"testing"
 )
 
+func TestParseSMTPConfigEmailIsOneMailbox(t *testing.T) {
+	for _, e := range []string{`a@b.com>, \"CEO\" <ceo@victim.com`, `a@b.com, c@d.com`, `Name <a@b.com>`, `not-an-address`} {
+		if _, errs := parseSMTPConfig([]byte(`{"smtp_email":"` + e + `"}`)); len(errs) == 0 {
+			t.Errorf("smtp_email %q accepted", e)
+		}
+	}
+	if u, errs := parseSMTPConfig([]byte(`{"smtp_email":" sender@contract.example.com "}`)); len(errs) != 0 || u.Email == nil || *u.Email != "sender@contract.example.com" {
+		t.Fatalf("%+v %v", u, errs)
+	}
+}
+
 func TestParseSMTPConfigHostRules(t *testing.T) {
 	bad := []string{`{"smtp_host":"http://x.example"}`, `{"smtp_host":"x.example/p"}`, `{"smtp_host":"a b"}`, `{"smtp_host":"a@b.example"}`,
 		`{"smtp_host":"x.example:25"}`, `{"smtp_host":""}x`, `{"smtp_port":0}`, `{"smtp_port":65536}`, `{"smtp_max_per_hour":0}`, `{"smtp_max_per_hour":100001}`}

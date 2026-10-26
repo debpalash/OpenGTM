@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"encoding/base64"
 	"net/http"
 	"net/netip"
 	"regexp"
@@ -119,6 +118,20 @@ func smtpHost(v any, loc []any) (string, *httpx.FieldError) {
 	return s, nil
 }
 
+// smtpEmail is the From mailbox: exactly one address (plan 09 final security L3), so a stored value cannot add or forge From
+// addresses. Blank is ignored, as set_secret does.
+func smtpEmail(v any, loc []any) (string, *httpx.FieldError) {
+	s, e := seqString(v, loc, smtpEmailMax)
+	if e != nil {
+		return "", e
+	}
+	if s = strings.TrimSpace(s); s != "" && !smtpmail.ValidRecipient(s) {
+		fe := seqFE("value_error", "Value error, smtp_email must be a single email address", loc, v, nil)
+		return "", &fe
+	}
+	return s, nil
+}
+
 func isBareIP(s string) bool {
 	a, err := netip.ParseAddr(s)
 	return err == nil && a.Zone() == ""
@@ -154,7 +167,7 @@ func parseSMTPConfig(raw []byte) (outreachcfg.SMTPUpdate, []httpx.FieldError) {
 		}
 	}
 	if v, ok := get("smtp_email"); ok {
-		if s, e := seqString(v, seqLoc("smtp_email"), smtpEmailMax); add(e) {
+		if s, e := smtpEmail(v, seqLoc("smtp_email")); add(e) {
 			u.Email = &s
 		}
 	}
@@ -213,12 +226,9 @@ func (h smtpRoutes) update(w http.ResponseWriter, r *http.Request) {
 
 // smtpErrText is the failure text shown to the admin: the classified send error with the password (and its
 // base64 form, as it appears in an AUTH exchange) scrubbed, control characters dropped and the length capped.
-func smtpErrText(err error, password string) string {
+func smtpErrText(err error, user, password string) string {
 	t := outreachsend.SendErrorText(err)
-	if len(password) >= 4 {
-		t = strings.ReplaceAll(t, password, "[redacted]")
-		t = strings.ReplaceAll(t, base64.StdEncoding.EncodeToString([]byte(password)), "[redacted]")
-	}
+	t = smtpclient.ScrubAuth(t, user, password)
 	t = strings.Map(func(r rune) rune {
 		if unicode.IsControl(r) {
 			return ' '
@@ -285,7 +295,7 @@ func (h smtpRoutes) test(w http.ResponseWriter, r *http.Request) {
 	_, err := mailer.Send(ctx, outreachsend.MailConfig{Host: cfg.Host, Port: cfg.Port, Email: cfg.Email, Password: pw, UseTLS: cfg.UseTLS},
 		cfg.Email, strings.TrimSpace(to), msg)
 	if err != nil {
-		httpx.Detail(w, http.StatusBadRequest, smtpErrText(err, pw))
+		httpx.Detail(w, http.StatusBadRequest, smtpErrText(err, cfg.Email, pw))
 		return
 	}
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok", "message": "Test email sent to " + to})
