@@ -181,19 +181,6 @@ func countRows(t *testing.T, ctx context.Context, pool *pgxpool.Pool, q string, 
 	return n
 }
 
-// completedWithErrorsFits reports whether destination_runs.status can hold the
-// 21-character completed_with_errors (the schema is VARCHAR(20) until the pending
-// widening migration lands; Python's own worker fails on PostgreSQL meanwhile).
-func completedWithErrorsFits(t *testing.T, ctx context.Context, pool *pgxpool.Pool) bool {
-	t.Helper()
-	var n *int
-	if err := pool.QueryRow(ctx, `SELECT character_maximum_length FROM information_schema.columns
-		WHERE table_name = 'destination_runs' AND column_name = 'status'`).Scan(&n); err != nil {
-		t.Fatal(err)
-	}
-	return n == nil || *n >= len("completed_with_errors")
-}
-
 // ---- JSON shapes (Python to_api) used to compare with recorded fixtures ----
 
 func isoNaive(t time.Time) string {
@@ -944,12 +931,7 @@ func TestHealthConsecutiveWindow(t *testing.T) {
 	// only the newest 20 runs are inspected; completed_with_errors counts as unhealthy
 	pool, ctx := setup(t)
 	d := mkDest(t, ctx, pool, wsA, aud, "unhealthy")
-	bad := "failed"
-	if completedWithErrorsFits(t, ctx, pool) {
-		bad = "completed_with_errors"
-	} else {
-		t.Log("destination_runs.status is VARCHAR(20): completed_with_errors rows cannot be stored; using failed only")
-	}
+	bad := "completed_with_errors"
 	for i := 0; i < 25; i++ {
 		st := bad
 		if i%2 == 1 {
@@ -1155,12 +1137,10 @@ func TestReconcileFailureTerminalFailsPending(t *testing.T) {
 			t.Errorf("%s run touched: %+v", st, r)
 		}
 	}
-	if completedWithErrorsFits(t, ctx, pool) {
-		seedRun(t, ctx, pool, wsA, "p10t7-g-cwe", d.ID, "completed_with_errors", "2026-08-28 12:30:00", 1)
-		reconcile(t, ctx, pool, "p10t7-g-cwe", false, "late")
-		if r := getRun(t, ctx, pool, wsA, "p10t7-g-cwe"); r.Status != "completed_with_errors" {
-			t.Errorf("completed_with_errors touched: %+v", r)
-		}
+	seedRun(t, ctx, pool, wsA, "p10t7-g-cwe", d.ID, "completed_with_errors", "2026-08-28 12:30:00", 1)
+	reconcile(t, ctx, pool, "p10t7-g-cwe", false, "late")
+	if r := getRun(t, ctx, pool, wsA, "p10t7-g-cwe"); r.Status != "completed_with_errors" {
+		t.Errorf("completed_with_errors touched: %+v", r)
 	}
 	mustTx(t, ctx, pool, wsA, func(tx pgx.Tx) error {
 		if err := deststore.ReconcileFailure(ctx, tx, deststore.Run{ID: "gone", WorkspaceID: wsA}, false, "x"); err != nil {
