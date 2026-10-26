@@ -196,6 +196,7 @@ func TestJobJSONMatchesFixtures(t *testing.T) {
 	// list row with an unparsable raw intent_details string, as stored.
 	list := read("jobs_list_status_failed.json").([]any)
 	r := list[0].(map[string]any)
+	r["workspace_id"] = wsA // recorded under ws-alpha; the test tenant differs
 	in(t, ctx, pool, wsA, func(tx pgx.Tx) error {
 		_, err := tx.Exec(ctx, `INSERT INTO collection_jobs (id, workspace_id, query, intent, intent_details, status, tier, attempts, max_attempts,
 			leads_found, proxy_used, error, created_at, started_at, completed_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
@@ -234,6 +235,7 @@ func TestJobJSONMatchesFixtures(t *testing.T) {
 
 	// detail: job columns then stages, parsed JSON, unicode intact.
 	det := read("job_detail_done_unicode.json").(map[string]any)
+	det["workspace_id"] = wsA
 	in(t, ctx, pool, wsA, func(tx pgx.Tx) error {
 		iraw, _ := json.Marshal(det["intent_details"])
 		_, err := tx.Exec(ctx, `INSERT INTO collection_jobs (id, workspace_id, query, intent, intent_details, status, tier, attempts, max_attempts,

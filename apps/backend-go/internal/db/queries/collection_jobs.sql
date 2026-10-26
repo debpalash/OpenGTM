@@ -22,7 +22,9 @@ SELECT id, query, intent, intent_details, status, tier, attempts, max_attempts, 
 FROM collection_jobs
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND (sqlc.narg('status')::text IS NULL OR status = sqlc.narg('status')::text)
-ORDER BY created_at DESC
+-- created_at is ISO TEXT (same offset, so lexical = chronological). Python orders by created_at
+-- DESC only (ties arbitrary); id DESC is documented hardening for stable output.
+ORDER BY created_at DESC, id DESC
 LIMIT sqlc.arg(page_limit)::bigint;
 
 -- name: CJGet :one
@@ -63,3 +65,17 @@ WHERE id = sqlc.arg(id)::text AND workspace_id = current_setting('app.workspace_
 UPDATE collection_jobs
 SET status = 'failed', error = sqlc.arg(error)::text, completed_at = sqlc.arg(completed_at)::text
 WHERE id = sqlc.arg(id)::text AND workspace_id = current_setting('app.workspace_id', true);
+
+-- name: CJRequeueWithError :execrows
+-- reconcile_collect_job_failure, will_retry branch (PgJobLedger.requeue_with_error).
+UPDATE collection_jobs
+SET status = 'pending', error = sqlc.arg(error)::text, completed_at = ''
+WHERE id = sqlc.arg(id)::text AND workspace_id = current_setting('app.workspace_id', true);
+
+-- name: CJCancelQueueJob :execrows
+-- _cancel_collection_queue_job: the durable queue half (global `jobs` table, no RLS; the
+-- fire_key embeds the workspace). completed_at is a naive-UTC column.
+UPDATE jobs
+SET status = 'cancelled', completed_at = (sqlc.arg(now)::timestamptz AT TIME ZONE 'UTC'),
+    error = 'Cancelled by user', worker_id = NULL, locked_at = NULL
+WHERE fire_key = sqlc.arg(fire_key)::text AND status IN ('pending', 'processing');

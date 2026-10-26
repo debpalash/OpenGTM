@@ -32,6 +32,28 @@ func (q *Queries) CJCancel(ctx context.Context, arg CJCancelParams) (string, err
 	return id, err
 }
 
+const cJCancelQueueJob = `-- name: CJCancelQueueJob :execrows
+UPDATE jobs
+SET status = 'cancelled', completed_at = ($1::timestamptz AT TIME ZONE 'UTC'),
+    error = 'Cancelled by user', worker_id = NULL, locked_at = NULL
+WHERE fire_key = $2::text AND status IN ('pending', 'processing')
+`
+
+type CJCancelQueueJobParams struct {
+	Now     pgtype.Timestamptz
+	FireKey string
+}
+
+// _cancel_collection_queue_job: the durable queue half (global `jobs` table, no RLS; the
+// fire_key embeds the workspace). completed_at is a naive-UTC column.
+func (q *Queries) CJCancelQueueJob(ctx context.Context, arg CJCancelQueueJobParams) (int64, error) {
+	result, err := q.db.Exec(ctx, cJCancelQueueJob, arg.Now, arg.FireKey)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const cJCreate = `-- name: CJCreate :execrows
 
 INSERT INTO collection_jobs (id, workspace_id, query, intent, intent_details, created_at)
@@ -136,7 +158,7 @@ SELECT id, query, intent, intent_details, status, tier, attempts, max_attempts, 
 FROM collection_jobs
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND ($1::text IS NULL OR status = $1::text)
-ORDER BY created_at DESC
+ORDER BY created_at DESC, id DESC
 LIMIT $2::bigint
 `
 
@@ -165,6 +187,8 @@ type CJListRow struct {
 
 // status: the caller maps ” (Python `if status:`) to NULL = no filter, and applies
 // the allow-list (unknown value => empty result, no error).
+// created_at is ISO TEXT (same offset, so lexical = chronological). Python orders by created_at
+// DESC only (ties arbitrary); id DESC is documented hardening for stable output.
 func (q *Queries) CJList(ctx context.Context, arg CJListParams) ([]CJListRow, error) {
 	rows, err := q.db.Query(ctx, cJList, arg.Status, arg.PageLimit)
 	if err != nil {
@@ -215,6 +239,26 @@ type CJMarkFailedEnqueueParams struct {
 
 func (q *Queries) CJMarkFailedEnqueue(ctx context.Context, arg CJMarkFailedEnqueueParams) (int64, error) {
 	result, err := q.db.Exec(ctx, cJMarkFailedEnqueue, arg.Error, arg.CompletedAt, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const cJRequeueWithError = `-- name: CJRequeueWithError :execrows
+UPDATE collection_jobs
+SET status = 'pending', error = $1::text, completed_at = ''
+WHERE id = $2::text AND workspace_id = current_setting('app.workspace_id', true)
+`
+
+type CJRequeueWithErrorParams struct {
+	Error string
+	ID    string
+}
+
+// reconcile_collect_job_failure, will_retry branch (PgJobLedger.requeue_with_error).
+func (q *Queries) CJRequeueWithError(ctx context.Context, arg CJRequeueWithErrorParams) (int64, error) {
+	result, err := q.db.Exec(ctx, cJRequeueWithError, arg.Error, arg.ID)
 	if err != nil {
 		return 0, err
 	}
