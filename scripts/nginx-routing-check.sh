@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# Routing check for the side-by-side Go/Python API (plan 02, Task 15).
+# Runs a throwaway nginx (pinned image) with the REAL infra/nginx config and two stub
+# upstreams aliased `api` (py) and `api-go` (go) on a private docker network.
+# Asserts `nginx -t`, then the curl matrix at 0% and 100%.
+#   usage: scripts/nginx-routing-check.sh        env: NGINX_IMAGE (default nginx:1.27-alpine)
+set -euo pipefail
+cd "$(dirname "$0")/.."
+IMG="${NGINX_IMAGE:-nginx:1.27-alpine}"
+RUN="ngx-route-check-$$"
+TMP="$(mktemp -d)"
+FAIL=0
+cleanup() { docker rm -f "$RUN-py" "$RUN-go" "$RUN-gw" >/dev/null 2>&1 || true
+            docker network rm "$RUN" >/dev/null 2>&1 || true; rm -rf "$TMP"; }
+trap cleanup EXIT
+
+stub_conf() { # $1 = name
+  cat > "$TMP/stub-$1.conf" <<CONF
+server { listen 8000; location / {
+  add_header X-Stub $1 always; add_header X-Seen-Uri \$request_uri always;
+  return 200 "$1\n"; } }
+CONF
+}
+docker network create "$RUN" >/dev/null
+for n in py go; do
+  stub_conf "$n"
+  alias=api; [ "$n" = go ] && alias=api-go
+  docker run -d --name "$RUN-$n" --network "$RUN" --network-alias "$alias" \
+    -v "$TMP/stub-$n.conf:/etc/nginx/conf.d/default.conf:ro" "$IMG" >/dev/null
+done
+
+start_gateway() { # $1 = percentage for the go bucket
+  docker rm -f "$RUN-gw" >/dev/null 2>&1 || true
+  sed -E "s/^([[:space:]]*)[0-9]+%[[:space:]]+go;/\1$1% go;/" infra/nginx/go-split.conf > "$TMP/go-split.conf" 2>/dev/null || : > "$TMP/go-split.conf"
+  docker run -d --name "$RUN-gw" --network "$RUN" -p 127.0.0.1::80 \
+    -v "$PWD/infra/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro" \
+    -v "$PWD/infra/nginx/go-routes.conf:/etc/nginx/go-routes.conf:ro" \
+    -v "$TMP/go-split.conf:/etc/nginx/go-split.conf:ro" "$IMG" >/dev/null
+  PORT="$(docker port "$RUN-gw" 80/tcp | head -1 | sed 's/.*://')"
+  for _ in $(seq 40); do curl -s -o /dev/null "http://127.0.0.1:$PORT/health" && return 0; sleep 0.25; done
+  docker logs "$RUN-gw" 2>&1 | tail -5; return 1
+}
+hdr() { curl -s -D- -o /dev/null -X "$1" "http://127.0.0.1:$PORT$2" | tr -d '\r' | awk -F': ' -v k="$3" 'tolower($1)==tolower(k){print $2}'; }
+code() { curl -s -o /dev/null -w '%{http_code}' -X "$1" "http://127.0.0.1:$PORT$2"; }
+expect() { # desc got want
+  if [ "$2" = "$3" ]; then echo "  ok   $1 = $2"; else echo "  FAIL $1: got '$2' want '$3'"; FAIL=1; fi; }
+
+check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
+  local want="$1"
+  echo "== bucket $2 =="
+  for r in "POST /auth/token" "POST /auth/refresh" "GET /auth/me" "GET /api/workspaces" \
+           "GET /api/workspaces/1/members" "GET /api/mcp/tokens" "DELETE /api/mcp/tokens/3"; do
+    set -- $r
+    expect "$r X-Upstream" "$(hdr "$1" "$2" X-Upstream)" "$want"
+    expect "$r X-Stub     " "$(hdr "$1" "$2" X-Stub)" "$want"
+    expect "$r X-Seen-Uri " "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+  done
+  # Always Python, at any percentage
+  expect "GET /auth/sso/x X-Stub" "$(hdr GET /auth/sso/x X-Stub)" py
+  expect "GET /auth/sso/x X-Upstream (unset)" "$(hdr GET /auth/sso/x X-Upstream)" ""
+  expect "GET /api/leads X-Stub" "$(hdr GET /api/leads X-Stub)" py
+  # Unexposed by user decision: never proxied to either API (falls to the SPA location `/`)
+  for p in /admin/users /scim/v2/x /scim/v2/Users; do
+    expect "GET $p X-Stub (unset)" "$(hdr GET $p X-Stub)" ""
+    expect "GET $p X-Upstream (unset)" "$(hdr GET $p X-Upstream)" ""
+  done
+}
+
+echo "== nginx -t =="
+start_gateway 0
+if docker exec "$RUN-gw" nginx -t 2>&1; then echo "  ok   nginx -t"; else echo "  FAIL nginx -t"; FAIL=1; fi
+check_matrix py 0%
+start_gateway 100
+docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @100%"; FAIL=1; }
+check_matrix go 100%
+
+[ "$FAIL" = 0 ] && echo "ALL PASS" || { echo "FAILED"; exit 1; }
