@@ -1,0 +1,536 @@
+{
+ "allowed_hosts": " Login.Example.com , idp.corp.io,[::1],127.0.0.1 ",
+ "issuers": [
+  {
+   "in": "https://login.example.com",
+   "out": "https://login.example.com"
+  },
+  {
+   "in": "https://login.example.com/",
+   "out": "https://login.example.com"
+  },
+  {
+   "in": " https://LOGIN.example.com/realm/x/ ",
+   "out": "https://LOGIN.example.com/realm/x"
+  },
+  {
+   "in": "https://login.example.com:8443/path",
+   "out": "https://login.example.com:8443/path"
+  },
+  {
+   "in": "http://login.example.com",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "https://evil.example.com",
+   "error": "OIDC issuer host is not approved by SSO_ALLOWED_ISSUER_HOSTS"
+  },
+  {
+   "in": "https://user@login.example.com",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "https://user:pw@login.example.com",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "https://@login.example.com",
+   "out": "https://@login.example.com"
+  },
+  {
+   "in": "https://login.example.com?x=1",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "https://login.example.com?",
+   "out": "https://login.example.com?"
+  },
+  {
+   "in": "https://login.example.com#f",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "https://login.example.com#",
+   "out": "https://login.example.com#"
+  },
+  {
+   "in": "https://login.example.com.",
+   "error": "OIDC issuer host is not approved by SSO_ALLOWED_ISSUER_HOSTS"
+  },
+  {
+   "in": "https://idp.corp.io/a/b",
+   "out": "https://idp.corp.io/a/b"
+  },
+  {
+   "in": "//login.example.com",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "login.example.com",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "   ",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "https://",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "https:///path",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "https://[::1]/x",
+   "error": "OIDC issuer host is not approved by SSO_ALLOWED_ISSUER_HOSTS"
+  },
+  {
+   "in": "https://127.0.0.1",
+   "out": "https://127.0.0.1"
+  },
+  {
+   "in": "https://login.example.com\t/a",
+   "out": "https://login.example.com\t/a"
+  },
+  {
+   "in": "https://lo\ngin.example.com",
+   "out": "https://lo\ngin.example.com"
+  },
+  {
+   "in": "HTTPS://login.example.com",
+   "out": "HTTPS://login.example.com"
+  },
+  {
+   "in": "https://login.example.com:badport",
+   "out": "https://login.example.com:badport"
+  },
+  {
+   "in": "https://login.example.com@evil.com",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "https://evil.com@login.example.com",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "https://login.example.com\\@evil.com",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "ftp://login.example.com",
+   "error": "OIDC issuer must be a clean HTTPS origin or path"
+  },
+  {
+   "in": "https://login.example.com//",
+   "out": "https://login.example.com"
+  },
+  {
+   "in": "https://login.example.com/a b",
+   "out": "https://login.example.com/a b"
+  },
+  {
+   "in": "https://login.example.com:/x",
+   "out": "https://login.example.com:/x"
+  },
+  {
+   "in": "https://login.example.com:0",
+   "out": "https://login.example.com:0"
+  },
+  {
+   "in": "https://[::1",
+   "error": "Invalid IPv6 URL"
+  },
+  {
+   "in": "https://idp.corp.io:443",
+   "out": "https://idp.corp.io:443"
+  }
+ ],
+ "saves": [
+  {
+   "name": "defaults",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":false,\"enforce_sso\":false,\"issuer\":\"\",\"client_id\":\"\",\"allowed_domains\":[],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": false
+  },
+  {
+   "name": "enabled_full",
+   "input": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://login.example.com/",
+    "client_id": " cid ",
+    "client_secret": "s3",
+    "allowed_domains": [
+     "B.com",
+     " a.com ",
+     "b.com",
+     "",
+     "  "
+    ],
+    "auto_provision": true,
+    "default_role": "editor"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://login.example.com",
+    "client_id": "cid",
+    "allowed_domains": [
+     "a.com",
+     "b.com"
+    ],
+    "auto_provision": true,
+    "default_role": "editor"
+   },
+   "stored": "{\"enabled\":true,\"enforce_sso\":false,\"issuer\":\"https://login.example.com\",\"client_id\":\"cid\",\"allowed_domains\":[\"a.com\",\"b.com\"],\"auto_provision\":true,\"default_role\":\"editor\"}",
+   "secret_written": true
+  },
+  {
+   "name": "enabled_existing_secret",
+   "input": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io",
+    "client_id": "c",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": true,
+   "config": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io",
+    "client_id": "c",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":true,\"enforce_sso\":false,\"issuer\":\"https://idp.corp.io\",\"client_id\":\"c\",\"allowed_domains\":[],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": false
+  },
+  {
+   "name": "enabled_no_secret",
+   "input": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io",
+    "client_id": "c",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "Enabled OIDC requires issuer, client_id, and client_secret",
+   "secret_written": false,
+   "stored": null
+  },
+  {
+   "name": "enabled_blank_secret_ws",
+   "input": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io",
+    "client_id": "c",
+    "client_secret": "   ",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "Enabled OIDC requires issuer, client_id, and client_secret",
+   "secret_written": false,
+   "stored": null
+  },
+  {
+   "name": "enabled_no_issuer",
+   "input": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "c",
+    "client_secret": "s",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "Enabled OIDC requires issuer, client_id, and client_secret",
+   "secret_written": false,
+   "stored": null
+  },
+  {
+   "name": "enabled_no_client",
+   "input": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io",
+    "client_id": "",
+    "client_secret": "s",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "Enabled OIDC requires issuer, client_id, and client_secret",
+   "secret_written": false,
+   "stored": null
+  },
+  {
+   "name": "enabled_blank_client",
+   "input": {
+    "enabled": true,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io",
+    "client_id": "  ",
+    "client_secret": "s",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "Enabled OIDC requires issuer, client_id, and client_secret",
+   "secret_written": false,
+   "stored": null
+  },
+  {
+   "name": "enforce_without_enabled",
+   "input": {
+    "enabled": false,
+    "enforce_sso": true,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "SSO enforcement requires OIDC to be enabled",
+   "secret_written": false,
+   "stored": null
+  },
+  {
+   "name": "bad_role",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "admin"
+   },
+   "existing_secret": false,
+   "error": "OIDC default role must be viewer, member, or editor",
+   "secret_written": false,
+   "stored": null
+  },
+  {
+   "name": "bad_role_owner",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "owner"
+   },
+   "existing_secret": false,
+   "error": "OIDC default role must be viewer, member, or editor",
+   "secret_written": false,
+   "stored": null
+  },
+  {
+   "name": "bad_issuer_http",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "http://idp.corp.io",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "OIDC issuer must be a clean HTTPS origin or path",
+   "secret_written": false,
+   "stored": null
+  },
+  {
+   "name": "bad_issuer_host",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "https://evil.com",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "error": "OIDC issuer host is not approved by SSO_ALLOWED_ISSUER_HOSTS",
+   "secret_written": false,
+   "stored": null
+  },
+  {
+   "name": "disabled_with_issuer",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io/x/",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "https://idp.corp.io/x",
+    "client_id": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":false,\"enforce_sso\":false,\"issuer\":\"https://idp.corp.io/x\",\"client_id\":\"\",\"allowed_domains\":[],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": false
+  },
+  {
+   "name": "disabled_secret_saved",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "s9",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":false,\"enforce_sso\":false,\"issuer\":\"\",\"client_id\":\"\",\"allowed_domains\":[],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": true
+  },
+  {
+   "name": "unicode_domains",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [
+     "\u00dcn\u00ef.com",
+     "\u00a0x.org\u00a0",
+     "a\u2028b",
+     "z\"q\\",
+     "<&>",
+     "\u007f",
+     "\ud83d\ude00.io",
+     "\u001fsp\u001f"
+    ],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "existing_secret": false,
+   "config": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "",
+    "client_id": "",
+    "allowed_domains": [
+     "<&>",
+     "a\u2028b",
+     "sp",
+     "x.org",
+     "z\"q\\",
+     "\u007f",
+     "\u00fcn\u00ef.com",
+     "\ud83d\ude00.io"
+    ],
+    "auto_provision": false,
+    "default_role": "viewer"
+   },
+   "stored": "{\"enabled\":false,\"enforce_sso\":false,\"issuer\":\"\",\"client_id\":\"\",\"allowed_domains\":[\"<&>\",\"a\\u2028b\",\"sp\",\"x.org\",\"z\\\"q\\\\\",\"\\u007f\",\"\\u00fcn\\u00ef.com\",\"\\ud83d\\ude00.io\"],\"auto_provision\":false,\"default_role\":\"viewer\"}",
+   "secret_written": false
+  },
+  {
+   "name": "role_before_enforce",
+   "input": {
+    "enabled": false,
+    "enforce_sso": true,
+    "issuer": "",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "bogus"
+   },
+   "existing_secret": false,
+   "error": "OIDC default role must be viewer, member, or editor",
+   "secret_written": false,
+   "stored": null
+  },
+  {
+   "name": "issuer_before_role",
+   "input": {
+    "enabled": false,
+    "enforce_sso": false,
+    "issuer": "http://x",
+    "client_id": "",
+    "client_secret": "",
+    "allowed_domains": [],
+    "auto_provision": false,
+    "default_role": "bogus"
+   },
+   "existing_secret": false,
+   "error": "OIDC issuer must be a clean HTTPS origin or path",
+   "secret_written": false,
+   "stored": null
+  }
+ ]
+}

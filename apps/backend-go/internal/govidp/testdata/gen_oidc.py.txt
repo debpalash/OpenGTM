@@ -1,0 +1,74 @@
+# Generator for internal/govidp/testdata/oidc_vectors.json (run from legacy/python):
+#   uv run python <this file renamed .py, or piped via stdin> > oidc_vectors.json
+# Drives the real apps.api.services.workspace.oidc.save_config/validate_issuer with
+# manager/secret IO stubbed. No real secrets: client secrets are placeholder strings.
+import json, os, sys
+os.environ.setdefault("SSO_ALLOWED_ISSUER_HOSTS", "")
+from apps.api.core.config import settings
+from apps.api.services.workspace import oidc
+
+HOSTS = " Login.Example.com , idp.corp.io,[::1],127.0.0.1 "
+settings.SSO_ALLOWED_ISSUER_HOSTS = HOSTS
+
+ISSUERS = [
+    "https://login.example.com", "https://login.example.com/", " https://LOGIN.example.com/realm/x/ ",
+    "https://login.example.com:8443/path", "http://login.example.com", "https://evil.example.com",
+    "https://user@login.example.com", "https://user:pw@login.example.com", "https://@login.example.com",
+    "https://login.example.com?x=1", "https://login.example.com?", "https://login.example.com#f",
+    "https://login.example.com#", "https://login.example.com.", "https://idp.corp.io/a/b", "//login.example.com",
+    "login.example.com", "", "   ", "https://", "https:///path", "https://[::1]/x", "https://127.0.0.1",
+    "https://login.example.com\t/a", "https://lo\ngin.example.com", "HTTPS://login.example.com",
+    "https://login.example.com:badport", "https://login.example.com@evil.com", "https://evil.com@login.example.com",
+    "https://login.example.com\\@evil.com", "ftp://login.example.com", "https://login.example.com//", "https://login.example.com/a b",
+    "https://login.example.com:/x", "https://login.example.com:0", "https://[::1", "https://idp.corp.io:443",
+]
+out = {"allowed_hosts": HOSTS, "issuers": [], "saves": []}
+for i in ISSUERS:
+    try:
+        out["issuers"].append({"in": i, "out": oidc.validate_issuer(i)})
+    except ValueError as e:
+        out["issuers"].append({"in": i, "error": str(e)})
+
+store = {}
+sets = []
+oidc.manager.set_workspace_setting = lambda ws, k, v: store.__setitem__(k, v)
+state = {"secret": ""}
+oidc.get_secret = lambda ws, k: state["secret"]
+oidc.set_secret = lambda ws, k, v: sets.append(v)
+
+def body(**kw):
+    d = dict(enabled=False, enforce_sso=False, issuer="", client_id="", client_secret="", allowed_domains=[], auto_provision=False, default_role="viewer")
+    d.update(kw); return d
+
+CASES = [
+    ("defaults", body(), False),
+    ("enabled_full", body(enabled=True, issuer="https://login.example.com/", client_id=" cid ", client_secret="s3", allowed_domains=["B.com", " a.com ", "b.com", "", "  "], auto_provision=True, default_role="editor"), False),
+    ("enabled_existing_secret", body(enabled=True, issuer="https://idp.corp.io", client_id="c"), True),
+    ("enabled_no_secret", body(enabled=True, issuer="https://idp.corp.io", client_id="c"), False),
+    ("enabled_blank_secret_ws", body(enabled=True, issuer="https://idp.corp.io", client_id="c", client_secret="   "), False),
+    ("enabled_no_issuer", body(enabled=True, client_id="c", client_secret="s"), False),
+    ("enabled_no_client", body(enabled=True, issuer="https://idp.corp.io", client_secret="s"), False),
+    ("enabled_blank_client", body(enabled=True, issuer="https://idp.corp.io", client_id="  ", client_secret="s"), False),
+    ("enforce_without_enabled", body(enforce_sso=True), False),
+    ("bad_role", body(default_role="admin"), False),
+    ("bad_role_owner", body(default_role="owner"), False),
+    ("bad_issuer_http", body(issuer="http://idp.corp.io"), False),
+    ("bad_issuer_host", body(issuer="https://evil.com"), False),
+    ("disabled_with_issuer", body(issuer="https://idp.corp.io/x/"), False),
+    ("disabled_secret_saved", body(client_secret="s9"), False),
+    ("unicode_domains", body(allowed_domains=["Ünï.com", " x.org ", "a b", "z\"q\\", "<&>", "\x7f", "😀.io", "\x1fsp\x1f"]), False),
+    ("role_before_enforce", body(enforce_sso=True, default_role="bogus"), False),
+    ("issuer_before_role", body(issuer="http://x", default_role="bogus"), False),
+]
+for name, b, has in CASES:
+    store.clear(); sets.clear(); state["secret"] = "existing" if has else ""
+    rec = {"name": name, "input": b, "existing_secret": has}
+    try:
+        res = oidc.save_config("ws", b, b["client_secret"])
+        rec["config"] = res
+        rec["stored"] = store.get("OIDC_CONFIG")
+        rec["secret_written"] = bool(sets)
+    except ValueError as e:
+        rec["error"] = str(e); rec["secret_written"] = bool(sets); rec["stored"] = store.get("OIDC_CONFIG")
+    out["saves"].append(rec)
+json.dump(out, sys.stdout, indent=1); print()
