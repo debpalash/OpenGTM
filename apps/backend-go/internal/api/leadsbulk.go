@@ -60,14 +60,20 @@ func intErr(typ, msg string, loc []any, in any) []httpx.FieldError {
 }
 
 // pydanticInt coerces one JSON value like pydantic v2 lax `int` (bool, integral float, numeric
-// string accepted; unbounded magnitude).
+// string accepted); magnitude beyond int4 answers a 422 range error.
 func pydanticInt(v any, loc []any) (*big.Int, []httpx.FieldError) {
 	const parseMsg = "Input should be a valid integer, unable to parse string as an integer"
 	switch t := v.(type) {
 	case json.Number:
 		s := string(t)
 		if !strings.ContainsAny(s, ".eE") {
+			if tooWide(s) {
+				return nil, idRangeErr(loc)
+			}
 			n, _ := new(big.Int).SetString(s, 10)
+			if !fitsInt4(n) {
+				return nil, idRangeErr(loc)
+			}
 			return n, nil
 		}
 		f, _, err := big.ParseFloat(s, 10, 2000, big.ToNearestEven)
@@ -82,6 +88,9 @@ func pydanticInt(v any, loc []any) (*big.Int, []httpx.FieldError) {
 			return nil, intErr("int_from_float", "Input should be a valid integer, got a number with a fractional part", loc, v)
 		}
 		n, _ := f.Int(nil)
+		if !fitsInt4(n) {
+			return nil, idRangeErr(loc)
+		}
 		return n, nil
 	case bool:
 		if t {
@@ -96,10 +105,33 @@ func pydanticInt(v any, loc []any) (*big.Int, []httpx.FieldError) {
 		if i := strings.IndexByte(s, '.'); i >= 0 {
 			s = s[:i]
 		}
+		if tooWide(s) {
+			return nil, idRangeErr(loc)
+		}
 		n, _ := new(big.Int).SetString(strings.ReplaceAll(s, "_", ""), 10)
+		if !fitsInt4(n) {
+			return nil, idRangeErr(loc)
+		}
 		return n, nil
 	}
 	return nil, intErr("int_type", "Input should be a valid integer", loc, v)
+}
+
+// idRangeErr is the 422 for a lead id that no int4 column can hold (hardening: Python enqueues
+// it verbatim and the worker's Postgres lookup then 500s). The input is not echoed.
+func idRangeErr(loc []any) []httpx.FieldError {
+	return intErr("value_error", "Value error, lead id out of range", loc, nil)
+}
+
+// tooWide reports whether a decimal digit string cannot fit int4, without parsing it (so a
+// multi-megabyte digit string costs nothing).
+func tooWide(s string) bool {
+	s = strings.TrimLeft(strings.TrimLeft(s, "+-"), "0_")
+	return len(strings.ReplaceAll(s, "_", "")) > 10
+}
+
+func fitsInt4(n *big.Int) bool {
+	return n.IsInt64() && n.Int64() >= math.MinInt32 && n.Int64() <= math.MaxInt32
 }
 
 func pyIntOK(s string) bool { return bulkIntString.MatchString(s) }
