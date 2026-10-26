@@ -293,11 +293,23 @@ check_copilot_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
   for r in "POST /api/copilotkit" "GET /api/copilotkit/info" "POST /api/copilotkit/info" "GET /api/copilotkit/conversations" \
            "GET /api/copilotkit/conversations/abc123" "DELETE /api/copilotkit/conversations/abc123" "GET /api/copilotkit/memories" \
            "POST /api/person/enrich" "GET /api/person/history" "GET /api/person/history?skip=1&limit=2" "GET /api/person/7" \
-           "DELETE /api/person/7" "GET /ws/person/enrich" "GET /ws/person/enrich?token=SECRET"; do
+           "DELETE /api/person/7"; do
     set -- $r
     expect "$r X-Upstream" "$(hdr "$1" "$2" X-Upstream)" "$want"
     expect "$r X-Stub     " "$(hdr "$1" "$2" X-Stub)" "$want"
     expect "$r X-Seen-Uri " "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+  done
+  # /ws/person/enrich is Go only: never proxied to Python (404 in the Python bucket, no upstream reached).
+  for r in "GET /ws/person/enrich" "GET /ws/person/enrich?token=SECRET"; do
+    set -- $r
+    if [ "$want" = go ]; then
+      expect "$r X-Upstream" "$(hdr "$1" "$2" X-Upstream)" go
+      expect "$r X-Stub     " "$(hdr "$1" "$2" X-Stub)" go
+      expect "$r X-Seen-Uri " "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+    else
+      expect "$r status (Python bucket: 404)" "$(code "$1" "$2")" 404
+      expect "$r X-Stub (no upstream reached)" "$(hdr "$1" "$2" X-Stub)" ""
+    fi
   done
   # Lookalikes, unknown subpaths and trailing-slash variants stay on Python at every percentage.
   for r in "GET /api/copilotkit/" "POST /api/copilotkit/" "GET /api/copilotkit/other" "GET /api/copilotkit/conversations/" \
@@ -313,11 +325,13 @@ check_copilot_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
   b="$(curl -s -D- -o /dev/null -H 'X-Workspace-Id: ws-1' -H 'Authorization: Bearer two' "http://127.0.0.1:$PORT/api/copilotkit/conversations" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}')"
   expect "chat X-Upstream (workspace header)" "$a" "$want"
   expect "conversations X-Upstream (workspace header, other client)" "$b" "$want"
-  # WebSocket upgrade headers reach the upstream; the token stays out of the gateway log.
+  # WebSocket upgrade headers reach the upstream (Go bucket only); the token stays out of the gateway log.
   local ws; ws="$(curl -s -D- -o /dev/null -H 'Upgrade: websocket' -H 'Connection: Upgrade' "http://127.0.0.1:$PORT/ws/person/enrich?token=T" | tr -d '\r')"
-  expect "ws upstream HTTP version" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-proto"{print $2}')" "HTTP/1.1"
-  expect "ws Connection to upstream" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-conn"{print $2}')" upgrade
-  expect "ws Upgrade to upstream" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-upgrade"{print $2}')" websocket
+  if [ "$want" = go ]; then
+    expect "ws upstream HTTP version" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-proto"{print $2}')" "HTTP/1.1"
+    expect "ws Connection to upstream" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-conn"{print $2}')" upgrade
+    expect "ws Upgrade to upstream" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-upgrade"{print $2}')" websocket
+  fi
   curl -s -o /dev/null -H 'Upgrade: websocket' "http://127.0.0.1:$PORT/ws/person/enrich?token=PERSONSECRET456"; sleep 0.3
   if docker logs "$RUN-gw" 2>&1 | grep -q PERSONSECRET456; then echo "  FAIL person ws token leaked into gateway log"; FAIL=1; else echo "  ok   person ws token absent from gateway log"; fi
   # Location settings (not observable from a stub): compare blocks in `nginx -T`.
@@ -338,6 +352,31 @@ check_copilot_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
   # Ordering: no earlier regex location may capture these paths (first matching regex wins).
   local W; W="$(printf '%s\n' "$T" | awk 'index($0,"location = /ws/person/enrich {"){f=1;next} f&&/^[[:space:]]*}/{exit} f')"
   case "$W" in *"proxy_read_timeout 300s;"*) echo "  ok   person ws location has proxy_read_timeout 300s";; *) echo "  FAIL person ws location lacks proxy_read_timeout 300s"; FAIL=1;; esac
+}
+# Plan 12 at an intermediate percentage: the copilotkit routes are keyed per workspace (stickiness), the person WS is Go only.
+check_copilot_split50() {
+  echo "== copilot/person split (50%) =="
+  local w c a b seen="" ws_go=0 ws_py=0 stick=1
+  for w in ws-1 ws-2 ws-3 ws-4 ws-5 ws-6 ws-7 ws-8 ws-9 ws-10 ws-11 ws-12; do
+    # same workspace, different clients and routes -> one bucket
+    a="$(curl -s -D- -o /dev/null -X POST -H "X-Workspace-Id: $w" -H 'Authorization: Bearer one' "http://127.0.0.1:$PORT/api/copilotkit" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}')"
+    b="$(curl -s -D- -o /dev/null -H "X-Workspace-Id: $w" -H 'Authorization: Bearer two' "http://127.0.0.1:$PORT/api/copilotkit/conversations" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}')"
+    c="$(curl -s -D- -o /dev/null -H "X-Workspace-Id: $w" -H 'Authorization: Bearer three' "http://127.0.0.1:$PORT/api/copilotkit/memories" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}')"
+    if [ -z "$a" ] || [ "$a" != "$b" ] || [ "$a" != "$c" ]; then stick=0; echo "  FAIL $w not sticky: chat=$a conversations=$b memories=$c"; fi
+    seen="$seen $a"
+  done
+  [ "$stick" = 1 ] && echo "  ok   chat, conversations and memories agree per workspace"
+  case "$seen" in *go*) ws_go=1;; esac
+  case "$seen" in *py*) ws_py=1;; esac
+  if [ "$ws_go" = 1 ] && [ "$ws_py" = 1 ]; then echo "  ok   both upstreams appear across workspaces"; else echo "  FAIL workspaces all landed on one upstream:$seen"; FAIL=1; fi
+  [ "$stick" = 1 ] || FAIL=1
+  # Person WS: 200 (stub) exactly when the client bucket is go, else 404; never the Python stub.
+  local i up st
+  for i in 1 2 3 4 5 6 7 8; do
+    up="$(curl -s -D- -o /dev/null -H "Authorization: Bearer c$i" "http://127.0.0.1:$PORT/api/person/history" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}')"
+    st="$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer c$i" "http://127.0.0.1:$PORT/ws/person/enrich")"
+    if [ "$up" = go ]; then expect "client c$i ws (go bucket)" "$st" 200; else expect "client c$i ws (py bucket)" "$st" 404; fi
+  done
 }
 # ===== end plan 12 =====
 
@@ -481,6 +520,7 @@ check_outreach_matrix py
 start_gateway 50
 docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @50%"; FAIL=1; }
 check_outreach_matrix any
+check_copilot_split50
 start_gateway 100
 docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @100%"; FAIL=1; }
 check_matrix go 100%
