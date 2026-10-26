@@ -1,10 +1,14 @@
 package govadmin
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -235,4 +239,39 @@ func Remove(ctx context.Context, tx pgx.Tx, ws string, uid int32) error {
 		}
 	}
 	return nil
+}
+
+// pyFloat marshals like Python's json.dumps(float): shortest round-trip digits, ".0" on integral values.
+type pyFloat float64
+
+func (f pyFloat) MarshalJSON() ([]byte, error) {
+	v := float64(f)
+	if a := math.Abs(v); a != 0 && (a < 1e-4 || a >= 1e16) {
+		return json.Marshal(v) // exponent forms differ from Python in rare ranges; epoch seconds never reach them
+	}
+	s := strconv.FormatFloat(v, 'f', -1, 64)
+	if !strings.Contains(s, ".") {
+		s += ".0"
+	}
+	return []byte(s), nil
+}
+
+// MarshalJSON renders created_at as a Python float (1788000001.0), key order as declared.
+func (m RBACMember) MarshalJSON() ([]byte, error) {
+	var created *pyFloat
+	if m.CreatedAt != nil {
+		c := pyFloat(*m.CreatedAt)
+		created = &c
+	}
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false) // usernames reach the wire verbatim, as Python's json.dumps
+	err := enc.Encode(struct {
+		UserID    int32             `json:"user_id"`
+		Role      string            `json:"role"`
+		CreatedAt *pyFloat          `json:"created_at"`
+		Username  string            `json:"username"`
+		Overrides map[string]string `json:"overrides"`
+	}{m.UserID, m.Role, created, m.Username, m.Overrides})
+	return bytes.TrimRight(buf.Bytes(), "\n"), err
 }
