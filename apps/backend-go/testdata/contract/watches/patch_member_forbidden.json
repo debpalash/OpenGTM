@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "enabled": false
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/watches/watch-a-01"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: signals.write"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

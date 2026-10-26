@@ -1,0 +1,1395 @@
+{
+ "now": 1788000000.0,
+ "vectors": [
+  {
+   "condition": "true",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "TRUE",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": " True ",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "always",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "yes",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "YES",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "false",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "False",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "never",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "0",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "no",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "NO",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "maybe",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "2",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "y",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "   ",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": null,
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"70\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"70\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"70\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"85\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"85\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"85\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"2\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"2\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"2\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"1000\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"1000\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"1000\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"5\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"5\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"5\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"16\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"16\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"16\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"10\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"10\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"10\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"inf\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"inf\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"inf\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"nan\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} != \"nan\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"nan\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} < \"nan\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} >= \"nan\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"nan\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"1\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"1\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"1\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"12\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"12\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"12\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"7\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"7\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"7\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"0.5\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"0.5\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"0.5\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"9\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} != \"9\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"9\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} < \"9\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} >= \"9\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"9\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"abd\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} != \"abd\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"abd\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} < \"abd\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} >= \"abd\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"abd\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"9a\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"9a\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"9a\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"apple\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"apple\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"apple\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"z\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"z\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"z\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"0\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} != \"0\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"0\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} < \"0\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} >= \"0\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"0\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > \"\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= \"\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > 70",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{Score} > 70",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{SCORE} > 70",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{ score } > 70",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{company} == 'Hot Pursuit Labs'",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{Company Name} == \"Hot Pursuit Labs\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{company name} == \"Hot Pursuit Labs\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{company} == \"hot pursuit labs\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{nope} == 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{} == 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{{score}} == 85",
+   "ok": false,
+   "error": "unexpected character '}'"
+  },
+  {
+   "condition": "{score == 85",
+   "ok": false,
+   "error": "unterminated placeholder '{'"
+  },
+  {
+   "condition": "score} == 85",
+   "ok": false,
+   "error": "unexpected character '}'"
+  },
+  {
+   "condition": "{email} == \"ada@example.com\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == 'ada@example.com'",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == ada@example.com",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == \"ada@example.com",
+   "ok": false,
+   "error": "unterminated string literal"
+  },
+  {
+   "condition": "{email} == 'ada@example.com",
+   "ok": false,
+   "error": "unterminated string literal"
+  },
+  {
+   "condition": "{email} == \"it's\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == 'say \"hi\"'",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == \"\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} != \"\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == \"None\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == \"True\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == 5",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == 5.0",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == \"a b\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == \"safe\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == \"safe\" AND {score} > 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} contains \"x\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "not_empty({email})",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == \"a AND b\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == \"a OR b\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == a AND {score} == 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > 1 AND {score} < 100",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > 1 and {score} < 100",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > 1 And {score} < 100",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > 100 OR {score} < 90",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > 100 or {score} < 80",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > 100 OR {score} < 80",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > 1 OR {score} > 100 AND {score} < 0",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > 100 AND {score} < 0 OR {score} > 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{nope} == 1 OR {score} > 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > 1 OR {nope} == 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{nope} == 1 AND {score} > 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > 100 AND {nope} == 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "AND",
+   "ok": false,
+   "error": "empty comparison"
+  },
+  {
+   "condition": "OR",
+   "ok": false,
+   "error": "empty comparison"
+  },
+  {
+   "condition": "{score} > 1 AND",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "AND {score} > 1",
+   "ok": false,
+   "error": "empty comparison"
+  },
+  {
+   "condition": "{score} > 1 AND AND {score} > 2",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > 1 OR",
+   "ok": false,
+   "error": "empty comparison"
+  },
+  {
+   "condition": " {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1 AND {score} > 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1000 OR {score} > 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} = 85",
+   "ok": false,
+   "error": "unexpected character '='"
+  },
+  {
+   "condition": "{score} === 85",
+   "ok": false,
+   "error": "unexpected character '='"
+  },
+  {
+   "condition": "{score} <> 85",
+   "ok": false,
+   "error": "malformed comparison"
+  },
+  {
+   "condition": "{score} => 85",
+   "ok": false,
+   "error": "unexpected character '='"
+  },
+  {
+   "condition": "{score} ! 85",
+   "ok": false,
+   "error": "unexpected character '!'"
+  },
+  {
+   "condition": "{score} == == 85",
+   "ok": false,
+   "error": "malformed comparison"
+  },
+  {
+   "condition": "{score} 85",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "== 85",
+   "ok": false,
+   "error": "malformed comparison"
+  },
+  {
+   "condition": "{score} ==",
+   "ok": false,
+   "error": "malformed comparison"
+  },
+  {
+   "condition": "{score} {score}",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "85",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "{score}",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "{score} == 85 85",
+   "ok": false,
+   "error": "malformed comparison"
+  },
+  {
+   "condition": "{score} == 85 ;",
+   "ok": false,
+   "error": "malformed comparison"
+  },
+  {
+   "condition": "{score} & 85",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "{score} >= 85",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} <= 84",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score}>=85",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score}>85",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score}!=85",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score}==85",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "({score} > 1)",
+   "ok": false,
+   "error": "malformed comparison"
+  },
+  {
+   "condition": "( {score} > 1 ) AND ( {score} < 100 )",
+   "ok": false,
+   "error": "malformed comparison"
+  },
+  {
+   "condition": "{score} > (1)",
+   "ok": false,
+   "error": "malformed comparison"
+  },
+  {
+   "condition": "(not_empty({email}))",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "{company} contains \"pursuit\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{company} contains \"PURSUIT\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{company} contains \"\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{company} contains {tier}",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{company} contains",
+   "ok": false,
+   "error": "malformed 'contains' expression"
+  },
+  {
+   "condition": "contains \"x\"",
+   "ok": false,
+   "error": "malformed 'contains' expression"
+  },
+  {
+   "condition": "{company} contains \"a\" \"b\"",
+   "ok": false,
+   "error": "malformed 'contains' expression"
+  },
+  {
+   "condition": "{company} CONTAINS \"pursuit\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "\"ab\" contains \"B\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{company} contains \"i̇\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{company} contains \"i\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{company} == \"İ\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{company} contains \"ß\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "is_empty({email})",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "is_empty({nope})",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "NOT_EMPTY({email})",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "Is_Empty({email})",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "not_empty()",
+   "ok": false,
+   "error": "malformed not_empty() call"
+  },
+  {
+   "condition": "not_empty({email}",
+   "ok": false,
+   "error": "malformed not_empty() call"
+  },
+  {
+   "condition": "not_empty {email}",
+   "ok": false,
+   "error": "malformed not_empty() call"
+  },
+  {
+   "condition": "not_empty({email}) AND {score} > 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "not_empty({email}, {score})",
+   "ok": false,
+   "error": "not_empty() takes exactly one operand"
+  },
+  {
+   "condition": "not_empty(\"literal\")",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "not_empty(word)",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "is_empty(\"\")",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "not_empty(({email}))",
+   "ok": false,
+   "error": "not_empty() takes exactly one operand"
+  },
+  {
+   "condition": "{created} older_than 30d",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than \"30d\"",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 28d",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than \"28d\"",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 1h",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than \"1h\"",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 1s",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than \"1s\"",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 0s",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than \"0s\"",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 1w",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than \"1w\"",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 2w",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than \"2w\"",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 1d",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than \"1d\"",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 1m",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than \"1m\"",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 30D",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 12H",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 1W",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 5M",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 10S",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 30",
+   "ok": false,
+   "error": "bad duration '30' (use e.g. 30d, 12h)"
+  },
+  {
+   "condition": "{created} older_than d",
+   "ok": false,
+   "error": "bad duration 'd' (use e.g. 30d, 12h)"
+  },
+  {
+   "condition": "{created} older_than 30days",
+   "ok": false,
+   "error": "bad duration '30days' (use e.g. 30d, 12h)"
+  },
+  {
+   "condition": "{created} older_than 1.5h",
+   "ok": false,
+   "error": "bad duration '1.5h' (use e.g. 30d, 12h)"
+  },
+  {
+   "condition": "{created} older_than -1d",
+   "ok": false,
+   "error": "bad duration '-1d' (use e.g. 30d, 12h)"
+  },
+  {
+   "condition": "{created} older_than 0d",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 999999999999d",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 30 d",
+   "ok": false,
+   "error": "malformed 'older_than' expression"
+  },
+  {
+   "condition": "{created} older_than x30d",
+   "ok": false,
+   "error": "bad duration 'x30d' (use e.g. 30d, 12h)"
+  },
+  {
+   "condition": "{created} older_than 30d ",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than ' 30d '",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than ''",
+   "ok": false,
+   "error": "bad duration '' (use e.g. 30d, 12h)"
+  },
+  {
+   "condition": "{created} older_than",
+   "ok": false,
+   "error": "malformed 'older_than' expression"
+  },
+  {
+   "condition": "older_than 30d",
+   "ok": false,
+   "error": "malformed 'older_than' expression"
+  },
+  {
+   "condition": "{created} older_than {tier}",
+   "ok": false,
+   "error": "older_than duration must be like '30d'"
+  },
+  {
+   "condition": "\"2020-01-01\" older_than 30d",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{created} OLDER_THAN 30d",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{created} older_than 30d AND {score} > 1",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{company name} contains \"labs\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{COMPANY} contains \"labs\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{company} == 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{Company Name} == 2",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"[1, 2]\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{score} == \"{'a': 1}\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{x} == 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{X} == 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{é} == 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{É} == 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{email} == \"ünï\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{a} == {b}",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{a} < {b}",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{a} != {b}",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "5 == 5.0",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "abc == abc",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "abc != abd AND 1 < 2",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "1 < 2 OR nope == 1",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "'a b' == \"a b\"",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{a} === 1",
+   "ok": false,
+   "error": "unexpected character '='"
+  },
+  {
+   "condition": "{a} == 1 AND {b} contains \"x\" OR not_empty({c})",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{a} older_than 30d",
+   "ok": false,
+   "error": "older_than left operand is not a timestamp"
+  },
+  {
+   "condition": "{a} older_than soon",
+   "ok": false,
+   "error": "bad duration 'soon' (use e.g. 30d, 12h)"
+  },
+  {
+   "condition": "((",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "{a} == '",
+   "ok": false,
+   "error": "unterminated string literal"
+  },
+  {
+   "condition": "{a} == \"x\" AND",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "AND AND",
+   "ok": false,
+   "error": "empty comparison"
+  },
+  {
+   "condition": "{a} > 1 OR {b} <",
+   "ok": false,
+   "error": "malformed comparison"
+  },
+  {
+   "condition": "not_empty({a}) AND is_empty({b})",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{ a }  ==  { b }",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{a}=={b}",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{a}!={b}",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "{a}>={b}",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "   {a} == 1   ",
+   "ok": true,
+   "error": null
+  },
+  {
+   "condition": "x",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "{a}",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "@",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "#hash",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "{a} ~ 1",
+   "ok": false,
+   "error": "comparison has no operator"
+  },
+  {
+   "condition": "{a} == 1 ; DROP",
+   "ok": false,
+   "error": "malformed comparison"
+  },
+  {
+   "condition": "{a} == `x`",
+   "ok": true,
+   "error": null
+  }
+ ]
+}

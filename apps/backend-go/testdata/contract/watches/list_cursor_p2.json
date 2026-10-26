@@ -1,0 +1,223 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches?limit=5&cursor=WyIyMDI2LTA4LTI5VDA5OjA4OjAwKzAwOjAwIiwid2F0Y2gtYS0wOCJd"
+  },
+  "response": {
+    "body": {
+      "has_more": true,
+      "limit": 5,
+      "next_cursor": "WyIyMDI2LTA4LTI5VDA5OjAzOjAwKzAwOjAwIiwid2F0Y2gtYS0wMyJd",
+      "offset": null,
+      "watches": [
+        {
+          "config": {},
+          "consecutive_failures": 0,
+          "created_at": "2026-08-29T09:07:00+00:00",
+          "cursor": {
+            "bootstrapped": true
+          },
+          "enabled": false,
+          "id": "watch-a-07",
+          "interval": "daily",
+          "kind": "funding",
+          "last_error": null,
+          "last_polled_at": "2026-08-29T09:07:30+00:00",
+          "lead_id": 10,
+          "next_poll_at": null,
+          "resolved_cik": null,
+          "signal_types": [
+            "company_funded"
+          ],
+          "target": "Quantum Foods",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "account_count": 3,
+          "account_ids": [
+            "acc-1",
+            "acc-2",
+            "acc-3"
+          ],
+          "attempt_count": 3,
+          "collector_health": {
+            "acc-1:partnership_hiring": {
+              "attempt_count": 3,
+              "last_error_class": "hiring_provider_error",
+              "state": "failed"
+            }
+          },
+          "config": {
+            "accounts": [
+              {
+                "account_id": "acc-1",
+                "company": "Hot Pursuit Labs",
+                "lead_id": 14,
+                "website": "https://hotpursuit.example.com"
+              },
+              {
+                "account_id": "acc-2",
+                "company": "Zenith Robotics Pvt Ltd",
+                "lead_id": 6,
+                "website": "https://zenithrobotics.example.com"
+              },
+              {
+                "account_id": "acc-3",
+                "company": "Unlinked Co",
+                "website": "https://unlinked.example.com"
+              }
+            ],
+            "scope_key": "scope-abc",
+            "workbook_id": "wb-auto-1",
+            "workbook_name": "Automation Matrix"
+          },
+          "consecutive_failures": 1,
+          "created_at": "2026-08-29T09:06:00+00:00",
+          "cursor": {
+            "attempt_count": 3,
+            "bootstrapped": true,
+            "collector_health": {
+              "acc-1:partnership_hiring": {
+                "attempt_count": 3,
+                "last_error_class": "hiring_provider_error",
+                "state": "failed"
+              }
+            }
+          },
+          "enabled": true,
+          "id": "watch-a-06",
+          "interval": "daily",
+          "kind": "account_group",
+          "last_error": "hiring_provider_error",
+          "last_error_class": "hiring_provider_error",
+          "last_polled_at": "2026-08-29T09:06:30+00:00",
+          "lead_id": null,
+          "manual_retry_action": {
+            "label": "Retry collectors now",
+            "method": "POST",
+            "url": "/api/watches/watch-a-06/poll"
+          },
+          "next_poll_at": "2026-08-29T21:06:00+00:00",
+          "next_retry_at": "2026-08-29T21:06:00+00:00",
+          "resolved_cik": null,
+          "scope_key": "scope-abc",
+          "signal_types": [
+            "partnership_hiring",
+            "leadership_change",
+            "funding",
+            "pricing_page_change"
+          ],
+          "state": "degraded",
+          "target": "Automation Matrix",
+          "workbook_id": "wb-auto-1",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "config": {
+            "contacts": [
+              {
+                "company": "Hot Pursuit Labs",
+                "lead_id": 14,
+                "linkedin_url": "",
+                "name": "Sam Lee"
+              },
+              {
+                "company": "Analytical Engines",
+                "linkedin_url": "https://www.linkedin.com/in/ada-l",
+                "name": "Ada Lovelace"
+              }
+            ],
+            "max_contacts_per_poll": 5
+          },
+          "consecutive_failures": 0,
+          "created_at": "2026-08-29T09:05:00+00:00",
+          "cursor": {
+            "bootstrapped": true,
+            "job_change_contacts": {
+              "lead:14": {
+                "last_checked_at": 1788000000.0,
+                "last_known_company": "Hot Pursuit Labs"
+              }
+            }
+          },
+          "enabled": true,
+          "id": "watch-a-05",
+          "interval": "weekly",
+          "kind": "job_change",
+          "last_error": null,
+          "last_polled_at": "2026-08-29T09:05:30+00:00",
+          "lead_id": null,
+          "next_poll_at": "2026-09-05T09:05:00+00:00",
+          "resolved_cik": null,
+          "signal_types": [
+            "job_change"
+          ],
+          "target": "Sales roster",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "config": {},
+          "consecutive_failures": 0,
+          "created_at": "2026-08-29T09:04:00+00:00",
+          "cursor": {
+            "bootstrapped": false
+          },
+          "enabled": true,
+          "id": "watch-a-04",
+          "interval": "daily",
+          "kind": "company",
+          "last_error": null,
+          "last_polled_at": null,
+          "lead_id": 6,
+          "next_poll_at": "2026-08-30T09:04:00+00:00",
+          "resolved_cik": null,
+          "signal_types": [
+            "company_funded",
+            "executive_hired",
+            "hiring_surge",
+            "new_tech_adopted"
+          ],
+          "target": "Zenith Robotics Pvt Ltd",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "config": {},
+          "consecutive_failures": 0,
+          "created_at": "2026-08-29T09:03:00+00:00",
+          "cursor": {
+            "bootstrapped": true,
+            "feed_etag": "\"etag-1\"",
+            "feed_last_modified": "Sat, 29 Aug 2026 09:00:00 GMT",
+            "feed_max_published": 1788000000.0,
+            "feed_seen_guids": [
+              "g-1",
+              "g-2"
+            ]
+          },
+          "enabled": true,
+          "id": "watch-a-03",
+          "interval": "weekly",
+          "kind": "feed",
+          "last_error": null,
+          "last_polled_at": "2026-08-29T09:03:30+00:00",
+          "lead_id": 10,
+          "next_poll_at": "2026-09-05T09:03:00+00:00",
+          "resolved_cik": null,
+          "signal_types": [
+            "news"
+          ],
+          "target": "https://feeds.example.com/news.xml",
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

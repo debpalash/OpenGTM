@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "accounts": []
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/watches/watch-a-06"
+  },
+  "response": {
+    "body": {
+      "detail": "config not supported for kind 'account_group'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

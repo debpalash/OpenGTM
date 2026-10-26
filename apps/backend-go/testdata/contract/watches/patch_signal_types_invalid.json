@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "signal_types": [
+        "news"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/watches/00000000-0000-4000-8000-000000000032"
+  },
+  "response": {
+    "body": {
+      "detail": "signal_types ['news'] not valid for kind 'funding'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

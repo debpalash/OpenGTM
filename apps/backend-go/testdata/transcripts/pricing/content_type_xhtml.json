@@ -1,0 +1,44 @@
+{
+ "area": "pricing",
+ "scenario": "content_type_xhtml",
+ "description": "application/xhtml+xml contains 'html'",
+ "input": {
+  "url": "https://acme.example.com/pricing"
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "acme.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://acme.example.com/pricing",
+    "headers": {
+     "host": "acme.example.com",
+     "user-agent": "OpenGTM Signal Monitor/1.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/xhtml+xml"
+    },
+    "body": "<html><head><style>a{}</style><script>var x=1</script></head><body><h1>Pricing</h1><p>Pro $49/mo</p></body></html>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "ok": true,
+  "present": true,
+  "url": "https://acme.example.com/pricing",
+  "fingerprint": "9ff61b44de7914d0fdf6cb6f6239dcfd7419a1518f03b5281d941ca281da4188"
+ }
+}

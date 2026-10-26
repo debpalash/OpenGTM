@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "trigger_config": {
+        "interval": "yearly"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/automations/triggers/trg-a-05"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid schedule interval 'yearly'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

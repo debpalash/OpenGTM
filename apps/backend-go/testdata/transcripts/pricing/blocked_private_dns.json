@@ -1,0 +1,24 @@
+{
+ "area": "pricing",
+ "scenario": "blocked_private_dns",
+ "description": "private A record -> pricing_url_blocked, no request",
+ "input": {
+  "url": "https://acme.example.com/pricing"
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "acme.example.com",
+    "answers": [
+     "10.0.0.7"
+    ]
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "ok": false,
+  "error_class": "pricing_url_blocked"
+ }
+}

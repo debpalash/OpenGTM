@@ -1,0 +1,6608 @@
+{
+ "fingerprint_html": [
+  {
+   "html_prefix": "",
+   "html_len": 0,
+   "html": "",
+   "html_repeat": null,
+   "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "html_prefix": "<html><body>Hello</body></html>",
+   "html_len": 31,
+   "html": "<html><body>Hello</body></html>",
+   "html_repeat": null,
+   "fingerprint": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+  },
+  {
+   "html_prefix": "<html>  <body>\n Hello \t World </body> </html>",
+   "html_len": 45,
+   "html": "<html>  <body>\n Hello \t World </body> </html>",
+   "html_repeat": null,
+   "fingerprint": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+  },
+  {
+   "html_prefix": "<script>var x=1;</script><p>Price $10</p>",
+   "html_len": 41,
+   "html": "<script>var x=1;</script><p>Price $10</p>",
+   "html_repeat": null,
+   "fingerprint": "ffd471de06f3d3c8030bf5946c6f2f3845f884dfe183da0c149a9655f9ca76e6"
+  },
+  {
+   "html_prefix": "<SCRIPT type='x'>alert(1)</SCRIPT>Plans",
+   "html_len": 39,
+   "html": "<SCRIPT type='x'>alert(1)</SCRIPT>Plans",
+   "html_repeat": null,
+   "fingerprint": "c404dc69b55c0692366e3f28e6d8bc2e506bedbd4f519644adb5802500d83331"
+  },
+  {
+   "html_prefix": "<style>.a{color:red}</style><p>Plans</p>",
+   "html_len": 40,
+   "html": "<style>.a{color:red}</style><p>Plans</p>",
+   "html_repeat": null,
+   "fingerprint": "c404dc69b55c0692366e3f28e6d8bc2e506bedbd4f519644adb5802500d83331"
+  },
+  {
+   "html_prefix": "<p>Price</p><!-- comment --><p>$10</p>",
+   "html_len": 38,
+   "html": "<p>Price</p><!-- comment --><p>$10</p>",
+   "html_repeat": null,
+   "fingerprint": "ffd471de06f3d3c8030bf5946c6f2f3845f884dfe183da0c149a9655f9ca76e6"
+  },
+  {
+   "html_prefix": "<p>Pricing</p>xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "html_len": 600014,
+   "html": null,
+   "html_repeat": {
+    "prefix": "<p>Pricing</p>",
+    "char": "x",
+    "count": 600000
+   },
+   "fingerprint": "26b816a15aff9541ce5849152da5ca0ab65f85e842085dfd5fd8d4e24763b0f1"
+  },
+  {
+   "html_prefix": "<div class='a'>A</div><div class='b'>B</div>",
+   "html_len": 44,
+   "html": "<div class='a'>A</div><div class='b'>B</div>",
+   "html_repeat": null,
+   "fingerprint": "c8687a08aa5d6ed2044328fa6a697ab8e96dc34291e8c2034ae8c38e6fcc6d65"
+  },
+  {
+   "html_prefix": "<p>Éco – 東京</p>",
+   "html_len": 15,
+   "html": "<p>Éco – 東京</p>",
+   "html_repeat": null,
+   "fingerprint": "d09e0a4bda5d3aa66fe8edabe3821fcfa7682de829df0d88c371886295268075"
+  },
+  {
+   "html_prefix": "plain text no tags",
+   "html_len": 18,
+   "html": "plain text no tags",
+   "html_repeat": null,
+   "fingerprint": "e76786dba8b98627a84b24774e298668a8cce1320318e1af0af53cc2cfeaa805"
+  },
+  {
+   "html_prefix": "<p>UPPER Case</p>",
+   "html_len": 17,
+   "html": "<p>UPPER Case</p>",
+   "html_repeat": null,
+   "fingerprint": "7618f6be2555bb3d1261d33af3b45262e36fd2e6df2c4b6d7d45081b6c8eafa7"
+  },
+  {
+   "html_prefix": "<p>a</p>\n\n\n<p>b</p>",
+   "html_len": 19,
+   "html": "<p>a</p>\n\n\n<p>b</p>",
+   "html_repeat": null,
+   "fingerprint": "c8687a08aa5d6ed2044328fa6a697ab8e96dc34291e8c2034ae8c38e6fcc6d65"
+  },
+  {
+   "html_prefix": "<script>unterminated",
+   "html_len": 20,
+   "html": "<script>unterminated",
+   "html_repeat": null,
+   "fingerprint": "e765938659541ce087eaaef572392b3b3b4599fe509efcc1ba84558e26fb01bd"
+  },
+  {
+   "html_prefix": "<p>1 < 2 and 3 > 2</p>",
+   "html_len": 22,
+   "html": "<p>1 < 2 and 3 > 2</p>",
+   "html_repeat": null,
+   "fingerprint": "f71998fe363b9c29116c80b5eecf33a2fedca3b6159724384485804b71651029"
+  },
+  {
+   "html_prefix": "<b>bold</b><i>it</i>",
+   "html_len": 20,
+   "html": "<b>bold</b><i>it</i>",
+   "html_repeat": null,
+   "fingerprint": "57792c7a68ed1899b04a6b7df9724e91bd4fbd21c2eac8007b753f8366db58ee"
+  }
+ ],
+ "partnership_terms": [
+  "partnership",
+  "partnerships",
+  "alliances",
+  "partner development",
+  "partner ecosystem",
+  "channel partner",
+  "business development"
+ ],
+ "partnership_jobs": [
+  {
+   "name": "matching_titles",
+   "provider_result": {
+    "success": true,
+    "error": null,
+    "fields": {
+     "hiring_signals": "{\"roles\": [\"Head of Partnerships\", \"Software Engineer\", \"Channel Partner Manager\", \"BUSINESS DEVELOPMENT Lead\", \"Alliances Director\", \"Partner Ecosystem Lead\", \"Partner Development Rep\"]}"
+    }
+   },
+   "raises": null,
+   "result": {
+    "ok": true,
+    "items": [
+     {
+      "id": "1be918dfbcd3f4f4fb03",
+      "title": "Head of Partnerships",
+      "url": ""
+     },
+     {
+      "id": "79996092d5d098576783",
+      "title": "Channel Partner Manager",
+      "url": ""
+     },
+     {
+      "id": "fb8f3a0a9ef6ca40db82",
+      "title": "BUSINESS DEVELOPMENT Lead",
+      "url": ""
+     },
+     {
+      "id": "5c13574cb2022e8e1f04",
+      "title": "Alliances Director",
+      "url": ""
+     },
+     {
+      "id": "73dd00140e41325415c3",
+      "title": "Partner Ecosystem Lead",
+      "url": ""
+     },
+     {
+      "id": "ff462b1d67339e7f060a",
+      "title": "Partner Development Rep",
+      "url": ""
+     }
+    ]
+   },
+   "result_raised": null
+  },
+  {
+   "name": "duplicate_titles_different_case_same_id",
+   "provider_result": {
+    "success": true,
+    "error": null,
+    "fields": {
+     "hiring_signals": "{\"roles\": [\"Partnerships Manager\", \"partnerships manager\", \" Partnerships Manager \"]}"
+    }
+   },
+   "raises": null,
+   "result": {
+    "ok": true,
+    "items": [
+     {
+      "id": "a323fbf0cd023942b57a",
+      "title": "Partnerships Manager",
+      "url": ""
+     },
+     {
+      "id": "a323fbf0cd023942b57a",
+      "title": "partnerships manager",
+      "url": ""
+     },
+     {
+      "id": "a323fbf0cd023942b57a",
+      "title": "Partnerships Manager",
+      "url": ""
+     }
+    ]
+   },
+   "result_raised": null
+  },
+  {
+   "name": "blank_and_non_string_titles",
+   "provider_result": {
+    "success": true,
+    "error": null,
+    "fields": {
+     "hiring_signals": "{\"roles\": [\"\", \"  \", 5, null, \"Partnership Lead\"]}"
+    }
+   },
+   "raises": null,
+   "result": {
+    "ok": true,
+    "items": [
+     {
+      "id": "d215eab1cf051a3377e9",
+      "title": "Partnership Lead",
+      "url": ""
+     }
+    ]
+   },
+   "result_raised": null
+  },
+  {
+   "name": "no_matching_titles",
+   "provider_result": {
+    "success": true,
+    "error": null,
+    "fields": {
+     "hiring_signals": "{\"roles\": [\"Engineer\", \"Designer\"]}"
+    }
+   },
+   "raises": null,
+   "result": {
+    "ok": true,
+    "items": []
+   },
+   "result_raised": null
+  },
+  {
+   "name": "no_roles_key",
+   "provider_result": {
+    "success": true,
+    "error": null,
+    "fields": {
+     "hiring_signals": "{}"
+    }
+   },
+   "raises": null,
+   "result": {
+    "ok": true,
+    "items": []
+   },
+   "result_raised": null
+  },
+  {
+   "name": "roles_not_list",
+   "provider_result": {
+    "success": true,
+    "error": null,
+    "fields": {
+     "hiring_signals": "{\"roles\": \"x\"}"
+    }
+   },
+   "raises": null,
+   "result": {
+    "ok": true,
+    "items": []
+   },
+   "result_raised": null
+  },
+  {
+   "name": "hiring_signals_missing",
+   "provider_result": {
+    "success": true,
+    "error": null,
+    "fields": {}
+   },
+   "raises": null,
+   "result": {
+    "ok": true,
+    "items": []
+   },
+   "result_raised": null
+  },
+  {
+   "name": "hiring_signals_invalid_json",
+   "provider_result": {
+    "success": true,
+    "error": null,
+    "fields": {
+     "hiring_signals": "{bad"
+    }
+   },
+   "raises": null,
+   "result": {
+    "ok": false,
+    "error_class": "hiring_payload_invalid"
+   },
+   "result_raised": null
+  },
+  {
+   "name": "hiring_signals_not_object",
+   "provider_result": {
+    "success": true,
+    "error": null,
+    "fields": {
+     "hiring_signals": "[1]"
+    }
+   },
+   "raises": null,
+   "result": null,
+   "result_raised": {
+    "type": "AttributeError",
+    "message": "'list' object has no attribute 'get'"
+   }
+  },
+  {
+   "name": "no_jobs_found_is_ok_empty",
+   "provider_result": {
+    "success": false,
+    "error": "no_jobs_found",
+    "fields": {}
+   },
+   "raises": null,
+   "result": {
+    "ok": true,
+    "items": []
+   },
+   "result_raised": null
+  },
+  {
+   "name": "provider_failure",
+   "provider_result": {
+    "success": false,
+    "error": "rate_limited",
+    "fields": {}
+   },
+   "raises": null,
+   "result": {
+    "ok": false,
+    "error_class": "hiring_provider_unavailable"
+   },
+   "result_raised": null
+  },
+  {
+   "name": "provider_returns_none",
+   "provider_result": null,
+   "raises": null,
+   "result": {
+    "ok": false,
+    "error_class": "hiring_provider_unavailable"
+   },
+   "result_raised": null
+  },
+  {
+   "name": "provider_exception",
+   "provider_result": null,
+   "raises": "boom",
+   "result": {
+    "ok": false,
+    "error_class": "hiring_provider_error"
+   },
+   "result_raised": null
+  },
+  {
+   "name": "unicode_title",
+   "provider_result": {
+    "success": true,
+    "error": null,
+    "fields": {
+     "hiring_signals": "{\"roles\": [\"\\u00c9co Partnerships Lead\"]}"
+    }
+   },
+   "raises": null,
+   "result": {
+    "ok": true,
+    "items": [
+     {
+      "id": "3edd857ad59458461c6f",
+      "title": "Éco Partnerships Lead",
+      "url": ""
+     }
+    ]
+   },
+   "result_raised": null
+  }
+ ],
+ "fetch_account_group": [
+  {
+   "name": "bootstrap_suppresses_everything_but_records_state",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring",
+    "leadership_change",
+    "funding",
+    "pricing_page_change"
+   ],
+   "cursor": {},
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "j1",
+        "title": "Role j1",
+        "url": "https://j.example.com/j1"
+       }
+      ]
+     },
+     "funding": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:ACC-9",
+        "signal_type": "company_funded",
+        "title": "Raised $5,000,000 (Form D)",
+        "description": "d",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/x",
+        "weight": 10,
+        "occurred_at": 1788000000.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "leadership_change": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:grace:c_level",
+        "signal_type": "executive_hired",
+        "title": "New c level: Grace",
+        "description": "d2",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/y",
+        "weight": 8,
+        "occurred_at": 1788000050.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "pricing_page_change": {
+      "ok": true,
+      "present": true,
+      "url": "https://hotpursuit.example.com/pricing",
+      "fingerprint": "fp1"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934",
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "https://hotpursuit.example.com/pricing",
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "bootstrapped": true
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:leadership_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "bootstrap_backfill_emits_all",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring",
+    "leadership_change",
+    "funding",
+    "pricing_page_change"
+   ],
+   "cursor": {},
+   "backfill": true,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "j1",
+        "title": "Role j1",
+        "url": "https://j.example.com/j1"
+       }
+      ]
+     },
+     "funding": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:ACC-9",
+        "signal_type": "company_funded",
+        "title": "Raised $5,000,000 (Form D)",
+        "description": "d",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/x",
+        "weight": 10,
+        "occurred_at": 1788000000.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "leadership_change": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:grace:c_level",
+        "signal_type": "executive_hired",
+        "title": "New c level: Grace",
+        "description": "d2",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/y",
+        "weight": 8,
+        "occurred_at": 1788000050.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "pricing_page_change": {
+      "ok": true,
+      "present": true,
+      "url": "https://hotpursuit.example.com/pricing",
+      "fingerprint": "fp1"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:0002000934:ACC-9",
+     "signal_type": "funding",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/x",
+     "weight": 10,
+     "occurred_at": 1788000000.0,
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-1:0002000934:grace:c_level",
+     "signal_type": "leadership_change",
+     "title": "New c level: Grace",
+     "description": "d2",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/y",
+     "weight": 8,
+     "occurred_at": 1788000050.0,
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-1:partnership_job:j1",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role j1",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/j1",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934",
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "https://hotpursuit.example.com/pricing",
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "bootstrapped": true
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:leadership_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "steady_new_job_emits_known_job_not",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "j1",
+        "title": "Role j1",
+        "url": "https://j.example.com/j1"
+       },
+       {
+        "id": "j2",
+        "title": "Role j2",
+        "url": "https://j.example.com/j2"
+       }
+      ]
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:partnership_job:j2",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role j2",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/j2",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1",
+       "j2"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "steady_pricing_change_emits",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "pricing_page_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "pricing_page_change": {
+      "ok": true,
+      "present": true,
+      "url": "https://hotpursuit.example.com/pricing",
+      "fingerprint": "fp2"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:pricing:fp2",
+     "signal_type": "pricing_page_change",
+     "title": "Pricing page changed",
+     "description": "The saved pricing-page fingerprint changed for Hot Pursuit Labs",
+     "source": "company_website",
+     "source_url": "https://hotpursuit.example.com/pricing",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp2",
+      "pricing_url": "https://hotpursuit.example.com/pricing"
+     }
+    },
+    "collector_health": {
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "steady_pricing_same_no_emit",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "pricing_page_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "pricing_page_change": {
+      "ok": true,
+      "present": true,
+      "url": "https://hotpursuit.example.com/pricing",
+      "fingerprint": "fp1"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "https://hotpursuit.example.com/pricing"
+     }
+    },
+    "collector_health": {
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "pricing_missing_page_fingerprint_missing",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "pricing_page_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "pricing_page_change": {
+      "ok": true,
+      "present": false,
+      "url": "u",
+      "fingerprint": "missing"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:pricing:missing",
+     "signal_type": "pricing_page_change",
+     "title": "Pricing page changed",
+     "description": "The saved pricing-page fingerprint changed for Hot Pursuit Labs",
+     "source": "company_website",
+     "source_url": "u",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "missing",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "pricing_empty_fingerprint_keeps_previous",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "pricing_page_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "pricing_page_change": {
+      "ok": true,
+      "fingerprint": ""
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "pricing_first_fingerprint_after_bootstrap_no_emit",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "pricing_page_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true
+     }
+    }
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "pricing_page_change": {
+      "ok": true,
+      "present": true,
+      "url": "https://hotpursuit.example.com/pricing",
+      "fingerprint": "fp1"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "https://hotpursuit.example.com/pricing",
+      "partnership_job_ids": []
+     }
+    },
+    "collector_health": {
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "funding_event_namespaced_by_account",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "funding": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:ACC-9",
+        "signal_type": "company_funded",
+        "title": "Raised $5,000,000 (Form D)",
+        "description": "d",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/x",
+        "weight": 10,
+        "occurred_at": 1788000000.0,
+        "lead_id": null,
+        "company": ""
+       },
+       {
+        "natural_event_id": "0002000934:grace:c_level",
+        "signal_type": "executive_hired",
+        "title": "New c level: Grace",
+        "description": "d2",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/y",
+        "weight": 8,
+        "occurred_at": 1788000050.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:0002000934:ACC-9",
+     "signal_type": "funding",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/x",
+     "weight": 10,
+     "occurred_at": 1788000000.0,
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u",
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "leadership_only_executive_events",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "leadership_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "leadership_change": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:ACC-9",
+        "signal_type": "company_funded",
+        "title": "Raised $5,000,000 (Form D)",
+        "description": "d",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/x",
+        "weight": 10,
+        "occurred_at": 1788000000.0,
+        "lead_id": null,
+        "company": ""
+       },
+       {
+        "natural_event_id": "0002000934:grace:c_level",
+        "signal_type": "executive_hired",
+        "title": "New c level: Grace",
+        "description": "d2",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/y",
+        "weight": 8,
+        "occurred_at": 1788000050.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:0002000934:grace:c_level",
+     "signal_type": "leadership_change",
+     "title": "New c level: Grace",
+     "description": "d2",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/y",
+     "weight": 8,
+     "occurred_at": 1788000050.0,
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u",
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    },
+    "collector_health": {
+     "acc-1:leadership_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "funding_and_leadership_share_sec_cursor_last_wins",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding",
+    "leadership_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "funding": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:ACC-9",
+        "signal_type": "company_funded",
+        "title": "Raised $5,000,000 (Form D)",
+        "description": "d",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/x",
+        "weight": 10,
+        "occurred_at": 1788000000.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "A"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "leadership_change": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:grace:c_level",
+        "signal_type": "executive_hired",
+        "title": "New c level: Grace",
+        "description": "d2",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/y",
+        "weight": 8,
+        "occurred_at": 1788000050.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "B"
+      },
+      "resolved_cik": "C2"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:0002000934:ACC-9",
+     "signal_type": "funding",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/x",
+     "weight": 10,
+     "occurred_at": 1788000000.0,
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-1:0002000934:grace:c_level",
+     "signal_type": "leadership_change",
+     "title": "New c level: Grace",
+     "description": "d2",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/y",
+     "weight": 8,
+     "occurred_at": 1788000050.0,
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u",
+      "sec": {
+       "sec_last_accession": "B"
+      },
+      "resolved_cik": "C2"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:leadership_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "collector_failure_marks_health_and_failures",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring",
+    "leadership_change",
+    "funding",
+    "pricing_page_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": false,
+      "error_class": "hiring_provider_error"
+     },
+     "funding": {
+      "ok": false,
+      "error_class": "sec_provider_unavailable"
+     },
+     "leadership_change": {
+      "ok": true,
+      "events": [],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "pricing_page_change": {
+      "ok": false,
+      "error_class": "pricing_timeout"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u",
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "failed",
+      "attempt_count": 1,
+      "last_error_class": "sec_provider_unavailable"
+     },
+     "acc-1:leadership_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:partnership_hiring": {
+      "state": "failed",
+      "attempt_count": 1,
+      "last_error_class": "hiring_provider_error"
+     },
+     "acc-1:pricing_page_change": {
+      "state": "failed",
+      "attempt_count": 1,
+      "last_error_class": "pricing_timeout"
+     }
+    },
+    "_collector_failures": [
+     "sec_provider_unavailable",
+     "hiring_provider_error",
+     "pricing_timeout"
+    ]
+   }
+  },
+  {
+   "name": "missing_observation_is_collector_unavailable",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {}
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "failed",
+      "attempt_count": 1,
+      "last_error_class": "collector_unavailable"
+     }
+    },
+    "_collector_failures": [
+     "collector_unavailable"
+    ]
+   }
+  },
+  {
+   "name": "ok_not_exactly_true_is_failure",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "funding": {
+      "ok": 1,
+      "events": []
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "failed",
+      "attempt_count": 1,
+      "last_error_class": "collector_unavailable"
+     }
+    },
+    "_collector_failures": [
+     "collector_unavailable"
+    ]
+   }
+  },
+  {
+   "name": "health_attempt_counts_accumulate",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "failed",
+      "attempt_count": 4,
+      "last_error_class": "x"
+     }
+    }
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "funding": {
+      "ok": true,
+      "events": [],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u",
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 5,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "two_accounts_independent_bootstrap",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     },
+     {
+      "account_id": "acc-2",
+      "company": "Unlinked Co",
+      "website": "https://unlinked.example.com/"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": []
+     }
+    }
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "j1",
+        "title": "Role j1",
+        "url": "https://j.example.com/j1"
+       }
+      ]
+     }
+    },
+    "acc-2": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "j9",
+        "title": "Role j9",
+        "url": "https://j.example.com/j9"
+       }
+      ]
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:partnership_job:j1",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role j1",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/j1",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ]
+     },
+     "acc-2": {
+      "partnership_job_ids": [
+       "j9"
+      ],
+      "bootstrapped": true
+     }
+    },
+    "collector_health": {
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-2:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "account_lead_and_company_routing_on_events",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     },
+     {
+      "account_id": "acc-2",
+      "company": "Unlinked Co",
+      "website": "https://unlinked.example.com/"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true
+     },
+     "acc-2": {
+      "bootstrapped": true
+     }
+    }
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "a",
+        "title": "Role a",
+        "url": "https://j.example.com/a"
+       }
+      ]
+     }
+    },
+    "acc-2": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "b",
+        "title": "Role b",
+        "url": "https://j.example.com/b"
+       }
+      ]
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:partnership_job:a",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role a",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/a",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-2:partnership_job:b",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role b",
+     "description": "New partnership hiring evidence for Unlinked Co",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/b",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": "Unlinked Co"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "a"
+      ]
+     },
+     "acc-2": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "b"
+      ]
+     }
+    },
+    "collector_health": {
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-2:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "job_without_id_skipped_title_default",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "",
+        "title": "x"
+       },
+       {
+        "id": "k",
+        "title": ""
+       },
+       {
+        "title": "no id"
+       }
+      ]
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:partnership_job:k",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Untitled role",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1",
+       "k"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "known_job_ids_trimmed_to_last_500",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "o0",
+       "o1",
+       "o2",
+       "o3",
+       "o4",
+       "o5",
+       "o6",
+       "o7",
+       "o8",
+       "o9",
+       "o10",
+       "o11",
+       "o12",
+       "o13",
+       "o14",
+       "o15",
+       "o16",
+       "o17",
+       "o18",
+       "o19",
+       "o20",
+       "o21",
+       "o22",
+       "o23",
+       "o24",
+       "o25",
+       "o26",
+       "o27",
+       "o28",
+       "o29",
+       "o30",
+       "o31",
+       "o32",
+       "o33",
+       "o34",
+       "o35",
+       "o36",
+       "o37",
+       "o38",
+       "o39",
+       "o40",
+       "o41",
+       "o42",
+       "o43",
+       "o44",
+       "o45",
+       "o46",
+       "o47",
+       "o48",
+       "o49",
+       "o50",
+       "o51",
+       "o52",
+       "o53",
+       "o54",
+       "o55",
+       "o56",
+       "o57",
+       "o58",
+       "o59",
+       "o60",
+       "o61",
+       "o62",
+       "o63",
+       "o64",
+       "o65",
+       "o66",
+       "o67",
+       "o68",
+       "o69",
+       "o70",
+       "o71",
+       "o72",
+       "o73",
+       "o74",
+       "o75",
+       "o76",
+       "o77",
+       "o78",
+       "o79",
+       "o80",
+       "o81",
+       "o82",
+       "o83",
+       "o84",
+       "o85",
+       "o86",
+       "o87",
+       "o88",
+       "o89",
+       "o90",
+       "o91",
+       "o92",
+       "o93",
+       "o94",
+       "o95",
+       "o96",
+       "o97",
+       "o98",
+       "o99",
+       "o100",
+       "o101",
+       "o102",
+       "o103",
+       "o104",
+       "o105",
+       "o106",
+       "o107",
+       "o108",
+       "o109",
+       "o110",
+       "o111",
+       "o112",
+       "o113",
+       "o114",
+       "o115",
+       "o116",
+       "o117",
+       "o118",
+       "o119",
+       "o120",
+       "o121",
+       "o122",
+       "o123",
+       "o124",
+       "o125",
+       "o126",
+       "o127",
+       "o128",
+       "o129",
+       "o130",
+       "o131",
+       "o132",
+       "o133",
+       "o134",
+       "o135",
+       "o136",
+       "o137",
+       "o138",
+       "o139",
+       "o140",
+       "o141",
+       "o142",
+       "o143",
+       "o144",
+       "o145",
+       "o146",
+       "o147",
+       "o148",
+       "o149",
+       "o150",
+       "o151",
+       "o152",
+       "o153",
+       "o154",
+       "o155",
+       "o156",
+       "o157",
+       "o158",
+       "o159",
+       "o160",
+       "o161",
+       "o162",
+       "o163",
+       "o164",
+       "o165",
+       "o166",
+       "o167",
+       "o168",
+       "o169",
+       "o170",
+       "o171",
+       "o172",
+       "o173",
+       "o174",
+       "o175",
+       "o176",
+       "o177",
+       "o178",
+       "o179",
+       "o180",
+       "o181",
+       "o182",
+       "o183",
+       "o184",
+       "o185",
+       "o186",
+       "o187",
+       "o188",
+       "o189",
+       "o190",
+       "o191",
+       "o192",
+       "o193",
+       "o194",
+       "o195",
+       "o196",
+       "o197",
+       "o198",
+       "o199",
+       "o200",
+       "o201",
+       "o202",
+       "o203",
+       "o204",
+       "o205",
+       "o206",
+       "o207",
+       "o208",
+       "o209",
+       "o210",
+       "o211",
+       "o212",
+       "o213",
+       "o214",
+       "o215",
+       "o216",
+       "o217",
+       "o218",
+       "o219",
+       "o220",
+       "o221",
+       "o222",
+       "o223",
+       "o224",
+       "o225",
+       "o226",
+       "o227",
+       "o228",
+       "o229",
+       "o230",
+       "o231",
+       "o232",
+       "o233",
+       "o234",
+       "o235",
+       "o236",
+       "o237",
+       "o238",
+       "o239",
+       "o240",
+       "o241",
+       "o242",
+       "o243",
+       "o244",
+       "o245",
+       "o246",
+       "o247",
+       "o248",
+       "o249",
+       "o250",
+       "o251",
+       "o252",
+       "o253",
+       "o254",
+       "o255",
+       "o256",
+       "o257",
+       "o258",
+       "o259",
+       "o260",
+       "o261",
+       "o262",
+       "o263",
+       "o264",
+       "o265",
+       "o266",
+       "o267",
+       "o268",
+       "o269",
+       "o270",
+       "o271",
+       "o272",
+       "o273",
+       "o274",
+       "o275",
+       "o276",
+       "o277",
+       "o278",
+       "o279",
+       "o280",
+       "o281",
+       "o282",
+       "o283",
+       "o284",
+       "o285",
+       "o286",
+       "o287",
+       "o288",
+       "o289",
+       "o290",
+       "o291",
+       "o292",
+       "o293",
+       "o294",
+       "o295",
+       "o296",
+       "o297",
+       "o298",
+       "o299",
+       "o300",
+       "o301",
+       "o302",
+       "o303",
+       "o304",
+       "o305",
+       "o306",
+       "o307",
+       "o308",
+       "o309",
+       "o310",
+       "o311",
+       "o312",
+       "o313",
+       "o314",
+       "o315",
+       "o316",
+       "o317",
+       "o318",
+       "o319",
+       "o320",
+       "o321",
+       "o322",
+       "o323",
+       "o324",
+       "o325",
+       "o326",
+       "o327",
+       "o328",
+       "o329",
+       "o330",
+       "o331",
+       "o332",
+       "o333",
+       "o334",
+       "o335",
+       "o336",
+       "o337",
+       "o338",
+       "o339",
+       "o340",
+       "o341",
+       "o342",
+       "o343",
+       "o344",
+       "o345",
+       "o346",
+       "o347",
+       "o348",
+       "o349",
+       "o350",
+       "o351",
+       "o352",
+       "o353",
+       "o354",
+       "o355",
+       "o356",
+       "o357",
+       "o358",
+       "o359",
+       "o360",
+       "o361",
+       "o362",
+       "o363",
+       "o364",
+       "o365",
+       "o366",
+       "o367",
+       "o368",
+       "o369",
+       "o370",
+       "o371",
+       "o372",
+       "o373",
+       "o374",
+       "o375",
+       "o376",
+       "o377",
+       "o378",
+       "o379",
+       "o380",
+       "o381",
+       "o382",
+       "o383",
+       "o384",
+       "o385",
+       "o386",
+       "o387",
+       "o388",
+       "o389",
+       "o390",
+       "o391",
+       "o392",
+       "o393",
+       "o394",
+       "o395",
+       "o396",
+       "o397",
+       "o398",
+       "o399",
+       "o400",
+       "o401",
+       "o402",
+       "o403",
+       "o404",
+       "o405",
+       "o406",
+       "o407",
+       "o408",
+       "o409",
+       "o410",
+       "o411",
+       "o412",
+       "o413",
+       "o414",
+       "o415",
+       "o416",
+       "o417",
+       "o418",
+       "o419",
+       "o420",
+       "o421",
+       "o422",
+       "o423",
+       "o424",
+       "o425",
+       "o426",
+       "o427",
+       "o428",
+       "o429",
+       "o430",
+       "o431",
+       "o432",
+       "o433",
+       "o434",
+       "o435",
+       "o436",
+       "o437",
+       "o438",
+       "o439",
+       "o440",
+       "o441",
+       "o442",
+       "o443",
+       "o444",
+       "o445",
+       "o446",
+       "o447",
+       "o448",
+       "o449",
+       "o450",
+       "o451",
+       "o452",
+       "o453",
+       "o454",
+       "o455",
+       "o456",
+       "o457",
+       "o458",
+       "o459",
+       "o460",
+       "o461",
+       "o462",
+       "o463",
+       "o464",
+       "o465",
+       "o466",
+       "o467",
+       "o468",
+       "o469",
+       "o470",
+       "o471",
+       "o472",
+       "o473",
+       "o474",
+       "o475",
+       "o476",
+       "o477",
+       "o478",
+       "o479",
+       "o480",
+       "o481",
+       "o482",
+       "o483",
+       "o484",
+       "o485",
+       "o486",
+       "o487",
+       "o488",
+       "o489",
+       "o490",
+       "o491",
+       "o492",
+       "o493",
+       "o494",
+       "o495",
+       "o496",
+       "o497",
+       "o498"
+      ]
+     }
+    }
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "n1",
+        "title": "Role n1",
+        "url": "https://j.example.com/n1"
+       },
+       {
+        "id": "n2",
+        "title": "Role n2",
+        "url": "https://j.example.com/n2"
+       },
+       {
+        "id": "n3",
+        "title": "Role n3",
+        "url": "https://j.example.com/n3"
+       }
+      ]
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:partnership_job:n1",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role n1",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/n1",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-1:partnership_job:n2",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role n2",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/n2",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-1:partnership_job:n3",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role n3",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/n3",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "o2",
+       "o3",
+       "o4",
+       "o5",
+       "o6",
+       "o7",
+       "o8",
+       "o9",
+       "o10",
+       "o11",
+       "o12",
+       "o13",
+       "o14",
+       "o15",
+       "o16",
+       "o17",
+       "o18",
+       "o19",
+       "o20",
+       "o21",
+       "o22",
+       "o23",
+       "o24",
+       "o25",
+       "o26",
+       "o27",
+       "o28",
+       "o29",
+       "o30",
+       "o31",
+       "o32",
+       "o33",
+       "o34",
+       "o35",
+       "o36",
+       "o37",
+       "o38",
+       "o39",
+       "o40",
+       "o41",
+       "o42",
+       "o43",
+       "o44",
+       "o45",
+       "o46",
+       "o47",
+       "o48",
+       "o49",
+       "o50",
+       "o51",
+       "o52",
+       "o53",
+       "o54",
+       "o55",
+       "o56",
+       "o57",
+       "o58",
+       "o59",
+       "o60",
+       "o61",
+       "o62",
+       "o63",
+       "o64",
+       "o65",
+       "o66",
+       "o67",
+       "o68",
+       "o69",
+       "o70",
+       "o71",
+       "o72",
+       "o73",
+       "o74",
+       "o75",
+       "o76",
+       "o77",
+       "o78",
+       "o79",
+       "o80",
+       "o81",
+       "o82",
+       "o83",
+       "o84",
+       "o85",
+       "o86",
+       "o87",
+       "o88",
+       "o89",
+       "o90",
+       "o91",
+       "o92",
+       "o93",
+       "o94",
+       "o95",
+       "o96",
+       "o97",
+       "o98",
+       "o99",
+       "o100",
+       "o101",
+       "o102",
+       "o103",
+       "o104",
+       "o105",
+       "o106",
+       "o107",
+       "o108",
+       "o109",
+       "o110",
+       "o111",
+       "o112",
+       "o113",
+       "o114",
+       "o115",
+       "o116",
+       "o117",
+       "o118",
+       "o119",
+       "o120",
+       "o121",
+       "o122",
+       "o123",
+       "o124",
+       "o125",
+       "o126",
+       "o127",
+       "o128",
+       "o129",
+       "o130",
+       "o131",
+       "o132",
+       "o133",
+       "o134",
+       "o135",
+       "o136",
+       "o137",
+       "o138",
+       "o139",
+       "o140",
+       "o141",
+       "o142",
+       "o143",
+       "o144",
+       "o145",
+       "o146",
+       "o147",
+       "o148",
+       "o149",
+       "o150",
+       "o151",
+       "o152",
+       "o153",
+       "o154",
+       "o155",
+       "o156",
+       "o157",
+       "o158",
+       "o159",
+       "o160",
+       "o161",
+       "o162",
+       "o163",
+       "o164",
+       "o165",
+       "o166",
+       "o167",
+       "o168",
+       "o169",
+       "o170",
+       "o171",
+       "o172",
+       "o173",
+       "o174",
+       "o175",
+       "o176",
+       "o177",
+       "o178",
+       "o179",
+       "o180",
+       "o181",
+       "o182",
+       "o183",
+       "o184",
+       "o185",
+       "o186",
+       "o187",
+       "o188",
+       "o189",
+       "o190",
+       "o191",
+       "o192",
+       "o193",
+       "o194",
+       "o195",
+       "o196",
+       "o197",
+       "o198",
+       "o199",
+       "o200",
+       "o201",
+       "o202",
+       "o203",
+       "o204",
+       "o205",
+       "o206",
+       "o207",
+       "o208",
+       "o209",
+       "o210",
+       "o211",
+       "o212",
+       "o213",
+       "o214",
+       "o215",
+       "o216",
+       "o217",
+       "o218",
+       "o219",
+       "o220",
+       "o221",
+       "o222",
+       "o223",
+       "o224",
+       "o225",
+       "o226",
+       "o227",
+       "o228",
+       "o229",
+       "o230",
+       "o231",
+       "o232",
+       "o233",
+       "o234",
+       "o235",
+       "o236",
+       "o237",
+       "o238",
+       "o239",
+       "o240",
+       "o241",
+       "o242",
+       "o243",
+       "o244",
+       "o245",
+       "o246",
+       "o247",
+       "o248",
+       "o249",
+       "o250",
+       "o251",
+       "o252",
+       "o253",
+       "o254",
+       "o255",
+       "o256",
+       "o257",
+       "o258",
+       "o259",
+       "o260",
+       "o261",
+       "o262",
+       "o263",
+       "o264",
+       "o265",
+       "o266",
+       "o267",
+       "o268",
+       "o269",
+       "o270",
+       "o271",
+       "o272",
+       "o273",
+       "o274",
+       "o275",
+       "o276",
+       "o277",
+       "o278",
+       "o279",
+       "o280",
+       "o281",
+       "o282",
+       "o283",
+       "o284",
+       "o285",
+       "o286",
+       "o287",
+       "o288",
+       "o289",
+       "o290",
+       "o291",
+       "o292",
+       "o293",
+       "o294",
+       "o295",
+       "o296",
+       "o297",
+       "o298",
+       "o299",
+       "o300",
+       "o301",
+       "o302",
+       "o303",
+       "o304",
+       "o305",
+       "o306",
+       "o307",
+       "o308",
+       "o309",
+       "o310",
+       "o311",
+       "o312",
+       "o313",
+       "o314",
+       "o315",
+       "o316",
+       "o317",
+       "o318",
+       "o319",
+       "o320",
+       "o321",
+       "o322",
+       "o323",
+       "o324",
+       "o325",
+       "o326",
+       "o327",
+       "o328",
+       "o329",
+       "o330",
+       "o331",
+       "o332",
+       "o333",
+       "o334",
+       "o335",
+       "o336",
+       "o337",
+       "o338",
+       "o339",
+       "o340",
+       "o341",
+       "o342",
+       "o343",
+       "o344",
+       "o345",
+       "o346",
+       "o347",
+       "o348",
+       "o349",
+       "o350",
+       "o351",
+       "o352",
+       "o353",
+       "o354",
+       "o355",
+       "o356",
+       "o357",
+       "o358",
+       "o359",
+       "o360",
+       "o361",
+       "o362",
+       "o363",
+       "o364",
+       "o365",
+       "o366",
+       "o367",
+       "o368",
+       "o369",
+       "o370",
+       "o371",
+       "o372",
+       "o373",
+       "o374",
+       "o375",
+       "o376",
+       "o377",
+       "o378",
+       "o379",
+       "o380",
+       "o381",
+       "o382",
+       "o383",
+       "o384",
+       "o385",
+       "o386",
+       "o387",
+       "o388",
+       "o389",
+       "o390",
+       "o391",
+       "o392",
+       "o393",
+       "o394",
+       "o395",
+       "o396",
+       "o397",
+       "o398",
+       "o399",
+       "o400",
+       "o401",
+       "o402",
+       "o403",
+       "o404",
+       "o405",
+       "o406",
+       "o407",
+       "o408",
+       "o409",
+       "o410",
+       "o411",
+       "o412",
+       "o413",
+       "o414",
+       "o415",
+       "o416",
+       "o417",
+       "o418",
+       "o419",
+       "o420",
+       "o421",
+       "o422",
+       "o423",
+       "o424",
+       "o425",
+       "o426",
+       "o427",
+       "o428",
+       "o429",
+       "o430",
+       "o431",
+       "o432",
+       "o433",
+       "o434",
+       "o435",
+       "o436",
+       "o437",
+       "o438",
+       "o439",
+       "o440",
+       "o441",
+       "o442",
+       "o443",
+       "o444",
+       "o445",
+       "o446",
+       "o447",
+       "o448",
+       "o449",
+       "o450",
+       "o451",
+       "o452",
+       "o453",
+       "o454",
+       "o455",
+       "o456",
+       "o457",
+       "o458",
+       "o459",
+       "o460",
+       "o461",
+       "o462",
+       "o463",
+       "o464",
+       "o465",
+       "o466",
+       "o467",
+       "o468",
+       "o469",
+       "o470",
+       "o471",
+       "o472",
+       "o473",
+       "o474",
+       "o475",
+       "o476",
+       "o477",
+       "o478",
+       "o479",
+       "o480",
+       "o481",
+       "o482",
+       "o483",
+       "o484",
+       "o485",
+       "o486",
+       "o487",
+       "o488",
+       "o489",
+       "o490",
+       "o491",
+       "o492",
+       "o493",
+       "o494",
+       "o495",
+       "o496",
+       "o497",
+       "o498",
+       "n1",
+       "n2",
+       "n3"
+      ]
+     }
+    },
+    "collector_health": {
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "account_without_id_skipped",
+   "config": {
+    "accounts": [
+     {
+      "company": "No Id"
+     },
+     "bad",
+     null,
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "funding": {
+      "ok": true,
+      "events": [],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u",
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "config_not_dict",
+   "config": [
+    "x"
+   ],
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {},
+   "backfill": false,
+   "observations": {},
+   "events": [],
+   "patch": {
+    "account_group": {},
+    "collector_health": {},
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "accounts_not_list",
+   "config": {
+    "accounts": "x"
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {},
+   "backfill": false,
+   "observations": {},
+   "events": [],
+   "patch": {
+    "account_group": {},
+    "collector_health": {},
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "signal_types_sorted_iteration_order",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "pricing_page_change",
+    "funding",
+    "partnership_hiring",
+    "leadership_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "j2",
+        "title": "Role j2",
+        "url": "https://j.example.com/j2"
+       }
+      ]
+     },
+     "funding": {
+      "ok": true,
+      "events": [],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "leadership_change": {
+      "ok": true,
+      "events": [],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "pricing_page_change": {
+      "ok": true,
+      "present": true,
+      "url": "https://hotpursuit.example.com/pricing",
+      "fingerprint": "fp3"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:partnership_job:j2",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role j2",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/j2",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-1:pricing:fp3",
+     "signal_type": "pricing_page_change",
+     "title": "Pricing page changed",
+     "description": "The saved pricing-page fingerprint changed for Hot Pursuit Labs",
+     "source": "company_website",
+     "source_url": "https://hotpursuit.example.com/pricing",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1",
+       "j2"
+      ],
+      "pricing_fingerprint": "fp3",
+      "pricing_url": "https://hotpursuit.example.com/pricing",
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:leadership_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "unknown_signal_type_requested_marks_healthy_no_events",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "bogus"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "bogus": {
+      "ok": true
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:bogus": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "empty_signal_types_still_bootstraps_accounts",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [],
+   "cursor": {},
+   "backfill": false,
+   "observations": {
+    "acc-1": {}
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "partnership_job_ids": [],
+      "bootstrapped": true
+     }
+    },
+    "collector_health": {},
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "cursor_not_dict",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": null,
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "funding": {
+      "ok": true,
+      "events": [],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934",
+      "partnership_job_ids": [],
+      "bootstrapped": true
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  }
+ ],
+ "vectors": [
+  {
+   "name": "bootstrap_suppresses_everything_but_records_state",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring",
+    "leadership_change",
+    "funding",
+    "pricing_page_change"
+   ],
+   "cursor": {},
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "j1",
+        "title": "Role j1",
+        "url": "https://j.example.com/j1"
+       }
+      ]
+     },
+     "funding": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:ACC-9",
+        "signal_type": "company_funded",
+        "title": "Raised $5,000,000 (Form D)",
+        "description": "d",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/x",
+        "weight": 10,
+        "occurred_at": 1788000000.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "leadership_change": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:grace:c_level",
+        "signal_type": "executive_hired",
+        "title": "New c level: Grace",
+        "description": "d2",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/y",
+        "weight": 8,
+        "occurred_at": 1788000050.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "pricing_page_change": {
+      "ok": true,
+      "present": true,
+      "url": "https://hotpursuit.example.com/pricing",
+      "fingerprint": "fp1"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934",
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "https://hotpursuit.example.com/pricing",
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "bootstrapped": true
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:leadership_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "bootstrap_backfill_emits_all",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring",
+    "leadership_change",
+    "funding",
+    "pricing_page_change"
+   ],
+   "cursor": {},
+   "backfill": true,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "j1",
+        "title": "Role j1",
+        "url": "https://j.example.com/j1"
+       }
+      ]
+     },
+     "funding": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:ACC-9",
+        "signal_type": "company_funded",
+        "title": "Raised $5,000,000 (Form D)",
+        "description": "d",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/x",
+        "weight": 10,
+        "occurred_at": 1788000000.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "leadership_change": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:grace:c_level",
+        "signal_type": "executive_hired",
+        "title": "New c level: Grace",
+        "description": "d2",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/y",
+        "weight": 8,
+        "occurred_at": 1788000050.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "pricing_page_change": {
+      "ok": true,
+      "present": true,
+      "url": "https://hotpursuit.example.com/pricing",
+      "fingerprint": "fp1"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:0002000934:ACC-9",
+     "signal_type": "funding",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/x",
+     "weight": 10,
+     "occurred_at": 1788000000.0,
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-1:0002000934:grace:c_level",
+     "signal_type": "leadership_change",
+     "title": "New c level: Grace",
+     "description": "d2",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/y",
+     "weight": 8,
+     "occurred_at": 1788000050.0,
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-1:partnership_job:j1",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role j1",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/j1",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934",
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "https://hotpursuit.example.com/pricing",
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "bootstrapped": true
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:leadership_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "steady_new_job_emits_known_job_not",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "j1",
+        "title": "Role j1",
+        "url": "https://j.example.com/j1"
+       },
+       {
+        "id": "j2",
+        "title": "Role j2",
+        "url": "https://j.example.com/j2"
+       }
+      ]
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:partnership_job:j2",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role j2",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/j2",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1",
+       "j2"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "steady_pricing_change_emits",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "pricing_page_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "pricing_page_change": {
+      "ok": true,
+      "present": true,
+      "url": "https://hotpursuit.example.com/pricing",
+      "fingerprint": "fp2"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:pricing:fp2",
+     "signal_type": "pricing_page_change",
+     "title": "Pricing page changed",
+     "description": "The saved pricing-page fingerprint changed for Hot Pursuit Labs",
+     "source": "company_website",
+     "source_url": "https://hotpursuit.example.com/pricing",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp2",
+      "pricing_url": "https://hotpursuit.example.com/pricing"
+     }
+    },
+    "collector_health": {
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "steady_pricing_same_no_emit",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "pricing_page_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "pricing_page_change": {
+      "ok": true,
+      "present": true,
+      "url": "https://hotpursuit.example.com/pricing",
+      "fingerprint": "fp1"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "https://hotpursuit.example.com/pricing"
+     }
+    },
+    "collector_health": {
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "pricing_missing_page_fingerprint_missing",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "pricing_page_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "pricing_page_change": {
+      "ok": true,
+      "present": false,
+      "url": "u",
+      "fingerprint": "missing"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:pricing:missing",
+     "signal_type": "pricing_page_change",
+     "title": "Pricing page changed",
+     "description": "The saved pricing-page fingerprint changed for Hot Pursuit Labs",
+     "source": "company_website",
+     "source_url": "u",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "missing",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "pricing_empty_fingerprint_keeps_previous",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "pricing_page_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "pricing_page_change": {
+      "ok": true,
+      "fingerprint": ""
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "pricing_first_fingerprint_after_bootstrap_no_emit",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "pricing_page_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true
+     }
+    }
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "pricing_page_change": {
+      "ok": true,
+      "present": true,
+      "url": "https://hotpursuit.example.com/pricing",
+      "fingerprint": "fp1"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "https://hotpursuit.example.com/pricing",
+      "partnership_job_ids": []
+     }
+    },
+    "collector_health": {
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "funding_event_namespaced_by_account",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "funding": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:ACC-9",
+        "signal_type": "company_funded",
+        "title": "Raised $5,000,000 (Form D)",
+        "description": "d",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/x",
+        "weight": 10,
+        "occurred_at": 1788000000.0,
+        "lead_id": null,
+        "company": ""
+       },
+       {
+        "natural_event_id": "0002000934:grace:c_level",
+        "signal_type": "executive_hired",
+        "title": "New c level: Grace",
+        "description": "d2",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/y",
+        "weight": 8,
+        "occurred_at": 1788000050.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:0002000934:ACC-9",
+     "signal_type": "funding",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/x",
+     "weight": 10,
+     "occurred_at": 1788000000.0,
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u",
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "leadership_only_executive_events",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "leadership_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "leadership_change": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:ACC-9",
+        "signal_type": "company_funded",
+        "title": "Raised $5,000,000 (Form D)",
+        "description": "d",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/x",
+        "weight": 10,
+        "occurred_at": 1788000000.0,
+        "lead_id": null,
+        "company": ""
+       },
+       {
+        "natural_event_id": "0002000934:grace:c_level",
+        "signal_type": "executive_hired",
+        "title": "New c level: Grace",
+        "description": "d2",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/y",
+        "weight": 8,
+        "occurred_at": 1788000050.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:0002000934:grace:c_level",
+     "signal_type": "leadership_change",
+     "title": "New c level: Grace",
+     "description": "d2",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/y",
+     "weight": 8,
+     "occurred_at": 1788000050.0,
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u",
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    },
+    "collector_health": {
+     "acc-1:leadership_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "funding_and_leadership_share_sec_cursor_last_wins",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding",
+    "leadership_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "funding": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:ACC-9",
+        "signal_type": "company_funded",
+        "title": "Raised $5,000,000 (Form D)",
+        "description": "d",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/x",
+        "weight": 10,
+        "occurred_at": 1788000000.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "A"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "leadership_change": {
+      "ok": true,
+      "events": [
+       {
+        "natural_event_id": "0002000934:grace:c_level",
+        "signal_type": "executive_hired",
+        "title": "New c level: Grace",
+        "description": "d2",
+        "source": "sec_edgar",
+        "source_url": "https://www.sec.gov/y",
+        "weight": 8,
+        "occurred_at": 1788000050.0,
+        "lead_id": null,
+        "company": ""
+       }
+      ],
+      "cursor": {
+       "sec_last_accession": "B"
+      },
+      "resolved_cik": "C2"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:0002000934:ACC-9",
+     "signal_type": "funding",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/x",
+     "weight": 10,
+     "occurred_at": 1788000000.0,
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-1:0002000934:grace:c_level",
+     "signal_type": "leadership_change",
+     "title": "New c level: Grace",
+     "description": "d2",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/y",
+     "weight": 8,
+     "occurred_at": 1788000050.0,
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u",
+      "sec": {
+       "sec_last_accession": "B"
+      },
+      "resolved_cik": "C2"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:leadership_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "collector_failure_marks_health_and_failures",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring",
+    "leadership_change",
+    "funding",
+    "pricing_page_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": false,
+      "error_class": "hiring_provider_error"
+     },
+     "funding": {
+      "ok": false,
+      "error_class": "sec_provider_unavailable"
+     },
+     "leadership_change": {
+      "ok": true,
+      "events": [],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "pricing_page_change": {
+      "ok": false,
+      "error_class": "pricing_timeout"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u",
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "failed",
+      "attempt_count": 1,
+      "last_error_class": "sec_provider_unavailable"
+     },
+     "acc-1:leadership_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:partnership_hiring": {
+      "state": "failed",
+      "attempt_count": 1,
+      "last_error_class": "hiring_provider_error"
+     },
+     "acc-1:pricing_page_change": {
+      "state": "failed",
+      "attempt_count": 1,
+      "last_error_class": "pricing_timeout"
+     }
+    },
+    "_collector_failures": [
+     "sec_provider_unavailable",
+     "hiring_provider_error",
+     "pricing_timeout"
+    ]
+   }
+  },
+  {
+   "name": "missing_observation_is_collector_unavailable",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {}
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "failed",
+      "attempt_count": 1,
+      "last_error_class": "collector_unavailable"
+     }
+    },
+    "_collector_failures": [
+     "collector_unavailable"
+    ]
+   }
+  },
+  {
+   "name": "ok_not_exactly_true_is_failure",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "funding": {
+      "ok": 1,
+      "events": []
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "failed",
+      "attempt_count": 1,
+      "last_error_class": "collector_unavailable"
+     }
+    },
+    "_collector_failures": [
+     "collector_unavailable"
+    ]
+   }
+  },
+  {
+   "name": "health_attempt_counts_accumulate",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "failed",
+      "attempt_count": 4,
+      "last_error_class": "x"
+     }
+    }
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "funding": {
+      "ok": true,
+      "events": [],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u",
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 5,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "two_accounts_independent_bootstrap",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     },
+     {
+      "account_id": "acc-2",
+      "company": "Unlinked Co",
+      "website": "https://unlinked.example.com/"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": []
+     }
+    }
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "j1",
+        "title": "Role j1",
+        "url": "https://j.example.com/j1"
+       }
+      ]
+     }
+    },
+    "acc-2": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "j9",
+        "title": "Role j9",
+        "url": "https://j.example.com/j9"
+       }
+      ]
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:partnership_job:j1",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role j1",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/j1",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ]
+     },
+     "acc-2": {
+      "partnership_job_ids": [
+       "j9"
+      ],
+      "bootstrapped": true
+     }
+    },
+    "collector_health": {
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-2:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "account_lead_and_company_routing_on_events",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     },
+     {
+      "account_id": "acc-2",
+      "company": "Unlinked Co",
+      "website": "https://unlinked.example.com/"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true
+     },
+     "acc-2": {
+      "bootstrapped": true
+     }
+    }
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "a",
+        "title": "Role a",
+        "url": "https://j.example.com/a"
+       }
+      ]
+     }
+    },
+    "acc-2": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "b",
+        "title": "Role b",
+        "url": "https://j.example.com/b"
+       }
+      ]
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:partnership_job:a",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role a",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/a",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-2:partnership_job:b",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role b",
+     "description": "New partnership hiring evidence for Unlinked Co",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/b",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": "Unlinked Co"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "a"
+      ]
+     },
+     "acc-2": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "b"
+      ]
+     }
+    },
+    "collector_health": {
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-2:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "job_without_id_skipped_title_default",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "",
+        "title": "x"
+       },
+       {
+        "id": "k",
+        "title": ""
+       },
+       {
+        "title": "no id"
+       }
+      ]
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:partnership_job:k",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Untitled role",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1",
+       "k"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "known_job_ids_trimmed_to_last_500",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "partnership_hiring"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "o0",
+       "o1",
+       "o2",
+       "o3",
+       "o4",
+       "o5",
+       "o6",
+       "o7",
+       "o8",
+       "o9",
+       "o10",
+       "o11",
+       "o12",
+       "o13",
+       "o14",
+       "o15",
+       "o16",
+       "o17",
+       "o18",
+       "o19",
+       "o20",
+       "o21",
+       "o22",
+       "o23",
+       "o24",
+       "o25",
+       "o26",
+       "o27",
+       "o28",
+       "o29",
+       "o30",
+       "o31",
+       "o32",
+       "o33",
+       "o34",
+       "o35",
+       "o36",
+       "o37",
+       "o38",
+       "o39",
+       "o40",
+       "o41",
+       "o42",
+       "o43",
+       "o44",
+       "o45",
+       "o46",
+       "o47",
+       "o48",
+       "o49",
+       "o50",
+       "o51",
+       "o52",
+       "o53",
+       "o54",
+       "o55",
+       "o56",
+       "o57",
+       "o58",
+       "o59",
+       "o60",
+       "o61",
+       "o62",
+       "o63",
+       "o64",
+       "o65",
+       "o66",
+       "o67",
+       "o68",
+       "o69",
+       "o70",
+       "o71",
+       "o72",
+       "o73",
+       "o74",
+       "o75",
+       "o76",
+       "o77",
+       "o78",
+       "o79",
+       "o80",
+       "o81",
+       "o82",
+       "o83",
+       "o84",
+       "o85",
+       "o86",
+       "o87",
+       "o88",
+       "o89",
+       "o90",
+       "o91",
+       "o92",
+       "o93",
+       "o94",
+       "o95",
+       "o96",
+       "o97",
+       "o98",
+       "o99",
+       "o100",
+       "o101",
+       "o102",
+       "o103",
+       "o104",
+       "o105",
+       "o106",
+       "o107",
+       "o108",
+       "o109",
+       "o110",
+       "o111",
+       "o112",
+       "o113",
+       "o114",
+       "o115",
+       "o116",
+       "o117",
+       "o118",
+       "o119",
+       "o120",
+       "o121",
+       "o122",
+       "o123",
+       "o124",
+       "o125",
+       "o126",
+       "o127",
+       "o128",
+       "o129",
+       "o130",
+       "o131",
+       "o132",
+       "o133",
+       "o134",
+       "o135",
+       "o136",
+       "o137",
+       "o138",
+       "o139",
+       "o140",
+       "o141",
+       "o142",
+       "o143",
+       "o144",
+       "o145",
+       "o146",
+       "o147",
+       "o148",
+       "o149",
+       "o150",
+       "o151",
+       "o152",
+       "o153",
+       "o154",
+       "o155",
+       "o156",
+       "o157",
+       "o158",
+       "o159",
+       "o160",
+       "o161",
+       "o162",
+       "o163",
+       "o164",
+       "o165",
+       "o166",
+       "o167",
+       "o168",
+       "o169",
+       "o170",
+       "o171",
+       "o172",
+       "o173",
+       "o174",
+       "o175",
+       "o176",
+       "o177",
+       "o178",
+       "o179",
+       "o180",
+       "o181",
+       "o182",
+       "o183",
+       "o184",
+       "o185",
+       "o186",
+       "o187",
+       "o188",
+       "o189",
+       "o190",
+       "o191",
+       "o192",
+       "o193",
+       "o194",
+       "o195",
+       "o196",
+       "o197",
+       "o198",
+       "o199",
+       "o200",
+       "o201",
+       "o202",
+       "o203",
+       "o204",
+       "o205",
+       "o206",
+       "o207",
+       "o208",
+       "o209",
+       "o210",
+       "o211",
+       "o212",
+       "o213",
+       "o214",
+       "o215",
+       "o216",
+       "o217",
+       "o218",
+       "o219",
+       "o220",
+       "o221",
+       "o222",
+       "o223",
+       "o224",
+       "o225",
+       "o226",
+       "o227",
+       "o228",
+       "o229",
+       "o230",
+       "o231",
+       "o232",
+       "o233",
+       "o234",
+       "o235",
+       "o236",
+       "o237",
+       "o238",
+       "o239",
+       "o240",
+       "o241",
+       "o242",
+       "o243",
+       "o244",
+       "o245",
+       "o246",
+       "o247",
+       "o248",
+       "o249",
+       "o250",
+       "o251",
+       "o252",
+       "o253",
+       "o254",
+       "o255",
+       "o256",
+       "o257",
+       "o258",
+       "o259",
+       "o260",
+       "o261",
+       "o262",
+       "o263",
+       "o264",
+       "o265",
+       "o266",
+       "o267",
+       "o268",
+       "o269",
+       "o270",
+       "o271",
+       "o272",
+       "o273",
+       "o274",
+       "o275",
+       "o276",
+       "o277",
+       "o278",
+       "o279",
+       "o280",
+       "o281",
+       "o282",
+       "o283",
+       "o284",
+       "o285",
+       "o286",
+       "o287",
+       "o288",
+       "o289",
+       "o290",
+       "o291",
+       "o292",
+       "o293",
+       "o294",
+       "o295",
+       "o296",
+       "o297",
+       "o298",
+       "o299",
+       "o300",
+       "o301",
+       "o302",
+       "o303",
+       "o304",
+       "o305",
+       "o306",
+       "o307",
+       "o308",
+       "o309",
+       "o310",
+       "o311",
+       "o312",
+       "o313",
+       "o314",
+       "o315",
+       "o316",
+       "o317",
+       "o318",
+       "o319",
+       "o320",
+       "o321",
+       "o322",
+       "o323",
+       "o324",
+       "o325",
+       "o326",
+       "o327",
+       "o328",
+       "o329",
+       "o330",
+       "o331",
+       "o332",
+       "o333",
+       "o334",
+       "o335",
+       "o336",
+       "o337",
+       "o338",
+       "o339",
+       "o340",
+       "o341",
+       "o342",
+       "o343",
+       "o344",
+       "o345",
+       "o346",
+       "o347",
+       "o348",
+       "o349",
+       "o350",
+       "o351",
+       "o352",
+       "o353",
+       "o354",
+       "o355",
+       "o356",
+       "o357",
+       "o358",
+       "o359",
+       "o360",
+       "o361",
+       "o362",
+       "o363",
+       "o364",
+       "o365",
+       "o366",
+       "o367",
+       "o368",
+       "o369",
+       "o370",
+       "o371",
+       "o372",
+       "o373",
+       "o374",
+       "o375",
+       "o376",
+       "o377",
+       "o378",
+       "o379",
+       "o380",
+       "o381",
+       "o382",
+       "o383",
+       "o384",
+       "o385",
+       "o386",
+       "o387",
+       "o388",
+       "o389",
+       "o390",
+       "o391",
+       "o392",
+       "o393",
+       "o394",
+       "o395",
+       "o396",
+       "o397",
+       "o398",
+       "o399",
+       "o400",
+       "o401",
+       "o402",
+       "o403",
+       "o404",
+       "o405",
+       "o406",
+       "o407",
+       "o408",
+       "o409",
+       "o410",
+       "o411",
+       "o412",
+       "o413",
+       "o414",
+       "o415",
+       "o416",
+       "o417",
+       "o418",
+       "o419",
+       "o420",
+       "o421",
+       "o422",
+       "o423",
+       "o424",
+       "o425",
+       "o426",
+       "o427",
+       "o428",
+       "o429",
+       "o430",
+       "o431",
+       "o432",
+       "o433",
+       "o434",
+       "o435",
+       "o436",
+       "o437",
+       "o438",
+       "o439",
+       "o440",
+       "o441",
+       "o442",
+       "o443",
+       "o444",
+       "o445",
+       "o446",
+       "o447",
+       "o448",
+       "o449",
+       "o450",
+       "o451",
+       "o452",
+       "o453",
+       "o454",
+       "o455",
+       "o456",
+       "o457",
+       "o458",
+       "o459",
+       "o460",
+       "o461",
+       "o462",
+       "o463",
+       "o464",
+       "o465",
+       "o466",
+       "o467",
+       "o468",
+       "o469",
+       "o470",
+       "o471",
+       "o472",
+       "o473",
+       "o474",
+       "o475",
+       "o476",
+       "o477",
+       "o478",
+       "o479",
+       "o480",
+       "o481",
+       "o482",
+       "o483",
+       "o484",
+       "o485",
+       "o486",
+       "o487",
+       "o488",
+       "o489",
+       "o490",
+       "o491",
+       "o492",
+       "o493",
+       "o494",
+       "o495",
+       "o496",
+       "o497",
+       "o498"
+      ]
+     }
+    }
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "n1",
+        "title": "Role n1",
+        "url": "https://j.example.com/n1"
+       },
+       {
+        "id": "n2",
+        "title": "Role n2",
+        "url": "https://j.example.com/n2"
+       },
+       {
+        "id": "n3",
+        "title": "Role n3",
+        "url": "https://j.example.com/n3"
+       }
+      ]
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:partnership_job:n1",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role n1",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/n1",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-1:partnership_job:n2",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role n2",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/n2",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-1:partnership_job:n3",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role n3",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/n3",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "o2",
+       "o3",
+       "o4",
+       "o5",
+       "o6",
+       "o7",
+       "o8",
+       "o9",
+       "o10",
+       "o11",
+       "o12",
+       "o13",
+       "o14",
+       "o15",
+       "o16",
+       "o17",
+       "o18",
+       "o19",
+       "o20",
+       "o21",
+       "o22",
+       "o23",
+       "o24",
+       "o25",
+       "o26",
+       "o27",
+       "o28",
+       "o29",
+       "o30",
+       "o31",
+       "o32",
+       "o33",
+       "o34",
+       "o35",
+       "o36",
+       "o37",
+       "o38",
+       "o39",
+       "o40",
+       "o41",
+       "o42",
+       "o43",
+       "o44",
+       "o45",
+       "o46",
+       "o47",
+       "o48",
+       "o49",
+       "o50",
+       "o51",
+       "o52",
+       "o53",
+       "o54",
+       "o55",
+       "o56",
+       "o57",
+       "o58",
+       "o59",
+       "o60",
+       "o61",
+       "o62",
+       "o63",
+       "o64",
+       "o65",
+       "o66",
+       "o67",
+       "o68",
+       "o69",
+       "o70",
+       "o71",
+       "o72",
+       "o73",
+       "o74",
+       "o75",
+       "o76",
+       "o77",
+       "o78",
+       "o79",
+       "o80",
+       "o81",
+       "o82",
+       "o83",
+       "o84",
+       "o85",
+       "o86",
+       "o87",
+       "o88",
+       "o89",
+       "o90",
+       "o91",
+       "o92",
+       "o93",
+       "o94",
+       "o95",
+       "o96",
+       "o97",
+       "o98",
+       "o99",
+       "o100",
+       "o101",
+       "o102",
+       "o103",
+       "o104",
+       "o105",
+       "o106",
+       "o107",
+       "o108",
+       "o109",
+       "o110",
+       "o111",
+       "o112",
+       "o113",
+       "o114",
+       "o115",
+       "o116",
+       "o117",
+       "o118",
+       "o119",
+       "o120",
+       "o121",
+       "o122",
+       "o123",
+       "o124",
+       "o125",
+       "o126",
+       "o127",
+       "o128",
+       "o129",
+       "o130",
+       "o131",
+       "o132",
+       "o133",
+       "o134",
+       "o135",
+       "o136",
+       "o137",
+       "o138",
+       "o139",
+       "o140",
+       "o141",
+       "o142",
+       "o143",
+       "o144",
+       "o145",
+       "o146",
+       "o147",
+       "o148",
+       "o149",
+       "o150",
+       "o151",
+       "o152",
+       "o153",
+       "o154",
+       "o155",
+       "o156",
+       "o157",
+       "o158",
+       "o159",
+       "o160",
+       "o161",
+       "o162",
+       "o163",
+       "o164",
+       "o165",
+       "o166",
+       "o167",
+       "o168",
+       "o169",
+       "o170",
+       "o171",
+       "o172",
+       "o173",
+       "o174",
+       "o175",
+       "o176",
+       "o177",
+       "o178",
+       "o179",
+       "o180",
+       "o181",
+       "o182",
+       "o183",
+       "o184",
+       "o185",
+       "o186",
+       "o187",
+       "o188",
+       "o189",
+       "o190",
+       "o191",
+       "o192",
+       "o193",
+       "o194",
+       "o195",
+       "o196",
+       "o197",
+       "o198",
+       "o199",
+       "o200",
+       "o201",
+       "o202",
+       "o203",
+       "o204",
+       "o205",
+       "o206",
+       "o207",
+       "o208",
+       "o209",
+       "o210",
+       "o211",
+       "o212",
+       "o213",
+       "o214",
+       "o215",
+       "o216",
+       "o217",
+       "o218",
+       "o219",
+       "o220",
+       "o221",
+       "o222",
+       "o223",
+       "o224",
+       "o225",
+       "o226",
+       "o227",
+       "o228",
+       "o229",
+       "o230",
+       "o231",
+       "o232",
+       "o233",
+       "o234",
+       "o235",
+       "o236",
+       "o237",
+       "o238",
+       "o239",
+       "o240",
+       "o241",
+       "o242",
+       "o243",
+       "o244",
+       "o245",
+       "o246",
+       "o247",
+       "o248",
+       "o249",
+       "o250",
+       "o251",
+       "o252",
+       "o253",
+       "o254",
+       "o255",
+       "o256",
+       "o257",
+       "o258",
+       "o259",
+       "o260",
+       "o261",
+       "o262",
+       "o263",
+       "o264",
+       "o265",
+       "o266",
+       "o267",
+       "o268",
+       "o269",
+       "o270",
+       "o271",
+       "o272",
+       "o273",
+       "o274",
+       "o275",
+       "o276",
+       "o277",
+       "o278",
+       "o279",
+       "o280",
+       "o281",
+       "o282",
+       "o283",
+       "o284",
+       "o285",
+       "o286",
+       "o287",
+       "o288",
+       "o289",
+       "o290",
+       "o291",
+       "o292",
+       "o293",
+       "o294",
+       "o295",
+       "o296",
+       "o297",
+       "o298",
+       "o299",
+       "o300",
+       "o301",
+       "o302",
+       "o303",
+       "o304",
+       "o305",
+       "o306",
+       "o307",
+       "o308",
+       "o309",
+       "o310",
+       "o311",
+       "o312",
+       "o313",
+       "o314",
+       "o315",
+       "o316",
+       "o317",
+       "o318",
+       "o319",
+       "o320",
+       "o321",
+       "o322",
+       "o323",
+       "o324",
+       "o325",
+       "o326",
+       "o327",
+       "o328",
+       "o329",
+       "o330",
+       "o331",
+       "o332",
+       "o333",
+       "o334",
+       "o335",
+       "o336",
+       "o337",
+       "o338",
+       "o339",
+       "o340",
+       "o341",
+       "o342",
+       "o343",
+       "o344",
+       "o345",
+       "o346",
+       "o347",
+       "o348",
+       "o349",
+       "o350",
+       "o351",
+       "o352",
+       "o353",
+       "o354",
+       "o355",
+       "o356",
+       "o357",
+       "o358",
+       "o359",
+       "o360",
+       "o361",
+       "o362",
+       "o363",
+       "o364",
+       "o365",
+       "o366",
+       "o367",
+       "o368",
+       "o369",
+       "o370",
+       "o371",
+       "o372",
+       "o373",
+       "o374",
+       "o375",
+       "o376",
+       "o377",
+       "o378",
+       "o379",
+       "o380",
+       "o381",
+       "o382",
+       "o383",
+       "o384",
+       "o385",
+       "o386",
+       "o387",
+       "o388",
+       "o389",
+       "o390",
+       "o391",
+       "o392",
+       "o393",
+       "o394",
+       "o395",
+       "o396",
+       "o397",
+       "o398",
+       "o399",
+       "o400",
+       "o401",
+       "o402",
+       "o403",
+       "o404",
+       "o405",
+       "o406",
+       "o407",
+       "o408",
+       "o409",
+       "o410",
+       "o411",
+       "o412",
+       "o413",
+       "o414",
+       "o415",
+       "o416",
+       "o417",
+       "o418",
+       "o419",
+       "o420",
+       "o421",
+       "o422",
+       "o423",
+       "o424",
+       "o425",
+       "o426",
+       "o427",
+       "o428",
+       "o429",
+       "o430",
+       "o431",
+       "o432",
+       "o433",
+       "o434",
+       "o435",
+       "o436",
+       "o437",
+       "o438",
+       "o439",
+       "o440",
+       "o441",
+       "o442",
+       "o443",
+       "o444",
+       "o445",
+       "o446",
+       "o447",
+       "o448",
+       "o449",
+       "o450",
+       "o451",
+       "o452",
+       "o453",
+       "o454",
+       "o455",
+       "o456",
+       "o457",
+       "o458",
+       "o459",
+       "o460",
+       "o461",
+       "o462",
+       "o463",
+       "o464",
+       "o465",
+       "o466",
+       "o467",
+       "o468",
+       "o469",
+       "o470",
+       "o471",
+       "o472",
+       "o473",
+       "o474",
+       "o475",
+       "o476",
+       "o477",
+       "o478",
+       "o479",
+       "o480",
+       "o481",
+       "o482",
+       "o483",
+       "o484",
+       "o485",
+       "o486",
+       "o487",
+       "o488",
+       "o489",
+       "o490",
+       "o491",
+       "o492",
+       "o493",
+       "o494",
+       "o495",
+       "o496",
+       "o497",
+       "o498",
+       "n1",
+       "n2",
+       "n3"
+      ]
+     }
+    },
+    "collector_health": {
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "account_without_id_skipped",
+   "config": {
+    "accounts": [
+     {
+      "company": "No Id"
+     },
+     "bad",
+     null,
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "funding": {
+      "ok": true,
+      "events": [],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u",
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "config_not_dict",
+   "config": [
+    "x"
+   ],
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {},
+   "backfill": false,
+   "observations": {},
+   "events": [],
+   "patch": {
+    "account_group": {},
+    "collector_health": {},
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "accounts_not_list",
+   "config": {
+    "accounts": "x"
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": {},
+   "backfill": false,
+   "observations": {},
+   "events": [],
+   "patch": {
+    "account_group": {},
+    "collector_health": {},
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "signal_types_sorted_iteration_order",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "pricing_page_change",
+    "funding",
+    "partnership_hiring",
+    "leadership_change"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "partnership_hiring": {
+      "ok": true,
+      "items": [
+       {
+        "id": "j2",
+        "title": "Role j2",
+        "url": "https://j.example.com/j2"
+       }
+      ]
+     },
+     "funding": {
+      "ok": true,
+      "events": [],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "leadership_change": {
+      "ok": true,
+      "events": [],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     },
+     "pricing_page_change": {
+      "ok": true,
+      "present": true,
+      "url": "https://hotpursuit.example.com/pricing",
+      "fingerprint": "fp3"
+     }
+    }
+   },
+   "events": [
+    {
+     "natural_event_id": "acc-1:partnership_job:j2",
+     "signal_type": "partnership_hiring",
+     "title": "Partnership role opened: Role j2",
+     "description": "New partnership hiring evidence for Hot Pursuit Labs",
+     "source": "jobspy",
+     "source_url": "https://j.example.com/j2",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    },
+    {
+     "natural_event_id": "acc-1:pricing:fp3",
+     "signal_type": "pricing_page_change",
+     "title": "Pricing page changed",
+     "description": "The saved pricing-page fingerprint changed for Hot Pursuit Labs",
+     "source": "company_website",
+     "source_url": "https://hotpursuit.example.com/pricing",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs"
+    }
+   ],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1",
+       "j2"
+      ],
+      "pricing_fingerprint": "fp3",
+      "pricing_url": "https://hotpursuit.example.com/pricing",
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:leadership_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:partnership_hiring": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     },
+     "acc-1:pricing_page_change": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "unknown_signal_type_requested_marks_healthy_no_events",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "bogus"
+   ],
+   "cursor": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {}
+   },
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "bogus": {
+      "ok": true
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "bootstrapped": true,
+      "partnership_job_ids": [
+       "j1"
+      ],
+      "pricing_fingerprint": "fp1",
+      "pricing_url": "u"
+     }
+    },
+    "collector_health": {
+     "acc-1:bogus": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "empty_signal_types_still_bootstraps_accounts",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [],
+   "cursor": {},
+   "backfill": false,
+   "observations": {
+    "acc-1": {}
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "partnership_job_ids": [],
+      "bootstrapped": true
+     }
+    },
+    "collector_health": {},
+    "_collector_failures": []
+   }
+  },
+  {
+   "name": "cursor_not_dict",
+   "config": {
+    "accounts": [
+     {
+      "account_id": "acc-1",
+      "lead_id": 14,
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com"
+     }
+    ]
+   },
+   "signal_types": [
+    "funding"
+   ],
+   "cursor": null,
+   "backfill": false,
+   "observations": {
+    "acc-1": {
+     "funding": {
+      "ok": true,
+      "events": [],
+      "cursor": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934"
+     }
+    }
+   },
+   "events": [],
+   "patch": {
+    "account_group": {
+     "acc-1": {
+      "sec": {
+       "sec_last_accession": "ACC-9"
+      },
+      "resolved_cik": "0002000934",
+      "partnership_job_ids": [],
+      "bootstrapped": true
+     }
+    },
+    "collector_health": {
+     "acc-1:funding": {
+      "state": "healthy",
+      "attempt_count": 1,
+      "last_error_class": null
+     }
+    },
+    "_collector_failures": []
+   }
+  }
+ ]
+}

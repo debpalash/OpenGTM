@@ -1,0 +1,50 @@
+{
+ "area": "rss",
+ "scenario": "redirect_302_to_private_not_followed",
+ "description": "a redirect to a private host is not chased",
+ "input": {
+  "url": "https://feeds.example.com/news.xml",
+  "etag": null,
+  "last_modified": null,
+  "max_entries": null
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "feeds.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://93.184.216.34/news.xml",
+    "headers": {
+     "accept": "application/rss+xml, application/atom+xml, application/xml, text/xml",
+     "host": "feeds.example.com",
+     "user-agent": "Yupcha-Poller (+https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 302,
+    "headers": {
+     "location": "http://10.0.0.5/feed"
+    },
+    "body": ""
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "status": 302,
+  "not_modified": false,
+  "etag": null,
+  "last_modified": null,
+  "error": "http_302",
+  "entries": []
+ }
+}

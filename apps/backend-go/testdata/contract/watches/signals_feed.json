@@ -1,0 +1,66 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches/watch-a-03/signals"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 50,
+      "next_cursor": null,
+      "offset": 0,
+      "signals": [
+        {
+          "company": "Quantum Foods",
+          "created_at": 1787999880.0,
+          "description": "Poller news event #5",
+          "id": "sig-p-05",
+          "lead_id": 10,
+          "read": 0,
+          "signal_type": "news",
+          "source": "rss",
+          "source_url": "https://signals.example.com/p/5",
+          "title": "news 5",
+          "weight": 5,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Quantum Foods",
+          "created_at": 1787999820.0,
+          "description": "Poller news event #6",
+          "id": "sig-p-06",
+          "lead_id": 10,
+          "read": 0,
+          "signal_type": "news",
+          "source": "rss",
+          "source_url": "https://signals.example.com/p/6",
+          "title": "news 6",
+          "weight": 5,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Quantum Foods",
+          "created_at": 1787827200.0,
+          "description": "Seeded news event #18 for contract fixtures",
+          "id": "sig-a-18",
+          "lead_id": 10,
+          "read": 1,
+          "signal_type": "news",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/a/18",
+          "title": "news signal 18",
+          "weight": 5,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

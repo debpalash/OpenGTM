@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "actions": [
+        {
+          "type": "bogus"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/automations/triggers/00000000-0000-4000-8000-000000000001"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid action type 'bogus' at index 0"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,47 @@
+{
+ "area": "rss",
+ "scenario": "timeout",
+ "description": "read timeout -> error text from the exception",
+ "input": {
+  "url": "https://feeds.example.com/news.xml",
+  "etag": null,
+  "last_modified": null,
+  "max_entries": null
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "feeds.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://93.184.216.34/news.xml",
+    "headers": {
+     "accept": "application/rss+xml, application/atom+xml, application/xml, text/xml",
+     "host": "feeds.example.com",
+     "user-agent": "Yupcha-Poller (+https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "raises": "ReadTimeout",
+    "message": "timed out"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "status": 0,
+  "not_modified": false,
+  "etag": null,
+  "last_modified": null,
+  "error": "timed out",
+  "entries": []
+ }
+}

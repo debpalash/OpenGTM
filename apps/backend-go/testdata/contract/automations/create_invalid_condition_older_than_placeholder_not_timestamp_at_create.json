@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "condition": "{last_contact} older_than 30d",
+      "name": "x",
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid condition: older_than left operand is not a timestamp"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

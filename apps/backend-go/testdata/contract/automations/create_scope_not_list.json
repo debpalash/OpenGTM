@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "name": "x",
+      "scope_workbook_ids": "wb-auto-1",
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "wb-auto-1",
+          "loc": [
+            "body",
+            "scope_workbook_ids"
+          ],
+          "msg": "Input should be a valid list",
+          "type": "list_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

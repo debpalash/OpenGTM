@@ -1,0 +1,367 @@
+{
+ "vectors": [
+  {
+   "op": "roundtrip",
+   "created_at": "2026-08-29T09:00:00+00:00",
+   "id": "watch-a-01",
+   "encoded": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwKzAwOjAwIiwid2F0Y2gtYS0wMSJd",
+   "decoded": [
+    "2026-08-29T09:00:00+00:00",
+    "watch-a-01"
+   ],
+   "error": null
+  },
+  {
+   "op": "roundtrip",
+   "created_at": "2026-08-29T09:00:00.123456+00:00",
+   "id": "w-é",
+   "encoded": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwLjEyMzQ1NiswMDowMCIsInctXHUwMGU5Il0",
+   "decoded": [
+    "2026-08-29T09:00:00.123456+00:00",
+    "w-é"
+   ],
+   "error": null
+  },
+  {
+   "op": "roundtrip",
+   "created_at": "2026-08-29T09:00:00+05:30",
+   "id": "x",
+   "encoded": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwKzA1OjMwIiwieCJd",
+   "decoded": [
+    "2026-08-29T09:00:00+05:30",
+    "x"
+   ],
+   "error": null
+  },
+  {
+   "op": "roundtrip",
+   "created_at": "1970-01-01T00:00:00+00:00",
+   "id": "",
+   "encoded": "WyIxOTcwLTAxLTAxVDAwOjAwOjAwKzAwOjAwIiwiIl0",
+   "decoded": [
+    "1970-01-01T00:00:00+00:00",
+    ""
+   ],
+   "error": null
+  },
+  {
+   "op": "roundtrip",
+   "created_at": null,
+   "id": "no-created-at",
+   "encoded": "WyIxOTcwLTAxLTAxVDAwOjAwOjAwKzAwOjAwIiwibm8tY3JlYXRlZC1hdCJd",
+   "decoded": [
+    "1970-01-01T00:00:00+00:00",
+    "no-created-at"
+   ],
+   "error": null
+  },
+  {
+   "op": "roundtrip_naive",
+   "created_at": "2026-08-29T09:00:00",
+   "id": "naive",
+   "encoded": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwIiwibmFpdmUiXQ",
+   "decoded": [
+    "2026-08-29T09:00:00+00:00",
+    "naive"
+   ],
+   "error": null
+  },
+  {
+   "op": "decode",
+   "cursor": "",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "!!!",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "abc",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "bm90anNvbg",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "WzFd",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwKzAwOjAwIl0",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwKzAwOjAwIiwxXQ",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwKzAwOjAwIiwiYSIsImIiXQ",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "WyJiYWQtZGF0ZSIsImEiXQ",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "eyJhIjoxfQ",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "InN0ciI",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "bnVsbA",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "W10",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "WyIyMDI2LTA4LTI5IiwiYSJd",
+   "decoded": [
+    "2026-08-29T00:00:00+00:00",
+    "a"
+   ],
+   "error": null
+  },
+  {
+   "op": "decode",
+   "cursor": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwWiIsImEiXQ",
+   "decoded": [
+    "2026-08-29T09:00:00+00:00",
+    "a"
+   ],
+   "error": null
+  },
+  {
+   "op": "decode",
+   "cursor": "WzE3ODgwMDAwMDAsImEiXQ",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwIiwiYSJd",
+   "decoded": [
+    "2026-08-29T09:00:00+00:00",
+    "a"
+   ],
+   "error": null
+  },
+  {
+   "op": "decode",
+   "cursor": "W251bGwsImEiXQ",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwKzAwOjAwIixudWxsXQ",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "AAA",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "AAAA",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "====",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwKzAwOjAwIiwiw6kiXQ",
+   "decoded": [
+    "2026-08-29T09:00:00+00:00",
+    "é"
+   ],
+   "error": null
+  },
+  {
+   "op": "decode",
+   "cursor": "__4=",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwKzAwOjAwIiwiYSJd=",
+   "decoded": [
+    "2026-08-29T09:00:00+00:00",
+    "a"
+   ],
+   "error": null
+  },
+  {
+   "op": "decode",
+   "cursor": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwKzAwOjAwIiwiYSJd==",
+   "decoded": [
+    "2026-08-29T09:00:00+00:00",
+    "a"
+   ],
+   "error": null
+  },
+  {
+   "op": "decode",
+   "cursor": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwKzAwOjAwIiwiYSJd",
+   "decoded": [
+    "2026-08-29T09:00:00+00:00",
+    "a"
+   ],
+   "error": null
+  },
+  {
+   "op": "decode",
+   "cursor": "e30",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "W10",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "TmFO",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "W05hTiwiYSJd",
+   "decoded": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid watch cursor"
+   }
+  },
+  {
+   "op": "decode",
+   "cursor": "WyIyMDI2MDgyOVQwOTAwMDBaIiwiYSJd",
+   "decoded": [
+    "2026-08-29T09:00:00+00:00",
+    "a"
+   ],
+   "error": null
+  },
+  {
+   "op": "decode",
+   "cursor": "WyIyMDI2LTA4LTI5VDA5OjAwOjAwKzAwOjAwIiwieHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eCJd",
+   "decoded": [
+    "2026-08-29T09:00:00+00:00",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   ],
+   "error": null
+  }
+ ]
+}

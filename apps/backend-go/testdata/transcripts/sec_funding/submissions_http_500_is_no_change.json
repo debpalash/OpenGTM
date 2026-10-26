@@ -1,0 +1,43 @@
+{
+ "area": "sec_funding",
+ "scenario": "submissions_http_500_is_no_change",
+ "description": "a 5xx from submissions degrades to [] (treated as 'no change', NOT a failure)",
+ "input": {
+  "target": "sec_cik:2000934",
+  "cursor": {
+   "bootstrapped": true
+  },
+  "resolved_cik": null,
+  "want_funding": true,
+  "want_exec": true,
+  "backfill": false
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://data.sec.gov/submissions/CIK0002000934.json",
+    "headers": {
+     "host": "data.sec.gov",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 500,
+    "headers": {
+     "content-type": "text/html; charset=utf-8"
+    },
+    "body": "err"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "events": [],
+  "patch": {
+   "sec_known_execs": []
+  }
+ }
+}

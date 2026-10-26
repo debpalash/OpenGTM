@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/automations/triggers/trg-a-06"
+  },
+  "response": {
+    "body": {
+      "deleted": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "create_webhook_rule": true,
+      "kind": "bogus"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "create_webhook_rule": true,
+            "kind": "bogus"
+          },
+          "loc": [
+            "body",
+            "target"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

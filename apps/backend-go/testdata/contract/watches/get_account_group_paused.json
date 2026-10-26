@@ -1,0 +1,67 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches/watch-a-10"
+  },
+  "response": {
+    "body": {
+      "account_count": 1,
+      "account_ids": [
+        "acc-1"
+      ],
+      "attempt_count": 1,
+      "collector_health": {},
+      "config": {
+        "accounts": [
+          {
+            "account_id": "acc-1",
+            "company": "Hot Pursuit Labs",
+            "lead_id": 14,
+            "website": "https://hotpursuit.example.com"
+          }
+        ],
+        "scope_key": "scope-paused",
+        "workbook_id": "wb-auto-1",
+        "workbook_name": "Paused Matrix"
+      },
+      "consecutive_failures": 0,
+      "created_at": "2026-08-29T09:10:00+00:00",
+      "cursor": {
+        "attempt_count": 1,
+        "bootstrapped": true
+      },
+      "enabled": false,
+      "id": "watch-a-10",
+      "interval": "weekly",
+      "kind": "account_group",
+      "last_error": null,
+      "last_error_class": null,
+      "last_polled_at": null,
+      "lead_id": null,
+      "manual_retry_action": {
+        "label": "Retry collectors now",
+        "method": "POST",
+        "url": "/api/watches/watch-a-10/poll"
+      },
+      "next_poll_at": null,
+      "next_retry_at": null,
+      "resolved_cik": null,
+      "scope_key": "scope-paused",
+      "signal_types": [
+        "funding"
+      ],
+      "state": "paused",
+      "target": "Paused Matrix",
+      "workbook_id": "wb-auto-1",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

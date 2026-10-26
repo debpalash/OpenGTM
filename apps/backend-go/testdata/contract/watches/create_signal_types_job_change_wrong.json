@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "contacts": [
+          {
+            "lead_id": 1
+          }
+        ]
+      },
+      "kind": "job_change",
+      "signal_types": [
+        "news"
+      ],
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "signal_types ['news'] not valid for kind 'job_change'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches/watch-a-01/poll"
+  },
+  "response": {
+    "body": {
+      "detail": "intent_poller_requires_pg_lead_store"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

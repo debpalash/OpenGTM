@@ -1,0 +1,209 @@
+{
+ "area": "webtech",
+ "scenario": "robots_404_fails_open",
+ "description": "robots.txt 404: fetch proceeds",
+ "input": {
+  "target": "Acme",
+  "website": "https://www.acme.example.com/pricing",
+  "cursor": {
+   "bootstrapped": true
+  },
+  "backfill": false,
+  "flag": true
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "www.acme.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "dns": {
+    "host": "www.acme.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.acme.example.com/robots.txt",
+    "headers": {
+     "accept": "text/html,application/xhtml+xml",
+     "accept-language": "en-US,en;q=0.9",
+     "host": "www.acme.example.com",
+     "user-agent": "Yupcha-TechDetect/1.0 (+https://yupcha.com/bot)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 404,
+    "headers": {
+     "content-type": "text/plain"
+    },
+    "body": "nf"
+   }
+  },
+  {
+   "dns": {
+    "host": "www.acme.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.acme.example.com",
+    "headers": {
+     "accept": "text/html,application/xhtml+xml",
+     "accept-language": "en-US,en;q=0.9",
+     "host": "www.acme.example.com",
+     "user-agent": "Yupcha-TechDetect/1.0 (+https://yupcha.com/bot)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "text/html",
+     "server": "nginx",
+     "x-powered-by": "PHP/8.2"
+    },
+    "body": "<html><head><meta name=\"generator\" content=\"WordPress 6.4\"><link rel=\"stylesheet\" href=\"/wp-content/themes/x/style.css\"><script src=\"https://cdn.shopify.com/s/files/x.js\"></script></head><body><script src=\"https://www.googletagmanager.com/gtm.js?id=GTM-XXXX\"></script></body></html>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "events": [
+   {
+    "natural_event_id": "acme:abicart:website",
+    "signal_type": "new_tech_adopted",
+    "title": "Detected Abicart on website",
+    "description": "Ecommerce: Abicart (source: website)",
+    "source": "website",
+    "source_url": "https://www.acme.example.com/pricing",
+    "weight": 6,
+    "occurred_at": "now",
+    "lead_id": null,
+    "company": ""
+   },
+   {
+    "natural_event_id": "acme:choices:website",
+    "signal_type": "new_tech_adopted",
+    "title": "Detected Choices on website",
+    "description": "Miscellaneous: Choices (source: website)",
+    "source": "website",
+    "source_url": "https://www.acme.example.com/pricing",
+    "weight": 6,
+    "occurred_at": "now",
+    "lead_id": null,
+    "company": ""
+   },
+   {
+    "natural_event_id": "acme:google analytics:website",
+    "signal_type": "new_tech_adopted",
+    "title": "Detected Google Analytics on website",
+    "description": "Analytics: Google Analytics (source: website)",
+    "source": "website",
+    "source_url": "https://www.acme.example.com/pricing",
+    "weight": 6,
+    "occurred_at": "now",
+    "lead_id": null,
+    "company": ""
+   },
+   {
+    "natural_event_id": "acme:google tag manager:website",
+    "signal_type": "new_tech_adopted",
+    "title": "Detected Google Tag Manager on website",
+    "description": "Tag Manager: Google Tag Manager (source: website)",
+    "source": "website",
+    "source_url": "https://www.acme.example.com/pricing",
+    "weight": 6,
+    "occurred_at": "now",
+    "lead_id": null,
+    "company": ""
+   },
+   {
+    "natural_event_id": "acme:nginx:website",
+    "signal_type": "new_tech_adopted",
+    "title": "Detected Nginx on website",
+    "description": "Web Server: Nginx (source: website)",
+    "source": "website",
+    "source_url": "https://www.acme.example.com/pricing",
+    "weight": 6,
+    "occurred_at": "now",
+    "lead_id": null,
+    "company": ""
+   },
+   {
+    "natural_event_id": "acme:php:website",
+    "signal_type": "new_tech_adopted",
+    "title": "Detected PHP on website",
+    "description": "Language: PHP (source: website)",
+    "source": "website",
+    "source_url": "https://www.acme.example.com/pricing",
+    "weight": 6,
+    "occurred_at": "now",
+    "lead_id": null,
+    "company": ""
+   },
+   {
+    "natural_event_id": "acme:shopify:website",
+    "signal_type": "new_tech_adopted",
+    "title": "Detected Shopify on website",
+    "description": "eCommerce: Shopify (source: website)",
+    "source": "website",
+    "source_url": "https://www.acme.example.com/pricing",
+    "weight": 6,
+    "occurred_at": "now",
+    "lead_id": null,
+    "company": ""
+   },
+   {
+    "natural_event_id": "acme:wordpress:website",
+    "signal_type": "new_tech_adopted",
+    "title": "Detected WordPress on website",
+    "description": "CMS: WordPress (source: website)",
+    "source": "website",
+    "source_url": "https://www.acme.example.com/pricing",
+    "weight": 6,
+    "occurred_at": "now",
+    "lead_id": null,
+    "company": ""
+   },
+   {
+    "natural_event_id": "acme:mysql:website",
+    "signal_type": "new_tech_adopted",
+    "title": "Detected MySQL on website",
+    "description": "Other: MySQL (source: website)",
+    "source": "website",
+    "source_url": "https://www.acme.example.com/pricing",
+    "weight": 6,
+    "occurred_at": "now",
+    "lead_id": null,
+    "company": ""
+   }
+  ],
+  "patch": {
+   "known_web_tech": [
+    "abicart",
+    "choices",
+    "google analytics",
+    "google tag manager",
+    "nginx",
+    "php",
+    "shopify",
+    "wordpress",
+    "mysql"
+   ]
+  }
+ }
+}

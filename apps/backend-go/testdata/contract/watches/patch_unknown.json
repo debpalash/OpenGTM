@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "enabled": false
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/watches/does-not-exist"
+  },
+  "response": {
+    "body": {
+      "detail": "watch not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

@@ -1,0 +1,22 @@
+{
+ "area": "rss",
+ "scenario": "blocked_loopback_literal",
+ "description": "literal loopback feed url",
+ "input": {
+  "url": "http://127.0.0.1/feed.xml",
+  "etag": null,
+  "last_modified": null,
+  "max_entries": null
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "status": 0,
+  "not_modified": false,
+  "etag": null,
+  "last_modified": null,
+  "error": "blocked_url: ip '127.0.0.1' is private/blocked",
+  "entries": []
+ }
+}

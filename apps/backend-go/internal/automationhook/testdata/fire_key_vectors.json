@@ -1,0 +1,3483 @@
+{
+ "sha8": [
+  {
+   "value_repr": "None",
+   "value_json": null,
+   "sha8": "da39a3ee"
+  },
+  {
+   "value_repr": "''",
+   "value_json": "",
+   "sha8": "da39a3ee"
+  },
+  {
+   "value_repr": "'a'",
+   "value_json": "a",
+   "sha8": "86f7e437"
+  },
+  {
+   "value_repr": "'ada@example.com'",
+   "value_json": "ada@example.com",
+   "sha8": "3ca93ad8"
+  },
+  {
+   "value_repr": "'Ada Lovelace'",
+   "value_json": "Ada Lovelace",
+   "sha8": "a69a9f8a"
+  },
+  {
+   "value_repr": "'é'",
+   "value_json": "é",
+   "sha8": "bf15be71"
+  },
+  {
+   "value_repr": "'😀'",
+   "value_json": "😀",
+   "sha8": "9c533688"
+  },
+  {
+   "value_repr": "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'",
+   "value_json": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "sha8": "003ef1ba"
+  },
+  {
+   "value_repr": "0",
+   "value_json": 0,
+   "sha8": "b6589fc6"
+  },
+  {
+   "value_repr": "1",
+   "value_json": 1,
+   "sha8": "356a192b"
+  },
+  {
+   "value_repr": "1.0",
+   "value_json": 1.0,
+   "sha8": "e8dc057d"
+  },
+  {
+   "value_repr": "1.5",
+   "value_json": 1.5,
+   "sha8": "aa8f289e"
+  },
+  {
+   "value_repr": "-2",
+   "value_json": -2,
+   "sha8": "3d81ef27"
+  },
+  {
+   "value_repr": "True",
+   "value_json": true,
+   "sha8": "88b33e4e"
+  },
+  {
+   "value_repr": "False",
+   "value_json": false,
+   "sha8": "97cdbdc7"
+  },
+  {
+   "value_repr": "['a', 'b']",
+   "value_json": [
+    "a",
+    "b"
+   ],
+   "sha8": "9a8d34bc"
+  },
+  {
+   "value_repr": "{'k': 1}",
+   "value_json": {
+    "k": 1
+   },
+   "sha8": "7561914c"
+  },
+  {
+   "value_repr": "' '",
+   "value_json": " ",
+   "sha8": "b858cb28"
+  },
+  {
+   "value_repr": "'\\n'",
+   "value_json": "\n",
+   "sha8": "adc83b19"
+  },
+  {
+   "value_repr": "'None'",
+   "value_json": "None",
+   "sha8": "6eef6648"
+  },
+  {
+   "value_repr": "'0'",
+   "value_json": "0",
+   "sha8": "b6589fc6"
+  },
+  {
+   "value_repr": "12345678901234567890",
+   "value_json": 12345678901234567890,
+   "sha8": "7e0a1242"
+  },
+  {
+   "value_repr": "0.1",
+   "value_json": 0.1,
+   "sha8": "18050567"
+  },
+  {
+   "value_repr": "1e+21",
+   "value_json": 1e+21,
+   "sha8": "c03b681f"
+  },
+  {
+   "value_repr": "'ünï'",
+   "value_json": "ünï",
+   "sha8": "146f11fe"
+  }
+ ],
+ "vectors": [
+  {
+   "name": "changed_basic",
+   "fn": "on_rows_changed",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_changed",
+     "config": {
+      "watch_fields": [
+       "email"
+      ]
+     },
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     {
+      "row_id": 5,
+      "field": "email",
+      "old": "a@x.com",
+      "new": "b@x.com"
+     }
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "5"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:5:email:381e9b6e->c3775595:",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "changed_no_watch_fields_fires_for_any_field",
+   "fn": "on_rows_changed",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_changed",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     {
+      "row_id": 5,
+      "field": "email",
+      "old": null,
+      "new": "b"
+     },
+     {
+      "row_id": 6,
+      "field": "phone",
+      "old": "1",
+      "new": "2"
+     }
+    ]
+   ],
+   "enqueued": 2,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "5"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:5:email:da39a3ee->e9d71f5e:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "6"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:6:phone:356a192b->da4b9237:",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "changed_watch_fields_filter",
+   "fn": "on_rows_changed",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_changed",
+     "config": {
+      "watch_fields": [
+       "email",
+       "website"
+      ]
+     },
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     {
+      "row_id": 5,
+      "field": "email",
+      "old": "a",
+      "new": "b"
+     },
+     {
+      "row_id": 5,
+      "field": "phone",
+      "old": "1",
+      "new": "2"
+     },
+     {
+      "row_id": 6,
+      "field": "website",
+      "old": "",
+      "new": "w"
+     }
+    ]
+   ],
+   "enqueued": 2,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "5"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:5:email:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "6"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:6:website:da39a3ee->aff024fe:",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "changed_watch_fields_empty_list_means_all",
+   "fn": "on_rows_changed",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_changed",
+     "config": {
+      "watch_fields": []
+     },
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     {
+      "row_id": 1,
+      "field": "x",
+      "old": "a",
+      "new": "b"
+     }
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:1:x:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "changed_watch_fields_null_means_all",
+   "fn": "on_rows_changed",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_changed",
+     "config": {
+      "watch_fields": null
+     },
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     {
+      "row_id": 1,
+      "field": "x",
+      "old": "a",
+      "new": "b"
+     }
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:1:x:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "changed_scope_covers",
+   "fn": "on_rows_changed",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_changed",
+     "config": {},
+     "scope": [
+      "wbA"
+     ]
+    },
+    {
+     "id": "r2",
+     "type": "on_row_changed",
+     "config": {},
+     "scope": [
+      "wbB"
+     ]
+    },
+    {
+     "id": "r3",
+     "type": "on_row_changed",
+     "config": {},
+     "scope": [
+      "wbB",
+      "wbA"
+     ]
+    },
+    {
+     "id": "r4",
+     "type": "on_row_changed",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     {
+      "row_id": 5,
+      "field": "e",
+      "old": "a",
+      "new": "b"
+     }
+    ]
+   ],
+   "enqueued": 3,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "5"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:5:e:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r3",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "5"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:5:e:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r4",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "5"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:5:e:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "changed_disabled_and_other_type_and_other_ws_ignored",
+   "fn": "on_rows_changed",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_changed",
+     "config": {},
+     "scope": [],
+     "enabled": false
+    },
+    {
+     "id": "r2",
+     "type": "on_row_added",
+     "config": {},
+     "scope": []
+    },
+    {
+     "id": "r3",
+     "type": "on_row_changed",
+     "config": {},
+     "scope": [],
+     "ws": "ws-2"
+    },
+    {
+     "id": "r4",
+     "type": "on_row_changed",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     {
+      "row_id": 5,
+      "field": "e",
+      "old": "a",
+      "new": "b"
+     }
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r4",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "5"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:5:e:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "changed_cell_version_variants",
+   "fn": "on_rows_changed",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_changed",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     {
+      "row_id": 1,
+      "field": "e",
+      "old": "a",
+      "new": "b",
+      "cell_version": 3
+     },
+     {
+      "row_id": 2,
+      "field": "e",
+      "old": "a",
+      "new": "b",
+      "new_version": 7
+     },
+     {
+      "row_id": 3,
+      "field": "e",
+      "old": "a",
+      "new": "b",
+      "cell_version": "v9",
+      "new_version": 1
+     },
+     {
+      "row_id": 4,
+      "field": "e",
+      "old": "a",
+      "new": "b",
+      "cell_version": 0
+     },
+     {
+      "row_id": 5,
+      "field": "e",
+      "old": "a",
+      "new": "b",
+      "cell_version": ""
+     },
+     {
+      "row_id": 6,
+      "field": "e",
+      "old": "a",
+      "new": "b",
+      "new_version": 0
+     }
+    ]
+   ],
+   "enqueued": 6,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:1:e:86f7e437->e9d71f5e:3",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:2:e:86f7e437->e9d71f5e:7",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "3"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:3:e:86f7e437->e9d71f5e:v9",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "4"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:4:e:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "5"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:5:e:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "6"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:6:e:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "changed_value_types_in_key",
+   "fn": "on_rows_changed",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_changed",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     {
+      "row_id": 1,
+      "field": "e",
+      "old": null,
+      "new": "x"
+     },
+     {
+      "row_id": 2,
+      "field": "e",
+      "old": "",
+      "new": null
+     },
+     {
+      "row_id": 3,
+      "field": "e",
+      "old": 1,
+      "new": 1.0
+     },
+     {
+      "row_id": 4,
+      "field": "e",
+      "old": true,
+      "new": false
+     },
+     {
+      "row_id": 5,
+      "field": "e",
+      "old": [
+       "a"
+      ],
+      "new": {
+       "k": "v"
+      }
+     },
+     {
+      "row_id": 6,
+      "field": "e",
+      "old": "é",
+      "new": "😀"
+     },
+     {
+      "row_id": 7,
+      "field": "e",
+      "old": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "new": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+     }
+    ]
+   ],
+   "enqueued": 7,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:1:e:da39a3ee->11f6ad8e:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:2:e:da39a3ee->da39a3ee:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "3"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:3:e:356a192b->e8dc057d:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "4"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:4:e:88b33e4e->97cdbdc7:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "5"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:5:e:2a978d99->cbf19875:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "6"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:6:e:bf15be71->9c533688:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "7"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:7:e:e62ca560->28cc0639:",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "changed_row_id_string_and_int",
+   "fn": "on_rows_changed",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_changed",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     {
+      "row_id": "12",
+      "field": "e",
+      "old": "a",
+      "new": "b"
+     },
+     {
+      "row_id": 12,
+      "field": "e",
+      "old": "a",
+      "new": "b"
+     },
+     {
+      "row_id": null,
+      "field": "e",
+      "old": "a",
+      "new": "b"
+     }
+    ]
+   ],
+   "enqueued": 3,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "12"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:12:e:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "12"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:12:e:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "None"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:None:e:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "changed_multiple_rules_each_get_job",
+   "fn": "on_rows_changed",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_changed",
+     "config": {
+      "watch_fields": [
+       "e"
+      ]
+     },
+     "scope": []
+    },
+    {
+     "id": "r2",
+     "type": "on_row_changed",
+     "config": {
+      "watch_fields": [
+       "e",
+       "f"
+      ]
+     },
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     {
+      "row_id": 1,
+      "field": "e",
+      "old": "a",
+      "new": "b"
+     },
+     {
+      "row_id": 1,
+      "field": "f",
+      "old": "c",
+      "new": "d"
+     }
+    ]
+   ],
+   "enqueued": 3,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:1:e:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r2",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:1:e:86f7e437->e9d71f5e:",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r2",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       }
+      ],
+      "fire_source": "row_changed",
+      "fire_key": "rowchg:1:f:84a51684->3c363836:",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "changed_empty_changes",
+   "fn": "on_rows_changed",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_changed",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    []
+   ],
+   "enqueued": 0,
+   "jobs": []
+  },
+  {
+   "name": "changed_field_missing_with_watch",
+   "fn": "on_rows_changed",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_changed",
+     "config": {
+      "watch_fields": [
+       "e"
+      ]
+     },
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     {
+      "row_id": 1,
+      "old": "a",
+      "new": "b"
+     }
+    ]
+   ],
+   "enqueued": 0,
+   "jobs": []
+  },
+  {
+   "name": "added_basic",
+   "fn": "emit_row_added",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_added",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     3,
+     1,
+     2
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "3"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "row_added",
+      "fire_key": "rowadd:wbA:1,2,3",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "added_sorted_lexicographically_not_numerically",
+   "fn": "emit_row_added",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_added",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     10,
+     9,
+     100,
+     2
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "10"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "9"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "row_added",
+      "fire_key": "rowadd:wbA:10,100,2,9",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "added_fire_key_truncated_to_120_chars",
+   "fn": "emit_row_added",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_added",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     100000,
+     100001,
+     100002,
+     100003,
+     100004,
+     100005,
+     100006,
+     100007,
+     100008,
+     100009,
+     100010,
+     100011,
+     100012,
+     100013,
+     100014,
+     100015,
+     100016,
+     100017,
+     100018,
+     100019,
+     100020,
+     100021,
+     100022,
+     100023,
+     100024,
+     100025,
+     100026,
+     100027,
+     100028,
+     100029,
+     100030,
+     100031,
+     100032,
+     100033,
+     100034,
+     100035,
+     100036,
+     100037,
+     100038,
+     100039,
+     100040,
+     100041,
+     100042,
+     100043,
+     100044,
+     100045,
+     100046,
+     100047,
+     100048,
+     100049
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "100000"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100001"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100002"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100003"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100004"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100005"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100006"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100007"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100008"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100009"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100010"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100011"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100012"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100013"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100014"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100015"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100016"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100017"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100018"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100019"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100020"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100021"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100022"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100023"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100024"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100025"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100026"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100027"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100028"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100029"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100030"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100031"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100032"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100033"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100034"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100035"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100036"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100037"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100038"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100039"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100040"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100041"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100042"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100043"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100044"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100045"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100046"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100047"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100048"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "100049"
+       }
+      ],
+      "fire_source": "row_added",
+      "fire_key": "rowadd:wbA:100000,100001,100002,100003,100004,100005,100006,100007,100008,100009,100010,100011,100012,100013,100014,100015,100016,1",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "added_dedup_not_applied_duplicates_kept",
+   "fn": "emit_row_added",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_added",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     1,
+     1,
+     2
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "row_added",
+      "fire_key": "rowadd:wbA:1,1,2",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "added_string_ids",
+   "fn": "emit_row_added",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_added",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     "b",
+     "a",
+     "10",
+     "9"
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "b"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "a"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "10"
+       },
+       {
+        "workbook_id": "wbA",
+        "row_id": "9"
+       }
+      ],
+      "fire_source": "row_added",
+      "fire_key": "rowadd:wbA:10,9,a,b",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "added_scope",
+   "fn": "emit_row_added",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_added",
+     "config": {},
+     "scope": [
+      "wbB"
+     ]
+    },
+    {
+     "id": "r2",
+     "type": "on_row_added",
+     "config": {},
+     "scope": [
+      "wbA"
+     ]
+    },
+    {
+     "id": "r3",
+     "type": "on_row_added",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    [
+     1
+    ]
+   ],
+   "enqueued": 2,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r2",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       }
+      ],
+      "fire_source": "row_added",
+      "fire_key": "rowadd:wbA:1",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r3",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       }
+      ],
+      "fire_source": "row_added",
+      "fire_key": "rowadd:wbA:1",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "added_empty",
+   "fn": "emit_row_added",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_added",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    []
+   ],
+   "enqueued": 0,
+   "jobs": []
+  },
+  {
+   "name": "added_none",
+   "fn": "emit_row_added",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_row_added",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [],
+   "args": [
+    "ws-1",
+    "wbA",
+    null
+   ],
+   "enqueued": 0,
+   "jobs": []
+  },
+  {
+   "name": "signal_basic_maps_lead_rows",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {
+      "signal_types": [
+       "hiring"
+      ]
+     },
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "s1",
+      "signal_type": "hiring",
+      "lead_id": 14
+     }
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s1",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "signal_type_filter",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {
+      "signal_types": [
+       "hiring",
+       "funding"
+      ]
+     },
+     "scope": []
+    },
+    {
+     "id": "r2",
+     "type": "on_signal",
+     "config": {
+      "signal_types": [
+       "news"
+      ]
+     },
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "s1",
+      "signal_type": "hiring",
+      "lead_id": 14
+     },
+     {
+      "signal_pk": "s2",
+      "signal_type": "news",
+      "lead_id": 6
+     }
+    ]
+   ],
+   "enqueued": 2,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s1",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r2",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "3"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s2",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "signal_no_types_means_any",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "s1",
+      "signal_type": "anything",
+      "lead_id": 6
+     }
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "3"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s1",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "signal_types_empty_list_means_any",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {
+      "signal_types": []
+     },
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "s1",
+      "signal_type": "x",
+      "lead_id": 6
+     }
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "3"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s1",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "signal_types_null_means_any",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {
+      "signal_types": null
+     },
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "s1",
+      "signal_type": "x",
+      "lead_id": 6
+     }
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "3"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s1",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "signal_scope_restricts_rows",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {},
+     "scope": [
+      "wbB"
+     ]
+    },
+    {
+     "id": "r2",
+     "type": "on_signal",
+     "config": {},
+     "scope": [
+      "wbA"
+     ]
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "s1",
+      "signal_type": "x",
+      "lead_id": 14
+     }
+    ]
+   ],
+   "enqueued": 2,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s1",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r2",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s1",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "signal_lead_without_rows_fires_nothing",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "s1",
+      "signal_type": "x",
+      "lead_id": 999
+     }
+    ]
+   ],
+   "enqueued": 0,
+   "jobs": []
+  },
+  {
+   "name": "signal_lead_none_skipped",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "s1",
+      "signal_type": "x",
+      "lead_id": null
+     }
+    ]
+   ],
+   "enqueued": 0,
+   "jobs": []
+  },
+  {
+   "name": "signal_lead_zero_matches_no_rows",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "s1",
+      "signal_type": "x",
+      "lead_id": 0
+     }
+    ]
+   ],
+   "enqueued": 0,
+   "jobs": []
+  },
+  {
+   "name": "signal_foreign_workspace_rows_excluded",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "s1",
+      "signal_type": "x",
+      "lead_id": 14
+     }
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s1",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "signal_other_ws_rule_ignored",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {},
+     "scope": [],
+     "ws": "ws-2"
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "s1",
+      "signal_type": "x",
+      "lead_id": 14
+     }
+    ]
+   ],
+   "enqueued": 0,
+   "jobs": []
+  },
+  {
+   "name": "signal_disabled_rule_ignored",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {},
+     "scope": [],
+     "enabled": false
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "s1",
+      "signal_type": "x",
+      "lead_id": 14
+     }
+    ]
+   ],
+   "enqueued": 0,
+   "jobs": []
+  },
+  {
+   "name": "signal_multiple_signals_and_rules",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {
+      "signal_types": [
+       "a"
+      ]
+     },
+     "scope": []
+    },
+    {
+     "id": "r2",
+     "type": "on_signal",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "s1",
+      "signal_type": "a",
+      "lead_id": 14
+     },
+     {
+      "signal_pk": "s2",
+      "signal_type": "b",
+      "lead_id": 14
+     },
+     {
+      "signal_pk": "s3",
+      "signal_type": "a",
+      "lead_id": 6
+     }
+    ]
+   ],
+   "enqueued": 5,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s1",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r2",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s1",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r2",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s2",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "3"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s3",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r2",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "3"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:s3",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "signal_pk_unicode_and_long",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "signal_pk": "ééé",
+      "signal_type": "x",
+      "lead_id": 14
+     },
+     {
+      "signal_pk": "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+      "signal_type": "x",
+      "lead_id": 6
+     }
+    ]
+   ],
+   "enqueued": 2,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:ééé",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "3"
+       }
+      ],
+      "fire_source": "signal",
+      "fire_key": "signal:pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "signal_empty",
+   "fn": "emit_signal_matches",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_signal",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    []
+   ],
+   "enqueued": 0,
+   "jobs": []
+  },
+  {
+   "name": "audience_enter_exit",
+   "fn": "emit_audience_membership",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_audience_enter",
+     "config": {},
+     "scope": []
+    },
+    {
+     "id": "r2",
+     "type": "on_audience_exit",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "id": 1,
+      "event_type": "entered",
+      "audience_id": "aud-1",
+      "lead_id": 14
+     },
+     {
+      "id": 2,
+      "event_type": "exited",
+      "audience_id": "aud-1",
+      "lead_id": 6
+     }
+    ]
+   ],
+   "enqueued": 2,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "audience_entered",
+      "fire_key": "audience:1:entered",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r2",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "3"
+       }
+      ],
+      "fire_source": "audience_exited",
+      "fire_key": "audience:2:exited",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "audience_ids_filter",
+   "fn": "emit_audience_membership",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_audience_enter",
+     "config": {
+      "audience_ids": [
+       "aud-1"
+      ]
+     },
+     "scope": []
+    },
+    {
+     "id": "r2",
+     "type": "on_audience_enter",
+     "config": {
+      "audience_ids": [
+       "aud-2"
+      ]
+     },
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "id": 1,
+      "event_type": "entered",
+      "audience_id": "aud-1",
+      "lead_id": 14
+     },
+     {
+      "id": 2,
+      "event_type": "entered",
+      "audience_id": "aud-2",
+      "lead_id": 14
+     },
+     {
+      "id": 3,
+      "event_type": "entered",
+      "audience_id": "aud-3",
+      "lead_id": 14
+     }
+    ]
+   ],
+   "enqueued": 2,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "audience_entered",
+      "fire_key": "audience:1:entered",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r2",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "audience_entered",
+      "fire_key": "audience:2:entered",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "audience_ids_empty_means_any",
+   "fn": "emit_audience_membership",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_audience_enter",
+     "config": {
+      "audience_ids": []
+     },
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "id": 1,
+      "event_type": "entered",
+      "audience_id": "anything",
+      "lead_id": 14
+     }
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "audience_entered",
+      "fire_key": "audience:1:entered",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "audience_scope_and_no_rows",
+   "fn": "emit_audience_membership",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_audience_exit",
+     "config": {},
+     "scope": [
+      "wbB"
+     ]
+    },
+    {
+     "id": "r2",
+     "type": "on_audience_exit",
+     "config": {},
+     "scope": [
+      "wbA"
+     ]
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "id": 1,
+      "event_type": "exited",
+      "audience_id": "aud-1",
+      "lead_id": 14
+     },
+     {
+      "id": 2,
+      "event_type": "exited",
+      "audience_id": "aud-1",
+      "lead_id": 999
+     }
+    ]
+   ],
+   "enqueued": 2,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "audience_exited",
+      "fire_key": "audience:1:exited",
+      "dry_run": false
+     }
+    },
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r2",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       }
+      ],
+      "fire_source": "audience_exited",
+      "fire_key": "audience:1:exited",
+      "dry_run": false
+     }
+    }
+   ]
+  },
+  {
+   "name": "audience_unknown_event_type_ignored",
+   "fn": "emit_audience_membership",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_audience_enter",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "id": 1,
+      "event_type": "paused",
+      "audience_id": "aud-1",
+      "lead_id": 14
+     }
+    ]
+   ],
+   "enqueued": 0,
+   "jobs": []
+  },
+  {
+   "name": "audience_fire_key_uses_event_id_and_type",
+   "fn": "emit_audience_membership",
+   "rules": [
+    {
+     "id": "r1",
+     "type": "on_audience_enter",
+     "config": {},
+     "scope": []
+    }
+   ],
+   "rows": [
+    {
+     "wb": "wbA",
+     "lead": 14
+    },
+    {
+     "wb": "wbB",
+     "lead": 14
+    },
+    {
+     "wb": "wbA",
+     "lead": 6
+    },
+    {
+     "wb": "wbA",
+     "lead": null
+    },
+    {
+     "wb": "wbX",
+     "lead": 14
+    }
+   ],
+   "args": [
+    "ws-1",
+    [
+     {
+      "id": "evt-é",
+      "event_type": "entered",
+      "audience_id": "aud-1",
+      "lead_id": 14
+     }
+    ]
+   ],
+   "enqueued": 1,
+   "jobs": [
+    {
+     "type": "trigger_eval",
+     "priority": 1,
+     "fire_key": null,
+     "executor": "python",
+     "payload": {
+      "trigger_id": "r1",
+      "workspace_id": "ws-1",
+      "targets": [
+       {
+        "workbook_id": "wbA",
+        "row_id": "1"
+       },
+       {
+        "workbook_id": "wbB",
+        "row_id": "2"
+       }
+      ],
+      "fire_source": "audience_entered",
+      "fire_key": "audience:evt-é:entered",
+      "dry_run": false
+     }
+    }
+   ]
+  }
+ ],
+ "disabled_noop": {
+  "on_rows_changed": 0,
+  "emit_row_added": 0,
+  "emit_signal_matches": 0,
+  "emit_audience_membership": 0
+ }
+}

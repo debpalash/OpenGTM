@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/automations/runs/run-a-01-06"
+  },
+  "response": {
+    "body": {
+      "action_results": [],
+      "actions_attempted": 0,
+      "actions_failed": 0,
+      "actions_skipped": 0,
+      "actions_succeeded": 0,
+      "error": null,
+      "finished_at": null,
+      "fire_key": "rowadd:wb-auto-1:3006",
+      "fire_source": "row_added",
+      "id": "run-a-01-06",
+      "job_id": 906,
+      "matched_rows": 2,
+      "started_at": "2026-08-29T12:06:00+00:00",
+      "status": "running",
+      "total_charged_usd": 0.0741,
+      "trigger_id": "trg-a-01",
+      "trigger_name_snapshot": "New row webhook"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches/watch-a-01/poll"
+  },
+  "response": {
+    "body": {
+      "fire_key": "watch:watch-a-01:pollnow:2099-01-01",
+      "status": "already_queued"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "contacts": [
+          {
+            "lead_id": 1
+          },
+          {
+            "lead_id": 2
+          },
+          {
+            "lead_id": 3
+          }
+        ]
+      },
+      "kind": "job_change",
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "job_change watch supports at most 2 contacts"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

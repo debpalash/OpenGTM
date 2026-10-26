@@ -1,0 +1,39 @@
+{
+ "area": "pricing",
+ "scenario": "timeout",
+ "description": "timeout -> pricing_timeout",
+ "input": {
+  "url": "https://acme.example.com/pricing"
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "acme.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://acme.example.com/pricing",
+    "headers": {
+     "host": "acme.example.com",
+     "user-agent": "OpenGTM Signal Monitor/1.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "raises": "ReadTimeout",
+    "message": "timed out"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "ok": false,
+  "error_class": "pricing_timeout"
+ }
+}

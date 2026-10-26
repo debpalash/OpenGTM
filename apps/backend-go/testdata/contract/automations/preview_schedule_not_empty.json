@@ -1,0 +1,72 @@
+{
+  "request": {
+    "body": {
+      "limit": 3
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers/trg-a-04/preview"
+  },
+  "response": {
+    "body": {
+      "matched": 6,
+      "projected_total_usd": 0.0,
+      "sample": [
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": null,
+                "method": "POST",
+                "url": "https://hooks.example.com/hourly"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3001",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": null,
+                "method": "POST",
+                "url": "https://hooks.example.com/hourly"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3002",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": null,
+                "method": "POST",
+                "url": "https://hooks.example.com/hourly"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3004",
+          "workbook_id": "wb-auto-1"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

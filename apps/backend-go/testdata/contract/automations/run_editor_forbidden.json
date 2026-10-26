@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers/trg-a-01/run"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: automations.manage"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

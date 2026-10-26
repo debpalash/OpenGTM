@@ -1,0 +1,47 @@
+{
+  "request": {
+    "body": {
+      "interval": "weekly",
+      "kind": "hiring",
+      "lead_id": 11,
+      "signal_types": [
+        "hiring_surge"
+      ],
+      "target": "Initech"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "config": {},
+      "consecutive_failures": 0,
+      "created_at": "2099-01-01T00:00:00.000001+00:00",
+      "cursor": {
+        "bootstrapped": false
+      },
+      "enabled": true,
+      "id": "00000000-0000-4000-8000-000000000033",
+      "interval": "weekly",
+      "kind": "hiring",
+      "last_error": null,
+      "last_polled_at": null,
+      "lead_id": 11,
+      "next_poll_at": "2099-01-01T00:00:00.000001+00:00",
+      "resolved_cik": null,
+      "signal_types": [
+        "hiring_surge"
+      ],
+      "target": "Initech",
+      "webhook_rule_id": null,
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

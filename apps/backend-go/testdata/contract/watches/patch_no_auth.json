@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": {
+      "enabled": false
+    },
+    "headers": {},
+    "method": "PATCH",
+    "path": "/api/watches/watch-a-01"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

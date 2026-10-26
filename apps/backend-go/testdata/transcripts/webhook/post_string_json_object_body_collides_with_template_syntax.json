@@ -1,0 +1,47 @@
+{
+ "area": "webhook",
+ "scenario": "post_string_json_object_body_collides_with_template_syntax",
+ "description": "a string JSON object body: its braces are read as a placeholder -> ValueError out of the sender",
+ "input": {
+  "workspace_id": "ws-1",
+  "cfg": {
+   "url": "https://hooks.example.com/in",
+   "body": "{\"a\": 1}"
+  },
+  "lead_data": {
+   "company": "Hot Pursuit Labs",
+   "email": "ceo@hotpursuit.example.com",
+   "id": 14,
+   "lead_id": 14
+  },
+  "columns": [
+   {
+    "id": "company",
+    "name": "Company"
+   },
+   {
+    "id": "email",
+    "name": "Email"
+   }
+  ],
+  "allowlist": []
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "hooks.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "raised": {
+   "type": "ValueError",
+   "message": "Unknown column reference: \"a\": 1. Fix the template before sending."
+  }
+ }
+}

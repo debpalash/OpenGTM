@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "condition": "AND",
+      "name": "x",
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid condition: empty comparison"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

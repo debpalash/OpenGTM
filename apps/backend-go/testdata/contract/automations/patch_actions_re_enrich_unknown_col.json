@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": {
+      "actions": [
+        {
+          "config": {
+            "column_ids": [
+              "zzz"
+            ]
+          },
+          "type": "re_enrich"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/automations/triggers/00000000-0000-4000-8000-000000000001"
+  },
+  "response": {
+    "body": {
+      "detail": "re_enrich action 0: column_ids not in scoped workbook(s): ['zzz']"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,1818 @@
+{
+ "vectors": [
+  {
+   "name": "funding_emits_and_advances_cursor",
+   "src": "funding_exec",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "0002000934:0002000934-24-000009",
+      "signal_type": "company_funded",
+      "title": "Raised $5,000,000 (Form D)",
+      "description": "x",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/x",
+      "weight": 10,
+      "occurred_at": 1788000000.0,
+      "lead_id": null,
+      "company": ""
+     },
+     {
+      "natural_event_id": "0002000934:grace hopper:c_level",
+      "signal_type": "executive_hired",
+      "title": "New c level: Grace Hopper",
+      "description": "d",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/y",
+      "weight": 8,
+      "occurred_at": 1788000100.0,
+      "lead_id": null,
+      "company": ""
+     }
+    ],
+    {
+     "sec_last_accession": "0002000934-24-000009",
+     "sec_known_execs": [
+      "a"
+     ]
+    }
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": [
+    2,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [
+    {
+     "id": "3863b35750365fce135579a070fe15902c8bc2e140182de45c868f8586f8e116",
+     "workspace_id": "ws-1",
+     "lead_id": 14,
+     "company": "Stripe Milton LLC",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "x",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/x",
+     "weight": 10,
+     "created_at": 1788000000.0
+    },
+    {
+     "id": "216ab7c071a3798c6358ed9fdef45e3096925add771179b13c8b2d9ff8d41423",
+     "workspace_id": "ws-1",
+     "lead_id": 14,
+     "company": "Stripe Milton LLC",
+     "signal_type": "executive_hired",
+     "title": "New c level: Grace Hopper",
+     "description": "d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/y",
+     "weight": 8,
+     "created_at": 1788000100.0
+    }
+   ],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false,
+     "sec_last_accession": "0002000934-24-000009",
+     "sec_known_execs": [
+      "a"
+     ]
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "funding_resolved_cik_side_channel_applied",
+   "src": "funding",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "0002000934:0002000934-24-000009",
+      "signal_type": "company_funded",
+      "title": "Raised $5,000,000 (Form D)",
+      "description": "x",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/x",
+      "weight": 10,
+      "occurred_at": 1788000000.0,
+      "lead_id": null,
+      "company": ""
+     }
+    ],
+    {
+     "sec_last_accession": "x"
+    }
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": [
+    1,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [
+    {
+     "id": "252a0a837b954341b1a66982e9e7b7d256e9fb9da28f052dbf2838d5dd5230b3",
+     "workspace_id": "ws-1",
+     "lead_id": 14,
+     "company": "Stripe Milton LLC",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "x",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/x",
+     "weight": 10,
+     "created_at": 1788000000.0
+    }
+   ],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false,
+     "sec_last_accession": "x"
+    },
+    "resolved_cik": "0002000934"
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "funding_resolved_cik_not_overwritten",
+   "src": "funding",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "resolved_cik": "0000000001"
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "0002000934:0002000934-24-000009",
+      "signal_type": "company_funded",
+      "title": "Raised $5,000,000 (Form D)",
+      "description": "x",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/x",
+      "weight": 10,
+      "occurred_at": 1788000000.0,
+      "lead_id": null,
+      "company": ""
+     }
+    ],
+    {}
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": [
+    1,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [
+    {
+     "id": "608e20bc94975dacecefb34a0c8b45b76a65c8d349494c2a8becafa297fe4dc9",
+     "workspace_id": "ws-1",
+     "lead_id": 14,
+     "company": "Stripe Milton LLC",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "x",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/x",
+     "weight": 10,
+     "created_at": 1788000000.0
+    }
+   ],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": "0000000001"
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "events_without_lead_fail_and_do_not_advance",
+   "src": "funding",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": null,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "0002000934:0002000934-24-000009",
+      "signal_type": "company_funded",
+      "title": "Raised $5,000,000 (Form D)",
+      "description": "x",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/x",
+      "weight": 10,
+      "occurred_at": 1788000000.0,
+      "lead_id": null,
+      "company": ""
+     }
+    ],
+    {
+     "sec_last_accession": "x"
+    }
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": false,
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": "unresolved_lead",
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "no_events_no_lead_still_advances_cursor",
+   "src": "funding",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": null,
+   "detector_result": [
+    [],
+    {
+     "sec_last_accession": "x"
+    }
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": [
+    0,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false,
+     "sec_last_accession": "x"
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "detector_failure_none_none",
+   "src": "funding",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": null,
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": false,
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "empty_patch_no_cursor_change",
+   "src": "funding",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [],
+    {}
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": [
+    0,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "patch_none_events_empty",
+   "src": "funding",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [],
+    null
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": [
+    0,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "cursor_patch_merges_not_replaces",
+   "src": "funding",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "cursor": {
+     "bootstrapped": true,
+     "keep": 1,
+     "sec_last_accession": "old"
+    }
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [],
+    {
+     "sec_last_accession": "new"
+    }
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": [
+    0,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": true,
+     "keep": 1,
+     "sec_last_accession": "new"
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "billing_real_check_and_debit_inside_begin_raises_in_python",
+   "src": "funding",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "0002000934:0002000934-24-000009",
+      "signal_type": "company_funded",
+      "title": "Raised $5,000,000 (Form D)",
+      "description": "x",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/x",
+      "weight": 10,
+      "occurred_at": 1788000000.0,
+      "lead_id": null,
+      "company": ""
+     }
+    ],
+    {
+     "sec_last_accession": "x"
+    }
+   ],
+   "balance": 1.0,
+   "costs": {
+    "funding": 0.05
+   },
+   "backfill": false,
+   "result": null,
+   "raised": {
+    "type": "InvalidRequestError",
+    "message": "Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands."
+   },
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 0.95,
+   "ledger": [
+    {
+     "amount_usd": -0.05,
+     "reason": "poller_fetch",
+     "run_id": "fk-1:funding"
+    }
+   ]
+  },
+  {
+   "name": "billing_refused_is_failure_with_error",
+   "src": "funding",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "0002000934:0002000934-24-000009",
+      "signal_type": "company_funded",
+      "title": "Raised $5,000,000 (Form D)",
+      "description": "x",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/x",
+      "weight": 10,
+      "occurred_at": 1788000000.0,
+      "lead_id": null,
+      "company": ""
+     }
+    ],
+    {
+     "sec_last_accession": "x"
+    }
+   ],
+   "balance": 0.0,
+   "costs": {
+    "funding": 0.05
+   },
+   "backfill": false,
+   "result": false,
+   "raised": null,
+   "stub_debit": true,
+   "debits": [
+    {
+     "cost": 0.05,
+     "run_id": "fk-1:funding",
+     "reason": "poller_fetch"
+    }
+   ],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": "insufficient_credits",
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 0.0,
+   "ledger": []
+  },
+  {
+   "name": "billing_charged_per_source",
+   "src": "funding",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "0002000934:0002000934-24-000009",
+      "signal_type": "company_funded",
+      "title": "Raised $5,000,000 (Form D)",
+      "description": "x",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/x",
+      "weight": 10,
+      "occurred_at": 1788000000.0,
+      "lead_id": null,
+      "company": ""
+     }
+    ],
+    {
+     "sec_last_accession": "x"
+    }
+   ],
+   "balance": 1.0,
+   "costs": {
+    "funding": 0.05
+   },
+   "backfill": false,
+   "result": [
+    1,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": true,
+   "debits": [
+    {
+     "cost": 0.05,
+     "run_id": "fk-1:funding",
+     "reason": "poller_fetch"
+    }
+   ],
+   "web_tech_calls": [],
+   "signals": [
+    {
+     "id": "3863b35750365fce135579a070fe15902c8bc2e140182de45c868f8586f8e116",
+     "workspace_id": "ws-1",
+     "lead_id": 14,
+     "company": "Stripe Milton LLC",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "x",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/x",
+     "weight": 10,
+     "created_at": 1788000000.0
+    }
+   ],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false,
+     "sec_last_accession": "x"
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 1.0,
+   "ledger": []
+  },
+  {
+   "name": "billing_free_source_no_debit",
+   "src": "feed",
+   "watch": {
+    "kind": "feed",
+    "target": "https://f.example.com/x.xml",
+    "signal_types": [
+     "news"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [],
+    {
+     "feed_seen_guids": []
+    }
+   ],
+   "balance": 0.0,
+   "costs": {
+    "funding": 0.05
+   },
+   "backfill": false,
+   "result": [
+    0,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": true,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false,
+     "feed_seen_guids": []
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 0.0,
+   "ledger": []
+  },
+  {
+   "name": "billing_exec_maps_to_funding_cost",
+   "src": "exec",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "0002000934:grace hopper:c_level",
+      "signal_type": "executive_hired",
+      "title": "New c level: Grace Hopper",
+      "description": "d",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/y",
+      "weight": 8,
+      "occurred_at": 1788000100.0,
+      "lead_id": null,
+      "company": ""
+     }
+    ],
+    {
+     "sec_known_execs": []
+    }
+   ],
+   "balance": 1.0,
+   "costs": {
+    "funding": 0.05,
+    "hiring": 0.5
+   },
+   "backfill": false,
+   "result": [
+    1,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": true,
+   "debits": [
+    {
+     "cost": 0.05,
+     "run_id": "fk-1:funding",
+     "reason": "poller_fetch"
+    }
+   ],
+   "web_tech_calls": [],
+   "signals": [
+    {
+     "id": "216ab7c071a3798c6358ed9fdef45e3096925add771179b13c8b2d9ff8d41423",
+     "workspace_id": "ws-1",
+     "lead_id": 14,
+     "company": "Stripe Milton LLC",
+     "signal_type": "executive_hired",
+     "title": "New c level: Grace Hopper",
+     "description": "d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/y",
+     "weight": 8,
+     "created_at": 1788000100.0
+    }
+   ],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false,
+     "sec_known_execs": []
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 1.0,
+   "ledger": []
+  },
+  {
+   "name": "billing_funding_exec_maps_to_funding_cost",
+   "src": "funding_exec",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "0002000934:0002000934-24-000009",
+      "signal_type": "company_funded",
+      "title": "Raised $5,000,000 (Form D)",
+      "description": "x",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/x",
+      "weight": 10,
+      "occurred_at": 1788000000.0,
+      "lead_id": null,
+      "company": ""
+     },
+     {
+      "natural_event_id": "0002000934:grace hopper:c_level",
+      "signal_type": "executive_hired",
+      "title": "New c level: Grace Hopper",
+      "description": "d",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/y",
+      "weight": 8,
+      "occurred_at": 1788000100.0,
+      "lead_id": null,
+      "company": ""
+     }
+    ],
+    {}
+   ],
+   "balance": 1.0,
+   "costs": {
+    "funding": 0.05,
+    "hiring": 0.5
+   },
+   "backfill": false,
+   "result": [
+    2,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": true,
+   "debits": [
+    {
+     "cost": 0.05,
+     "run_id": "fk-1:funding",
+     "reason": "poller_fetch"
+    }
+   ],
+   "web_tech_calls": [],
+   "signals": [
+    {
+     "id": "3863b35750365fce135579a070fe15902c8bc2e140182de45c868f8586f8e116",
+     "workspace_id": "ws-1",
+     "lead_id": 14,
+     "company": "Stripe Milton LLC",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "x",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/x",
+     "weight": 10,
+     "created_at": 1788000000.0
+    },
+    {
+     "id": "216ab7c071a3798c6358ed9fdef45e3096925add771179b13c8b2d9ff8d41423",
+     "workspace_id": "ws-1",
+     "lead_id": 14,
+     "company": "Stripe Milton LLC",
+     "signal_type": "executive_hired",
+     "title": "New c level: Grace Hopper",
+     "description": "d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/y",
+     "weight": 8,
+     "created_at": 1788000100.0
+    }
+   ],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 1.0,
+   "ledger": []
+  },
+  {
+   "name": "billing_hiring_maps_to_hiring_cost",
+   "src": "hiring",
+   "watch": {
+    "kind": "hiring",
+    "target": "Acme",
+    "signal_types": [
+     "hiring_surge"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [],
+    {
+     "hiring_band": "none"
+    }
+   ],
+   "balance": 1.0,
+   "costs": {
+    "funding": 0.5,
+    "hiring": 0.02
+   },
+   "backfill": false,
+   "result": [
+    0,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": true,
+   "debits": [
+    {
+     "cost": 0.02,
+     "run_id": "fk-1:hiring",
+     "reason": "poller_fetch"
+    }
+   ],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false,
+     "hiring_band": "none"
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 1.0,
+   "ledger": []
+  },
+  {
+   "name": "billing_tech_maps_to_hiring_cost",
+   "src": "tech",
+   "watch": {
+    "kind": "hiring",
+    "target": "Acme",
+    "signal_types": [
+     "new_tech_adopted"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [],
+    {
+     "known_tech": {}
+    }
+   ],
+   "balance": 1.0,
+   "costs": {
+    "funding": 0.5,
+    "hiring": 0.02
+   },
+   "backfill": false,
+   "result": [
+    0,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": true,
+   "debits": [
+    {
+     "cost": 0.02,
+     "run_id": "fk-1:hiring",
+     "reason": "poller_fetch"
+    }
+   ],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false,
+     "known_tech": {}
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 1.0,
+   "ledger": []
+  },
+  {
+   "name": "billing_web_tech_maps_to_hiring_cost",
+   "src": "web_tech",
+   "watch": {
+    "kind": "hiring",
+    "target": "Acme",
+    "signal_types": [
+     "new_tech_adopted"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [],
+    {}
+   ],
+   "balance": 1.0,
+   "costs": {
+    "hiring": 0.02
+   },
+   "backfill": false,
+   "result": [
+    0,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": true,
+   "debits": [
+    {
+     "cost": 0.02,
+     "run_id": "fk-1:hiring",
+     "reason": "poller_fetch"
+    }
+   ],
+   "web_tech_calls": [
+    {
+     "website": "https://hotpursuit.example.com"
+    }
+   ],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 1.0,
+   "ledger": []
+  },
+  {
+   "name": "billing_feed_cost",
+   "src": "feed",
+   "watch": {
+    "kind": "feed",
+    "target": "https://f.example.com/x.xml",
+    "signal_types": [
+     "news"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [],
+    {}
+   ],
+   "balance": 1.0,
+   "costs": {
+    "feed": 0.01
+   },
+   "backfill": false,
+   "result": [
+    0,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": true,
+   "debits": [
+    {
+     "cost": 0.01,
+     "run_id": "fk-1:feed",
+     "reason": "poller_fetch"
+    }
+   ],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 1.0,
+   "ledger": []
+  },
+  {
+   "name": "billing_job_change_free",
+   "src": "job_change",
+   "watch": {
+    "kind": "job_change",
+    "target": "R",
+    "signal_types": [
+     "job_change"
+    ],
+    "config": {
+     "contacts": []
+    }
+   },
+   "lead_id": null,
+   "detector_result": [
+    [],
+    {
+     "job_change_contacts": {}
+    }
+   ],
+   "balance": 0.0,
+   "costs": {
+    "funding": 1.0,
+    "hiring": 1.0,
+    "feed": 1.0
+   },
+   "backfill": false,
+   "result": [
+    0,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": true,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false,
+     "job_change_contacts": {}
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 0.0,
+   "ledger": []
+  },
+  {
+   "name": "billing_account_group_free",
+   "src": "account_group",
+   "watch": {
+    "kind": "account_group",
+    "target": "G",
+    "signal_types": [
+     "funding"
+    ],
+    "config": {
+     "accounts": []
+    }
+   },
+   "lead_id": null,
+   "detector_result": [
+    [],
+    {}
+   ],
+   "balance": 0.0,
+   "costs": {
+    "funding": 1.0
+   },
+   "backfill": false,
+   "result": [
+    0,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": true,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 0.0,
+   "ledger": []
+  },
+  {
+   "name": "job_change_emits_without_watch_lead_and_uses_event_routing",
+   "src": "job_change",
+   "watch": {
+    "kind": "job_change",
+    "target": "Roster",
+    "signal_types": [
+     "job_change"
+    ],
+    "config": {
+     "contacts": []
+    }
+   },
+   "lead_id": null,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "lead:14:hot pursuit->acme",
+      "signal_type": "job_change",
+      "title": "Job change: Sam",
+      "description": "{}",
+      "source": "ddg_linkedin",
+      "source_url": "",
+      "weight": 9,
+      "occurred_at": 1788000000.0,
+      "lead_id": 14,
+      "company": "Acme"
+     },
+     {
+      "natural_event_id": "nm:ada|eng:eng->bab",
+      "signal_type": "job_change",
+      "title": "Job change: Ada",
+      "description": "{}",
+      "source": "ddg_linkedin",
+      "source_url": "",
+      "weight": 9,
+      "occurred_at": 1788000001.0,
+      "lead_id": null,
+      "company": "Babbage"
+     }
+    ],
+    {
+     "job_change_contacts": {
+      "lead:14": {
+       "last_known_company": "Acme",
+       "last_checked_at": 1.0
+      }
+     }
+    }
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": [
+    2,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [
+    {
+     "id": "dc1da4701109d1b71622cb7168421e4f1249e8aff77a960cc455052675203f84",
+     "workspace_id": "ws-1",
+     "lead_id": 14,
+     "company": "Acme",
+     "signal_type": "job_change",
+     "title": "Job change: Sam",
+     "description": "{}",
+     "source": "ddg_linkedin",
+     "source_url": "",
+     "weight": 9,
+     "created_at": 1788000000.0
+    },
+    {
+     "id": "d888d9c7e059cbedb5ebca57969a6b7ffac0db3279f15b27da5a9564988061bd",
+     "workspace_id": "ws-1",
+     "lead_id": 0,
+     "company": "Babbage",
+     "signal_type": "job_change",
+     "title": "Job change: Ada",
+     "description": "{}",
+     "source": "ddg_linkedin",
+     "source_url": "",
+     "weight": 9,
+     "created_at": 1788000001.0
+    }
+   ],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false,
+     "job_change_contacts": {
+      "lead:14": {
+       "last_known_company": "Acme",
+       "last_checked_at": 1.0
+      }
+     }
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "event_company_defaults_to_watch_target",
+   "src": "funding",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "n1",
+      "signal_type": "company_funded",
+      "title": "t",
+      "description": "d",
+      "source": "s",
+      "source_url": "u",
+      "weight": 3,
+      "occurred_at": 1.5,
+      "lead_id": null,
+      "company": ""
+     }
+    ],
+    {}
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": [
+    1,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [
+    {
+     "id": "192c66723f66a6e2b3d826f0dc4e6f4904771b5de471543fa08a54a8084686a7",
+     "workspace_id": "ws-1",
+     "lead_id": 14,
+     "company": "Stripe Milton LLC",
+     "signal_type": "company_funded",
+     "title": "t",
+     "description": "d",
+     "source": "s",
+     "source_url": "u",
+     "weight": 3,
+     "created_at": 1.5
+    }
+   ],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "event_lead_zero_when_no_lead_and_no_override_for_job_change_group",
+   "src": "account_group",
+   "watch": {
+    "kind": "account_group",
+    "target": "G",
+    "signal_types": [
+     "funding"
+    ],
+    "config": {
+     "accounts": []
+    }
+   },
+   "lead_id": null,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "a:1",
+      "signal_type": "funding",
+      "title": "t",
+      "description": "d",
+      "source": "s",
+      "source_url": "u",
+      "weight": 3,
+      "occurred_at": 2.5,
+      "lead_id": null,
+      "company": "Acme"
+     }
+    ],
+    {
+     "account_group": {},
+     "collector_health": {}
+    }
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": [
+    1,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [
+    {
+     "id": "c65bb07eced1faa485b8a5396463cd7f832e6229c80a465a6c69b7425898133d",
+     "workspace_id": "ws-1",
+     "lead_id": 0,
+     "company": "Acme",
+     "signal_type": "funding",
+     "title": "t",
+     "description": "d",
+     "source": "s",
+     "source_url": "u",
+     "weight": 3,
+     "created_at": 2.5
+    }
+   ],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false,
+     "account_group": {},
+     "collector_health": {}
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "account_group_collector_failures_set_last_error_and_flag",
+   "src": "account_group",
+   "watch": {
+    "kind": "account_group",
+    "target": "G",
+    "signal_types": [
+     "funding"
+    ],
+    "config": {
+     "accounts": []
+    }
+   },
+   "lead_id": null,
+   "detector_result": [
+    [],
+    {
+     "account_group": {
+      "a": {}
+     },
+     "collector_health": {
+      "a:funding": {
+       "state": "failed"
+      }
+     }
+    }
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": [
+    0,
+    0,
+    true
+   ],
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": "sec_provider_unavailable",
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false,
+     "account_group": {
+      "a": {}
+     },
+     "collector_health": {
+      "a:funding": {
+       "state": "failed"
+      }
+     }
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "account_group_failure_text_truncated_255",
+   "src": "account_group",
+   "watch": {
+    "kind": "account_group",
+    "target": "G",
+    "signal_types": [
+     "funding"
+    ],
+    "config": {
+     "accounts": []
+    }
+   },
+   "lead_id": null,
+   "detector_result": [
+    [],
+    {}
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": [
+    0,
+    0,
+    true
+   ],
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "unknown_source_is_noop",
+   "src": "bogus",
+   "watch": {
+    "kind": "funding",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ]
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "0002000934:0002000934-24-000009",
+      "signal_type": "company_funded",
+      "title": "Raised $5,000,000 (Form D)",
+      "description": "x",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/x",
+      "weight": 10,
+      "occurred_at": 1788000000.0,
+      "lead_id": null,
+      "company": ""
+     }
+    ],
+    {}
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": null,
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": null
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  },
+  {
+   "name": "signal_ids_deterministic_from_watch_kind_and_stable_company",
+   "src": "funding",
+   "watch": {
+    "kind": "company",
+    "target": "Stripe Milton LLC",
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "resolved_cik": "320193"
+   },
+   "lead_id": 14,
+   "detector_result": [
+    [
+     {
+      "natural_event_id": "0002000934:0002000934-24-000009",
+      "signal_type": "company_funded",
+      "title": "Raised $5,000,000 (Form D)",
+      "description": "x",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/x",
+      "weight": 10,
+      "occurred_at": 1788000000.0,
+      "lead_id": null,
+      "company": ""
+     },
+     {
+      "natural_event_id": "0002000934:grace hopper:c_level",
+      "signal_type": "executive_hired",
+      "title": "New c level: Grace Hopper",
+      "description": "d",
+      "source": "sec_edgar",
+      "source_url": "https://www.sec.gov/y",
+      "weight": 8,
+      "occurred_at": 1788000100.0,
+      "lead_id": null,
+      "company": ""
+     }
+    ],
+    {}
+   ],
+   "balance": 10.0,
+   "costs": {},
+   "backfill": false,
+   "result": [
+    2,
+    0,
+    false
+   ],
+   "raised": null,
+   "stub_debit": false,
+   "debits": [],
+   "web_tech_calls": [],
+   "signals": [
+    {
+     "id": "a197ff557b1c1f4ec87938f2986136ce9316e1dfd76ff0109b294f86262a6ace",
+     "workspace_id": "ws-1",
+     "lead_id": 14,
+     "company": "Stripe Milton LLC",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "x",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/x",
+     "weight": 10,
+     "created_at": 1788000000.0
+    },
+    {
+     "id": "caba40867e889c6780b2bdcb6dd48a05b28c7f0a16bbb6e3f893a4cc06be59a5",
+     "workspace_id": "ws-1",
+     "lead_id": 14,
+     "company": "Stripe Milton LLC",
+     "signal_type": "executive_hired",
+     "title": "New c level: Grace Hopper",
+     "description": "d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/y",
+     "weight": 8,
+     "created_at": 1788000100.0
+    }
+   ],
+   "watch_after": {
+    "id": "w-1",
+    "enabled": true,
+    "consecutive_failures": 0,
+    "last_error": null,
+    "next_poll_at": null,
+    "last_polled_set": false,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "resolved_cik": "320193"
+   },
+   "balance_after": 10.0,
+   "ledger": []
+  }
+ ]
+}

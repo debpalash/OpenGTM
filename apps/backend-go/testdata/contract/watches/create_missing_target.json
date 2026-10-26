@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "kind": "funding"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "kind": "funding"
+          },
+          "loc": [
+            "body",
+            "target"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

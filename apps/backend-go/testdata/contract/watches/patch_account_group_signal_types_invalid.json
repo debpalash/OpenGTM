@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "signal_types": [
+        "news"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/watches/watch-a-06"
+  },
+  "response": {
+    "body": {
+      "detail": "signal_types ['news'] not valid for kind 'account_group'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

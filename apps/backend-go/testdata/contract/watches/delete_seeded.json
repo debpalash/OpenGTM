@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/watches/watch-a-08"
+  },
+  "response": {
+    "body": {
+      "deleted": true,
+      "id": "watch-a-08"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

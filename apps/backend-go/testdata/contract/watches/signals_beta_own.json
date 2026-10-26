@@ -1,0 +1,38 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches/watch-b-01/signals"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 50,
+      "next_cursor": null,
+      "offset": 0,
+      "signals": [
+        {
+          "company": "Initech Two",
+          "created_at": 1788000000.0,
+          "description": "beta",
+          "id": "sig-p-b-01",
+          "lead_id": 16,
+          "read": 0,
+          "signal_type": "company_funded",
+          "source": "sec_edgar",
+          "source_url": "https://signals.example.com/p/b1",
+          "title": "beta funding",
+          "weight": 10,
+          "workspace_id": "ws-beta"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

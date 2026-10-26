@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/automations/triggers?enabled=maybe"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "maybe",
+          "loc": [
+            "query",
+            "enabled"
+          ],
+          "msg": "Input should be a valid boolean, unable to interpret input",
+          "type": "bool_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

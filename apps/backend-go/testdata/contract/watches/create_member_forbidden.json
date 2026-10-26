@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "kind": "funding",
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: signals.write"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

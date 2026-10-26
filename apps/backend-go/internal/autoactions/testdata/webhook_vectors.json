@@ -1,0 +1,5384 @@
+{
+ "vectors": [
+  {
+   "name": "default_post_sends_lead_data_as_json",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "url_trimmed",
+   "cfg": {
+    "url": "  https://hooks.example.com/x  "
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "url_missing",
+   "cfg": {},
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "webhook url not configured",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_blank",
+   "cfg": {
+    "url": "   "
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "webhook url not configured",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_templated",
+   "cfg": {
+    "url": "https://hooks.example.com/{company}?e={email}"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/Hot Pursuit Labs?e=ceo@hotpursuit.example.com",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "url_template_unknown_field",
+   "cfg": {
+    "url": "https://hooks.example.com/{nope}"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": null,
+   "raised": {
+    "type": "ValueError",
+    "message": "Unknown column reference: nope. Fix the template before sending."
+   },
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_template_unicode",
+   "cfg": {
+    "url": "https://hooks.example.com/{company}"
+   },
+   "lead_data": {
+    "company": "Éco Solutions",
+    "email": "",
+    "website": ""
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/Éco Solutions",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Éco Solutions",
+      "email": "",
+      "website": ""
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "method_PUT",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "method": "PUT"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "PUT 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "PUT",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "method_PATCH",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "method": "PATCH"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "PATCH 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "PATCH",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "method_GET",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "method": "GET"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "GET 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "GET",
+    "headers": {},
+    "kwargs": {}
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "method_DELETE",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "method": "DELETE"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "DELETE 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "DELETE",
+    "headers": {},
+    "kwargs": {}
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "method_post",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "method": "post"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "method_get",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "method": "get"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "GET 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "GET",
+    "headers": {},
+    "kwargs": {}
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "method_Put",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "method": "Put"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "PUT 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "PUT",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "method_HEAD",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "method": "HEAD"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "HEAD 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "HEAD",
+    "headers": {},
+    "kwargs": {}
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "method_OPTIONS",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "method": "OPTIONS"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "OPTIONS 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "OPTIONS",
+    "headers": {},
+    "kwargs": {}
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "method_blank_defaults_post",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "method": ""
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "body_dict_template",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "body": {
+     "company": "{company}",
+     "n": 1,
+     "nested": {
+      "e": "{email}",
+      "list": [
+       "{website}",
+       2
+      ]
+     }
+    }
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "n": 1,
+      "nested": {
+       "e": "ceo@hotpursuit.example.com",
+       "list": [
+        "https://hotpursuit.example.com",
+        2
+       ]
+      }
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "body_list_template",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "body": [
+     "{company}",
+     {
+      "x": "{email}"
+     }
+    ]
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": [
+      "Hot Pursuit Labs",
+      {
+       "x": "ceo@hotpursuit.example.com"
+      }
+     ]
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "body_string_json_template",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "body": "{\"company\": \"{company}\"}"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": null,
+   "raised": {
+    "type": "ValueError",
+    "message": "Unknown column reference: \"company\": \"{company. Fix the template before sending."
+   },
+   "request": null,
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "body_string_plain_text",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "body": "hello {company}"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {
+     "Content-Type": "text/plain"
+    },
+    "kwargs": {
+     "content": "hello Hot Pursuit Labs"
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "body_string_empty",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "body": ""
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {
+     "Content-Type": "text/plain"
+    },
+    "kwargs": {
+     "content": ""
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "body_number",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "body": 5
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": 5
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "body_true",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "body": true
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {
+     "Content-Type": "text/plain"
+    },
+    "kwargs": {
+     "content": "True"
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "body_false",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "body": false
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {
+     "Content-Type": "text/plain"
+    },
+    "kwargs": {
+     "content": "False"
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "body_null_sends_lead_data",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "body": null
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "body_dict_unknown_field",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "body": {
+     "x": "{nope}"
+    }
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": null,
+   "raised": {
+    "type": "ValueError",
+    "message": "Unknown column reference: nope. Fix the template before sending."
+   },
+   "request": null,
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "body_ignored_for_get",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "method": "GET",
+    "body": {
+     "a": 1
+    }
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "GET 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "GET",
+    "headers": {},
+    "kwargs": {}
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "body_plain_text_keeps_user_content_type_lowercase",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "body": "plain",
+    "headers": {
+     "content-type": "text/csv"
+    }
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {
+     "content-type": "text/csv",
+     "Content-Type": "text/plain"
+    },
+    "kwargs": {
+     "content": "plain"
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "body_plain_text_keeps_user_content_type",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "body": "plain",
+    "headers": {
+     "Content-Type": "text/csv"
+    }
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {
+     "Content-Type": "text/csv"
+    },
+    "kwargs": {
+     "content": "plain"
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "headers_templated",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "headers": {
+     "X-Company": "{company}",
+     "X-N": 5,
+     "X-Fixed": "a"
+    }
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {
+     "X-Company": "Hot Pursuit Labs",
+     "X-N": "5",
+     "X-Fixed": "a"
+    },
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "headers_template_unknown_field",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "headers": {
+     "X-A": "{nope}"
+    }
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": null,
+   "raised": {
+    "type": "ValueError",
+    "message": "Unknown column reference: nope. Fix the template before sending."
+   },
+   "request": null,
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "secret_injected_as_authorization",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "header_secret_ref": "HOOK_SECRET"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "secrets": {
+    "ws-1": {
+     "HOOK_SECRET": "ctk_vector_secret_0001",
+     "EMPTY_SECRET": ""
+    },
+    "ws-2": {
+     "HOOK_SECRET": "ctk_other_workspace_0002"
+    }
+   },
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {
+     "Authorization": "{{secret:HOOK_SECRET}}"
+    },
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "secret_custom_header_name",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "header_secret_ref": "HOOK_SECRET",
+    "header_name": "X-Token"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "secrets": {
+    "ws-1": {
+     "HOOK_SECRET": "ctk_vector_secret_0001",
+     "EMPTY_SECRET": ""
+    },
+    "ws-2": {
+     "HOOK_SECRET": "ctk_other_workspace_0002"
+    }
+   },
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {
+     "X-Token": "{{secret:HOOK_SECRET}}"
+    },
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "secret_not_found_not_injected",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "header_secret_ref": "NO_SUCH"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "secrets": {
+    "ws-1": {
+     "HOOK_SECRET": "ctk_vector_secret_0001",
+     "EMPTY_SECRET": ""
+    },
+    "ws-2": {
+     "HOOK_SECRET": "ctk_other_workspace_0002"
+    }
+   },
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "secret_empty_not_injected",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "header_secret_ref": "EMPTY_SECRET"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "secrets": {
+    "ws-1": {
+     "HOOK_SECRET": "ctk_vector_secret_0001",
+     "EMPTY_SECRET": ""
+    },
+    "ws-2": {
+     "HOOK_SECRET": "ctk_other_workspace_0002"
+    }
+   },
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "secret_resolves_only_in_rules_workspace",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "header_secret_ref": "HOOK_SECRET"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-2",
+   "secrets": {
+    "ws-1": {
+     "HOOK_SECRET": "ctk_vector_secret_0001",
+     "EMPTY_SECRET": ""
+    },
+    "ws-2": {
+     "HOOK_SECRET": "ctk_other_workspace_0002"
+    }
+   },
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {
+     "Authorization": "{{secret:HOOK_SECRET}}"
+    },
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "secret_does_not_override_explicit_header",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "header_secret_ref": "HOOK_SECRET",
+    "headers": {
+     "Authorization": "Bearer mine"
+    }
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "secrets": {
+    "ws-1": {
+     "HOOK_SECRET": "ctk_vector_secret_0001",
+     "EMPTY_SECRET": ""
+    },
+    "ws-2": {
+     "HOOK_SECRET": "ctk_other_workspace_0002"
+    }
+   },
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {
+     "Authorization": "Bearer mine"
+    },
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "secret_lowercase_explicit_header_both_sent",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "header_secret_ref": "HOOK_SECRET",
+    "headers": {
+     "authorization": "Bearer mine"
+    }
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "secrets": {
+    "ws-1": {
+     "HOOK_SECRET": "ctk_vector_secret_0001",
+     "EMPTY_SECRET": ""
+    },
+    "ws-2": {
+     "HOOK_SECRET": "ctk_other_workspace_0002"
+    }
+   },
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {
+     "authorization": "Bearer mine",
+     "Authorization": "{{secret:HOOK_SECRET}}"
+    },
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "url_ftp_scheme",
+   "cfg": {
+    "url": "ftp://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: scheme 'ftp' not allowed",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_no_scheme",
+   "cfg": {
+    "url": "hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: scheme '' not allowed",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_credentials",
+   "cfg": {
+    "url": "https://u:p@hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: credentials in url not allowed",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_username_only",
+   "cfg": {
+    "url": "https://u@hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: credentials in url not allowed",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_no_host",
+   "cfg": {
+    "url": "https:///x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: no host",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_localhost",
+   "cfg": {
+    "url": "http://localhost/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: host 'localhost' is blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_localhost_subdomain",
+   "cfg": {
+    "url": "http://a.localhost/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": {
+    "127.1": [
+     "127.0.0.1"
+    ],
+    "a.localhost": [
+     "127.0.0.1"
+    ]
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: host resolves to private ip 127.0.0.1",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": [
+    "a.localhost"
+   ]
+  },
+  {
+   "name": "url_metadata_hostname",
+   "cfg": {
+    "url": "http://metadata.google.internal/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: host 'metadata.google.internal' is blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_loopback_ip",
+   "cfg": {
+    "url": "http://127.0.0.1/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: ip '127.0.0.1' is private/blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_loopback_short",
+   "cfg": {
+    "url": "http://127.1/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": {
+    "127.1": [
+     "127.0.0.1"
+    ],
+    "a.localhost": [
+     "127.0.0.1"
+    ]
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: host resolves to private ip 127.0.0.1",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": [
+    "127.1"
+   ]
+  },
+  {
+   "name": "url_loopback_hex",
+   "cfg": {
+    "url": "http://0x7f.0.0.1/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: ip '127.0.0.1' is private/blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_loopback_decimal",
+   "cfg": {
+    "url": "http://2130706433/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: ip '127.0.0.1' is private/blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_loopback_octal",
+   "cfg": {
+    "url": "http://0177.0.0.1/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: ip '127.0.0.1' is private/blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_loopback_v6",
+   "cfg": {
+    "url": "http://[::1]/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: ip '::1' is private/blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_v4_mapped_v6",
+   "cfg": {
+    "url": "http://[::ffff:127.0.0.1]/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: ip '::ffff:127.0.0.1' is private/blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_link_local_metadata",
+   "cfg": {
+    "url": "http://169.254.169.254/latest/meta-data"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: ip '169.254.169.254' is private/blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_private_10",
+   "cfg": {
+    "url": "http://10.1.2.3/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: ip '10.1.2.3' is private/blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_private_172",
+   "cfg": {
+    "url": "http://172.16.0.1/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: ip '172.16.0.1' is private/blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_private_192",
+   "cfg": {
+    "url": "http://192.168.1.1/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: ip '192.168.1.1' is private/blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_unspecified",
+   "cfg": {
+    "url": "http://0.0.0.0/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: ip '0.0.0.0' is private/blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_cgnat",
+   "cfg": {
+    "url": "http://100.64.0.1/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "http://100.64.0.1/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": []
+  },
+  {
+   "name": "url_multicast",
+   "cfg": {
+    "url": "http://224.0.0.1/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: ip '224.0.0.1' is private/blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "url_public_literal_ip_ok",
+   "cfg": {
+    "url": "http://93.184.216.34/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "http://93.184.216.34/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": []
+  },
+  {
+   "name": "url_public_v6_ok",
+   "cfg": {
+    "url": "http://[2606:2800:220:1:248:1893:25c8:1946]/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "http://[2606:2800:220:1:248:1893:25c8:1946]/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": []
+  },
+  {
+   "name": "url_port_in_url_ok",
+   "cfg": {
+    "url": "https://hooks.example.com:8443/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com:8443/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "url_uppercase_host_ok",
+   "cfg": {
+    "url": "https://HOOKS.Example.COM/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": null,
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://HOOKS.Example.COM/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "dns_private_record_blocks",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": {
+    "hooks.example.com": [
+     "93.184.216.34",
+     "10.0.0.5"
+    ]
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: host resolves to private ip 10.0.0.5",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "dns_private_first_blocks",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": {
+    "hooks.example.com": [
+     "192.168.0.9",
+     "93.184.216.34"
+    ]
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: host resolves to private ip 192.168.0.9",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "dns_all_public_ok_multiple",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": {
+    "hooks.example.com": [
+     "93.184.216.34",
+     "93.184.216.35"
+    ]
+   },
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "dns_v6_private_blocks",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": {
+    "hooks.example.com": [
+     "93.184.216.34",
+     "fd00::1"
+    ]
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: host resolves to private ip fd00::1",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "dns_resolution_error",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": {
+    "hooks.example.com": null
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: cannot resolve host: [Errno -2] Name or service not known",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "dns_empty_answers",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "dns": {
+    "hooks.example.com": []
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: no public address resolved for host",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "templated_url_resolves_to_loopback_blocked",
+   "cfg": {
+    "url": "http://{website}/x"
+   },
+   "lead_data": {
+    "company": "x",
+    "email": "",
+    "website": "127.0.0.1"
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: ip '127.0.0.1' is private/blocked",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "templated_scheme_blocked",
+   "cfg": {
+    "url": "{website}/x"
+   },
+   "lead_data": {
+    "company": "x",
+    "email": "",
+    "website": "ftp://h.example.com"
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: scheme 'ftp' not allowed",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "allowlist_hit_exact",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "allowlist": [
+    "hooks.example.com"
+   ],
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "allowlist_hit_subdomain",
+   "cfg": {
+    "url": "https://a.b.hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "allowlist": [
+    "hooks.example.com"
+   ],
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://a.b.hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "a.b.hooks.example.com"
+   ]
+  },
+  {
+   "name": "allowlist_miss",
+   "cfg": {
+    "url": "https://evil.example.org/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "allowlist": [
+    "hooks.example.com"
+   ],
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: host 'evil.example.org' not in webhook domain allowlist",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "allowlist_suffix_not_subdomain",
+   "cfg": {
+    "url": "https://nothooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "allowlist": [
+    "hooks.example.com"
+   ],
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: host 'nothooks.example.com' not in webhook domain allowlist",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "allowlist_case_insensitive",
+   "cfg": {
+    "url": "https://Hooks.EXAMPLE.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "allowlist": [
+    "HOOKS.example.com"
+   ],
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://Hooks.EXAMPLE.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "allowlist_literal_ip_miss",
+   "cfg": {
+    "url": "http://93.184.216.34/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "allowlist": [
+    "hooks.example.com"
+   ],
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: host '93.184.216.34' not in webhook domain allowlist",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": null,
+   "dns_lookups": []
+  },
+  {
+   "name": "status_200",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 200,
+    "text": "body 200"
+   },
+   "result": {
+    "status": "success",
+    "summary": "POST 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_201",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 201,
+    "text": "body 201"
+   },
+   "result": {
+    "status": "success",
+    "summary": "POST 201",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_204",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 204,
+    "text": "body 204"
+   },
+   "result": {
+    "status": "success",
+    "summary": "POST 204",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_299",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 299,
+    "text": "body 299"
+   },
+   "result": {
+    "status": "success",
+    "summary": "POST 299",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_300",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 300,
+    "text": "body 300"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 300",
+    "error": "HTTP 300: body 300",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_301",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 301,
+    "text": "body 301"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 301",
+    "error": "HTTP 301: body 301",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_302",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 302,
+    "text": "body 302"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 302",
+    "error": "HTTP 302: body 302",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_304",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 304,
+    "text": "body 304"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 304",
+    "error": "HTTP 304: body 304",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_400",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 400,
+    "text": "body 400"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 400",
+    "error": "HTTP 400: body 400",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_401",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 401,
+    "text": "body 401"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 401",
+    "error": "HTTP 401: body 401",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_403",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 403,
+    "text": "body 403"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 403",
+    "error": "HTTP 403: body 403",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_404",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 404,
+    "text": "body 404"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 404",
+    "error": "HTTP 404: body 404",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_409",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 409,
+    "text": "body 409"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 409",
+    "error": "HTTP 409: body 409",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_422",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 422,
+    "text": "body 422"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 422",
+    "error": "HTTP 422: body 422",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_429",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 429,
+    "text": "body 429"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 429",
+    "error": "HTTP 429: body 429",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_500",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 500,
+    "text": "body 500"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 500",
+    "error": "HTTP 500: body 500",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_502",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 502,
+    "text": "body 502"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 502",
+    "error": "HTTP 502: body 502",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_503",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 503,
+    "text": "body 503"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 503",
+    "error": "HTTP 503: body 503",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_199_is_failure",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 199,
+    "text": "x"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 199",
+    "error": "HTTP 199: x",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_500_long_body_truncated_160",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 500,
+    "text": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 500",
+    "error": "HTTP 500: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_400_empty_body",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 400,
+    "text": ""
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 400",
+    "error": "HTTP 400: ",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_400_unicode_body_truncated",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 400,
+    "text": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 400",
+    "error": "HTTP 400: éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_400_multiline_body",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 400,
+    "text": "line1\nline2"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "POST 400",
+    "error": "HTTP 400: line1\nline2",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "status_200_success_summary_uses_method",
+   "cfg": {
+    "url": "https://hooks.example.com/x",
+    "method": "put"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "status": 200,
+    "text": "ok"
+   },
+   "result": {
+    "status": "success",
+    "summary": "PUT 200",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "PUT",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "send_timeout",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "raise": "timeout"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "timed out",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "send_connect_error",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "raise": "connect"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "connection refused",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "send_blocked_by_sender_revalidation",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "raise": "blocked"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "blocked url: host resolves to private ip 10.0.0.9",
+    "skip_reason": "blocked_url",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  },
+  {
+   "name": "send_generic_error_truncated_200",
+   "cfg": {
+    "url": "https://hooks.example.com/x"
+   },
+   "lead_data": {
+    "company": "Hot Pursuit Labs",
+    "email": "ceo@hotpursuit.example.com",
+    "website": "https://hotpursuit.example.com",
+    "id": 14,
+    "lead_id": 14
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    }
+   ],
+   "ws": "ws-1",
+   "response": {
+    "raise": "long"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "request": {
+    "url": "https://hooks.example.com/x",
+    "method": "POST",
+    "headers": {},
+    "kwargs": {
+     "json": {
+      "company": "Hot Pursuit Labs",
+      "email": "ceo@hotpursuit.example.com",
+      "website": "https://hotpursuit.example.com",
+      "id": 14,
+      "lead_id": 14
+     }
+    }
+   },
+   "dns_lookups": [
+    "hooks.example.com"
+   ]
+  }
+ ]
+}

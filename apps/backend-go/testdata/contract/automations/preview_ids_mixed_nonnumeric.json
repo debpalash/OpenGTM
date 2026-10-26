@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "row_ids": [
+        "3001",
+        "x"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers/trg-a-01/preview"
+  },
+  "response": {
+    "body": "Internal Server Error",
+    "headers": {
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "status": 500
+  }
+}

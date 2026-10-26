@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "name": "x",
+      "trigger_type": "on_row_added"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

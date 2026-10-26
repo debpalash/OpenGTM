@@ -1,0 +1,21 @@
+{
+ "area": "webtech",
+ "scenario": "flag_off_noop",
+ "description": "TECH_STACK_WEBSITE_FETCH_ENABLED off: no request at all",
+ "input": {
+  "target": "Acme",
+  "website": "https://www.acme.example.com/pricing",
+  "cursor": {
+   "bootstrapped": true
+  },
+  "backfill": false,
+  "flag": false
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "events": [],
+  "patch": {}
+ }
+}

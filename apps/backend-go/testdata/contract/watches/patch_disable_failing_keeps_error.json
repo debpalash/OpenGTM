@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": {
+      "enabled": false
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/watches/watch-a-08"
+  },
+  "response": {
+    "body": {
+      "config": {},
+      "consecutive_failures": 3,
+      "created_at": "2026-08-29T09:08:00+00:00",
+      "cursor": {
+        "bootstrapped": true
+      },
+      "enabled": false,
+      "id": "watch-a-08",
+      "interval": "daily",
+      "kind": "feed",
+      "last_error": "http_500",
+      "last_polled_at": "2026-08-29T09:08:30+00:00",
+      "lead_id": null,
+      "next_poll_at": null,
+      "resolved_cik": null,
+      "signal_types": [
+        "news"
+      ],
+      "target": "https://feeds.example.com/failing.xml",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

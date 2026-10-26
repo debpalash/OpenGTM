@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": {
+      "actions": [
+        "webhook"
+      ],
+      "name": "x",
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "webhook",
+          "loc": [
+            "body",
+            "actions",
+            0
+          ],
+          "msg": "Input should be a valid dictionary",
+          "type": "dict_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

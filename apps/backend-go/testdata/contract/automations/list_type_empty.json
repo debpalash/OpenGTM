@@ -1,0 +1,358 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/automations/triggers?trigger_type="
+  },
+  "response": {
+    "body": [
+      {
+        "actions": [
+          {
+            "config": {
+              "url": "https://hooks.example.com/news"
+            },
+            "type": "webhook"
+          }
+        ],
+        "condition": "false",
+        "created_at": "2026-08-29T08:10:00+00:00",
+        "created_by": "2",
+        "enabled": false,
+        "id": "trg-a-10",
+        "last_fired_at": null,
+        "max_actions_per_day": null,
+        "max_spend_usd_per_day": null,
+        "name": "Disabled signal rule",
+        "next_run_at": null,
+        "schedule_anchor": null,
+        "scope_workbook_ids": [
+          "wb-auto-2"
+        ],
+        "stop_on_error": false,
+        "trigger_config": {
+          "signal_types": [
+            "news"
+          ]
+        },
+        "trigger_type": "on_signal",
+        "updated_at": "2026-08-29T08:10:00+00:00",
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "actions": [
+          {
+            "config": {
+              "column_ids": [
+                "plat_x"
+              ]
+            },
+            "type": "re_enrich"
+          }
+        ],
+        "condition": "",
+        "created_at": "2026-08-29T08:09:00+00:00",
+        "created_by": "1",
+        "enabled": true,
+        "id": "trg-a-09",
+        "last_fired_at": null,
+        "max_actions_per_day": 5,
+        "max_spend_usd_per_day": 1.5,
+        "name": "Capped paid re-enrich",
+        "next_run_at": null,
+        "schedule_anchor": null,
+        "scope_workbook_ids": [
+          "wb-auto-1"
+        ],
+        "stop_on_error": false,
+        "trigger_config": {},
+        "trigger_type": "on_row_added",
+        "updated_at": "2026-08-29T08:09:00+00:00",
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "actions": [
+          {
+            "config": {
+              "url": "https://hooks.example.com/exit"
+            },
+            "type": "webhook"
+          }
+        ],
+        "condition": "",
+        "created_at": "2026-08-29T08:08:00+00:00",
+        "created_by": "1",
+        "enabled": true,
+        "id": "trg-a-08",
+        "last_fired_at": null,
+        "max_actions_per_day": null,
+        "max_spend_usd_per_day": null,
+        "name": "Audience exited",
+        "next_run_at": null,
+        "schedule_anchor": null,
+        "scope_workbook_ids": [],
+        "stop_on_error": false,
+        "trigger_config": {},
+        "trigger_type": "on_audience_exit",
+        "updated_at": "2026-08-29T08:08:00+00:00",
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "actions": [
+          {
+            "config": {
+              "field_map": {
+                "company": "company",
+                "email": "email"
+              },
+              "type": "hubspot"
+            },
+            "type": "push_crm"
+          }
+        ],
+        "condition": "",
+        "created_at": "2026-08-29T08:07:00+00:00",
+        "created_by": "1",
+        "enabled": true,
+        "id": "trg-a-07",
+        "last_fired_at": null,
+        "max_actions_per_day": null,
+        "max_spend_usd_per_day": null,
+        "name": "Audience entered",
+        "next_run_at": null,
+        "schedule_anchor": null,
+        "scope_workbook_ids": [
+          "wb-auto-1"
+        ],
+        "stop_on_error": false,
+        "trigger_config": {
+          "audience_ids": [
+            "aud-alpha-1"
+          ]
+        },
+        "trigger_type": "on_audience_enter",
+        "updated_at": "2026-08-29T08:07:00+00:00",
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "actions": [
+          {
+            "config": {
+              "url": "https://hooks.example.com/weekly"
+            },
+            "type": "webhook"
+          }
+        ],
+        "condition": "",
+        "created_at": "2026-08-29T08:06:00+00:00",
+        "created_by": "1",
+        "enabled": false,
+        "id": "trg-a-06",
+        "last_fired_at": null,
+        "max_actions_per_day": null,
+        "max_spend_usd_per_day": null,
+        "name": "Weekly sweep paused",
+        "next_run_at": null,
+        "schedule_anchor": "2026-08-29T08:06:00+00:00",
+        "scope_workbook_ids": [],
+        "stop_on_error": false,
+        "trigger_config": {
+          "interval": "weekly"
+        },
+        "trigger_type": "on_schedule",
+        "updated_at": "2026-08-29T08:06:00+00:00",
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "actions": [
+          {
+            "config": {
+              "column_ids": [
+                "enr_email",
+                "wf_email"
+              ]
+            },
+            "type": "re_enrich"
+          }
+        ],
+        "condition": "",
+        "created_at": "2026-08-29T08:05:00+00:00",
+        "created_by": "1",
+        "enabled": true,
+        "id": "trg-a-05",
+        "last_fired_at": "2026-08-29T08:05:00+00:00",
+        "max_actions_per_day": 100,
+        "max_spend_usd_per_day": 5.0,
+        "name": "Daily sweep",
+        "next_run_at": "2026-08-30T08:05:00+00:00",
+        "schedule_anchor": "2026-08-29T08:05:00+00:00",
+        "scope_workbook_ids": [
+          "wb-auto-1",
+          "wb-auto-2"
+        ],
+        "stop_on_error": false,
+        "trigger_config": {
+          "interval": "daily"
+        },
+        "trigger_type": "on_schedule",
+        "updated_at": "2026-08-29T08:05:00+00:00",
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "actions": [
+          {
+            "config": {
+              "method": "POST",
+              "url": "https://hooks.example.com/hourly"
+            },
+            "type": "webhook"
+          }
+        ],
+        "condition": "not_empty({email})",
+        "created_at": "2026-08-29T08:04:00+00:00",
+        "created_by": "1",
+        "enabled": true,
+        "id": "trg-a-04",
+        "last_fired_at": null,
+        "max_actions_per_day": null,
+        "max_spend_usd_per_day": null,
+        "name": "Hourly sweep",
+        "next_run_at": "2026-08-29T11:00:00+00:00",
+        "schedule_anchor": "2026-08-29T08:04:00+00:00",
+        "scope_workbook_ids": [
+          "wb-auto-1"
+        ],
+        "stop_on_error": false,
+        "trigger_config": {
+          "interval": "hourly"
+        },
+        "trigger_type": "on_schedule",
+        "updated_at": "2026-08-29T08:04:00+00:00",
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "actions": [
+          {
+            "config": {
+              "field_map": {
+                "company": "company",
+                "email": "email"
+              },
+              "type": "hubspot"
+            },
+            "type": "push_crm"
+          },
+          {
+            "config": {
+              "url": "https://hooks.example.com/sig"
+            },
+            "type": "webhook"
+          }
+        ],
+        "condition": "",
+        "created_at": "2026-08-29T08:03:00+00:00",
+        "created_by": "1",
+        "enabled": true,
+        "id": "trg-a-03",
+        "last_fired_at": null,
+        "max_actions_per_day": null,
+        "max_spend_usd_per_day": null,
+        "name": "Funding signal to CRM",
+        "next_run_at": null,
+        "schedule_anchor": null,
+        "scope_workbook_ids": [],
+        "stop_on_error": false,
+        "trigger_config": {
+          "signal_types": [
+            "hiring",
+            "funding"
+          ]
+        },
+        "trigger_type": "on_signal",
+        "updated_at": "2026-08-29T08:03:00+00:00",
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "actions": [
+          {
+            "config": {
+              "column_ids": [
+                "enr_email"
+              ]
+            },
+            "type": "re_enrich"
+          }
+        ],
+        "condition": "{email} contains \"@\"",
+        "created_at": "2026-08-29T08:02:00+00:00",
+        "created_by": "1",
+        "enabled": true,
+        "id": "trg-a-02",
+        "last_fired_at": null,
+        "max_actions_per_day": null,
+        "max_spend_usd_per_day": null,
+        "name": "Email changed re-enrich",
+        "next_run_at": null,
+        "schedule_anchor": null,
+        "scope_workbook_ids": [
+          "wb-auto-1"
+        ],
+        "stop_on_error": true,
+        "trigger_config": {
+          "watch_fields": [
+            "email",
+            "website"
+          ]
+        },
+        "trigger_type": "on_row_changed",
+        "updated_at": "2026-08-29T08:02:00+00:00",
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "actions": [
+          {
+            "config": {
+              "body": {
+                "company": "{company}",
+                "site": "{website}"
+              },
+              "header_secret_ref": "AUTOMATION_HOOK_SECRET",
+              "headers": {
+                "X-Source": "opengtm"
+              },
+              "method": "POST",
+              "url": "https://hooks.example.com/auto/{company}"
+            },
+            "type": "webhook"
+          }
+        ],
+        "condition": "{company} != \"\"",
+        "created_at": "2026-08-29T08:01:00+00:00",
+        "created_by": "1",
+        "enabled": true,
+        "id": "trg-a-01",
+        "last_fired_at": "2026-08-29T12:30:00+00:00",
+        "max_actions_per_day": null,
+        "max_spend_usd_per_day": null,
+        "name": "New row webhook",
+        "next_run_at": null,
+        "schedule_anchor": null,
+        "scope_workbook_ids": [
+          "wb-auto-1"
+        ],
+        "stop_on_error": false,
+        "trigger_config": {},
+        "trigger_type": "on_row_added",
+        "updated_at": "2026-08-29T08:01:00+00:00",
+        "workspace_id": "ws-alpha"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

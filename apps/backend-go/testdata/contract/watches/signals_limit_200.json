@@ -1,0 +1,52 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches/watch-a-01/signals?limit=200"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 200,
+      "next_cursor": null,
+      "offset": 0,
+      "signals": [
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1788000000.0,
+          "description": "Poller company_funded event #1",
+          "id": "sig-p-01",
+          "lead_id": 14,
+          "read": 0,
+          "signal_type": "company_funded",
+          "source": "sec_edgar",
+          "source_url": "https://signals.example.com/p/1",
+          "title": "company_funded 1",
+          "weight": 10,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1787999940.0,
+          "description": "Poller executive_hired event #2",
+          "id": "sig-p-02",
+          "lead_id": 14,
+          "read": 0,
+          "signal_type": "executive_hired",
+          "source": "sec_edgar",
+          "source_url": "https://signals.example.com/p/2",
+          "title": "executive_hired 2",
+          "weight": 8,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

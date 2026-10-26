@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "kind": "feed",
+      "signal_types": [
+        "company_funded",
+        "news",
+        "bogus"
+      ],
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "signal_types ['company_funded', 'bogus'] not valid for kind 'feed'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

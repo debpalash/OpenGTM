@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches/watch-a-06/signals?cursor=bm90anNvbg"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid signal cursor"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

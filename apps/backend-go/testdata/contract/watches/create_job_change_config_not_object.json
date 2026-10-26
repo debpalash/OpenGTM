@@ -1,0 +1,37 @@
+{
+  "request": {
+    "body": {
+      "config": [
+        "a"
+      ],
+      "kind": "job_change",
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": [
+            "a"
+          ],
+          "loc": [
+            "body",
+            "config"
+          ],
+          "msg": "Input should be a valid dictionary",
+          "type": "dict_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

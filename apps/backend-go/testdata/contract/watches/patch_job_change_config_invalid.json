@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "contacts": []
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/watches/watch-a-05"
+  },
+  "response": {
+    "body": {
+      "detail": "job_change watch requires config.contacts (non-empty list)"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

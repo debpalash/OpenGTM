@@ -1,0 +1,66 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches/watch-a-06/signals?limit=3&offset=2&cursor=WzE3ODc5OTk1MjAuMCwic2lnLXAtMTEiXQ"
+  },
+  "response": {
+    "body": {
+      "has_more": true,
+      "limit": 3,
+      "next_cursor": "WzE3ODc5OTkzNDAuMCwic2lnLXAtMTQiXQ",
+      "offset": null,
+      "signals": [
+        {
+          "company": "Unlinked Co",
+          "created_at": 1787999460.0,
+          "description": "Poller partnership_hiring event #12",
+          "id": "sig-p-12",
+          "lead_id": 0,
+          "read": 1,
+          "signal_type": "partnership_hiring",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/p/12",
+          "title": "partnership_hiring 12",
+          "weight": 8,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787999400.0,
+          "description": "Poller leadership_change event #13",
+          "id": "sig-p-13",
+          "lead_id": 6,
+          "read": 0,
+          "signal_type": "leadership_change",
+          "source": "sec_edgar",
+          "source_url": "https://signals.example.com/p/13",
+          "title": "leadership_change 13",
+          "weight": 8,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "UNLINKED CO",
+          "created_at": 1787999340.0,
+          "description": "Poller leadership_change event #14",
+          "id": "sig-p-14",
+          "lead_id": 0,
+          "read": 0,
+          "signal_type": "leadership_change",
+          "source": "sec_edgar",
+          "source_url": "https://signals.example.com/p/14",
+          "title": "leadership_change 14",
+          "weight": 8,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

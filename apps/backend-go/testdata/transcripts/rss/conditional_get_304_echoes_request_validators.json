@@ -1,0 +1,50 @@
+{
+ "area": "rss",
+ "scenario": "conditional_get_304_echoes_request_validators",
+ "description": "304: validators sent from the cursor; response without validators -> the request's are kept",
+ "input": {
+  "url": "https://feeds.example.com/news.xml",
+  "etag": "\"abc\"",
+  "last_modified": "Sat, 29 Aug 2026 09:00:00 GMT",
+  "max_entries": null
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "feeds.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://93.184.216.34/news.xml",
+    "headers": {
+     "accept": "application/rss+xml, application/atom+xml, application/xml, text/xml",
+     "host": "feeds.example.com",
+     "if-modified-since": "Sat, 29 Aug 2026 09:00:00 GMT",
+     "if-none-match": "\"abc\"",
+     "user-agent": "Yupcha-Poller (+https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 304,
+    "headers": {},
+    "body": ""
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "status": 304,
+  "not_modified": true,
+  "etag": "\"abc\"",
+  "last_modified": "Sat, 29 Aug 2026 09:00:00 GMT",
+  "error": null,
+  "entries": []
+ }
+}

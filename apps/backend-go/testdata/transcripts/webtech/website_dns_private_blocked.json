@@ -1,0 +1,38 @@
+{
+ "area": "webtech",
+ "scenario": "website_dns_private_blocked",
+ "description": "private A record for the site: blocked_url -> ([], {})",
+ "input": {
+  "target": "Acme",
+  "website": "https://www.acme.example.com/pricing",
+  "cursor": {
+   "bootstrapped": true
+  },
+  "backfill": false,
+  "flag": true
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "www.acme.example.com",
+    "answers": [
+     "10.1.2.3"
+    ]
+   }
+  },
+  {
+   "dns": {
+    "host": "www.acme.example.com",
+    "answers": [
+     "10.1.2.3"
+    ]
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "events": [],
+  "patch": {}
+ }
+}

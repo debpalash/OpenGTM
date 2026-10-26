@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "enabled": false
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/watches/watch-b-01"
+  },
+  "response": {
+    "body": {
+      "detail": "watch not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

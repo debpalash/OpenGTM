@@ -1,0 +1,44 @@
+{
+ "area": "pricing",
+ "scenario": "page_404_missing",
+ "description": "404: present=false, fingerprint 'missing'",
+ "input": {
+  "url": "https://acme.example.com/pricing"
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "acme.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://acme.example.com/pricing",
+    "headers": {
+     "host": "acme.example.com",
+     "user-agent": "OpenGTM Signal Monitor/1.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 404,
+    "headers": {
+     "content-type": "text/html; charset=utf-8"
+    },
+    "body": "nf"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "ok": true,
+  "present": false,
+  "url": "https://acme.example.com/pricing",
+  "fingerprint": "missing"
+ }
+}

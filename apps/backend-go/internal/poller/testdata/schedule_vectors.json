@@ -1,0 +1,4421 @@
+{
+ "now": "2026-08-29T10:40:00+00:00",
+ "interval_delta_seconds": {
+  "hourly": 3600.0,
+  "daily": 86400.0,
+  "weekly": 604800.0,
+  "monthly": 86400.0,
+  "": 86400.0,
+  "None": 86400.0
+ },
+ "fire_keys": [
+  {
+   "watch_id": "w-1",
+   "next_run_at": "2026-08-29T11:00:00+00:00",
+   "fire_key": "watch:w-1:2026-08-29T11:00:00+00:00"
+  },
+  {
+   "watch_id": "w-1",
+   "next_run_at": "2026-08-29T11:00:00.123456+00:00",
+   "fire_key": "watch:w-1:2026-08-29T11:00:00.123456+00:00"
+  },
+  {
+   "watch_id": "w-1",
+   "next_run_at": "2026-08-29T16:30:00+05:30",
+   "fire_key": "watch:w-1:2026-08-29T16:30:00+05:30"
+  }
+ ],
+ "reschedule": [
+  {
+   "interval": "hourly",
+   "failures_before": 0,
+   "failed": true,
+   "consecutive_failures": 1,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T11:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 1,
+   "failed": true,
+   "consecutive_failures": 2,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T11:10:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:10:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:10:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:10:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 2,
+   "failed": true,
+   "consecutive_failures": 3,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T11:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 3,
+   "failed": true,
+   "consecutive_failures": 4,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T12:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T12:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T12:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T12:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 4,
+   "failed": true,
+   "consecutive_failures": 5,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T14:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T14:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T14:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T14:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 5,
+   "failed": true,
+   "consecutive_failures": 6,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T18:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T18:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T18:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T18:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 6,
+   "failed": true,
+   "consecutive_failures": 7,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T02:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T02:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T02:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T02:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 7,
+   "failed": true,
+   "consecutive_failures": 8,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 8,
+   "failed": true,
+   "consecutive_failures": 9,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 9,
+   "failed": true,
+   "consecutive_failures": 10,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 10,
+   "failed": true,
+   "consecutive_failures": 11,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 11,
+   "failed": true,
+   "consecutive_failures": 12,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 12,
+   "failed": true,
+   "consecutive_failures": 13,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 13,
+   "failed": true,
+   "consecutive_failures": 14,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 14,
+   "failed": true,
+   "consecutive_failures": 15,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 0,
+   "failed": true,
+   "consecutive_failures": 1,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 1,
+   "failed": true,
+   "consecutive_failures": 2,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 2,
+   "failed": true,
+   "consecutive_failures": 3,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 3,
+   "failed": true,
+   "consecutive_failures": 4,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 4,
+   "failed": true,
+   "consecutive_failures": 5,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 5,
+   "failed": true,
+   "consecutive_failures": 6,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 6,
+   "failed": true,
+   "consecutive_failures": 7,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 7,
+   "failed": true,
+   "consecutive_failures": 8,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 8,
+   "failed": true,
+   "consecutive_failures": 9,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 9,
+   "failed": true,
+   "consecutive_failures": 10,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 10,
+   "failed": true,
+   "consecutive_failures": 11,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 11,
+   "failed": true,
+   "consecutive_failures": 12,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 12,
+   "failed": true,
+   "consecutive_failures": 13,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 13,
+   "failed": true,
+   "consecutive_failures": 14,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 14,
+   "failed": true,
+   "consecutive_failures": 15,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 0,
+   "failed": true,
+   "consecutive_failures": 1,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 1,
+   "failed": true,
+   "consecutive_failures": 2,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 2,
+   "failed": true,
+   "consecutive_failures": 3,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 3,
+   "failed": true,
+   "consecutive_failures": 4,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 4,
+   "failed": true,
+   "consecutive_failures": 5,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 5,
+   "failed": true,
+   "consecutive_failures": 6,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 6,
+   "failed": true,
+   "consecutive_failures": 7,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 7,
+   "failed": true,
+   "consecutive_failures": 8,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 8,
+   "failed": true,
+   "consecutive_failures": 9,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 9,
+   "failed": true,
+   "consecutive_failures": 10,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 10,
+   "failed": true,
+   "consecutive_failures": 11,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 11,
+   "failed": true,
+   "consecutive_failures": 12,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 12,
+   "failed": true,
+   "consecutive_failures": 13,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 13,
+   "failed": true,
+   "consecutive_failures": 14,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 14,
+   "failed": true,
+   "consecutive_failures": 15,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 0,
+   "failed": true,
+   "consecutive_failures": 1,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 1,
+   "failed": true,
+   "consecutive_failures": 2,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 2,
+   "failed": true,
+   "consecutive_failures": 3,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 3,
+   "failed": true,
+   "consecutive_failures": 4,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 4,
+   "failed": true,
+   "consecutive_failures": 5,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 5,
+   "failed": true,
+   "consecutive_failures": 6,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 6,
+   "failed": true,
+   "consecutive_failures": 7,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 7,
+   "failed": true,
+   "consecutive_failures": 8,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 8,
+   "failed": true,
+   "consecutive_failures": 9,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 9,
+   "failed": true,
+   "consecutive_failures": 10,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 10,
+   "failed": true,
+   "consecutive_failures": 11,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 11,
+   "failed": true,
+   "consecutive_failures": 12,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 12,
+   "failed": true,
+   "consecutive_failures": 13,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 13,
+   "failed": true,
+   "consecutive_failures": 14,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 14,
+   "failed": true,
+   "consecutive_failures": 15,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 0,
+   "failed": true,
+   "consecutive_failures": 1,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 1,
+   "failed": true,
+   "consecutive_failures": 2,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 2,
+   "failed": true,
+   "consecutive_failures": 3,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 3,
+   "failed": true,
+   "consecutive_failures": 4,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 4,
+   "failed": true,
+   "consecutive_failures": 5,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 5,
+   "failed": true,
+   "consecutive_failures": 6,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 6,
+   "failed": true,
+   "consecutive_failures": 7,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 7,
+   "failed": true,
+   "consecutive_failures": 8,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 8,
+   "failed": true,
+   "consecutive_failures": 9,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 9,
+   "failed": true,
+   "consecutive_failures": 10,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 10,
+   "failed": true,
+   "consecutive_failures": 11,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 11,
+   "failed": true,
+   "consecutive_failures": 12,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 12,
+   "failed": true,
+   "consecutive_failures": 13,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 13,
+   "failed": true,
+   "consecutive_failures": 14,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 14,
+   "failed": true,
+   "consecutive_failures": 15,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 0,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T11:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 3,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T11:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 11,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T11:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 0,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 3,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 11,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 0,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 3,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 11,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "name": "no_anchor_uses_now",
+   "interval": "daily",
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "next_poll_at": "2026-08-29T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "name": "naive_anchor",
+   "interval": "hourly",
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "next_poll_at": "2026-08-29T11:20:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:20:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:20:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:20:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "name": "disabled_watch_not_enqueued",
+   "interval": "daily",
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": false,
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [],
+   "mirror": []
+  },
+  {
+   "name": "max_failures_3",
+   "max_failures": 3,
+   "interval": "daily",
+   "failed": true,
+   "consecutive_failures": 3,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": 0,
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "name": "max_failures_1",
+   "max_failures": 1,
+   "interval": "daily",
+   "failed": true,
+   "consecutive_failures": 1,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": 0,
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  }
+ ],
+ "reconcile": [
+  {
+   "name": "retry_increments_failures_and_sets_retry_at",
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "error": "pyworker died",
+   "will_retry": true,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": null,
+   "watch": {
+    "enabled": true,
+    "last_error": "queue_failure: pyworker died",
+    "consecutive_failures": 1,
+    "next_poll_at": "2026-08-29T10:41:00+00:00"
+   },
+   "mirror": {
+    "enabled": true,
+    "next_poll_at": "2026-08-29T10:41:00+00:00"
+   },
+   "job": {
+    "status": "pending",
+    "error": null,
+    "completed": false
+   }
+  },
+  {
+   "name": "retry_uses_job_next_run_at",
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "error": "oom",
+   "will_retry": true,
+   "job_next_run_at": "2026-08-29T10:45:00+00:00",
+   "job_status_before": "pending",
+   "raised": null,
+   "watch": {
+    "enabled": true,
+    "last_error": "queue_failure: oom",
+    "consecutive_failures": 1,
+    "next_poll_at": "2026-08-29T10:45:00+00:00"
+   },
+   "mirror": {
+    "enabled": true,
+    "next_poll_at": "2026-08-29T10:45:00+00:00"
+   },
+   "job": {
+    "status": "pending",
+    "error": null,
+    "completed": false
+   }
+  },
+  {
+   "name": "retry_without_job_defaults_to_now_plus_one_minute",
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "error": "oom",
+   "will_retry": true,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": null,
+   "watch": {
+    "enabled": true,
+    "last_error": "queue_failure: oom",
+    "consecutive_failures": 1,
+    "next_poll_at": "2026-08-29T10:41:00+00:00"
+   },
+   "mirror": {
+    "enabled": true,
+    "next_poll_at": "2026-08-29T10:41:00+00:00"
+   },
+   "job": null
+  },
+  {
+   "name": "retry_reaching_max_auto_disables_and_cancels_pending_job",
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "error": "oom",
+   "will_retry": true,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": null,
+   "watch": {
+    "enabled": false,
+    "last_error": "auto_disabled",
+    "consecutive_failures": 12,
+    "next_poll_at": null
+   },
+   "mirror": {
+    "enabled": false,
+    "next_poll_at": null
+   },
+   "job": {
+    "status": "cancelled",
+    "error": "Watch auto-disabled after consecutive failures",
+    "completed": true
+   }
+  },
+  {
+   "name": "retry_reaching_max_job_already_processing_not_cancelled",
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "error": "oom",
+   "will_retry": true,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "processing",
+   "raised": null,
+   "watch": {
+    "enabled": false,
+    "last_error": "auto_disabled",
+    "consecutive_failures": 12,
+    "next_poll_at": null
+   },
+   "mirror": {
+    "enabled": false,
+    "next_poll_at": null
+   },
+   "job": {
+    "status": "processing",
+    "error": null,
+    "completed": false
+   }
+  },
+  {
+   "name": "final_failure_reschedules_with_backoff",
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "error": "gave up",
+   "will_retry": false,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": null,
+   "watch": {
+    "enabled": true,
+    "last_error": "queue_failure: gave up",
+    "consecutive_failures": 3,
+    "next_poll_at": "2026-08-30T10:40:00+00:00"
+   },
+   "mirror": {
+    "enabled": true,
+    "next_poll_at": "2026-08-30T10:40:00+00:00"
+   },
+   "job": {
+    "status": "pending",
+    "error": null,
+    "completed": false
+   }
+  },
+  {
+   "name": "final_failure_at_max_auto_disables",
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "error": "gave up",
+   "will_retry": false,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": null,
+   "watch": {
+    "enabled": false,
+    "last_error": "auto_disabled",
+    "consecutive_failures": 12,
+    "next_poll_at": null
+   },
+   "mirror": {
+    "enabled": false,
+    "next_poll_at": null
+   },
+   "job": {
+    "status": "pending",
+    "error": null,
+    "completed": false
+   }
+  },
+  {
+   "name": "error_message_truncated_to_255_with_prefix",
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "error": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+   "will_retry": true,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": null,
+   "watch": {
+    "enabled": true,
+    "last_error": "queue_failure: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "consecutive_failures": 1,
+    "next_poll_at": "2026-08-29T10:41:00+00:00"
+   },
+   "mirror": {
+    "enabled": true,
+    "next_poll_at": "2026-08-29T10:41:00+00:00"
+   },
+   "job": {
+    "status": "pending",
+    "error": null,
+    "completed": false
+   }
+  },
+  {
+   "name": "empty_error_uses_default_text",
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "error": "",
+   "will_retry": true,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": null,
+   "watch": {
+    "enabled": true,
+    "last_error": "queue_failure: watch poll failed",
+    "consecutive_failures": 1,
+    "next_poll_at": "2026-08-29T10:41:00+00:00"
+   },
+   "mirror": {
+    "enabled": true,
+    "next_poll_at": "2026-08-29T10:41:00+00:00"
+   },
+   "job": {
+    "status": "pending",
+    "error": null,
+    "completed": false
+   }
+  },
+  {
+   "name": "none_error_uses_default_text",
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "error": null,
+   "will_retry": true,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": null,
+   "watch": {
+    "enabled": true,
+    "last_error": "queue_failure: watch poll failed",
+    "consecutive_failures": 1,
+    "next_poll_at": "2026-08-29T10:41:00+00:00"
+   },
+   "mirror": {
+    "enabled": true,
+    "next_poll_at": "2026-08-29T10:41:00+00:00"
+   },
+   "job": {
+    "status": "pending",
+    "error": null,
+    "completed": false
+   }
+  },
+  {
+   "name": "disabled_watch_untouched",
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "error": "oom",
+   "will_retry": true,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": null,
+   "watch": {
+    "enabled": false,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "next_poll_at": null
+   },
+   "mirror": {
+    "enabled": true,
+    "next_poll_at": null
+   },
+   "job": {
+    "status": "pending",
+    "error": null,
+    "completed": false
+   }
+  },
+  {
+   "name": "missing_watch_untouched",
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "error": "oom",
+   "will_retry": true,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": null,
+   "watch": null,
+   "mirror": null,
+   "job": {
+    "status": "pending",
+    "error": null,
+    "completed": false
+   }
+  },
+  {
+   "name": "payload_missing_watch_id_raises",
+   "payload": {
+    "workspace_id": "ws-1"
+   },
+   "error": "x",
+   "will_retry": true,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": {
+    "type": "ValueError",
+    "message": "watch poll failure payload requires workspace_id and watch_id"
+   },
+   "watch": {
+    "enabled": true,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "next_poll_at": null
+   },
+   "mirror": {
+    "enabled": true,
+    "next_poll_at": null
+   },
+   "job": {
+    "status": "pending",
+    "error": null,
+    "completed": false
+   }
+  },
+  {
+   "name": "payload_missing_workspace_raises",
+   "payload": {
+    "watch_id": "w-1"
+   },
+   "error": "x",
+   "will_retry": true,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": {
+    "type": "ValueError",
+    "message": "watch poll failure payload requires workspace_id and watch_id"
+   },
+   "watch": {
+    "enabled": true,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "next_poll_at": null
+   },
+   "mirror": {
+    "enabled": true,
+    "next_poll_at": null
+   },
+   "job": {
+    "status": "pending",
+    "error": null,
+    "completed": false
+   }
+  },
+  {
+   "name": "payload_blank_ids_raise",
+   "payload": {
+    "workspace_id": "  ",
+    "watch_id": ""
+   },
+   "error": "x",
+   "will_retry": false,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": {
+    "type": "ValueError",
+    "message": "watch poll failure payload requires workspace_id and watch_id"
+   },
+   "watch": {
+    "enabled": true,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "next_poll_at": null
+   },
+   "mirror": {
+    "enabled": true,
+    "next_poll_at": null
+   },
+   "job": {
+    "status": "pending",
+    "error": null,
+    "completed": false
+   }
+  },
+  {
+   "name": "other_workspace_watch_untouched",
+   "payload": {
+    "workspace_id": "ws-2",
+    "watch_id": "w-1"
+   },
+   "error": "oom",
+   "will_retry": true,
+   "job_next_run_at": "2026-08-29T10:41:00+00:00",
+   "job_status_before": "pending",
+   "raised": null,
+   "watch": {
+    "enabled": true,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "next_poll_at": null
+   },
+   "mirror": {
+    "enabled": true,
+    "next_poll_at": null
+   },
+   "job": {
+    "status": "pending",
+    "error": null,
+    "completed": false
+   }
+  }
+ ],
+ "budget": [
+  {
+   "ws": "ws-1",
+   "poll_now": false,
+   "n": 1,
+   "n_poll_now": 0
+  },
+  {
+   "ws": "ws-1",
+   "poll_now": false,
+   "n": 2,
+   "n_poll_now": 0
+  },
+  {
+   "ws": "ws-1",
+   "poll_now": true,
+   "n": 3,
+   "n_poll_now": 1
+  },
+  {
+   "ws": "ws-2",
+   "poll_now": true,
+   "n": 1,
+   "n_poll_now": 1
+  },
+  {
+   "ws": "ws-1",
+   "poll_now": true,
+   "n": 4,
+   "n_poll_now": 2
+  },
+  {
+   "day": "2026-08-30T00:00:00+00:00"
+  },
+  {
+   "ws": "ws-1",
+   "poll_now": false,
+   "n": 1,
+   "n_poll_now": 0
+  },
+  {
+   "ws": "ws-1",
+   "poll_now": true,
+   "n": 2,
+   "n_poll_now": 1
+  },
+  {
+   "day": "2026-08-29T23:59:59+00:00"
+  },
+  {
+   "ws": "ws-1",
+   "poll_now": false,
+   "n": 5,
+   "n_poll_now": 2
+  },
+  {
+   "quota": "ws-1",
+   "used": 2
+  },
+  {
+   "quota": "ws-2",
+   "used": 1
+  },
+  {
+   "quota": "ws-3",
+   "used": 0
+  }
+ ],
+ "vectors": [
+  {
+   "interval": "hourly",
+   "failures_before": 0,
+   "failed": true,
+   "consecutive_failures": 1,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T11:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 1,
+   "failed": true,
+   "consecutive_failures": 2,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T11:10:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:10:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:10:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:10:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 2,
+   "failed": true,
+   "consecutive_failures": 3,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T11:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 3,
+   "failed": true,
+   "consecutive_failures": 4,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T12:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T12:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T12:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T12:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 4,
+   "failed": true,
+   "consecutive_failures": 5,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T14:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T14:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T14:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T14:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 5,
+   "failed": true,
+   "consecutive_failures": 6,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T18:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T18:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T18:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T18:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 6,
+   "failed": true,
+   "consecutive_failures": 7,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T02:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T02:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T02:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T02:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 7,
+   "failed": true,
+   "consecutive_failures": 8,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 8,
+   "failed": true,
+   "consecutive_failures": 9,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 9,
+   "failed": true,
+   "consecutive_failures": 10,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 10,
+   "failed": true,
+   "consecutive_failures": 11,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 11,
+   "failed": true,
+   "consecutive_failures": 12,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 12,
+   "failed": true,
+   "consecutive_failures": 13,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 13,
+   "failed": true,
+   "consecutive_failures": 14,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 14,
+   "failed": true,
+   "consecutive_failures": 15,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 0,
+   "failed": true,
+   "consecutive_failures": 1,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 1,
+   "failed": true,
+   "consecutive_failures": 2,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 2,
+   "failed": true,
+   "consecutive_failures": 3,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 3,
+   "failed": true,
+   "consecutive_failures": 4,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 4,
+   "failed": true,
+   "consecutive_failures": 5,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 5,
+   "failed": true,
+   "consecutive_failures": 6,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 6,
+   "failed": true,
+   "consecutive_failures": 7,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 7,
+   "failed": true,
+   "consecutive_failures": 8,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 8,
+   "failed": true,
+   "consecutive_failures": 9,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 9,
+   "failed": true,
+   "consecutive_failures": 10,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 10,
+   "failed": true,
+   "consecutive_failures": 11,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 11,
+   "failed": true,
+   "consecutive_failures": 12,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 12,
+   "failed": true,
+   "consecutive_failures": 13,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 13,
+   "failed": true,
+   "consecutive_failures": 14,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 14,
+   "failed": true,
+   "consecutive_failures": 15,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 0,
+   "failed": true,
+   "consecutive_failures": 1,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 1,
+   "failed": true,
+   "consecutive_failures": 2,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 2,
+   "failed": true,
+   "consecutive_failures": 3,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 3,
+   "failed": true,
+   "consecutive_failures": 4,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 4,
+   "failed": true,
+   "consecutive_failures": 5,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 5,
+   "failed": true,
+   "consecutive_failures": 6,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 6,
+   "failed": true,
+   "consecutive_failures": 7,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 7,
+   "failed": true,
+   "consecutive_failures": 8,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 8,
+   "failed": true,
+   "consecutive_failures": 9,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 9,
+   "failed": true,
+   "consecutive_failures": 10,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 10,
+   "failed": true,
+   "consecutive_failures": 11,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 11,
+   "failed": true,
+   "consecutive_failures": 12,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 12,
+   "failed": true,
+   "consecutive_failures": 13,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 13,
+   "failed": true,
+   "consecutive_failures": 14,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 14,
+   "failed": true,
+   "consecutive_failures": 15,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 0,
+   "failed": true,
+   "consecutive_failures": 1,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 1,
+   "failed": true,
+   "consecutive_failures": 2,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 2,
+   "failed": true,
+   "consecutive_failures": 3,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 3,
+   "failed": true,
+   "consecutive_failures": 4,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 4,
+   "failed": true,
+   "consecutive_failures": 5,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 5,
+   "failed": true,
+   "consecutive_failures": 6,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 6,
+   "failed": true,
+   "consecutive_failures": 7,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 7,
+   "failed": true,
+   "consecutive_failures": 8,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 8,
+   "failed": true,
+   "consecutive_failures": 9,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 9,
+   "failed": true,
+   "consecutive_failures": 10,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 10,
+   "failed": true,
+   "consecutive_failures": 11,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 11,
+   "failed": true,
+   "consecutive_failures": 12,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 12,
+   "failed": true,
+   "consecutive_failures": 13,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 13,
+   "failed": true,
+   "consecutive_failures": 14,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": null,
+   "failures_before": 14,
+   "failed": true,
+   "consecutive_failures": 15,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 0,
+   "failed": true,
+   "consecutive_failures": 1,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 1,
+   "failed": true,
+   "consecutive_failures": 2,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 2,
+   "failed": true,
+   "consecutive_failures": 3,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 3,
+   "failed": true,
+   "consecutive_failures": 4,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 4,
+   "failed": true,
+   "consecutive_failures": 5,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 5,
+   "failed": true,
+   "consecutive_failures": 6,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 6,
+   "failed": true,
+   "consecutive_failures": 7,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 7,
+   "failed": true,
+   "consecutive_failures": 8,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 8,
+   "failed": true,
+   "consecutive_failures": 9,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 9,
+   "failed": true,
+   "consecutive_failures": 10,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 10,
+   "failed": true,
+   "consecutive_failures": 11,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 11,
+   "failed": true,
+   "consecutive_failures": 12,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 12,
+   "failed": true,
+   "consecutive_failures": 13,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 13,
+   "failed": true,
+   "consecutive_failures": 14,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "monthly",
+   "failures_before": 14,
+   "failed": true,
+   "consecutive_failures": 15,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": [],
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 0,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T11:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 3,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T11:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "hourly",
+   "failures_before": 11,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-29T11:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 0,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 3,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "daily",
+   "failures_before": 11,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-30T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-30T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 0,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 3,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "interval": "weekly",
+   "failures_before": 11,
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "last_error": "http_500",
+   "next_poll_at": "2026-09-05T08:00:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-09-05T08:00:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-09-05T08:00:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-09-05T08:00:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "name": "no_anchor_uses_now",
+   "interval": "daily",
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "next_poll_at": "2026-08-29T10:40:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T10:40:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T10:40:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T10:40:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "name": "naive_anchor",
+   "interval": "hourly",
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": true,
+   "next_poll_at": "2026-08-29T11:20:00+00:00",
+   "enqueued": [
+    {
+     "fire_key": "watch:w-1:2026-08-29T11:20:00+00:00",
+     "workspace_id": "ws-1",
+     "watch_id": "w-1",
+     "next_run_at": "2026-08-29T11:20:00+00:00",
+     "executor": "python"
+    }
+   ],
+   "mirror": [
+    {
+     "next_poll_at": "2026-08-29T11:20:00+00:00",
+     "enabled": true
+    }
+   ]
+  },
+  {
+   "name": "disabled_watch_not_enqueued",
+   "interval": "daily",
+   "failed": false,
+   "consecutive_failures": 0,
+   "enabled": false,
+   "next_poll_at": "2026-08-30T08:00:00+00:00",
+   "enqueued": [],
+   "mirror": []
+  },
+  {
+   "name": "max_failures_3",
+   "max_failures": 3,
+   "interval": "daily",
+   "failed": true,
+   "consecutive_failures": 3,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": 0,
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  },
+  {
+   "name": "max_failures_1",
+   "max_failures": 1,
+   "interval": "daily",
+   "failed": true,
+   "consecutive_failures": 1,
+   "enabled": false,
+   "last_error": "auto_disabled",
+   "next_poll_at": null,
+   "enqueued": 0,
+   "mirror": [
+    {
+     "next_poll_at": null,
+     "enabled": false
+    }
+   ]
+  }
+ ]
+}

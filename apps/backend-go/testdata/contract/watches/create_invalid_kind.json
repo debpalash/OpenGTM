@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "kind": "rss",
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid kind 'rss'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches?cursor=WyIyMDI2LTA4LTI5VDA5OjAwOjAwKzAwOjAwIiwxXQ"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid watch cursor"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

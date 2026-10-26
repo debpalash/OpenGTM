@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "kind": "funding",
+      "lead_id": "abc",
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "abc",
+          "loc": [
+            "body",
+            "lead_id"
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "interval": "monthly",
+      "kind": "funding",
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid interval 'monthly'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

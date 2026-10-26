@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "contacts": [
+          {
+            "linkedin_url": "https://linkedin.com/company/acme",
+            "name": "Ada"
+          }
+        ]
+      },
+      "kind": "job_change",
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "contacts[0].linkedin_url must be a linkedin.com/in profile URL"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

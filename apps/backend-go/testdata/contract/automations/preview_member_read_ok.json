@@ -1,0 +1,44 @@
+{
+  "request": {
+    "body": {
+      "limit": 1
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers/trg-a-01/preview"
+  },
+  "response": {
+    "body": {
+      "matched": 8,
+      "projected_total_usd": 0.0,
+      "sample": [
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": {
+                  "company": "Hot Pursuit Labs",
+                  "site": "https://hotpursuit.example.com"
+                },
+                "method": "POST",
+                "url": "https://hooks.example.com/auto/Hot Pursuit Labs"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3001",
+          "workbook_id": "wb-auto-1"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

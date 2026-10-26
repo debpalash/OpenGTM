@@ -1,0 +1,176 @@
+{
+  "request": {
+    "body": {
+      "limit": 0
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers/trg-a-01/preview"
+  },
+  "response": {
+    "body": {
+      "matched": 8,
+      "projected_total_usd": 0.0,
+      "sample": [
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": {
+                  "company": "Hot Pursuit Labs",
+                  "site": "https://hotpursuit.example.com"
+                },
+                "method": "POST",
+                "url": "https://hooks.example.com/auto/Hot Pursuit Labs"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3001",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": {
+                  "company": "Quantum Foods",
+                  "site": "https://quantumfoods.example.com"
+                },
+                "method": "POST",
+                "url": "https://hooks.example.com/auto/Quantum Foods"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3002",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": {
+                  "company": "Soylent",
+                  "site": ""
+                },
+                "method": "POST",
+                "url": "https://hooks.example.com/auto/Soylent"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3003",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": {
+                  "company": "Zenith Robotics",
+                  "site": "https://zenithrobotics.example.com"
+                },
+                "method": "POST",
+                "url": "https://hooks.example.com/auto/Zenith Robotics"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3004",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": {
+                  "company": "Berlin Bakery",
+                  "site": "https://berlinbakery.example.com"
+                },
+                "method": "POST",
+                "url": "https://hooks.example.com/auto/Berlin Bakery"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3005",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": {
+                  "company": "Eco Solutions",
+                  "site": "https://eco.example.com"
+                },
+                "method": "POST",
+                "url": "https://hooks.example.com/auto/Eco Solutions"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3006",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": {
+                  "company": "No Lead One",
+                  "site": "https://nolead.example.com"
+                },
+                "method": "POST",
+                "url": "https://hooks.example.com/auto/No Lead One"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3007",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": {
+                  "company": "No Lead Two",
+                  "site": ""
+                },
+                "method": "POST",
+                "url": "https://hooks.example.com/auto/No Lead Two"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3008",
+          "workbook_id": "wb-auto-1"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

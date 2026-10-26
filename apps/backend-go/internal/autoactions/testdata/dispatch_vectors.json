@@ -1,0 +1,1223 @@
+{
+ "vectors": [
+  {
+   "name": "push_crm_success_value",
+   "action": {
+    "type": "push_crm",
+    "config": {
+     "type": "hubspot"
+    }
+   },
+   "lead_id": 7,
+   "scripted": {
+    "success": true,
+    "value": "Contact 12 updated"
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "success",
+    "summary": "Contact 12 updated",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "crm_call": {
+    "col_config": {
+     "destination": "crm",
+     "destination_config": {
+      "type": "hubspot"
+     }
+    },
+    "workbook_id": "",
+    "lead_id": 7,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "push_crm_success_no_value",
+   "action": {
+    "type": "push_crm",
+    "config": {}
+   },
+   "lead_id": 7,
+   "scripted": {
+    "success": true
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "success",
+    "summary": "",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "crm_call": {
+    "col_config": {
+     "destination": "crm",
+     "destination_config": {}
+    },
+    "workbook_id": "",
+    "lead_id": 7,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "push_crm_not_connected_lowercase",
+   "action": {
+    "type": "push_crm",
+    "config": {}
+   },
+   "lead_id": 7,
+   "scripted": {
+    "success": false,
+    "error": "hubspot not connected"
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "hubspot not connected",
+    "skip_reason": "not_connected",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "crm_call": {
+    "col_config": {
+     "destination": "crm",
+     "destination_config": {}
+    },
+    "workbook_id": "",
+    "lead_id": 7,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "push_crm_not_connected_mixed_case",
+   "action": {
+    "type": "push_crm",
+    "config": {}
+   },
+   "lead_id": 7,
+   "scripted": {
+    "success": false,
+    "error": "HubSpot Not Connected for this workspace"
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "HubSpot Not Connected for this workspace",
+    "skip_reason": "not_connected",
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "crm_call": {
+    "col_config": {
+     "destination": "crm",
+     "destination_config": {}
+    },
+    "workbook_id": "",
+    "lead_id": 7,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "push_crm_other_error",
+   "action": {
+    "type": "push_crm",
+    "config": {}
+   },
+   "lead_id": 7,
+   "scripted": {
+    "success": false,
+    "error": "rate limited"
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "rate limited",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "crm_call": {
+    "col_config": {
+     "destination": "crm",
+     "destination_config": {}
+    },
+    "workbook_id": "",
+    "lead_id": 7,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "push_crm_failure_no_error",
+   "action": {
+    "type": "push_crm",
+    "config": {}
+   },
+   "lead_id": 7,
+   "scripted": {
+    "success": false
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "crm push failed",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "crm_call": {
+    "col_config": {
+     "destination": "crm",
+     "destination_config": {}
+    },
+    "workbook_id": "",
+    "lead_id": 7,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "push_crm_failure_empty_error",
+   "action": {
+    "type": "push_crm",
+    "config": {}
+   },
+   "lead_id": 7,
+   "scripted": {
+    "success": false,
+    "error": ""
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "crm push failed",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "crm_call": {
+    "col_config": {
+     "destination": "crm",
+     "destination_config": {}
+    },
+    "workbook_id": "",
+    "lead_id": 7,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "push_crm_success_falsy_flag",
+   "action": {
+    "type": "push_crm",
+    "config": {}
+   },
+   "lead_id": 7,
+   "scripted": {
+    "success": 0,
+    "error": "x"
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "x",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "crm_call": {
+    "col_config": {
+     "destination": "crm",
+     "destination_config": {}
+    },
+    "workbook_id": "",
+    "lead_id": 7,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "push_crm_lead_id_none_becomes_zero",
+   "action": {
+    "type": "push_crm",
+    "config": {}
+   },
+   "lead_id": null,
+   "scripted": {
+    "success": true,
+    "value": "ok"
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "success",
+    "summary": "ok",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "raised": null,
+   "crm_call": {
+    "col_config": {
+     "destination": "crm",
+     "destination_config": {}
+    },
+    "workbook_id": "",
+    "lead_id": 0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "push_crm_exception_propagates",
+   "action": {
+    "type": "push_crm",
+    "config": {}
+   },
+   "lead_id": 7,
+   "scripted": null,
+   "scripted_raises": "crm exploded",
+   "result": null,
+   "raised": {
+    "type": "RuntimeError",
+    "message": "crm exploded"
+   },
+   "crm_call": {
+    "col_config": {
+     "destination": "crm",
+     "destination_config": {}
+    },
+    "workbook_id": "",
+    "lead_id": 7,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_success",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a",
+      "b"
+     ]
+    }
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 2,
+    "errors": 0
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "success",
+    "summary": "re_enrich: 2 cells completed, 0 errors",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a",
+     "b"
+    ],
+    "row_ids": [
+     5
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_success_zero_cells",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 0,
+    "errors": 0
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "success",
+    "summary": "re_enrich: 0 cells completed, 0 errors",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a"
+    ],
+    "row_ids": [
+     5
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_partial_errors",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 1,
+    "errors": 2
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "failed",
+    "summary": "re_enrich: 1 cells completed, 2 errors",
+    "error": "2 cell errors",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a"
+    ],
+    "row_ids": [
+     5
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_all_errors",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 0,
+    "errors": 1
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "failed",
+    "summary": "re_enrich: 0 cells completed, 1 errors",
+    "error": "1 cell errors",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a"
+    ],
+    "row_ids": [
+     5
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_error_key",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "error": "workbook not found"
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "workbook not found",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a"
+    ],
+    "row_ids": [
+     5
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_error_key_with_counts",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "error": "boom",
+    "completed": 3,
+    "errors": 0
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "boom",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a"
+    ],
+    "row_ids": [
+     5
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_budget_exceeded_success",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 1,
+    "errors": 0,
+    "budget_exceeded": true
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "success",
+    "summary": "re_enrich: 1 cells completed, 0 errors [workbook budget cap hit]",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a"
+    ],
+    "row_ids": [
+     5
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_budget_exceeded_with_errors",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 0,
+    "errors": 1,
+    "budget_exceeded": true
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "failed",
+    "summary": "re_enrich: 0 cells completed, 1 errors [workbook budget cap hit]",
+    "error": "1 cell errors",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a"
+    ],
+    "row_ids": [
+     5
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_missing_counts",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {},
+   "scripted_raises": null,
+   "result": {
+    "status": "success",
+    "summary": "re_enrich: 0 cells completed, 0 errors",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a"
+    ],
+    "row_ids": [
+     5
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_exception_truncated_200",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": null,
+   "scripted_raises": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a"
+    ],
+    "row_ids": [
+     5
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_filters_to_present_columns_in_config_order",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "c",
+      "zzz",
+      "a"
+     ]
+    }
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 2,
+    "errors": 0
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "success",
+    "summary": "re_enrich: 2 cells completed, 0 errors",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "c",
+     "a"
+    ],
+    "row_ids": [
+     5
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_none_present_is_no_target",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "zzz"
+     ]
+    }
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 9,
+    "errors": 0
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "skipped",
+    "summary": "none of the configured columns exist in this workbook",
+    "error": null,
+    "skip_reason": "no_target",
+    "charged_usd": 0.0
+   },
+   "enrich_call": null
+  },
+  {
+   "name": "re_enrich_no_column_ids_is_no_target",
+   "action": {
+    "type": "re_enrich",
+    "config": {}
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 9,
+    "errors": 0
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "skipped",
+    "summary": "no column_ids",
+    "error": null,
+    "skip_reason": "no_target",
+    "charged_usd": 0.0
+   },
+   "enrich_call": null
+  },
+  {
+   "name": "re_enrich_empty_column_ids_is_no_target",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": []
+    }
+   },
+   "row_id": "5",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 9,
+    "errors": 0
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "skipped",
+    "summary": "no column_ids",
+    "error": null,
+    "skip_reason": "no_target",
+    "charged_usd": 0.0
+   },
+   "enrich_call": null
+  },
+  {
+   "name": "re_enrich_non_digit_row_id_passed_as_string",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "row-x",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 1,
+    "errors": 0
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "success",
+    "summary": "re_enrich: 1 cells completed, 0 errors",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a"
+    ],
+    "row_ids": [
+     "row-x"
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_numeric_row_id_becomes_int",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "42",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 1,
+    "errors": 0
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "success",
+    "summary": "re_enrich: 1 cells completed, 0 errors",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a"
+    ],
+    "row_ids": [
+     42
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_negative_row_id_is_string",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "-3",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 1,
+    "errors": 0
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "success",
+    "summary": "re_enrich: 1 cells completed, 0 errors",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a"
+    ],
+    "row_ids": [
+     "-3"
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_unicode_digit_row_id",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "٣",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A"
+    },
+    {
+     "id": "b",
+     "name": "B"
+    },
+    {
+     "id": "c",
+     "name": "C"
+    }
+   ],
+   "scripted": {
+    "completed": 1,
+    "errors": 0
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "success",
+    "summary": "re_enrich: 1 cells completed, 0 errors",
+    "error": null,
+    "skip_reason": null,
+    "charged_usd": 0.0
+   },
+   "enrich_call": {
+    "workbook_id": "wb-1",
+    "column_ids": [
+     "a"
+    ],
+    "row_ids": [
+     3
+    ],
+    "provider_timeout": 10.0,
+    "workspace_id": "ws-1"
+   }
+  },
+  {
+   "name": "re_enrich_no_columns_config",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "row_id": "5",
+   "columns": [],
+   "scripted": {
+    "completed": 1,
+    "errors": 0
+   },
+   "scripted_raises": null,
+   "result": {
+    "status": "skipped",
+    "summary": "none of the configured columns exist in this workbook",
+    "error": null,
+    "skip_reason": "no_target",
+    "charged_usd": 0.0
+   },
+   "enrich_call": null
+  },
+  {
+   "name": "unknown_type_'carrier_pigeon'",
+   "action": {
+    "type": "carrier_pigeon"
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "action type 'carrier_pigeon' not supported",
+    "skip_reason": "not_connected",
+    "charged_usd": 0.0
+   }
+  },
+  {
+   "name": "unknown_type_''",
+   "action": {
+    "type": ""
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "action type '' not supported",
+    "skip_reason": "not_connected",
+    "charged_usd": 0.0
+   }
+  },
+  {
+   "name": "unknown_type_None",
+   "action": {
+    "type": null
+   },
+   "result": {
+    "status": "failed",
+    "summary": "",
+    "error": "action type 'None' not supported",
+    "skip_reason": "not_connected",
+    "charged_usd": 0.0
+   }
+  },
+  {
+   "name": "constants",
+   "idempotent": [
+    "push_crm",
+    "re_enrich"
+   ],
+   "non_idempotent": [
+    "send_email",
+    "webhook"
+   ]
+  }
+ ]
+}

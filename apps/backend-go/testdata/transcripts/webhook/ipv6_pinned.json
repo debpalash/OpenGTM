@@ -1,0 +1,79 @@
+{
+ "area": "webhook",
+ "scenario": "ipv6_pinned",
+ "description": "an IPv6 answer is pinned in brackets",
+ "input": {
+  "workspace_id": "ws-1",
+  "cfg": {
+   "url": "https://hooks.example.com/in"
+  },
+  "lead_data": {
+   "company": "Hot Pursuit Labs",
+   "email": "ceo@hotpursuit.example.com",
+   "id": 14,
+   "lead_id": 14
+  },
+  "columns": [
+   {
+    "id": "company",
+    "name": "Company"
+   },
+   {
+    "id": "email",
+    "name": "Email"
+   }
+  ],
+  "allowlist": []
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "hooks.example.com",
+    "answers": [
+     "2606:2800:220:1:248:1893:25c8:1946"
+    ]
+   }
+  },
+  {
+   "dns": {
+    "host": "hooks.example.com",
+    "answers": [
+     "2606:2800:220:1:248:1893:25c8:1946"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://[2606:2800:220:1:248:1893:25c8:1946]/in",
+    "headers": {
+     "content-type": "application/json",
+     "host": "hooks.example.com"
+    },
+    "body": "{\"company\":\"Hot Pursuit Labs\",\"email\":\"ceo@hotpursuit.example.com\",\"id\":14,\"lead_id\":14}",
+    "json": {
+     "company": "Hot Pursuit Labs",
+     "email": "ceo@hotpursuit.example.com",
+     "id": 14,
+     "lead_id": 14
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"received\":true}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "status": "success",
+  "summary": "POST 200",
+  "error": null,
+  "skip_reason": null,
+  "charged_usd": 0.0
+ }
+}

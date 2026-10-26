@@ -1,0 +1,79 @@
+{
+ "area": "webhook",
+ "scenario": "status_500_html",
+ "description": "5xx is a failure with body text",
+ "input": {
+  "workspace_id": "ws-1",
+  "cfg": {
+   "url": "https://hooks.example.com/in"
+  },
+  "lead_data": {
+   "company": "Hot Pursuit Labs",
+   "email": "ceo@hotpursuit.example.com",
+   "id": 14,
+   "lead_id": 14
+  },
+  "columns": [
+   {
+    "id": "company",
+    "name": "Company"
+   },
+   {
+    "id": "email",
+    "name": "Email"
+   }
+  ],
+  "allowlist": []
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "hooks.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "dns": {
+    "host": "hooks.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://93.184.216.34/in",
+    "headers": {
+     "content-type": "application/json",
+     "host": "hooks.example.com"
+    },
+    "body": "{\"company\":\"Hot Pursuit Labs\",\"email\":\"ceo@hotpursuit.example.com\",\"id\":14,\"lead_id\":14}",
+    "json": {
+     "company": "Hot Pursuit Labs",
+     "email": "ceo@hotpursuit.example.com",
+     "id": 14,
+     "lead_id": 14
+    }
+   },
+   "response": {
+    "status": 500,
+    "headers": {
+     "content-type": "text/html; charset=utf-8"
+    },
+    "body": "<html><body>Internal Server Error</body></html>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "status": "failed",
+  "summary": "POST 500",
+  "error": "HTTP 500: <html><body>Internal Server Error</body></html>",
+  "skip_reason": null,
+  "charged_usd": 0.0
+ }
+}

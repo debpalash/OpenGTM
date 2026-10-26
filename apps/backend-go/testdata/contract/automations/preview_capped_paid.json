@@ -1,0 +1,150 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers/trg-a-09/preview"
+  },
+  "response": {
+    "body": {
+      "matched": 8,
+      "projected_total_usd": 0.4,
+      "sample": [
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "column_ids": [
+                  "plat_x"
+                ]
+              },
+              "type": "re_enrich",
+              "would_charge_usd": 0.05
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3001",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "column_ids": [
+                  "plat_x"
+                ]
+              },
+              "type": "re_enrich",
+              "would_charge_usd": 0.05
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3002",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "column_ids": [
+                  "plat_x"
+                ]
+              },
+              "type": "re_enrich",
+              "would_charge_usd": 0.05
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3003",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "column_ids": [
+                  "plat_x"
+                ]
+              },
+              "type": "re_enrich",
+              "would_charge_usd": 0.05
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3004",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "column_ids": [
+                  "plat_x"
+                ]
+              },
+              "type": "re_enrich",
+              "would_charge_usd": 0.05
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3005",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "column_ids": [
+                  "plat_x"
+                ]
+              },
+              "type": "re_enrich",
+              "would_charge_usd": 0.05
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3006",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "column_ids": [
+                  "plat_x"
+                ]
+              },
+              "type": "re_enrich",
+              "would_charge_usd": 0.05
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3007",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "column_ids": [
+                  "plat_x"
+                ]
+              },
+              "type": "re_enrich",
+              "would_charge_usd": 0.05
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3008",
+          "workbook_id": "wb-auto-1"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

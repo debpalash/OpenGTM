@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "condition": "{created} older_than soon",
+      "name": "x",
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid condition: bad duration 'soon' (use e.g. 30d, 12h)"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "trigger_config": {}
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/automations/triggers/trg-a-05"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid schedule interval 'None'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "enabled": "nope"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/automations/triggers/00000000-0000-4000-8000-000000000001"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "nope",
+          "loc": [
+            "body",
+            "enabled"
+          ],
+          "msg": "Input should be a valid boolean, unable to interpret input",
+          "type": "bool_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}
