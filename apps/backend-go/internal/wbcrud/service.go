@@ -53,6 +53,10 @@ type Service struct {
 	Hook  automationhook.Hook
 	Reg   *wbregistry.Registry
 	Now   func() time.Time
+	// MigratePageSize is the lead page size of Migrate (0 = 500, Python's page size).
+	MigratePageSize int
+	// MaxMigrateRows caps one migrate request (0 = DefaultMaxMigrateRows). Python has no cap.
+	MaxMigrateRows int
 }
 
 // Workbook is a stored workbook (WorkbookResponse shape when marshalled).
