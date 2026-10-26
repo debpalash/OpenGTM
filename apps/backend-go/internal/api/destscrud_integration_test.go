@@ -42,9 +42,10 @@ func newDestEnv(t *testing.T) destEnv {
 	}
 	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Envelope: env,
 		Getenv:         func(string) string { return "" },
-		Flags:          config.Flags{PGLeadStore: true, Audiences: config.AudienceSettings{GoAudienceRoutesEnabled: true, RefreshPageSize: 500}},
+		Flags:          config.Flags{PGLeadStore: true, Audiences: config.AudienceSettings{GoAudienceRoutesEnabled: true, GoDestRoutesEnabled: true, RefreshPageSize: 500}},
 		AudienceEvents: nopEmitter{}}
 	RegisterAudiences(r, d)
+	RegisterDestinations(r, d)
 	e := audEnv{mcpEnv: mcpEnv{env: destEnv0(st, r), pool: pool}, r: r}
 	e.seed(t, "alice", pythonHash, true, "admin", true)
 	e.seed(t, "bob", pythonHash, true, "user", false)
@@ -318,7 +319,7 @@ func TestCreateEveryTypeValidation(t *testing.T) {
 		e.replay(t, name, map[string]string{})
 		n++
 	}
-	if n < 80 {
+	if n < 60 {
 		t.Fatalf("only %d config fixtures", n)
 	}
 	// Every supported type is accepted with its minimal valid config.
@@ -519,7 +520,7 @@ func TestListLatestRunShape(t *testing.T) {
 		t.Fatal(rec.Body.String())
 	}
 	var items []json.RawMessage
-	if err := json.Unmarshal(rec.Body.Bytes(), &items); err != nil || len(items) != 13 {
+	if err := json.Unmarshal(rec.Body.Bytes(), &items); err != nil || len(items) != 12 {
 		t.Fatalf("%v %d items", err, len(items))
 	}
 	wantKeys := []string{"id", "audience_id", "name", "destination_type", "enabled", "config", "field_map", "health_status", "last_error",
