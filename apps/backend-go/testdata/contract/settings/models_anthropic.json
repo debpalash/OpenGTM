@@ -1,0 +1,38 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/settings/models/anthropic"
+  },
+  "response": {
+    "body": {
+      "models": [
+        {
+          "context": 1000000,
+          "free": false,
+          "id": "claude-opus-4-8",
+          "name": "Claude Opus 4.8"
+        },
+        {
+          "context": 1000000,
+          "free": false,
+          "id": "claude-sonnet-4-6",
+          "name": "Claude Sonnet 4.6"
+        },
+        {
+          "context": 200000,
+          "free": false,
+          "id": "claude-haiku-4-5",
+          "name": "Claude Haiku 4.5"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

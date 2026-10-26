@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/settings/enrichment-perf"
+  },
+  "response": {
+    "body": {
+      "defaults": {
+        "max_providers": 8,
+        "provider_timeout": 10,
+        "provider_workers": 8,
+        "retry_passes": 1,
+        "row_concurrency": 12
+      },
+      "max_providers": 8,
+      "provider_timeout": 50,
+      "provider_workers": 1,
+      "retry_passes": 0,
+      "row_concurrency": 64
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

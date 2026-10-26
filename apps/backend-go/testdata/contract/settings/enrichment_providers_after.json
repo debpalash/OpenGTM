@@ -1,0 +1,70 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/settings/enrichment-providers"
+  },
+  "response": {
+    "body": {
+      "providers": [
+        {
+          "api_key_masked": "hunter-c\u2022\u2022\u2022\u20227890",
+          "capability": "Email Finder + Verifier",
+          "configured": true,
+          "docs_url": "https://hunter.io/api-documentation/v2",
+          "free_tier": "25 lookups/mo",
+          "icon": "\ud83c\udfaf",
+          "id": "hunter_io",
+          "name": "Hunter.io"
+        },
+        {
+          "api_key_masked": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+          "capability": "People + Company Enrichment",
+          "configured": true,
+          "docs_url": "https://apolloio.github.io/apollo-api-docs/",
+          "free_tier": "50 credits/mo",
+          "icon": "\ud83d\ude80",
+          "id": "apollo_io",
+          "name": "Apollo.io"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email Validation + Deliverability",
+          "configured": false,
+          "docs_url": "https://www.abstractapi.com/api/email-verification-validation-api",
+          "free_tier": "100/mo",
+          "icon": "\ud83d\udce7",
+          "id": "abstract_api",
+          "name": "AbstractAPI"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Phone Number Validation",
+          "configured": false,
+          "docs_url": "https://numverify.com/documentation",
+          "free_tier": "100/mo",
+          "icon": "\ud83d\udcf1",
+          "id": "numverify",
+          "name": "NumVerify"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Company Data from Domain",
+          "configured": false,
+          "docs_url": "https://ipinfo.io/developers",
+          "free_tier": "50K/mo",
+          "icon": "\ud83c\udf0d",
+          "id": "ipinfo",
+          "name": "IPInfo"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
