@@ -73,7 +73,7 @@ func (e entityRoutes) list(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	limit, ok := queryInt(w, r, "limit", 100, nil, intp(1000))
+	limit, ok := queryInt(w, r, "limit", 100, intp(0), intp(1000))
 	if !ok {
 		return
 	}
@@ -105,7 +105,7 @@ func (e entityRoutes) reviewQueue(w http.ResponseWriter, r *http.Request) {
 	if v, ok := r.URL.Query()["status"]; ok {
 		status = v[len(v)-1]
 	}
-	limit, ok := queryInt(w, r, "limit", 100, nil, intp(1000))
+	limit, ok := queryInt(w, r, "limit", 100, intp(0), intp(1000))
 	if !ok {
 		return
 	}

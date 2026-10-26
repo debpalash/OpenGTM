@@ -5,6 +5,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"reflect"
 	"testing"
 
 	"github.com/jackc/pgx/v5"
@@ -114,6 +115,8 @@ func TestListMinCorroborationAndLimitBounds422(t *testing.T) {
 		{"/api/entities/company?min_corroboration=0", "greater_than_equal", "Input should be greater than or equal to 1"},
 		{"/api/entities/company?limit=1001", "less_than_equal", "Input should be less than or equal to 1000"},
 		{"/api/entities/review-queue?limit=1001", "less_than_equal", "Input should be less than or equal to 1000"},
+		{"/api/entities/company?limit=-1", "greater_than_equal", "Input should be greater than or equal to 0"},
+		{"/api/entities/review-queue?limit=-5", "greater_than_equal", "Input should be greater than or equal to 0"},
 		{"/api/entities/company?limit=1.5", "int_parsing", "Input should be a valid integer, unable to parse string as an integer"},
 	} {
 		r := e.get(tc.path, h)
@@ -218,5 +221,24 @@ func TestReviewQueueStatusFilter(t *testing.T) {
 	_ = json.Unmarshal(r.Body, &out)
 	if len(out.Pairs) != 1 || out.Pairs[0].ID != top {
 		t.Fatalf("limit: %s", r.Body)
+	}
+}
+
+// Deliberate deviation: FastAPI answers 500 (Postgres "LIMIT must not be negative"); Go answers 422 with pydantic's ge shape.
+func TestNegativeLimit422WithCtx(t *testing.T) {
+	e := newEntEnv(t)
+	_, h := e.admin(t, "t16-ws-neg", "t16-neg")
+	for _, p := range []string{"/api/entities/company?limit=-1", "/api/entities/review-queue?limit=-1"} {
+		r := e.get(p, h)
+		want := `{"detail":[{"type":"greater_than_equal","loc":["query","limit"],"msg":"Input should be greater than or equal to 0","input":"-1","ctx":{"ge":0}}]}`
+		if r.Status != 422 {
+			t.Fatalf("%s: %d %s", p, r.Status, r.Body)
+		}
+		var g, w any
+		_ = json.Unmarshal(r.Body, &g)
+		_ = json.Unmarshal([]byte(want), &w)
+		if !reflect.DeepEqual(g, w) {
+			t.Errorf("%s: %s", p, r.Body)
+		}
 	}
 }

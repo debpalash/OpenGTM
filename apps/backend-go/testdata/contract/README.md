@@ -60,3 +60,7 @@ Review `git diff` of the fixtures after re-recording: a changed fixture is a cha
   the empty string; a non-integer `API_PORT` is a 500 in both).
 - `settings.yaml` fixtures need `ENRICH_*` and enrichment API keys absent from `app_settings` and no
   `DEBUG`/`API_*`/`CORS_ORIGINS`/`GOOGLE_API_KEY`/`LINKEDIN_LI_AT_COOKIE` in the FastAPI environment.
+- `GET /api/entities/company` and `/api/entities/review-queue` with a negative `limit`: FastAPI only bounds
+  `le=1000`, so Postgres rejects `LIMIT -1` and it answers 500; Go answers 422 `greater_than_equal`
+  (`ctx {"ge": 0}`, loc `["query","limit"]`), a user-mandated crash-bug hardening. No fixture; covered by
+  `TestNegativeLimit422WithCtx`.
