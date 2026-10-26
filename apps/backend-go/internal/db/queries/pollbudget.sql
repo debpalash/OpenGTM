@@ -73,3 +73,9 @@ WHERE id = sqlc.arg(id)::bigint AND type = 'watch_poll'
   AND (workspace_id = sqlc.arg(workspace_id)::text
        OR (workspace_id IS NULL AND payload->>'workspace_id' = sqlc.arg(workspace_id)::text))
   AND status = 'pending';
+
+-- name: PollDueMirror :many
+-- Cross-tenant read of the non-RLS mirror (ids and timestamps only): bootstrap_watch_schedules.
+SELECT watch_id, workspace_id FROM watch_schedules
+WHERE enabled IS TRUE AND (next_poll_at IS NULL OR next_poll_at <= sqlc.arg(now)::timestamptz)
+ORDER BY watch_id;

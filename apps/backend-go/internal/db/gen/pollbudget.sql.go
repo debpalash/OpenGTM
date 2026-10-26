@@ -77,6 +77,38 @@ func (q *Queries) PollDebitBudget(ctx context.Context, arg PollDebitBudgetParams
 	return i, err
 }
 
+const pollDueMirror = `-- name: PollDueMirror :many
+SELECT watch_id, workspace_id FROM watch_schedules
+WHERE enabled IS TRUE AND (next_poll_at IS NULL OR next_poll_at <= $1::timestamptz)
+ORDER BY watch_id
+`
+
+type PollDueMirrorRow struct {
+	WatchID     string
+	WorkspaceID string
+}
+
+// Cross-tenant read of the non-RLS mirror (ids and timestamps only): bootstrap_watch_schedules.
+func (q *Queries) PollDueMirror(ctx context.Context, now pgtype.Timestamptz) ([]PollDueMirrorRow, error) {
+	rows, err := q.db.Query(ctx, pollDueMirror, now)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []PollDueMirrorRow
+	for rows.Next() {
+		var i PollDueMirrorRow
+		if err := rows.Scan(&i.WatchID, &i.WorkspaceID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const pollInsertWatchJob = `-- name: PollInsertWatchJob :one
 INSERT INTO jobs (executor, type, payload, workspace_id, priority, fire_key, status,
                   created_at, next_run_at, max_retries, retry_count)

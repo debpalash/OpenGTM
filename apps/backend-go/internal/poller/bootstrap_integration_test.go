@@ -15,9 +15,13 @@ import (
 // workspace and enqueued single-flight with the executor the cohort picks.
 func TestBootstrapWatchSchedules(t *testing.T) {
 	pool, ctx := setup(t)
-	seed{ID: wID, WS: wsA, Interval: sp("daily"), Anchor: &vAnchor, Enabled: true}.insert(t, ctx, pool)
-	seed{ID: pfx + "off", WS: wsA, Interval: sp("daily"), Anchor: &vAnchor, Enabled: false}.insert(t, ctx, pool)
-	seed{ID: pfx + "later", WS: wsA, Interval: sp("daily"), Anchor: &vAnchor, Enabled: true}.insert(t, ctx, pool)
+	for id, enabled := range map[string]bool{wID: true, pfx + "off": false, pfx + "later": true} {
+		inTx(t, ctx, pool, wsA, func(tx pgx.Tx) error {
+			_, err := tx.Exec(ctx, `INSERT INTO watch_subscriptions (id, workspace_id, kind, target, "interval", schedule_anchor, enabled, cursor)
+				VALUES ($1,$2,'funding',$1,'daily',$3,$4,'{"bootstrapped": false}'::json)`, id, wsA, vAnchor, enabled)
+			return err
+		})
+	}
 	future := vNow.Add(3 * time.Hour)
 	inTx(t, ctx, pool, wsA, func(tx pgx.Tx) error {
 		if err := poller.MirrorSet(ctx, tx, wID, wsA, nil, true); err != nil { // NULL next: due
