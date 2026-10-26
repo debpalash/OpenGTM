@@ -12,13 +12,14 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 )
 
-// RegisterEntities registers /api/entities (read routes; merge/split live in entitiesroutes_write.go).
+// RegisterEntities registers /api/entities (read routes here; merge, split and decide in entitiesroutes_write.go).
 func RegisterEntities(r *httpx.Router, d Deps) {
 	e := entityRoutes{d: d, st: &entities.Store{Pool: d.Pool}}
 	mws := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity)}
 	r.Handle("GET /api/entities/company", http.HandlerFunc(e.list), mws...)
 	r.Handle("GET /api/entities/company/{entity_id}", http.HandlerFunc(e.get), mws...)
 	r.Handle("GET /api/entities/review-queue", http.HandlerFunc(e.reviewQueue), mws...)
+	registerEntityWrites(r, d, e)
 }
 
 type entityRoutes struct {
