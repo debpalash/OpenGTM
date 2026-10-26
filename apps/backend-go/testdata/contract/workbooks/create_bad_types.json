@@ -1,0 +1,109 @@
+{
+  "request": {
+    "body": {
+      "columns_config": [
+        {
+          "id": 1
+        }
+      ],
+      "filter_criteria": {
+        "job_ids": "a",
+        "min_score": "x"
+      },
+      "max_rows": "abc",
+      "name": 5,
+      "source_config": [
+        1
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 5,
+          "loc": [
+            "body",
+            "name"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        },
+        {
+          "input": [
+            1
+          ],
+          "loc": [
+            "body",
+            "source_config"
+          ],
+          "msg": "Input should be a valid dictionary",
+          "type": "dict_type"
+        },
+        {
+          "input": 1,
+          "loc": [
+            "body",
+            "columns_config",
+            0,
+            "id"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        },
+        {
+          "input": {
+            "id": 1
+          },
+          "loc": [
+            "body",
+            "columns_config",
+            0,
+            "name"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        },
+        {
+          "input": "a",
+          "loc": [
+            "body",
+            "filter_criteria",
+            "job_ids"
+          ],
+          "msg": "Input should be a valid list",
+          "type": "list_type"
+        },
+        {
+          "input": "x",
+          "loc": [
+            "body",
+            "filter_criteria",
+            "min_score"
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        },
+        {
+          "input": "abc",
+          "loc": [
+            "body",
+            "max_rows"
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

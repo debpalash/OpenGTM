@@ -1,0 +1,65 @@
+{
+  "request": {
+    "body": {
+      "max_rows": 2,
+      "name": "CSV",
+      "source": "csv",
+      "source_config": {
+        "rows": [
+          {
+            "a": 1
+          },
+          {
+            "a": 2
+          },
+          {
+            "a": 3
+          }
+        ],
+        "zeta": 1
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/"
+  },
+  "response": {
+    "body": {
+      "columns_config": [],
+      "completed_rows": 0,
+      "created_at": "2026-10-26T10:26:23.868006",
+      "description": "",
+      "filter_criteria": {},
+      "id": "e9551347-0105-4509-ae46-49680ca3fe88",
+      "last_run_at": null,
+      "name": "CSV",
+      "source_config": {
+        "row_storage_version": 2,
+        "rows": [
+          {
+            "a": 1
+          },
+          {
+            "a": 2
+          },
+          {
+            "a": 3
+          }
+        ],
+        "zeta": 1
+      },
+      "source_type": "csv",
+      "status": "draft",
+      "sync_to_leads": true,
+      "total_rows": 2,
+      "updated_at": "2026-10-26T10:26:23.868006"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

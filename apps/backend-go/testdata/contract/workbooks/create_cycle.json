@@ -1,0 +1,42 @@
+{
+  "request": {
+    "body": {
+      "columns_config": [
+        {
+          "id": "a",
+          "input_columns": [
+            "b"
+          ],
+          "name": "A",
+          "prompt": "{B}",
+          "type": "ai_formula"
+        },
+        {
+          "id": "b",
+          "input_columns": [
+            "a"
+          ],
+          "name": "B",
+          "prompt": "{A}",
+          "type": "ai_formula"
+        }
+      ],
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/"
+  },
+  "response": {
+    "body": {
+      "detail": "Column changes introduce circular dependencies affecting: a, b. Break the circular references before saving."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

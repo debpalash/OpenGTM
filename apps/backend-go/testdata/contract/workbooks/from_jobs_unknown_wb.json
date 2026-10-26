@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "job_ids": [
+        "job-1"
+      ],
+      "workbook_id": "nope"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/from-jobs"
+  },
+  "response": {
+    "body": {
+      "detail": "Workbook not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}
