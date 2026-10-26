@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "id": "evt_test",
+      "type": "checkout.session.completed"
+    },
+    "headers": {
+      "Stripe-Signature": "t=1,v1=00"
+    },
+    "method": "POST",
+    "path": "/api/billing/webhook"
+  },
+  "response": {
+    "body": {
+      "detail": "Stripe is not configured: set STRIPE_SECRET_KEY (and STRIPE_WEBHOOK_SECRET) in the environment."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 503
+  }
+}
