@@ -370,3 +370,38 @@ func TestDetailKeyOrderMatchesPydantic(t *testing.T) {
 	}
 	same("run", jsonKeys(t, string(rr.Runs[0])), "id,workspace_id,workbook_id,connector,status,query,cursor,requested_count,fetched_count,added_count,updated_count,skipped_count,pages_fetched,source_total,target_met,exhausted,error,started_at,completed_at,created_at,updated_at")
 }
+
+// Cross-workspace reads of export and connector runs: 404, nothing streamed (no CSV headers, BOM or rows).
+func TestExportAndRunsCrossWorkspace404NothingStreamed(t *testing.T) {
+	e := newDetailEnv(t)
+	e.seedDetail(t)
+	for _, c := range []struct{ name, who, ws, path string }{
+		{"export other workspace's workbook", "alice", "ws-alpha", "/api/workbooks/wb-beta-1/export.csv"},
+		{"export alpha id from beta", "bob", "ws-beta", "/api/workbooks/wb-alpha-2/export.csv?column_ids=company"},
+		{"export with row_ids", "bob", "ws-beta", "/api/workbooks/wb-alpha-3/export.csv?row_ids=101"},
+		{"runs other workspace's workbook", "alice", "ws-alpha", "/api/workbooks/wb-beta-1/connector-runs"},
+		{"runs alpha id from beta", "bob", "ws-beta", "/api/workbooks/wb-alpha-2/connector-runs?limit=200"},
+		// bob owns ws-beta and is a member of ws-alpha: naming the other workspace in the header scopes
+		// every lookup to it, so the workbook of the first workspace does not exist there.
+		{"export X-Workspace-Id mismatch", "bob", "ws-beta", "/api/workbooks/wb-alpha-2/export.csv"},
+		{"runs X-Workspace-Id mismatch", "bob", "ws-alpha", "/api/workbooks/wb-beta-1/connector-runs"},
+	} {
+		rec := e.get(c.who, c.ws, c.path)
+		if rec.Code != 404 {
+			t.Errorf("%s: status %d, want 404", c.name, rec.Code)
+			continue
+		}
+		if b := rec.Body.String(); b != `{"detail":"Workbook not found"}` {
+			t.Errorf("%s: body %q", c.name, b)
+		}
+		if rec.Header().Get("Content-Disposition") != "" || strings.HasPrefix(rec.Header().Get("Content-Type"), "text/csv") {
+			t.Errorf("%s: CSV headers sent: %v", c.name, rec.Header())
+		}
+	}
+	// A workspace the caller does not belong to is rejected by the gate, never a 200.
+	for _, p := range []string{"/api/workbooks/wb-alpha-2/export.csv", "/api/workbooks/wb-alpha-2/connector-runs"} {
+		if rec := e.get("alice", "ws-beta", p); rec.Code == 200 || strings.Contains(rec.Body.String(), "Acme") {
+			t.Errorf("alice naming ws-beta on %s: %d %.80s", p, rec.Code, rec.Body.String())
+		}
+	}
+}
