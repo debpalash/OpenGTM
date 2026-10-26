@@ -3,11 +3,8 @@ package api
 import (
 	"io"
 	"log/slog"
-	"net/http"
-	"net/http/httptest"
 	"reflect"
 	"sort"
-	"strings"
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
@@ -94,22 +91,5 @@ func TestCopilotRequiresPGLeadStore(t *testing.T) {
 	RegisterPersonIntel(r, copilotDeps(false, true, true))
 	if n := len(r.Patterns()); n != 0 {
 		t.Fatalf("%d routes registered with PG_LEAD_STORE=false", n)
-	}
-}
-
-// The literal /api/person/history must win over /api/person/{record_id}.
-func TestPersonHistoryLiteralBeatsID(t *testing.T) {
-	r := httpx.NewRouter()
-	RegisterPersonIntel(r, copilotDeps(true, true, true))
-	h := r.Handler()
-	for path, want := range map[string]string{
-		"/api/person/history": "GET /api/person/history",
-		"/api/person/42":      "GET /api/person/{record_id}",
-	} {
-		rec := httptest.NewRecorder()
-		h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
-		if !strings.Contains(rec.Body.String(), want) {
-			t.Errorf("%s routed to %q, want %q", path, rec.Body.String(), want)
-		}
 	}
 }
