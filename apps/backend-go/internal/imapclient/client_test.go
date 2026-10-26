@@ -2,9 +2,12 @@ package imapclient
 
 import (
 	"context"
+	"crypto/x509"
 	"errors"
 	"net"
+	"runtime"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -61,15 +64,15 @@ func TestSearchUnseenSince(t *testing.T) {
 	if _, err := c.Select(ctx, "INBOX"); err != nil {
 		t.Fatal(err)
 	}
-	got, err := c.SearchUnseen(ctx, now.Add(-24*time.Hour))
+	got, err := c.SearchUnseen(ctx, now.Add(-24*time.Hour), 0)
 	if err != nil || len(got) != 1 || got[0] != "2" {
 		t.Fatalf("got %v err %v", got, err)
 	}
-	got, err = c.SearchUnseen(ctx, now.Add(-240*time.Hour))
+	got, err = c.SearchUnseen(ctx, now.Add(-240*time.Hour), 0)
 	if err != nil || len(got) != 2 {
 		t.Fatalf("got %v err %v", got, err)
 	}
-	empty, err := c.SearchUnseen(ctx, now.Add(24*time.Hour))
+	empty, err := c.SearchUnseen(ctx, now.Add(24*time.Hour), 0)
 	if err != nil || len(empty) != 0 {
 		t.Fatalf("future since: %v %v", empty, err)
 	}
@@ -100,7 +103,7 @@ func TestFetchOversizedIsEmpty(t *testing.T) {
 	ts.add(t, ok, time.Now())
 	c := connected(t, ts)
 	c.Select(ctx, "INBOX")
-	if b, err := c.Fetch(ctx, "1"); err != nil || len(b) != 0 {
+	if b, err := c.Fetch(ctx, "1"); !errors.Is(err, ErrOversized) || len(b) != 0 {
 		t.Fatalf("oversized: len=%d err=%v", len(b), err)
 	}
 	if b, err := c.Fetch(ctx, "2"); err != nil || string(b) != ok {
@@ -116,13 +119,13 @@ func TestFetchDoesNotSetSeenButMarkSeenDoes(t *testing.T) {
 	if _, err := c.Fetch(ctx, "1"); err != nil {
 		t.Fatal(err)
 	}
-	if u, _ := c.SearchUnseen(ctx, time.Now().Add(-time.Hour)); len(u) != 1 {
+	if u, _ := c.SearchUnseen(ctx, time.Now(, 0).Add(-time.Hour)); len(u) != 1 {
 		t.Fatalf("fetch must not mark seen: %v", u)
 	}
 	if err := c.MarkSeen(ctx, "1"); err != nil {
 		t.Fatal(err)
 	}
-	if u, _ := c.SearchUnseen(ctx, time.Now().Add(-time.Hour)); len(u) != 0 {
+	if u, _ := c.SearchUnseen(ctx, time.Now(, 0).Add(-time.Hour)); len(u) != 0 {
 		t.Fatalf("still unseen after MarkSeen: %v", u)
 	}
 	if b, _ := c.Fetch(ctx, "1"); string(b) != msgA {
@@ -306,5 +309,85 @@ func TestProductionConstructorHasNoTestHatches(t *testing.T) {
 	}
 	if c.opts.RootCAs != nil || len(c.opts.PlainHosts) != 0 {
 		t.Fatalf("production constructor must leave test options empty: %+v", c.opts)
+	}
+}
+
+func TestSearchUnseenMaxKeepsLowestUIDs(t *testing.T) {
+	ts := newServer(t, modeImplicitTLS)
+	for i := 0; i < 5; i++ {
+		ts.add(t, msgA, time.Now())
+	}
+	c := connected(t, ts)
+	c.Select(ctx, "INBOX")
+	got, err := c.SearchUnseen(ctx, time.Now().Add(-time.Hour), 3)
+	if err != nil || strings.Join(got, ",") != "1,2,3" {
+		t.Fatalf("got %v err %v", got, err)
+	}
+	if all, _ := c.SearchUnseen(ctx, time.Now().Add(-time.Hour), 0); len(all) != 5 {
+		t.Fatalf("max 0 means default cap, got %v", all)
+	}
+}
+
+// hostile: LOGIN/SELECT fine, size query lies small, body fetch streams 20 MiB
+// of literal regardless of the partial request.
+func hostileFetch(t *testing.T) (string, *x509.CertPool) {
+	huge := strings.Repeat("A", 20<<20)
+	return rawServer(t, func(tag, cmd string) string {
+		switch {
+		case strings.HasPrefix(cmd, "LOGIN"):
+			return tag + " OK logged in\r\n"
+		case strings.HasPrefix(cmd, "UID FETCH") && strings.Contains(cmd, "BODY"):
+			return "* 1 FETCH (UID 1 BODY[]<0> {20971520}\r\n" + huge + ")\r\n" + tag + " OK done\r\n"
+		case strings.HasPrefix(cmd, "UID FETCH"):
+			return "* 1 FETCH (UID 1 RFC822.SIZE 100)\r\n" + tag + " OK done\r\n"
+		}
+		return tag + " OK\r\n"
+	})
+}
+
+func TestFetchHostileLiteralIsMemoryBounded(t *testing.T) {
+	addr, pool := hostileFetch(t)
+	c := NewWithOptions(cfg(true), toAddr(addr), 10*time.Second, Options{RootCAs: pool})
+	if err := c.Connect(ctx); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Logout()
+	var before, after runtime.MemStats
+	runtime.GC()
+	runtime.ReadMemStats(&before)
+	b, err := c.Fetch(ctx, "1")
+	runtime.ReadMemStats(&after)
+	if !errors.Is(err, ErrBudgetExceeded) || len(b) != 0 {
+		t.Fatalf("want ErrBudgetExceeded, got len=%d err=%v", len(b), err)
+	}
+	if grew := after.TotalAlloc - before.TotalAlloc; grew > 40<<20 {
+		t.Fatalf("allocated %d MiB reading a hostile literal", grew>>20)
+	}
+}
+
+func TestFetchSkipsBodyWhenSizeOverCap(t *testing.T) {
+	var bodyAsked atomic.Bool
+	addr, pool := rawServer(t, func(tag, cmd string) string {
+		switch {
+		case strings.HasPrefix(cmd, "LOGIN"):
+			return tag + " OK\r\n"
+		case strings.HasPrefix(cmd, "UID FETCH") && strings.Contains(cmd, "BODY"):
+			bodyAsked.Store(true)
+			return tag + " NO\r\n"
+		case strings.HasPrefix(cmd, "UID FETCH"):
+			return "* 1 FETCH (UID 1 RFC822.SIZE 9999999)\r\n" + tag + " OK\r\n"
+		}
+		return tag + " OK\r\n"
+	})
+	c := NewWithOptions(cfg(true), toAddr(addr), 5*time.Second, Options{RootCAs: pool})
+	if err := c.Connect(ctx); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Logout()
+	if _, err := c.Fetch(ctx, "1"); !errors.Is(err, ErrOversized) {
+		t.Fatalf("err=%v", err)
+	}
+	if bodyAsked.Load() {
+		t.Fatal("body fetched although RFC822.SIZE exceeded the cap")
 	}
 }
