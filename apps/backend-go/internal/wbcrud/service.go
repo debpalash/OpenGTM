@@ -309,6 +309,10 @@ type UpdatePatch struct {
 	SetFilterCriteria         bool
 	FilterCriteria            any // value to store (marshalled); only when SetFilterCriteria
 	Columns                   *[]Column
+	// SourceType and SourceConfig (the latter only when SetSourceConfig) are assigned by the v1 -> v2 migration.
+	SourceType      *string
+	SetSourceConfig bool
+	SourceConfig    any
 }
 
 // jsonEqual compares two JSON documents like Python dict/list equality: key
@@ -366,7 +370,21 @@ func (s *Service) UpdateIfChanged(ctx context.Context, tx pgx.Tx, ws string, w W
 		ob, _ := json.Marshal(cur)
 		colsChanged = !jsonEqual(ob, colsJSON)
 	}
-	if !metaChanged && !colsChanged {
+	var srcParams gen.UpdateWorkbookSourceParams
+	srcChanged := false
+	if p.SourceType != nil && *p.SourceType != w.SourceType {
+		srcParams.SourceType = pgtype.Text{String: *p.SourceType, Valid: true}
+		srcChanged = true
+	}
+	if p.SetSourceConfig {
+		nb := []byte(PyDumps(p.SourceConfig, false))
+		ob, _ := json.Marshal(w.SourceConfig)
+		if w.SourceConfig == nil || !jsonEqual(ob, nb) {
+			srcParams.SetSourceConfig, srcParams.SourceConfig = true, nb
+			srcChanged = true
+		}
+	}
+	if !metaChanged && !colsChanged && !srcChanged {
 		return w, false, nil
 	}
 	var row gen.Workbook
@@ -378,6 +396,12 @@ func (s *Service) UpdateIfChanged(ctx context.Context, tx pgx.Tx, ws string, w W
 	}
 	if colsChanged {
 		if row, err = q.UpdateWorkbookColumns(ctx, gen.UpdateWorkbookColumnsParams{ColumnsConfig: colsJSON, WorkbookID: w.ID, WorkspaceID: ws}); err != nil {
+			return w, false, err
+		}
+	}
+	if srcChanged {
+		srcParams.WorkbookID, srcParams.WorkspaceID = w.ID, ws
+		if row, err = q.UpdateWorkbookSource(ctx, srcParams); err != nil {
 			return w, false, err
 		}
 	}
