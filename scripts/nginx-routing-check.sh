@@ -286,6 +286,61 @@ check_automations_matrix() { # $1 = expected upstream for Go-eligible routes (py
 }
 # ===== end plan 08 =====
 
+# ===== plan 12: copilot chat and person intel (all 12 routes ported, none retained) =====
+check_copilot_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
+  local want="$1" r
+  echo "== copilot/person split ($1) =="
+  for r in "POST /api/copilotkit" "GET /api/copilotkit/info" "POST /api/copilotkit/info" "GET /api/copilotkit/conversations" \
+           "GET /api/copilotkit/conversations/abc123" "DELETE /api/copilotkit/conversations/abc123" "GET /api/copilotkit/memories" \
+           "POST /api/person/enrich" "GET /api/person/history" "GET /api/person/history?skip=1&limit=2" "GET /api/person/7" \
+           "DELETE /api/person/7" "GET /ws/person/enrich" "GET /ws/person/enrich?token=SECRET"; do
+    set -- $r
+    expect "$r X-Upstream" "$(hdr "$1" "$2" X-Upstream)" "$want"
+    expect "$r X-Stub     " "$(hdr "$1" "$2" X-Stub)" "$want"
+    expect "$r X-Seen-Uri " "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+  done
+  # Lookalikes, unknown subpaths and trailing-slash variants stay on Python at every percentage.
+  for r in "GET /api/copilotkit/" "POST /api/copilotkit/" "GET /api/copilotkit/other" "GET /api/copilotkit/conversations/" \
+           "GET /api/copilotkit/conversations/a/b" "GET /api/copilotkitx" "GET /api/copilotkit/memories/x" \
+           "GET /api/person/" "GET /api/person/7/x" "GET /api/personx" "GET /api/person"; do
+    set -- $r
+    expect "unmatched $r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
+    expect "unmatched $r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
+  done
+  # The copilotkit routes are keyed per workspace: same X-Workspace-Id -> same bucket whatever the client.
+  local a b
+  a="$(curl -s -D- -o /dev/null -X POST -H 'X-Workspace-Id: ws-1' -H 'Authorization: Bearer one' "http://127.0.0.1:$PORT/api/copilotkit" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}')"
+  b="$(curl -s -D- -o /dev/null -H 'X-Workspace-Id: ws-1' -H 'Authorization: Bearer two' "http://127.0.0.1:$PORT/api/copilotkit/conversations" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}')"
+  expect "chat X-Upstream (workspace header)" "$a" "$want"
+  expect "conversations X-Upstream (workspace header, other client)" "$b" "$want"
+  # WebSocket upgrade headers reach the upstream; the token stays out of the gateway log.
+  local ws; ws="$(curl -s -D- -o /dev/null -H 'Upgrade: websocket' -H 'Connection: Upgrade' "http://127.0.0.1:$PORT/ws/person/enrich?token=T" | tr -d '\r')"
+  expect "ws upstream HTTP version" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-proto"{print $2}')" "HTTP/1.1"
+  expect "ws Connection to upstream" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-conn"{print $2}')" upgrade
+  expect "ws Upgrade to upstream" "$(printf '%s\n' "$ws" | awk -F': ' 'tolower($1)=="x-seen-upgrade"{print $2}')" websocket
+  curl -s -o /dev/null -H 'Upgrade: websocket' "http://127.0.0.1:$PORT/ws/person/enrich?token=PERSONSECRET456"; sleep 0.3
+  if docker logs "$RUN-gw" 2>&1 | grep -q PERSONSECRET456; then echo "  FAIL person ws token leaked into gateway log"; FAIL=1; else echo "  ok   person ws token absent from gateway log"; fi
+  # Location settings (not observable from a stub): compare blocks in `nginx -T`.
+  local T; T="$(docker exec "$RUN-gw" nginx -T 2>/dev/null)"
+  blk() { printf '%s\n' "$T" | awk -v pat="$1" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f' | grep -E 'proxy_(read_timeout|send_timeout|buffering|http_version)' | sed 's/^[[:space:]]*//' | sort; }
+  local l
+  for l in '= /api/copilotkit/info' '= /api/copilotkit/conversations' '~ ^/api/copilotkit/conversations/[^/]+$' '= /api/copilotkit/memories' \
+           '~ ^/api/person/[^/]+$' '= /ws/person/enrich'; do
+    expect "timeouts/buffering of '$l' == '/api/'" "$(blk "$l")" "$(blk "/api/")"
+  done
+  # Chat location: SSE settings; request buffering and X-Accel-Buffering handling are left at the defaults.
+  local C; C="$(printf '%s\n' "$T" | awk 'index($0,"location = /api/copilotkit {"){f=1;next} f&&/^[[:space:]]*}/{exit} f')"
+  for d in "proxy_buffering off;" "proxy_read_timeout 1h;" "proxy_http_version 1.1;" "add_header X-Upstream \$go_ws_bucket always;"; do
+    case "$C" in *"$d"*) echo "  ok   POST /api/copilotkit has '$d'";; *) echo "  FAIL POST /api/copilotkit missing '$d'"; FAIL=1;; esac
+  done
+  C="$(printf '%s\n' "$C" | sed 's/^[[:space:]]*#.*//')" # directives only, not comments
+  case "$C" in *proxy_request_buffering*|*proxy_ignore_headers*) echo "  FAIL chat location must not set proxy_request_buffering/proxy_ignore_headers"; FAIL=1;; *) echo "  ok   chat location leaves request buffering and X-Accel-Buffering at defaults";; esac
+  # Ordering: no earlier regex location may capture these paths (first matching regex wins).
+  local W; W="$(printf '%s\n' "$T" | awk 'index($0,"location = /ws/person/enrich {"){f=1;next} f&&/^[[:space:]]*}/{exit} f')"
+  case "$W" in *"proxy_read_timeout 300s;"*) echo "  ok   person ws location has proxy_read_timeout 300s";; *) echo "  FAIL person ws location lacks proxy_read_timeout 300s"; FAIL=1;; esac
+}
+# ===== end plan 12 =====
+
 echo "== nginx -t =="
 start_gateway 0
 if docker exec "$RUN-gw" nginx -t 2>&1; then echo "  ok   nginx -t"; else echo "  FAIL nginx -t"; FAIL=1; fi
@@ -294,6 +349,7 @@ check_workbook_matrix py
 check_enrichment_matrix py
 check_connectors_matrix py
 check_automations_matrix py
+check_copilot_matrix py
 start_gateway 100
 docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @100%"; FAIL=1; }
 check_matrix go 100%
@@ -301,5 +357,6 @@ check_workbook_matrix go
 check_enrichment_matrix go
 check_connectors_matrix go
 check_automations_matrix go
+check_copilot_matrix go
 
 [ "$FAIL" = 0 ] && echo "ALL PASS" || { echo "FAILED"; exit 1; }
