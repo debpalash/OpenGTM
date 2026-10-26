@@ -1,6 +1,7 @@
 package emailnorm
 
 import (
+	"bytes"
 	"encoding/json"
 	"os"
 	"reflect"
@@ -10,7 +11,8 @@ import (
 )
 
 type vector struct {
-	Input      string   `json:"input"`
+	RawInput   any      `json:"input"`
+	Input      string   `json:"-"`
 	Keys       []string `json:"keys"`
 	Normalized string   `json:"normalized"`
 }
@@ -24,8 +26,22 @@ func loadVectors(t testing.TB) []vector {
 	var f struct {
 		Cases []vector `json:"cases"`
 	}
-	if err := json.Unmarshal(raw, &f); err != nil {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber()
+	if err := dec.Decode(&f); err != nil {
 		t.Fatal(err)
+	}
+	// Python str(email): null is falsy -> "", numbers stringify.
+	for i := range f.Cases {
+		switch v := f.Cases[i].RawInput.(type) {
+		case nil:
+		case string:
+			f.Cases[i].Input = v
+		case json.Number:
+			f.Cases[i].Input = v.String()
+		default:
+			t.Fatalf("unexpected input type %T", v)
+		}
 	}
 	if len(f.Cases) < 50 {
 		t.Fatalf("too few vectors: %d", len(f.Cases))
