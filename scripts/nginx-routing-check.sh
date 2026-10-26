@@ -31,12 +31,14 @@ done
 
 start_gateway() { # $1 = percentage for the go bucket
   docker rm -f "$RUN-gw" >/dev/null 2>&1 || true
-  sed -E "s/^([[:space:]]*)[0-9]+%[[:space:]]+go;/\1$1% go;/" infra/nginx/go-split.conf > "$TMP/go-split.conf" 2>/dev/null || : > "$TMP/go-split.conf"
+  if [ "$1" = 0 ]; then cp infra/nginx/go-split.conf "$TMP/go-split.conf"   # shipped state = 0%
+  else sed -E "s/^[[:space:]]*#[[:space:]]*[0-9.]+%[[:space:]]+go;.*/    $1% go;/" infra/nginx/go-split.conf > "$TMP/go-split.conf"; fi
   docker run -d --name "$RUN-gw" --network "$RUN" -p 127.0.0.1::80 \
     -v "$PWD/infra/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro" \
     -v "$PWD/infra/nginx/go-routes.conf:/etc/nginx/go-routes.conf:ro" \
     -v "$TMP/go-split.conf:/etc/nginx/go-split.conf:ro" "$IMG" >/dev/null
-  PORT="$(docker port "$RUN-gw" 80/tcp | head -1 | sed 's/.*://')"
+  sleep 0.5; PORT="$(docker port "$RUN-gw" 80/tcp 2>/dev/null | head -1 | sed "s/.*://")"
+  [ -n "$PORT" ] || { docker logs "$RUN-gw" 2>&1 | tail -8; return 1; }
   for _ in $(seq 40); do curl -s -o /dev/null "http://127.0.0.1:$PORT/health" && return 0; sleep 0.25; done
   docker logs "$RUN-gw" 2>&1 | tail -5; return 1
 }
