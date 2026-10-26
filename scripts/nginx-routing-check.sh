@@ -174,14 +174,53 @@ check_workbook_matrix() { # $1 = expected upstream for Go-eligible routes (py|go
 }
 # ===== end plan 04 =====
 
+# ===== plan 07: connectors, HubSpot, /api/data, AmbitionBox (all 19 routes ported, none retained) =====
+check_connectors_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
+  local want="$1" r
+  echo "== connectors/crm split ($1) =="
+  for r in "GET /api/connectors/catalog" "GET /api/connectors/compatibility" \
+           "GET /api/crm/hubspot/status" "POST /api/crm/hubspot/connect" "POST /api/crm/hubspot/sync" "GET /api/crm/hubspot/contacts?limit=5" \
+           "GET /api/data" "GET /api/data?limit=5&sort_by=email" "GET /api/data/export" "GET /api/data/stats/timeline" \
+           "GET /api/data/stats/domains" "POST /api/data/mark-used" "PATCH /api/data/7" "DELETE /api/data/7" \
+           "GET /api/ambitionbox/companies" "GET /api/ambitionbox/companies/12/jobs" "GET /api/ambitionbox/companies/12/detail" \
+           "GET /api/ambitionbox/companies/12/similar" "GET /api/ambitionbox/collect" "POST /api/ambitionbox/imports"; do
+    set -- $r
+    expect "$r X-Upstream" "$(hdr "$1" "$2" X-Upstream)" "$want"
+    expect "$r X-Stub     " "$(hdr "$1" "$2" X-Stub)" "$want"
+    expect "$r X-Seen-Uri " "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+  done
+  # Lookalikes, subpaths no Go route serves and trailing-slash variants stay on Python at every percentage.
+  for r in "GET /api/crm/other" "GET /api/crm/hubspot" "GET /api/crm/hubspot/" "GET /api/crm/hubspot/status/x" "GET /api/crm/hubspotx/status" \
+           "GET /api/data/" "GET /api/data-x" "GET /api/dataset" "GET /api/data/7/x" "GET /api/data/stats/other/x" \
+           "GET /api/connectors" "GET /api/connectors/" "GET /api/connectors/x" "GET /api/connectors/catalog/x" "GET /api/connectorsx/catalog" \
+           "GET /api/ambitionbox" "GET /api/ambitionbox/" "GET /api/ambitionbox/other" "GET /api/ambitionbox/companies/12" \
+           "GET /api/ambitionbox/companies/12/other" "GET /api/ambitionbox/companies/12/jobs/x" "GET /api/ambitionboxx/companies"; do
+    set -- $r
+    expect "unmatched $r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
+    expect "unmatched $r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
+  done
+  # Proxy settings of each plan 07 location equal `location /api/`.
+  local T; T="$(docker exec "$RUN-gw" nginx -T 2>/dev/null)"
+  blk() { printf '%s\n' "$T" | awk -v pat="$1" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f' | grep -E 'proxy_(read_timeout|send_timeout|buffering|http_version)' | sed 's/^[[:space:]]*//' | sort; }
+  local l
+  for l in '~ ^/api/connectors/(catalog|compatibility)$' '~ ^/api/crm/hubspot/(status|connect|sync|contacts)$' \
+           '~ ^/api/data(/(export|mark-used|stats/(timeline|domains)|[^/]+))?$' \
+           '~ ^/api/ambitionbox/(companies|collect|imports|companies/[^/]+/(jobs|detail|similar))$'; do
+    expect "timeouts/buffering of '$l' == '/api/'" "$(blk "$l")" "$(blk "/api/")"
+  done
+}
+# ===== end plan 07 =====
+
 echo "== nginx -t =="
 start_gateway 0
 if docker exec "$RUN-gw" nginx -t 2>&1; then echo "  ok   nginx -t"; else echo "  FAIL nginx -t"; FAIL=1; fi
 check_matrix py 0%
 check_workbook_matrix py
+check_connectors_matrix py
 start_gateway 100
 docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @100%"; FAIL=1; }
 check_matrix go 100%
 check_workbook_matrix go
+check_connectors_matrix go
 
 [ "$FAIL" = 0 ] && echo "ALL PASS" || { echo "FAILED"; exit 1; }
