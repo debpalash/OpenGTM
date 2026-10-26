@@ -78,7 +78,16 @@ func TestRefreshRouteMatchesFixtures(t *testing.T) {
 		}
 		return opts
 	}
-	for _, n := range []string{"aud_refresh_dynamic", "aud_refresh_dynamic_again", "aud_refresh_everyone", "aud_refresh_disabled_audience", "aud_refresh_beta_own"} {
+	for _, n := range []string{"aud_refresh_dynamic", "aud_refresh_dynamic_again"} {
+		e.readReplay(t, n, ids, refreshOpts(n)...)
+	}
+	// The recording of the everyone refresh ran after the destination callback cases, which filled these lead fields.
+	if _, err := audOwner(t).Exec(context.Background(), `UPDATE leads SET contact_title = CASE id WHEN 14 THEN 'Boss' WHEN 6 THEN 'COO' WHEN 5 THEN 'CTO' END,
+		city = CASE WHEN id = 5 THEN 'Berlin' ELSE city END,
+		employee_count_exact = CASE WHEN id = 5 THEN 42 ELSE employee_count_exact END WHERE workspace_id = 'ws-alpha' AND id IN (5, 6, 14)`); err != nil {
+		t.Fatal(err)
+	}
+	for _, n := range []string{"aud_refresh_everyone", "aud_refresh_disabled_audience", "aud_refresh_beta_own"} {
 		e.readReplay(t, n, ids, refreshOpts(n)...)
 	}
 	// An editor creates an audience (materialized), then refreshes it: nothing changed.
