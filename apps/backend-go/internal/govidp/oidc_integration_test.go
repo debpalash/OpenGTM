@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -158,7 +159,7 @@ func TestSaveConfigErrorStrings(t *testing.T) {
 	for _, c := range cases {
 		err := e.try(e.ws, func(tx pgx.Tx) error { _, err := SaveConfig(ctx, tx, e.res, e.ws, c.in); return err })
 		var ve *ValueError
-		if err == nil || err.Error() != c.want || !asValueError(err, &ve) {
+		if err == nil || err.Error() != c.want || !errors.As(err, &ve) {
 			t.Errorf("%s: want ValueError %q, got %T %v", c.name, c.want, err, err)
 		}
 	}
@@ -221,7 +222,7 @@ func TestSaveConfigStoredBytesReadableByPythonShape(t *testing.T) {
 		return err
 	})
 	raw, _ := e.storedConfig(t, e.ws)
-	want := `{"enabled":false,"enforce_sso":false,"issuer":"","client_id":"","allowed_domains":["zed.com","ünï.com"],"auto_provision":false,"default_role":"member"}`
+	want := `{"enabled":false,"enforce_sso":false,"issuer":"","client_id":"","allowed_domains":["zed.com","\u00fcn\u00ef.com"],"auto_provision":false,"default_role":"member"}`
 	if raw != want {
 		t.Fatalf("got %s", raw)
 	}

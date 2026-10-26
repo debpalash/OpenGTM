@@ -2,6 +2,7 @@ package govidp
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"strings"
 	"testing"
@@ -47,10 +48,10 @@ func loadVectors(t testing.TB) vectors {
 // and an unbalanced IPv6 bracket raises a non-contract ValueError. Go answers the
 // clean-origin error for all of them (documented deviation).
 var issuerDeviations = map[string]bool{
-	"https://login.example.com\t/a":         true,
-	"https://lo\ngin.example.com":           true,
-	"https://login.example.com:badport":     true,
-	"https://[::1":                          true,
+	"https://login.example.com\t/a":     true,
+	"https://lo\ngin.example.com":       true,
+	"https://login.example.com:badport": true,
+	"https://[::1":                      true,
 }
 
 func TestIssuerHostAllowList(t *testing.T) {
@@ -88,7 +89,7 @@ func TestIssuerErrorIsValueError(t *testing.T) {
 	t.Setenv("SSO_ALLOWED_ISSUER_HOSTS", "a.com")
 	_, err := ValidateIssuer("http://a.com")
 	var ve *ValueError
-	if !asValueError(err, &ve) || !strings.Contains(ve.Error(), "HTTPS") {
+	if !errors.As(err, &ve) || !strings.Contains(ve.Error(), "HTTPS") {
 		t.Fatalf("want *ValueError, got %T %v", err, err)
 	}
 }
