@@ -35,6 +35,32 @@ func newSCIMEnv(t *testing.T) scimEnv {
 	t.Helper()
 	pool := testpg.NewAppPool(t, 4)
 	st := identity.NewStore(pool)
+	// POST /Users inserts the users row before the workspace-scoped checks, so a
+	// 409 (externalId collision) leaves an unlinked user behind that the
+	// per-workspace cleanup cannot find. NewAppPool's cross-package lock is held
+	// for the whole test, so any users row outside this baseline was created by it.
+	baseline := []int32{}
+	if err := pool.QueryRow(context.Background(), `SELECT COALESCE(array_agg(id), '{}') FROM users`).Scan(&baseline); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		c := context.Background()
+		rows, err := pool.Query(c, `SELECT id FROM users WHERE id <> ALL($1::int[])`, baseline)
+		if err != nil {
+			return
+		}
+		var ids []int32
+		for rows.Next() {
+			var id int32
+			if rows.Scan(&id) == nil {
+				ids = append(ids, id)
+			}
+		}
+		rows.Close()
+		for _, id := range ids {
+			_ = st.Delete(c, id)
+		}
+	})
 	r := httpx.NewRouter()
 	RegisterSCIM(r, Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{ScimTokenTTLDays: 90}})
 	return scimEnv{env: env{h: r.Handler(), st: st}, pool: pool}

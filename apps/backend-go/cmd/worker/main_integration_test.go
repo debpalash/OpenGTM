@@ -181,6 +181,17 @@ func TestRefreshJobEndToEnd(t *testing.T) {
 		t.Fatal(err)
 	}
 	ws := "wsr"
+	// The seeded workbook and its row are removed with the test: a leftover row
+	// would otherwise outlive the run and collide with other suites' fixtures.
+	t.Cleanup(func() {
+		_ = tenancy.InWorkspace(context.Background(), pool, ws, func(tx pgx.Tx) error {
+			if _, err := tx.Exec(context.Background(), `DELETE FROM workbook_rows WHERE workbook_id='wbr'`); err != nil {
+				return err
+			}
+			_, err := tx.Exec(context.Background(), `DELETE FROM workbooks WHERE id='wbr'`)
+			return err
+		})
+	})
 	err := tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
 		if _, err := tx.Exec(ctx, `DELETE FROM workbooks WHERE id='wbr'`); err != nil {
 			return err
@@ -189,7 +200,7 @@ func TestRefreshJobEndToEnd(t *testing.T) {
 			VALUES ('wbr','wbr',$1,'[{"id":"email","type":"enrichment"}]'::json,'{"enabled":true,"interval":"daily"}'::json)`, ws); err != nil {
 			return err
 		}
-		_, err := tx.Exec(ctx, `INSERT INTO workbook_rows (id, workbook_id, workspace_id, data) VALUES (9001,'wbr',$1,'{}'::json)`, ws)
+		_, err := tx.Exec(ctx, `INSERT INTO workbook_rows (workbook_id, workspace_id, data) VALUES ('wbr',$1,'{}'::json)`, ws)
 		return err
 	})
 	if err != nil {
