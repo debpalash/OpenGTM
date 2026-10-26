@@ -12,6 +12,12 @@ type AlembicVersion struct {
 	VersionNum string
 }
 
+type AppSetting struct {
+	Key       string
+	Value     string
+	UpdatedAt pgtype.Timestamptz
+}
+
 type Audience struct {
 	ID                         string
 	WorkspaceID                string
@@ -87,6 +93,42 @@ type CellTrace struct {
 	TotalCostUsd []byte
 	CreatedAt    pgtype.Timestamp
 	WorkspaceID  string
+}
+
+type ChatConversation struct {
+	ID          string
+	Title       string
+	WorkspaceID string
+	UserID      string
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
+}
+
+type ChatMemory struct {
+	ID        int64
+	UserID    string
+	Text      string
+	Metadata  []byte
+	CreatedAt pgtype.Timestamptz
+}
+
+type ChatMessage struct {
+	ID             string
+	ConversationID string
+	WorkspaceID    string
+	Role           string
+	Content        string
+	ToolData       pgtype.Text
+	CreatedAt      pgtype.Timestamptz
+}
+
+type ChatToolApproval struct {
+	ID             string
+	WorkspaceID    string
+	UserID         string
+	ToolCallJson   string
+	Status         string
+	CreatedAtEpoch int64
 }
 
 type CompanyEntity struct {
@@ -869,6 +911,11 @@ type User struct {
 	CreatedAt      pgtype.Timestamp
 }
 
+type UserActiveWorkspace struct {
+	UserID      int32
+	WorkspaceID string
+}
+
 type WatchSchedule struct {
 	WatchID     string
 	WorkspaceID string
@@ -944,6 +991,18 @@ type WorkbookEnrichment struct {
 	WorkspaceID  string
 }
 
+type WorkbookFunction struct {
+	ID           string
+	Name         string
+	Description  pgtype.Text
+	Category     pgtype.Text
+	ColumnsChain []byte
+	Version      pgtype.Int4
+	UsageCount   pgtype.Int4
+	CreatedAt    pgtype.Float8
+	UpdatedAt    pgtype.Float8
+}
+
 type WorkbookIngestIdempotency struct {
 	ID             string
 	WorkspaceID    string
@@ -1011,9 +1070,86 @@ type WorkbookView struct {
 	UpdatedAt   pgtype.Timestamp
 }
 
+type Workspace struct {
+	ID          string
+	Name        string
+	Slug        string
+	Description string
+	Icon        string
+	OwnerID     pgtype.Int4
+	CreatedAt   pgtype.Float8
+	UpdatedAt   pgtype.Float8
+}
+
 type WorkspaceCredit struct {
 	WorkspaceID string
 	BalanceUsd  float64
 	CreatedAt   pgtype.Timestamp
 	UpdatedAt   pgtype.Timestamp
+}
+
+type WorkspaceMember struct {
+	WorkspaceID string
+	UserID      int32
+	Role        string
+	CreatedAt   pgtype.Float8
+}
+
+type WorkspaceMemberPermission struct {
+	WorkspaceID string
+	UserID      int32
+	Permission  string
+	Effect      string
+	UpdatedAt   float64
+}
+
+type WorkspaceOidcIdentity struct {
+	WorkspaceID string
+	Issuer      string
+	Subject     string
+	UserID      int32
+	Email       string
+	CreatedAt   float64
+}
+
+type WorkspaceScimGroup struct {
+	ID          string
+	WorkspaceID string
+	ExternalID  string
+	DisplayName string
+	CreatedAt   float64
+	UpdatedAt   float64
+}
+
+type WorkspaceScimGroupMember struct {
+	WorkspaceID string
+	GroupID     string
+	UserID      int32
+	CreatedAt   float64
+}
+
+type WorkspaceScimToken struct {
+	WorkspaceID string
+	TokenHash   string
+	TokenPrefix string
+	CreatedAt   float64
+	ExpiresAt   pgtype.Float8
+	LastUsedAt  pgtype.Float8
+	CreatedBy   pgtype.Int4
+}
+
+type WorkspaceScimUser struct {
+	WorkspaceID string
+	UserID      int32
+	ExternalID  string
+	DisplayName string
+	Active      bool
+	CreatedAt   float64
+	UpdatedAt   float64
+}
+
+type WorkspaceSetting struct {
+	WorkspaceID string
+	Key         string
+	Value       string
 }

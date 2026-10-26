@@ -43,6 +43,16 @@ CREATE TABLE public.alembic_version (
 );
 
 --
+-- Name: app_settings; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.app_settings (
+    key text NOT NULL,
+    value text DEFAULT ''::text NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+--
 -- Name: audience_destinations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -206,6 +216,82 @@ CREATE SEQUENCE public.cell_traces_id_seq
 --
 
 ALTER SEQUENCE public.cell_traces_id_seq OWNED BY public.cell_traces.id;
+
+--
+-- Name: chat_conversations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.chat_conversations (
+    id text NOT NULL,
+    title text DEFAULT 'New Chat'::text NOT NULL,
+    workspace_id character varying(64) NOT NULL,
+    user_id text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.chat_conversations FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: chat_memories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.chat_memories (
+    id bigint NOT NULL,
+    user_id text NOT NULL,
+    text text NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp with time zone NOT NULL
+);
+
+--
+-- Name: chat_memories_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.chat_memories_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: chat_memories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.chat_memories_id_seq OWNED BY public.chat_memories.id;
+
+--
+-- Name: chat_messages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.chat_messages (
+    id text NOT NULL,
+    conversation_id text NOT NULL,
+    workspace_id character varying(64) NOT NULL,
+    role text NOT NULL,
+    content text DEFAULT ''::text NOT NULL,
+    tool_data text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_chat_messages_role CHECK ((role = ANY (ARRAY['user'::text, 'assistant'::text, 'system'::text, 'tool'::text])))
+);
+
+ALTER TABLE ONLY public.chat_messages FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: chat_tool_approvals; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.chat_tool_approvals (
+    id text NOT NULL,
+    workspace_id character varying(64) NOT NULL,
+    user_id text NOT NULL,
+    tool_call_json text NOT NULL,
+    status text DEFAULT 'pending'::text NOT NULL,
+    created_at_epoch bigint NOT NULL
+);
+
+ALTER TABLE ONLY public.chat_tool_approvals FORCE ROW LEVEL SECURITY;
 
 --
 -- Name: company_entities; Type: TABLE; Schema: public; Owner: -
@@ -1677,6 +1763,33 @@ CREATE TABLE public.triggers (
 ALTER TABLE ONLY public.triggers FORCE ROW LEVEL SECURITY;
 
 --
+-- Name: user_active_workspace; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.user_active_workspace (
+    user_id integer NOT NULL,
+    workspace_id character varying(64) NOT NULL
+);
+
+--
+-- Name: user_active_workspace_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.user_active_workspace_user_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: user_active_workspace_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.user_active_workspace_user_id_seq OWNED BY public.user_active_workspace.user_id;
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1820,6 +1933,22 @@ CREATE SEQUENCE public.workbook_enrichments_id_seq
 --
 
 ALTER SEQUENCE public.workbook_enrichments_id_seq OWNED BY public.workbook_enrichments.id;
+
+--
+-- Name: workbook_functions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.workbook_functions (
+    id text NOT NULL,
+    name text NOT NULL,
+    description text DEFAULT ''::text,
+    category text DEFAULT 'custom'::text,
+    columns_chain jsonb DEFAULT '[]'::jsonb NOT NULL,
+    version integer DEFAULT 1,
+    usage_count integer DEFAULT 0,
+    created_at double precision,
+    updated_at double precision
+);
 
 --
 -- Name: workbook_ingest_idempotency; Type: TABLE; Schema: public; Owner: -
@@ -1979,6 +2108,130 @@ CREATE TABLE public.workspace_credits (
 ALTER TABLE ONLY public.workspace_credits FORCE ROW LEVEL SECURITY;
 
 --
+-- Name: workspace_member_permissions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.workspace_member_permissions (
+    workspace_id character varying(64) NOT NULL,
+    user_id integer NOT NULL,
+    permission text NOT NULL,
+    effect text NOT NULL,
+    updated_at double precision NOT NULL,
+    CONSTRAINT ck_wmp_effect CHECK ((effect = ANY (ARRAY['allow'::text, 'deny'::text])))
+);
+
+ALTER TABLE ONLY public.workspace_member_permissions FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: workspace_members; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.workspace_members (
+    workspace_id character varying(64) NOT NULL,
+    user_id integer NOT NULL,
+    role text DEFAULT 'member'::text NOT NULL,
+    created_at double precision
+);
+
+--
+-- Name: workspace_oidc_identities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.workspace_oidc_identities (
+    workspace_id character varying(64) NOT NULL,
+    issuer text NOT NULL,
+    subject text NOT NULL,
+    user_id integer NOT NULL,
+    email text DEFAULT ''::text NOT NULL,
+    created_at double precision NOT NULL
+);
+
+--
+-- Name: workspace_scim_group_members; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.workspace_scim_group_members (
+    workspace_id character varying(64) NOT NULL,
+    group_id character varying(64) NOT NULL,
+    user_id integer NOT NULL,
+    created_at double precision NOT NULL
+);
+
+ALTER TABLE ONLY public.workspace_scim_group_members FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: workspace_scim_groups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.workspace_scim_groups (
+    id character varying(64) NOT NULL,
+    workspace_id character varying(64) NOT NULL,
+    external_id text DEFAULT ''::text NOT NULL,
+    display_name text NOT NULL,
+    created_at double precision NOT NULL,
+    updated_at double precision NOT NULL
+);
+
+ALTER TABLE ONLY public.workspace_scim_groups FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: workspace_scim_tokens; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.workspace_scim_tokens (
+    workspace_id character varying(64) NOT NULL,
+    token_hash text NOT NULL,
+    token_prefix text NOT NULL,
+    created_at double precision NOT NULL,
+    expires_at double precision,
+    last_used_at double precision,
+    created_by integer
+);
+
+--
+-- Name: workspace_scim_users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.workspace_scim_users (
+    workspace_id character varying(64) NOT NULL,
+    user_id integer NOT NULL,
+    external_id text DEFAULT ''::text NOT NULL,
+    display_name text DEFAULT ''::text NOT NULL,
+    active boolean DEFAULT true NOT NULL,
+    created_at double precision NOT NULL,
+    updated_at double precision NOT NULL
+);
+
+ALTER TABLE ONLY public.workspace_scim_users FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: workspace_settings; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.workspace_settings (
+    workspace_id character varying(64) NOT NULL,
+    key text NOT NULL,
+    value text DEFAULT ''::text NOT NULL
+);
+
+ALTER TABLE ONLY public.workspace_settings FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: workspaces; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.workspaces (
+    id character varying(64) NOT NULL,
+    name text NOT NULL,
+    slug text NOT NULL,
+    description text DEFAULT ''::text NOT NULL,
+    icon text DEFAULT '🏢'::text NOT NULL,
+    owner_id integer,
+    created_at double precision,
+    updated_at double precision
+);
+
+--
 -- Name: audience_members id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1995,6 +2248,12 @@ ALTER TABLE ONLY public.audience_membership_events ALTER COLUMN id SET DEFAULT n
 --
 
 ALTER TABLE ONLY public.cell_traces ALTER COLUMN id SET DEFAULT nextval('public.cell_traces_id_seq'::regclass);
+
+--
+-- Name: chat_memories id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.chat_memories ALTER COLUMN id SET DEFAULT nextval('public.chat_memories_id_seq'::regclass);
 
 --
 -- Name: company_identifiers id; Type: DEFAULT; Schema: public; Owner: -
@@ -2141,6 +2400,12 @@ ALTER TABLE ONLY public.trigger_action_results ALTER COLUMN id SET DEFAULT nextv
 ALTER TABLE ONLY public.trigger_cap_reservations ALTER COLUMN id SET DEFAULT nextval('public.trigger_cap_reservations_id_seq'::regclass);
 
 --
+-- Name: user_active_workspace user_id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_active_workspace ALTER COLUMN user_id SET DEFAULT nextval('public.user_active_workspace_user_id_seq'::regclass);
+
+--
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2170,6 +2435,13 @@ ALTER TABLE ONLY public.workbook_rows ALTER COLUMN id SET DEFAULT nextval('publi
 
 ALTER TABLE ONLY public.alembic_version
     ADD CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num);
+
+--
+-- Name: app_settings app_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.app_settings
+    ADD CONSTRAINT app_settings_pkey PRIMARY KEY (key);
 
 --
 -- Name: audience_destinations audience_destinations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -2212,6 +2484,34 @@ ALTER TABLE ONLY public.audiences
 
 ALTER TABLE ONLY public.cell_traces
     ADD CONSTRAINT cell_traces_pkey PRIMARY KEY (id);
+
+--
+-- Name: chat_conversations chat_conversations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.chat_conversations
+    ADD CONSTRAINT chat_conversations_pkey PRIMARY KEY (id);
+
+--
+-- Name: chat_memories chat_memories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.chat_memories
+    ADD CONSTRAINT chat_memories_pkey PRIMARY KEY (id);
+
+--
+-- Name: chat_messages chat_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.chat_messages
+    ADD CONSTRAINT chat_messages_pkey PRIMARY KEY (id);
+
+--
+-- Name: chat_tool_approvals chat_tool_approvals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.chat_tool_approvals
+    ADD CONSTRAINT chat_tool_approvals_pkey PRIMARY KEY (id);
 
 --
 -- Name: company_entities company_entities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -2788,6 +3088,13 @@ ALTER TABLE ONLY public.workbooks
     ADD CONSTRAINT uq_workbooks_workspace_action_key UNIQUE (workspace_id, action_idempotency_key);
 
 --
+-- Name: user_active_workspace user_active_workspace_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_active_workspace
+    ADD CONSTRAINT user_active_workspace_pkey PRIMARY KEY (user_id);
+
+--
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2821,6 +3128,13 @@ ALTER TABLE ONLY public.workbook_activity
 
 ALTER TABLE ONLY public.workbook_enrichments
     ADD CONSTRAINT workbook_enrichments_pkey PRIMARY KEY (id);
+
+--
+-- Name: workbook_functions workbook_functions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workbook_functions
+    ADD CONSTRAINT workbook_functions_pkey PRIMARY KEY (id);
 
 --
 -- Name: workbook_ingest_idempotency workbook_ingest_idempotency_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -2870,6 +3184,108 @@ ALTER TABLE ONLY public.workbooks
 
 ALTER TABLE ONLY public.workspace_credits
     ADD CONSTRAINT workspace_credits_pkey PRIMARY KEY (workspace_id);
+
+--
+-- Name: workspace_member_permissions workspace_member_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_member_permissions
+    ADD CONSTRAINT workspace_member_permissions_pkey PRIMARY KEY (workspace_id, user_id, permission);
+
+--
+-- Name: workspace_members workspace_members_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_members
+    ADD CONSTRAINT workspace_members_pkey PRIMARY KEY (workspace_id, user_id);
+
+--
+-- Name: workspace_oidc_identities workspace_oidc_identities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_oidc_identities
+    ADD CONSTRAINT workspace_oidc_identities_pkey PRIMARY KEY (workspace_id, issuer, subject);
+
+--
+-- Name: workspace_oidc_identities workspace_oidc_identities_workspace_id_user_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_oidc_identities
+    ADD CONSTRAINT workspace_oidc_identities_workspace_id_user_id_key UNIQUE (workspace_id, user_id);
+
+--
+-- Name: workspace_scim_group_members workspace_scim_group_members_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_scim_group_members
+    ADD CONSTRAINT workspace_scim_group_members_pkey PRIMARY KEY (workspace_id, group_id, user_id);
+
+--
+-- Name: workspace_scim_groups workspace_scim_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_scim_groups
+    ADD CONSTRAINT workspace_scim_groups_pkey PRIMARY KEY (id);
+
+--
+-- Name: workspace_scim_groups workspace_scim_groups_workspace_id_display_name_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_scim_groups
+    ADD CONSTRAINT workspace_scim_groups_workspace_id_display_name_key UNIQUE (workspace_id, display_name);
+
+--
+-- Name: workspace_scim_tokens workspace_scim_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_scim_tokens
+    ADD CONSTRAINT workspace_scim_tokens_pkey PRIMARY KEY (workspace_id);
+
+--
+-- Name: workspace_scim_users workspace_scim_users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_scim_users
+    ADD CONSTRAINT workspace_scim_users_pkey PRIMARY KEY (workspace_id, user_id);
+
+--
+-- Name: workspace_settings workspace_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_settings
+    ADD CONSTRAINT workspace_settings_pkey PRIMARY KEY (workspace_id, key);
+
+--
+-- Name: workspaces workspaces_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspaces
+    ADD CONSTRAINT workspaces_pkey PRIMARY KEY (id);
+
+--
+-- Name: workspaces workspaces_slug_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspaces
+    ADD CONSTRAINT workspaces_slug_key UNIQUE (slug);
+
+--
+-- Name: idx_chat_conv_tenant; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_chat_conv_tenant ON public.chat_conversations USING btree (workspace_id, user_id, updated_at);
+
+--
+-- Name: idx_chat_messages_conv; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_chat_messages_conv ON public.chat_messages USING btree (conversation_id, created_at);
+
+--
+-- Name: idx_chat_tool_approvals_tenant; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_chat_tool_approvals_tenant ON public.chat_tool_approvals USING btree (workspace_id, user_id, created_at_epoch);
 
 --
 -- Name: ix_audience_destinations_audience_id; Type: INDEX; Schema: public; Owner: -
@@ -3008,6 +3424,12 @@ CREATE INDEX ix_cell_traces_workbook_id ON public.cell_traces USING btree (workb
 --
 
 CREATE INDEX ix_cell_traces_workspace_id ON public.cell_traces USING btree (workspace_id);
+
+--
+-- Name: ix_chat_memories_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_chat_memories_user ON public.chat_memories USING btree (user_id);
 
 --
 -- Name: ix_company_entities_corroboration_count; Type: INDEX; Schema: public; Owner: -
@@ -4051,6 +4473,13 @@ ALTER TABLE ONLY public.audience_membership_events
     ADD CONSTRAINT audience_membership_events_audience_id_fkey FOREIGN KEY (audience_id) REFERENCES public.audiences(id) ON DELETE CASCADE;
 
 --
+-- Name: chat_messages chat_messages_conversation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.chat_messages
+    ADD CONSTRAINT chat_messages_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES public.chat_conversations(id) ON DELETE CASCADE;
+
+--
 -- Name: company_identifiers company_identifiers_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4170,6 +4599,62 @@ ALTER TABLE ONLY public.workbook_views
     ADD CONSTRAINT workbook_views_workbook_id_fkey FOREIGN KEY (workbook_id) REFERENCES public.workbooks(id) ON DELETE CASCADE;
 
 --
+-- Name: workspace_member_permissions workspace_member_permissions_workspace_id_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_member_permissions
+    ADD CONSTRAINT workspace_member_permissions_workspace_id_user_id_fkey FOREIGN KEY (workspace_id, user_id) REFERENCES public.workspace_members(workspace_id, user_id);
+
+--
+-- Name: workspace_members workspace_members_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_members
+    ADD CONSTRAINT workspace_members_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspaces(id);
+
+--
+-- Name: workspace_oidc_identities workspace_oidc_identities_workspace_id_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_oidc_identities
+    ADD CONSTRAINT workspace_oidc_identities_workspace_id_user_id_fkey FOREIGN KEY (workspace_id, user_id) REFERENCES public.workspace_members(workspace_id, user_id);
+
+--
+-- Name: workspace_scim_group_members workspace_scim_group_members_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_scim_group_members
+    ADD CONSTRAINT workspace_scim_group_members_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.workspace_scim_groups(id) ON DELETE CASCADE;
+
+--
+-- Name: workspace_scim_groups workspace_scim_groups_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_scim_groups
+    ADD CONSTRAINT workspace_scim_groups_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspaces(id);
+
+--
+-- Name: workspace_scim_tokens workspace_scim_tokens_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_scim_tokens
+    ADD CONSTRAINT workspace_scim_tokens_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspaces(id);
+
+--
+-- Name: workspace_scim_users workspace_scim_users_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_scim_users
+    ADD CONSTRAINT workspace_scim_users_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspaces(id);
+
+--
+-- Name: workspace_settings workspace_settings_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workspace_settings
+    ADD CONSTRAINT workspace_settings_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspaces(id);
+
+--
 -- Name: audience_destinations; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -4198,6 +4683,24 @@ ALTER TABLE public.audiences ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.cell_traces ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: chat_conversations; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.chat_conversations ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: chat_messages; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: chat_tool_approvals; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.chat_tool_approvals ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: company_entities; Type: ROW SECURITY; Schema: public; Owner: -
@@ -4500,6 +5003,24 @@ CREATE POLICY workspace_isolation ON public.audiences USING (((workspace_id)::te
 CREATE POLICY workspace_isolation ON public.cell_traces USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
 
 --
+-- Name: chat_conversations workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.chat_conversations USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: chat_messages workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.chat_messages USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: chat_tool_approvals workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.chat_tool_approvals USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
 -- Name: company_entities workspace_isolation; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -4744,6 +5265,66 @@ CREATE POLICY workspace_isolation ON public.workbooks USING (((workspace_id)::te
 --
 
 CREATE POLICY workspace_isolation ON public.workspace_credits USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: workspace_member_permissions workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.workspace_member_permissions USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: workspace_scim_group_members workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.workspace_scim_group_members USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: workspace_scim_groups workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.workspace_scim_groups USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: workspace_scim_users workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.workspace_scim_users USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: workspace_settings workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.workspace_settings USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: workspace_member_permissions; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.workspace_member_permissions ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: workspace_scim_group_members; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.workspace_scim_group_members ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: workspace_scim_groups; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.workspace_scim_groups ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: workspace_scim_users; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.workspace_scim_users ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: workspace_settings; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.workspace_settings ENABLE ROW LEVEL SECURITY;
 
 --
 -- PostgreSQL database dump complete
