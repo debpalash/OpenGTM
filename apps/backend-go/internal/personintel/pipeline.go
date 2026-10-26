@@ -2,6 +2,7 @@ package personintel
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
@@ -32,9 +33,13 @@ type Deps struct {
 	// PyWorker runs the deep scrape (provider person_intel_deep). nil, or a
 	// nil *pyworker.Client, skips the deep phase with step deep_unavailable.
 	PyWorker Caller
-	// WorkspaceID is the RPC envelope workspace (person_intel itself is global).
+	// WorkspaceID is the RPC envelope workspace (person_intel itself is global). The worker rejects an empty
+	// one (422), so empty means DefaultWorkspaceID.
 	WorkspaceID string
 }
+
+// DefaultWorkspaceID is the envelope workspace of a deep scrape whose caller has no workspace.
+const DefaultWorkspaceID = "person-intel"
 
 const (
 	// DeepMaxPages bounds the pages handed to the deep scrape.
@@ -286,7 +291,7 @@ pick:
 		emit("scrape_progress", map[string]any{"url": u, "progress": strconv.Itoa(n+1) + "/" + strconv.Itoa(total)})
 		in, _ := json.Marshal(map[string]string{"url": u})
 		res, err := d.PyWorker.Call(dctx, pyworker.ProviderCall{
-			CallID: randomCallID(), Provider: "person_intel_deep", WorkspaceID: d.WorkspaceID,
+			CallID: randomCallID(), Provider: "person_intel_deep", WorkspaceID: cmp.Or(d.WorkspaceID, DefaultWorkspaceID),
 			Input: in, Timeout: deepPageTimeout,
 		})
 		switch {
