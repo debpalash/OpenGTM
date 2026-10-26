@@ -58,7 +58,7 @@ Flip one at a time, in this order, watching between steps (all default false):
 ## SMTP and IMAP credentials (plan 09 final security H1)
 
 - The platform's global/env `SMTP_EMAIL` and `SMTP_PASSWORD` (and `IMAP_USER`/`IMAP_PASSWORD`) are used **only with the global host and port**. A workspace that sets its own `SMTP_HOST` or `SMTP_PORT` must also have its own email and password; otherwise `smtp/status` is `configured:false`, `smtp/test` answers 400 `SMTP not configured: SMTP host or port is set ...`, and sends fail with that text (no dial). If a workspace complains after the upgrade, have its admin re-save the full SMTP config (`smtp_email` and `smtp_password` included). Python still has the old behaviour (issue #114), so the platform password stays reachable by a workspace admin until Python's `get_smtp_config` is fixed: do not enable a global `SMTP_PASSWORD` on multi-tenant installs that route any traffic to Python.
-- A global IMAP mailbox is polled by every workspace without IMAP settings of its own, and those pollers mark each other's bounce mail seen: give each workspace its own IMAP settings, or keep global IMAP for single-tenant installs.
+- A global IMAP mailbox (host and port from the global/env settings) is polled once at a time (Postgres advisory lock) and every message is routed to the workspace that owns the send it cites, so workspaces without IMAP settings of their own no longer steal each other's bounces. Python still polls it once per workspace (issue #114): while Python runs the inbound poll, keep global IMAP off or single-tenant.
 
 ## Rate-limit keys (all plans)
 
