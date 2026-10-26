@@ -44,7 +44,7 @@ var errSkipScheduled = errors.New("retention: no enabled policy; scheduled job s
 // payload is trusted on its own: the job's own fire_key must be exactly
 // retention:<ws>:<date> and name the payload's workspace. A run_id in the payload is the
 // reconcile step's link after a failed attempt: it must name an unfinished
-// (pending/running) scheduler-requested run in that workspace, read inside that tenant.
+// (pending, running or failed: Enforce marks a run failed itself and Python re-runs anything not completed or cancelled) scheduler-requested run in that workspace, read inside that tenant.
 // Without a run_id the workspace's policy must exist and be enabled, else errSkipScheduled.
 func verifyScheduled(ctx context.Context, d Deps, jobID int64, ws, runID string) error {
 	var fk *string
@@ -70,7 +70,7 @@ func verifyScheduled(ctx context.Context, d Deps, jobID int64, ws, runID string)
 			if err != nil {
 				return err
 			}
-			if run.RequestedBy.String != "scheduler" || (run.Status != "pending" && run.Status != "running") {
+			if run.RequestedBy.String != "scheduler" || (run.Status != "pending" && run.Status != "running" && run.Status != "failed") {
 				verr = fmt.Errorf("retention job %d: run_id is not an unfinished scheduler run", jobID)
 			}
 			return nil
