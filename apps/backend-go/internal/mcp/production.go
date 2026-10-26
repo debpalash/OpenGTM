@@ -24,7 +24,7 @@ import (
 )
 
 // NewProductionDeps wires the production ports over pool (a runtime, non-superuser
-// role). Outreach and Automation stay nil until plans 08 and 09 provide
+// role). Outreach and Automation stay nil until plans 08 (automations) and 09 (outreach) provide
 // adapters: their tools answer "not available in this build" (D9).
 func NewProductionDeps(cfg Config, pool *pgxpool.Pool, py *pyworker.Client, verify emailverify.Deps) Deps {
 	return Deps{

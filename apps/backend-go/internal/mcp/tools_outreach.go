@@ -25,7 +25,7 @@ const (
 var sendLeadFields = []string{"email", "company", "contact_person", "contact_title", "city", "website", "phone"}
 
 // outreachWriteTools returns enroll_leads and send_email. Both run against
-// Deps.Outreach (plan 08, D9); with no adapter they answer
+// Deps.Outreach (plan 09, D9); with no adapter they answer
 // "<tool> is not available in this build".
 func outreachWriteTools(d Deps) []WriteTool {
 	return []WriteTool{

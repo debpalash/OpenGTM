@@ -55,7 +55,7 @@ the Host/Origin loopback check is skipped too, so put a reverse proxy with TLS i
 
 - Plan 06 deployed and `PY_WORKER_URL` reachable: without it `enrich_company`, `get_hiring_signals` and
   `score_lead` answer an enrichment-backend error. `verify_email` runs in Go (cascade, optional Reacher).
-- Plans 08 (outreach) and 09 (automations) provide the adapters for `enroll_leads`, `send_email` and
+- Plans 08 (automations) and 09 (outreach) provide the adapters for `enroll_leads`, `send_email` and
   `create_automation`. Until they land these three answer `{"error": "<tool> is not available in this build"}`.
   Deployments that use them must keep the Python MCP server (or at least those clients) until then.
 - Plans 04/05 (lead writes and reads) and the workbook CRUD (`create_workbook`, `delete_workbook`) are in Go.
@@ -69,7 +69,7 @@ the Host/Origin loopback check is skipped too, so put a reverse proxy with TLS i
 3. SSE service swap: replace the unit running `python -m apps.mcp.server --sse` with `opengtm-mcp --sse 3100`
    on the same host and port; clients keep their URL and bearer token.
 4. Watch `mcp_audit_log` (cost-bearing read tools are audited now: `ok`/`error`/`capped`) and stderr.
-5. Enable `MCP_WRITE_ENABLED=true` last, after read traffic has been clean; then `AUTOMATIONS_ENABLED` once plan 09
+5. Enable `MCP_WRITE_ENABLED=true` last, after read traffic has been clean; then `AUTOMATIONS_ENABLED` once plan 08
    is in.
 
 ## Rollback

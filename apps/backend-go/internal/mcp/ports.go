@@ -277,7 +277,7 @@ type SendResult struct {
 	Status, Summary, SkipReason, Error string
 }
 
-// OutreachPort is the plan 08 outreach store and send queue (D9).
+// OutreachPort is the plan 09 outreach store and send queue (D9).
 type OutreachPort interface {
 	SequenceExists(ctx context.Context, tx pgx.Tx, ws, seqID string) (bool, error)
 	IsSuppressed(ctx context.Context, tx pgx.Tx, ws, email string) (bool, error)
@@ -301,7 +301,7 @@ type RuleInput struct {
 	CreatedBy         *int32
 }
 
-// AutomationPort is the plan 07 trigger store (D9). ValidateRule returns
+// AutomationPort is the plan 08 trigger store (D9). ValidateRule returns
 // *HTTPError for a REST-style rejection; CreateTrigger returns the stored rule
 // as an ordered JSON object (Trigger.to_api). BootstrapSchedule is a best-effort
 // post-commit hook (Python runs it after the commit and swallows errors): the
