@@ -358,3 +358,50 @@ func TestResolveNeverLogsToken(t *testing.T) {
 		}
 	}
 }
+
+func TestResolveIdentityTxPathAndFallback(t *testing.T) {
+	e := newAuthEnv(t)
+	ctx := context.Background()
+	uid := e.user(t, "u7")
+	ws := e.workspace(t, "wsi", &uid, "")
+	raw := "ycp_idtx_" + e.sfx
+	e.token(t, "idtx", raw, ws, uid, []string{"leads:read"}, nil, nil)
+
+	// IdentityTx wired: used, InWorkspace never called, no GUC set.
+	d := e.d
+	called, guc := 0, "unset"
+	d.InWorkspace = func(context.Context, string, func(pgx.Tx) error) error {
+		t.Fatal("InWorkspace must not be used when IdentityTx is set")
+		return nil
+	}
+	d.IdentityTx = func(ctx context.Context, fn func(pgx.Tx) error) error {
+		called++
+		tx, err := e.pool.Begin(ctx)
+		if err != nil {
+			return err
+		}
+		defer func() { _ = tx.Rollback(ctx) }()
+		_ = tx.QueryRow(ctx, `SELECT coalesce(current_setting('app.workspace_id', true), '')`).Scan(&guc)
+		if err := fn(tx); err != nil {
+			return err
+		}
+		return tx.Commit(ctx)
+	}
+	c, err := Resolve(ctx, d, raw)
+	if err != nil || c.WorkspaceID != ws || called != 1 || guc != "" {
+		t.Fatalf("identity path: %+v err=%v called=%d guc=%q", c, err, called, guc)
+	}
+	d.Cfg.RequireAuth = false
+	if _, err := Resolve(ctx, d, ""); err != nil || called != 2 {
+		t.Fatalf("keyless identity path: %v called=%d", err, called)
+	}
+
+	// IdentityTx nil: falls back to InWorkspace.
+	d2 := e.d
+	fb := 0
+	inner := d2.InWorkspace
+	d2.InWorkspace = func(ctx context.Context, w string, fn func(pgx.Tx) error) error { fb++; return inner(ctx, w, fn) }
+	if c, err := Resolve(ctx, d2, raw); err != nil || c.WorkspaceID != ws || fb != 1 {
+		t.Fatalf("fallback: %+v err=%v fb=%d", c, err, fb)
+	}
+}

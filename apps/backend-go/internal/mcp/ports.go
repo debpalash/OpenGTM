@@ -323,6 +323,12 @@ type Deps struct {
 	// answers ErrUnavailable. Tests use nilTxRunner (fn gets a nil tx).
 	InWorkspace func(ctx context.Context, ws string, fn func(pgx.Tx) error) error
 
+	// IdentityTx runs fn in a transaction WITHOUT setting app.workspace_id, for
+	// the identity plane (mcp_tokens, workspaces, workspace_members,
+	// app_settings: no RLS). Optional; when nil, token resolution falls back to
+	// InWorkspace with a placeholder id.
+	IdentityTx func(ctx context.Context, fn func(pgx.Tx) error) error
+
 	Cfg        Config
 	Leads      LeadPort
 	Enrich     EnrichPort

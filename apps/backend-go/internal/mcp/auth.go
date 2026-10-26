@@ -21,10 +21,18 @@ type AuthError struct{ Msg string }
 
 func (e *AuthError) Error() string { return e.Msg }
 
-// identityPlaneWS opens the transaction for the token and identity-plane reads:
-// mcp_tokens, workspaces, workspace_members and app_settings carry no RLS, so
-// the value only has to be non-empty; it never names a tenant.
+// identityPlaneWS is the fallback placeholder used only when Deps.IdentityTx is
+// nil: the identity-plane tables carry no RLS, so it never names a tenant.
 const identityPlaneWS = "mcp-identity-plane"
+
+// runIdentity runs fn on the identity plane: Deps.IdentityTx when wired (no
+// tenant GUC), else Deps.InWorkspace with the placeholder id.
+func (d Deps) runIdentity(ctx context.Context, fn func(pgx.Tx) error) error {
+	if d.IdentityTx != nil {
+		return d.IdentityTx(ctx, fn)
+	}
+	return d.RunInWorkspace(ctx, identityPlaneWS, fn)
+}
 
 // now is replaceable by tests.
 var now = time.Now
@@ -72,7 +80,7 @@ func Resolve(ctx context.Context, d Deps, raw string) (Ctx, error) {
 
 	var out Ctx
 	var refusal *AuthError
-	err := d.RunInWorkspace(ctx, identityPlaneWS, func(tx pgx.Tx) error {
+	err := d.runIdentity(ctx, func(tx pgx.Tx) error {
 		q := gen.New(tx)
 		tok, err := q.McpAuthTokenByHash(ctx, hash)
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -144,7 +152,7 @@ func Resolve(ctx context.Context, d Deps, raw string) (Ctx, error) {
 // workspace whose slug is "main"; read capabilities only; no user.
 func resolveKeyless(ctx context.Context, d Deps) (Ctx, error) {
 	var out Ctx
-	err := d.RunInWorkspace(ctx, identityPlaneWS, func(tx pgx.Tx) error {
+	err := d.runIdentity(ctx, func(tx pgx.Tx) error {
 		q := gen.New(tx)
 		ws, err := q.GetAppSetting(ctx, "ACTIVE_WORKSPACE")
 		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
