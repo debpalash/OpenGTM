@@ -611,3 +611,34 @@ python3 scripts/contract_record.py --base http://127.0.0.1:8417 --out ../../apps
 ```
 
 Profiles: `default` (signature policy optional, full manifest dir), `catalog_ok` (`--exclude contract_badname.yaml`), `required` (`--policy required`). Vendor transcripts: `uv run python scripts/record_vendor_transcripts.py`. Vectors: `DATABASE_URL=<any opengtm_* db at head> uv run python scripts/gen_connector_vectors.py`. Check: `uv run python scripts/contract_record.py --cases scripts/contract_cases/connectors.yaml --check` (complete and byte-identical). Drop the temporary database and role and stop the server afterwards. The fake-vendor server pins the certification clock (2026-09-01T12:00:00Z), the export filename clock and the run/workbook ids created by `POST /imports`; fixtures depend on the seed and case order.
+
+## Cell run route (plan 06 Task 25): deviations
+
+`POST /api/workbooks/{id}/rows/{row_id}/cells/{col_id}/run` (editor, 120/min) runs one cell in the request through `workbook.EnrichCell`, the same cell code as the queued `run_workbook` executor with no lease (Python's `enrich_cell` has no batch owner here either, so there is no fence and no Redis broadcast). The 17 `cellrun` fixtures replay byte for byte.
+
+- **Output columns stay on Python.** nginx cannot route on the request body or the column type, so the request reaches Go and, for an `output` column that really has to run, is forwarded unchanged (method, path, query, headers, body) to `PYTHON_API_URL` and the Python answer (status, headers, body) is relayed unchanged. A complete `output` cell without `force` (run-once guard) is answered in Go (`skipped: true`, no side effect); `output_identity_requires_review` likewise. `PYTHON_API_URL` unset or unreachable answers 502 `{"detail":"Python API is not configured"|"Python API unavailable"}` (Go-only). The same proxy serves what Go does not execute in-request: waterfall/enrichment columns with `verify` on an email target (the verification cascade), and `agent` columns with paid tools or without a Python worker.
+- **Paid providers reserve spend (Python does not).** Python calls providers unguarded here (`execution` is None) and bumps `budget_spent_usd` afterwards. Go reserves, dispatches and settles a spend attempt exactly like the queued run. The attempt key and run id are those of the workbook's live (processing, else newest pending) `run_workbook` job, so a cell run racing that job on the same cell (same contract) pays and calls the provider once; the loser sees the settled replay or `attempt_not_dispatchable`. Without a live job the cell gets its own run id (`cell:<unix-nano>`), so re-running a cell later is a fresh call. If a live job exists and the row changed since, the contract hash differs and the cell answers `contract_conflict`.
+- **Cancellation.** The request context cancels the run: a paid call in flight leaves its attempt `uncertain` and no cell is written (the answer is 499, nobody reads it). Python would finish the cell.
+- **Legacy rows.** A v1 `leads_filter` workbook without stored rows resolves `row_id` as a lead id inside its filter (404 `Row not found`); any workbook with rows, or a v2 workbook, answers 404 `Workbook row not found`. Write-back to the linked lead applies to the lead itself, as in Python.
+- **Body.** `{"force": ...}` is validated like pydantic (lax bool); no body is the default request. A failed cell answers 200 with `status: "error"`; a cell that crashes (Python: 500) is persisted as `cell_execution_failed` and answered 200 with that error.
+- **Credentials/egress.** API-side provider runs use the workspace-scoped settings resolver (no envelope: no credentials, keyed providers skip as "not configured") and `EGRESS_ALLOW_HOSTS` for the Reacher operator client.
+
+## Run route (Task 24): deviations
+
+`POST /api/workbooks/{id}/run` (fixtures `run/*`, billing profile replayed in recorded order by `TestRunBillingFixturesChain`).
+- Atomicity (D4): the plan (`runplan.Build`), the platform debit (`run:<run_id>@ws:<workspace>`), the `running` status flip,
+  the supersede of the workbook's in-flight `run_workbook` job and the enqueue are ONE workspace transaction. FastAPI commits
+  the debit first, so an enqueue failure loses the credits. A 402 or any later failure writes nothing. The workbook row is locked
+  `FOR UPDATE`, so concurrent runs of one workbook serialize. The job's `executor` is the plan's (`go` only for a cohort
+  workspace with an eligible run); `jobs.fire_key` stays NULL.
+- Billing is not consulted at all (not even a balance read) unless `BILLING_ENABLED` and the projected platform cost is above 0.
+- 402 amounts are written with Python's float spelling (`10.0`); a non-finite amount (billing treats `Inf` as insufficient) is
+  clamped to the largest finite float64 (NaN to 0) instead of failing to encode.
+- Request body limit 4 MiB (413 `Request body too large`); FastAPI has none.
+- 20/minute limit (`ratelimit.Limiter`, key = workspace header, then token, then IP) sits after authentication and the role gate;
+  `cmd/api` now always sets `Deps.Limiter`.
+- `GO_EXECUTOR_COLUMN_TYPES` (formula, http, ai_formula, research, agent; unknown names ignored): a non-empty set also lifts
+  runplan's column-reference and structured-target hand-backs (the Go executor orders referenced columns), so it widens the
+  cohort's eligible runs beyond the listed types. `WORKBOOK_RUN_CONCURRENCY` that is not a positive integer falls back to 12.
+- `cmd/api` calls `api.WireRunPlan` (`runplan.Wire`: vendor catalog, research flag, billing cost catalog) once before routes register.
+- Not covered by a fixture replay: `run_v1_legacy` (needs the lead plane; planner-level test in `internal/runplan`).
