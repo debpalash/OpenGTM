@@ -1,6 +1,9 @@
 package config
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestConfigWorkbookFlagsDefaults(t *testing.T) {
 	c, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test"}))
@@ -51,5 +54,27 @@ func TestConfigFilesAPIModeValidation(t *testing.T) {
 	}
 	if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "PG_LEAD_STORE": "maybe"})); err == nil {
 		t.Error("bad PG_LEAD_STORE accepted")
+	}
+}
+
+func TestConfigSSEAndRedis(t *testing.T) {
+	c, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.SSEMaxStreams != 1000 || c.RedisURL != "" {
+		t.Errorf("defaults = %d %q", c.SSEMaxStreams, c.RedisURL)
+	}
+	c, err = loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "SSE_MAX_STREAMS": "5", "REDIS_URL": "redis://:pw-secret@h:6379/0"}))
+	if err != nil || c.SSEMaxStreams != 5 || c.RedisURL == "" {
+		t.Fatalf("parsed = %v %+v", err, c)
+	}
+	if s := c.String(); strings.Contains(s, "pw-secret") {
+		t.Error("REDIS_URL password leaked in String()")
+	}
+	for _, bad := range []string{"0", "-1", "x"} {
+		if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "SSE_MAX_STREAMS": bad})); err == nil {
+			t.Errorf("SSE_MAX_STREAMS=%q accepted", bad)
+		}
 	}
 }
