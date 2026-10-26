@@ -1,7 +1,12 @@
 package pyworker
 
 import (
+	"bufio"
 	"context"
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"sync"
 	"errors"
 	"io"
 	"net/http"
@@ -42,7 +47,7 @@ func TestStreamReadsFramesInOrder(t *testing.T) {
 		ndjson(`{"t":"sse","seq":1,"d":{"a":"é"}}`,
 			`{"t":"persist","seq":2,"role":"tool","content":"c","tool_data":"{}"}`,
 			``,
-			`{"t":"tool_calls","d":[1],"cursor":3}`,
+			`{"t":"content","d":"x"}`,
 			`{"t":"unknown_future","x":1}`,
 			`{"t":"error","message":"boom"}`)(w, r)
 	}))
@@ -62,7 +67,7 @@ func TestStreamReadsFramesInOrder(t *testing.T) {
 	if fr[1].Role == nil || *fr[1].Role != "tool" || *fr[1].Content != "c" || *fr[1].ToolData != "{}" {
 		t.Fatalf("persist %+v", fr[1])
 	}
-	if fr[2].Cursor == nil || *fr[2].Cursor != 3 || fr[3].T != "unknown_future" || fr[4].Message != "boom" {
+	if fr[2].T != "content" || fr[3].T != "unknown_future" || fr[4].Message != "boom" {
 		t.Fatalf("frames %+v", fr)
 	}
 	if auth.Load() != "Bearer "+testToken || path.Load() != "/internal/copilot/llm" || ctype.Load() != "application/json" {
@@ -422,5 +427,119 @@ func TestNoGoroutineLeakAfterClose(t *testing.T) {
 	}
 	if after := runtime.NumGoroutine(); after > before+2 {
 		t.Fatalf("goroutines %d -> %d", before, after)
+	}
+}
+
+func TestStreamToolCallsIsTerminalWithCursor(t *testing.T) {
+	srv := httptest.NewServer(ndjson(`{"t":"content","d":"a"}`, `{"t":"tool_calls","d":[{"id":"c"}],"cursor":2}`))
+	defer srv.Close()
+	s, _ := New(srv.URL, testToken, nil).Stream(context.Background(), "/internal/copilot/llm", struct{}{})
+	defer s.Close()
+	fr, err := drain(s)
+	if err != io.EOF || len(fr) != 2 || fr[1].T != "tool_calls" || fr[1].Cursor == nil || *fr[1].Cursor != 2 {
+		t.Fatalf("%v %+v", err, fr)
+	}
+}
+
+func TestStreamProviderDone(t *testing.T) {
+	srv := httptest.NewServer(ndjson(`{"t":"done","cursor":1,"provider_done":false}`))
+	defer srv.Close()
+	s, _ := New(srv.URL, testToken, nil).Stream(context.Background(), "/internal/copilot/llm", struct{}{})
+	fr, _ := drain(s)
+	if len(fr) != 1 || fr[0].ProviderDone == nil || *fr[0].ProviderDone {
+		t.Fatalf("%+v", fr)
+	}
+	srv2 := httptest.NewServer(ndjson(`{"t":"done","cursor":1}`))
+	defer srv2.Close()
+	s2, _ := New(srv2.URL, testToken, nil).Stream(context.Background(), "/internal/copilot/llm", struct{}{})
+	fr, _ = drain(s2)
+	if len(fr) != 1 || fr[0].ProviderDone != nil {
+		t.Fatalf("%+v", fr)
+	}
+}
+
+func TestStreamRecordedFrames(t *testing.T) {
+	files, _ := filepath.Glob("../../testdata/copilot/frames/*.ndjson")
+	if len(files) == 0 {
+		t.Fatal("no recorded frame files")
+	}
+	checked := 0
+	for _, f := range files {
+		fh, err := os.Open(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		sc := bufio.NewScanner(fh)
+		sc.Buffer(make([]byte, 1<<20), 16<<20)
+		for sc.Scan() {
+			var rec struct {
+				RPC    string            `json:"rpc"`
+				Status int               `json:"status"`
+				Frames []json.RawMessage `json:"frames"`
+			}
+			if json.Unmarshal(sc.Bytes(), &rec) != nil || rec.Status != 200 || len(rec.Frames) == 0 || (rec.RPC != "llm" && rec.RPC != "preroute") {
+				continue
+			}
+			lines := make([]string, len(rec.Frames))
+			for i, fr := range rec.Frames {
+				lines[i] = string(fr)
+			}
+			srv := httptest.NewServer(ndjson(lines...))
+			s, err := New(srv.URL, testToken, nil).Stream(context.Background(), "/internal/copilot/"+rec.RPC, struct{}{})
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, err := drain(s)
+			s.Close()
+			srv.Close()
+			if err != io.EOF || len(got) != len(rec.Frames) {
+				t.Fatalf("%s %s: err=%v got %d want %d", f, rec.RPC, err, len(got), len(rec.Frames))
+			}
+			checked++
+		}
+		fh.Close()
+	}
+	if checked < 10 {
+		t.Fatalf("only %d recorded streams checked", checked)
+	}
+}
+
+func TestStreamEightMiBFrameAccepted(t *testing.T) {
+	line := `{"t":"content","d":"` + strings.Repeat("a", 8<<20) + `"}`
+	srv := httptest.NewServer(ndjson(line, `{"t":"done"}`))
+	defer srv.Close()
+	s, _ := New(srv.URL, testToken, nil).Stream(context.Background(), "/internal/copilot/llm", struct{}{})
+	defer s.Close()
+	if fr, err := drain(s); err != io.EOF || len(fr) != 2 {
+		t.Fatalf("%v %d", err, len(fr))
+	}
+}
+
+func TestStreamDefaultCapsCoverPython(t *testing.T) {
+	if maxFrameBytes < 8<<20+1024 || maxStreamBytes < 9<<20-1 || maxStreamBytes > 16<<20 || maxStreamFrames < 20000 || maxStreamFrames > 25000 {
+		t.Fatalf("caps %d %d %d", maxFrameBytes, maxStreamBytes, maxStreamFrames)
+	}
+}
+
+func TestStreamCloseConcurrentWithBlockedNext(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"t":"sse","seq":1,"d":1}` + "\n"))
+		w.(http.Flusher).Flush()
+		<-r.Context().Done()
+	}))
+	defer srv.Close()
+	s, _ := New(srv.URL, testToken, nil).Stream(context.Background(), "/internal/copilot/llm", struct{}{})
+	if _, err := s.Next(); err != nil {
+		t.Fatal(err)
+	}
+	res := make(chan error, 1)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() { defer wg.Done(); _, err := s.Next(); res <- err }()
+	time.Sleep(100 * time.Millisecond)
+	s.Close()
+	wg.Wait()
+	if err := <-res; !errors.Is(err, ErrClosed) {
+		t.Fatalf("want ErrClosed, got %v", err)
 	}
 }
