@@ -24,6 +24,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/mcp"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
 const defaultSSEPort = 3100
@@ -118,7 +119,16 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 		return nil, err
 	}
 	py := pyworker.New(get("PY_WORKER_URL"), get("PY_WORKER_TOKEN"), nil)
-	verify := emailverify.NewLive(liveConfig(pool, get, py))
+	envelope, err := secrets.NewEnvelope(secrets.Config{
+		Provider: strings.ToLower(strings.TrimSpace(get("SECRETS_PROVIDER"))), MasterKey: get("SECRETS_MASTER_KEY"),
+		SecretKey: get("SECRET_KEY"), AppEnv: get("APP_ENV"),
+		VaultAddr: get("VAULT_ADDR"), VaultToken: get("VAULT_TOKEN"), VaultTokenFile: get("VAULT_TOKEN_FILE"),
+		VaultTransitKey: get("VAULT_TRANSIT_KEY"), VaultNamespace: get("VAULT_NAMESPACE"), VaultCACert: get("VAULT_CACERT"),
+	}, nil)
+	if err != nil {
+		return nil, fmt.Errorf("secrets envelope: %w", err)
+	}
+	verify := emailverify.NewLive(liveConfig(pool, get, py, secrets.NewResolver(envelope, secrets.NewPgStore(pool), get)))
 	deps := mcp.NewProductionDeps(cfg, pool, py, verify)
 	var reg mcp.Registry
 	if err := func() (e error) {
@@ -135,12 +145,20 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 	return &runtime{deps: deps, srv: mcp.NewServer(deps, reg), close: pool.Close}, nil
 }
 
-// liveConfig is the email cascade wiring. Reacher settings, API keys and the
-// egress allow-list are OPERATOR config read from the environment, never from a
-// workspace: a tenant must not be able to aim REACHER_URL at an internal host.
-// The HTTP client is the operator egress client (EGRESS_ALLOW_HOSTS exact
-// host[:port] entries skip the private-IP block; everything else is vetted).
-func liveConfig(pool *pgxpool.Pool, get func(string) string, py *pyworker.Client) emailverify.LiveConfig {
+// secretGetter resolves one credential or setting (secrets.Resolver.Get):
+// workspace, then global (app_settings), then env. ws == "" skips the workspace level.
+type secretGetter interface {
+	Get(ctx context.Context, ws, key string) (value, source string, err error)
+}
+
+// liveConfig is the email cascade wiring. API keys and REACHER_ENABLED resolve
+// per workspace through sec; REACHER_URL and REACHER_TIMEOUT are global-only (a
+// tenant must not be able to aim the verifier at an internal host). A lookup or
+// decrypt failure is an error (Keys) or leaves Reacher disabled (settings): there
+// is no fallback to the environment on failure. The HTTP client is the operator
+// egress client (EGRESS_ALLOW_HOSTS exact host[:port] entries skip the
+// private-IP block; everything else is vetted).
+func liveConfig(pool *pgxpool.Pool, get func(string) string, py *pyworker.Client, sec secretGetter) emailverify.LiveConfig {
 	var allow []string
 	for _, h := range strings.Split(get("EGRESS_ALLOW_HOSTS"), ",") {
 		if h = strings.TrimSpace(h); h != "" {
@@ -153,15 +171,30 @@ func liveConfig(pool *pgxpool.Pool, get func(string) string, py *pyworker.Client
 		EgressAllow: allow,
 		HTTP:        egress.NewOperatorClient(allow),
 		Py:          py,
-		Keys: func(_ context.Context, _, envVar string) (string, error) {
-			return get(envVar), nil
+		Keys: func(ctx context.Context, ws, envVar string) (string, error) {
+			v, _, err := sec.Get(ctx, ws, envVar)
+			if err != nil {
+				return "", err
+			}
+			return v, nil
 		},
-		ReacherSettings: func(context.Context, string) map[string]any {
+		ReacherSettings: func(ctx context.Context, ws string) map[string]any {
 			out := map[string]any{}
-			for _, k := range []string{"REACHER_URL", "REACHER_ENABLED", "REACHER_TIMEOUT"} {
-				if v := get(k); v != "" {
+			for _, k := range []string{"REACHER_URL", "REACHER_TIMEOUT"} {
+				v, _, err := sec.Get(ctx, "", k)
+				if err != nil {
+					return map[string]any{} // fail closed: Reacher stays off
+				}
+				if v != "" {
 					out[k] = v
 				}
+			}
+			v, _, err := sec.Get(ctx, ws, "REACHER_ENABLED")
+			if err != nil {
+				return map[string]any{}
+			}
+			if v != "" {
+				out["REACHER_ENABLED"] = v
 			}
 			return out
 		},
