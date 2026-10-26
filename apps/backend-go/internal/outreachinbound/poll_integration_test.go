@@ -1133,3 +1133,22 @@ func TestPollRejectsPayloadWorkspaceMismatch(t *testing.T) {
 		t.Fatalf("err=%v connects=%d", err, fc.connects)
 	}
 }
+
+// Review follow-up M1: the dedupe is over the whole ledger, not a bounded window. 600 forged DSNs naming
+// another recipient must not push the first genuine report out of it.
+func TestBreakerDedupeSurvivesLedgerFlood(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	ws := newWS(t, pool)
+	s := seedSend(t, pool, ws, "gone@example.com", "<ours-flood@sender.example>", 1)
+	process(t, pool, ws, "1", dsn("<real-0@mx.example>", "<ours-flood@sender.example>", "gone@example.com", "5.1.1", "550 user unknown"))
+	for i := 0; i < 600; i++ {
+		process(t, pool, ws, strconv.Itoa(100+i), dsn(fmt.Sprintf("<flood-%d@mx.example>", i), "<ours-flood@sender.example>",
+			fmt.Sprintf("other%d@example.org", i%7), "5.1.1", "550 user unknown"))
+	}
+	for i := 0; i < 3; i++ {
+		process(t, pool, ws, strconv.Itoa(1000+i), dsn(fmt.Sprintf("<repeat-%d@mx.example>", i), "<ours-flood@sender.example>", "gone@example.com", "5.1.1", "550 user unknown"))
+	}
+	if b, _ := seqCounts(t, pool, ws, s.seq); b != 1 {
+		t.Fatalf("bounce_count %d, want 1", b)
+	}
+}

@@ -44,10 +44,11 @@ ON CONFLICT (workspace_id) DO UPDATE SET
 UPDATE outreach_inbound_schedules SET enabled = false, next_poll_at = NULL, updated_at = now()
 WHERE workspace_id = sqlc.arg(workspace_id)::text;
 
--- name: OutreachInboundRecipientsForSend :many
--- Recipients already recorded for one send and kind (breaker de-dup, plan 09 final M1). Bounded.
-SELECT COALESCE(recipient, '')::text AS recipient
+-- name: OutreachInboundRecipientCountsForSend :many
+-- Ledger rows already recorded for one send and kind, grouped by recipient spelling (breaker de-dup, plan 09 final M1).
+-- Unbounded on purpose: the group count is the number of distinct spellings, never the number of rows.
+SELECT lower(btrim(COALESCE(recipient, '')))::text AS recipient, count(*)::int AS n
 FROM outreach_inbound_messages
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND matched_send_id = sqlc.arg(matched_send_id)::int
   AND kind = sqlc.arg(kind)::text
-ORDER BY id LIMIT 500;
+GROUP BY 1;

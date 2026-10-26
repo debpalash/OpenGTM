@@ -22,34 +22,40 @@ func (q *Queries) OutreachInboundCount(ctx context.Context, workspaceID string) 
 	return column_1, err
 }
 
-const outreachInboundRecipientsForSend = `-- name: OutreachInboundRecipientsForSend :many
-SELECT COALESCE(recipient, '')::text AS recipient
+const outreachInboundRecipientCountsForSend = `-- name: OutreachInboundRecipientCountsForSend :many
+SELECT lower(btrim(COALESCE(recipient, '')))::text AS recipient, count(*)::int AS n
 FROM outreach_inbound_messages
 WHERE workspace_id = $1::text AND matched_send_id = $2::int
   AND kind = $3::text
-ORDER BY id LIMIT 500
+GROUP BY 1
 `
 
-type OutreachInboundRecipientsForSendParams struct {
+type OutreachInboundRecipientCountsForSendParams struct {
 	WorkspaceID   string
 	MatchedSendID int32
 	Kind          string
 }
 
-// Recipients already recorded for one send and kind (breaker de-dup, plan 09 final M1). Bounded.
-func (q *Queries) OutreachInboundRecipientsForSend(ctx context.Context, arg OutreachInboundRecipientsForSendParams) ([]string, error) {
-	rows, err := q.db.Query(ctx, outreachInboundRecipientsForSend, arg.WorkspaceID, arg.MatchedSendID, arg.Kind)
+type OutreachInboundRecipientCountsForSendRow struct {
+	Recipient string
+	N         int32
+}
+
+// Ledger rows already recorded for one send and kind, grouped by recipient spelling (breaker de-dup, plan 09 final M1).
+// Unbounded on purpose: the group count is the number of distinct spellings, never the number of rows.
+func (q *Queries) OutreachInboundRecipientCountsForSend(ctx context.Context, arg OutreachInboundRecipientCountsForSendParams) ([]OutreachInboundRecipientCountsForSendRow, error) {
+	rows, err := q.db.Query(ctx, outreachInboundRecipientCountsForSend, arg.WorkspaceID, arg.MatchedSendID, arg.Kind)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []string
+	var items []OutreachInboundRecipientCountsForSendRow
 	for rows.Next() {
-		var recipient string
-		if err := rows.Scan(&recipient); err != nil {
+		var i OutreachInboundRecipientCountsForSendRow
+		if err := rows.Scan(&i.Recipient, &i.N); err != nil {
 			return nil, err
 		}
-		items = append(items, recipient)
+		items = append(items, i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

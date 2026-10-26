@@ -103,15 +103,15 @@ func countsForBreaker(ctx context.Context, tx pgx.Tx, a BounceApply) (bool, erro
 	if a.SendID == nil {
 		return true, nil
 	}
-	rs, err := gen.New(tx).OutreachInboundRecipientsForSend(ctx, gen.OutreachInboundRecipientsForSendParams{
+	rs, err := gen.New(tx).OutreachInboundRecipientCountsForSend(ctx, gen.OutreachInboundRecipientCountsForSendParams{
 		WorkspaceID: a.WorkspaceID, MatchedSendID: *a.SendID, Kind: a.Kind})
 	if err != nil {
 		return false, fmt.Errorf("outreachstore: prior bounces: %w", err)
 	}
 	n := 0
 	for _, r := range rs {
-		if r == "" || sameMailbox(r, a.ToEmail) {
-			n++
+		if r.Recipient == "" || sameMailbox(r.Recipient, a.ToEmail) {
+			n += int(r.N)
 		}
 	}
 	return n <= 1, nil // the caller's own ledger row is one of them
