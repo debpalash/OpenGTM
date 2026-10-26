@@ -1,6 +1,7 @@
 package audit_test
 
 import (
+	"encoding/json"
 	"reflect"
 	"strings"
 	"testing"
@@ -61,5 +62,57 @@ func TestSafeMetadataBoundsCounts(t *testing.T) {
 	}
 	if got := audit.SafeMetadata([]string{"a", "b"}, 0); !reflect.DeepEqual(got, []any{"a", "b"}) {
 		t.Errorf("[]string: %v", got)
+	}
+}
+
+type inner struct {
+	APIToken string
+	Name     string
+}
+
+type outer struct {
+	Child inner
+	Note  string `json:"note"`
+}
+
+func TestSafeMetadataTypedContainersAreRedacted(t *testing.T) {
+	in := map[string]any{
+		"a": map[string]string{"api_token": "SECRETVAL", "ok": "1"},
+		"b": []map[string]any{{"password": "SECRETVAL", "x": 1}},
+		"c": map[string][]string{"k": {"v"}, "cookie": {"SECRETVAL"}},
+		"d": outer{Child: inner{APIToken: "SECRETVAL", Name: "n"}, Note: "hi"},
+		"e": &inner{APIToken: "SECRETVAL", Name: "p"},
+		"f": map[int]string{1: "one"},
+		"g": [2]map[string]int{{"secret": 1, "keep": 2}},
+	}
+	out := audit.SafeMetadata(in, 0)
+	raw, _ := json.Marshal(out)
+	if strings.Contains(string(raw), "SECRETVAL") || strings.Contains(strings.ToLower(string(raw)), "token") {
+		t.Fatalf("secret survived: %s", raw)
+	}
+	m := out.(map[string]any)
+	if m["a"].(map[string]any)["ok"] != "1" {
+		t.Errorf("a: %v", m["a"])
+	}
+	if m["b"].([]any)[0].(map[string]any)["x"] != 1 {
+		t.Errorf("b: %v", m["b"])
+	}
+	items := m["d"].(map[string]any)["Child"].(map[string]any)
+	if items["Name"] != "n" || m["d"].(map[string]any)["note"] != "hi" {
+		t.Errorf("d: %v", m["d"])
+	}
+	if m["e"].(map[string]any)["Name"] != "p" || m["f"].(map[string]any)["1"] != "one" {
+		t.Errorf("e/f: %v %v", m["e"], m["f"])
+	}
+	if m["g"].([]any)[0].(map[string]any)["keep"] != 2 {
+		t.Errorf("g: %v", m["g"])
+	}
+}
+
+func TestSafeMetadataTypedDepthCap(t *testing.T) {
+	deep := map[string]map[string]map[string]map[string]map[string]string{"a": {"b": {"c": {"d": {"e": "x"}}}}}
+	raw, _ := json.Marshal(audit.SafeMetadata(deep, 0))
+	if !strings.Contains(string(raw), "[truncated]") || strings.Contains(string(raw), `"e"`) {
+		t.Fatalf("%s", raw)
 	}
 }

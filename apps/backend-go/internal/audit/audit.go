@@ -9,7 +9,9 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"reflect"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -70,17 +72,17 @@ func SafeMetadata(v any, depth int) any {
 	}
 	switch x := v.(type) {
 	case map[string]any:
+		keys := make([]string, 0, len(x))
+		for k := range x {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys) // deterministic subset when oversized
 		out := map[string]any{}
-		n := 0
-		for k, item := range x { // Python keeps the first 50 in insertion order; Go maps are unordered
-			if n >= 50 {
-				break
-			}
-			n++
+		for _, k := range keys[:min(len(keys), 50)] {
 			if sensitiveKey.MatchString(k) {
 				continue
 			}
-			out[cut(k, 64)] = SafeMetadata(item, depth+1)
+			out[cut(k, 64)] = SafeMetadata(x[k], depth+1)
 		}
 		return out
 	case []any:
@@ -100,8 +102,45 @@ func SafeMetadata(v any, depth int) any {
 	case string:
 		return cut(x, 500)
 	default:
-		return cut(fmt.Sprint(x), 500)
+		return normalise(x, depth)
 	}
+}
+
+// normalise converts typed maps, slices, arrays, pointers and structs into the
+// generic forms handled above so redaction and caps apply at every level.
+func normalise(x any, depth int) any {
+	rv := reflect.ValueOf(x)
+	switch rv.Kind() {
+	case reflect.Pointer, reflect.Interface:
+		if rv.IsNil() {
+			return nil
+		}
+		return SafeMetadata(rv.Elem().Interface(), depth)
+	case reflect.Map:
+		m := make(map[string]any, rv.Len())
+		for it := rv.MapRange(); it.Next(); {
+			m[fmt.Sprint(it.Key().Interface())] = it.Value().Interface()
+		}
+		return SafeMetadata(m, depth)
+	case reflect.Slice, reflect.Array:
+		if rv.Kind() == reflect.Slice && rv.Type().Elem().Kind() == reflect.Uint8 {
+			break // bytes: stringified like Python's str(bytes)
+		}
+		n := min(rv.Len(), 100)
+		l := make([]any, n)
+		for i := range l {
+			l[i] = rv.Index(i).Interface()
+		}
+		return SafeMetadata(l, depth)
+	case reflect.Struct:
+		if raw, err := json.Marshal(x); err == nil {
+			var g any
+			if json.Unmarshal(raw, &g) == nil {
+				return SafeMetadata(g, depth)
+			}
+		}
+	}
+	return cut(fmt.Sprint(x), 500)
 }
 
 func cut(s string, n int) string {
@@ -162,7 +201,14 @@ func Middleware(pool *pgxpool.Pool, log *slog.Logger) httpx.Middleware {
 				if rec != nil {
 					status = http.StatusInternalServerError
 				}
-				record(pool, log, req, h, status)
+				func() {
+					defer func() { // a failing record must not mask the handler's panic
+						if e := recover(); e != nil {
+							log.Error("governance audit record panicked")
+						}
+					}()
+					record(pool, log, req, h, status)
+				}()
 				if rec != nil {
 					panic(rec)
 				}

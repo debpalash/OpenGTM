@@ -6,6 +6,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -128,14 +129,58 @@ func TestGetNotRecorded(t *testing.T) {
 
 func TestNoWorkspaceNotRecorded(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
-	clean(t, pool, "ws-audit-none")
-	rec := do(newRouter(pool, "", 200), "POST", "/api/things")
-	if rec.Code != 200 {
-		t.Fatal(rec.Code)
+	clean(t, pool, "ws-audit-nows")
+	// Count as the table owner (bypasses RLS) so any insert, whatever its
+	// workspace, would be seen.
+	owner, err := pgxpool.New(context.Background(), os.Getenv("TEST_DATABASE_URL"))
+	if err != nil {
+		t.Fatal(err)
 	}
-	var n int
-	if err := pool.QueryRow(context.Background(), `SELECT count(*) FROM governance_audit_events WHERE workspace_id=''`).Scan(&n); err == nil && n != 0 {
-		t.Fatal("recorded")
+	defer owner.Close()
+	count := func() int {
+		var n int
+		if err := owner.QueryRow(context.Background(), `SELECT count(*) FROM governance_audit_events WHERE request_id='req-nows'`).Scan(&n); err != nil {
+			t.Fatal(err)
+		}
+		return n
+	}
+	r := httpx.NewRouter()
+	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
+	r.Handle("POST /api/things", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(200) }), setActor(""))
+	req := httptest.NewRequest("POST", "/api/things", nil)
+	rec := httptest.NewRecorder()
+	req.Header.Set("X-Request-Id", "req-nows")
+	r.Handler().ServeHTTP(rec, req)
+	if rec.Code != 200 || count() != 0 {
+		t.Fatalf("status %d rows %d", rec.Code, count())
+	}
+	// Sanity: the same counter does see a recorded request.
+	ws := "ws-audit-nows"
+	clean(t, pool, ws)
+	r2 := newRouter(pool, ws, 200)
+	req = httptest.NewRequest("POST", "/api/things", nil)
+	req.Header.Set("X-Request-Id", "req-nows")
+	r2.Handler().ServeHTTP(httptest.NewRecorder(), req)
+	if count() != 1 {
+		t.Fatalf("counter blind: %d", count())
+	}
+}
+
+func TestFlusherPreserved(t *testing.T) {
+	var flushed bool
+	h := audit.Middleware(nil, nil)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		f, ok := w.(http.Flusher)
+		if !ok {
+			t.Error("writer lost http.Flusher")
+			return
+		}
+		f.Flush()
+		flushed = true
+	}))
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest("GET", "/", nil))
+	if !flushed || !rec.Flushed {
+		t.Fatal("flush did not reach the underlying writer")
 	}
 }
 

@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
@@ -343,5 +344,49 @@ func TestRequestMetaSet(t *testing.T) {
 	}))).ServeHTTP(httptest.NewRecorder(), req)
 	if m.ActorUserID != u.ID || m.ActorRole != "editor" || m.WorkspaceID != "t5-ws-1" {
 		t.Fatalf("%+v", m)
+	}
+}
+
+// Python sets request.state.workspace_id only after the membership and SSO
+// checks pass, so those 403s are not audited; a passing write is.
+func TestAuditRecordsOnlyAfterWorkspaceAccepted(t *testing.T) {
+	e := newWSEnv(t, 4)
+	m := e.user(t, "t7-member")
+	e.workspace(t, "t7-ws-1", "t7-slug-1", nil)
+	e.member(t, "t7-ws-1", m, "admin")
+	e.setting(t, "t7-ws-1", "OIDC_CONFIG", `{"enforce_sso":true}`)
+	ctx := context.Background()
+	t.Cleanup(func() {
+		_ = tenancy.InWorkspace(ctx, e.pool, "t7-ws-1", func(tx pgx.Tx) error {
+			_, err := tx.Exec(ctx, `DELETE FROM governance_audit_events WHERE workspace_id='t7-ws-1'`)
+			return err
+		})
+	})
+	count := func() int {
+		var n int
+		_ = tenancy.InWorkspace(ctx, e.pool, "t7-ws-1", func(tx pgx.Tx) error {
+			return tx.QueryRow(ctx, `SELECT count(*) FROM governance_audit_events WHERE workspace_id='t7-ws-1'`).Scan(&n)
+		})
+		return n
+	}
+	post := func(amr []string, wsHeader string) int {
+		h := audit.Middleware(e.pool, nil)(Authenticate(testSigner, e.st)(Workspace(e.st)(
+			http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(200) }))))
+		tok, _ := testSigner.Access("t7-member", amr)
+		req := httptest.NewRequest("POST", "/x", nil)
+		req.Header.Set("Authorization", "Bearer "+tok)
+		req.Header.Set("X-Workspace-Id", wsHeader)
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		return rec.Code
+	}
+	if c := post([]string{"pwd"}, "t7-ws-1"); c != 403 || count() != 0 {
+		t.Fatalf("sso 403: code %d rows %d", c, count())
+	}
+	if c := post([]string{"pwd"}, "t7-foreign"); c != 403 || count() != 0 {
+		t.Fatalf("membership 403: code %d rows %d", c, count())
+	}
+	if c := post([]string{"pwd", "sso"}, "t7-ws-1"); c != 200 || count() != 1 {
+		t.Fatalf("accepted: code %d rows %d", c, count())
 	}
 }
