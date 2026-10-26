@@ -67,7 +67,7 @@ func (e *env) workspace(t *testing.T, name string) string {
 	t.Helper()
 	id := e.prefix + name
 	if _, err := e.owner.Exec(context.Background(),
-		`INSERT INTO workspaces (id, name, slug, created_at, updated_at) VALUES ($1,$1,$1, extract(epoch from clock_timestamp()), extract(epoch from now()))`, id); err != nil {
+		`INSERT INTO workspaces (id, name, slug, created_at, updated_at) VALUES ($1::text,$1::text,$1::text, extract(epoch from clock_timestamp()), extract(epoch from now()))`, id); err != nil {
 		t.Fatal(err)
 	}
 	e.wss = append(e.wss, id)
@@ -117,7 +117,11 @@ func (h *hiringPy) Call(_ context.Context, c pyworker.ProviderCall) (pyworker.Pr
 	if !ok {
 		return pyworker.ProviderResult{Status: "error", Output: json.RawMessage(`{"success":false,"fields":{}}`)}, nil
 	}
-	hs, _ := json.Marshal(map[string]any{"total_jobs": n, "top_titles": h.titles[in.Company]})
+	body := map[string]any{"total_jobs": n}
+	if t, ok := h.titles[in.Company]; ok {
+		body["top_titles"] = t
+	}
+	hs, _ := json.Marshal(body)
 	inner, _ := json.Marshal(string(hs)) // JobSpy returns the JSON as a string
 	return pyworker.ProviderResult{Status: "ok", Output: json.RawMessage(`{"success":true,"fields":{"hiring_signals":` + string(inner) + `}}`)}, nil
 }
@@ -378,7 +382,7 @@ func TestTriggerPassScopedPerWorkspace(t *testing.T) {
 	d := e.deps(&hiringPy{})
 	d.RefreshExecutor = func(ws string) string { return map[bool]string{true: "go", false: "python"}[ws == a] }
 	d.ScanExecutor = func() string { return "go" }
-	claim := &queue.Claim{ID: 1, Type: "signal_scan", Payload: json.RawMessage(`{"interval_minutes": 60}`)}
+	claim := &queue.Claim{ID: 1, Type: "signal_scan", Payload: json.RawMessage(`{"interval_minutes": 60, "signal_types": ["hiring", "news"]}`)}
 	if err := signalscan.HandleScan(context.Background(), d, claim); err != nil {
 		t.Fatal(err)
 	}
@@ -427,7 +431,7 @@ func TestTriggerPassScopedPerWorkspace(t *testing.T) {
 	if err := e.owner.QueryRow(context.Background(), `SELECT fire_key, next_run_at FROM jobs WHERE type='signal_scan' AND workspace_id IS NULL AND status='pending' ORDER BY id DESC LIMIT 1`).Scan(&fk, &runAt); err != nil {
 		t.Fatal(err)
 	}
-	if fk != "signal_scan:2026-08-27T14:00:00" || !runAt.Equal(time.Date(2026, 8, 27, 14, 0, 0, 0, time.UTC)) {
+	if fk != "signal_scan:2026-08-27T14:00:00+00:00" || !runAt.Equal(time.Date(2026, 8, 27, 14, 0, 0, 0, time.UTC)) {
 		t.Fatalf("fire_key %q run at %v", fk, runAt)
 	}
 	// single flight: the same occurrence is not queued twice
