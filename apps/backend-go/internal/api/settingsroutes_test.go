@@ -54,6 +54,7 @@ func newSettingsEnv(t *testing.T, allowHosts ...string) settingsEnv {
 	RegisterSettings(r, Deps{
 		Pool: pool, Signer: testSigner, Identity: st,
 		Registry: reg, Envelope: envl, Egress: egress.NewClientForEnv("test", allowHosts),
+		Getenv: func(string) string { return "" },
 	})
 	return settingsEnv{env: env{h: r.Handler(), st: st}, pool: pool}
 }

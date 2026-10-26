@@ -18,9 +18,12 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/auth"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 )
 
@@ -107,7 +110,7 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool) *ht
 	if pool != nil {
 		st = identity.NewStore(pool)
 	}
-	api.RegisterAll(r, api.Deps{
+	deps := api.Deps{
 		Pool: pool,
 		Signer: auth.Signer{
 			Secret:     []byte(cfg.SecretKey),
@@ -117,6 +120,26 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool) *ht
 		Identity: st,
 		Config:   cfg,
 		Log:      log,
-	})
+	}
+	// Settings routes need the registry, the secrets envelope and the guarded
+	// egress client; without a pool they stay unregistered (route tests).
+	if pool != nil {
+		reg, err := settings.Load()
+		if err != nil {
+			log.Error("settings registry unavailable", "error", err.Error())
+		} else if env, err := secrets.NewEnvelope(secrets.Config{
+			Provider: os.Getenv("SECRETS_PROVIDER"), MasterKey: os.Getenv("SECRETS_MASTER_KEY"),
+			SecretKey: cfg.SecretKey, AppEnv: cfg.AppEnv,
+			VaultAddr: os.Getenv("VAULT_ADDR"), VaultToken: os.Getenv("VAULT_TOKEN"),
+			VaultTokenFile: os.Getenv("VAULT_TOKEN_FILE"), VaultTransitKey: os.Getenv("VAULT_TRANSIT_KEY"),
+			VaultNamespace: os.Getenv("VAULT_NAMESPACE"), VaultCACert: os.Getenv("VAULT_CACERT"),
+		}, nil); err != nil {
+			log.Error("secrets envelope unavailable", "error", err.Error())
+		} else {
+			deps.Registry, deps.Envelope = reg, env
+			deps.Egress = egress.NewClientForEnv(cfg.AppEnv, nil)
+		}
+	}
+	api.RegisterAll(r, deps)
 	return r
 }

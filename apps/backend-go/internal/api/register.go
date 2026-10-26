@@ -3,6 +3,8 @@ package api
 
 import (
 	"log/slog"
+	"net/http"
+	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -10,6 +12,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 )
 
 // Deps is everything a route group may need. cmd/api builds it once.
@@ -19,6 +23,19 @@ type Deps struct {
 	Identity *identity.Store
 	Config   config.APIConfig
 	Log      *slog.Logger
+
+	// Settings routes (plan 03). RegisterSettings is a no-op when any is nil.
+	Registry *settings.Registry
+	Envelope *secrets.Envelope
+	Egress   *http.Client // SSRF-guarded outbound client
+	Getenv   func(string) string
+}
+
+func (d Deps) getenv() func(string) string {
+	if d.Getenv != nil {
+		return d.Getenv
+	}
+	return os.Getenv
 }
 
 // RegisterAll registers every route group on r. Route tasks 9-14 each add one
@@ -31,5 +48,6 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterWorkspaces(r, d)
 	RegisterMCPTokens(r, d)
 	RegisterSCIM(r, d)
+	RegisterSettings(r, d)
 	// Task 12+: ...
 }
