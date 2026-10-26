@@ -495,11 +495,16 @@ Parity is pinned by `internal/colcompute/testdata/{formula,template,http}_vector
 Fixtures `connectors/*` (profiles `default`, `catalog_ok` = default minus `contract_badname.yaml`, `required`).
 - D4: a loadable manifest whose name is not a certifiable subject (`Bad-Name`) made FastAPI answer **500** on
   `GET /api/connectors/catalog` (`certification subject is unknown`, fixture `catalog_optional_badname_crash_alice`).
-  Go answers **422** (`connectors.ErrUnknownConnectorSubject`, `UnknownSubjectStatus`) without echoing the name; the 200 shape is
+  Go answers **422** `{"detail":"Connector manifest name is invalid"}` (`connectors.ErrUnknownConnectorSubject`, `UnknownSubjectStatus`) without echoing the name; the 200 shape is
   pinned by the `catalog_ok` fixtures (`catalog_optional_*`). `/compatibility` still lists the name as an error entry (200).
 - D4: the manifest directory is walked without following symlinks. A symlinked manifest or directory, or a `..` element in the
   directory path, becomes an error entry in `/compatibility` (Python would follow or load it); the catalog never loads through one.
   A manifest over 1 MiB is an error entry.
+- Configuration: the Go routes read the manifest directory from `OPENGTM_CONNECTOR_MANIFESTS_DIR` (default
+  `legacy/python/apps/api/services/leadgen/enrichment/declarative/manifests`, relative to the working directory) and the trust store
+  from `OPENGTM_CONNECTOR_TRUST_STORE` (default `docs/connectors/trusted-publishers.json`); set both in deployments. The resolved
+  paths and policy are logged at startup. `CONNECTOR_SIGNATURE_POLICY` set but empty is `required`, as Python. The trust store is
+  re-read per request; the certification key is revealed per request and never logged.
 - `/compatibility` error `path` is `str(path)` of the served directory. Fixtures carry `../../apps/backend-go/internal/connectors/`
   in front of `testdata/manifests/...`; tests strip that prefix before comparing.
 - A duplicated manifest name is listed twice in `/catalog` and reported once as `duplicate provider id` by `/compatibility` (Python
