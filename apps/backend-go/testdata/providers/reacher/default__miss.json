@@ -1,0 +1,47 @@
+{
+ "provider": "reacher",
+ "input_name": "default",
+ "scenario": "miss",
+ "input": {
+  "email": "ada@acme.com"
+ },
+ "secrets": {
+  "REACHER_API_KEY": "ctk_reacher_0001"
+ },
+ "config": {
+  "REACHER_ENABLED": "1",
+  "REACHER_URL": "https://reacher.example.test"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://reacher.example.test/v0/check_email",
+    "headers": {
+     "authorization": "Bearer {{secret:REACHER_API_KEY}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"to_email\":\"ada@acme.com\"}",
+    "json": {
+     "to_email": "ada@acme.com"
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"input\":\"ada@acme.com\",\"is_reachable\":\"invalid\",\"smtp\":{\"is_catch_all\":false,\"can_connect_smtp\":true},\"misc\":{\"is_disposable\":false,\"is_role_account\":false},\"syntax\":{\"address\":\"ada@acme.com\"}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "email": "ada@acme.com",
+  "status": "invalid",
+  "source": "reacher",
+  "confidence": 0.9,
+  "detail": "invalid",
+  "is_available": true
+ }
+}

@@ -1,0 +1,41 @@
+{
+ "provider": "companies_house",
+ "input_name": "default",
+ "scenario": "http_401",
+ "input": {
+  "company": "Acme Ltd"
+ },
+ "secrets": {
+  "COMPANIES_HOUSE_API_KEY": "ctk_ch_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.company-information.service.gov.uk/search/companies?q=Acme+Ltd&items_per_page=20",
+    "headers": {
+     "accept": "application/json",
+     "authorization": "Basic {{b64secret:COMPANIES_HOUSE_API_KEY}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json",
+     "www-authenticate": "Bearer"
+    },
+    "body": "{\"error\":{\"code\":\"unauthorized\",\"message\":\"Invalid credentials\"}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "companies_house",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "not_in_companies_house"
+ }
+}

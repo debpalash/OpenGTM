@@ -1,0 +1,100 @@
+{
+ "provider": "people_data_labs",
+ "input_name": "default",
+ "scenario": "company_hit_person_miss",
+ "input": {
+  "company": "Acme Inc",
+  "website": "acme.com"
+ },
+ "secrets": {
+  "PDL_API_KEY": "ctk_pdl_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.peopledatalabs.com/v5/company/enrich?website=acme.com",
+    "headers": {
+     "x-api-key": "{{secret:PDL_API_KEY}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"status\":200,\"size\":\"51-200\",\"industry\":\"computer software\",\"summary\":\"Acme builds widgets.\",\"linkedin_url\":\"linkedin.com/company/acme\",\"employee_count\":120}"
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.peopledatalabs.com/v5/person/search",
+    "headers": {
+     "content-type": "application/json",
+     "x-api-key": "{{secret:PDL_API_KEY}}"
+    },
+    "body": "{\"size\":3,\"query\":{\"bool\":{\"must\":[{\"term\":{\"job_company_website\":\"acme.com\"}}],\"should\":[{\"match\":{\"job_title_levels\":\"cxo\"}},{\"match\":{\"job_title_levels\":\"vp\"}},{\"match\":{\"job_title_levels\":\"director\"}},{\"match\":{\"job_title_levels\":\"owner\"}}]}}}",
+    "json": {
+     "size": 3,
+     "query": {
+      "bool": {
+       "must": [
+        {
+         "term": {
+          "job_company_website": "acme.com"
+         }
+        }
+       ],
+       "should": [
+        {
+         "match": {
+          "job_title_levels": "cxo"
+         }
+        },
+        {
+         "match": {
+          "job_title_levels": "vp"
+         }
+        },
+        {
+         "match": {
+          "job_title_levels": "director"
+         }
+        },
+        {
+         "match": {
+          "job_title_levels": "owner"
+         }
+        }
+       ]
+      }
+     }
+    }
+   },
+   "response": {
+    "status": 404,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"status\":404,\"data\":[]}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "people_data_labs",
+  "success": true,
+  "fields": {
+   "company_size": "51-200",
+   "industry_tags": "computer software",
+   "description": "Acme builds widgets.",
+   "linkedin_url": "linkedin.com/company/acme",
+   "employee_count_exact": 120
+  },
+  "confidence": 0.88,
+  "error": ""
+ }
+}

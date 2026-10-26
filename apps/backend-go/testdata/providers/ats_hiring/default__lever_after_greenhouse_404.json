@@ -1,0 +1,58 @@
+{
+ "provider": "ats_hiring",
+ "input_name": "default",
+ "scenario": "lever_after_greenhouse_404",
+ "input": {
+  "company": "Acme Inc",
+  "website": "https://www.acme.com"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://boards-api.greenhouse.io/v1/boards/acme/jobs",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; YupchaBot/1.0)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 404,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"message\":\"Job not found\"}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.lever.co/v0/postings/acme?mode=json",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; YupchaBot/1.0)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "[{\"text\":\"Staff Engineer, Platform\"},{\"text\":\"Recruiter\"}]"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "",
+  "success": true,
+  "fields": {
+   "hiring_signals": "{\"open_roles\": 2, \"departments\": {\"engineering\": 1, \"people\": 1}, \"tech_hiring\": [], \"is_hiring\": true, \"eng_hiring\": true, \"sample_titles\": [\"Staff Engineer, Platform\", \"Recruiter\"], \"technologies\": [], \"tech_adoption_signal\": [], \"hiring_velocity\": {\"open_roles\": 2, \"recent_roles\": 0, \"recency_days\": null, \"level\": \"moderate\"}, \"ats\": \"lever\", \"slug\": \"acme\"}",
+   "open_roles": 2
+  },
+  "confidence": 0.8,
+  "error": ""
+ }
+}

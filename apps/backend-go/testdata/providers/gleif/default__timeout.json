@@ -1,0 +1,50 @@
+{
+ "provider": "gleif",
+ "input_name": "default",
+ "scenario": "timeout",
+ "input": {
+  "company": "Acme Corporation"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.gleif.org/api/v1/fuzzycompletions?field=entity.legalName&q=Acme+Corporation",
+    "headers": {
+     "accept": "application/vnd.api+json",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "raises": "ReadTimeout",
+    "message": "simulated read timeout"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.gleif.org/api/v1/lei-records?filter%5Bentity.legalName%5D=Acme+Corporation&page%5Bsize%5D=1",
+    "headers": {
+     "accept": "application/vnd.api+json",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "raises": "ReadTimeout",
+    "message": "simulated read timeout"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "gleif",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "no_lei_match"
+ }
+}

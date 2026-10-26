@@ -1,0 +1,19 @@
+{
+ "provider": "people_data_labs",
+ "input_name": "nothing",
+ "scenario": "miss",
+ "input": {},
+ "secrets": {
+  "PDL_API_KEY": "ctk_pdl_0001"
+ },
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "people_data_labs",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No domain or company name available"
+ }
+}

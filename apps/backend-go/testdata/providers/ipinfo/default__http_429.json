@@ -1,0 +1,49 @@
+{
+ "provider": "ipinfo",
+ "input_name": "default",
+ "scenario": "http_429",
+ "input": {
+  "company": "Acme",
+  "website": "https://acme.com/about"
+ },
+ "secrets": {
+  "IPINFO_TOKEN": "ctk_ipinfo_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "acme.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://ipinfo.io/93.184.216.34",
+    "headers": {
+     "authorization": "Bearer {{secret:IPINFO_TOKEN}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 429,
+    "headers": {
+     "content-type": "application/json",
+     "retry-after": "30"
+    },
+    "body": "{\"error\":{\"code\":\"rate_limited\",\"message\":\"Too many requests\"}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No org data for IP"
+ }
+}

@@ -1,0 +1,22 @@
+{
+ "provider": "snovio",
+ "input_name": "no_domain",
+ "scenario": "hit",
+ "input": {
+  "company": "Acme Inc"
+ },
+ "secrets": {
+  "SNOVIO_CLIENT_ID": "ctk_snov_id_0001",
+  "SNOVIO_CLIENT_SECRET": "ctk_snov_secret_0001"
+ },
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "snovio",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No domain available for lookup"
+ }
+}

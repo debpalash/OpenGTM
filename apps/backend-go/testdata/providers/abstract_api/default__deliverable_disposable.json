@@ -1,0 +1,39 @@
+{
+ "provider": "abstract_api",
+ "input_name": "default",
+ "scenario": "deliverable_disposable",
+ "input": {
+  "email": "ada@acme.com"
+ },
+ "secrets": {
+  "ABSTRACT_API_KEY": "ctk_abstract_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://emailvalidation.abstractapi.com/v1?api_key={{secret:ABSTRACT_API_KEY}}&email=ada%40acme.com",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"email\":\"ada@acme.com\",\"deliverability\":\"DELIVERABLE\",\"quality_score\":0.9,\"is_valid_format\":{\"value\":true,\"text\":\"TRUE\"},\"is_smtp_valid\":{\"value\":true,\"text\":\"TRUE\"},\"is_disposable_email\":{\"value\":true,\"text\":\"FALSE\"}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "abstract_api",
+  "success": true,
+  "fields": {
+   "email_confidence": "verified"
+  },
+  "confidence": 0.8,
+  "error": ""
+ }
+}

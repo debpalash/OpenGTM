@@ -1,0 +1,37 @@
+{
+ "provider": "hunter_io",
+ "input_name": "company_name_as_domain",
+ "scenario": "miss",
+ "input": {
+  "company": "Acme Inc"
+ },
+ "secrets": {
+  "HUNTER_API_KEY": "ctk_hunter_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.hunter.io/v2/domain-search?domain=acme+inc&api_key={{secret:HUNTER_API_KEY}}&limit=5",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"emails\":[]}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "hunter_io",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No emails found for domain"
+ }
+}

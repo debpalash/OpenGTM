@@ -1,0 +1,19 @@
+{
+ "provider": "hunter_io",
+ "input_name": "no_domain_no_company",
+ "scenario": "miss",
+ "input": {},
+ "secrets": {
+  "HUNTER_API_KEY": "ctk_hunter_0001"
+ },
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "hunter_io",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No domain available"
+ }
+}

@@ -1,0 +1,56 @@
+{
+ "provider": "sec_edgar",
+ "input_name": "default",
+ "scenario": "http_401",
+ "input": {
+  "company": "Stripe Milton LLC"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.sec.gov/files/company_tickers.json",
+    "headers": {
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json",
+     "www-authenticate": "Bearer"
+    },
+    "body": "{\"error\":{\"code\":\"unauthorized\",\"message\":\"Invalid credentials\"}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://efts.sec.gov/LATEST/search-index?q=%22Stripe+Milton+LLC%22&forms=D",
+    "headers": {
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json",
+     "www-authenticate": "Bearer"
+    },
+    "body": "{\"error\":{\"code\":\"unauthorized\",\"message\":\"Invalid credentials\"}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "sec_edgar",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "no_cik_match"
+ }
+}

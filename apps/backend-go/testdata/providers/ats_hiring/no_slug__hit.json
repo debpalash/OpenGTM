@@ -1,0 +1,17 @@
+{
+ "provider": "ats_hiring",
+ "input_name": "no_slug",
+ "scenario": "hit",
+ "input": {},
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "no_slug"
+ }
+}

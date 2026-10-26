@@ -1,0 +1,17 @@
+{
+ "provider": "gleif",
+ "input_name": "no_company",
+ "scenario": "hit",
+ "input": {},
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "gleif",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "no_company"
+ }
+}

@@ -1,0 +1,41 @@
+{
+ "provider": "ats_hiring",
+ "input_name": "default",
+ "scenario": "greenhouse_first_slug",
+ "input": {
+  "company": "Acme Inc",
+  "website": "https://www.acme.com"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://boards-api.greenhouse.io/v1/boards/acme/jobs",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; YupchaBot/1.0)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"jobs\":[{\"title\":\"Senior Backend Engineer (Python)\"},{\"title\":\"Account Executive\"},{\"title\":\"Marketing Manager\"},{\"title\":\"Data Engineer - Kafka/Snowflake\"}]}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "",
+  "success": true,
+  "fields": {
+   "hiring_signals": "{\"open_roles\": 4, \"departments\": {\"engineering\": 2, \"sales\": 1, \"marketing\": 1}, \"tech_hiring\": [\"kafka\", \"python\", \"snowflake\"], \"is_hiring\": true, \"eng_hiring\": true, \"sample_titles\": [\"Senior Backend Engineer (Python)\", \"Account Executive\", \"Marketing Manager\", \"Data Engineer - Kafka/Snowflake\"], \"technologies\": [\"Kafka\", \"Python\", \"Snowflake\"], \"tech_adoption_signal\": [{\"tech\": \"Kafka\", \"category\": \"Data & Warehouse\", \"intent\": \"using\"}, {\"tech\": \"Python\", \"category\": \"Languages\", \"intent\": \"using\"}, {\"tech\": \"Snowflake\", \"category\": \"Data & Warehouse\", \"intent\": \"using\"}], \"hiring_velocity\": {\"open_roles\": 4, \"recent_roles\": 0, \"recency_days\": null, \"level\": \"moderate\"}, \"ats\": \"greenhouse\", \"slug\": \"acme\"}",
+   "open_roles": 4
+  },
+  "confidence": 0.8,
+  "error": ""
+ }
+}

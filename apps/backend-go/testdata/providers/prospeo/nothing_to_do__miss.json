@@ -1,0 +1,19 @@
+{
+ "provider": "prospeo",
+ "input_name": "nothing_to_do",
+ "scenario": "miss",
+ "input": {},
+ "secrets": {
+  "PROSPEO_API_KEY": "ctk_prospeo_0001"
+ },
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "prospeo",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No LinkedIn URL, domain+name, or email available"
+ }
+}

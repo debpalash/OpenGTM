@@ -1,0 +1,44 @@
+{
+ "provider": "apollo_io",
+ "input_name": "default",
+ "scenario": "malformed_json",
+ "input": {
+  "company": "Acme Inc",
+  "website": "https://acme.com"
+ },
+ "secrets": {
+  "APOLLO_API_KEY": "ctk_apollo_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.apollo.io/api/v1/organizations/enrich",
+    "headers": {
+     "content-type": "application/json",
+     "x-api-key": "{{secret:APOLLO_API_KEY}}"
+    },
+    "body": "{\"domain\":\"acme.com\"}",
+    "json": {
+     "domain": "acme.com"
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "<html><body>not json {"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "apollo_io",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "Expecting value: line 1 column 1 (char 0)"
+ }
+}

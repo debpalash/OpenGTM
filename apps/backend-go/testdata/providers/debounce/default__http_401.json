@@ -1,0 +1,38 @@
+{
+ "provider": "debounce",
+ "input_name": "default",
+ "scenario": "http_401",
+ "input": {
+  "email": "ada@acme.com"
+ },
+ "secrets": {
+  "DEBOUNCE_API_KEY": "ctk_debounce_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.debounce.io/v1/?api={{secret:DEBOUNCE_API_KEY}}&email=ada%40acme.com",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json",
+     "www-authenticate": "Bearer"
+    },
+    "body": "{\"error\":{\"code\":\"unauthorized\",\"message\":\"Invalid credentials\"}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "debounce",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "Debounce API error: 401"
+ }
+}

@@ -1,0 +1,47 @@
+{
+ "provider": "jsonld_firmographics",
+ "input_name": "default",
+ "scenario": "http_429",
+ "input": {
+  "website": "https://www.acme.com/contact"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "www.acme.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.acme.com",
+    "headers": {
+     "accept": "text/html,application/xhtml+xml",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 429,
+    "headers": {
+     "content-type": "application/json",
+     "retry-after": "30"
+    },
+    "body": "{\"error\":{\"code\":\"rate_limited\",\"message\":\"Too many requests\"}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "jsonld_firmographics",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "no_structured_data"
+ }
+}

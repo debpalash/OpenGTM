@@ -1,0 +1,19 @@
+{
+ "provider": "numverify",
+ "input_name": "no_phone",
+ "scenario": "miss",
+ "input": {},
+ "secrets": {
+  "NUMVERIFY_API_KEY": "ctk_numverify_0001"
+ },
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No phone number to validate"
+ }
+}

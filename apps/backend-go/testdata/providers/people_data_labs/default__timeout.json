@@ -1,0 +1,37 @@
+{
+ "provider": "people_data_labs",
+ "input_name": "default",
+ "scenario": "timeout",
+ "input": {
+  "company": "Acme Inc",
+  "website": "acme.com"
+ },
+ "secrets": {
+  "PDL_API_KEY": "ctk_pdl_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.peopledatalabs.com/v5/company/enrich?website=acme.com",
+    "headers": {
+     "x-api-key": "{{secret:PDL_API_KEY}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "raises": "ReadTimeout",
+    "message": "simulated read timeout"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "people_data_labs",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "simulated read timeout"
+ }
+}

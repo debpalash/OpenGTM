@@ -1,0 +1,19 @@
+{
+ "provider": "abstract_api",
+ "input_name": "no_email",
+ "scenario": "hit",
+ "input": {},
+ "secrets": {
+  "ABSTRACT_API_KEY": "ctk_abstract_0001"
+ },
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "abstract_api",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No email to validate"
+ }
+}

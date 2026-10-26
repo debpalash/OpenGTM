@@ -1,0 +1,37 @@
+{
+ "provider": "debounce",
+ "input_name": "default",
+ "scenario": "malformed_json",
+ "input": {
+  "email": "ada@acme.com"
+ },
+ "secrets": {
+  "DEBOUNCE_API_KEY": "ctk_debounce_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.debounce.io/v1/?api={{secret:DEBOUNCE_API_KEY}}&email=ada%40acme.com",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "<html><body>not json {"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "debounce",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "Expecting value: line 1 column 1 (char 0)"
+ }
+}

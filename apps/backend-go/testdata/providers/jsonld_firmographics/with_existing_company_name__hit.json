@@ -1,0 +1,59 @@
+{
+ "provider": "jsonld_firmographics",
+ "input_name": "with_existing_company_name",
+ "scenario": "hit",
+ "input": {
+  "company": "Acme Widgets",
+  "website": "acme.com"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "acme.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://acme.com",
+    "headers": {
+     "accept": "text/html,application/xhtml+xml",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "text/html; charset=utf-8"
+    },
+    "body": "<!doctype html><html><head><title>Acme</title>\n<meta property=\"og:site_name\" content=\"Acme OG\"><meta property=\"og:description\" content=\"OG description fallback\">\n<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"WebSite\",\"name\":\"Acme site\"},\n{\"@type\":[\"Organization\",\"LocalBusiness\"],\"name\":\"Acme Widgets Inc\",\"telephone\":\"+1 512-555-0100\",\"email\":\"mailto:hello@acme.com\",\n \"address\":{\"@type\":\"PostalAddress\",\"streetAddress\":\"1 Main St\",\"addressLocality\":\"Austin\",\"addressRegion\":\"TX\",\"postalCode\":\"78701\",\"addressCountry\":\"US\"},\n \"foundingDate\":\"1985-06-01\",\"description\":\"We make &amp; sell widgets.\",\"sameAs\":[\"https://www.linkedin.com/company/acme\",\"https://x.com/acme\",\"https://facebook.com/acme\",\"https://example.org/other\"]}]}</script>\n</head><body>hi</body></html>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "jsonld_firmographics",
+  "success": true,
+  "fields": {
+   "phone": "+1 512-555-0100",
+   "email": "hello@acme.com",
+   "address": "1 Main St, Austin, TX, 78701, US",
+   "city": "Austin",
+   "state": "TX",
+   "founded_year": "1985",
+   "description": "We make & sell widgets.",
+   "linkedin_url": "https://www.linkedin.com/company/acme",
+   "twitter_url": "https://x.com/acme",
+   "facebook_url": "https://facebook.com/acme",
+   "founding_year": "1985"
+  },
+  "confidence": 0.85,
+  "error": ""
+ }
+}

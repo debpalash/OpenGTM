@@ -1,0 +1,90 @@
+{
+ "provider": "sec_edgar",
+ "input_name": "default",
+ "scenario": "form_d_404",
+ "input": {
+  "company": "Stripe Milton LLC"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.sec.gov/files/company_tickers.json",
+    "headers": {
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"0\":{\"cik_str\":320193,\"title\":\"Apple Inc.\"}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://efts.sec.gov/LATEST/search-index?q=%22Stripe+Milton+LLC%22&forms=D",
+    "headers": {
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"hits\":{\"hits\":[{\"_source\":{\"ciks\":[\"0009999999\"],\"display_names\":[\"Stripe Other LLC  (CIK 0009999999)\"]}},{\"_source\":{\"ciks\":[\"0002000934\"],\"display_names\":[\"Stripe Milton LLC  (CIK 0002000934)\"]}}]}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://data.sec.gov/submissions/CIK0002000934.json",
+    "headers": {
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"filings\":{\"recent\":{\"form\":[\"8-K\",\"D\",\"D/A\"],\"accessionNumber\":[\"0002000934-24-000009\",\"0002000934-24-000005\",\"0002000934-24-000007\"],\"filingDate\":[\"2024-05-01\",\"2024-03-20\",\"2024-04-01\"]}}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.sec.gov/Archives/edgar/data/2000934/000200093424000005/primary_doc.xml",
+    "headers": {
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 404,
+    "headers": {
+     "content-type": "text/html; charset=utf-8"
+    },
+    "body": "not found"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "sec_edgar",
+  "success": false,
+  "fields": {
+   "sec_cik": "0002000934"
+  },
+  "confidence": 0.0,
+  "error": "no_filing_data"
+ }
+}

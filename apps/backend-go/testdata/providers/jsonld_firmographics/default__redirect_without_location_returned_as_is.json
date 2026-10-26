@@ -1,0 +1,46 @@
+{
+ "provider": "jsonld_firmographics",
+ "input_name": "default",
+ "scenario": "redirect_without_location_returned_as_is",
+ "input": {
+  "website": "https://www.acme.com/contact"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "www.acme.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.acme.com",
+    "headers": {
+     "accept": "text/html,application/xhtml+xml",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 301,
+    "headers": {
+     "content-type": "text/html; charset=utf-8"
+    },
+    "body": "<html>moved</html>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "jsonld_firmographics",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "no_structured_data"
+ }
+}

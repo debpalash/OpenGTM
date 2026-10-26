@@ -1,0 +1,83 @@
+{
+ "provider": "tech_stack",
+ "input_name": "default",
+ "scenario": "robots_ok_home_plain_page",
+ "input": {
+  "company": "Acme",
+  "website": "https://www.acme.com/pricing"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "www.acme.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "dns": {
+    "host": "www.acme.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.acme.com/robots.txt",
+    "headers": {
+     "accept": "text/html,application/xhtml+xml",
+     "accept-language": "en-US,en;q=0.9",
+     "user-agent": "Yupcha-TechDetect/1.0 (+https://yupcha.com/bot)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "text/plain"
+    },
+    "body": "User-agent: *\nAllow: /\n"
+   }
+  },
+  {
+   "dns": {
+    "host": "www.acme.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.acme.com",
+    "headers": {
+     "accept": "text/html,application/xhtml+xml",
+     "accept-language": "en-US,en;q=0.9",
+     "user-agent": "Yupcha-TechDetect/1.0 (+https://yupcha.com/bot)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "text/html; charset=utf-8"
+    },
+    "body": "<html><body>plain page</body></html>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "tech_stack",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No technologies detected"
+ }
+}

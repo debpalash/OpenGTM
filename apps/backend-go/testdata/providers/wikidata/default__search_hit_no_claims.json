@@ -1,0 +1,54 @@
+{
+ "provider": "wikidata",
+ "input_name": "default",
+ "scenario": "search_hit_no_claims",
+ "input": {
+  "company": "Acme Corporation"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=Acme+Corporation&language=en&type=item&format=json&limit=7",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; yupcha-enrichment/1.0; +https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"search\":[{\"id\":\"Q999\",\"label\":\"Acme Award\",\"description\":\"annual prize\"},{\"id\":\"Q123\",\"label\":\"Acme Corporation\",\"description\":\"American manufacturing company\"}]}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q123&props=claims%7Cdescriptions&languages=en&format=json",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; yupcha-enrichment/1.0; +https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"entities\":{\"Q123\":{}}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "wikidata",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "no_fields"
+ }
+}
