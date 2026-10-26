@@ -63,3 +63,59 @@ WHERE workspace_id = sqlc.arg(workspace_id)::text AND user_id = sqlc.arg(user_id
 -- name: ScimRemoveMember :exec
 DELETE FROM workspace_members
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND user_id = sqlc.arg(user_id)::int;
+
+-- SCIM groups: workspace_scim_groups / workspace_scim_group_members are FORCE RLS.
+-- name: ScimMappingExists :one
+SELECT EXISTS (
+  SELECT 1 FROM workspace_scim_users
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND user_id = sqlc.arg(user_id)::int
+)::bool AS present;
+
+-- name: ScimInsertGroup :exec
+INSERT INTO workspace_scim_groups (id, workspace_id, external_id, display_name, created_at, updated_at)
+VALUES (
+  sqlc.arg(id)::text, sqlc.arg(workspace_id)::text, sqlc.arg(external_id)::text,
+  sqlc.arg(display_name)::text, sqlc.arg(now)::float8, sqlc.arg(now)::float8
+);
+
+-- name: ScimInsertGroupMember :exec
+INSERT INTO workspace_scim_group_members (workspace_id, group_id, user_id, created_at)
+VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(group_id)::text, sqlc.arg(user_id)::int, sqlc.arg(now)::float8);
+
+-- name: ScimGetGroup :one
+SELECT * FROM workspace_scim_groups
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(group_id)::text;
+
+-- name: ScimGroupMemberIDs :many
+SELECT user_id FROM workspace_scim_group_members
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND group_id = sqlc.arg(group_id)::text
+ORDER BY user_id;
+
+-- name: ScimGroupMembersFor :many
+SELECT group_id, user_id FROM workspace_scim_group_members
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND group_id = ANY(sqlc.arg(group_ids)::text[])
+ORDER BY group_id, user_id;
+
+-- name: ScimCountGroups :one
+SELECT count(*)::bigint FROM workspace_scim_groups
+WHERE workspace_id = sqlc.arg(workspace_id)::text
+  AND (sqlc.narg(display_name)::text IS NULL OR lower(display_name) = lower(sqlc.narg(display_name)::text));
+
+-- name: ScimListGroupsPage :many
+SELECT * FROM workspace_scim_groups
+WHERE workspace_id = sqlc.arg(workspace_id)::text
+  AND (sqlc.narg(display_name)::text IS NULL OR lower(display_name) = lower(sqlc.narg(display_name)::text))
+ORDER BY display_name, id LIMIT sqlc.arg(page_limit)::int OFFSET sqlc.arg(page_offset)::int;
+
+-- name: ScimUpdateGroup :exec
+UPDATE workspace_scim_groups
+SET display_name = sqlc.arg(display_name)::text, external_id = sqlc.arg(external_id)::text, updated_at = sqlc.arg(now)::float8
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(group_id)::text;
+
+-- name: ScimDeleteGroupMembers :exec
+DELETE FROM workspace_scim_group_members
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND group_id = sqlc.arg(group_id)::text;
+
+-- name: ScimDeleteGroup :execrows
+DELETE FROM workspace_scim_groups
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(group_id)::text;

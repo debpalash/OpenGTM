@@ -28,6 +28,24 @@ func (q *Queries) ScimAddViewerMember(ctx context.Context, arg ScimAddViewerMemb
 	return err
 }
 
+const scimCountGroups = `-- name: ScimCountGroups :one
+SELECT count(*)::bigint FROM workspace_scim_groups
+WHERE workspace_id = $1::text
+  AND ($2::text IS NULL OR lower(display_name) = lower($2::text))
+`
+
+type ScimCountGroupsParams struct {
+	WorkspaceID string
+	DisplayName pgtype.Text
+}
+
+func (q *Queries) ScimCountGroups(ctx context.Context, arg ScimCountGroupsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, scimCountGroups, arg.WorkspaceID, arg.DisplayName)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const scimCountMappings = `-- name: ScimCountMappings :one
 SELECT count(*)::bigint FROM workspace_scim_users WHERE workspace_id = $1::text
 `
@@ -37,6 +55,39 @@ func (q *Queries) ScimCountMappings(ctx context.Context, workspaceID string) (in
 	var column_1 int64
 	err := row.Scan(&column_1)
 	return column_1, err
+}
+
+const scimDeleteGroup = `-- name: ScimDeleteGroup :execrows
+DELETE FROM workspace_scim_groups
+WHERE workspace_id = $1::text AND id = $2::text
+`
+
+type ScimDeleteGroupParams struct {
+	WorkspaceID string
+	GroupID     string
+}
+
+func (q *Queries) ScimDeleteGroup(ctx context.Context, arg ScimDeleteGroupParams) (int64, error) {
+	result, err := q.db.Exec(ctx, scimDeleteGroup, arg.WorkspaceID, arg.GroupID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const scimDeleteGroupMembers = `-- name: ScimDeleteGroupMembers :exec
+DELETE FROM workspace_scim_group_members
+WHERE workspace_id = $1::text AND group_id = $2::text
+`
+
+type ScimDeleteGroupMembersParams struct {
+	WorkspaceID string
+	GroupID     string
+}
+
+func (q *Queries) ScimDeleteGroupMembers(ctx context.Context, arg ScimDeleteGroupMembersParams) error {
+	_, err := q.db.Exec(ctx, scimDeleteGroupMembers, arg.WorkspaceID, arg.GroupID)
+	return err
 }
 
 const scimExternalIDCollision = `-- name: ScimExternalIDCollision :one
@@ -58,6 +109,30 @@ func (q *Queries) ScimExternalIDCollision(ctx context.Context, arg ScimExternalI
 	var collides bool
 	err := row.Scan(&collides)
 	return collides, err
+}
+
+const scimGetGroup = `-- name: ScimGetGroup :one
+SELECT id, workspace_id, external_id, display_name, created_at, updated_at FROM workspace_scim_groups
+WHERE workspace_id = $1::text AND id = $2::text
+`
+
+type ScimGetGroupParams struct {
+	WorkspaceID string
+	GroupID     string
+}
+
+func (q *Queries) ScimGetGroup(ctx context.Context, arg ScimGetGroupParams) (WorkspaceScimGroup, error) {
+	row := q.db.QueryRow(ctx, scimGetGroup, arg.WorkspaceID, arg.GroupID)
+	var i WorkspaceScimGroup
+	err := row.Scan(
+		&i.ID,
+		&i.WorkspaceID,
+		&i.ExternalID,
+		&i.DisplayName,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const scimGetMapping = `-- name: ScimGetMapping :one
@@ -83,6 +158,168 @@ func (q *Queries) ScimGetMapping(ctx context.Context, arg ScimGetMappingParams) 
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const scimGroupMemberIDs = `-- name: ScimGroupMemberIDs :many
+SELECT user_id FROM workspace_scim_group_members
+WHERE workspace_id = $1::text AND group_id = $2::text
+ORDER BY user_id
+`
+
+type ScimGroupMemberIDsParams struct {
+	WorkspaceID string
+	GroupID     string
+}
+
+func (q *Queries) ScimGroupMemberIDs(ctx context.Context, arg ScimGroupMemberIDsParams) ([]int32, error) {
+	rows, err := q.db.Query(ctx, scimGroupMemberIDs, arg.WorkspaceID, arg.GroupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int32
+	for rows.Next() {
+		var user_id int32
+		if err := rows.Scan(&user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, user_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const scimGroupMembersFor = `-- name: ScimGroupMembersFor :many
+SELECT group_id, user_id FROM workspace_scim_group_members
+WHERE workspace_id = $1::text AND group_id = ANY($2::text[])
+ORDER BY group_id, user_id
+`
+
+type ScimGroupMembersForParams struct {
+	WorkspaceID string
+	GroupIds    []string
+}
+
+type ScimGroupMembersForRow struct {
+	GroupID string
+	UserID  int32
+}
+
+func (q *Queries) ScimGroupMembersFor(ctx context.Context, arg ScimGroupMembersForParams) ([]ScimGroupMembersForRow, error) {
+	rows, err := q.db.Query(ctx, scimGroupMembersFor, arg.WorkspaceID, arg.GroupIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ScimGroupMembersForRow
+	for rows.Next() {
+		var i ScimGroupMembersForRow
+		if err := rows.Scan(&i.GroupID, &i.UserID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const scimInsertGroup = `-- name: ScimInsertGroup :exec
+INSERT INTO workspace_scim_groups (id, workspace_id, external_id, display_name, created_at, updated_at)
+VALUES (
+  $1::text, $2::text, $3::text,
+  $4::text, $5::float8, $5::float8
+)
+`
+
+type ScimInsertGroupParams struct {
+	ID          string
+	WorkspaceID string
+	ExternalID  string
+	DisplayName string
+	Now         float64
+}
+
+func (q *Queries) ScimInsertGroup(ctx context.Context, arg ScimInsertGroupParams) error {
+	_, err := q.db.Exec(ctx, scimInsertGroup,
+		arg.ID,
+		arg.WorkspaceID,
+		arg.ExternalID,
+		arg.DisplayName,
+		arg.Now,
+	)
+	return err
+}
+
+const scimInsertGroupMember = `-- name: ScimInsertGroupMember :exec
+INSERT INTO workspace_scim_group_members (workspace_id, group_id, user_id, created_at)
+VALUES ($1::text, $2::text, $3::int, $4::float8)
+`
+
+type ScimInsertGroupMemberParams struct {
+	WorkspaceID string
+	GroupID     string
+	UserID      int32
+	Now         float64
+}
+
+func (q *Queries) ScimInsertGroupMember(ctx context.Context, arg ScimInsertGroupMemberParams) error {
+	_, err := q.db.Exec(ctx, scimInsertGroupMember,
+		arg.WorkspaceID,
+		arg.GroupID,
+		arg.UserID,
+		arg.Now,
+	)
+	return err
+}
+
+const scimListGroupsPage = `-- name: ScimListGroupsPage :many
+SELECT id, workspace_id, external_id, display_name, created_at, updated_at FROM workspace_scim_groups
+WHERE workspace_id = $1::text
+  AND ($2::text IS NULL OR lower(display_name) = lower($2::text))
+ORDER BY display_name, id LIMIT $4::int OFFSET $3::int
+`
+
+type ScimListGroupsPageParams struct {
+	WorkspaceID string
+	DisplayName pgtype.Text
+	PageOffset  int32
+	PageLimit   int32
+}
+
+func (q *Queries) ScimListGroupsPage(ctx context.Context, arg ScimListGroupsPageParams) ([]WorkspaceScimGroup, error) {
+	rows, err := q.db.Query(ctx, scimListGroupsPage,
+		arg.WorkspaceID,
+		arg.DisplayName,
+		arg.PageOffset,
+		arg.PageLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []WorkspaceScimGroup
+	for rows.Next() {
+		var i WorkspaceScimGroup
+		if err := rows.Scan(
+			&i.ID,
+			&i.WorkspaceID,
+			&i.ExternalID,
+			&i.DisplayName,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const scimListMappingsPage = `-- name: ScimListMappingsPage :many
@@ -122,6 +359,26 @@ func (q *Queries) ScimListMappingsPage(ctx context.Context, arg ScimListMappings
 		return nil, err
 	}
 	return items, nil
+}
+
+const scimMappingExists = `-- name: ScimMappingExists :one
+SELECT EXISTS (
+  SELECT 1 FROM workspace_scim_users
+  WHERE workspace_id = $1::text AND user_id = $2::int
+)::bool AS present
+`
+
+type ScimMappingExistsParams struct {
+	WorkspaceID string
+	UserID      int32
+}
+
+// SCIM groups: workspace_scim_groups / workspace_scim_group_members are FORCE RLS.
+func (q *Queries) ScimMappingExists(ctx context.Context, arg ScimMappingExistsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, scimMappingExists, arg.WorkspaceID, arg.UserID)
+	var present bool
+	err := row.Scan(&present)
+	return present, err
 }
 
 const scimRemoveMember = `-- name: ScimRemoveMember :exec
@@ -211,6 +468,31 @@ type ScimTouchTokenParams struct {
 
 func (q *Queries) ScimTouchToken(ctx context.Context, arg ScimTouchTokenParams) error {
 	_, err := q.db.Exec(ctx, scimTouchToken, arg.Now, arg.WorkspaceID)
+	return err
+}
+
+const scimUpdateGroup = `-- name: ScimUpdateGroup :exec
+UPDATE workspace_scim_groups
+SET display_name = $1::text, external_id = $2::text, updated_at = $3::float8
+WHERE workspace_id = $4::text AND id = $5::text
+`
+
+type ScimUpdateGroupParams struct {
+	DisplayName string
+	ExternalID  string
+	Now         float64
+	WorkspaceID string
+	GroupID     string
+}
+
+func (q *Queries) ScimUpdateGroup(ctx context.Context, arg ScimUpdateGroupParams) error {
+	_, err := q.db.Exec(ctx, scimUpdateGroup,
+		arg.DisplayName,
+		arg.ExternalID,
+		arg.Now,
+		arg.WorkspaceID,
+		arg.GroupID,
+	)
 	return err
 }
 
