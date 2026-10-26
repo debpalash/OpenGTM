@@ -135,3 +135,36 @@ Fixtures `columns/*` (cases `legacy/python/scripts/contract_cases/columns.yaml`,
 - Request bodies over 4 MiB answer 413 `Request body too large` (FastAPI: unbounded).
 - `wbcrud.FastAPIModelErrors` converts `NormalizeRequestColumn` errors to FastAPI's body form (`model_attributes_type`,
   `ctx` bounds); the create route should apply it too (fixtures `columns/add_column_null`, `add_bad_types`).
+
+## Row routes (Task 12): deviations
+
+Fixtures `rows/*` and `rows_recompute/*` (cases `legacy/python/scripts/contract_cases/rows.yaml` and
+`rows_recompute.yaml`, FastAPI as a non-superuser role; record `rows_recompute.yaml` after `rows.yaml`, the Python worker
+rewrites enrichments asynchronously). The fixture writer sorts JSON keys, so `TestRowsMatchFixtures` re-sends the original
+key order (`bodyOverrides`) for the few bodies whose response or stored text depends on it; the final database state of the
+whole replay is compared with the state FastAPI left (`testdata/wbcrud/rows_final_state.json`), including the stored `json`
+text (Python `json.dumps` spacing and `ensure_ascii`, `PyDumps`). `TestRowRecomputeEnqueuesRunJob` compares the queued
+`run_workbook` payload with FastAPI's.
+- `POST /rows` with a row whose `id` is not an integer: FastAPI answers 500 (the value goes to the integer `lead_id`
+  column); Go stores the row with `lead_id` NULL. A non-string `website` / `domain` / `company` is ignored for the dedupe
+  identity (FastAPI: 500). No fixture; `TestAddRowsAppendsPositions`.
+- `PUT /{id}/leads/{lead_id}` with values the database driver rejects (non-numeric `score`, null `company`, list/object
+  values, out-of-range score): FastAPI answers 500; Go answers 400 `Invalid value for lead field <name>`. Values the driver
+  coerces still work (`"7"` and `7.5` for `score` round half-even, numbers/booleans as text). `PROVENANCE_TRACKING_ENABLED`
+  (default off) is not ported: a manual edit does not merge `field_provenance`. `TestUpdateLeadBadValuesAreClientErrors`.
+- `delete-query` re-checks the live count against the number of rows the DELETE removed and rolls everything back with a
+  409 if a concurrent writer changed it (FastAPI loads every id first). Go also locks the workbook row for add/delete, so
+  concurrent Go writers cannot assign duplicate positions.
+- Request bodies are limited to 32 MiB (413 `Request body too large`); FastAPI has no limit on `POST /rows`.
+- Recompute after `PATCH rows` / `PATCH rows/{id}` (`recompute` defaults to true): like FastAPI, the row data is committed
+  first, then a second transaction does `run_workbook`'s work: cycle / changed-rows guards (422 / 409 after the data
+  commit, as in Python), `status='running'` + progress reset (`updated_at` stamped), supersede the in-flight `run_workbook`
+  job of the workbook, and enqueue ONE `run_workbook` job (executor `python`, payload key order as Python) via
+  `queue.Enqueue`. Not ported (plan 05, retained `/run`): the platform-credit debit when `BILLING_ENABLED` is on (then
+  `recompute` is `{"status":"unavailable", ...}` and nothing is enqueued, so runs are never unmetered), Python's Go-executor
+  eligibility (`GO_EXECUTOR_WORKSPACES`; Go always queues for the Python worker) and slowapi's 20/min limit on the inner
+  `run_workbook` call.
+- Invalid-JSON bodies answer the same simplified `json_invalid` entry as the other Go routes (`loc ["body",0]`, no `ctx`).
+- Not a deviation but worth knowing: `RowQuery.CountSQL` passed the sort-term parameters of a sorted saved view to a
+  statement that does not reference them (pgx: `expected N arguments`); fixed with `RowQuery.whereArgs`
+  (`TestDeleteQueryWithSortedViewAndSearch`).
