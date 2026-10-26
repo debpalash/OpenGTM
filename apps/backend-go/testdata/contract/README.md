@@ -321,6 +321,29 @@ Fixtures `analytics/*` (cases `legacy/python/scripts/contract_cases/analytics.ya
 - `POST /api/signals/mark-read`: a `lead_id` outside int32 answers 422 (Python lets Postgres 500).
 - Request bodies over 4 MiB answer 413 `Request body too large` (Python: unbounded).
 
+## Plan 04 final-review hardening: deviations
+
+Beyond Python (which has none of these limits); every cap is env-configurable (`internal/config`) and a request over it
+writes nothing. No fixture; tests named in parentheses.
+- Add rows (I1): at most `WORKBOOK_MAX_ADD_ROWS` (10000) rows per request and `WORKBOOK_MAX_ROW_KEYS` (2000) keys in one row
+  (or its `data`), else 422 `too_long` (`TestAddRowsRowCountCap`, `TestAddRowsKeyCap`). Add rows and workbook
+  create/update/from-jobs now draw on the same upload byte budget as import (`IMPORT_MEMORY_BUDGET_MB`); when it stays full
+  they answer 503 `Too many uploads in progress` + `Retry-After: 5` (`TestBufferedBodiesShareImportBudget`). The streaming
+  import decoder has no per-row key cap and the budget keeps the "about ten times" decode estimate (deferred).
+- CSV export (I2): each write extends a connection write deadline by `EXPORT_WRITE_TIMEOUT_SECONDS` (15), so a reader that
+  stops reading aborts the export (connection cut) and releases its pooled connection and transaction; at most
+  `EXPORT_MAX_CONCURRENT` (8) exports run at once and `EXPORT_MAX_PER_WORKSPACE` (2) per workspace, else 429
+  `Too many exports in progress` + `Retry-After: 5` (`TestExportLimiterGlobalAndPerWorkspace`,
+  `TestDeadlineWriterExtendsDeadlinePerWrite`).
+- CSV export (I3): header cells get the same formula guard as values (apostrophe prefix), and a leading LF is guarded too
+  (Python guards only `= + - @ TAB CR`, values only) (`TestExportHeaderCellIsNeutralised`, `TestExportEscapesFormulaPrefixes`).
+- Saved views and columns (I4): at most `WORKBOOK_MAX_VIEW_FILTERS` (50) filters and `WORKBOOK_MAX_VIEW_SORTS` (10) sorts per
+  saved view on write, and `WORKBOOK_MAX_COLUMNS` (500) columns per workbook (create, update, add column), else 422
+  `too_long`. Views already stored over the cap still load (no read-side cap; deferred)
+  (`TestViewConfigFilterAndSortCaps`, `TestColumnListCap`).
+- `POST /api/workbooks/templates/{id}/create`: `columns_config` is stored without HTML escaping like every other write path
+  (Python text parity; decoded JSON was already identical) (`TestTemplateColumnsStoredWithoutHTMLEscaping`).
+
 ## Contract coverage (plan 04 Task 23)
 
 - `internal/api/workbookcrud_contract_test.go`: `TestEveryMigratedWorkbookRouteHasAFixture` (every plan 04
