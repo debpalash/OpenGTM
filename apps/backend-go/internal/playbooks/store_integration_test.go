@@ -391,7 +391,11 @@ func TestStartRunSnapshotsStepsAndVersion(t *testing.T) {
 	if !errors.Is(err, ErrPlaybookDisabled) {
 		t.Fatalf("want ErrPlaybookDisabled, got %v", err)
 	}
-	pb.Enabled = true
+	e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error {
+		var err error
+		pb, err = Patch(ctx, tx, e.ws, pb.ID, PatchInput{Enabled: sp(true)})
+		return err
+	})
 	err = e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error {
 		_, err := StartRun(ctx, tx, e.ws, pb, e.aud2, 10, "7")
 		return err
