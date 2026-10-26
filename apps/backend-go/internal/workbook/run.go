@@ -581,6 +581,7 @@ func (rs *runState) execute(ctx context.Context, ordered []column, leads []map[s
 func (rs *runState) finalize(ctx context.Context, res *Result, runErr error, nLeads int) {
 	if runErr != nil && ctx.Err() != nil {
 		res.Stopped = true
+		rs.flushOnCancel(ctx)
 		return
 	}
 	failed := runErr != nil
@@ -657,4 +658,25 @@ func (rs *runState) flushChanges(ctx context.Context) {
 	if err != nil {
 		rs.log.Warn("on_rows_changed flush failed", "err", err)
 	}
+}
+
+// flushOnCancel is the cancelled-run half of Python's `finally` flush: cells already committed
+// still emit on_rows_changed, but only while this worker still holds the run (fence), on a
+// detached short-lived context, and without touching the workbook status.
+func (rs *runState) flushOnCancel(ctx context.Context) {
+	rs.changeMu.Lock()
+	n := len(rs.changes)
+	rs.changeMu.Unlock()
+	if n == 0 || rs.deps.Emitter == nil {
+		return
+	}
+	fctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
+	defer cancel()
+	err := tenancy.InWorkspace(fctx, rs.deps.Pool, rs.p.WorkspaceID, func(tx pgx.Tx) error {
+		return fence(fctx, tx, rs.claim, rs.p.WorkbookID)
+	})
+	if err != nil {
+		return // lease lost or cancelled: this worker owns nothing
+	}
+	rs.flushChanges(fctx)
 }
