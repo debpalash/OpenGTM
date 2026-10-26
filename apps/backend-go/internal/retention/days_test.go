@@ -41,15 +41,15 @@ type vectors struct {
 	} `json:"schedule"`
 }
 
-func loadVectors(t *testing.T, ws map[string]string) vectors {
+func loadVectors(t *testing.T, ws *strings.Replacer) vectors {
 	t.Helper()
 	raw, err := os.ReadFile("testdata/retention_vectors.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	s := string(raw)
-	for from, to := range ws {
-		s = strings.ReplaceAll(s, from, to)
+	if ws != nil {
+		s = ws.Replace(s)
 	}
 	var v vectors
 	if err := json.Unmarshal([]byte(s), &v); err != nil {

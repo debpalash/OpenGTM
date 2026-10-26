@@ -79,20 +79,20 @@ func (e *env) seed(t *testing.T, v vectors, now time.Time) {
 		var args []any
 		switch r.Table {
 		case "governance_audit_events":
-			sql = `INSERT INTO governance_audit_events (id,workspace_id,actor_role,method,route,resource_path,response_status,outcome,request_id,metadata_json,created_at) VALUES ('g'||$1::int,$2,'admin','POST','/r','/p',200,'success','rid','{}',$3::timestamp)`
-			args = []any{i, r.WS, naive}
+			sql = `INSERT INTO governance_audit_events (id,workspace_id,actor_role,method,route,resource_path,response_status,outcome,request_id,metadata_json,created_at) VALUES ($4||'g'||$1::int,$2,'admin','POST','/r','/p',200,'success','rid','{}',$3::timestamp)`
+			args = []any{i, r.WS, naive, e.prefix}
 		case "llm_usage_daily":
 			sql = `INSERT INTO llm_usage_daily (workspace_id,provider,date,updated_at) VALUES ($1,'p'||$2::int,$3,'x')`
 			args = []any{r.WS, i, at.UTC().Format("2006-01-02")}
 		case "signals":
-			sql = `INSERT INTO signals (id,workspace_id,created_at) VALUES ('s'||$1::int,$2,$3)`
-			args = []any{i, r.WS, float64(at.UnixMicro()) / 1e6}
+			sql = `INSERT INTO signals (id,workspace_id,created_at) VALUES ($4||'s'||$1::int,$2,$3)`
+			args = []any{i, r.WS, float64(at.UnixMicro()) / 1e6, e.prefix}
 		case "destination_deliveries":
 			sql = `INSERT INTO destination_deliveries (workspace_id,run_id,destination_id,lead_id,operation,idempotency_key,payload_fingerprint,status,attempts,created_at) VALUES ($1,'r','d',$2::int,'upsert','k'||$2::int,'f','sent',0,$3::timestamp)`
 			args = []any{r.WS, i, naive}
 		case "destination_inbound_receipts":
-			sql = `INSERT INTO destination_inbound_receipts (id,workspace_id,destination_id,provider,external_event_id,status,conflict_policy,applied_fields,ignored_fields,payload_fingerprint,created_at) VALUES ('i'||$1::int,$2,'d','p','e'||$1::int,'ok','x','{}','{}','f',$3::timestamp)`
-			args = []any{i, r.WS, naive}
+			sql = `INSERT INTO destination_inbound_receipts (id,workspace_id,destination_id,provider,external_event_id,status,conflict_policy,applied_fields,ignored_fields,payload_fingerprint,created_at) VALUES ($4||'i'||$1::int,$2,'d','p','e'||$1::int,'ok','x','{}','{}','f',$3::timestamp)`
+			args = []any{i, r.WS, naive, e.prefix}
 		case "audience_membership_events":
 			sql = `INSERT INTO audience_membership_events (workspace_id,audience_id,lead_id,event_type,snapshot,created_at) VALUES ($1,'a',$2::int,'enter','{}',$3::timestamp)`
 			args = []any{r.WS, i, naive}
@@ -111,8 +111,8 @@ func (e *env) seed(t *testing.T, v vectors, now time.Time) {
 	}
 }
 
-func (e *env) wsMap() map[string]string {
-	return map[string]string{"wsSched2": e.prefix + "wsSched2", "wsSched": e.prefix + "wsSched", "wsA": e.prefix + "wsA", "wsB": e.prefix + "wsB"}
+func (e *env) wsMap() *strings.Replacer {
+	return strings.NewReplacer("wsSched2", e.prefix+"wsSched2", "wsSched", e.prefix+"wsSched", "wsA", e.prefix+"wsA", "wsB", e.prefix+"wsB")
 }
 
 func (e *env) preview(t *testing.T, ws string, tz string, days map[string]int, now time.Time) Counts {
