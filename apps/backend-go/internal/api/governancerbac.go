@@ -30,6 +30,9 @@ func registerRBACRoutes(r *httpx.Router, d Deps, mw []httpx.Middleware) {
 	h := rbacRoutes{d: d}
 	r.Handle("GET /api/governance/rbac", http.HandlerFunc(h.get), mw...)
 	r.Handle("PUT /api/governance/rbac/{user_id}/{permission}", http.HandlerFunc(h.put), mw...)
+	r.Handle("POST /api/governance/members", http.HandlerFunc(h.add), mw...)
+	r.Handle("PATCH /api/governance/members/{user_id}", http.HandlerFunc(h.patch), mw...)
+	r.Handle("DELETE /api/governance/members/{user_id}", http.HandlerFunc(h.remove), mw...)
 }
 
 // --- request bodies (PermissionUpdate, MemberCreate, MemberRoleUpdate) ---------------------------------------
