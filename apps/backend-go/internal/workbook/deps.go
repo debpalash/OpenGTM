@@ -10,6 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 )
@@ -66,6 +67,11 @@ type runState struct {
 	// rowsDone is the number of rows the first pass has finished (written by
 	// the single coordinating goroutine only).
 	rowsDone int
+	// allCols is the whole columns_config as a graph (dependency checks look at
+	// every column, not just the ones this run executes); cycleBlocked caches
+	// colgraph.CycleBlocked over it.
+	allCols      []colgraph.Col
+	cycleBlocked map[string]bool
 }
 
 func (rs *runState) publish(ctx context.Context, msg map[string]any) {

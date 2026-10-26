@@ -528,6 +528,7 @@ func TestRunOrderFollowsDependencies(t *testing.T) {
 	}
 }
 
+// a is blocked by the cycle; b then sees its upstream failed (same order as _run_one_row).
 func TestCyclicColumnBlockedMessage(t *testing.T) {
 	e := setup(t, wsA)
 	s := newSim(t, nil)
@@ -540,8 +541,8 @@ func TestCyclicColumnBlockedMessage(t *testing.T) {
 	if res.Errors != 2 || res.Completed != 0 || s.total() != 0 {
 		t.Fatalf("result %+v calls %d", res, s.total())
 	}
-	if n := e.one(wsA, `SELECT count(*) FROM workbook_rows WHERE workbook_id='wb-cyc' AND enrichments::jsonb->'a'->>'error'='dependency_cycle' AND enrichments::jsonb->'b'->>'error'='dependency_cycle'`); n != 1 {
-		t.Fatalf("cycle error cells %d", n)
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_rows WHERE workbook_id='wb-cyc' AND enrichments::jsonb->'a'->>'error'='dependency_cycle' AND enrichments::jsonb->'b'->>'error'='upstream_dependency_failed'`); n != 1 {
+		t.Fatalf("cycle error cells %d: %s", n, e.str(wsA, `SELECT enrichments::text FROM workbook_rows WHERE workbook_id='wb-cyc'`))
 	}
 }
 

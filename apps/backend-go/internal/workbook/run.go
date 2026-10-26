@@ -16,6 +16,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
@@ -122,6 +123,11 @@ func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result,
 	if err != nil {
 		return Result{}, err
 	}
+	rs.allCols = make([]colgraph.Col, len(columns))
+	for i, col := range columns {
+		rs.allCols[i] = col.g
+	}
+	rs.cycleBlocked = colgraph.CycleBlocked(rs.allCols)
 	var enrichCols []column
 	for _, col := range columns {
 		if enrichmentColTypes[col.Type] && (p.ColumnIDs == nil || p.ColumnIDs[col.ID]) {
@@ -254,11 +260,20 @@ func (rs *runState) runOneRow(ctx context.Context, w workItem) rowResult {
 		}
 	}
 	var r rowResult
+	var failed []column
 	for _, col := range w.cols {
 		if rs.stop.shouldStop() {
 			break
 		}
-		out, err := rs.enrichCell(ctx, row, col)
+		var out cellOutcome
+		var err error
+		if rs.upstreamFailed(col, failed) {
+			// Never run a dependent against the old hydrated value after its
+			// upstream attempt failed; persist the reason for reload/retry.
+			out, err = rs.failDependent(ctx, row, col, "upstream_dependency_failed")
+		} else {
+			out, err = rs.enrichCell(ctx, row, col)
+		}
 		if err != nil {
 			r.err = err
 			return r
@@ -274,6 +289,7 @@ func (rs *runState) runOneRow(ctx context.Context, w workItem) rowResult {
 			}
 		} else {
 			r.errors++
+			failed = append(failed, col)
 			for _, key := range []string{col.ID, col.Name} {
 				if _, isIdentity := identities[key]; !isIdentity {
 					delete(row, key)
@@ -391,6 +407,7 @@ func countCells(items []workItem) int {
 func (rs *runState) execute(ctx context.Context, ordered []column, leads []map[string]any) (Result, error) {
 	var res Result
 	p := rs.p
+	ordered = orderColumns(ordered) // topo_sort_columns
 	items := make([]workItem, 0, len(leads))
 	if p.FillMissing {
 		done, err := rs.storedCells(ctx, leads, "complete")

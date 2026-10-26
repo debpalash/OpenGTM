@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"regexp"
+	"reflect"
 	"strconv"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
 )
 
@@ -15,6 +16,7 @@ import (
 // canonjson-decoded dict because Python hashes it into the spend contract.
 type column struct {
 	cfg  map[string]any
+	g    colgraph.Col // same config with key order, for the dependency graph
 	ID   string
 	Type string
 	Name string
@@ -32,13 +34,17 @@ func parseColumns(raw []byte) ([]column, error) {
 	if !ok {
 		return nil, errors.New("workbook: columns_config is not a list")
 	}
+	graph, err := colgraph.ParseCols(raw)
+	if err != nil {
+		return nil, fmt.Errorf("workbook: columns_config: %w", err)
+	}
 	cols := make([]column, 0, len(list))
-	for _, e := range list {
+	for i, e := range list {
 		m, ok := e.(map[string]any)
 		if !ok {
 			return nil, errors.New("workbook: columns_config entry is not an object")
 		}
-		c := column{cfg: m}
+		c := column{cfg: m, g: graph[i]}
 		c.ID, _ = m["id"].(string)
 		c.Type, _ = m["type"].(string)
 		c.Name, _ = m["name"].(string)
@@ -101,9 +107,6 @@ func validateGoColumn(c column) error {
 	if manifest.PyTruthy(c.cfg["condition"]) {
 		return refuse("column %q has a condition", c.ID)
 	}
-	if refs := columnRefs(c); refs {
-		return refuse("column %q references other columns, which the go executor does not order", c.ID)
-	}
 	t := c.target()
 	if structuredFields[t] {
 		return refuse("column %q targets structured field %q", c.ID, t)
@@ -131,25 +134,24 @@ func checkProviders(c column, p *runPayload) error {
 	return nil
 }
 
-var refRE = regexp.MustCompile(`\{([^}]+)\}`)
-
-// columnRefs reports whether the column declares {col} references or
-// input_columns (column_deps._refs_in): dependency ordering, upstream-failure
-// propagation and cycle detection are not ported, so such columns stay on Python.
-func columnRefs(c column) bool {
-	for _, f := range []string{"prompt", "formula", "http_url", "goal"} {
-		if s, ok := c.cfg[f].(string); ok && refRE.MatchString(s) {
-			return true
-		}
+// orderColumns is topo_sort_columns: a column that references another runs
+// after it, config order breaks ties and a cycle falls back to config order
+// (cyclic columns are then reported blocked by the dependency check).
+func orderColumns(cols []column) []column {
+	graph := make([]colgraph.Col, len(cols))
+	for i, c := range cols {
+		graph[i] = c.g
 	}
-	if list, ok := c.cfg["input_columns"].([]any); ok {
-		for _, e := range list {
-			if s, ok := e.(string); ok && manifest.PyStrip(s) != "" {
-				return true
-			}
-		}
+	ordered, _ := colgraph.Order(graph)
+	byMap := make(map[uintptr]column, len(cols))
+	for _, c := range cols {
+		byMap[reflect.ValueOf(c.g.Vals).Pointer()] = c
 	}
-	return false
+	out := make([]column, 0, len(ordered))
+	for _, g := range ordered {
+		out = append(out, byMap[reflect.ValueOf(g.Vals).Pointer()])
+	}
+	return out
 }
 
 // contractInputsKey carries the raw row's contract inputs inside the hydrated

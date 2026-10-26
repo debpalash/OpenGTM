@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/spend"
@@ -308,6 +309,9 @@ func (rs *runState) enrichCell(ctx context.Context, lead map[string]any, col col
 	rs.publish(ctx, map[string]any{"type": "cell_update", "leadId": leadID, "rowId": rowID,
 		"colId": col.ID, "status": "running", "value": nil})
 
+	if derr := rs.dependencyError(lead, col); derr != "" {
+		return rs.failDependent(ctx, lead, col, derr)
+	}
 	out, err := rs.safeWaterfall(ctx, lead, col, rowID, leadID)
 	if err != nil {
 		if a := abortErr(ctx, err); a != nil {
@@ -668,4 +672,52 @@ func (rs *runState) commitCell(ctx context.Context, col column, rowID, leadID in
 		"value": bValue, "status": status, "provider": bProvider, "error": bErr,
 		"research": nil, "provenance": nil, "verify_status": nil})
 	return cellOutcome{Success: hasResult, Value: value}, nil
+}
+
+// upstreamFailed ports `any(referencing_columns([col], failed) ...)`.
+func (rs *runState) upstreamFailed(col column, failed []column) bool {
+	for _, f := range failed {
+		if len(colgraph.Referencing([]colgraph.Col{col.g}, f.g)) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// dependencyError ports the dependency_error block of enrich_cell: cycle,
+// then unavailable upstream value, then (overriding) ambiguous references.
+func (rs *runState) dependencyError(lead map[string]any, col column) string {
+	derr := ""
+	if rs.cycleBlocked[col.ID] {
+		derr = "dependency_cycle"
+	} else if len(colgraph.UnavailableDeps(col.g, rs.allCols, lead)) > 0 {
+		derr = "upstream_dependency_unavailable"
+	}
+	for _, ref := range colgraph.Refs(col.g) {
+		if len(colgraph.ReferenceIndexes(manifest.PyStrip(ref), rs.allCols)) > 1 {
+			derr = "ambiguous_column_reference"
+			break
+		}
+	}
+	return derr
+}
+
+// failDependent persists an error cell without calling any provider. Python
+// writes it fenced and does not broadcast it.
+func (rs *runState) failDependent(ctx context.Context, lead map[string]any, col column, msg string) (cellOutcome, error) {
+	rowID, leadID := intOf(lead["__row_id"]), intOf(lead["id"])
+	err := tenancy.InWorkspace(ctx, rs.deps.Pool, rs.p.WorkspaceID, func(tx pgx.Tx) error {
+		if err := fence(ctx, tx, rs.claim, rs.p.WorkbookID); err != nil {
+			return err
+		}
+		return setEnrichment(ctx, tx, cellWrite{WorkspaceID: rs.p.WorkspaceID, WorkbookID: rs.p.WorkbookID,
+			LeadID: int32(leadID), RowID: int32(rowID), ColumnID: col.ID, Status: "error", Error: &msg})
+	})
+	if err != nil {
+		if a := abortErr(ctx, err); a != nil {
+			return cellOutcome{}, a
+		}
+		return cellOutcome{}, err
+	}
+	return cellOutcome{}, nil
 }
