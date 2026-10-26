@@ -22,11 +22,16 @@ WHERE workspace_id = $1::text
   AND ($4::text = '' OR outcome = $4::text)
   AND ($5::timestamp IS NULL OR created_at >= $5::timestamp)
   AND ($6::timestamp IS NULL OR created_at < $6::timestamp)
-  AND ($7::timestamp IS NULL
-       OR created_at < $7::timestamp
-       OR (created_at = $7::timestamp AND id < $8::text))
+  AND ($7::timestamptz IS NULL OR created_at >= $7::timestamptz)
+  AND ($8::timestamptz IS NULL OR created_at < $8::timestamptz)
+  AND ($9::timestamp IS NULL
+       OR created_at < $9::timestamp
+       OR (created_at = $9::timestamp AND id < $10::text))
+  AND ($11::timestamptz IS NULL
+       OR created_at < $11::timestamptz
+       OR (created_at = $11::timestamptz AND id < $10::text))
 ORDER BY created_at DESC, id DESC
-LIMIT $9::int
+LIMIT $12::int
 `
 
 type ListGovernanceAuditEventsParams struct {
@@ -36,8 +41,11 @@ type ListGovernanceAuditEventsParams struct {
 	Outcome         string
 	Since           pgtype.Timestamp
 	Before          pgtype.Timestamp
+	SinceTz         pgtype.Timestamptz
+	BeforeTz        pgtype.Timestamptz
 	CursorCreatedAt pgtype.Timestamp
 	CursorID        pgtype.Text
+	CursorTz        pgtype.Timestamptz
 	RowLimit        int32
 }
 
@@ -56,7 +64,10 @@ type ListGovernanceAuditEventsRow struct {
 }
 
 // Governance audit event listing and CSV keyset batches (tenant table under FORCE RLS:
-// run inside tenancy.InWorkspace). created_at is a naive timestamp.
+// run inside tenancy.InWorkspace). created_at is a naive timestamp. Naive since/before
+// compare as timestamps; aware ones (*_tz) and decoded cursors (cursor_tz) compare as
+// timestamptz, so Postgres reads the column in the session TimeZone exactly as
+// psycopg/SQLAlchemy do for Python.
 func (q *Queries) ListGovernanceAuditEvents(ctx context.Context, arg ListGovernanceAuditEventsParams) ([]ListGovernanceAuditEventsRow, error) {
 	rows, err := q.db.Query(ctx, listGovernanceAuditEvents,
 		arg.WorkspaceID,
@@ -65,8 +76,11 @@ func (q *Queries) ListGovernanceAuditEvents(ctx context.Context, arg ListGoverna
 		arg.Outcome,
 		arg.Since,
 		arg.Before,
+		arg.SinceTz,
+		arg.BeforeTz,
 		arg.CursorCreatedAt,
 		arg.CursorID,
+		arg.CursorTz,
 		arg.RowLimit,
 	)
 	if err != nil {

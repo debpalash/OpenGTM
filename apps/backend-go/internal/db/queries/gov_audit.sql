@@ -1,5 +1,8 @@
 -- Governance audit event listing and CSV keyset batches (tenant table under FORCE RLS:
--- run inside tenancy.InWorkspace). created_at is a naive timestamp.
+-- run inside tenancy.InWorkspace). created_at is a naive timestamp. Naive since/before
+-- compare as timestamps; aware ones (*_tz) and decoded cursors (cursor_tz) compare as
+-- timestamptz, so Postgres reads the column in the session TimeZone exactly as
+-- psycopg/SQLAlchemy do for Python.
 
 -- name: ListGovernanceAuditEvents :many
 SELECT id, actor_user_id, actor_role, method, route, resource_path,
@@ -11,8 +14,13 @@ WHERE workspace_id = sqlc.arg(workspace_id)::text
   AND (sqlc.arg(outcome)::text = '' OR outcome = sqlc.arg(outcome)::text)
   AND (sqlc.narg(since)::timestamp IS NULL OR created_at >= sqlc.narg(since)::timestamp)
   AND (sqlc.narg(before)::timestamp IS NULL OR created_at < sqlc.narg(before)::timestamp)
+  AND (sqlc.narg(since_tz)::timestamptz IS NULL OR created_at >= sqlc.narg(since_tz)::timestamptz)
+  AND (sqlc.narg(before_tz)::timestamptz IS NULL OR created_at < sqlc.narg(before_tz)::timestamptz)
   AND (sqlc.narg(cursor_created_at)::timestamp IS NULL
        OR created_at < sqlc.narg(cursor_created_at)::timestamp
        OR (created_at = sqlc.narg(cursor_created_at)::timestamp AND id < sqlc.narg(cursor_id)::text))
+  AND (sqlc.narg(cursor_tz)::timestamptz IS NULL
+       OR created_at < sqlc.narg(cursor_tz)::timestamptz
+       OR (created_at = sqlc.narg(cursor_tz)::timestamptz AND id < sqlc.narg(cursor_id)::text))
 ORDER BY created_at DESC, id DESC
 LIMIT sqlc.arg(row_limit)::int;

@@ -93,12 +93,17 @@ func (p Page) MarshalJSON() ([]byte, error) {
 	}{ev, p.NextCursor, nb, p.HasMore, p.Limit})
 }
 
-func naive(t *time.Time) pgtype.Timestamp {
+// splitTime routes a filter time to the column-compatible parameter: times
+// located in time.UTC are naive (plain timestamp compare), anything else is
+// aware (timestamptz compare in the session TimeZone, like Python).
+func splitTime(t *time.Time) (naive pgtype.Timestamp, aware pgtype.Timestamptz) {
 	if t == nil {
-		return pgtype.Timestamp{}
+		return
 	}
-	// Naive columns hold UTC wall-clock; aware inputs are converted to UTC.
-	return pgtype.Timestamp{Time: t.UTC(), Valid: true}
+	if t.Location() == time.UTC {
+		return pgtype.Timestamp{Time: *t, Valid: true}, pgtype.Timestamptz{}
+	}
+	return pgtype.Timestamp{}, pgtype.Timestamptz{Time: *t, Valid: true}
 }
 
 func params(ws string, f Filter, limit int) gen.ListGovernanceAuditEventsParams {
@@ -106,10 +111,10 @@ func params(ws string, f Filter, limit int) gen.ListGovernanceAuditEventsParams 
 		WorkspaceID: ws,
 		Method:      strings.ToUpper(f.Method),
 		Outcome:     f.Outcome,
-		Since:       naive(f.Since),
-		Before:      naive(f.Before),
 		RowLimit:    int32(limit),
 	}
+	p.Since, p.SinceTz = splitTime(f.Since)
+	p.Before, p.BeforeTz = splitTime(f.Before)
 	if f.ActorUserID != nil {
 		p.ActorUserID = pgtype.Int4{Int32: *f.ActorUserID, Valid: true}
 	}
@@ -131,7 +136,8 @@ func toEvent(r gen.ListGovernanceAuditEventsRow) (Event, error) {
 }
 
 // List returns one page of ws's audit events, newest first (created_at DESC,
-// id DESC). When cursor is non-empty it takes precedence over f.Before. limit
+// id DESC). Aware since/before and every cursor compare as timestamptz in the
+// session TimeZone (Python parity); naive since/before as plain timestamps. When cursor is non-empty it takes precedence over f.Before. limit
 // is clamped to 1..MaxLimit. tx must be inside tenancy.InWorkspace for ws; ws
 // is also an explicit predicate. A bad cursor is a *CursorError (422).
 func List(ctx context.Context, tx pgx.Tx, ws string, f Filter, cursor string, limit int) (Page, error) {
@@ -147,8 +153,10 @@ func List(ctx context.Context, tx pgx.Tx, ws string, f Filter, cursor string, li
 		if cerr != nil {
 			return Page{}, cerr
 		}
-		p.Before = pgtype.Timestamp{}
-		p.CursorCreatedAt = naive(&ct)
+		p.Before, p.BeforeTz = pgtype.Timestamp{}, pgtype.Timestamptz{}
+		// Python decodes every cursor to an aware datetime (naive -> UTC), so it
+		// always compares as timestamptz.
+		p.CursorTz = pgtype.Timestamptz{Time: ct, Valid: true}
 		p.CursorID = pgtype.Text{String: cid, Valid: true}
 	}
 	rows, err := gen.New(tx).ListGovernanceAuditEvents(ctx, p)

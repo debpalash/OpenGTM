@@ -54,9 +54,8 @@ func DecodeCursor(s, label string) (time.Time, string, *CursorError) {
 	if len(s) > 1024 {
 		return time.Time{}, "", bad
 	}
-	// Python: b64decode(cursor + "=" * (-len % 4)) (urlsafe, non-strict padding).
-	raw, err := base64.URLEncoding.DecodeString(s + strings.Repeat("=", (4-len(s)%4)%4))
-	if err != nil {
+	raw, ok := pyURLSafeB64Decode(s)
+	if !ok {
 		return time.Time{}, "", bad
 	}
 	var v []json.RawMessage
@@ -126,4 +125,66 @@ func parseISO(s string) (time.Time, error) {
 	}
 	loc := time.FixedZone("", off)
 	return time.Date(year, time.Month(mon), day, hh, mm, ss, us*1000, loc), nil
+}
+
+// pyURLSafeB64Decode mirrors base64.urlsafe_b64decode(s + "="*(-len(s)%4)) as
+// CPython 3.13 runs it: non-validating (bytes outside the alphabet are
+// skipped, '+' and '/' are accepted next to '-' and '_'), padding computed on
+// the raw length, parsing stops once a pad completes a quad, and a dangling
+// partial quad is an error. Non-ASCII input is rejected like Python.
+func pyURLSafeB64Decode(s string) ([]byte, bool) {
+	for i := 0; i < len(s); i++ {
+		if s[i] >= 0x80 {
+			return nil, false
+		}
+	}
+	s += strings.Repeat("=", (4-len(s)%4)%4)
+	var out []byte
+	quad, pads := 0, 0
+	var left byte
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if c == '=' {
+			if quad >= 2 {
+				pads++
+				if quad+pads >= 4 {
+					return out, true
+				}
+			}
+			continue
+		}
+		var v byte
+		switch {
+		case c >= 'A' && c <= 'Z':
+			v = c - 'A'
+		case c >= 'a' && c <= 'z':
+			v = c - 'a' + 26
+		case c >= '0' && c <= '9':
+			v = c - '0' + 52
+		case c == '+' || c == '-':
+			v = 62
+		case c == '/' || c == '_':
+			v = 63
+		default:
+			continue
+		}
+		pads = 0
+		switch quad {
+		case 0:
+			quad, left = 1, v
+		case 1:
+			out = append(out, left<<2|v>>4)
+			quad, left = 2, v&0xf
+		case 2:
+			out = append(out, left<<4|v>>2)
+			quad, left = 3, v&3
+		default:
+			out = append(out, left<<6|v)
+			quad, left = 0, 0
+		}
+	}
+	if quad != 0 {
+		return nil, false
+	}
+	return out, true
 }
