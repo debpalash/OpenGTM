@@ -168,7 +168,7 @@ func TestRecomputeInsufficientCreditsResult(t *testing.T) {
 	if n := e.count(`SELECT count(*) FROM jobs WHERE type='run_workbook'`); n != 0 {
 		t.Fatalf("a blocked recompute enqueued %d jobs", n)
 	}
-	if n := e.count(`SELECT count(*) FROM workbooks WHERE id=$1 AND status='idle'`, e.wb); n != 1 {
+	if n := e.count(`SELECT count(*) FROM workbooks WHERE id=$1 AND status='draft' AND last_run_at IS NULL`, e.wb); n != 1 {
 		t.Fatal("a blocked recompute must not flip the workbook to running")
 	}
 }
