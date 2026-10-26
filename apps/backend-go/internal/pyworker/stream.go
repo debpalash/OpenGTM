@@ -11,13 +11,14 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"sync/atomic"
 	"time"
 )
 
 const (
-	maxFrameBytes      = 4 << 20   // one NDJSON line
-	maxStreamFrames    = 200_000   // frames per stream (defence in depth vs Python caps)
-	maxStreamBytes     = 256 << 20 // total bytes per stream
+	maxFrameBytes      = 8<<20 + 64<<10 // one NDJSON line: Python caps a whole stream at 8 MiB and has no per-frame cap
+	maxStreamFrames    = 20_500         // Python MAX_STREAM_FRAMES is 20000; small slack
+	maxStreamBytes     = 9 << 20        // Python MAX_STREAM_BYTES is 8 MiB; slack for the error frame and framing
 	rpcPrefix          = "/internal/copilot/"
 	callIDHeader       = "X-Call-Id"
 	readerBufSize      = 64 << 10
@@ -51,22 +52,34 @@ type Frame struct {
 	ToolData *string
 	Cursor   *int
 	Message  string
+	// ProviderDone is non-nil only when the frame carried it. A done frame with
+	// ProviderDone == false means the provider ended without [DONE]: the caller
+	// must NOT send [DONE].
+	ProviderDone *bool
 }
 
 type wireFrame struct {
-	T        *string         `json:"t"`
-	Seq      *int            `json:"seq"`
-	D        json.RawMessage `json:"d"`
-	Role     *string         `json:"role"`
-	Content  *string         `json:"content"`
-	ToolData *string         `json:"tool_data"`
-	Cursor   *int            `json:"cursor"`
-	Message  *string         `json:"message"`
+	T            *string         `json:"t"`
+	Seq          *int            `json:"seq"`
+	D            json.RawMessage `json:"d"`
+	Role         *string         `json:"role"`
+	Content      *string         `json:"content"`
+	ToolData     *string         `json:"tool_data"`
+	Cursor       *int            `json:"cursor"`
+	Message      *string         `json:"message"`
+	ProviderDone *bool           `json:"provider_done"`
 }
 
-func isTerminal(t string) bool { return t == "done" || t == "none" || t == "error" }
+// isTerminal: done|none|error end any stream; tool_calls (which carries cursor)
+// ends an llm round (Python closes the stream right after it).
+func isTerminal(t string) bool {
+	return t == "done" || t == "none" || t == "error" || t == "tool_calls"
+}
 
-// Stream is an open NDJSON response. Not safe for concurrent use except Close.
+// Stream is an open NDJSON response. Next is single-goroutine; Close may be
+// called from any goroutine (it aborts a blocked Next, which returns ErrClosed).
+// Callers must always defer Close, even after a terminal frame, or the
+// connection lives until the context ends.
 type Stream struct {
 	body     io.ReadCloser
 	br       *bufio.Reader
@@ -81,7 +94,7 @@ type Stream struct {
 	lastSeq  int
 	done     bool // terminal frame seen
 	err      error
-	closed   bool
+	closed   atomic.Bool
 }
 
 func randomCallID() string {
@@ -175,10 +188,9 @@ func (c *Client) Stream(ctx context.Context, path string, body any) (*Stream, er
 
 // Close aborts the request and releases the connection. Idempotent.
 func (s *Stream) Close() {
-	if s == nil || s.closed {
+	if s == nil || !s.closed.CompareAndSwap(false, true) {
 		return
 	}
-	s.closed = true
 	s.cancel()
 	_ = s.body.Close()
 }
@@ -224,7 +236,7 @@ func (s *Stream) Next() (Frame, error) {
 	if s.err != nil {
 		return Frame{}, s.err
 	}
-	if s.closed {
+	if s.closed.Load() {
 		return Frame{}, ErrClosed
 	}
 	if s.done {
@@ -235,6 +247,9 @@ func (s *Stream) Next() (Frame, error) {
 	for {
 		line, err := s.readLine()
 		if err != nil {
+			if s.closed.Load() {
+				return Frame{}, ErrClosed
+			}
 			if s.parent.Err() != nil {
 				return s.fail(s.parent.Err())
 			}
@@ -254,7 +269,7 @@ func (s *Stream) Next() (Frame, error) {
 		if json.Unmarshal(line, &w) != nil || w.T == nil || *w.T == "" {
 			return s.fail(ErrProtocol)
 		}
-		f := Frame{T: *w.T, D: w.D, Role: w.Role, Content: w.Content, ToolData: w.ToolData, Cursor: w.Cursor}
+		f := Frame{T: *w.T, D: w.D, Role: w.Role, Content: w.Content, ToolData: w.ToolData, Cursor: w.Cursor, ProviderDone: w.ProviderDone}
 		if w.Message != nil {
 			f.Message = *w.Message
 		}
