@@ -17,6 +17,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -289,10 +290,15 @@ func TestStdioEndToEndBinary(t *testing.T) {
 		}
 		return e
 	}
+	idRe := regexp.MustCompile(`"id": (\d+)`)
 	norm := func(text string) string {
-		for i, id := range s.leads {
-			text = strings.ReplaceAll(text, fmt.Sprintf(`"id": %d`, i+1), fmt.Sprintf(`"id": %d`, id))
-		}
+		text = idRe.ReplaceAllStringFunc(text, func(m string) string { // one pass: real ids must not be rewritten again
+			n, _ := strconv.Atoi(idRe.FindStringSubmatch(m)[1])
+			if n >= 1 && n <= len(s.leads) {
+				return fmt.Sprintf(`"id": %d`, s.leads[n-1])
+			}
+			return m
+		})
 		return strings.ReplaceAll(text, `"workspace_id": "ws-alpha"`, `"workspace_id": "`+s.ws+`"`)
 	}
 	text := func(body string) (id string, txt string) {
@@ -416,7 +422,7 @@ func TestGracefulShutdownFinishesInFlightCall(t *testing.T) {
 		t.Fatal(err)
 	}
 	b, err := readFrame(t, bufio.NewReader(outp))
-	if err != nil || !strings.Contains(b, `"id": 7`) || !strings.Contains(b, "open_roles") {
+	if err != nil || !strings.Contains(b, `"id": 7`) || !strings.Contains(b, "Slow Co") || strings.Contains(b, `\"error\"`) {
 		t.Fatalf("in-flight call was not finished: %q %v (stderr %s)", b, err, errb.String())
 	}
 	done := make(chan error, 1)
