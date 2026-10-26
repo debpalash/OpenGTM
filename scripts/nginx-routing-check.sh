@@ -92,11 +92,9 @@ check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
   expect "GET /auth/sso/x X-Stub" "$(hdr GET /auth/sso/x X-Stub)" py
   expect "GET /auth/sso/x X-Upstream (unset)" "$(hdr GET /auth/sso/x X-Upstream)" ""
   # Retained lead/signal routes (testdata/contract/retained_leads_routes.txt): always Python at any percentage.
-  for r in "POST /api/lead/7/enrich" "POST /api/collect" "GET /api/jobs" "GET /api/jobs/x" "GET /api/jobs/x/stages" \
-           "GET /api/jobs/x/leads" "GET /api/jobs/x/events" "POST /api/jobs/x/cancel" "DELETE /api/jobs/x" \
-           "POST /api/jobs/x/retry" "GET /api/system-stats" "GET /api/v2/search/unified" "POST /api/v2/scraper/scrape" \
-           "POST /api/leads/verify-email" "POST /api/leads/score" "POST /api/leads/tech-stack" \
-           "POST /api/leads/domain-intel" "GET /api/signals/sources"; do
+  # The plan 14 routes that list used to include (collect, jobs*, system-stats, lead utilities) are ported now and
+  # follow the bucket (check_leadgen_matrix); only enrich, unified search and scraper stay here.
+  for r in "POST /api/lead/7/enrich" "GET /api/v2/search/unified" "POST /api/v2/scraper/scrape" "GET /api/signals/sources"; do
     set -- $r
     expect "$r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
     expect "$r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
@@ -109,13 +107,6 @@ check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
   expect "GET /api/events X-Accel-Buffering" "$(hdr GET '/api/events?token=SECRET' X-Accel-Buffering)" no
   curl -s -o /dev/null "http://127.0.0.1:$PORT/api/events?token=SECRETVALUE123"; sleep 0.3
   if docker logs "$RUN-gw" 2>&1 | grep -q SECRETVALUE123; then echo "  FAIL token leaked into gateway log"; FAIL=1; else echo "  ok   token absent from gateway log"; fi
-  # The 5 retained sources* routes (Python leadgen registry) never go to Go, even at 100%.
-  for r in "GET /api/settings/sources" "GET /api/settings/sources/health" "PUT /api/settings/sources/x" \
-           "POST /api/settings/sources/x/health/reset" "GET /api/settings/sources/registry"; do
-    set -- $r
-    expect "$r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
-    expect "$r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
-  done
   # Unexposed by user decision: never proxied to either API (falls to the SPA location `/`)
   for p in /admin/users /scim/v2/x /scim/v2/Users; do
     expect "GET $p X-Stub (unset)" "$(hdr GET $p X-Stub)" ""
@@ -150,7 +141,7 @@ check_workbook_matrix() { # $1 = expected upstream for Go-eligible routes (py|go
     expect "go-eligible $r X-Seen-Uri" "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
   done
   # Lookalikes that must NOT be captured by the Go block.
-  expect "GET /api/system-stats X-Stub" "$(hdr GET /api/system-stats X-Stub)" py
+  expect "GET /api/system-statsx X-Stub" "$(hdr GET /api/system-statsx X-Stub)" py  # lookalike of /api/system/stats (/api/system-stats itself is plan 14)
   expect "GET /api/workbooksx X-Stub" "$(hdr GET /api/workbooksx X-Stub)" py
   # Order: every retained regex location precedes the first Go regex location in the effective config.
   local T n_ret n_go; T="$(docker exec "$RUN-gw" nginx -T 2>/dev/null)"
@@ -596,6 +587,88 @@ check_audiences_split50() {
 }
 # ===== end plan 10 =====
 
+# ===== plan 14: leadgen collection (19 ported, 3 retained) =====
+check_leadgen_matrix() { # $1 = expected upstream for Go-eligible routes (py|go|any)
+  local want="$1" r u
+  echo "== leadgen collection split ($1) =="
+  # Retained on FastAPI: always Python and no X-Upstream header, at every percentage.
+  for r in "POST /api/lead/7/enrich" "GET /api/v2/search/unified" "POST /api/v2/scraper/scrape"; do
+    set -- $r
+    expect "retained $r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
+    expect "retained $r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
+  done
+  for r in "POST /api/collect" "GET /api/jobs" "GET /api/jobs?status=done&limit=5" "GET /api/jobs/j-1" "DELETE /api/jobs/j-1" \
+           "GET /api/jobs/j-1/stages" "GET /api/jobs/j-1/leads" "GET /api/jobs/j-1/events?limit=5" "POST /api/jobs/j-1/cancel" \
+           "POST /api/jobs/j-1/retry" "GET /api/system-stats" "POST /api/leads/score" "POST /api/leads/verify-email" \
+           "POST /api/leads/tech-stack" "POST /api/leads/domain-intel" "GET /api/settings/sources" "GET /api/settings/sources/health" \
+           "GET /api/settings/sources/registry" "PUT /api/settings/sources/google_maps" "POST /api/settings/sources/google_maps/health/reset"; do
+    set -- $r
+    u="$(hdr "$1" "$2" X-Upstream)"
+    if [ "$want" = any ]; then
+      case "$u" in go|py) echo "  ok   $r X-Upstream = $u";; *) echo "  FAIL $r X-Upstream: got '$u'"; FAIL=1;; esac
+      expect "$r X-Stub matches X-Upstream" "$(hdr "$1" "$2" X-Stub)" "$u"
+    else
+      expect "$r X-Upstream" "$u" "$want"
+      expect "$r X-Stub     " "$(hdr "$1" "$2" X-Stub)" "$want"
+    fi
+    expect "$r X-Seen-Uri " "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+  done
+  # Lookalikes, unknown subpaths and trailing-slash variants stay on Python at every percentage.
+  for r in "GET /api/jobs/" "GET /api/jobsx" "GET /api/jobs/j-1/other" "GET /api/jobs/j-1/stages/" "GET /api/jobs/j-1/leads/x" \
+           "GET /api/collect/" "GET /api/collectx" "GET /api/system-stats/" "GET /api/leads/score/" "GET /api/leads/other" \
+           "GET /api/leads/score/x" "GET /api/settings/sources/" "GET /api/settings/sources/x/y" "GET /api/settings/sources/x/health" \
+           "GET /api/settings/sources/x/health/reset/" "GET /api/settings/sourcesx" "GET /api/lead/7/enrich/" "GET /api/v2/search/unified/"; do
+    set -- $r
+    expect "unmatched $r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
+    expect "unmatched $r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
+  done
+  # collect and every jobs route are keyed per workspace: same X-Workspace-Id -> same bucket whatever the client or the route.
+  local a b c d
+  up() { curl -s -D- -o /dev/null -X "$1" -H "X-Workspace-Id: $2" -H "Authorization: Bearer $3" "http://127.0.0.1:$PORT$4" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}'; }
+  a="$(up POST ws-1 one /api/collect)"; b="$(up GET ws-1 two /api/jobs)"; c="$(up POST ws-1 three /api/jobs/j-9/retry)"; d="$(up DELETE ws-1 four /api/jobs/j-8)"
+  [ "$want" = any ] || { expect "collect X-Upstream (workspace header)" "$a" "$want"; expect "jobs list X-Upstream (workspace header, other client)" "$b" "$want"; }
+  if [ -n "$a" ] && [ "$a" = "$b" ] && [ "$a" = "$c" ] && [ "$a" = "$d" ]; then echo "  ok   collect, list, retry and delete agree for one workspace ($a)"; else echo "  FAIL ws-1 not sticky: collect=$a list=$b retry=$c delete=$d"; FAIL=1; fi
+  # Location settings (not observable from a stub): the proxy settings equal the `/api/` location.
+  local T; T="$(docker exec "$RUN-gw" nginx -T 2>/dev/null)"
+  blk() { printf '%s\n' "$T" | awk -v pat="$1" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f' | grep -E 'proxy_(read_timeout|send_timeout|buffering|http_version)' | sed 's/^[[:space:]]*//' | sort; }
+  local l
+  for l in '= /api/collect' '~ ^/api/jobs(/[^/]+(/(stages|leads|events|cancel|retry))?)?$' '= /api/system-stats' \
+           '~ ^/api/leads/(score|verify-email|tech-stack|domain-intel)$' '~ ^/api/settings/sources(/(health|registry|[^/]+|[^/]+/health/reset))?$'; do
+    expect "timeouts/buffering of '$l' == '/api/'" "$(blk "$l")" "$(blk "/api/")"
+  done
+  # The retained routes are pinned to api_backend regardless of the bucket.
+  for l in '~ ^/api/lead/[^/]+/enrich$' '= /api/v2/search/unified' '= /api/v2/scraper/scrape'; do
+    local R; R="$(printf '%s\n' "$T" | awk -v pat="$l" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f')"
+    case "$R" in *"proxy_pass http://api_backend;"*) echo "  ok   '$l' pinned to api_backend";; *) echo "  FAIL '$l' not pinned to api_backend"; FAIL=1;; esac
+  done
+}
+
+# Plan 14 at an intermediate percentage: collect and the jobs routes are keyed per workspace (one workspace, one stack, for every
+# route and every client); the utilities follow the client bucket.
+check_leadgen_split50() {
+  echo "== leadgen collection split (50%) =="
+  local w a b c d seen="" stick=1 go=0 py=0 i x y
+  up() { curl -s -D- -o /dev/null -X "$1" -H "X-Workspace-Id: $2" -H "Authorization: Bearer $3" "http://127.0.0.1:$PORT$4" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}'; }
+  for w in ws-1 ws-2 ws-3 ws-4 ws-5 ws-6 ws-7 ws-8 ws-9 ws-10 ws-11 ws-12; do
+    a="$(up POST "$w" one /api/collect)"; b="$(up GET "$w" two /api/jobs)"; c="$(up POST "$w" three /api/jobs/j-1/retry)"; d="$(up POST "$w" four /api/jobs/j-1/cancel)"
+    if [ -z "$a" ] || [ "$a" != "$b" ] || [ "$a" != "$c" ] || [ "$a" != "$d" ]; then stick=0; echo "  FAIL $w not sticky: collect=$a list=$b retry=$c cancel=$d"; fi
+    seen="$seen $a"
+  done
+  [ "$stick" = 1 ] && echo "  ok   collect, list, retry and cancel agree per workspace"
+  case "$seen" in *go*) go=1;; esac
+  case "$seen" in *py*) py=1;; esac
+  if [ "$go" = 1 ] && [ "$py" = 1 ]; then echo "  ok   both upstreams appear across workspaces"; else echo "  FAIL workspaces all landed on one upstream:$seen"; FAIL=1; fi
+  [ "$stick" = 1 ] || FAIL=1
+  # System stats, the utilities and the source settings follow the client, not the workspace.
+  for i in 1 2 3 4 5 6; do
+    x="$(up GET ws-1 "c$i" /api/system-stats)"; y="$(up GET ws-2 "c$i" /api/system-stats)"
+    expect "GET /api/system-stats client c$i ignores the workspace" "$x" "$y"
+    x="$(up POST ws-1 "c$i" /api/leads/score)"; y="$(up GET ws-2 "c$i" /api/settings/sources)"
+    expect "score and source settings agree for client c$i" "$x" "$y"
+  done
+}
+# ===== end plan 14 =====
+
 echo "== nginx -t =="
 start_gateway 0
 if docker exec "$RUN-gw" nginx -t 2>&1; then echo "  ok   nginx -t"; else echo "  FAIL nginx -t"; FAIL=1; fi
@@ -608,12 +681,15 @@ check_copilot_matrix py
 check_governance_matrix py
 check_outreach_matrix py
 check_audiences_matrix py
+check_leadgen_matrix py
 start_gateway 50
 docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @50%"; FAIL=1; }
 check_outreach_matrix any
 check_audiences_matrix any
 check_audiences_split50
 check_copilot_split50
+check_leadgen_matrix any
+check_leadgen_split50
 start_gateway 100
 docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @100%"; FAIL=1; }
 check_matrix go 100%
@@ -625,5 +701,6 @@ check_copilot_matrix go
 check_governance_matrix go
 check_outreach_matrix go
 check_audiences_matrix go
+check_leadgen_matrix go
 
 [ "$FAIL" = 0 ] && echo "ALL PASS" || { echo "FAILED"; exit 1; }
