@@ -3,6 +3,7 @@ package chathistory
 import (
 	"encoding/json"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -33,7 +34,7 @@ func TestAutoTitleRuneSafe(t *testing.T) {
 		in += "é"
 	}
 	got := AutoTitle(in)
-	if len([]rune(got)) != 60 {
-		t.Fatalf("want 60 runes (no space to cut at), got %d", len([]rune(got)))
+	if got != strings.Repeat("é", 60)+"..." {
+		t.Fatalf("rune-safe cut at 60 then ellipsis: %q", got)
 	}
 }

@@ -49,7 +49,7 @@ func add(t *testing.T, pool *pgxpool.Pool, w, conv, role, content string, td *st
 	var err error
 	// own transaction per message so now() differs (tx-shared now() has undefined order)
 	_ = tenancy.InWorkspace(context.Background(), pool, w, func(tx pgx.Tx) error {
-		err = chathistory.AddMessage(context.Background(), tx, conv, role, content, td, w)
+		err = chathistory.AddMessage(context.Background(), tx, conv, role, content, td, w, uid(1))
 		return nil
 	})
 	return err
@@ -406,9 +406,9 @@ func TestApprovalStoredCanonical(t *testing.T) {
 		if err := tx.QueryRow(context.Background(), `SELECT tool_call_json, user_id FROM chat_tool_approvals WHERE id=$1`, id).Scan(&s, &u); err != nil {
 			t.Fatal(err)
 		}
-		want := `{"args":{"a":["x",true,null],"z":"é"},"id":"call_1","name":"update_lead_status"}`
+		want := `{"args":{"a":["x",true,null],"z":"\u00e9"},"id":"call_1","name":"update_lead_status"}`
 		if s != want {
-			t.Fatalf("stored %s", s)
+			t.Fatalf("stored %q want %q", s, want)
 		}
 		if u != "1" {
 			t.Fatalf("user %s", u)
