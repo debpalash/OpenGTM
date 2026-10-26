@@ -249,3 +249,96 @@ func TestLegacyDeleteIsRecursive(t *testing.T) {
 		t.Errorf("legacy rmtree did not remove sub: %v", err)
 	}
 }
+
+func TestDanglingSymlinkRejected(t *testing.T) {
+	data, tmp := tree(t)
+	target := filepath.Join(tmp, "not-yet-created")
+	if err := os.Symlink(target, filepath.Join(data, "dangling")); err != nil {
+		t.Fatal(err)
+	}
+	f := New(data, false)
+	for _, c := range []string{"dangling", "dangling/x"} {
+		if _, _, err := f.Open(c); !errors.Is(err, ErrAccessDenied) {
+			t.Errorf("Open(%q) = %v, want ErrAccessDenied", c, err)
+		}
+		if _, err := f.List(c); !errors.Is(err, ErrAccessDenied) {
+			t.Errorf("List(%q) = %v, want ErrAccessDenied", c, err)
+		}
+	}
+	if err := f.Delete("dangling/x"); !errors.Is(err, ErrAccessDenied) {
+		t.Errorf("Delete(dangling/x) = %v", err)
+	}
+	// The outside target appearing later must not become readable through the link.
+	if err := os.WriteFile(target, []byte("late"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if fh, _, err := f.OpenFile("dangling"); err == nil {
+		fh.Close()
+		t.Fatal("OpenFile followed a symlink to a file created outside the data dir")
+	}
+	// Deleting the link itself is still allowed and leaves the target alone.
+	if err := f.Delete("dangling"); err != nil {
+		t.Errorf("Delete(dangling link) = %v", err)
+	}
+	if _, err := os.Stat(target); err != nil {
+		t.Errorf("target removed: %v", err)
+	}
+}
+
+func TestOpenFileNoFollowAndRecheck(t *testing.T) {
+	data, _ := tree(t)
+	if err := os.Symlink(filepath.Join(data, "a.txt"), filepath.Join(data, "inlink")); err != nil {
+		t.Fatal(err)
+	}
+	f := New(data, false)
+	fh, st, err := f.OpenFile("inlink") // in-root link resolves to a.txt, then opens without following
+	if err != nil || st.Size() != 1 || filepath.Base(fh.Name()) != "a.txt" {
+		t.Fatalf("OpenFile in-root link: %v %v", err, st)
+	}
+	fh.Close()
+	for _, c := range []string{"escapefile", "escape/secret.txt", "../x"} {
+		if fh, _, err := f.OpenFile(c); err == nil {
+			fh.Close()
+			t.Errorf("OpenFile(%q) succeeded", c)
+		}
+	}
+	if _, _, err := f.OpenFile("sub"); !errors.Is(err, ErrNotFound) {
+		t.Errorf("OpenFile(dir) = %v", err)
+	}
+}
+
+func TestListCapTruncates(t *testing.T) {
+	data, _ := tree(t)
+	for i := 0; i < 5; i++ {
+		p := filepath.Join(data, "f"+string(rune('0'+i))+".txt")
+		if err := os.WriteFile(p, nil, 0o644); err != nil {
+			t.Fatal(err)
+		}
+		touch(t, p, "2026-02-0"+string(rune('1'+i))+" 10:00:00")
+	}
+	l, trunc, err := New(data, false).WithListLimit(3).ListTruncated("")
+	if err != nil || !trunc || len(l) != 3 || l[1].Name != "f4.txt" {
+		t.Fatalf("capped list: %v %v %+v", err, trunc, l)
+	}
+	if l, trunc, _ := New(data, false).ListTruncated(""); trunc || len(l) < 8 {
+		t.Errorf("default cap truncated a small dir: %v %d", trunc, len(l))
+	}
+	if l, trunc, _ := New(data, true).WithListLimit(3).ListTruncated(""); trunc || len(l) < 8 {
+		t.Errorf("legacy must stay unbounded: %v %d", trunc, len(l))
+	}
+}
+
+func TestStatsWalkCaps(t *testing.T) {
+	data, _ := tree(t)
+	s, err := Stats(t.Context(), "/", data, "", StatsLimits{MaxEntries: 3})
+	if err != nil || !s.ProjectSizePartial {
+		t.Fatalf("capped stats: %+v %v", s, err)
+	}
+	s, _ = Stats(t.Context(), "/", data, "", StatsLimits{MaxEntries: 1000, MaxTime: time.Minute})
+	if s.ProjectSizePartial {
+		t.Errorf("small tree reported partial")
+	}
+	if s, _ = Stats(t.Context(), "/", data, ""); s.ProjectSizePartial {
+		t.Errorf("unbounded stats reported partial")
+	}
+}
