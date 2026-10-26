@@ -8,7 +8,6 @@ import (
 	"math"
 	"os"
 	"regexp"
-	"strings"
 	"testing"
 	"time"
 )
@@ -222,10 +221,10 @@ func TestDumpsDefaultStrAndOrder(t *testing.T) {
 	if string(dumps(ts)) != `"2026-08-29 10:00:00.000005+00:00"` {
 		t.Fatalf("%s", dumps(ts))
 	}
-	if string(dumps("<&>")) != `"<&>"`[0:0]+`"<&>"` {
+	if string(dumps("<&>")) != `"<&>"` {
 		t.Fatalf("html must not be escaped: %s", dumps("<&>"))
 	}
-	if !strings.Contains(string(dumps("é ")), `é `) {
+	if string(dumps(string([]rune{0xe9, 0x2028, 0x1f680}))) != `"`+"\\u00e9\\u2028\\ud83d\\ude80"+`"` {
 		t.Fatal("ensure_ascii")
 	}
 }
