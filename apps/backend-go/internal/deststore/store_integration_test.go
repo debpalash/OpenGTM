@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
@@ -1277,4 +1278,54 @@ func TestTenantIsolation(t *testing.T) {
 		}
 		return nil
 	})
+}
+
+// Plan 10 final correctness L3: FinishCancelled takes the run lock before it touches the deliveries (the order
+// ReconcileFailure uses), so a stale worker cannot hold deliveries while waiting for the run.
+func TestFinishCancelledLocksRunBeforeDeliveries(t *testing.T) {
+	pool, ctx := setup(t)
+	d := mkDest(t, ctx, pool, wsA, aud, "lock-order")
+	seedRun(t, ctx, pool, wsA, "p10fin-l3", d.ID, "cancelling", "2026-08-28 10:00:00", 0)
+	seedDelivery(t, ctx, pool, wsA, dlv{ID: 7300, Run: "p10fin-l3", Dest: d.ID, Lead: 1, Status: "pending"})
+
+	held, release := make(chan struct{}), make(chan struct{})
+	holderDone := make(chan error, 1)
+	go func() { // simulates the hook: owns a delivery row
+		holderDone <- tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+			if _, err := tx.Exec(ctx, `UPDATE destination_deliveries SET attempts = attempts WHERE id = 7300`); err != nil {
+				return err
+			}
+			close(held)
+			<-release
+			return nil
+		})
+	}()
+	<-held
+	finishDone := make(chan error, 1)
+	go func() {
+		finishDone <- tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+			run, err := deststore.GetRun(ctx, tx, "p10fin-l3")
+			if err != nil {
+				return err
+			}
+			_, err = deststore.FinishCancelled(ctx, tx, run, nil)
+			return err
+		})
+	}()
+	time.Sleep(700 * time.Millisecond) // FinishCancelled is now waiting for the delivery row
+	err := tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx, `SELECT 1 FROM destination_runs WHERE id = 'p10fin-l3' FOR UPDATE NOWAIT`)
+		return err
+	})
+	var pe *pgconn.PgError
+	if !errors.As(err, &pe) || pe.Code != "55P03" {
+		t.Errorf("run row was not locked while FinishCancelled waited on deliveries: %v", err)
+	}
+	close(release)
+	if err := <-holderDone; err != nil {
+		t.Fatal(err)
+	}
+	if err := <-finishDone; err != nil {
+		t.Fatal(err)
+	}
 }

@@ -93,7 +93,12 @@ func FinishCancelled(ctx context.Context, tx pgx.Tx, run Run, dest *Destination)
 	if err := requireTenant(ctx, tx, run.WorkspaceID); err != nil {
 		return Run{}, err
 	}
-	return finishCancelled(ctx, gen.New(tx), run.WorkspaceID, run.ID, dest)
+	q := gen.New(tx)
+	// Run first, then deliveries: the order ReconcileFailure uses, so an overlapping stale worker cannot deadlock it.
+	if _, err := lockRun(ctx, q, run.WorkspaceID, run.ID); err != nil {
+		return Run{}, err
+	}
+	return finishCancelled(ctx, q, run.WorkspaceID, run.ID, dest)
 }
 
 func finishCancelled(ctx context.Context, q *gen.Queries, ws, runID string, dest *Destination) (Run, error) {
