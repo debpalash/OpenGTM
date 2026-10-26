@@ -32,9 +32,10 @@ func RegisterWorkbooks(r *httpx.Router, d Deps) {
 	editor := identity.RequireRole("tables.write", "editor", "admin")
 
 	r.Handle("GET /api/workbooks/", http.HandlerFunc(h.list), authn, workspace)
-	r.Handle("POST /api/workbooks/", http.HandlerFunc(h.create), authn, workspace, editor)
-	r.Handle("POST /api/workbooks/from-jobs", http.HandlerFunc(h.fromJobs), authn, workspace, editor)
-	r.Handle("PUT /api/workbooks/{workbook_id}", http.HandlerFunc(h.update), authn, workspace, editor)
+	budget := sharedBudget(d.Flags.ImportMemoryBudgetMB)
+	r.Handle("POST /api/workbooks/", withBodyBudget(budget, wbcrud.MaxBodyBytes, h.create), authn, workspace, editor)
+	r.Handle("POST /api/workbooks/from-jobs", withBodyBudget(budget, wbcrud.MaxBodyBytes, h.fromJobs), authn, workspace, editor)
+	r.Handle("PUT /api/workbooks/{workbook_id}", withBodyBudget(budget, wbcrud.MaxBodyBytes, h.update), authn, workspace, editor)
 	r.Handle("DELETE /api/workbooks/{workbook_id}", http.HandlerFunc(h.remove), authn, workspace, editor)
 }
 

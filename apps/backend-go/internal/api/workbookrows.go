@@ -51,7 +51,7 @@ func RegisterWorkbookRows(r *httpx.Router, d Deps) {
 	mws := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity),
 		identity.RequireRole("tables.write", "editor", "admin")}
 	const base = "/api/workbooks/{workbook_id}"
-	r.Handle("POST "+base+"/rows", http.HandlerFunc(rr.add), mws...)
+	r.Handle("POST "+base+"/rows", withBodyBudget(sharedBudget(d.Flags.ImportMemoryBudgetMB), maxRowsBody, rr.add), mws...)
 	r.Handle("DELETE "+base+"/rows", http.HandlerFunc(rr.deleteRows), mws...)
 	r.Handle("POST "+base+"/rows/delete-query", http.HandlerFunc(rr.deleteQuery), mws...)
 	r.Handle("PATCH "+base+"/rows/{row_id}", http.HandlerFunc(rr.patchRow), mws...)

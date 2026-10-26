@@ -2,7 +2,10 @@ package api
 
 import (
 	"context"
+	"net/http"
 	"sync"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 )
 
 // byteBudget is a weighted semaphore over upload bytes in flight. Memory of an
@@ -59,4 +62,51 @@ func (b *byteBudget) available() int64 {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	return b.avail
+}
+
+var (
+	sharedMu      sync.Mutex
+	sharedBudgets = map[int]*byteBudget{}
+)
+
+// sharedBudget returns the process-wide upload budget for the configured size
+// (IMPORT_MEMORY_BUDGET_MB, default 512): import, add rows and workbook
+// create/update/from-jobs all draw on it so concurrent buffered bodies cannot
+// multiply past it.
+func sharedBudget(mb int) *byteBudget {
+	if mb <= 0 {
+		mb = 512
+	}
+	sharedMu.Lock()
+	defer sharedMu.Unlock()
+	b, ok := sharedBudgets[mb]
+	if !ok {
+		b = newByteBudget(int64(mb) << 20)
+		sharedBudgets[mb] = b
+	}
+	return b
+}
+
+// withBodyBudget reserves the declared body size (maxBody when unknown) from b
+// before the handler reads the body; 503 + Retry-After when it stays full.
+// Place it after authentication and the role gate (it wraps the handler).
+func withBodyBudget(b *byteBudget, maxBody int64, h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		weight := r.ContentLength
+		if weight < 0 {
+			weight = maxBody
+		}
+		ctx, cancel := context.WithTimeout(r.Context(), importBudgetWait)
+		release, ok := b.acquire(ctx, weight)
+		cancel()
+		if !ok {
+			if r.Context().Err() != nil {
+				return
+			}
+			httpx.Detail(w, http.StatusServiceUnavailable, "Too many uploads in progress", httpx.Header{Key: "Retry-After", Value: "5"})
+			return
+		}
+		defer release()
+		h(w, r)
+	}
 }

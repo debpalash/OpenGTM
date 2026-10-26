@@ -36,11 +36,7 @@ func RegisterWorkbookImport(r *httpx.Router, d Deps) {
 	if d.Pool == nil || !d.workbooksEnabled("workbook import") {
 		return
 	}
-	mb := d.Flags.ImportMemoryBudgetMB
-	if mb <= 0 {
-		mb = 512
-	}
-	ir := importRoutes{d: d, budget: newByteBudget(int64(mb) << 20), wait: importBudgetWait}
+	ir := importRoutes{d: d, budget: sharedBudget(d.Flags.ImportMemoryBudgetMB), wait: importBudgetWait}
 	ir.svc = &wbcrud.Service{Pool: d.Pool, Leads: wbcrud.PGLeads{}, Hook: automationhook.New(d.Flags.AutomationsEnabled, d.Log), Now: time.Now}
 	mws := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity),
 		identity.RequireRole("tables.write", "editor", "admin")}
