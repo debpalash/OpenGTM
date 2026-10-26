@@ -1069,3 +1069,118 @@ Runbook: `docs/go-port/runbooks/governance-playbooks-cutover.md`. Fixtures not r
 - **No owner guard on SCIM deprovision.** `ScimRemoveMember` lacks `role <> 'owner'`, so SCIM can remove an owner (the governance routes cannot).
 - Python bugs found and not fixed (user rule): the escalation path above, 500 on out-of-range `user_id`, `PATCH` null/rename/`""` 500s, the CSV leading-space/LF gap, a cancelled run overwritten
   by the final update, and unchecked int snapshot values in retention reconcile (issue #114 for the security ones).
+
+## Plan 09 (outreach: sequences, send, inbound, unsubscribe, webhook, SMTP, suppressions, drafts): recording, coverage and deviations
+
+Parity is pinned by `internal/api/outreach_coverage_test.go`: the 22 routes of `routers/outreach.py` are ported, `POST /api/campaigns/generate` is retained on Python
+(`retained_outreach_routes.txt`, D1: it calls the LLM once per lead and moves with the copilot/LLM plan), every ported route has a recorded fixture under `outreach/`
+(202 cases, four recording profiles), Go dispatches exactly the `send` and `outreach_inbound_poll` job types, and no seeded secret appears in fixtures or in captured logs.
+Runbook: `docs/go-port/runbooks/outreach-cutover.md`. Flags (all default false): `GO_OUTREACH_ROUTES_ENABLED` (+ `PG_LEAD_STORE`), `GO_EXECUTOR_OUTREACH_INBOUND`, `GO_EXECUTOR_OUTREACH_SEND`;
+the executor for a job also needs `GO_EXECUTOR_ENABLED` and the workspace in `GO_EXECUTOR_WORKSPACES` (cohort pattern, not a global switch: sends are non-idempotent).
+
+### Recording procedure (outreach fixtures, vectors, DSN corpus)
+
+```sh
+P=postgres://postgres:postgres@127.0.0.1:55480/postgres
+# private DB + non-superuser app role
+docker exec opengtm-go-test-pg psql -U postgres -c "CREATE DATABASE opengtm_contract_p09" \
+  -c "CREATE ROLE contract_app_p09 LOGIN PASSWORD '<x>' NOSUPERUSER NOBYPASSRLS" -c "GRANT yupcha_app TO contract_app_p09"
+cd legacy/python
+export SQLITE_STORES_BACKEND=postgres SECRET_KEY=<test-only> APP_ENV=test TZ=UTC RUN_INLINE_WORKER=0 PG_LEAD_STORE=true PYTHONPATH=. \
+       SECRETS_MASTER_KEY=<OUTREACH_MASTER_KEY from scripts/contract_seed.py>
+DATABASE_URL=<superuser url> uv run alembic upgrade head
+# per profile (default | outreach_smtp | webhook | no_webhook_secret): reseed, start the launcher on 8419, record, stop it
+DATABASE_URL=<superuser url> CONTRACT_SEED_CONFIRM=yes CONTRACT_SEED_OUTREACH=yes [CONTRACT_SEED_OUTREACH_SMTP=yes] uv run python scripts/contract_seed.py
+DATABASE_URL=<app role url | superuser url for `webhook`> PG_RLS_REQUIRE_SAFE_ROLE=<true | false for `webhook`> \
+  OUTREACH_BOUNCE_WEBHOOK_SECRET=<secret; empty for no_webhook_secret> OUTREACH_UNSUB_TTL_DAYS=36500 OUTREACH_PUBLIC_BASE_URL=http://localhost:8000 \
+  uv run python scripts/outreach_contract_server.py --port 8419 [--fake-smtp 25251 for outreach_smtp] &
+python3 scripts/contract_record.py --base http://127.0.0.1:8419 --out ../../apps/backend-go/testdata/contract \
+    --cases scripts/contract_cases/outreach.yaml --profile default|outreach_smtp|webhook|no_webhook_secret
+uv run python scripts/gen_outreach_vectors.py        # vectors (no DB, no network); --check-cases, --verify-tokens < cases.json
+uv run python scripts/record_dsn_corpus.py [--check] # DSN corpus (internal/dsnparse/testdata, testdata/dsn)
+```
+
+The unsubscribe cases run last (they add locked suppressions and fill the in-process limiter: 20 POSTs, the 21st answers 429). Python's `aiosmtplib` is not installed in the reference
+environment, so every recorded send used the `smtplib` fallback (STARTTLS when `SMTP_USE_TLS`, never implicit TLS); the vector generator refuses to run if it becomes importable. The seeded
+master key, SMTP password and webhook secret are TEST-ONLY literals (`contract_seed.py`); the fixtures carry the bounce secret only as a placeholder and contain no real mailbox.
+
+### D2: SMTP/IMAP transport (`internal/smtpclient`, `internal/imapclient`, `internal/egress`)
+
+- Both clients dial through the SSRF guard (`egress.NewDialContext(APP_ENV, EGRESS_ALLOW_HOSTS)`): loopback, private, link-local and metadata addresses are refused at dial time. Python dials any host a workspace admin types.
+- Certificates are verified. Port 465 or `use_ssl` is implicit TLS; otherwise STARTTLS is mandatory and verified. **Plaintext AUTH is refused** (`SMTP_USE_TLS=0`, a server without STARTTLS, an IMAP server without STARTTLS) except for
+  allow-listed test hosts (`PlainHosts`/`RootCAs` are empty in production wiring, asserted by tests). Self-signed relays therefore break; there is no insecure switch. Self-hosted internal relays use `EGRESS_ALLOW_HOSTS` (honoured only when `APP_ENV` is `test` or `bench`; see the runbook).
+- Errors: the 587 no-STARTTLS error reads "STARTTLS extension not supported by server." (Python wording); server replies are stored verbatim as `550 5.1.1 ...` (Python stores `(550, b'...')`); the password and its base64 are scrubbed from every error
+  (passwords shorter than 4 characters are not scrubbed from server-echoed text: mangling risk outweighs the leak of a trivially weak credential).
+- IMAP: go-imap v2 (beta.8, pinned, D4). It has no RFC822 item, so Go fetches `BODY.PEEK[]` (same bytes, but it does not set `\Seen`; Go marks seen itself after processing, so a failed pass retries). Fetch is byte-budgeted (8 MiB per operation, 6 MiB
+  for a body, 5 MiB message cap) and a hostile literal closes the connection (`ErrBudgetExceeded`, the poller reconnects, max 3 per tick); an oversized message is marked seen and skipped; `SearchUnseen` returns the lowest `OUTREACH_INBOUND_MAX_FETCH` UIDs.
+- **Transport errors never hard-bounce** (Go-only hardening): only an SMTP protocol reply (`*textproto.Error`) is classified, on Python's `(code, b'msg')` shape (550/551/553/554 hard). Refused, timeout, DNS, TLS and cancel are finalized `failed`, the enrollment
+  fails, the job retries, and the recipient is not suppressed. Stored text is address- and port-free ("[Errno 111] Connection refused", "timed out", "name resolution failed", "TLS handshake failed", "cancelled").
+- **535 and 552 are not hard bounces: deliberate parity** with Python (`535` auth failure and `552` mailbox full do not match the hard-bounce rule on the `(code, b'msg')` shape). A bad SMTP credential must not suppress recipients. A message-build error finalizes `failed` (Python could raise mid-job).
+- Legacy time-zone names `EST`, `MST`, `HST`, `EST5EDT`, `CST6CDT`, `MST7MDT`, `PST8PDT` fall back to UTC for the send window (the Python reference environment does not resolve them; vectors pin it); `time/tzdata` is embedded. Spring-forward gaps and fold=0 behave as Python.
+- Rolling 24 h daily cap: `SentCountToday` is "the last 24 hours" like Python, not UTC midnight as the plan text said.
+- Paid sends (`OUTREACH_SEND_COST_USD > 0`) need plan 08 caps; the worker always wires `AutoCaps` (`GlobalDailyUSD`). A `nil` Caps (test seam only) hands the job back to Python (D7). Free sends run fully in Go. A job reaching the worker with the per-type flag off, no secret
+  resolver (`CREDENTIALS_SOURCE=http`) or no usable master key is handed back to Python untouched (D6; the missing key is an error log at startup, never a panic).
+- `Handle` is a no-op when `AUTOMATIONS_ENABLED` is off (Python `handle_send` returns without effect); the inbound poll also needs `OUTREACH_INBOUND_POLL_ENABLED`. A job cancelled after the `in_flight` marker is finalized `failed` (path not covered by a test).
+- Go jobs carry an extra trailing `fire_key` (= idempotency key) in the payload; Python ignores extra keys. A pending/processing Python `send` job with the same idempotency key blocks the Go enqueue (and vice versa).
+- **`next_run_at` is a naive-UTC timestamp column**: the Go inbound reschedule writes UTC; sessions that read or write it with another `TimeZone` setting shift it. Keep the Postgres session time zone UTC on both stacks (the recording used `TZ=UTC`).
+
+### D3: input validation and sequence deviations (`outreachsequences.go`, `outreachactions.go`)
+
+- Values Postgres columns reject answer 422 in the FastAPI list shape instead of a 500: `name` 1-200, `description` <= 5000, `send_window_tz` <= 40 and loadable IANA (empty and `Local` refused), window hours 0-23, `daily_limit` 1-100000, `consent_basis` <= 40, steps <= 50
+  (`too_long`, input shown as `<omitted>`), `delay_hours` 0-8760, `status` in `draft|active|paused|completed`; NUL in any text field -> 422.
+- **`PUT /sequences/{id}` with `status="active"` answers 422** (`value_error` pointing at `/start`). Python activates without the SMTP, consent and footer gates (fixture `seq_put_status_active` is replayed as this deviation; `seq_get_after_put` compares `paused`).
+- `POST /sequences/{id}/start`: 404 -> SMTP (400) -> consent_basis (400) -> footer (400), then status active and the first tick after the commit. Missing secrets envelope -> 503 `Secrets are not configured`; sequence deleted mid-start -> 404 (Python answers active).
+- `POST /sequences/{id}/enroll`: `lead_ids` capped at 5000 (422 `too_long`, loc `body.lead_ids`); enrolled in transactions of 500 ids, so a mid-way failure keeps earlier chunks committed (a retry answers `already_enrolled`); `consent_source` > 120 chars -> 422 (Python 500); lead ids outside 1..2^31-1 answer `no_email`
+  (Python 500); foreign-workspace leads are invisible (RLS) and answer `no_email`. `GET /sequences/{id}/sends` keeps Python's no-ownership-check shape (foreign/unknown id -> `{"sends":[]}`).
+- The outreach schedule upsert and `DisableSchedule` are workspace-scoped (a schedule row owned by another workspace is never overwritten or disabled): small tenancy hardening. `UpdateSequence` does not bump `updated_at` on an identical update (Python's ORM also skips it).
+- Drafts (`outreachdrafts.go`): `limit`/`offset` follow pydantic lax ints; an `offset` beyond int64 -> 422 (Python 500); the list adds an `id DESC` tiebreak. JSON columns (`sentence_evidence`, `source_snapshot`) are re-encoded to match Python's round trip (key order kept, non-ASCII unescaped, floats in `repr` form:
+  `2.50` -> `2.5`, `1e2` -> `100.0`; U+2028/2029 kept raw; every falsy value maps to `[]`/`{}`); a re-encode is not byte-identical for exotic numbers. Timestamps render as UTC `isoformat` (`+00:00`, micros only when non-zero).
+
+### SMTP routes (`outreachsmtp.go`)
+
+- `host` must be a bare host or IP (<= 253, no scheme or CRLF), `port` 1-65535, `max_per_hour` 1-100000, `email` <= 320, `from_name` <= 200, `password` <= 1024, NUL refused: 422 (Python stores anything).
+- `POST /smtp/test` is rate limited to 10 per minute (key: `X-Workspace-Id`, else the bearer token; no limiter in `Deps` means unlimited), runs through the egress guard with verified TLS, and answers failures as `535 5.7.8 ...` or a fixed transport phrase, password scrubbed, control characters dropped, capped at 300 chars. The password is write-only (never in a response or log).
+- `use_tls=false` is refused (D2), so the recorded `smtp_test_ok` replays only against the fake server with `PlainHosts`. A missing secrets envelope answers 503 on all three routes. A lookup failure in `status` returns Python's defaults (`OpenGTM`, 50). The recipient is trimmed before RCPT; the success text echoes the raw `to_email`.
+
+### Suppressions (`outreachsuppressions.go`, `outreachstore`)
+
+- `POST` with a blank email (empty, whitespace, or one that normalises to empty) -> 422 (Python: 200 `added:false`); email > 320 or NUL -> 422. A string without `@` is still stored (`not-an-email`, recorded Python behaviour, fixture `suppress_add_no_at`). `DELETE` with a path value over 1280 bytes -> 404 without a query.
+  A `%2F` in the address cannot be removed through this route in either stack (router decoding differs).
+- **Gmail/googlemail suppressions are stored under the collapsed key** (dots and `+tag` removed) by every Go write path (route, bounce, complaint, unsubscribe). Python stored the dotted form and matched collapsed rows on read. Go therefore suppresses more than Python (both directions match: safer). Legacy dotted rows
+  written by Python are **not re-keyed**: they keep matching one direction only (a send to the dotted spelling is blocked, the undotted spelling is not) unless a one-time normalisation is run (see the runbook). `DELETE` looks up every match key; a legacy dotted row is removable by its own spelling; any locked match -> 403.
+- **Unsubscribe and complaint lock existing suppressions** (Go-only hardening, ruling in the plan 09 ledger): `AddSuppression(locked=true)` upgrades an existing unlocked row (any match key, including legacy dotted rows) to locked with the opt-out's reason and source; it still returns `added:false`, locked rows keep their reason, and `locked=false` never changes a row.
+  Python leaves such a row unlocked, so an admin can delete it and email the recipient again. Cost: an admin cannot delete those rows without an unlock path. A complaint that arrives for a Message-ID already recorded as a bounce answers `duplicate` and does not lock (Python parity).
+- The audit middleware records the route pattern for `DELETE /api/outreach/suppressions/{email}` (Python audits the raw path including the address).
+
+### Public routes (`outreachpublic.go`, D5, D6, D8)
+
+- Unsubscribe landing HTML-escapes the email and the token (Python reflects both unescaped) and adds `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, and a CSP (`default-src 'none'; form-action 'self'; frame-ancestors 'none'`); HEAD answers like GET. Repeated `?token=` uses the last value.
+- Missing or insecure master key: unsubscribe GET and POST answer 503 `{"detail":"unsubscribe not configured"}` (Python 500). Tokens verify with the same derived key on both stacks; Python-500 token cases (non-ASCII, non-object payload, non-numeric `exp`) answer the generic 400 in Go. A signed payload whose `ws` is not a string is rejected.
+- Rate limit (20 per 60 s per IP and per token) is a sliding window like Python but bounded: at most 100 000 keys, 21 timestamps per key, a sweep once per window, random eviction when full (a flood of distinct tokens can reset other counters, never memory). The token budget is charged only after the token verifies and is keyed by its SHA-256;
+  IPv6 clients are keyed by /64. In-process and per replica like Python (N replicas = N x 20).
+- **Client IP trust**: `X-Real-IP` is honoured only when the socket peer is inside `TRUST_PROXY_CIDRS`; otherwise the peer is the client (a warning is logged at most once a minute). `X-Forwarded-For` is never used here. The default ranges are `127.0.0.0/8,::1/128,172.16.0.0/12,192.168.0.0/16,fc00::/7`
+  (loopback and docker bridge networks, because `lead_net` has no fixed subnet) and therefore cover ordinary LAN ranges (172.16/12, 192.168/16): **the API must not be exposed to a LAN without nginx in front** (a LAN peer in those ranges can forge `X-Real-IP` and dodge or poison the limiter). In Kubernetes (pod network 10/8) set `TRUST_PROXY_CIDRS` explicitly.
+  `TRUST_PROXY` is not used by this route.
+- **`ratelimit.remoteHost` (shared by the other rate-limited routes) trusts the first `X-Forwarded-For` entry**, which a client can prefix. It is dormant while `TRUST_PROXY` is unset (the default); switch it to the same peer-CIDR rule before enabling `TRUST_PROXY` anywhere (carried to the final review).
+- Webhook: the shared secret is checked **before** the body (Python validates the body first: a bad body without the secret is 422 there, 403/503 here); constant-time compare; a non-ASCII `X-Webhook-Secret` is a 403 (Python raises 500); body capped at 64 KiB -> 413; `message_id` <= 998 and no NUL, `event` <= 256, `hard` lax bool, else 422.
+- **D8**: the cross-tenant message-id lookup is the `SECURITY DEFINER` function `outreach_send_by_message_id` (Alembic `a7c1e9d3b5f2`, `search_path = pg_catalog, public, pg_temp`, `REVOKE ALL FROM PUBLIC`, `EXECUTE` for `yupcha_app` only); Go never holds a BYPASSRLS connection. The function owner must be a role that bypasses RLS
+  (`rolsuper` or `rolbypassrls`; the table has FORCE RLS), i.e. the migration role. Newest send wins when an id exists in several workspaces (Python `order_by(id.desc())`). Python's lookup uses an owner connection with no GUC and finds nothing under the RLS-enforced role (fixture `wh_known_id_safe_role_404`; Go returns the `webhook` profile behaviour).
+  **Performance**: the function filters `outreach_sends.message_id`, which has no index, so every webhook call is a sequential scan. Recommended follow-up migration: an index on `outreach_sends (message_id)` (and the inbound ledger lookup if it shows up in `pg_stat_statements`). Not added here (Python also scans).
+- The ledger key `imap_uid` is the message id; the column is `VARCHAR(64)`, so a longer id is keyed `sha256:<57 hex>` (Python 500s). `source_message_id` stays the full id and replays still deduplicate. The message id is whitespace-trimmed before lookup (Python does not). Webhook ledger insert and `ApplyBounce` run in one transaction (concurrent duplicate bounces apply once).
+
+### Message building and parsing (`smtpmail`, `dsnparse`, `emailnorm`)
+
+- Wire differences from Python (structure verified by parse-back, not byte equality): quoted-printable UTF-8 parts (Python 7bit/base64), From always a quoted-string or RFC 2047 B-encoded when non-ASCII, headers folded at 78 columns (ASCII structured headers such as a 1200-char `List-Unsubscribe` are never re-encoded), headers with invalid names dropped, no `Date` header (as Python),
+  `Message-ID` random part 63-bit instead of `randint(0,100000)` and the domain restricted to safe characters (`localhost` when no `@`). Payload variables decode with `UseNumber` (int 5 renders `5`, not `5.0`); map values render with sorted keys. Python quirks kept: tab/CR/LF dropped rather than spaced, C1 characters kept, the 998 cut counts code points.
+- DSN parsing (`dsnparse`): input truncated to 1 MiB, MIME nesting deeper than 8 falls to the text heuristic (the depth-12 corpus file is flagged `go_bounded` and asserted separately), no RFC 2231 or uudecode support, panics recovered to a nil result; messages Python crashes on (non-ASCII `Final-Recipient`) are recorded `unknown` and never retried.
+  The plain-text heuristic keeps Python's false positives (`550` or "does not exist" anywhere counts as a hard bounce). `gen_classify_vectors.py` depends on the legacy tree.
+- `emailnorm`: NFKC, per-label IDNA like Python's `idna` codec (`ß` -> `ss`, hyphen labels allowed via `CheckHyphens(false)`), word-final sigma and U+0130 lowercasing reproduced; exotic nameprep-prohibited characters not in the vectors may still differ.
+- Unsubscribe tokens use a local `ensure_ascii` encoder (byte-equal with Python incl. CJK and surrogate pairs); `exp` accepts number, numeric string or absence like `int()`; huge values are clamped.
+
+### Python bugs found and not fixed (user rule, for issue #114)
+
+- `PUT /sequences/{id}` activates a sequence without the SMTP, consent and footer checks (compliance hole); out-of-range or over-long values (`send_window_tz` > 40, `name` > 200, window hours, `daily_limit`, `consent_source` > 120, lead ids beyond int4, NUL) 500 from Postgres or are stored; no cap on steps, `delay_hours` or enroll ids; `enroll` runs `get_lead` once per id (N+1); `start` answers `active` for a vanished sequence; `/sequences/{id}/sends` has no ownership check.
+- Suppressions: blank email is a silent 200 `added:false`; non-address strings are stored; Gmail variants are not collapsed on write (two rows); unsubscribe and complaint over an existing unlocked row leave it unlocked.
+- Public routes: the unsubscribe landing reflects the email and token unescaped; the limiter keys on the proxy address (one bucket behind nginx) in an unbounded dict; the webhook validates the body before the secret, `compare_digest` raises on a non-ASCII secret, ids over 64 chars 500 on the ledger insert, the body is unbounded, and the bounce lookup finds nothing under the RLS-enforced role.
+- `Verify` raises (500) for non-numeric `exp` and non-object payloads; `parse_message` raises on a non-ASCII `Final-Recipient`; the text heuristic has the `550` false positives above; the SMTP config endpoint accepts hosts with schemes or CRLF and out-of-range ports, and `POST /smtp/test` is unrate-limited and echoes raw `smtplib` exception text; a bounce-then-complaint for one Message-ID is a no-op.
+- `outreach/sequence.py` is dead code (`scripts/outreach_deadcode_check.py`: no importer); the Go port does not port it.
