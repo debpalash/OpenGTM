@@ -1,6 +1,10 @@
 # Run from apps/backend-go. Integration tests need TEST_DATABASE_URL pointing at a
 # migrated Postgres 18 (owner credentials).
-.PHONY: schema sqlc sqlc-check vet test test-integration test-all
+.PHONY: schema sqlc sqlc-check vet test test-integration test-all build-mcp
+
+# opengtm-mcp: the MCP server (stdio, or `--sse [port]`).
+build-mcp:
+	go build -o bin/opengtm-mcp ./cmd/mcp
 
 schema:
 	../../scripts/go_schema_dump.sh
