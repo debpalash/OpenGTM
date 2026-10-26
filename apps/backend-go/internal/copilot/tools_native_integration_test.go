@@ -42,9 +42,15 @@ func nativeSetup(t *testing.T) *nativeEnv {
 		_, _ = e.owner.Exec(c, `DELETE FROM leads WHERE workspace_id = ANY($1)`, []string{e.ws, e.other})
 		_, _ = e.owner.Exec(c, `DELETE FROM workspace_members WHERE workspace_id = ANY($1)`, []string{e.ws, e.other})
 		_, _ = e.owner.Exec(c, `DELETE FROM workspace_member_permissions WHERE workspace_id = ANY($1)`, []string{e.ws, e.other})
+		_, _ = e.owner.Exec(c, `DELETE FROM workspaces WHERE id = ANY($1)`, []string{e.ws, e.other})
 	}
 	clean()
 	t.Cleanup(clean)
+	for _, w := range []string{e.ws, e.other} {
+		if _, err := e.owner.Exec(ctx, `INSERT INTO workspaces (id, name, slug) VALUES ($1::varchar,$1::text,$1::text)`, w); err != nil {
+			t.Fatal(err)
+		}
+	}
 	ins := func(ws, co, city, spec, status, tier string, score int, dm any) int64 {
 		var id int64
 		if err := e.owner.QueryRow(ctx, `INSERT INTO leads (workspace_id, company, city, specialization, status, score_tier, score, email, decision_makers)
