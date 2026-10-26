@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-1/run/estimate"
+  },
+  "response": {
+    "body": {
+      "best_usd": 0.0,
+      "breakdown": [],
+      "catalog_complete": true,
+      "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Catalog estimates are not a vendor invoice or a spend ceiling.",
+      "rows": 0,
+      "unknown_providers": [],
+      "workbook_id": "wb-alpha-1",
+      "worst_usd": 0.0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

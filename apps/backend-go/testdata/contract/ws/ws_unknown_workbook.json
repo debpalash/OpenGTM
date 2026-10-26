@@ -1,0 +1,17 @@
+{
+  "request": {
+    "as": "alice",
+    "path": "/api/workbooks/does-not-exist/ws",
+    "query": {
+      "token": "<redacted>",
+      "workspace_id": "ws-alpha"
+    },
+    "steps": [],
+    "token": "login"
+  },
+  "response": {
+    "closed_by_server": null,
+    "handshake_status": 403,
+    "steps": []
+  }
+}

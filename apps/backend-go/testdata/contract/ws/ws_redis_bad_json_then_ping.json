@@ -1,0 +1,42 @@
+{
+  "request": {
+    "as": "alice",
+    "path": "/api/workbooks/wb-enrich-1/ws",
+    "query": {
+      "token": "<redacted>",
+      "workspace_id": "ws-alpha"
+    },
+    "steps": [
+      {
+        "send": "not json"
+      },
+      {
+        "send": "{\"type\":\"ping\"}"
+      },
+      {
+        "publish": {
+          "channel": "workbook:wb-enrich-1",
+          "message": "{\"type\":\"cell_update\",\"workbook_id\":\"wb-enrich-1\",\"row_id\":101,\"column_id\":\"calc_len\",\"value\":\"6\"}"
+        }
+      }
+    ],
+    "token": "login"
+  },
+  "response": {
+    "closed_by_server": null,
+    "handshake_status": 101,
+    "steps": [
+      {
+        "received": []
+      },
+      {
+        "received": [
+          "{\"type\":\"pong\"}"
+        ]
+      },
+      {
+        "received": []
+      }
+    ]
+  }
+}

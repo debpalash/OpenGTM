@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/v2/workbooks/wb-enrich-1/ingest-token"
+  },
+  "response": {
+    "body": {
+      "created_at": "2026-10-26T11:48:34.803826+00:00",
+      "id": "d1944067-90e5-40ae-ba8f-835684b486e0",
+      "prefix": "wbi_RMJ2mOih",
+      "rotated": 1,
+      "token": "<redacted>",
+      "workbook_id": "wb-enrich-1",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

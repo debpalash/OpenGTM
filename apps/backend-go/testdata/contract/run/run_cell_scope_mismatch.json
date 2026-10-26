@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": {
+      "column_ids": [
+        "calc_len"
+      ],
+      "row_columns": {
+        "101": [
+          "calc_len"
+        ]
+      },
+      "row_ids": [
+        102
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-1/run"
+  },
+  "response": {
+    "body": {
+      "detail": "Cell scope requires matching explicit row IDs"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

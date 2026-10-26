@@ -1,0 +1,48 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/run/estimate"
+  },
+  "response": {
+    "body": {
+      "best_usd": 0.0,
+      "breakdown": [
+        {
+          "best_usd": 0.0,
+          "column": "email_wf",
+          "paid_providers": [],
+          "unknown_providers": [
+            "hunter",
+            "apollo"
+          ],
+          "worst_usd": 0
+        },
+        {
+          "best_usd": 0.0,
+          "column": "summary",
+          "paid_providers": [],
+          "unknown_providers": [],
+          "worst_usd": 0
+        }
+      ],
+      "catalog_complete": false,
+      "note": "worst = every paid provider tried per row; best = cheapest paid hit first. Cross-provider cache + confidence early-exit reduce actual spend. Unknown provider prices are excluded; these totals are incomplete, not a spend ceiling.",
+      "rows": 25,
+      "unknown_providers": [
+        "apollo",
+        "hunter"
+      ],
+      "workbook_id": "wb-alpha-2",
+      "worst_usd": 0.0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

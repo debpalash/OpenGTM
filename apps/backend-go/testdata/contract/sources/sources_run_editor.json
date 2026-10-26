@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-live/sources/src_icp/run"
+  },
+  "response": {
+    "body": {
+      "column_id": "src_icp",
+      "message": "Sourcing started",
+      "status": "started"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

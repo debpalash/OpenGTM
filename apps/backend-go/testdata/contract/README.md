@@ -36,6 +36,37 @@ recording so ids and `created_at` are stable; `last_login` and tokens are not.
 Seed credentials are in `legacy/python/scripts/contract_seed.py` (test-only values).
 Review `git diff` of the fixtures after re-recording: a changed fixture is a changed contract.
 
+## Plan 06 (enrichment) recording profiles
+
+`scripts/contract_cases/enrichment.yaml` (areas `estimate run cellrun meta refresh sources migrate ingest ws`) needs the
+enrichment seed, which is NOT part of the default seed (it adds workbooks `wb-enrich-*`, rows, an ingest token, provider stats,
+a refresh policy, scan signals; plan 02-05 fixtures stay byte-stable): `CONTRACT_SEED_ENRICHMENT=yes`. Each profile re-seeds, then
+records `--profile <p>`; start FastAPI as a NON-superuser role, `TZ=UTC`, and always `RUN_INLINE_WORKER=0` (otherwise the in-API
+queue worker executes the enqueued runs against the seed). Server env per profile:
+
+| profile | seed env | server env | recorder |
+|---|---|---|---|
+| `default` | | `INGEST_API_ENABLED=true` | `contract_record.py` |
+| `billing` | `BILLING_ENABLED=true` (ws-alpha gets 10.0 USD) | `BILLING_ENABLED=true RESEARCH_VENDOR_COST=1 INGEST_API_ENABLED=true` | `contract_record.py` |
+| `ingest_off` | | (no flag) | `contract_record.py` |
+| `ws_echo` | | `REDIS_URL=redis://127.0.0.1:1/0` (unreachable: echo mode) | `contract_record_ws.py` |
+| `ws_redis` | | `REDIS_URL=<test redis>` | `contract_record_ws.py` |
+
+```sh
+python3 scripts/contract_record.py --base http://127.0.0.1:18000 --out ../../apps/backend-go/testdata/contract \
+    --cases scripts/contract_cases/enrichment.yaml --profile default
+uv run python scripts/contract_record_ws.py --base http://127.0.0.1:18000 --out ../../apps/backend-go/testdata/contract \
+    --cases scripts/contract_cases/enrichment.yaml --profile ws_echo
+```
+
+Server-generated randoms differ between recordings (compare with `IgnoreShapeOf`): `run_id`, `src_<8 hex>` source column ids, ingest
+token `id`/`prefix`/`created_at`, ledger `created_at`/`run_id` in `billing_balance_*`. Everything else re-records byte-identically.
+`ws/*.json` fixtures are `{request: {path, query, steps}, response: {handshake_status, steps[].received, closed_by_server}}`: a
+pre-accept `close(4403)` reaches the client as a refused handshake (HTTP 403), so `handshake_status` is 403, not a close code.
+Other vectors: `internal/<pkg>/testdata/*.json` (`legacy/python/scripts/gen_enrichment_vectors.py`) and provider transcripts
+`testdata/providers/<provider>/*.json` (`record_provider_transcripts.py`, scripted vendor bodies, fake `ctk_*` credentials replaced by
+`{{secret:NAME}}` / `{{b64secret:NAME}}` placeholders, no network).
+
 ## Deliberate deviations from FastAPI
 
 - `POST /api/workspaces` with a name whose slug already exists: FastAPI answers 500 (unhandled

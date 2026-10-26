@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "Company": "Idem Corp",
+          "Website": "https://idem.dev"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "Idempotency-Key": "contract-idem-1"
+    },
+    "method": "POST",
+    "path": "/api/v2/workbooks/wb-enrich-1/rows/ingest"
+  },
+  "response": {
+    "body": {
+      "added": 1,
+      "row_ids": [
+        1273
+      ],
+      "skipped_duplicates": 0,
+      "skipped_empty": 0,
+      "total_rows": 11,
+      "unmapped_keys": [],
+      "workbook_id": "wb-enrich-1"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "idempotent-replay": "true"
+    },
+    "status": 200
+  }
+}

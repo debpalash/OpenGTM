@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "column_ids": [
+        "calc_len"
+      ],
+      "row_ids": [
+        99999
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-1/run"
+  },
+  "response": {
+    "body": {
+      "job_id": null,
+      "message": "No rows to process",
+      "run_id": null,
+      "status": "skipped",
+      "total_jobs": 0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

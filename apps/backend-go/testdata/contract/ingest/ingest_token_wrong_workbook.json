@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "company": "x"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/v2/workbooks/wb-alpha-2/rows/ingest"
+  },
+  "response": {
+    "body": {
+      "detail": "ingest token not valid for this workbook"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 401
+  }
+}

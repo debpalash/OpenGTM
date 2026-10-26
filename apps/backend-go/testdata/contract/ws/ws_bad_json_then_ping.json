@@ -1,0 +1,28 @@
+{
+  "request": {
+    "as": "alice",
+    "path": "/api/workbooks/wb-enrich-1/ws",
+    "query": {
+      "token": "<redacted>",
+      "workspace_id": "ws-alpha"
+    },
+    "steps": [
+      {
+        "send": "not json"
+      },
+      {
+        "send": "{\"type\":\"ping\"}"
+      }
+    ],
+    "token": "login"
+  },
+  "response": {
+    "closed_by_server": 1006,
+    "handshake_status": 101,
+    "steps": [
+      {
+        "received": []
+      }
+    ]
+  }
+}

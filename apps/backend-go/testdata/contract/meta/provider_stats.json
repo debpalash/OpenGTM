@@ -1,0 +1,60 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/meta/provider-stats"
+  },
+  "response": {
+    "body": {
+      "stats": [
+        {
+          "accuracy_samples": 25,
+          "accuracy_score": 0.91,
+          "attempts": 40,
+          "avg_confidence": 0.8,
+          "avg_latency_ms": 450.0,
+          "cooldown_until": null,
+          "field": "email",
+          "hit_rate": 0.7,
+          "hits": 28,
+          "provider": "hunter_io",
+          "total_cost_usd": 1.6
+        },
+        {
+          "accuracy_samples": 0,
+          "accuracy_score": null,
+          "attempts": 12,
+          "avg_confidence": 0.7,
+          "avg_latency_ms": 800.0,
+          "cooldown_until": "2026-08-29T12:00:00",
+          "field": "email",
+          "hit_rate": 0.417,
+          "hits": 5,
+          "provider": "apollo_io",
+          "total_cost_usd": 0.36
+        },
+        {
+          "accuracy_samples": 0,
+          "accuracy_score": null,
+          "attempts": 7,
+          "avg_confidence": 0.0,
+          "avg_latency_ms": 100.0,
+          "cooldown_until": null,
+          "field": "company_size",
+          "hit_rate": 0.0,
+          "hits": 0,
+          "provider": "ipinfo",
+          "total_cost_usd": 0.0
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

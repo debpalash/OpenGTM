@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {
+      "column_ids": [
+        "calc_len"
+      ],
+      "view_id": "view-enrich-1"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-1/run"
+  },
+  "response": {
+    "body": {
+      "job_id": 7,
+      "message": "Enqueued run: 5 rows \u00d7 1 columns",
+      "run_id": "1c2b552f0dd7486e8bc7d755fec46b8c",
+      "status": "started",
+      "total_jobs": 5
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
