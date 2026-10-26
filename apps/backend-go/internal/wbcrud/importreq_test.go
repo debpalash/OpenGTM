@@ -107,15 +107,15 @@ type endless struct {
 func (e *endless) Read(p []byte) (int, error) {
 	if !e.head {
 		e.head = true
+		e.n += int64(len(`{"rows":[`))
 		return copy(p, `{"rows":[`), nil
 	}
-	chunk := []byte(`{"a":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},`)
-	n := 0
-	for n+len(chunk) <= len(p) {
-		n += copy(p[n:], chunk)
+	const chunk = `{"a":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},`
+	for i := range p {
+		p[i] = chunk[(e.n-9+int64(i))%int64(len(chunk))]
 	}
-	e.n += int64(n)
-	return n, nil
+	e.n += int64(len(p))
+	return len(p), nil
 }
 
 func TestReadImportRequestNeverReadsUnboundedBody(t *testing.T) {

@@ -377,7 +377,7 @@ func TestImportMemoryBounded(t *testing.T) {
 		if i > 0 {
 			b.WriteByte(',')
 		}
-		fmt.Fprintf(&b, `{"Company":"Company number %d","Website":"site%d.example.com","Email":"p%d@site%d.example.com","Notes":"%s","City":"c%d","N":%d}`,
+		fmt.Fprintf(&b, `{"Company":"Company number %d","Website":"https://d%d.test","Email":"p%d@d%d.test","Notes":"%s","City":"c%d","N":%d}`,
 			i, i, i, i, strings.Repeat("n", 40), i%97, i)
 	}
 	b.WriteString(`]}`)
@@ -407,7 +407,7 @@ func TestImportMemoryBounded(t *testing.T) {
 		t.Errorf("batches = %d, want 50 (1000 rows each)", batches)
 	}
 	// ~6 MiB of body; a streaming import must stay far below buffering it several times over.
-	if peak > 300<<20 {
+	if peak > 200<<20 {
 		t.Errorf("peak heap %d MiB for a %d MiB body", peak>>20, body>>20)
 	}
 	t.Logf("50k rows in %v, peak heap %d MiB, body %d MiB", time.Since(start), peak>>20, body>>20)
