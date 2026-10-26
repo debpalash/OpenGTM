@@ -23,10 +23,11 @@ import (
 )
 
 const (
-	wsA = "ws-p10t7-a"
-	wsB = "ws-p10t7-b"
-	aud = "p10t7-aud"
-	au2 = "p10t7-aud2"
+	wsA  = "ws-p10t7-a"
+	wsB  = "ws-p10t7-b"
+	aud  = "p10t7-aud"
+	au2  = "p10t7-aud2"
+	audB = "p10t7-audb"
 )
 
 func setup(t *testing.T) (*pgxpool.Pool, context.Context) {
@@ -45,7 +46,7 @@ func setup(t *testing.T) (*pgxpool.Pool, context.Context) {
 	}
 	clean()
 	t.Cleanup(clean)
-	for _, a := range []struct{ ws, id string }{{wsA, aud}, {wsA, au2}, {wsB, aud}} {
+	for _, a := range []struct{ ws, id string }{{wsA, aud}, {wsA, au2}, {wsB, audB}} {
 		mustTx(t, ctx, pool, a.ws, func(tx pgx.Tx) error {
 			_, err := tx.Exec(ctx, `INSERT INTO audiences (id, workspace_id, name, filters) VALUES ($1,$2,$1,'{}'::json)`, a.id, a.ws)
 			return err
@@ -129,10 +130,52 @@ func getRun(t *testing.T, ctx context.Context, pool *pgxpool.Pool, ws, id string
 	return r
 }
 
+// rlsRow runs a single-row query as workspace A (the destination tables are FORCE RLS,
+// so the bare pool sees nothing).
+type rlsRowT struct {
+	t    *testing.T
+	ctx  context.Context
+	pool *pgxpool.Pool
+	q    string
+	args []any
+}
+
+func rlsRow(t *testing.T, ctx context.Context, pool *pgxpool.Pool, q string, args ...any) rlsRowT {
+	return rlsRowT{t, ctx, pool, q, args}
+}
+
+func (r rlsRowT) Scan(dst ...any) error {
+	return tenancy.InWorkspace(r.ctx, r.pool, wsA, func(tx pgx.Tx) error {
+		return tx.QueryRow(r.ctx, r.q, r.args...).Scan(dst...)
+	})
+}
+
+// statusErrs lists "status|error" of a delivery query, in order, as workspace A.
+func statusErrs(t *testing.T, ctx context.Context, pool *pgxpool.Pool, q string) []string {
+	t.Helper()
+	var out []string
+	mustTx(t, ctx, pool, wsA, func(tx pgx.Tx) error {
+		rows, err := tx.Query(ctx, q)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var st, e string
+			if err := rows.Scan(&st, &e); err != nil {
+				return err
+			}
+			out = append(out, st+"|"+e)
+		}
+		return rows.Err()
+	})
+	return out
+}
+
 func countRows(t *testing.T, ctx context.Context, pool *pgxpool.Pool, q string, args ...any) int {
 	t.Helper()
 	var n int
-	if err := pool.QueryRow(ctx, q, args...).Scan(&n); err != nil {
+	if err := rlsRow(t, ctx, pool, q, args...).Scan(&n); err != nil {
 		t.Fatal(err)
 	}
 	return n
@@ -595,7 +638,7 @@ func TestEnqueueAudienceSyncsSkipsActive(t *testing.T) {
 	}
 	var by *string
 	var runID string
-	if err := pool.QueryRow(ctx, `SELECT id, requested_by FROM destination_runs WHERE destination_id = $1`, d1.ID).Scan(&runID, &by); err != nil {
+	if err := rlsRow(t, ctx, pool, `SELECT id, requested_by FROM destination_runs WHERE destination_id = $1`, d1.ID).Scan(&runID, &by); err != nil {
 		t.Fatal(err)
 	}
 	if by == nil || *by != "audience_refresh" {
@@ -607,13 +650,16 @@ func TestEnqueueAudienceSyncsSkipsActive(t *testing.T) {
 		}
 	}
 	if err := tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
-		_, err := deststore.EnqueueAudienceSyncs(ctx, tx, wsA, aud, func(string) string { return "bogus" })
+		_, err := deststore.EnqueueAudienceSyncs(ctx, tx, wsA, au2, func(string) string { return "bogus" })
 		if err == nil {
 			t.Error("an invalid executor must fail")
 		}
 		return nil
 	}); err != nil {
 		t.Fatal(err)
+	}
+	if n := countRows(t, ctx, pool, `SELECT count(*) FROM destination_runs WHERE destination_id = $1`, d4.ID); n != 0 {
+		t.Error("a failed enqueue left a run behind")
 	}
 }
 
@@ -648,23 +694,13 @@ func TestFinishCancelledRecomputesCounts(t *testing.T) {
 	if out.Attempted != 4 || out.Succeeded != 2 || out.Failed != 1 || out.Skipped != 1 {
 		t.Errorf("counts = %d/%d/%d/%d", out.Attempted, out.Succeeded, out.Failed, out.Skipped)
 	}
-	rows, err := pool.Query(ctx, `SELECT status, coalesce(error,'') FROM destination_deliveries WHERE run_id = 'p10t7-c1' ORDER BY id`)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer rows.Close()
-	var got []string
-	for rows.Next() {
-		var st, e string
-		_ = rows.Scan(&st, &e)
-		got = append(got, st+"|"+e)
-	}
+	got := statusErrs(t, ctx, pool, `SELECT status, coalesce(error,'') FROM destination_deliveries WHERE run_id = 'p10t7-c1' ORDER BY id`)
 	want := []string{"success|", "success|", "failed|", "skipped|", "cancelled|Run cancelled before delivery", "cancelled|Run cancelled before delivery"}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("deliveries = %v", got)
 	}
 	var lastSuccess *time.Time
-	if err := pool.QueryRow(ctx, `SELECT last_success_at FROM audience_destinations WHERE id = $1`, d.ID).Scan(&lastSuccess); err != nil {
+	if err := rlsRow(t, ctx, pool, `SELECT last_success_at FROM audience_destinations WHERE id = $1`, d.ID).Scan(&lastSuccess); err != nil {
 		t.Fatal(err)
 	}
 	if lastSuccess == nil || !lastSuccess.Equal(*out.FinishedAt) {
@@ -734,7 +770,7 @@ func TestCancelAndRetryRuns(t *testing.T) {
 		t.Errorf("jobs = %+v", jobs)
 	}
 	var st string
-	if err := pool.QueryRow(ctx, `SELECT status FROM destination_deliveries WHERE id = 7200`).Scan(&st); err != nil || st != "cancelled" {
+	if err := rlsRow(t, ctx, pool, `SELECT status FROM destination_deliveries WHERE id = 7200`).Scan(&st); err != nil || st != "cancelled" {
 		t.Errorf("pending run's delivery = %q %v", st, err)
 	}
 	// a disabled destination cannot be retried
@@ -1056,19 +1092,12 @@ func TestReconcileFailureRetryResetsInFlight(t *testing.T) {
 	if run.Status != "pending" || run.Error == nil || *run.Error != "Queue retry scheduled: boom" || run.FinishedAt != nil {
 		t.Fatalf("run = %+v", run)
 	}
-	rows, _ := pool.Query(ctx, `SELECT status, coalesce(error,'') FROM destination_deliveries WHERE run_id='p10t7-f1' ORDER BY id`)
-	defer rows.Close()
-	var got []string
-	for rows.Next() {
-		var st, e string
-		_ = rows.Scan(&st, &e)
-		got = append(got, st+"|"+e)
-	}
+	got := statusErrs(t, ctx, pool, `SELECT status, coalesce(error,'') FROM destination_deliveries WHERE run_id='p10t7-f1' ORDER BY id`)
 	if !reflect.DeepEqual(got, []string{"success|", "pending|Queue retry scheduled: boom", "pending|", "failed|"}) {
 		t.Errorf("deliveries = %v", got)
 	}
 	var health string
-	_ = pool.QueryRow(ctx, `SELECT health_status FROM audience_destinations WHERE id=$1`, d.ID).Scan(&health)
+	_ = rlsRow(t, ctx, pool, `SELECT health_status FROM audience_destinations WHERE id=$1`, d.ID).Scan(&health)
 	if health != "unverified" {
 		t.Errorf("a retry must not degrade the destination: %s", health)
 	}
@@ -1107,7 +1136,7 @@ func TestReconcileFailureTerminalFailsPending(t *testing.T) {
 	}
 	var health string
 	var lastErr *string
-	_ = pool.QueryRow(ctx, `SELECT health_status, last_error FROM audience_destinations WHERE id=$1`, d.ID).Scan(&health, &lastErr)
+	_ = rlsRow(t, ctx, pool, `SELECT health_status, last_error FROM audience_destinations WHERE id=$1`, d.ID).Scan(&health, &lastErr)
 	if health != "degraded" || lastErr == nil || *lastErr != *run.Error {
 		t.Errorf("destination = %s %v", health, lastErr)
 	}
@@ -1153,12 +1182,12 @@ func TestReconcileCancellingFinishesCancelled(t *testing.T) {
 		t.Fatalf("run = %+v", run)
 	}
 	var st string
-	_ = pool.QueryRow(ctx, `SELECT status FROM destination_deliveries WHERE id = 7601`).Scan(&st)
+	_ = rlsRow(t, ctx, pool, `SELECT status FROM destination_deliveries WHERE id = 7601`).Scan(&st)
 	if st != "cancelled" {
 		t.Errorf("in-flight delivery = %s", st)
 	}
 	var ls *time.Time
-	_ = pool.QueryRow(ctx, `SELECT last_success_at FROM audience_destinations WHERE id=$1`, d.ID).Scan(&ls)
+	_ = rlsRow(t, ctx, pool, `SELECT last_success_at FROM audience_destinations WHERE id=$1`, d.ID).Scan(&ls)
 	if ls == nil {
 		t.Error("last_success_at not set although a delivery succeeded")
 	}
@@ -1210,7 +1239,7 @@ func TestTenantIsolation(t *testing.T) {
 	seedRun(t, ctx, pool, wsA, "p10t7-x1", d.ID, "failed", "2026-08-28 10:00:00", 1)
 	seedDelivery(t, ctx, pool, wsA, dlv{ID: 7800, Run: "p10t7-x1", Dest: d.ID, Lead: 1, Status: "failed", Attempts: 1})
 	// a same-named destination in B shares the audience id but is its own row
-	b := mkDest(t, ctx, pool, wsB, aud, "tenant")
+	b := mkDest(t, ctx, pool, wsB, audB, "tenant")
 
 	mustTx(t, ctx, pool, wsB, func(tx pgx.Tx) error {
 		if _, err := deststore.GetDestination(ctx, tx, d.ID); !errors.Is(err, deststore.ErrNotFound) {
@@ -1240,8 +1269,11 @@ func TestTenantIsolation(t *testing.T) {
 		if err := deststore.DeleteDestination(ctx, tx, d.ID); !errors.Is(err, deststore.ErrNotFound) {
 			t.Errorf("delete foreign: %v", err)
 		}
-		if err := deststore.ReconcileFailure(ctx, tx, deststore.Run{ID: "p10t7-x1", WorkspaceID: wsA}, false, "x"); err != nil {
-			t.Errorf("reconcile foreign: %v", err)
+		if err := deststore.ReconcileFailure(ctx, tx, deststore.Run{ID: "p10t7-x1", WorkspaceID: wsA}, false, "x"); err == nil {
+			t.Error("ReconcileFailure accepted a run of a workspace that is not the tenant")
+		}
+		if err := deststore.ReconcileFailure(ctx, tx, deststore.Run{ID: "p10t7-x1", WorkspaceID: wsB}, false, "x"); err != nil {
+			t.Errorf("reconcile of an id that is not B's: %v", err)
 		}
 		all, err := deststore.ListDestinationsWithLatestRun(ctx, tx, "")
 		if err != nil || len(all) != 1 || all[0].ID != b.ID || all[0].LatestRun != nil {
