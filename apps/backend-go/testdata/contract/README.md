@@ -35,3 +35,11 @@ Case files are YAML (PyYAML) or JSON (same structure, `.json` extension). Re-see
 recording so ids and `created_at` are stable; `last_login` and tokens are not.
 Seed credentials are in `legacy/python/scripts/contract_seed.py` (test-only values).
 Review `git diff` of the fixtures after re-recording: a changed fixture is a changed contract.
+
+## Deliberate deviations from FastAPI
+
+- `POST /api/workspaces` with a name whose slug already exists: FastAPI answers 500 (unhandled
+  `IntegrityError`); Go answers `409 {"detail":"Workspace slug already exists"}` (user decision,
+  Task 11). No fixture exists for this case; it is covered by `TestCreateSlugCollision409`.
+- The recorder (`contract_record.py`) can reference earlier responses in a case path or JSON body with
+  `{{body:<case>.<dotted.path>}}` (used by `workspaces.yaml` for generated workspace ids).

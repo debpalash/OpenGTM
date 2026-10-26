@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workspaces/09bbd5df-55f6-41ee-bf99-6c6ed4e259f4"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

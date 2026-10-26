@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "workspace_id": "09bbd5df-55f6-41ee-bf99-6c6ed4e259f4"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workspaces/switch"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace access denied"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

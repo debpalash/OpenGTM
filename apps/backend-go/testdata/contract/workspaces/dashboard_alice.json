@@ -1,0 +1,46 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workspaces/dashboard"
+  },
+  "response": {
+    "body": {
+      "total_leads": 0,
+      "total_workspaces": 3,
+      "workspaces": [
+        {
+          "created_at": 1788000000.0,
+          "icon": "\ud83c\udfe2",
+          "id": "ws-alpha",
+          "leads_count": 0,
+          "name": "Alpha",
+          "slug": "alpha"
+        },
+        {
+          "created_at": 1788000000.0,
+          "icon": "\ud83c\udfe2",
+          "id": "ws-beta",
+          "leads_count": 0,
+          "name": "Beta",
+          "slug": "beta"
+        },
+        {
+          "created_at": 1792998359.2029426,
+          "icon": "\ud83c\udfe0",
+          "id": "ca7aba73-8603-40a4-99d5-2e844245b746",
+          "leads_count": 0,
+          "name": "Default Workspace",
+          "slug": "main"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
