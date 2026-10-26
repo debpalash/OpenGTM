@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"sync"
 	"testing"
@@ -17,20 +16,10 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
 
-// newWriteEnv adds the lead id sequence fix: seedLeads inserts ids 1-18 explicitly, so the serial is still at 1.
+// newWriteEnv is newLeadsEnv (which already moves the lead id serial above existing ids).
 func newWriteEnv(t *testing.T) leadsEnv {
 	t.Helper()
-	e := newLeadsEnv(t)
-	ctx := context.Background()
-	owner, err := pgx.Connect(ctx, os.Getenv("TEST_DATABASE_URL"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer owner.Close(ctx)
-	if _, err := owner.Exec(ctx, `SELECT setval(pg_get_serial_sequence('leads','id'), 1000)`); err != nil {
-		t.Fatal(err)
-	}
-	return e
+	return newLeadsEnv(t)
 }
 
 func (e leadsEnv) send(who, ws, method, path, body string) *httptest.ResponseRecorder {

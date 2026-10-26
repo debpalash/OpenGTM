@@ -39,6 +39,10 @@ func newLeadsEnv(t *testing.T) leadsEnv {
 	e.purge()
 	t.Cleanup(e.purge)
 	e.seedLeads(t)
+	// seedLeads inserts ids 1-18 explicitly and other test files leave rows with explicit ids:
+	// move the serial above every existing id (never backwards) so default-id inserts cannot collide.
+	ownerExec(t, `SELECT setval(pg_get_serial_sequence('leads','id'),
+		GREATEST(1000, (SELECT COALESCE(max(id), 0) FROM leads), (SELECT last_value FROM leads_id_seq)))`)
 	return e
 }
 
@@ -274,7 +278,9 @@ func leftoverLead(t *testing.T, id int) {
 func TestLeadsEnvSequenceClearsExistingIds(t *testing.T) {
 	ownerExec(t, `SELECT setval(pg_get_serial_sequence('leads','id'), 1, false)`)
 	leftoverLead(t, 1001)
-	leftoverLead2 := func() { ownerExec(t, `INSERT INTO leads (id, workspace_id, company) VALUES (5000, 'ws-leftover-p05', 'leftover2')`) }
+	leftoverLead2 := func() {
+		ownerExec(t, `INSERT INTO leads (id, workspace_id, company) VALUES (5000, 'ws-leftover-p05', 'leftover2')`)
+	}
 	leftoverLead2()
 	for name, mk := range map[string]func(*testing.T) leadsEnv{"newLeadsEnv": newLeadsEnv, "newWriteEnv": newWriteEnv} {
 		t.Run(name, func(t *testing.T) {
