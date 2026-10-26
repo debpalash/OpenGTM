@@ -345,6 +345,23 @@ func checkoutFromEvent(obj map[string]any) (workspaceID, sessionID string, credi
 	case json.Number:
 		credit, _ = strconv.ParseFloat(x.String(), 64)
 	}
+	// Never credit more than was paid: cap metadata credit_usd by amount_total (cents)
+	// when Stripe reports a USD total. Otherwise credit_usd applies as before.
+	if cur, _ := obj["currency"].(string); strings.EqualFold(cur, "usd") {
+		var cents float64
+		var have bool
+		switch x := obj["amount_total"].(type) {
+		case json.Number:
+			if v, err := strconv.ParseFloat(x.String(), 64); err == nil {
+				cents, have = v, true
+			}
+		case float64:
+			cents, have = x, true
+		}
+		if have && cents/100 < credit {
+			credit = cents / 100
+		}
+	}
 	if workspaceID == "" || sessionID == "" || !(credit > 0) || math.IsInf(credit, 0) {
 		return "", "", 0, false
 	}
