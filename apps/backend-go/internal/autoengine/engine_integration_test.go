@@ -304,18 +304,31 @@ func TestDebitReservationAndMarkerAtomic(t *testing.T) {
 	}
 }
 
-func TestDryRunWritesOnlyRunRow(t *testing.T) {
+func TestDryRunIsSideEffectFree(t *testing.T) {
 	withResearchCost(t)
 	e := newEnv(t)
-	e.defaultSeed(trig{Actions: "[" + actPaid + "]"})
-	e.d.Execute = (&recorder{}).exec
+	e.defaultSeed(trig{Actions: "[" + actWH + "," + actCRM + "," + actPaid + "]"})
+	rec := &recorder{}
+	e.d.Execute = rec.exec
 	e.must(e.run(pl("fk1", map[string]any{"dry_run": true})))
-	if e.count(ws1, "trigger_action_results") != 0 || e.count(ws1, "trigger_cap_reservations") != 0 || e.count(ws1, "credit_ledger_entries") != 0 || e.balance(ws1) != 10 {
-		t.Fatal("a dry run persisted or charged")
+	if len(rec.calls) != 0 {
+		t.Fatalf("a dry run executed %d actions", len(rec.calls))
 	}
-	rs := e.runs(ws1)
-	if len(rs) != 1 || rs[0].Status != "dry_run" {
-		t.Fatalf("%+v", rs)
+	if e.count(ws1, "trigger_cap_reservations") != 0 || e.count(ws1, "credit_ledger_entries") != 0 || e.balance(ws1) != 10 {
+		t.Fatal("a dry run reserved or charged")
+	}
+	rs := e.results(ws1)
+	if len(rs) != 9 {
+		t.Fatalf("%d results", len(rs))
+	}
+	for _, r := range rs {
+		if r.Status != "skipped" || r.Skip == nil || *r.Skip != "dry_run" || r.Charged != 0 {
+			t.Fatalf("%+v", r)
+		}
+	}
+	runs := e.runs(ws1)
+	if len(runs) != 1 || runs[0].Status != "dry_run" {
+		t.Fatalf("%+v", runs)
 	}
 	var fired bool
 	e.inWS(ws1, func(tx pgx.Tx) error {
@@ -323,6 +336,48 @@ func TestDryRunWritesOnlyRunRow(t *testing.T) {
 	})
 	if fired {
 		t.Fatal("last_fired_at set by a dry run")
+	}
+}
+
+func TestMaxActionsCapsUnpaidActions(t *testing.T) {
+	e := newEnv(t)
+	two := 2
+	e.defaultSeed(trig{Actions: "[" + actWH + "]", MaxActions: &two})
+	for i := 0; i < 2; i++ { // 5 rows in total
+		e.row(ws1, "wbA", `{"company":"Extra","email":"x@x.com","score":"50"}`, "", nil)
+	}
+	rec := &recorder{}
+	e.d.Execute = rec.exec
+	e.must(e.run(pl("fk1", nil)))
+	if len(rec.calls) != 2 {
+		t.Fatalf("executed %d, want 2", len(rec.calls))
+	}
+	ok, capped := 0, 0
+	for _, r := range e.results(ws1) {
+		switch {
+		case r.Status == "success":
+			ok++
+		case r.Status == "skipped" && r.Skip != nil && *r.Skip == "cap":
+			capped++
+		default:
+			t.Fatalf("%+v", r)
+		}
+	}
+	if ok != 2 || capped != 3 {
+		t.Fatalf("success %d capped %d", ok, capped)
+	}
+}
+
+func TestExplicitTargetsLimitedToRuleScope(t *testing.T) {
+	e := newEnv(t)
+	e.defaultSeed(trig{Scope: `["wbA"]`})
+	e.row(ws1, "wbB", `{"company":"Out","email":"o@o.com","score":"50"}`, "", nil)
+	rec := &recorder{}
+	e.d.Execute = rec.exec
+	e.must(e.run(pl("fk1", map[string]any{"targets": []any{e.targetOf("wbA", 0), e.targetOf("wbB", 3)}})))
+	rs := e.results(ws1)
+	if len(rs) != 1 || rs[0].WB != "wbA" || len(rec.calls) != 1 {
+		t.Fatalf("%+v calls %d", rs, len(rec.calls))
 	}
 }
 
