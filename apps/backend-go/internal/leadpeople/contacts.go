@@ -15,6 +15,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/spend"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/vendorcatalog"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
@@ -164,7 +166,105 @@ func unavailableContactability(observedAt string, attempts []map[string]any) map
 	}
 }
 
-func (s *Service) enrichOne(ctx context.Context, person map[string]any, company, canonicalDomain, workspaceID string, timeout time.Duration) (map[string]any, error) {
+// VerificationProviders are the verifiers of the deliverability cascade; the verification
+// hold is their summed catalog price.
+var VerificationProviders = []string{"reacher", "smtp"}
+
+func verificationExposure() int64 {
+	var total int64
+	for _, p := range VerificationProviders {
+		if e, err := spend.ExposureFromUSD(vendorcatalog.BaseCost(p)); err == nil {
+			total += e
+		}
+	}
+	return total
+}
+
+func discoveryExposure(provider string) int64 {
+	e, err := spend.ExposureFromUSD(vendorcatalog.BaseCost(provider))
+	if err != nil {
+		return 0
+	}
+	return e
+}
+
+// personLimit bounds every paid call made for one person of an action.
+func personLimit() int64 {
+	total := verificationExposure()
+	for _, p := range ExactEmailProviders {
+		total += discoveryExposure(p)
+	}
+	return total
+}
+
+// hold reserves and dispatches one paid call. blocked is the attempt detail when the call
+// must not be made (refused, no ledger, ledger failure); the error is only ctx's.
+func (s *Service) hold(ctx context.Context, a ContactAttempt) (h ContactHold, blocked string, err error) {
+	if s.Spend == nil {
+		return nil, "spend_ledger_unavailable", nil
+	}
+	h, err = s.Spend.Reserve(ctx, a)
+	if err != nil {
+		if cerr := ctx.Err(); cerr != nil {
+			return nil, "", cerr
+		}
+		if r, ok := refusedReason(err); ok {
+			return nil, r, nil
+		}
+		return nil, "spend_unavailable", nil
+	}
+	if err := h.Dispatch(ctx); err != nil {
+		h.Release(ctx)
+		if cerr := ctx.Err(); cerr != nil {
+			return nil, "", cerr
+		}
+		if r, ok := refusedReason(err); ok {
+			return nil, r, nil
+		}
+		return nil, "spend_unavailable", nil
+	}
+	return h, "", nil
+}
+
+// settleDiscovery accounts a dispatched discovery from its result.
+func settleDiscovery(ctx context.Context, h ContactHold, provider string, res *DiscoveryResult, err error, exposure int64) {
+	switch {
+	case ctx.Err() != nil, err != nil:
+		h.Uncertain(ctx) // dispatched: it may have reached the vendor
+	case res == nil: // provider not available: nothing was called
+		h.Settle(ctx, 0, "confirmed_nonbillable", map[string]any{"provider": provider, "status": "unavailable"})
+	default:
+		env, e := spend.AccountingEnvelope(provider, spend.ProviderResponse{"provider": provider, "success": res.Success,
+			"error": res.Error}, exposure)
+		if e != nil {
+			h.Uncertain(ctx)
+			return
+		}
+		h.Settle(ctx, env.ChargedMicroUSD, env.AccountingBasis, env.Result)
+	}
+}
+
+// verificationCharge is the catalog price of the verifiers the cascade actually ran.
+func verificationCharge(v emailverify.DeliverabilityResult) int64 {
+	var total int64
+	add := func(p string) {
+		if e, err := spend.ExposureFromUSD(vendorcatalog.BaseCost(p)); err == nil {
+			total += e
+		}
+	}
+	if len(v.VerificationAttempts) == 0 {
+		add(v.Source)
+		return total
+	}
+	for _, a := range v.VerificationAttempts {
+		if a.Detail != "cache_hit" {
+			add(a.Provider)
+		}
+	}
+	return total
+}
+
+func (s *Service) enrichOne(ctx context.Context, person map[string]any, company, canonicalDomain, workspaceID, actionID string, timeout time.Duration) (map[string]any, error) {
 	observedAt := isoFull(s.now())
 	attempts := []map[string]any{}
 	base := cloneMap(person)
@@ -194,9 +294,24 @@ func (s *Service) enrichOne(ctx context.Context, person map[string]any, company,
 		since := func() int64 { return roundInt(float64(s.mono().Sub(started)) / float64(time.Millisecond)) }
 		var res *DiscoveryResult
 		var err error
+		exposure := discoveryExposure(provider)
+		h, blocked, herr := s.hold(ctx, ContactAttempt{WorkspaceID: workspaceID, ActionID: actionID,
+			PersonID: getStr(base, "person_id"), Stage: "discovery", Provider: provider, ExposureMicroUSD: exposure,
+			LimitMicroUSD: personLimit()})
+		if herr != nil {
+			return nil, herr
+		}
+		if blocked != "" {
+			attempts = append(attempts, map[string]any{
+				"stage": "discovery", "provider": provider, "status": "blocked", "detail": blocked,
+				"duration_ms": since(), "source_license": license(provider, ""),
+			})
+			continue
+		}
 		if s.Discover != nil {
 			res, err = s.Discover.Discover(ctx, workspaceID, provider, lead, timeout)
 		}
+		settleDiscovery(ctx, h, provider, res, err, exposure)
 		if err != nil {
 			if cerr := ctx.Err(); cerr != nil {
 				return nil, cerr
@@ -263,12 +378,33 @@ func (s *Service) enrichOne(ctx context.Context, person map[string]any, company,
 
 	var verdict emailverify.DeliverabilityResult
 	var verr error
-	if s.Verify != nil {
+	vh, blocked, herr := s.hold(ctx, ContactAttempt{WorkspaceID: workspaceID, ActionID: actionID,
+		PersonID: getStr(base, "person_id"), Stage: "verification", Provider: "verification_cascade",
+		ExposureMicroUSD: verificationExposure(), LimitMicroUSD: personLimit()})
+	switch {
+	case herr != nil:
+		return nil, herr
+	case blocked != "":
+		verr = errors.New(blocked)
+	case s.Verify != nil:
 		verdict, verr = s.Verify.Verify(ctx, workspaceID, winnerEmail)
-	} else {
+		if verr != nil || ctx.Err() != nil {
+			vh.Uncertain(ctx)
+		} else {
+			vh.Settle(ctx, verificationCharge(verdict), "catalog_estimate",
+				map[string]any{"provider": "verification_cascade", "status": verdict.Status})
+		}
+	default:
+		vh.Settle(ctx, 0, "confirmed_nonbillable", map[string]any{"provider": "verification_cascade", "status": "not_run"})
 		verr = errors.New("no verifier configured")
 	}
-	if verr != nil {
+	if blocked != "" {
+		verdict = emailverify.DeliverabilityResult{Email: winnerEmail, Confidence: "unknown", Status: "unknown", Source: "verification_cascade"}
+		attempts = append(attempts, map[string]any{
+			"stage": "verification", "provider": "verification_cascade", "status": "blocked",
+			"detail": blocked, "source_license": "unknown",
+		})
+	} else if verr != nil {
 		if cerr := ctx.Err(); cerr != nil {
 			return nil, cerr
 		}
@@ -366,9 +502,23 @@ func (s *Service) EnrichPeopleContacts(ctx context.Context, company, function st
 	if len(selected) == 0 {
 		return map[string]any{"ok": false, "error": "No people selected", "people": []any{}, "count": 0}, nil
 	}
+	if limit := s.maxPeople(); len(selected) > limit {
+		// Go only (review wave 3b M4): one call cannot fan out to an unbounded number of paid
+		// lookups; Python had no cap.
+		return map[string]any{"ok": false, "error": "Too many people selected", "max_people": limit,
+			"count": len(selected)}, nil
+	}
 	selectedIDs := make([]string, len(selected))
 	for i, p := range selected {
 		selectedIDs[i] = p["person_id"].(string)
+	}
+	resultSetID := PeopleResultSetID(company, function, candidates)
+	actionID := o.ActionID
+	if actionID == "" {
+		sorted := append([]string(nil), selectedIDs...)
+		sort.Strings(sorted)
+		sum := sha256.Sum256([]byte(strings.Join(sorted, "|")))
+		actionID = "people-contacts:" + resultSetID + ":" + hex.EncodeToString(sum[:])[:16]
 	}
 
 	timeout := o.ProviderTimeout
@@ -386,7 +536,7 @@ func (s *Service) EnrichPeopleContacts(ctx context.Context, company, function st
 		go func() {
 			defer wg.Done()
 			defer func() { <-sem }()
-			enriched[i], errs[i] = s.enrichOne(ctx, p, company, canonicalDomain, o.WorkspaceID, timeout)
+			enriched[i], errs[i] = s.enrichOne(ctx, p, company, canonicalDomain, o.WorkspaceID, actionID, timeout)
 		}()
 	}
 	wg.Wait()
@@ -404,14 +554,6 @@ func (s *Service) EnrichPeopleContacts(ctx context.Context, company, function st
 			}
 		}
 		summary[st] = n
-	}
-	resultSetID := PeopleResultSetID(company, function, candidates)
-	actionID := o.ActionID
-	if actionID == "" {
-		sorted := append([]string(nil), selectedIDs...)
-		sort.Strings(sorted)
-		sum := sha256.Sum256([]byte(strings.Join(sorted, "|")))
-		actionID = "people-contacts:" + resultSetID + ":" + hex.EncodeToString(sum[:])[:16]
 	}
 	return map[string]any{
 		"ok": true, "action_id": actionID, "reused": false, "workspace_id": o.WorkspaceID, "company": company,
