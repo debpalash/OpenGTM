@@ -177,6 +177,16 @@ func (q *Queries) LockOwnedRunWorkbookJob(ctx context.Context, arg LockOwnedRunW
 	return payload, err
 }
 
+const lockSpendScope = `-- name: LockSpendScope :exec
+SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))
+`
+
+// Serializes admissions of a workspace-level ledger scope (no workbook row to lock).
+func (q *Queries) LockSpendScope(ctx context.Context, scope string) error {
+	_, err := q.db.Exec(ctx, lockSpendScope, scope)
+	return err
+}
+
 const lockWorkbook = `-- name: LockWorkbook :execrows
 
 UPDATE workbooks SET budget_spent_usd = budget_spent_usd

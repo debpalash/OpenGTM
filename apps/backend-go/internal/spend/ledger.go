@@ -91,9 +91,39 @@ func bigFromText(s string) (*big.Int, error) {
 	return v, nil
 }
 
+// WorkspaceLedger is the workbook_id of the workspace-level ledger scope: paid calls that
+// belong to no workbook (copilot people contacts, review wave 3b M4). Its attempts follow
+// the same lifecycle; admissions are serialized by a transaction advisory lock instead of
+// the workbook row, only the cell limit bounds exposure and settling charges no workbook.
+// Real workbook ids are UUIDs, so it cannot collide with one.
+const WorkspaceLedger = "~workspace"
+
 // Reserve ports reserve_attempt. tx must be opened via tenancy.InWorkspace;
 // the caller commits. The no-op workbook UPDATE serializes admissions.
 func Reserve(ctx context.Context, tx pgx.Tx, r Reservation) (Admission, error) {
+	if r.WorkbookID == WorkspaceLedger {
+		return Admission{Reason: "workbook_not_found"}, nil
+	}
+	return reserve(ctx, tx, r, false)
+}
+
+// ReserveWorkspace is Reserve in the WorkspaceLedger scope (r.WorkbookID must be it).
+func ReserveWorkspace(ctx context.Context, tx pgx.Tx, r Reservation) (Admission, error) {
+	if r.WorkbookID != WorkspaceLedger {
+		return Admission{}, invalid("workspace ledger reservations need the workspace ledger scope")
+	}
+	return reserve(ctx, tx, r, true)
+}
+
+func lockScope(ctx context.Context, q *gen.Queries, workspaceID, workbookID string, scoped bool) (bool, error) {
+	if scoped {
+		return true, q.LockSpendScope(ctx, "spend:"+workspaceID+":"+workbookID)
+	}
+	n, err := q.LockWorkbook(ctx, gen.LockWorkbookParams{WorkbookID: workbookID, WorkspaceID: workspaceID})
+	return n == 1, err
+}
+
+func reserve(ctx context.Context, tx pgx.Tx, r Reservation, scoped bool) (Admission, error) {
 	if err := r.validate(); err != nil {
 		return Admission{}, err
 	}
@@ -106,11 +136,11 @@ func Reserve(ctx context.Context, tx pgx.Tx, r Reservation) (Admission, error) {
 		return Admission{}, invalid("%v", err)
 	}
 	q := gen.New(tx)
-	n, err := q.LockWorkbook(ctx, gen.LockWorkbookParams{WorkbookID: r.WorkbookID, WorkspaceID: r.WorkspaceID})
+	found, err := lockScope(ctx, q, r.WorkspaceID, r.WorkbookID, scoped)
 	if err != nil {
 		return Admission{}, err
 	}
-	if n != 1 {
+	if !found {
 		return Admission{Reason: "workbook_not_found"}, nil
 	}
 	prev, err := q.GetAttemptByKey(ctx, gen.GetAttemptByKeyParams{WorkspaceID: r.WorkspaceID, AttemptKey: r.AttemptKey})
@@ -123,9 +153,11 @@ func Reserve(ctx context.Context, tx pgx.Tx, r Reservation) (Admission, error) {
 	case !errors.Is(err, pgx.ErrNoRows):
 		return Admission{}, err
 	}
-	budget, err := q.GetWorkbookBudget(ctx, gen.GetWorkbookBudgetParams{WorkbookID: r.WorkbookID, WorkspaceID: r.WorkspaceID})
-	if err != nil {
-		return Admission{}, err
+	var budget gen.GetWorkbookBudgetRow
+	if !scoped {
+		if budget, err = q.GetWorkbookBudget(ctx, gen.GetWorkbookBudgetParams{WorkbookID: r.WorkbookID, WorkspaceID: r.WorkspaceID}); err != nil {
+			return Admission{}, err
+		}
 	}
 	outText, err := q.SumOutstandingMicroUSD(ctx, gen.SumOutstandingMicroUSDParams{WorkspaceID: r.WorkspaceID, WorkbookID: r.WorkbookID})
 	if err != nil {
@@ -243,6 +275,21 @@ var settleBases = map[string]bool{"catalog_estimate": true, "vendor_confirmed": 
 
 // Settle ports settle_attempt: persist the outcome and account the cost once.
 func Settle(ctx context.Context, tx pgx.Tx, id Identity, chargedMicroUSD int64, basis string, result map[string]any) (SettleResult, error) {
+	if id.WorkbookID == WorkspaceLedger {
+		return SettleResult{Reason: "workbook_not_found"}, nil
+	}
+	return settle(ctx, tx, id, chargedMicroUSD, basis, result, false)
+}
+
+// SettleWorkspace is Settle in the WorkspaceLedger scope: no workbook spend is added.
+func SettleWorkspace(ctx context.Context, tx pgx.Tx, id Identity, chargedMicroUSD int64, basis string, result map[string]any) (SettleResult, error) {
+	if id.WorkbookID != WorkspaceLedger {
+		return SettleResult{}, invalid("workspace ledger settlements need the workspace ledger scope")
+	}
+	return settle(ctx, tx, id, chargedMicroUSD, basis, result, true)
+}
+
+func settle(ctx context.Context, tx pgx.Tx, id Identity, chargedMicroUSD int64, basis string, result map[string]any, scoped bool) (SettleResult, error) {
 	if chargedMicroUSD < 0 {
 		return SettleResult{}, invalid("invalid settlement amount")
 	}
@@ -263,11 +310,11 @@ func Settle(ctx context.Context, tx pgx.Tx, id Identity, chargedMicroUSD int64, 
 		return SettleResult{}, invalid("%v", err)
 	}
 	q := gen.New(tx)
-	n, err := q.LockWorkbook(ctx, gen.LockWorkbookParams{WorkbookID: id.WorkbookID, WorkspaceID: id.WorkspaceID})
+	found, err := lockScope(ctx, q, id.WorkspaceID, id.WorkbookID, scoped)
 	if err != nil {
 		return SettleResult{}, err
 	}
-	if n != 1 {
+	if !found {
 		return SettleResult{Reason: "workbook_not_found"}, nil
 	}
 	att, err := q.LockAttemptForSettle(ctx, gen.LockAttemptForSettleParams{ID: id.AttemptID, WorkspaceID: id.WorkspaceID,
@@ -291,6 +338,9 @@ func Settle(ctx context.Context, tx pgx.Tx, id Identity, chargedMicroUSD int64, 
 	if err := q.MarkSettled(ctx, gen.MarkSettledParams{SettledMicrousd: pgtype.Int8{Int64: chargedMicroUSD, Valid: true},
 		Result: receipt, NowEpoch: nowEpoch(), ID: id.AttemptID, WorkspaceID: id.WorkspaceID}); err != nil {
 		return SettleResult{}, err
+	}
+	if scoped {
+		return SettleResult{OK: true}, nil
 	}
 	// Python: charged_microusd / 1000000 (correctly rounded true division).
 	delta, _ := new(big.Rat).SetFrac64(chargedMicroUSD, 1000000).Float64()

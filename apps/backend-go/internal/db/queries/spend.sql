@@ -65,3 +65,7 @@ WHERE id = sqlc.arg(id)::int AND type = 'run_workbook' AND workspace_id = sqlc.a
   AND worker_id = sqlc.arg(worker_id)::text AND status = 'processing'
   AND locked_at = sqlc.arg(locked_at) AND lease_token = sqlc.arg(lease_token)::bigint
 FOR NO KEY UPDATE;
+
+-- name: LockSpendScope :exec
+-- Serializes admissions of a workspace-level ledger scope (no workbook row to lock).
+SELECT pg_advisory_xact_lock(hashtextextended(sqlc.arg(scope)::text, 0));
