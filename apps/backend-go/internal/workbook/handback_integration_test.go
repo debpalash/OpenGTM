@@ -3,6 +3,7 @@
 package workbook_test
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -10,10 +11,11 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
-// jobRow reads the job columns a hand-back must set.
+// jobRow reads the job columns a refusal must leave alone (the worker finalizes the failure).
 func (e *env) jobRow(id int64) (executor, status, errText string, retries int, workerNull bool) {
 	e.t.Helper()
 	var worker *string
@@ -36,9 +38,10 @@ func mutate(raw []byte, fn func(p map[string]any)) []byte {
 	return out
 }
 
-// Every deterministic refusal hands the job back to Python: executor python,
-// pending, no retry spent, workbook not failed, no provider call.
-func TestRefusalsHandBackToPython(t *testing.T) {
+// Every deterministic refusal fails the job permanently on Go (plan 15 cutover: there is no Python to hand it
+// to): a permanent error naming the reason, the job row still executor go and untouched, the workbook failed, no
+// provider call.
+func TestRefusalsFailPermanently(t *testing.T) {
 	good := func(wb string) []byte { return payloadFor(wsA, wb, map[string]float64{"free1": 0}, nil) }
 	cases := []struct {
 		name    string
@@ -76,15 +79,15 @@ func TestRefusalsHandBackToPython(t *testing.T) {
 			}
 			c := e.claim(wsA, tc.payload(wb))
 			_, err := workbook.Run(e.ctx, d, c)
-			if !errors.Is(err, workbook.ErrHandedBack) || !strings.Contains(err.Error(), tc.reason) {
-				t.Fatalf("want hand-back containing %q, got %v", tc.reason, err)
+			if !workbook.IsRefused(err) || !queue.IsPermanent(err) || !strings.Contains(err.Error(), tc.reason) {
+				t.Fatalf("want a permanent refusal containing %q, got %v", tc.reason, err)
 			}
-			exec, status, msg, retries, noWorker := e.jobRow(c.ID)
-			if exec != "python" || status != "pending" || retries != 0 || !noWorker || !strings.HasPrefix(msg, "handed back to python: ") {
-				t.Fatalf("job row: %s %s %q retries=%d workerNull=%v", exec, status, msg, retries, noWorker)
+			exec, status, _, retries, noWorker := e.jobRow(c.ID)
+			if exec != "go" || status != "processing" || retries != 0 || noWorker {
+				t.Fatalf("job row: %s %s retries=%d workerNull=%v", exec, status, retries, noWorker)
 			}
-			if st := e.str(wsA, `SELECT status FROM workbooks WHERE id=$1`, wb); st != "running" {
-				t.Fatalf("workbook was changed to %q; a hand-back must not fail it", st)
+			if st := e.str(wsA, `SELECT status FROM workbooks WHERE id=$1`, wb); st != "failed" {
+				t.Fatalf("workbook is %q; a refused run must fail it", st)
 			}
 			if s.total() != 0 || e.one(wsA, `SELECT count(*) FROM workbook_enrichments`) != 0 {
 				t.Fatal("work happened before a refusal")
@@ -94,7 +97,7 @@ func TestRefusalsHandBackToPython(t *testing.T) {
 }
 
 // S2: a payload whose manifest points at an attacker URL is never executed
-// (the served copy is), and when the hash does not match the job is handed back.
+// (the served copy is), and when the hash does not match the job is refused.
 func TestTamperedPayloadManifestNeverExecuted(t *testing.T) {
 	e := setup(t, wsA)
 	e.seed(wsA, "wb-tamper", "["+colJSON("c1", "free1")+"]", 1, 0)
@@ -111,7 +114,7 @@ func TestTamperedPayloadManifestNeverExecuted(t *testing.T) {
 		t.Fatalf("served manifest must run: %+v calls=%d err=%v", res, s.count("free1"), err)
 	}
 
-	// (b) The payload's hash differs from the served one: handed back, no call.
+	// (b) The payload's hash differs from the served one: refused, no call.
 	e2 := e
 	e2.seed(wsA, "wb-tamper2", "["+colJSON("c1", "free1")+"]", 1, 0)
 	raw2 := mutate(payloadFor(wsA, "wb-tamper2", map[string]float64{"free1": 0}, nil), func(p map[string]any) {
@@ -122,11 +125,44 @@ func TestTamperedPayloadManifestNeverExecuted(t *testing.T) {
 	s2 := newSim(t, nil)
 	c2 := e2.claim(wsA, raw2)
 	_, err = workbook.Run(e2.ctx, e2.deps(s2, nil), c2)
-	if !errors.Is(err, workbook.ErrHandedBack) || !strings.Contains(err.Error(), "manifest_mismatch") || s2.total() != 0 {
-		t.Fatalf("tampered hash must hand back: %v calls=%d", err, s2.total())
+	if !workbook.IsRefused(err) || !strings.Contains(err.Error(), "manifest_mismatch") || s2.total() != 0 {
+		t.Fatalf("tampered hash must be refused: %v calls=%d", err, s2.total())
 	}
-	exec, status, _, retries, _ := e2.jobRow(c2.ID)
-	if exec != "python" || status != "pending" || retries != 0 {
-		t.Fatalf("%s %s %d", exec, status, retries)
+	exec, _, _, retries, _ := e2.jobRow(c2.ID)
+	if exec != "go" || retries != 0 {
+		t.Fatalf("%s %d", exec, retries)
+	}
+}
+
+// A run_workbook payload without a go block (enqueued by refresh, a source workbook, the recompute fallback, or by
+// Python before the cutover and reassigned to Go) is planned at claim time through Deps.PlanGoBlock; the planned
+// block goes through the same manifest verification as an enqueued one.
+func TestMissingGoBlockIsPlannedAtClaim(t *testing.T) {
+	e := setup(t, wsA)
+	e.seed(wsA, "wb-plan", "["+colJSON("c1", "free1")+"]", 1, 0)
+	full := payloadFor(wsA, "wb-plan", map[string]float64{"free1": 0}, nil)
+	var withGo map[string]json.RawMessage
+	_ = json.Unmarshal(full, &withGo)
+	raw := mutate(full, func(p map[string]any) { delete(p, "go") })
+	s := newSim(t, nil)
+	d := e.deps(s, nil)
+	var asked []string
+	d.PlanGoBlock = func(_ context.Context, ws, wb string) (json.RawMessage, error) {
+		asked = append(asked, ws+"/"+wb)
+		return withGo["go"], nil
+	}
+	res, err := workbook.Run(e.ctx, d, e.claim(wsA, raw))
+	if err != nil || res.Completed != 1 || s.count("free1") != 1 {
+		t.Fatalf("planned run: %+v calls=%d err=%v", res, s.count("free1"), err)
+	}
+	if len(asked) != 1 || asked[0] != wsA+"/wb-plan" {
+		t.Fatalf("planner asked %v", asked)
+	}
+	// A planner failure is a permanent refusal before any work.
+	e.seed(wsA, "wb-plan2", "["+colJSON("c1", "free1")+"]", 1, 0)
+	d.PlanGoBlock = func(context.Context, string, string) (json.RawMessage, error) { return nil, errors.New("no index") }
+	raw2 := mutate(payloadFor(wsA, "wb-plan2", map[string]float64{"free1": 0}, nil), func(p map[string]any) { delete(p, "go") })
+	if _, err := workbook.Run(e.ctx, d, e.claim(wsA, raw2)); !workbook.IsRefused(err) || !queue.IsPermanent(err) {
+		t.Fatalf("planner failure: %v", err)
 	}
 }

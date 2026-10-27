@@ -163,7 +163,7 @@ func TestHandlerPersistsReceiptForOwningLease(t *testing.T) {
 	}
 }
 
-func TestRefusesNonV1PayloadAndHandsBack(t *testing.T) {
+func TestRefusesNonV1Payload(t *testing.T) {
 	e := setup(t, wsA)
 	e.seed(wsA, "wb-v2", "["+colJSON("c1", "free1")+"]", 1, 0)
 	raw := payloadFor(wsA, "wb-v2", map[string]float64{"free1": 0}, nil)
@@ -173,8 +173,8 @@ func TestRefusesNonV1PayloadAndHandsBack(t *testing.T) {
 	raw, _ = json.Marshal(p)
 	s := newSim(t, nil)
 	_, err := workbook.Run(e.ctx, e.deps(s, nil), e.claim(wsA, raw))
-	if !errors.Is(err, workbook.ErrHandedBack) || s.total() != 0 {
-		t.Fatalf("v2 payload must be handed back before any work: %v", err)
+	if !workbook.IsRefused(err) || s.total() != 0 {
+		t.Fatalf("v2 payload must be refused before any work: %v", err)
 	}
 	if n := e.one(wsA, `SELECT count(*) FROM workbook_enrichments`); n != 0 {
 		t.Fatal("cells written")

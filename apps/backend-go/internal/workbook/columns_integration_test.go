@@ -203,31 +203,31 @@ func TestAITimeoutIsCellErrorAndNotRetried(t *testing.T) {
 	}
 }
 
-func TestPyworkerUnavailableHandsBackJob(t *testing.T) {
+func TestPythonOnlyColumnWithoutRunnerIsRefused(t *testing.T) {
 	e := setup(t, wsA)
 	e.seed(wsA, "wb-nopy", `[{"id":"a1","type":"ai_formula","name":"A1","prompt":"x"}]`, 1, 10)
 	c := e.claim(wsA, payloadNoManifests(wsA, "wb-nopy", nil, nil))
-	d := e.deps(newSim(t, nil), nil) // Py is nil
-	if _, err := workbook.Run(e.ctx, d, c); !errors.Is(err, workbook.ErrHandedBack) {
-		t.Fatalf("want hand back, got %v", err)
+	d := e.deps(newSim(t, nil), nil) // neither Py nor AICols
+	if _, err := workbook.Run(e.ctx, d, c); !workbook.IsRefused(err) {
+		t.Fatalf("want a refusal, got %v", err)
 	}
 	if n := e.one(wsA, `SELECT count(*) FROM workbook_enrichments`); n != 0 {
-		t.Fatal("cells written before the hand back")
+		t.Fatal("cells written before the refusal")
 	}
 }
 
-func TestOutputColumnHandsBack(t *testing.T) {
+func TestOutputColumnWithoutFullRunIsRefused(t *testing.T) {
 	e := setup(t, wsA)
 	cols := `[{"id":"f1","type":"formula","name":"F1","formula":"upper({company})"},{"id":"o1","type":"output","name":"O1","destination":"webhook"}]`
 	e.seed(wsA, "wb-out", cols, 1, 10)
 	c := e.claim(wsA, payloadNoManifests(wsA, "wb-out", nil, nil))
 	d := e.deps(newSim(t, nil), nil)
 	d.Py = &fakePy{fn: func(context.Context, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
-		t.Error("python called for a job that must be handed back")
+		t.Error("python called for a job that must be refused")
 		return pyworker.ProviderResult{}, nil
 	}}
-	if _, err := workbook.Run(e.ctx, d, c); !errors.Is(err, workbook.ErrHandedBack) {
-		t.Fatalf("want hand back, got %v", err)
+	if _, err := workbook.Run(e.ctx, d, c); !workbook.IsRefused(err) {
+		t.Fatalf("want a refusal, got %v", err)
 	}
 	if n := e.one(wsA, `SELECT count(*) FROM workbook_enrichments`); n != 0 {
 		t.Fatal("the formula cell ran although the job contains an output column")

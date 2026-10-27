@@ -588,15 +588,15 @@ func TestUpstreamUnavailableBlocksDependent(t *testing.T) {
 	}
 }
 
-// Python-run column types are handed back when no python worker is configured.
-func TestRunStillHandsBackNonGoTypes(t *testing.T) {
+// AI column types are refused when neither the in-process AI columns nor a worker RPC are wired.
+func TestRunRefusesAIColumnsWithoutARunner(t *testing.T) {
 	e := setup(t, wsA)
 	s := newSim(t, nil)
 	e.seed(wsA, "wb-nongo", `[{"id":"c1","type":"ai_formula","name":"c1","prompt":"x"}]`, 1, 10)
 	c := e.claim(wsA, payloadFor(wsA, "wb-nongo", map[string]float64{"pa": 0}, nil))
 	_, err := workbook.Run(e.ctx, e.deps(s, nil), c)
-	if !errors.Is(err, workbook.ErrHandedBack) || s.total() != 0 {
-		t.Fatalf("non-go type must be handed back: %v", err)
+	if !workbook.IsRefused(err) || s.total() != 0 {
+		t.Fatalf("an AI column without a runner must be refused: %v", err)
 	}
 }
 

@@ -25,10 +25,10 @@ func withRequires(wb string, reqs ...string) []byte {
 	})
 }
 
-// M4, both directions: a worker without a capability the enqueuer recorded hands the job back
+// M4, both directions: a worker without a capability the enqueuer recorded refuses the job
 // before any work; a worker that has every capability runs it; a payload with no requirement
 // (every flag-off run) is unaffected.
-func TestRequiredCapabilitiesHandBackOrRun(t *testing.T) {
+func TestRequiredCapabilitiesRefuseOrRun(t *testing.T) {
 	full := func(d *workbook.Deps) {
 		d.FullRun, d.Provenance = true, true
 		d.Emitter = &memEmitter{}
@@ -70,12 +70,12 @@ func TestRequiredCapabilitiesHandBackOrRun(t *testing.T) {
 			c := e.claim(wsA, withRequires(wb, tc.reqs...))
 			res, err := workbook.Run(e.ctx, d, c)
 			if tc.hand {
-				if !errors.Is(err, workbook.ErrHandedBack) || !strings.Contains(err.Error(), tc.match) || !strings.Contains(err.Error(), "capability_unavailable") {
-					t.Fatalf("want a capability hand-back naming %q: %v", tc.match, err)
+				if !workbook.IsRefused(err) || !strings.Contains(err.Error(), tc.match) || !strings.Contains(err.Error(), "capability_unavailable") {
+					t.Fatalf("want a capability refusal naming %q: %v", tc.match, err)
 				}
-				exec, status, _, retries, noWorker := e.jobRow(c.ID)
-				if exec != "python" || status != "pending" || retries != 0 || !noWorker {
-					t.Fatalf("job row: %s %s retries=%d", exec, status, retries)
+				exec, _, _, retries, _ := e.jobRow(c.ID)
+				if exec != "go" || retries != 0 {
+					t.Fatalf("job row: %s retries=%d", exec, retries)
 				}
 				if s.total() != 0 || e.one(wsA, `SELECT count(*) FROM workbook_enrichments`) != 0 {
 					t.Fatal("work happened before the refusal")
