@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 )
 
 const (
@@ -24,14 +25,14 @@ const (
 
 // ErrUnavailable means no Python worker is configured (PY_WORKER_URL empty);
 // callers hand the job back to the Python executor.
-var ErrUnavailable = errors.New("pyworker: python worker unavailable")
+var ErrUnavailable = provcall.ErrUnavailable
 
 // ErrUnknownProvider is ProviderResult.Err for HTTP 404 (provider not on Python).
-var ErrUnknownProvider = errors.New("pyworker: unknown provider")
+var ErrUnknownProvider = provcall.ErrUnknownProvider
 
 // ErrUnauthorized is ProviderResult.Err for HTTP 401 (bad token) and 503 (the
 // Python internal API is disabled); both are configuration faults, never retried.
-var ErrUnauthorized = errors.New("pyworker: python worker auth rejected or internal API disabled")
+var ErrUnauthorized = provcall.ErrUnauthorized
 
 const retryBackoff = 200 * time.Millisecond
 
