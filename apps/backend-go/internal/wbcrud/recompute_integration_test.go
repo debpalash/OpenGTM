@@ -182,7 +182,7 @@ func TestRecomputeBillingOffUnchanged(t *testing.T) {
 	if n := e.count(`SELECT count(*) FROM credit_ledger_entries`); n != 0 {
 		t.Fatalf("billing off wrote %d ledger rows", n)
 	}
-	if n := e.count(`SELECT count(*) FROM jobs WHERE type='run_workbook' AND executor='python'`); n != 1 {
-		t.Fatalf("want one python-executor job, got %d", n)
+	if n := e.count(`SELECT count(*) FROM jobs WHERE type='run_workbook' AND executor='go'`); n != 1 {
+		t.Fatalf("want one go-executor job, got %d", n)
 	}
 }

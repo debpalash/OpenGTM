@@ -8,6 +8,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/vendorcatalog"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
 // PayloadVersion is the "go" block version (go_executor.PAYLOAD_VERSION and
@@ -269,4 +271,24 @@ func jobPayload(f jobFields, goBlock []byte) ([]byte, error) {
 		doc = append(doc, kv{"go", raw(goBlock)})
 	}
 	return render(doc)
+}
+
+// ManifestJSON renders m as the run payload carries it (ProviderManifest.model_dump), the document the executor
+// decodes; the worker's local manifest source serves this rendering.
+func ManifestJSON(m manifest.Manifest) ([]byte, error) { return render(manifestDoc(m)) }
+
+// GoBlockForColumns plans the go block of a run_workbook payload that has none (the worker's claim-time planner,
+// plan 15 cutover) over every column of the workbook: a superset of what the run selects, so every provider a
+// selected column names has its manifest (or native cost entry) and every capability is recorded. cfg supplies the
+// workspace settings that add requirements (PROVENANCE_TRACKING_ENABLED, AUTOMATIONS_ENABLED); cost nil is
+// vendorcatalog.BaseCost.
+func GoBlockForColumns(cols []wbcrud.Column, idx map[string]manifest.Entry, cost func(string) float64, defaultConcurrency int, cfg Config) ([]byte, error) {
+	cc, err := toCols(cols)
+	if err != nil {
+		return nil, err
+	}
+	if cost == nil {
+		cost = vendorcatalog.BaseCost
+	}
+	return GoBlockNative(cc, idx, cost, defaultConcurrency, RequiredCapabilities(cc, cutoverConfig(cfg)), true)
 }

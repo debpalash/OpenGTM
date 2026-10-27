@@ -83,8 +83,8 @@ type Plan struct {
 	TotalJobs   int // cells
 
 	RunID    string
-	Executor string // "go" | "python"
-	Reason   string // why Python was kept (or "ok")
+	Executor string // always "go" (the only executor since the plan 15 cutover)
+	Reason   string // go_eligibility's verdict under the retired flags all on ("ok", or what the executor may refuse)
 	Payload  json.RawMessage
 
 	// Billing inputs: the provider chain per column key and the worst-case
@@ -241,21 +241,19 @@ func Build(ctx context.Context, tx pgx.Tx, wb Workbook, req RunRequest, cfg Conf
 		RowColumns: scope, RowIDs: rows, LeadIDs: leadIDs, Perf: cfg.Perf,
 		FillMissing: req.FillMissing, Force: req.Force,
 	}
-	plan.Executor = "python"
-	var goBlock []byte
-	ok, reason := Eligible(colsByID(all, colIDs), cfg.Index, cfg)
-	plan.Reason = reason
-	if ok {
-		cost := cfg.Cost
-		if cost == nil {
-			cost = vendorcatalog.BaseCost
-		}
-		if goBlock, err = GoBlockNative(colsByID(all, colIDs), cfg.Index, cost, cfg.DefaultConcurrency,
-			RequiredCapabilities(colsByID(all, colIDs), cfg), cfg.NativeProviders); err != nil {
-			goBlock, plan.Reason = nil, ReasonEligibilityError // fail safe: Python executes
-		} else {
-			plan.Executor = "go"
-		}
+	// Plan 15 cutover: Go is the only executor, so the retired routing flags read as on and every run gets a go
+	// block. Eligible's verdict is kept as information (the executor itself refuses what it cannot run).
+	cfg = cutoverConfig(cfg)
+	plan.Executor = "go"
+	_, plan.Reason = Eligible(colsByID(all, colIDs), cfg.Index, cfg)
+	cost := cfg.Cost
+	if cost == nil {
+		cost = vendorcatalog.BaseCost
+	}
+	goBlock, err := GoBlockNative(colsByID(all, colIDs), cfg.Index, cost, cfg.DefaultConcurrency,
+		RequiredCapabilities(colsByID(all, colIDs), cfg), true)
+	if err != nil {
+		return Plan{}, unprocessable("This run cannot be planned: " + err.Error())
 	}
 	if plan.Payload, err = jobPayload(fields, goBlock); err != nil {
 		return Plan{}, fmt.Errorf("runplan: payload: %w", err)
@@ -437,4 +435,16 @@ func viewRows(ctx context.Context, tx pgx.Tx, wb Workbook, req RunRequest) ([]in
 		}
 	}
 	return ids, rs.Err()
+}
+
+// cutoverConfig turns the retired routing flags of cfg on (GO_EXECUTOR_ENABLED, the cohort, GO_EXECUTOR_FULL_RUN,
+// GO_EXECUTOR_COLUMN_TYPES, GO_RUN_NATIVE_PROVIDERS): since the plan 15 cutover every run executes on Go.
+func cutoverConfig(cfg Config) Config {
+	cfg.GoExecutorEnabled, cfg.FullRun, cfg.NativeProviders = true, true, true
+	cfg.GoCohort = map[string]bool{"*": true}
+	cfg.ExtraColumnTypes = map[string]bool{}
+	for t := range extraColumnTypes {
+		cfg.ExtraColumnTypes[t] = true
+	}
+	return cfg
 }

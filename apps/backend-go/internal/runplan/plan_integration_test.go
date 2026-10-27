@@ -322,8 +322,8 @@ func keyOrder(t *testing.T, raw []byte) []string {
 	return keys
 }
 
-// TestPayloadJobShape: the job payload has Python's keys in Python's order,
-// the row_columns scope restricted to the resolved rows in row order.
+// TestPayloadJobShape: the job payload has Python's keys in Python's order (then the go block, which every
+// run carries since the plan 15 cutover), the row_columns scope restricted to the resolved rows in row order.
 func TestPayloadJobShape(t *testing.T) {
 	inTx(t, func(ctx context.Context, tx pgx.Tx) {
 		seedContract(t, ctx, tx)
@@ -338,7 +338,7 @@ func TestPayloadJobShape(t *testing.T) {
 			t.Fatal(err)
 		}
 		want := []string{"workbook_id", "workspace_id", "run_id", "column_ids", "row_columns", "row_ids", "lead_ids",
-			"concurrency", "max_providers", "retry_passes", "provider_workers", "provider_timeout", "fill_missing", "force"}
+			"concurrency", "max_providers", "retry_passes", "provider_workers", "provider_timeout", "fill_missing", "force", "go"}
 		if got := keyOrder(t, plan.Payload); !reflect.DeepEqual(got, want) {
 			t.Fatalf("keys %v\nwant %v", got, want)
 		}
