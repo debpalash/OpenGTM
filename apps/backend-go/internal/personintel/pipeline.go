@@ -2,10 +2,7 @@ package personintel
 
 import (
 	"bytes"
-	"cmp"
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -17,12 +14,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
 )
 
-// Caller is the slice of *pyworker.Client the deep scrape needs.
-type Caller interface {
-	Call(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error)
+// Renderer renders a JavaScript page: the browser service's /v1/render (*browserclient.Client).
+type Renderer interface {
+	Render(ctx context.Context, req browserclient.RenderRequest) (browserclient.RenderResult, error)
 }
 
 // Deps are the collaborators of Enrich.
@@ -30,26 +27,21 @@ type Deps struct {
 	// HTTP is the caller's egress-guarded client: every search and GitHub
 	// request goes through it. Required.
 	HTTP *http.Client
-	// PyWorker runs the deep scrape (provider person_intel_deep). nil, or a
-	// nil *pyworker.Client, skips the deep phase with step deep_unavailable.
-	PyWorker Caller
+	// Browser renders the result pages a plain fetch cannot read (a JavaScript
+	// wall). nil, a nil or an unconfigured *browserclient.Client skips those pages.
+	Browser Renderer
 	// Fetch loads one result page for the deep scrape. nil means the
 	// egress-guarded HTTP client above (2 MiB cap, same-host redirects only).
 	// Tests inject their own.
 	Fetch PageFetcher
-	// WorkspaceID is the RPC envelope workspace (person_intel itself is global). The worker rejects an empty
-	// one (422), so empty means DefaultWorkspaceID.
-	WorkspaceID string
 }
-
-// DefaultWorkspaceID is the envelope workspace of a deep scrape whose caller has no workspace.
-const DefaultWorkspaceID = "person-intel"
 
 const (
 	// DeepMaxPages bounds the pages handed to the deep scrape.
 	DeepMaxPages = 10
 	// deepPageTimeout bounds one page call.
 	deepPageTimeout = 20 * time.Second
+
 	maxScrapedText  = 1000
 	maxScrapedMails = 50
 	maxRawSources   = 50
@@ -136,12 +128,18 @@ func EventJSON(step string, data map[string]any) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func nilCaller(c Caller) bool {
-	if c == nil {
+// noBrowser reports a renderer that cannot render: nil, a nil pointer, or a browser client without a URL/token.
+func noBrowser(b Renderer) bool {
+	if b == nil {
 		return true
 	}
-	v := reflect.ValueOf(c)
-	return v.Kind() == reflect.Pointer && v.IsNil()
+	if v := reflect.ValueOf(b); v.Kind() == reflect.Pointer && v.IsNil() {
+		return true
+	}
+	if c, ok := b.(interface{ Configured() bool }); ok && !c.Configured() {
+		return true
+	}
+	return false
 }
 
 // Enrich runs the person enrichment pipeline (PersonIntelService.enrich).
@@ -246,19 +244,13 @@ type deepOutput struct {
 	WordCount       int      `json:"word_count"`
 }
 
-func randomCallID() string {
-	var b [16]byte
-	_, _ = rand.Read(b[:])
-	return "pi-" + hex.EncodeToString(b[:])
-}
-
 // deepScrape (_deep_scrape_results) fetches up to DeepMaxPages result pages in
-// Go (egress-guarded, capped); only JavaScript-wall pages go to the Python worker, one provider call per page, inside deepBudget.
-// Page failures are skipped; an unreachable worker ends the phase with step
-// deep_unavailable. Only the caller's ctx ending is returned as an error.
+// Go (egress-guarded, capped); only JavaScript-wall pages are rendered by the browser service, one render per
+// page, inside deepBudget. Page failures are skipped; a browser service that is down or misconfigured ends the
+// phase with step deep_unavailable. Only the caller's ctx ending is returned as an error.
 func deepScrape(ctx context.Context, d Deps, p *Profile, all []Result, emit func(string, map[string]any)) error {
 	unavailable := func() {
-		emit("deep_unavailable", map[string]any{"message": "Deep scraping unavailable: Python worker not reachable"})
+		emit("deep_unavailable", map[string]any{"message": "Deep scraping unavailable: browser service not reachable"})
 	}
 	fetch := d.Fetch
 	if fetch == nil {
@@ -327,30 +319,31 @@ pick:
 			}
 			continue
 		}
-		// JavaScript wall: only the Python browser can render it.
-		if nilCaller(d.PyWorker) {
+		// JavaScript wall: the browser service renders it (it re-checks the URL and every redirect hop).
+		if noBrowser(d.Browser) {
 			skip()
 			continue
 		}
-		in, _ := json.Marshal(map[string]string{"url": u})
-		res, err := d.PyWorker.Call(dctx, pyworker.ProviderCall{
-			CallID: randomCallID(), Provider: "person_intel_deep", WorkspaceID: cmp.Or(d.WorkspaceID, DefaultWorkspaceID),
-			Input: in, Timeout: deepPageTimeout,
-		})
+		res, err := d.Browser.Render(dctx, browserclient.RenderRequest{URL: u, IncludeHTML: true, MaxBytes: maxPageBytes,
+			Timeout: deepPageTimeout})
 		switch {
 		case ctx.Err() != nil:
 			return ctx.Err()
-		case err == nil && res.Status == "ok":
-			mergeScraped(p, &all[i], res.Output) // keep a page that answered as the budget expired
+		case err == nil:
+			if out := extractPage([]byte(res.HTML)); out != nil {
+				mergeScraped(p, &all[i], out) // keep a page that answered as the budget expired
+			}
 			if dctx.Err() != nil {
 				return nil
 			}
 		case dctx.Err() != nil:
 			return nil // phase budget spent
-		case errors.Is(err, pyworker.ErrUnavailable), errors.Is(err, pyworker.ErrUnknownProvider), errors.Is(err, pyworker.ErrUnauthorized),
-			errors.Is(res.Err, pyworker.ErrUnavailable), errors.Is(res.Err, pyworker.ErrUnknownProvider), errors.Is(res.Err, pyworker.ErrUnauthorized):
+		case errors.Is(err, browserclient.ErrUnavailable), errors.Is(err, browserclient.ErrUnauthorized),
+			errors.Is(err, browserclient.ErrBrowserUnavailable), errors.Is(err, browserclient.ErrEngineUnavailable):
 			unavailable()
 			return nil
+		default:
+			skip()
 		}
 		if n < total-1 && deepDelay > 0 {
 			t := time.NewTimer(deepDelay)
@@ -364,7 +357,7 @@ pick:
 	return ctx.Err()
 }
 
-// mergeScraped records one page's answer (untrusted Python output: caps and
+// mergeScraped records one page's extraction (untrusted page content: caps and
 // validates it) on the result and merges its emails into the profile.
 func mergeScraped(p *Profile, r *Result, out json.RawMessage) {
 	var o deepOutput

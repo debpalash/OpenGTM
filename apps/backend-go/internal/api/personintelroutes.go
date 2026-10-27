@@ -180,13 +180,7 @@ func (p *personRoutes) enrichRoute(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), personEnrichTimeout)
 	defer cancel()
-	deps := personintel.Deps{HTTP: p.egress}
-	if hasPr {
-		deps.WorkspaceID = PersonIntelWorkspaceID(ctx, p.d, pr.User.ID, r.Header.Get("X-Workspace-Id"))
-	}
-	if p.d.PyWorker != nil {
-		deps.PyWorker = p.d.PyWorker
-	}
+	deps := personintel.Deps{HTTP: p.egress, Browser: p.d.browser()}
 	// A pipeline failure is not an error: like Python the profile comes back with status "failed" (including an
 	// unparseable username, whose ValueError the Python service swallows) and is saved and returned as usual.
 	profile, err := p.enrich(ctx, deps, url, deep)
@@ -305,24 +299,4 @@ func (p *personRoutes) remove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeRaw(w, http.StatusOK, []byte(`{"status":"deleted","id":`+strconv.FormatInt(id, 10)+`}`))
-}
-
-// PersonIntelWorkspaceID is the workspace_id a person-intel deep scrape sends to the Python worker, which rejects
-// an empty one. The routes are global-admin only and not workspace-scoped, so the gate is not applied: it is the
-// X-Workspace-Id header when the user belongs to that workspace, else the user's active or first workspace, else
-// personintel.DefaultWorkspaceID. A workspace the caller is not a member of is never forwarded. The REST route
-// and the WebSocket route (read the header from the upgrade request) use this one function.
-func PersonIntelWorkspaceID(ctx context.Context, d Deps, userID int32, header string) string {
-	if d.Identity == nil {
-		return personintel.DefaultWorkspaceID
-	}
-	if header != "" {
-		if ok, err := d.Identity.IsMember(ctx, header, userID); err == nil && ok {
-			return header
-		}
-	}
-	if ws, err := d.Identity.ActiveWorkspaceID(ctx, userID); err == nil && ws != "" {
-		return ws
-	}
-	return personintel.DefaultWorkspaceID
 }

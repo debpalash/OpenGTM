@@ -295,13 +295,7 @@ func (h *personWS) serve(w http.ResponseWriter, r *http.Request) {
 			_ = write(b) // like Python's ws_callback, a failed send is ignored
 		}
 	}
-	deps := personintel.Deps{HTTP: h.egress}
-	// The deep scrape RPC needs a workspace (person_intel itself is global): X-Workspace-Id when the admin
-	// belongs to it, else their active workspace, else the default.
-	deps.WorkspaceID = PersonIntelWorkspaceID(cctx, h.d, uid, r.Header.Get("X-Workspace-Id"))
-	if h.d.PyWorker != nil {
-		deps.PyWorker = h.d.PyWorker
-	}
+	deps := personintel.Deps{HTTP: h.egress, Browser: h.d.browser()}
 	profile, err := h.run(rctx, deps, linkedinURL, wsTruthy(deepV), notify)
 	switch {
 	case cctx.Err() != nil:

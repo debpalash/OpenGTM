@@ -315,7 +315,7 @@ func TestDeepBoundedAndCancelled(t *testing.T) {
 		for _, s := range p.RawSources {
 			if s.ScrapedText != "" {
 				scraped++
-				if n := len([]rune(s.ScrapedText)); n != 1000 || s.ScrapedWordCount != 7 || len(s.ScrapedEmails) != 1 || strings.Contains(s.ScrapedText, "evil") {
+				if n := len([]rune(s.ScrapedText)); n != 1000 || s.ScrapedWordCount != 6 || len(s.ScrapedEmails) != 1 || strings.Contains(s.ScrapedText, "evil") {
 					t.Fatalf("scraped fields %d %d %v", n, s.ScrapedWordCount, s.ScrapedEmails)
 				}
 			}
@@ -436,4 +436,3 @@ func TestDeepKeepsPageFinishingAtBudgetExpiry(t *testing.T) {
 		t.Fatalf("err %v calls %d emails %v", err, len(fc.calls), p.Emails)
 	}
 }
-

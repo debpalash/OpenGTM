@@ -439,57 +439,22 @@ func TestPersonWSPerUserConnectionCap(t *testing.T) {
 	e.mustDial(t, "admin2") // another admin has its own budget
 }
 
-func TestPersonWSDeepScrapePassesCallerWorkspace(t *testing.T) {
-	var gotWS string
+func TestPersonWSDeepScrapeGetsBrowserClient(t *testing.T) {
+	var got personintel.Renderer
 	e := newPWSEnv(t, func(ctx context.Context, d personintel.Deps, u string, deep bool, n func(string, map[string]any)) (personintel.Profile, error) {
-		gotWS = d.WorkspaceID
+		got = d.Browser
 		return fakeProfile(u), nil
 	}, nil)
-	admin := e.mustUserByName(t, pwsTag+"admin").ID
-	ws := pwsTag + "ws-deep"
-	e.workspace(t, ws, admin)
-	e.member(t, ws, admin, "owner")
 	c := e.mustDial(t, "admin")
 	sendText(t, c, `{"linkedin_url":"https://www.linkedin.com/in/jane-doe","deep":true}`)
 	if fr, _ := readAll(t, c, 5*time.Second); len(fr) != 1 {
 		t.Fatalf("frames = %v", fr)
 	}
-	if gotWS != ws {
-		t.Errorf("pipeline workspace = %q, want %q", gotWS, ws)
+	if got == nil {
+		t.Error("the deep scrape got no browser-service client")
 	}
 }
 
-func TestPersonWSWorkspaceHeaderAndForeignFallback(t *testing.T) {
-	var gotWS string
-	e := newPWSEnv(t, func(ctx context.Context, d personintel.Deps, u string, deep bool, n func(string, map[string]any)) (personintel.Profile, error) {
-		gotWS = d.WorkspaceID
-		return fakeProfile(u), nil
-	}, nil)
-	admin := e.mustUserByName(t, pwsTag+"admin").ID
-	other := e.mustUserByName(t, pwsTag+"admin2").ID
-	mine, foreign := pwsTag+"ws-mine", pwsTag+"ws-foreign"
-	e.workspace(t, mine, admin)
-	e.member(t, mine, admin, "owner")
-	e.workspace(t, foreign, other)
-	e.member(t, foreign, other, "owner")
-	for hdr, want := range map[string]string{mine: mine, foreign: mine} {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		c, _, err := websocket.Dial(ctx, "ws"+strings.TrimPrefix(e.srv.URL, "http")+"/ws/person/enrich?token="+e.token(t, "admin"),
-			&websocket.DialOptions{HTTPHeader: http.Header{"X-Workspace-Id": {hdr}}})
-		cancel()
-		if err != nil {
-			t.Fatal(err)
-		}
-		sendText(t, c, pwsURL)
-		readAll(t, c, 5*time.Second)
-		_ = c.CloseNow()
-		if gotWS != want {
-			t.Errorf("header %q: workspace %q, want %q", hdr, gotWS, want)
-		}
-	}
-}
-
-// The WS draws its slot from the shared stream pool (d.SSEStreamSem), not a private one.
 func TestPersonWSUsesSharedStreamPool(t *testing.T) {
 	pool := make(chan struct{}, 1)
 	pool <- struct{}{} // the shared pool is exhausted

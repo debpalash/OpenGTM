@@ -10,8 +10,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 )
 
 func deepHTTP(t *testing.T, urls []string) *http.Client {
