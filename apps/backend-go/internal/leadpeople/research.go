@@ -189,6 +189,8 @@ type ResearchOptions struct {
 	Titles   []string
 	Location string
 	Limit    int // 0 = 8; clamped to 1..15
+	// Workspace is the calling workspace: it salts the finder's process-wide search cache.
+	Workspace string
 }
 
 // ResearchPeopleAtCompany is research_people_at_company: evidence-gated people
