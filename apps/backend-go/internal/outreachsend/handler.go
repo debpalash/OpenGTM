@@ -182,14 +182,17 @@ func (h *Handler) Handle(ctx context.Context, c *queue.Claim) error {
 	if err != nil {
 		return &queue.PermanentError{Err: err}
 	}
+	if c.WorkspaceID == "" { // the tenant comes from the job row only (plan 15 cutover)
+		return &queue.PermanentError{Err: errors.New("outreachsend: the job has no workspace_id")}
+	}
 	ws := j.WorkspaceID
 	if ws == "" {
 		ws = c.WorkspaceID
 	}
-	if ws == "" || j.IdempotencyKey == "" {
+	if j.IdempotencyKey == "" {
 		return &queue.PermanentError{Err: errors.New("outreachsend: payload needs workspace_id and idempotency_key")}
 	}
-	if c.WorkspaceID != "" && c.WorkspaceID != ws {
+	if c.WorkspaceID != ws {
 		return &queue.PermanentError{Err: errors.New("outreachsend: payload workspace does not match the job's workspace")}
 	}
 	cost := h.SendCostUSD

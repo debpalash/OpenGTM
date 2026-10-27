@@ -79,6 +79,9 @@ func (h *Handler) Handle(ctx context.Context, c *queue.Claim) error {
 	if !h.enabled() {
 		return nil
 	}
+	if c.WorkspaceID == "" { // the tenant comes from the job row only (plan 15 cutover)
+		return &queue.PermanentError{Err: errors.New("outreachinbound: the job has no workspace_id")}
+	}
 	var p struct {
 		WorkspaceID string `json:"workspace_id"`
 	}
@@ -87,7 +90,7 @@ func (h *Handler) Handle(ctx context.Context, c *queue.Claim) error {
 		return nil
 	}
 	ws := p.WorkspaceID
-	if c.WorkspaceID != "" && c.WorkspaceID != ws { // as the send handler: the job row's workspace is authoritative
+	if c.WorkspaceID != ws { // as the send handler: the job row's workspace is authoritative
 		return &queue.PermanentError{Err: errors.New("outreachinbound: payload workspace does not match the job's workspace")}
 	}
 

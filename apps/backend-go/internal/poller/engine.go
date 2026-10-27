@@ -275,12 +275,16 @@ func Handle(ctx context.Context, d HandlerDeps, c *queue.Claim) error {
 			}
 		}
 	}
+	if c == nil || c.WorkspaceID == "" {
+		// The tenant comes from the job row only (plan 15 cutover); a job without one is refused.
+		return &queue.PermanentError{Err: errors.New("watch_poll: the job has no workspace_id")}
+	}
 	ws, watchID := strOf(in.WorkspaceID), strOf(in.WatchID)
 	if ws == "" || watchID == "" {
 		log.Warn("watch_poll missing workspace_id/watch_id", "job_id", jobID)
 		return nil
 	}
-	if c != nil && c.WorkspaceID != "" && c.WorkspaceID != ws {
+	if c.WorkspaceID != ws {
 		// A job queued under one workspace must not run inside another tenant.
 		log.Error("watch_poll payload workspace does not match the job's workspace; refusing", "job_id", jobID)
 		return nil

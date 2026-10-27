@@ -835,12 +835,13 @@ func TestNextPollEnqueuedOnce(t *testing.T) {
 	}
 	var p map[string]string
 	_ = json.Unmarshal([]byte(payload), &p)
-	if executor != "python" || prio != 1 || maxRetries != 3 || !dueOK || p["workspace_id"] != ws || p["fire_key"] != key {
+	if executor != "go" || prio != 1 || maxRetries != 3 || !dueOK || p["workspace_id"] != ws || p["fire_key"] != key {
 		t.Fatalf("job: exec=%s prio=%d retries=%d due=%v payload=%s", executor, prio, maxRetries, dueOK, payload)
 	}
 }
 
-func TestRescheduleExecutorFollowsCohortAndFlag(t *testing.T) {
+// The cohort and GO_EXECUTOR_OUTREACH_INBOUND are retired (plan 15 cutover): every next poll is go.
+func TestRescheduleExecutorIsAlwaysGo(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
 	in, out := newWS(t, pool), newWS(t, pool)
 	o := settings()
@@ -851,7 +852,7 @@ func TestRescheduleExecutorFollowsCohortAndFlag(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	for ws, want := range map[string]string{in: "go", out: "python"} {
+	for ws, want := range map[string]string{in: "go", out: "go"} {
 		var ex string
 		inTx(t, pool, ws, func(ctx context.Context, tx pgx.Tx) {
 			if err := tx.QueryRow(ctx, `SELECT executor FROM jobs WHERE workspace_id=$1 AND type='outreach_inbound_poll'`, ws).Scan(&ex); err != nil {

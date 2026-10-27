@@ -1061,9 +1061,8 @@ func TestHandleNoOps(t *testing.T) {
 	d = eDeps(pool, stub, nil)
 	for _, p := range []string{`{}`, `{"workspace_id": "x"}`, `{"watch_id": 5, "workspace_id": "x"}`, `not json`} {
 		run(t, ctx, d, eClaim(t, ctx, pool, eWS, `{}`))
-		run(t, ctx, d, &queue.Claim{ID: 1, Payload: json.RawMessage(p)})
+		run(t, ctx, d, &queue.Claim{ID: 1, WorkspaceID: eWS, Payload: json.RawMessage(p)})
 	}
-	run(t, ctx, d, nil)
 	if len(stub.calls) != 0 {
 		t.Errorf("calls = %v", stub.called())
 	}
