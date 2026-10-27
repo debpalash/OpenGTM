@@ -98,6 +98,10 @@ func (j *job) emit(typ string, fields ...any) {
 // ErrCancelled is returned when the job was cancelled (ledger status or context).
 var ErrCancelled = errors.New("collect: job cancelled")
 
+// ErrNotPending is Ledger.MarkRunning's answer for a row that is not pending (running elsewhere,
+// done, failed, cancelled or missing): the run must not start.
+var ErrNotPending = errors.New("collect: job is not pending")
+
 // Process is JobRunner._process_job. It returns nil when the run ended in a terminal ledger state
 // it set itself (done, intent-blocked failure), ErrCancelled when the ledger says the job was
 // cancelled, ctx's error when ctx ended, and otherwise the pipeline error after fail_job. Ledger
