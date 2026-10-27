@@ -46,7 +46,8 @@ func wireAICols(d *workbook.Deps, cfg config.Config, pool *pgxpool.Pool, log *sl
 // _read_setting saw them (stored app setting, else environment), an LLM client accounting
 // usage to the workspace (through aicol.UsageTap, so each column call settles its spend-ledger
 // attempt with the observed usage), leadweb search and page fetch over the browser service, and the
-// strict egress guard for model-chosen URLs.
+// syntactic egress guard for model-chosen URLs (no DNS: the browser service resolves and
+// checks every hop).
 func aiColsDeps(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (func(context.Context, string) aicol.Deps, error) {
 	env, err := secrets.NewEnvelope(secrets.Config{
 		Provider: cfg.SecretsProvider, MasterKey: cfg.SecretsMasterKey, SecretKey: cfg.SecretKey, AppEnv: cfg.AppEnv,
@@ -69,14 +70,12 @@ func aiColsDeps(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (func(c
 	var web *leadweb.Web
 	var bc *browserclient.Client
 	if sc := config.ScrapeFrom(os.Getenv); sc.BrowserURL != "" {
-		lw, err := config.LeadwebFrom(os.Getenv)
+		// The worker's one leadweb (shared rate limits, breaker and search cache).
+		sw, err := workerLeadweb(cfg, os.Getenv)
 		if err != nil {
 			return nil, err
 		}
-		// Internal service on the browser network: a plain client; target URLs are guarded
-		// by Go first and re-checked per hop by the service.
-		bc = browserclient.New(sc.BrowserURL, sc.BrowserToken.Reveal(), nil)
-		web = leadweb.New(lw, bc, cfg.AppEnv, cfg.EgressAllowHosts)
+		bc, web = sw.Browser, sw.Web
 	} else {
 		log.Warn("BROWSER_SERVICE_URL is not set: research columns run without web search and page fetch")
 	}

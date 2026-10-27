@@ -52,7 +52,9 @@ type Deps struct {
 	Settings Settings
 	Search   Searcher
 	Pages    PageFetcher
-	// URLCheck is the SSRF guard for model-chosen URLs (egress.CheckURLFor, strict).
+	// URLCheck is the syntactic SSRF guard for model-chosen URLs (egress.CheckURLFor: scheme
+	// and IP literals, no DNS). DNS resolution and per-redirect-hop checks are the browser
+	// service's egress proxy's, so research fetches must go through the browser service.
 	URLCheck func(rawURL string) error
 	Now      func() time.Time
 	// Spend reserves and settles every LLM call of the cell through the workbook spend
