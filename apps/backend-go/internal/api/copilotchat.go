@@ -64,6 +64,7 @@ type chatHandler struct {
 	llmHTTP *http.Client
 	llmCfg  config.LLMSettings
 	ab      copilot.AmbitionClient
+	tools   *copilotTools // plan 15 WP-COPILOT-TOOLS collaborators (people, autopilot)
 }
 
 func newChatHandler(d Deps) *chatHandler {
@@ -122,6 +123,7 @@ func (h *chatHandler) enableNative() {
 	h.native, h.llmCfg = true, cfg
 	h.llmHTTP = egress.NewOperatorClient(h.d.EgressAllowHosts)
 	h.ab = newAmbitionBoxClient(h.d)
+	h.tools = newCopilotTools(h.d, h.settings)
 }
 
 // engine builds the per-turn engine: an LLM client accounting usage to the workspace, global settings as
@@ -130,12 +132,14 @@ func (h *chatHandler) engine(ws string) *copilot.Engine {
 	getenv := h.d.getenv()
 	cl := llm.New(llm.Options{Settings: h.settings, HTTP: h.llmHTTP, Usage: &llm.PgUsage{Pool: h.d.Pool}, WorkspaceID: ws,
 		Config: h.llmCfg, Registry: h.d.Registry, Log: h.log})
-	return &copilot.Engine{
+	e := &copilot.Engine{
 		LLM: cl, IntentPollerEnabled: h.d.Flags.IntentPollerEnabled, PGLeadStore: h.d.Flags.PGLeadStore,
 		Ambition: h.ab, AmbitionImportExecutor: ambitionimport.ExecutorFor(getenv),
 		RefreshExecutor: config.ExecutorCohortFrom(getenv).RefreshExecutor, WatchExecutor: h.d.watchPollExecutor(),
 		CollectionLedgerPG: h.d.CollectionLedgerBackend == "postgres", Progress: progressBus(h.d),
 	}
+	h.tools.apply(e, ws)
+	return e
 }
 
 // chatBodyErr is a hardening rejection (Python answers 500 or has no limit).
