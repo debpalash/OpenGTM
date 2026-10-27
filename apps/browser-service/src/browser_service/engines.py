@@ -350,6 +350,14 @@ async def render_flaresolverr(deps: Deps, req: RenderRequest, deadline: Deadline
         deps.proxy.close_session(session)
     if not isinstance(data, dict) or data.get("status") != "ok":
         raise ServiceError("egress_blocked" if session.blocked else "upstream_error")
+    # Fail closed (review M2): the proxy is only advisory to FlareSolverr. A build
+    # that ignores it fetches straight from its own network (no traffic on our
+    # session); a page that made it try a refused destination is not returned.
+    if session.blocked:
+        raise ServiceError("egress_blocked")
+    if session.bytes_in == 0:
+        logger.warning("flaresolverr answered without using the egress proxy; refusing the result")
+        raise ServiceError("upstream_error")
     sol = data.get("solution") or {}
     final_url = str(sol.get("url") or req.url)
     if urlsplit(final_url).scheme not in ("http", "https"):
