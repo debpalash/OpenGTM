@@ -156,6 +156,12 @@ func ApplyBounce(ctx context.Context, tx pgx.Tx, a BounceApply, th Thresholds) e
 		if a.EnrollmentID == nil {
 			return nil
 		}
+		// the same rule as a hard bounce: the report names the send's recipient and is the first ledger row for
+		// (send, soft, recipient), so forged or replayed soft DSNs for one send cannot reach the suppression threshold
+		count, err := countsForBreaker(ctx, tx, a)
+		if err != nil || !count {
+			return err
+		}
 		n, err := IncrementSoftBounce(ctx, tx, *a.EnrollmentID)
 		if err != nil {
 			return err

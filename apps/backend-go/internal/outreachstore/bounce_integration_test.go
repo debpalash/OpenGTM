@@ -732,3 +732,79 @@ func TestAutoPausedSequenceStopsDue(t *testing.T) {
 		}
 	})
 }
+
+// S-L14: soft DSNs count at most once per (send, recipient), and only for the send's own recipient.
+func TestSoftBounceCannotBeForged(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	ws := supNewWS(t, pool)
+	seq := "s" + ws[len(ws)-8:] + "-soft"
+	soft := func(ctx context.Context, tx pgx.Tx, sendID int32, enrol int, to, recipient, src string) {
+		t.Helper()
+		created, err := outreachstore.RecordInboundProcessed(ctx, tx, outreachstore.InboundIn{WorkspaceID: ws, IMAPUID: src, UIDValidity: "1",
+			SourceMessageID: src, MatchedSendID: &sendID, Kind: "soft", Recipient: recipient})
+		if err != nil || !created {
+			t.Fatalf("ledger %s: %v %v", src, created, err)
+		}
+		if err := outreachstore.ApplyBounce(ctx, tx, outreachstore.BounceApply{WorkspaceID: ws, SendID: &sendID, SequenceID: seq, EnrollmentID: &enrol,
+			ToEmail: to, Recipient: recipient, Kind: "soft", Source: "imap"}, supDefaults()); err != nil {
+			t.Fatal(err)
+		}
+	}
+	mk := func(ctx context.Context, tx pgx.Tx, to, key string, enrol int) (int32, int) {
+		t.Helper()
+		if enrol != 0 {
+			var send int32
+			if err := tx.QueryRow(ctx, `INSERT INTO outreach_sends (workspace_id, sequence_id, enrollment_id, step_number, to_email, status, idempotency_key)
+				VALUES ($1,$2,$3,0,$4,'sent',$5) RETURNING id`, ws, seq, enrol, to, key).Scan(&send); err != nil {
+				t.Fatal(err)
+			}
+			return send, enrol
+		}
+		if err := tx.QueryRow(ctx, `INSERT INTO outreach_enrollments (workspace_id, sequence_id, lead_id, to_email_snapshot, current_step, status, soft_bounce_count)
+			VALUES ($1,$2,1,$3,0,'sent',0) RETURNING id`, ws, seq, to).Scan(&enrol); err != nil {
+			t.Fatal(err)
+		}
+		var send int32
+		if err := tx.QueryRow(ctx, `INSERT INTO outreach_sends (workspace_id, sequence_id, enrollment_id, step_number, to_email, status, idempotency_key)
+			VALUES ($1,$2,$3,0,$4,'sent',$5) RETURNING id`, ws, seq, enrol, to, key).Scan(&send); err != nil {
+			t.Fatal(err)
+		}
+		return send, enrol
+	}
+	count := func(ctx context.Context, tx pgx.Tx, enrol int) int {
+		var n int
+		if err := tx.QueryRow(ctx, `SELECT soft_bounce_count FROM outreach_enrollments WHERE id=$1`, enrol).Scan(&n); err != nil {
+			t.Fatal(err)
+		}
+		return n
+	}
+	supTx(t, pool, ws, func(ctx context.Context, tx pgx.Tx) {
+		if _, err := tx.Exec(ctx, `INSERT INTO outreach_sequences (id, workspace_id, name, steps, status, auto_paused) VALUES ($1,$2,'s','[]','active',false)`, seq, ws); err != nil {
+			t.Fatal(err)
+		}
+		// three forged soft DSNs citing one send: counted once, nothing suppressed
+		send, enrol := mk(ctx, tx, "victim@example.com", "k-forge", 0)
+		for i := 0; i < 3; i++ {
+			soft(ctx, tx, send, enrol, "victim@example.com", "victim@example.com", fmt.Sprintf("<forged-%d@x>", i))
+		}
+		if n := count(ctx, tx, enrol); n != 1 {
+			t.Fatalf("forged DSNs for one send: soft_bounce_count %d, want 1", n)
+		}
+		if ok, _ := outreachstore.IsSuppressed(ctx, tx, ws, "victim@example.com"); ok {
+			t.Fatal("forged soft DSNs suppressed the recipient")
+		}
+		// a DSN naming a different recipient never counts
+		soft(ctx, tx, send, enrol, "victim@example.com", "someone-else@example.com", "<other@x>")
+		if n := count(ctx, tx, enrol); n != 1 {
+			t.Fatalf("other recipient counted: %d", n)
+		}
+		// one soft per send across three sends of the same enrollment reaches the max
+		s2, _ := mk(ctx, tx, "victim@example.com", "k-2", enrol)
+		s3, _ := mk(ctx, tx, "victim@example.com", "k-3", enrol)
+		soft(ctx, tx, s2, enrol, "victim@example.com", "victim@example.com", "<s2@x>")
+		soft(ctx, tx, s3, enrol, "victim@example.com", "victim@example.com", "<s3@x>")
+		if ok, _ := outreachstore.IsSuppressed(ctx, tx, ws, "victim@example.com"); !ok {
+			t.Fatal("3 soft DSNs across 3 sends must suppress")
+		}
+	})
+}

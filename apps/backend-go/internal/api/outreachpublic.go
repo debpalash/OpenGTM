@@ -121,21 +121,24 @@ func (h *pubRoutes) landing(w http.ResponseWriter, r *http.Request) {
 
 func (h *pubRoutes) unsubscribe(w http.ResponseWriter, r *http.Request) {
 	token := pubQueryLast(r, "token")
-	// The IP budget is spent before verification (Python order). The token budget is spent only by a token that verifies and is
-	// keyed by its digest, so junk sharing a recipient's 32-character prefix cannot saturate that recipient's bucket.
-	if h.lim.limited("ip:" + h.clientIP(r)) {
-		httpx.Detail(w, http.StatusTooManyRequests, "rate limited")
-		return
-	}
 	if h.signer == nil {
 		httpx.Detail(w, http.StatusServiceUnavailable, unsubNotConfigured)
 		return
 	}
 	p, ok := h.signer.Verify(token, false)
 	if !ok {
+		// Only a POST without a valid token spends the per-IP budget: it is what the budget is for (token guessing). A
+		// verified one-click POST (RFC 8058) comes from mailbox-provider IPs shared by many recipients, so it is limited
+		// by its own token only.
+		if h.lim.limited("ip:" + h.clientIP(r)) {
+			httpx.Detail(w, http.StatusTooManyRequests, "rate limited")
+			return
+		}
 		httpx.Detail(w, http.StatusBadRequest, "invalid or expired token")
 		return
 	}
+	// The token budget is keyed by the token digest, so junk sharing a recipient's 32-character prefix cannot saturate
+	// that recipient's bucket.
 	sum := sha256.Sum256([]byte(token))
 	if h.lim.limited("tok:" + hex.EncodeToString(sum[:16])) {
 		httpx.Detail(w, http.StatusTooManyRequests, "rate limited")
@@ -229,15 +232,23 @@ func parseBounceEvent(raw []byte) (bounceEvent, []httpx.FieldError) {
 	return ev, errs
 }
 
-// bounceKind maps the ESP event to the shared bounce kind (Python: complaint, else hard, else soft).
-func bounceKind(ev bounceEvent) string {
-	switch {
-	case ev.Event == "complaint":
-		return "complaint"
-	case ev.Hard:
-		return "hard"
+// bounceKind maps the ESP event to the shared bounce kind. ok=false is an event this hook does not act on
+// (delivered, open, click, ...): it must not be taken for a hard bounce. Only "bounce" honours the hard flag.
+func bounceKind(ev bounceEvent) (kind string, ok bool) {
+	switch strings.ToLower(strings.TrimSpace(ev.Event)) {
+	case "complaint", "spam_report":
+		return "complaint", true
+	case "hard_bounce":
+		return "hard", true
+	case "soft_bounce":
+		return "soft", true
+	case "bounce":
+		if ev.Hard {
+			return "hard", true
+		}
+		return "soft", true
 	}
-	return "soft"
+	return "", false
 }
 
 // ledgerUID keys the inbound ledger row by the message id; the column is 64 characters wide, so a longer id is keyed by
@@ -277,6 +288,11 @@ func (h *pubRoutes) bounce(w http.ResponseWriter, r *http.Request) {
 		httpx.ValidationError(w, errs...)
 		return
 	}
+	kind, known := bounceKind(ev)
+	if !known {
+		httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "ignored"})
+		return
+	}
 	mid := strings.TrimSpace(ev.MessageID)
 	ref, err := outreachstore.LookupSendAnyWorkspace(r.Context(), h.d.Pool, mid)
 	if err != nil {
@@ -287,7 +303,6 @@ func (h *pubRoutes) bounce(w http.ResponseWriter, r *http.Request) {
 		httpx.Detail(w, http.StatusNotFound, "message not found")
 		return
 	}
-	kind := bounceKind(ev)
 	sendID := ref.SendID
 	var enrollment *int
 	if ref.EnrollmentID != nil {
@@ -296,8 +311,11 @@ func (h *pubRoutes) bounce(w http.ResponseWriter, r *http.Request) {
 	}
 	duplicate := false
 	err = tenancy.InWorkspace(r.Context(), h.d.Pool, ref.WorkspaceID, func(tx pgx.Tx) error {
+		// the ledger key carries the kind, so a complaint after a bounce for one Message-ID is a new event (it locks the
+		// suppression) while a replay of the same kind stays a duplicate
+		key := kind + "|" + mid
 		created, e := outreachstore.RecordInboundProcessed(r.Context(), tx, outreachstore.InboundIn{
-			WorkspaceID: ref.WorkspaceID, IMAPUID: ledgerUID(mid), UIDValidity: "webhook", SourceMessageID: mid,
+			WorkspaceID: ref.WorkspaceID, IMAPUID: ledgerUID(key), UIDValidity: "webhook", SourceMessageID: key,
 			MatchedSendID: &sendID, Kind: kind, Recipient: ref.ToEmail, Diagnostic: "webhook",
 		})
 		if e != nil {

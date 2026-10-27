@@ -73,7 +73,7 @@ func newPubEnv(t *testing.T, opt pubOpts) pubEnv {
 		ownerExec(t, `INSERT INTO outreach_suppressions (workspace_id, email, reason, source, locked, created_at) VALUES ($1,$2,$3,$4,$5,$6::timestamptz)`, r...)
 	}
 	ownerExec(t, `INSERT INTO outreach_inbound_messages (workspace_id, imap_uid, uidvalidity, source_message_id, matched_send_id, kind, recipient, diagnostic, processed_at)
-		VALUES ('ws-beta','webhook','webhook','<hook-dup-b@contract.example.com>',17,'hard','beta@zenithrobotics.example.com','webhook','2026-08-29 08:58:00+00')`)
+		VALUES ('ws-beta','hard|<hook-dup-b@contract.example.com>','webhook','hard|<hook-dup-b@contract.example.com>',17,'hard','beta@zenithrobotics.example.com','webhook','2026-08-29 08:58:00+00')`)
 	ownerExec(t, `SELECT setval(pg_get_serial_sequence('outreach_sends','id'), GREATEST(1000, (SELECT max(id) FROM outreach_sends)))`)
 	ownerExec(t, `SELECT setval(pg_get_serial_sequence('outreach_enrollments','id'), GREATEST(1000, (SELECT max(id) FROM outreach_enrollments)))`)
 
@@ -126,6 +126,17 @@ func TestUnsubscribePostAcceptsPythonToken(t *testing.T) {
 	for _, name := range order {
 		fx := contract.Load(t, "outreach/"+name)
 		rec := e.post(fx.Request.Path, "192.0.2.77:1")
+		if name == "unsub_post_21st_429" || name == "unsub_post_22nd_429" {
+			// recorded under Python's per-IP budget on verified one-click POSTs; Go (F29) spends only the per-token budget
+			want := 200
+			if name == "unsub_post_22nd_429" { // a junk token: the per-IP budget still applies to it
+				want = 400
+			}
+			if rec.Code != want {
+				t.Fatalf("%s: %d %q", name, rec.Code, rec.Body.String())
+			}
+			continue
+		}
 		if rec.Code != fx.Response.Status || !jsonEq(t, rec.Body.String(), fx.Response.Body) {
 			t.Fatalf("%s: %d %q, want %d %s", name, rec.Code, rec.Body.String(), fx.Response.Status, fx.Response.Body)
 		}
@@ -289,8 +300,8 @@ func TestWebhookKindsApplied(t *testing.T) {
 		t.Fatalf("enrollments: %s", got)
 	}
 	if got := e.one(t, `SELECT string_agg(source_message_id||'='||kind||'/'||imap_uid||'/'||uidvalidity||'/'||diagnostic, ' ' ORDER BY id) FROM outreach_inbound_messages WHERE workspace_id='ws-beta'`); !strings.Contains(got,
-		"<hook-hard-b@contract.example.com>=hard/<hook-hard-b@contract.example.com>/webhook/webhook") || !strings.Contains(got, "<hook-complaint-b@contract.example.com>=complaint/") ||
-		!strings.Contains(got, "<hook-soft-1-b@contract.example.com>=soft/") {
+		"hard|<hook-hard-b@contract.example.com>=hard/hard|<hook-hard-b@contract.example.com>/webhook/webhook") || !strings.Contains(got, "complaint|<hook-complaint-b@contract.example.com>=complaint/") ||
+		!strings.Contains(got, "soft|<hook-soft-1-b@contract.example.com>=soft/") {
 		t.Fatalf("ledger: %s", got)
 	}
 }
@@ -307,9 +318,16 @@ func TestWebhookReplayDuplicate(t *testing.T) {
 	if got := e.one(t, `SELECT bounce_count::text FROM outreach_sequences WHERE id='seq-out-b-01'`); got != "1" {
 		t.Fatalf("a replay must not double count: %s", got)
 	}
-	// the same message id replayed as a complaint is still a duplicate (the ledger key is the message id)
+	// the ledger key is (kind, message id): a complaint for the same message after the bounce is a new event, applied
+	// and locking (F26); its own replay is a duplicate
+	if rec := e.hook(whBody("<hook-hard-b@contract.example.com>", `,"event":"complaint"`), pubWebhookSecret); strings.TrimSpace(rec.Body.String()) != `{"status":"ok"}` {
+		t.Fatalf("%s", rec.Body.String())
+	}
 	if rec := e.hook(whBody("<hook-hard-b@contract.example.com>", `,"event":"complaint"`), pubWebhookSecret); strings.TrimSpace(rec.Body.String()) != `{"status":"duplicate"}` {
 		t.Fatalf("%s", rec.Body.String())
+	}
+	if got := e.supp(t, "ws-beta"); !strings.Contains(got, "beta@zenithrobotics.example.com|complaint|webhook|L") {
+		t.Fatalf("a complaint after a bounce must lock the suppression:\n%s", got)
 	}
 	// concurrent first deliveries: exactly one applies
 	var wg sync.WaitGroup
@@ -334,7 +352,7 @@ func TestWebhookReplayDuplicate(t *testing.T) {
 	if ok != 1 || dup != 7 {
 		t.Fatalf("ok=%d dup=%d %v", ok, dup, res)
 	}
-	if got := e.one(t, `SELECT complaint_count::text FROM outreach_sequences WHERE id='seq-out-b-01'`); got != "1" {
+	if got := e.one(t, `SELECT complaint_count::text FROM outreach_sequences WHERE id='seq-out-b-01'`); got != "2" { // the complaint-b complaint plus the hard-b complaint applied after its bounce
 		t.Fatalf("complaint_count %s", got)
 	}
 }
@@ -414,20 +432,60 @@ func TestWebhookLongMessageID(t *testing.T) {
 }
 
 // TestWebhookKindMapping: event=complaint wins over hard=false; hard=false is soft; any other event with the default
-// hard=true is a hard bounce; hard accepts pydantic's lax booleans.
+// hard=true is a hard bounce (S-L13: unknown events are ignored); hard accepts pydantic's lax booleans.
 func TestWebhookKindMapping(t *testing.T) {
 	e := newPubEnv(t, pubOpts{webhookToken: pubWebhookSecret})
 	for _, c := range []struct{ id, extra, kind string }{
-		{"<hook-hard-b@contract.example.com>", `,"event":"weird"`, "hard"},
+		{"<hook-hard-b@contract.example.com>", `,"event":"hard_bounce"`, "hard"},
+		{"<hook-hard-b@contract.example.com>", `,"event":"soft_bounce"`, "soft"},
+		{"<hook-hard-b@contract.example.com>", `,"event":"spam_report"`, "complaint"},
 		{"<hook-soft-1-b@contract.example.com>", `,"event":"bounce","hard":"no"`, "soft"},
 		{"<hook-complaint-b@contract.example.com>", `,"event":"complaint","hard":false`, "complaint"},
 	} {
 		if rec := e.hook(whBody(c.id, c.extra), pubWebhookSecret); rec.Code != 200 || strings.TrimSpace(rec.Body.String()) != `{"status":"ok"}` {
 			t.Fatalf("%s: %d %s", c.extra, rec.Code, rec.Body.String())
 		}
-		if got := e.one(t, `SELECT kind FROM outreach_inbound_messages WHERE source_message_id=$1`, c.id); got != c.kind {
+		if got := e.one(t, `SELECT kind FROM outreach_inbound_messages WHERE source_message_id=$1`, c.kind+"|"+c.id); got != c.kind {
 			t.Fatalf("%s: kind %s, want %s", c.extra, got, c.kind)
 		}
+	}
+}
+
+// S-L13: an event the hook does not act on is acknowledged and changes nothing.
+func TestWebhookUnknownEventIgnored(t *testing.T) {
+	e := newPubEnv(t, pubOpts{webhookToken: pubWebhookSecret})
+	for _, ev := range []string{"delivered", "open", "click", "", "Weird"} {
+		rec := e.hook(whBody("<hook-hard-b@contract.example.com>", `,"event":"`+ev+`"`), pubWebhookSecret)
+		if rec.Code != 200 || strings.TrimSpace(rec.Body.String()) != `{"status":"ignored"}` {
+			t.Fatalf("%q: %d %s", ev, rec.Code, rec.Body.String())
+		}
+	}
+	if n := e.one(t, `SELECT count(*)::text FROM outreach_inbound_messages WHERE workspace_id='ws-beta'`); n != "1" {
+		t.Fatalf("an ignored event wrote ledger rows: %s", n)
+	}
+	if got := e.supp(t, "ws-beta"); strings.Contains(got, "zenithrobotics") {
+		t.Fatalf("an ignored event suppressed:\n%s", got)
+	}
+}
+
+// F29: verified one-click POSTs are limited per token only, so mailbox-provider IPs are not locked out.
+func TestUnsubscribeOneClickNotIPLimited(t *testing.T) {
+	e := newPubEnv(t, pubOpts{})
+	for i := 0; i < 30; i++ {
+		path := e.unsubToken(t, "ws-alpha", "oneclick"+strconv.Itoa(i)+"@example.com", "seq-out-a-01")
+		if rec := e.post(path, "203.0.113.50:1"); rec.Code != 200 {
+			t.Fatalf("post %d: %d", i, rec.Code)
+		}
+	}
+	// invalid tokens from that IP are still limited
+	n429 := 0
+	for i := 0; i < 25; i++ {
+		if rec := e.post("/api/outreach/unsubscribe?token=junk"+strconv.Itoa(i), "203.0.113.51:1"); rec.Code == 429 {
+			n429++
+		}
+	}
+	if n429 == 0 {
+		t.Fatal("invalid tokens must still spend the per-IP budget")
 	}
 }
 
