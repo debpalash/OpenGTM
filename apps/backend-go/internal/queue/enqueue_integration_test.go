@@ -33,7 +33,7 @@ func TestEnqueueRowShape(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if typ != "bulk_enrich" || status != "pending" || executor != "python" || ws != "ws-1" || fk != "fk-1" ||
+	if typ != "bulk_enrich" || status != "pending" || executor != "go" || ws != "ws-1" || fk != "fk-1" ||
 		prio != 1 || retries != 0 || maxRetries != 3 {
 		t.Fatalf("row = %s %s %s %s %s %d %d %d", typ, status, executor, ws, fk, prio, retries, maxRetries)
 	}

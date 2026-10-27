@@ -9,7 +9,6 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
@@ -179,23 +178,6 @@ func TestHeartbeatDetectsLeaseLoss(t *testing.T) {
 	}
 	if ok, err := queue.Heartbeat(ctx, pool, c); err != nil || ok {
 		t.Fatalf("expected lease loss, got %v %v", ok, err)
-	}
-}
-
-func TestSchemaGateRefusesOldRevision(t *testing.T) {
-	pool, ctx := setup(t)
-	var orig string
-	if err := pool.QueryRow(ctx, `SELECT version_num FROM alembic_version`).Scan(&orig); err != nil {
-		t.Fatal(err)
-	}
-	if orig != config.RequiredGoSchemaRevision {
-		t.Fatalf("test db at %s, want %s", orig, config.RequiredGoSchemaRevision)
-	}
-	if err := queue.CheckSchema(ctx, pool, config.RequiredGoSchemaRevision); err != nil {
-		t.Fatal(err)
-	}
-	if err := queue.CheckSchema(ctx, pool, "000000000000"); err == nil {
-		t.Fatal("expected mismatch error")
 	}
 }
 

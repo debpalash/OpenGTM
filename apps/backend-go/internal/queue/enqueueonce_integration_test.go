@@ -103,16 +103,12 @@ func TestEnqueueOnceRowShapeMatchesPython(t *testing.T) {
 	if !strings.Contains(payload, "<x>&") || strings.Index(payload, `"b"`) > strings.Index(payload, `"a"`) {
 		t.Fatalf("payload = %s", payload)
 	}
-	// Executor is explicit.
+	// "go" is the only executor since the plan 15 cutover.
 	tx, _ = pool.Begin(ctx)
-	id2, _, err := queue.EnqueueOnce(ctx, tx, "refresh_workbook", "ws-1", map[string]any{}, "k2", "python")
-	if err != nil {
-		t.Fatal(err)
+	if _, _, err := queue.EnqueueOnce(ctx, tx, "refresh_workbook", "ws-1", map[string]any{}, "k2", "python"); err == nil {
+		t.Fatal("python executor accepted")
 	}
-	_ = tx.Commit(ctx)
-	if err := pool.QueryRow(ctx, `SELECT executor FROM jobs WHERE id=$1`, id2).Scan(&executor); err != nil || executor != "python" {
-		t.Fatalf("executor=%q err=%v", executor, err)
-	}
+	_ = tx.Rollback(ctx)
 	// Invalid input is rejected.
 	tx, _ = pool.Begin(ctx)
 	defer tx.Rollback(context.Background())
