@@ -14,18 +14,14 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
-// wireFullRun applies GO_EXECUTOR_FULL_RUN (plan 15 WP-WBEXEC) to the run_workbook executor:
-// conditions, email verification, per-fact provenance and output columns run here instead of
-// being handed back. Output clients resolve the workspace's own credentials through local (nil:
-// none resolve); the verify cascade is the one the API's verify-email route uses. A malformed
-// flag reads as off and is logged; it never stops the worker.
+// wireFullRun wires the full run_workbook executor (plan 15 WP-WBEXEC; GO_EXECUTOR_FULL_RUN is permanently on since
+// the cutover): conditions, email verification, per-fact provenance and output columns run here. Output clients
+// resolve the workspace's own credentials through local (nil: none resolve); the verify cascade is the one the
+// API's verify-email route uses. A malformed PROVENANCE_TRACKING_ENABLED reads as off and is logged.
 func wireFullRun(d *workbook.Deps, cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, local *secrets.Resolver) error {
 	wx := config.LoadWbExec(config.Getenv)
 	for _, p := range wx.Problems {
-		log.Error("run_workbook full run: "+p, "env", "GO_EXECUTOR_FULL_RUN/PROVENANCE_TRACKING_ENABLED")
-	}
-	if !wx.FullRun {
-		return nil
+		log.Error("run_workbook full run: "+p, "env", "PROVENANCE_TRACKING_ENABLED")
 	}
 	d.FullRun, d.Provenance = true, wx.ProvenanceTracking
 	client := d.Client
@@ -67,6 +63,6 @@ func wireFullRun(d *workbook.Deps, cfg config.Config, pool *pgxpool.Pool, log *s
 			return out
 		}}
 	d.Verify = workbook.LiveVerifier(vc)
-	log.Info("run_workbook full run on (GO_EXECUTOR_FULL_RUN)", "provenance", wx.ProvenanceTracking)
+	log.Info("run_workbook full run wired", "provenance", wx.ProvenanceTracking)
 	return nil
 }

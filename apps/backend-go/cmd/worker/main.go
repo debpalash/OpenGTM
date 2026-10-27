@@ -1,5 +1,5 @@
-// Command worker is the Go job executor: it claims executor='go' jobs from the
-// shared Postgres queue, heartbeats leases, and finalizes outcomes.
+// Command worker is the job executor: it claims executor='go' jobs (every job since the plan 15 cutover) from the
+// Postgres queue, heartbeats leases, and finalizes outcomes.
 package main
 
 import (
@@ -21,7 +21,6 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ambitionbox"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ambitionimport"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/autoactions"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/credentials"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
@@ -30,11 +29,9 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachsend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/refresh"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rpclocal"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/runplan"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/signalscan"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
@@ -159,9 +156,8 @@ func poolConfig(cfg config.Config) (*pgxpool.Config, error) {
 const (
 	jobRefreshWorkbook = "refresh_workbook"
 	jobSignalScan      = "signal_scan"
-	// sourceWait bounds how long one refresh cycle waits for its Python
-	// source_workbook jobs before enriching the rows found so far (the
-	// refresh_workbook limit is 900s).
+	// sourceWait bounds how long one refresh cycle waits for its source_workbook
+	// jobs before enriching the rows found so far (the refresh_workbook limit is 900s).
 	sourceWait = 600 * time.Second
 )
 
@@ -319,12 +315,6 @@ func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log 
 	cancel(nil)
 	wg.Wait()
 
-	if errors.Is(runErr, workbook.ErrHandedBack) {
-		// The executor already returned the job to Python with a fenced
-		// update; finalizing would fail a job that is now pending elsewhere.
-		log.Warn("job handed back to python", "reason", runErr.Error())
-		return
-	}
 	if ctx.Err() != nil {
 		log.Warn("shutdown: leaving claim for reaper")
 		return
@@ -349,45 +339,37 @@ func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log 
 	log.Info("finalized", "status", out.Status, "persisted", persisted)
 }
 
-// buildRunner wires the run_workbook executor. GO_WORKER_TEST_BLOCK_SECONDS
-// blocks a job before it runs, honored only when APP_ENV=test (interop tests
-// SIGKILL the worker during the block).
+// buildRunner wires every job handler. GO_WORKER_TEST_BLOCK_SECONDS blocks a job before it runs, honored only
+// when APP_ENV=test (interop tests SIGKILL the worker during the block). Since the plan 15 cutover this worker is
+// the only executor: every job type is registered unconditionally, nothing is handed back, and a job this process
+// cannot run (a missing browser service, master key or emitter) fails permanently with the reason.
 func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runner, func(), error) {
-	api := credentials.New(cfg.InternalAPIURL, cfg.InternalServiceToken, nil)
+	sh, err := newWorkerShared(cfg, pool)
+	if err != nil {
+		return nil, nil, err
+	}
+	// Manifests come from the worker's own connector index; their auth.env_var set is the allow-list for
+	// in-process credential resolution.
+	allow := credentials.NewManifestAllow(localManifests(connectorIndex))
 	deps := workbook.Deps{
 		Pool:   pool,
 		Client: egress.NewClientForEnv(cfg.AppEnv, cfg.EgressAllowHosts),
 		URLCheck: func(raw string) error {
 			return egress.CheckURLFor(cfg.AppEnv, cfg.EgressAllowHosts, raw, true)
 		},
-		Creds:     api,
-		Manifests: api,
+		Creds:     credentials.NewLocal(sh.local, allow.Allowed, nil),
+		Manifests: allow,
 		Log:       log,
 	}
-	var localSecrets *secrets.Resolver
-	if cfg.CredentialsSource == config.CredentialsSourceLocal {
-		env, err := secrets.NewEnvelope(secrets.Config{
-			Provider: cfg.SecretsProvider, MasterKey: cfg.SecretsMasterKey, SecretKey: cfg.SecretKey, AppEnv: cfg.AppEnv,
-			VaultAddr: cfg.VaultAddr, VaultToken: cfg.VaultToken, VaultTokenFile: cfg.VaultTokenFile,
-			VaultTransitKey: cfg.VaultTransitKey, VaultNamespace: cfg.VaultNamespace, VaultCACert: cfg.VaultCACert,
-		}, nil)
-		if err != nil {
-			return nil, nil, err
-		}
-		// Manifests still come from the API; their auth.env_var set is the
-		// allow-list for in-process resolution.
-		allow := credentials.NewManifestAllow(api)
-		deps.Manifests = allow
-		localSecrets = secrets.NewResolver(env, secrets.NewPgStore(pool), os.Getenv)
-		deps.Creds = credentials.NewLocal(localSecrets, allow.Allowed, nil)
-	}
-	var pyRPC *pyworker.Client
-	deps.Runner, deps.Py, pyRPC = buildProviderRunner(cfg, pool, log, api, localSecrets)
-	var provSec rpclocal.Secrets = apiSecrets{api}
-	if localSecrets != nil {
-		provSec = localSecrets
-	}
-	provRPC, err := providerRPC(cfg, log, pyRPC, provSec, deps.Runner)
+	runConcurrency := envInt("WORKBOOK_RUN_CONCURRENCY", 12)
+	deps.PlanGoBlock = goBlockPlanner(pool, connectorIndex, runConcurrency, func() runplan.Config {
+		return runplan.Config{ProvenanceTracking: config.LoadWbExec(config.Getenv).ProvenanceTracking,
+			AutomationsEnabled: cfg.Flags.AutomationsEnabled}
+	})
+	// Every provider runs in process (providerrun: settings, cache, stats ledger); there is no Python worker.
+	provRunner := providerrun.New(providerrun.Deps{Pool: pool, Secrets: sh.local, OperatorAllow: cfg.EgressAllowHosts, Log: log})
+	deps.Runner = provRunner
+	provRPC, err := providerRPC(cfg, log, sh.local, provRunner)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -404,13 +386,13 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 		closeFn = func() { _ = pub.Close() }
 	}
 	// One emitter for every Go write site: run-end on_rows_changed, poller signals, ambitionbox
-	// rows and signal scan all enqueue trigger_eval for the executor the cohort names (F7).
+	// rows and signal scan all enqueue trigger_eval (F7).
 	emitter := automationEmitter(cfg, log)
 	deps.Emitter = emitter
-	if err := wireFullRun(&deps, cfg, pool, log, localSecrets); err != nil {
+	if err := wireFullRun(&deps, cfg, pool, log, sh.local); err != nil {
 		return nil, nil, err
 	}
-	aiResearcher := wireAICols(&deps, cfg, pool, log) // GO_NATIVE_AI_COLUMNS (plan 15 WP-AICOLS)
+	aiResearcher := wireAICols(&deps, cfg, pool, log, sh)
 	handle := workbook.Handler(deps)
 	// ambitionbox_import: the client is built on the SSRF-guarded egress client;
 	// the failure hook reconciles run and workbook after a persisted failure.
@@ -424,51 +406,47 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 			block = time.Duration(s) * time.Second
 		}
 	}
-	// refresh_workbook / signal_scan: the next occurrence's executor follows the
-	// go_executor cohort flags (a Go worker handled this job, but the flags may
-	// have changed since it was enqueued).
-	rfDeps := refresh.Deps{Pool: pool, SourceWait: sourceWait, NextExecutor: ""}
-	ssDeps := signalscan.Deps{Pool: pool, Hook: abDeps.Hook, Log: log, Caps: ptr(signalCaps(cfg.Executor)),
-		RefreshExecutor: cfg.Executor.RefreshExecutor, ScanExecutor: cfg.Executor.SignalScanExecutor}
+	rfDeps := refresh.Deps{Pool: pool, SourceWait: sourceWait}
+	ssDeps := signalscan.Deps{Pool: pool, Hook: abDeps.Hook, Log: log, Caps: ptr(signalCaps(cfg.Executor))}
 	if provRPC != nil {
 		ssDeps.Py = provRPC
 	}
-	rfFail := rfDeps
-	rfFail.NextExecutorFor = cfg.Executor.RefreshExecutor
-	refresh.RegisterFailureHook(rfFail) // a refresh job that exhausts its retries re-seeds the chain
+	refresh.RegisterFailureHook(rfDeps) // a refresh job that exhausts its retries re-seeds the chain
 	queue.AllowJobType(jobRefreshWorkbook)
 	queue.AllowJobType(jobSignalScan)
 	handlers := map[string]runner{
 		queue.JobTypeRunWorkbook: handle,
 		ambitionimport.JobType:   func(ctx context.Context, c *queue.Claim) error { return ambitionimport.Handle(ctx, abDeps, c) },
-		jobRefreshWorkbook: func(ctx context.Context, c *queue.Claim) error {
-			d := rfDeps
-			d.NextExecutor = cfg.Executor.RefreshExecutor(c.WorkspaceID)
-			return refresh.Handle(ctx, d, c)
-		},
-		jobSignalScan: func(ctx context.Context, c *queue.Claim) error { return signalscan.HandleScan(ctx, ssDeps, c) },
+		jobRefreshWorkbook:       func(ctx context.Context, c *queue.Claim) error { return refresh.Handle(ctx, rfDeps, c) },
+		jobSignalScan:            func(ctx context.Context, c *queue.Claim) error { return signalscan.HandleScan(ctx, ssDeps, c) },
 	}
-	var sec autoactions.SecretGetter = apiSecrets{api}
-	if localSecrets != nil {
-		sec = localSecrets
-	}
-	for typ, h := range buildAutomations(cfg, pool, log, deps, sec, localSecrets, pyRPC, provRPC, emitter) {
+	for typ, h := range buildAutomations(cfg, pool, log, deps, sh.local, provRPC, emitter) {
 		handlers[typ] = h
 	}
-	for typ, h := range buildOutreach(cfg, pool, log, localSecrets, outreachOpts{}) {
+	for typ, h := range buildOutreach(cfg, pool, log, sh.local, outreachOpts{}) {
 		handlers[typ] = h
 	}
-	for typ, h := range governanceHandlers(cfg, pool, log, pyRPC, governanceOpts{researcher: aiResearcher}) {
+	for typ, h := range governanceHandlers(cfg, pool, log, governanceOpts{researcher: aiResearcher}) {
 		handlers[typ] = h
 	}
-	for typ, h := range audienceHandlers(cfg, pool, log, sec, emitter, audienceOpts{}) {
+	for typ, h := range audienceHandlers(cfg, pool, log, sh.local, emitter, audienceOpts{}) {
 		handlers[typ] = h
 	}
-	for typ, h := range leadgenHandlers(cfg, pool, log, pyRPC, leadgenOpts{}) {
+	// The collect pipeline is built once and shared by collect, bulk_enrich, the source_health probes and the
+	// collection-query source workbooks (plan 15 WP-CUTOVER: it used to be wired twice).
+	cd, web, cerr := liveCollectDeps(cfg, pool, log, config.Getenv, provRPC, sh)
+	if cerr != nil {
+		log.Error("collect pipeline not wired: collect, bulk_enrich, source_health_check and collection-query source workbooks will fail", "err", cerr)
+	}
+	for typ, h := range leadgenHandlers(cfg, pool, log, leadgenOpts{prober: nativeProber(web), why: errText(cerr)}) {
 		handlers[typ] = h
 	}
-	registerCollect(handlers, cfg, pool, log, provRPC, localSecrets, api) // plan 15 WP-COLLECT (after leadgen: native probe)
-	registerSourcewb(handlers, cfg, pool, log, prog, emitter, localSecrets, provRPC, api)
+	for typ, h := range collectHandlers(pool, log, collectOpts{deps: cd, why: errText(cerr)}) {
+		handlers[typ] = h
+	}
+	for typ, h := range sourcewbHandlers(pool, log, prog, emitter, sh.local, sourcewbOpts{collectDeps: cd}) {
+		handlers[typ] = h
+	}
 	route := dispatch(handlers)
 	return func(ctx context.Context, c *queue.Claim) error {
 		if block > 0 {
@@ -482,41 +460,11 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 	}, closeFn, nil
 }
 
-// apiSecrets serves providerrun credentials through the Python credentials
-// API; global settings (no workspace) are not served by it, so they fall back
-// to the process environment (REACHER_URL, SEC_EDGAR_USER_AGENT, ...).
-type apiSecrets struct{ api *credentials.Client }
-
-func (a apiSecrets) Get(ctx context.Context, ws, key string) (string, string, error) {
-	if ws == "" {
-		if v := os.Getenv(key); v != "" {
-			return v, "env", nil
-		}
-		return "", "", nil
+func errText(err error) string {
+	if err == nil {
+		return ""
 	}
-	v, err := a.api.Get(ctx, ws, key)
-	return v, secrets.SourceAPI, err
-}
-
-// buildProviderRunner wires providerrun.Runner (Go providers in process, the
-// rest through the Python worker) and the Python RPC client. The Python client
-// is returned as an interface only when PY_WORKER_URL is configured, so a nil
-// client can never hide behind a non-nil interface: columns that need Python
-// are then handed back.
-func buildProviderRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, api *credentials.Client, local *secrets.Resolver) (workbook.ProviderRunner, workbook.PyCaller, *pyworker.Client) {
-	var sec providerrun.Secrets = apiSecrets{api}
-	if local != nil {
-		sec = local
-	}
-	var py workbook.PyCaller
-	var pyRun providerrun.PyCaller
-	var client *pyworker.Client
-	if cfg.Executor.PyWorkerURL != "" {
-		client = pyworker.New(cfg.Executor.PyWorkerURL, cfg.Executor.PyWorkerToken, nil)
-		py, pyRun = client, client
-	}
-	return providerrun.New(providerrun.Deps{Pool: pool, Secrets: sec, Py: pyRun,
-		OperatorAllow: cfg.EgressAllowHosts, Log: log}), py, client
+	return err.Error()
 }
 
 func ptr[T any](v T) *T { return &v }

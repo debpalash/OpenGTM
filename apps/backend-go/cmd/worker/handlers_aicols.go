@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"os"
 
@@ -14,31 +15,25 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/playbooks"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
-// wireAICols applies GO_NATIVE_AI_COLUMNS (plan 15 WP-AICOLS): the run_workbook executor runs
-// ai_formula, research and agent cells and the ai_formula batch pre-pass in process, and the
-// returned researcher runs playbook research steps in process. It returns nil (the Python
-// worker paths stay) when the flag is off or the LLM settings cannot be wired.
-func wireAICols(d *workbook.Deps, cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) playbooks.Researcher {
-	ac := config.LoadAICols(config.Getenv) // GO_ALL_NATIVE applies
+// wireAICols wires the in-process AI columns (plan 15 WP-AICOLS; GO_NATIVE_AI_COLUMNS is permanently on since the
+// cutover): the run_workbook executor runs ai_formula, research and agent cells and the ai_formula batch pre-pass in
+// process, and the returned researcher runs playbook research steps. It returns nil (AI cells and playbook runs
+// then fail) when the LLM settings cannot be wired.
+func wireAICols(d *workbook.Deps, cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sh *workerShared) playbooks.Researcher {
+	ac := config.LoadAICols(config.Getenv)
 	for _, p := range ac.Problems {
 		log.Error("invalid AI column setting", "problem", p)
 	}
-	if !ac.Native {
-		return nil
-	}
-	forWS, err := aiColsDeps(cfg, pool, log)
+	forWS, err := aiColsDeps(cfg, pool, log, sh)
 	if err != nil {
-		log.Error("GO_NATIVE_AI_COLUMNS is on but the LLM settings cannot be wired; AI columns stay on the Python worker",
-			"err", err)
+		log.Error("the AI column LLM settings cannot be wired; AI cells and playbook runs will fail", "err", err)
 		return nil
 	}
 	d.AICols = &workbook.AIColumns{For: forWS}
-	log.Info("AI columns run in process (GO_NATIVE_AI_COLUMNS)")
+	log.Info("AI columns run in process")
 	return playbooks.NewNativeResearcher(forWS, playbooks.StepTimeout())
 }
 
@@ -48,24 +43,11 @@ func wireAICols(d *workbook.Deps, cfg config.Config, pool *pgxpool.Pool, log *sl
 // attempt with the observed usage), leadweb search and page fetch over the browser service, and the
 // syntactic egress guard for model-chosen URLs (no DNS: the browser service resolves and
 // checks every hop).
-func aiColsDeps(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (func(context.Context, string) aicol.Deps, error) {
-	env, err := secrets.NewEnvelope(secrets.Config{
-		Provider: cfg.SecretsProvider, MasterKey: cfg.SecretsMasterKey, SecretKey: cfg.SecretKey, AppEnv: cfg.AppEnv,
-		VaultAddr: cfg.VaultAddr, VaultToken: cfg.VaultToken, VaultTokenFile: cfg.VaultTokenFile,
-		VaultTransitKey: cfg.VaultTransitKey, VaultNamespace: cfg.VaultNamespace, VaultCACert: cfg.VaultCACert,
-	}, nil)
-	if err != nil {
-		return nil, err
+func aiColsDeps(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sh *workerShared) (func(context.Context, string) aicol.Deps, error) {
+	if sh == nil {
+		return nil, errors.New("no shared settings")
 	}
-	reg, err := settings.Load()
-	if err != nil {
-		return nil, err
-	}
-	llmCfg, err := config.LLMFrom(os.Getenv)
-	if err != nil {
-		return nil, err
-	}
-	app := &settings.App{Store: secrets.NewPgStore(pool), Env: env, Secret: reg.SecretSet(), Getenv: os.Getenv}
+	app, reg, llmCfg := sh.app, sh.reg, sh.llmCfg
 	httpc := egress.NewOperatorClient(cfg.EgressAllowHosts)
 	var web *leadweb.Web
 	var bc *browserclient.Client

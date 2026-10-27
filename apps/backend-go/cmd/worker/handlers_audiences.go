@@ -47,65 +47,24 @@ type audienceOpts struct {
 	lease func(context.Context, *queue.Claim) (bool, error) // replaces the sync engine's lease check
 }
 
-// audienceHandlers returns the plan 10 job handlers keyed by job type: audience_refresh
-// (GO_EXECUTOR_AUDIENCE_REFRESH) and audience_destination_sync (GO_DEST_TYPES). Python decides the
-// executor at enqueue (cohort + flag), so Go claims by type on executor='go' rows only, and both
-// types are always claimable: a row whose handler is off is handed back to Python, never failed as
-// unsupported. audience_refresh is handed back while its flag is off or no audience emitter is
-// wired (membership events would be dropped). audience_destination_sync hands back every row whose
-// destination type is not in GO_DEST_TYPES or has no Go delivery port (destsync.Eligible). Failure
-// hooks mirror the Python parent-worker callbacks and run only for the real handlers.
+// audienceHandlers returns the plan 10 job handlers keyed by job type: audience_refresh and
+// audience_destination_sync, registered unconditionally since the plan 15 cutover (GO_EXECUTOR_AUDIENCE_REFRESH and
+// GO_DEST_TYPES are retired). audience_refresh fails permanently without an audience emitter (membership events
+// would be dropped); a destination sync whose type has no Go delivery port fails permanently. Failure hooks mirror
+// the Python parent-worker callbacks.
 func audienceHandlers(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sec destdeliver.SecretResolver,
 	emitter audiencerefresh.Emitter, o audienceOpts) map[string]runner {
 	queue.AllowJobType(audiencesched.JobType)
 	queue.AllowJobType(deststore.JobType)
-	handlers := map[string]runner{
-		audiencesched.JobType: handBackInert(pool, "GO_EXECUTOR_AUDIENCE_REFRESH is off"),
+	handlers := map[string]runner{deststore.JobType: destSyncHandler(cfg, pool, log, sec, o)}
+	if emitter == nil {
+		log.Warn("audience_refresh jobs will fail: no audience event emitter wired")
+		handlers[audiencesched.JobType] = refuseJob(audiencesched.JobType, "no audience event emitter")
+		return handlers
 	}
-	aud := cfg.Flags.Audiences
-	switch {
-	case !aud.GoExecutorAudienceRefresh:
-	case emitter == nil:
-		log.Warn("audience_refresh jobs are handed back to Python: no audience event emitter wired")
-		handlers[audiencesched.JobType] = handBackInert(pool, "audience emitter unavailable")
-	default:
-		execFor := func(ws string) string { return cohortExecutor(cfg, aud.GoExecutorAudienceRefresh, ws) }
-		queue.RegisterFailureHook(audiencesched.JobType, refreshFailureHook(pool, execFor))
-		h := refreshHandler(pool, log, emitter, execFor, destExecutorFor(cfg), aud.RefreshPageSize, o.leads)
-		handlers[audiencesched.JobType] = h
-	}
-	handlers[deststore.JobType] = destSyncHandler(cfg, pool, log, sec, o)
+	queue.RegisterFailureHook(audiencesched.JobType, refreshFailureHook(pool, nil))
+	handlers[audiencesched.JobType] = refreshHandler(pool, log, emitter, cfg.Flags.Audiences.RefreshPageSize, o.leads)
 	return handlers
-}
-
-// cohortExecutor is "go" only with GO_EXECUTOR_ENABLED, the per-type flag and the workspace in the cohort.
-func cohortExecutor(cfg config.Config, flag bool, ws string) string {
-	if cfg.Executor.Enabled && flag && config.InCohort(cfg.Executor.Workspaces, ws) {
-		return "go"
-	}
-	return "python"
-}
-
-// destExecutorFor is go_executor.destination_executor: "go" only with GO_EXECUTOR_ENABLED, the
-// workspace in the cohort and the destination type in GO_DEST_TYPES.
-func destExecutorFor(cfg config.Config) func(ws string) func(destType string) string {
-	types := goDestTypes(cfg)
-	return func(ws string) func(string) string {
-		return func(destType string) string {
-			if cfg.Executor.Enabled && config.InCohort(cfg.Executor.Workspaces, ws) && types[strings.ToLower(strings.TrimSpace(destType))] {
-				return "go"
-			}
-			return "python"
-		}
-	}
-}
-
-func goDestTypes(cfg config.Config) map[string]bool {
-	m := map[string]bool{}
-	for _, t := range cfg.Flags.Audiences.GoDestTypes {
-		m[strings.ToLower(strings.TrimSpace(t))] = true
-	}
-	return m
 }
 
 // idPayload decodes a job payload object (nil when it is not an object).
@@ -128,7 +87,10 @@ func payloadStr(m map[string]any, key string) string {
 	return strings.TrimSpace(fmt.Sprint(v))
 }
 
-var errPayloadWorkspace = errors.New("job payload workspace does not match the job row")
+var (
+	errPayloadWorkspace = errors.New("job payload workspace does not match the job row")
+	errNoJobWorkspace   = errors.New("the job has no workspace_id; the tenant comes from the job row only")
+)
 
 // refreshFailureHook is reconcile_audience_refresh_failure after a persisted failed attempt. The
 // payload workspace must be the job row's own; the work then runs in that tenant.
@@ -154,17 +116,21 @@ func destFailureHook(eng *destsync.Engine, pool *pgxpool.Pool) queue.FailureHook
 
 // refreshHandler is handle_audience_refresh: RefreshObserved, then ScheduleNext; on error the next
 // occurrence is scheduled first and the error returned. A missing or refresh-disabled audience
-// removes its schedule.
-func refreshHandler(pool *pgxpool.Pool, log *slog.Logger, emitter audiencerefresh.Emitter, execFor func(string) string,
-	destExec func(ws string) func(string) string, pageSize int, leads audiencerefresh.LeadSource) runner {
+// removes its schedule. The tenant is the job row's workspace only (plan 15 cutover): a job without one, or whose
+// payload names another, is refused permanently.
+func refreshHandler(pool *pgxpool.Pool, log *slog.Logger, emitter audiencerefresh.Emitter, pageSize int,
+	leads audiencerefresh.LeadSource) runner {
 	return func(ctx context.Context, c *queue.Claim) error {
 		p := idPayload(c.Payload)
 		ws, id := payloadStr(p, "workspace_id"), payloadStr(p, "audience_id")
+		if c.WorkspaceID == "" {
+			return &queue.PermanentError{Err: errNoJobWorkspace}
+		}
 		if ws == "" || id == "" {
 			log.Warn("audience_refresh missing workspace_id/audience_id", "job", c.ID)
 			return nil
 		}
-		if c.WorkspaceID != "" && c.WorkspaceID != ws {
+		if c.WorkspaceID != ws {
 			return &queue.PermanentError{Err: errPayloadWorkspace}
 		}
 		removed := false
@@ -180,7 +146,7 @@ func refreshHandler(pool *pgxpool.Pool, log *slog.Logger, emitter audiencerefres
 			return err
 		}
 		_, rerr := audiencerefresh.RefreshObserved(ctx, pool, ws, id, audiencerefresh.Deps{
-			AudienceEvents: emitter, ExecutorFor: destExec(ws), PageSize: pageSize, Leads: leads,
+			AudienceEvents: emitter, PageSize: pageSize, Leads: leads,
 			Timeout: audiencerefresh.JobTimeout,
 		})
 		if errors.Is(rerr, audiencerefresh.ErrNotFound) || errors.Is(rerr, tenancy.ErrNoWorkspace) {
@@ -191,17 +157,17 @@ func refreshHandler(pool *pgxpool.Pool, log *slog.Logger, emitter audiencerefres
 			// occurrence (even when ctx is done) before the queue retries or dead-letters.
 			sctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
 			defer cancel()
-			if serr := scheduleAfter(sctx, pool, ws, id, execFor(ws)); serr != nil {
+			if serr := scheduleAfter(sctx, pool, ws, id); serr != nil {
 				log.Error("audience_refresh: schedule next after failure", "audience", id, "err", serr)
 			}
 			return rerr
 		}
-		return scheduleAfter(ctx, pool, ws, id, execFor(ws))
+		return scheduleAfter(ctx, pool, ws, id)
 	}
 }
 
 // scheduleAfter is schedule_next for the audience as it now stands.
-func scheduleAfter(ctx context.Context, pool *pgxpool.Pool, ws, id, executor string) error {
+func scheduleAfter(ctx context.Context, pool *pgxpool.Pool, ws, id string) error {
 	return tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
 		row, err := gen.New(tx).AudSchedLockAudience(ctx, gen.AudSchedLockAudienceParams{ID: id, WorkspaceID: ws})
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -212,14 +178,13 @@ func scheduleAfter(ctx context.Context, pool *pgxpool.Pool, ws, id, executor str
 		}
 		_, err = audiencesched.ScheduleNext(ctx, tx, audiencesched.ScheduleInput{
 			ID: id, WorkspaceID: ws, RefreshEnabled: row.RefreshEnabled, IntervalMinutes: int(row.RefreshIntervalMinutes),
-		}, time.Now(), executor)
+		}, time.Now(), "go")
 		return err
 	})
 }
 
-// destSyncHandler wires the destination sync engine. Every row whose destination type is not
-// eligible (destsync.Eligible: in GO_DEST_TYPES and deliverable with the wired ports) is handed
-// back to Python untouched.
+// destSyncHandler wires the destination sync engine. A run whose destination type has no Go delivery port
+// (ports.Supports) fails permanently; the failure hook then reconciles the run.
 func destSyncHandler(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sec destdeliver.SecretResolver, o audienceOpts) runner {
 	aud := cfg.Flags.Audiences
 	ports := o.ports
@@ -235,15 +200,6 @@ func destSyncHandler(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, se
 	if ports.Outbound.Prefixes == nil && ports.Outbound.Registered == nil {
 		ports.Outbound = wd.Outbound
 	}
-	types := goDestTypes(cfg)
-	for t := range types {
-		if !provenanceEligible(sec, t) {
-			log.Warn("GO_DEST_TYPES lists a type that needs CREDENTIALS_SOURCE=local; its jobs stay on Python", "type", t)
-		}
-		if !ports.Supports(t) {
-			log.Warn("GO_DEST_TYPES lists a destination type without a Go delivery port; its jobs stay on Python", "type", t)
-		}
-	}
 	get := adTokenGetter(sec, adTokensWorkspaceOnly())
 	dd := destsync.Deps{
 		Pool: pool, Deliverer: destdeliver.New(ports, aud.DestDeliveryTimeout),
@@ -256,22 +212,21 @@ func destSyncHandler(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, se
 	}
 	eng := destsync.New(dd)
 	queue.RegisterFailureHook(deststore.JobType, destFailureHook(eng, pool))
-	hand := func(ctx context.Context, c *queue.Claim, why string) error { return handBackInert(pool, why)(ctx, c) }
 	return func(ctx context.Context, c *queue.Claim) error {
 		p := idPayload(c.Payload)
 		ws, run := payloadStr(p, "workspace_id"), payloadStr(p, "run_id")
-		if ws == "" || run == "" || (c.WorkspaceID != "" && c.WorkspaceID != ws) {
+		if c.WorkspaceID == "" {
+			return &queue.PermanentError{Err: errNoJobWorkspace}
+		}
+		if ws == "" || run == "" || c.WorkspaceID != ws {
 			return eng.Handle(ctx, c) // the engine refuses a bad payload permanently
 		}
 		destType, found, err := destinationType(ctx, pool, ws, run)
 		if err != nil {
 			return err
 		}
-		if found && !destsync.Eligible(destType, ports, types) {
-			return hand(ctx, c, "destination type "+destType+" is not served by the Go worker")
-		}
-		if found && !provenanceEligible(sec, destType) {
-			return hand(ctx, c, "destination type "+destType+" needs CREDENTIALS_SOURCE=local on the Go worker")
+		if found && !ports.Supports(destType) {
+			return &queue.PermanentError{Err: fmt.Errorf("destination type %s has no Go delivery port", destType)}
 		}
 		return eng.Handle(ctx, c)
 	}
@@ -300,22 +255,6 @@ func adTokenGetter(sec destdeliver.SecretResolver, workspaceOnly bool) adsdrv.Se
 		v, _, err := sec.Get(ctx, ws, name)
 		return v, err
 	}
-}
-
-// provenanceEligible is false for the types whose secret refs must resolve workspace-only
-// (warehouse_http, slack) when the worker's resolver is the credentials API (CREDENTIALS_SOURCE=http):
-// it cannot report a value's source, so every delivery would fail. Those rows stay on Python.
-func provenanceEligible(sec destdeliver.SecretResolver, destType string) bool {
-	if _, api := sec.(apiSecrets); !api {
-		return true
-	}
-	switch strings.ToLower(strings.TrimSpace(destType)) {
-	case "warehouse_http", "slack":
-		return false
-	case "meta_ads", "google_ads", "linkedin_ads":
-		return !adTokensWorkspaceOnly() // workspace-only tokens need the source of each value
-	}
-	return true
 }
 
 // destinationType reads the type of the run's destination inside the run's tenant; a missing run

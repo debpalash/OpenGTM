@@ -69,44 +69,27 @@ func outreachHandlers(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, l
 	return send, inbound
 }
 
-// buildOutreach registers `send` and `outreach_inbound_poll` as claimable and returns their
-// handlers. Python decides the executor at enqueue (cohort + per-type flag), so Go claims
-// by type on executor='go' rows only. A row that reaches this worker while its per-type
-// flag is off, or while outreach cannot run here (no secret resolver under
-// CREDENTIALS_SOURCE=http, or no usable master key: D6), is handed back to Python untouched.
+// buildOutreach registers `send` and `outreach_inbound_poll` as claimable and returns their handlers, unconditionally
+// since the plan 15 cutover (GO_EXECUTOR_OUTREACH_SEND / _INBOUND are retired). Without a secret resolver or a
+// usable master key (D6) both job types fail permanently with the reason.
 func buildOutreach(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, local *secrets.Resolver, o outreachOpts) map[string]runner {
 	queue.AllowJobType(jobSend)
 	queue.AllowJobType(outreachinbound.JobType)
-	out := cfg.Flags.Outreach
-	handlers := map[string]runner{
-		jobSend:                 handBackInert(pool, "GO_EXECUTOR_OUTREACH_SEND is off"),
-		outreachinbound.JobType: handBackInert(pool, "GO_EXECUTOR_OUTREACH_INBOUND is off"),
-	}
-	if !out.GoExecutorSend && !out.GoExecutorInbound {
-		return handlers
+	refuse := func(why string) map[string]runner {
+		return map[string]runner{jobSend: refuseJob(jobSend, why), outreachinbound.JobType: refuseJob(outreachinbound.JobType, why)}
 	}
 	if local == nil {
-		log.Warn("outreach handlers hand jobs back: no secret resolver; set CREDENTIALS_SOURCE=local")
-		return inertOutreach(handlers, pool, "outreach needs CREDENTIALS_SOURCE=local")
+		log.Warn("outreach jobs will fail: no secret resolver")
+		return refuse("no secret resolver")
 	}
 	master, err := outreachMasterKey(cfg)
 	if err != nil {
-		log.Error("outreach handlers hand jobs back: no usable master key", "err", err.Error())
-		return inertOutreach(handlers, pool, "outreach master key unavailable")
+		log.Error("outreach jobs will fail: no usable master key", "err", err.Error())
+		return refuse("outreach master key unavailable")
 	}
 	send, inbound := outreachHandlers(cfg, pool, log, local, master, o)
-	if out.GoExecutorSend {
-		handlers[jobSend] = func(ctx context.Context, c *queue.Claim) error { return send.Handle(ctx, c) }
+	return map[string]runner{
+		jobSend:                 func(ctx context.Context, c *queue.Claim) error { return send.Handle(ctx, c) },
+		outreachinbound.JobType: func(ctx context.Context, c *queue.Claim) error { return inbound.Handle(ctx, c) },
 	}
-	if out.GoExecutorInbound {
-		handlers[outreachinbound.JobType] = func(ctx context.Context, c *queue.Claim) error { return inbound.Handle(ctx, c) }
-	}
-	return handlers
-}
-
-func inertOutreach(handlers map[string]runner, pool *pgxpool.Pool, why string) map[string]runner {
-	for typ := range handlers {
-		handlers[typ] = handBackInert(pool, why)
-	}
-	return handlers
 }

@@ -6,9 +6,10 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collect"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadjobs"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 )
 
@@ -20,39 +21,37 @@ func leadgenLimit(jobType string) (time.Duration, bool) {
 	return 0, false
 }
 
-// leadgenOpts are test seams; the zero value is the production wiring.
+// leadgenOpts are the source_health_check collaborators; the zero value fails the job.
 type leadgenOpts struct {
-	prober leadjobs.Prober     // replaces the Python worker RPC
-	getenv func(string) string // replaces os.Getenv for the SOURCE_HEALTH_* knobs
+	prober leadjobs.Prober     // the in-process registry-source prober (nativeProber); nil: the job fails
+	why    string              // why prober is nil (logged and in the job error)
+	getenv func(string) string // replaces config.Getenv for the SOURCE_HEALTH_* knobs
 }
 
-// leadgenHandlers returns the plan 14 job handlers keyed by job type: source_health_check
-// (GO_EXECUTOR_ENABLED and GO_EXECUTOR_SOURCE_HEALTH, global, no workspace cohort). Python decides
-// the executor at enqueue, so Go claims executor='go' rows only; the type is always claimable and
-// a row whose flag is off, or that has no Python worker to probe through, is handed back to Python
-// (never failed as unsupported). The next occurrence's executor follows the flags at run time.
-func leadgenHandlers(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, py *pyworker.Client, o leadgenOpts) map[string]runner {
+// nativeProber probes the registry sources in process over the worker's leadweb (GO_NATIVE_SOURCE_PROBE is
+// permanently on since the plan 15 cutover); nil without a leadweb (no browser service).
+func nativeProber(web *leadweb.Web) leadjobs.Prober {
+	if web == nil {
+		return nil
+	}
+	return collect.NativeProber{Web: collect.LiveWeb{W: web}}
+}
+
+// leadgenHandlers returns the plan 14 job handler source_health_check (global, no workspace). It probes in process
+// (there is no Python worker since the cutover); without a prober the job fails permanently with the reason.
+func leadgenHandlers(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, o leadgenOpts) map[string]runner {
 	queue.AllowJobType(leadjobs.JobType)
-	handlers := map[string]runner{
-		leadjobs.JobType: handBackInert(pool, "GO_EXECUTOR_SOURCE_HEALTH is off"),
-	}
-	if cfg.Executor.SourceHealthExecutor() != "go" {
-		return handlers
-	}
-	var prober leadjobs.Prober = o.prober
-	if prober == nil && py != nil {
-		prober = py
-	}
-	if prober == nil {
-		log.Warn("source_health_check jobs are handed back to Python: no Python worker (PY_WORKER_URL)")
-		handlers[leadjobs.JobType] = handBackInert(pool, "python worker unavailable")
-		return handlers
+	if o.prober == nil {
+		why := o.why
+		if why == "" {
+			why = "no source prober (the browser service is not configured)"
+		}
+		log.Warn("source_health_check jobs will fail", "reason", why)
+		return map[string]runner{leadjobs.JobType: refuseJob(leadjobs.JobType, why)}
 	}
 	get := o.getenv
 	if get == nil {
 		get = config.Getenv
 	}
-	handlers[leadjobs.JobType] = leadjobs.Handler(leadjobs.Deps{Pool: pool, Py: prober, Getenv: get,
-		Executor: cfg.Executor.SourceHealthExecutor, Log: log})
-	return handlers
+	return map[string]runner{leadjobs.JobType: leadjobs.Handler(leadjobs.Deps{Pool: pool, Py: o.prober, Getenv: get, Log: log})}
 }

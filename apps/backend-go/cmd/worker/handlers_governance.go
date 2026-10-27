@@ -9,7 +9,6 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/playbooks"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/retention"
 )
@@ -30,53 +29,33 @@ func governanceLimit(jobType string) (time.Duration, bool) {
 
 // governanceOpts are test seams; the zero value is the production wiring.
 type governanceOpts struct {
-	researcher playbooks.Researcher // replaces the Python-worker researcher
+	researcher playbooks.Researcher // the in-process researcher (AI columns); nil fails playbook runs
 	afterBatch func(string, int64)  // retention Deps.AfterBatch
 	batchRows  int                  // retention Deps.BatchRows
 }
 
-// governanceHandlers returns the plan 11 job handlers keyed by job type: retention_enforce
-// (GO_EXECUTOR_RETENTION) and research_playbook_run / research_playbook_schedule
-// (GO_EXECUTOR_PLAYBOOKS). Python decides the executor at enqueue (cohort + per-type flag),
-// so Go claims by type on executor='go' rows only; a type whose flag is off is handed back. A run job whose Python worker is not configured, or becomes
-// unavailable, is handed back to Python by the handler. Failure hooks (retention_enforce and research_playbook_run only: Python registers none for
-// research_playbook_schedule) reconcile the run
-// after a persisted failure (handler error or recovered panic) with willRetry from the job
-// row. Budget note: the Python research_column RPC reports cost_usd 0, so the Go playbook
-// run enforces the budget itself.
-func governanceHandlers(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, py *pyworker.Client, o governanceOpts) map[string]runner {
-	// Every governance type is always claimable: an executor='go' row that reaches this
-	// worker while its flag is off is handed back to Python, not failed as unsupported.
+// governanceHandlers returns the plan 11 job handlers keyed by job type: retention_enforce and
+// research_playbook_run / research_playbook_schedule, all registered unconditionally since the plan 15 cutover
+// (GO_EXECUTOR_RETENTION and GO_EXECUTOR_PLAYBOOKS are retired). A playbook run without a research runner (the AI
+// columns could not be wired) fails permanently. Failure hooks (retention_enforce and research_playbook_run only:
+// Python registered none for research_playbook_schedule) reconcile the run after a persisted failure (handler
+// error or recovered panic) with willRetry from the job row. The Go playbook run enforces the budget itself.
+func governanceHandlers(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, o governanceOpts) map[string]runner {
 	queue.AllowJobType(retention.JobType)
 	queue.AllowJobType(playbooks.RunJobType)
 	queue.AllowJobType(playbooks.ScheduleJobType)
-	handlers := map[string]runner{
-		retention.JobType:         handBackInert(pool, "GO_EXECUTOR_RETENTION is off"),
-		playbooks.RunJobType:      handBackInert(pool, "GO_EXECUTOR_PLAYBOOKS is off"),
-		playbooks.ScheduleJobType: handBackInert(pool, "GO_EXECUTOR_PLAYBOOKS is off"),
+	rd := retention.Deps{Pool: pool, BatchRows: o.batchRows, AfterBatch: o.afterBatch}
+	retention.RegisterFailureHook(rd)
+	ret := retention.Handler(rd)
+	pd := playbooks.Deps{Pool: pool}
+	if o.researcher == nil {
+		log.Warn("research_playbook_run jobs will fail: no research runner (the AI column LLM settings could not be wired)")
 	}
-	gov := cfg.Flags.Governance
-	if gov.GoExecutorRetention {
-		d := retention.Deps{Pool: pool, BatchRows: o.batchRows, AfterBatch: o.afterBatch,
-			ExecutorFor: func(ws string) string { return retention.ExecutorFor(cfg.Executor, gov, ws) }}
-		retention.RegisterFailureHook(d)
-		h := retention.Handler(d)
-		handlers[retention.JobType] = func(ctx context.Context, c *queue.Claim) error { return h(ctx, c) }
+	playbooks.RegisterFailureHook(pd)
+	run, sched := playbooks.RunHandler(pd, o.researcher), playbooks.ScheduleHandler(pd)
+	return map[string]runner{
+		retention.JobType:         func(ctx context.Context, c *queue.Claim) error { return ret(ctx, c) },
+		playbooks.RunJobType:      func(ctx context.Context, c *queue.Claim) error { return run(ctx, c) },
+		playbooks.ScheduleJobType: func(ctx context.Context, c *queue.Claim) error { return sched(ctx, c) },
 	}
-	if gov.GoExecutorPlaybooks {
-		playbooks.WireExecutors(cfg.Executor, gov)
-		d := playbooks.Deps{Pool: pool, RunExecutor: func(ws string) string { return playbooks.ExecutorFor(cfg.Executor, gov, ws) }}
-		var res playbooks.Researcher = o.researcher
-		if res == nil && py != nil {
-			res = playbooks.NewPyResearcher(py, playbooks.StepTimeout())
-		}
-		if res == nil {
-			log.Warn("playbook run jobs are handed back to Python: no Python worker (PY_WORKER_URL)")
-		}
-		playbooks.RegisterFailureHook(d)
-		run, sched := playbooks.RunHandler(d, res), playbooks.ScheduleHandler(d)
-		handlers[playbooks.RunJobType] = func(ctx context.Context, c *queue.Claim) error { return run(ctx, c) }
-		handlers[playbooks.ScheduleJobType] = func(ctx context.Context, c *queue.Claim) error { return sched(ctx, c) }
-	}
-	return handlers
 }
