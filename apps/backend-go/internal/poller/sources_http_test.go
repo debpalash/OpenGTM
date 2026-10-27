@@ -478,6 +478,11 @@ func TestFetchFeedTranscripts(t *testing.T) {
 				}
 				return
 			}
+			// Deliberate deviation: Python's "host resolves to private ip <ip>" stores the resolved
+			// address; Go stores a fixed text and logs the address.
+			if strings.HasPrefix(wantErr, "blocked_url: host resolves to private ip ") {
+				wantErr = "blocked_url: host resolves to a private address"
+			}
 			if res.Error != wantErr {
 				t.Errorf("error %q want %q", res.Error, wantErr)
 			}
@@ -558,7 +563,7 @@ func TestFeedBlockedHostsRefused(t *testing.T) {
 	rp := newReplay(t, &transcript{})
 	rp.res.answers["feeds.example.com"] = []string{"192.168.1.9"}
 	res, _ := FetchFeed(context.Background(), rp.deps(), "https://feeds.example.com/news.xml", "", "")
-	if res.Error != "blocked_url: host resolves to private ip 192.168.1.9" || rp.dials != 0 {
+	if res.Error != "blocked_url: host resolves to a private address" || rp.dials != 0 {
 		t.Errorf("%+v dials=%d", res, rp.dials)
 	}
 	// ANY private record blocks the whole fetch (mixed answers)

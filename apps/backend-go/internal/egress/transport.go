@@ -3,6 +3,7 @@ package egress
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net"
 	"net/http"
 	"net/netip"
@@ -92,7 +93,10 @@ func guardedDial(allow map[string]struct{}, res resolver, dial dialFunc) dialFun
 		}
 		for _, ip := range ips {
 			if IsBlockedIP(ip) {
-				return nil, blocked("host resolves to private ip %s", ip)
+				// The address is for operators only: callers store this error text, and a
+				// stored address would turn it into a DNS / internal-network oracle.
+				slog.Warn("egress: host resolves to a blocked address", "host", host, "ip", ip.String())
+				return nil, blocked("host resolves to a private address")
 			}
 		}
 		var lastErr error

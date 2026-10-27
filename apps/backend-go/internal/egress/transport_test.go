@@ -3,6 +3,7 @@ package egress
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -117,5 +118,40 @@ func TestPoolSettings(t *testing.T) {
 	tr, ok := c.Transport.(*http.Transport)
 	if !ok || tr.MaxIdleConnsPerHost != 64 || tr.IdleConnTimeout.Seconds() != 90 {
 		t.Fatalf("bad transport %+v", c.Transport)
+	}
+}
+
+// The refusal text is stored by callers (poller, warehouse export, lead utils). It must not
+// carry the resolved address, which would make a stored error a DNS / internal-network
+// oracle; the address is logged instead. The error stays a *BlockedError / ErrBlocked.
+func TestResolvedAddressNeverInErrorText(t *testing.T) {
+	var logs strings.Builder
+	old := slog.Default()
+	slog.SetDefault(slog.New(slog.NewTextHandler(&logs, nil)))
+	t.Cleanup(func() { slog.SetDefault(old) })
+
+	for _, ip := range []string{"10.1.2.3", "127.0.0.1", "169.254.169.254", "::1"} {
+		res := &fakeResolver{seq: [][]netip.Addr{addrs("93.184.216.34", ip)}}
+		c := newClient(nil, "", res, func(context.Context, string, string) (net.Conn, error) {
+			t.Fatal("dialed a blocked host")
+			return nil, nil
+		})
+		_, err := c.Get("http://internal.example/")
+		if err == nil {
+			t.Fatalf("%s: not refused", ip)
+		}
+		if strings.Contains(err.Error(), ip) || strings.Contains(err.Error(), "93.184.216.34") {
+			t.Errorf("%s: error text carries an address: %v", ip, err)
+		}
+		if !errors.Is(err, ErrBlocked) {
+			t.Errorf("%s: errors.Is(ErrBlocked) is false: %v", ip, err)
+		}
+		var be *BlockedError
+		if !errors.As(err, &be) || be.Reason != "host resolves to a private address" {
+			t.Errorf("%s: reason = %+v", ip, be)
+		}
+		if !strings.Contains(logs.String(), ip) {
+			t.Errorf("%s: the address was not logged", ip)
+		}
 	}
 }

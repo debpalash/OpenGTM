@@ -183,7 +183,8 @@ func (s strictResolver) LookupNetIP(ctx context.Context, network, host string) (
 	}
 	for _, ip := range ips {
 		if isCGNAT(ip) {
-			return nil, blockedErr("host resolves to private ip %s", ip)
+			slog.Warn("webhook: host resolves to a CGNAT address", "ip", ip.String())
+			return nil, blockedErr(privateAddress)
 		}
 	}
 	return ips, nil

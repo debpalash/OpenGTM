@@ -496,7 +496,7 @@ func useFakeTech(t *testing.T, f fakeTech) {
 func TestTechStackErrorsAreFixedCodes(t *testing.T) {
 	e := newUtilsEnv(t)
 	for in, want := range map[string]string{
-		"blocked_url: host resolves to private ip 10.1.2.3":                          "blocked_url",
+		"blocked_url: host resolves to a private address":                            "blocked_url",
 		`Get "https://x.test/": dial tcp 10.0.0.5:22: connect: connection refused`:   "fetch_failed",
 		`Get "https://x.test/": context deadline exceeded (Client.Timeout exceeded)`: "timeout",
 		"No technologies detected": "No technologies detected",
