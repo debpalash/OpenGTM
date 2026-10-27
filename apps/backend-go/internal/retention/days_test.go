@@ -181,10 +181,11 @@ func TestExecutorForCohortOnly(t *testing.T) {
 		want string
 	}{
 		{"all on", ex(true, "w1"), config.GovernanceSettings{GoExecutorRetention: true}, "w1", "go"},
-		{"not in cohort", ex(true, "w1"), config.GovernanceSettings{GoExecutorRetention: true}, "w2", "python"},
-		{"cohort flag off", ex(false, "w1"), config.GovernanceSettings{GoExecutorRetention: true}, "w1", "python"},
-		{"retention flag off", ex(true, "w1"), config.GovernanceSettings{GoExecutorPlaybooks: true}, "w1", "python"},
-		{"empty ws", ex(true, ""), config.GovernanceSettings{GoExecutorRetention: true}, "", "python"},
+		// The cohort and GO_EXECUTOR_RETENTION are retired (plan 15 cutover): always go.
+		{"not in cohort", ex(true, "w1"), config.GovernanceSettings{GoExecutorRetention: true}, "w2", "go"},
+		{"cohort flag off", ex(false, "w1"), config.GovernanceSettings{GoExecutorRetention: true}, "w1", "go"},
+		{"retention flag off", ex(true, "w1"), config.GovernanceSettings{GoExecutorPlaybooks: true}, "w1", "go"},
+		{"empty ws", ex(true, ""), config.GovernanceSettings{GoExecutorRetention: true}, "", "go"},
 	} {
 		if got := ExecutorFor(c.ex, c.g, c.ws); got != c.want {
 			t.Errorf("%s: %s", c.name, got)

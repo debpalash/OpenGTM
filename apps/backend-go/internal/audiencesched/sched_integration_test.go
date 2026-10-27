@@ -313,7 +313,10 @@ func compareJobs(t *testing.T, got []jobRow, want []any) {
 		_ = json.Unmarshal([]byte(g.Payload), &gp)
 		wp = m["payload"]
 		wnext := tsPtr(t, m["next_run_at"])
-		if g.FireKey != m["fire_key"] || g.Status != m["status"] || g.Executor != m["executor"] || g.Type != m["type"] ||
+		// A vector job the run wrote carries Python's executor; Go writes "go" (the only executor since the plan 15
+		// cutover). Seeded rows keep theirs.
+		execOK := g.Executor == m["executor"] || (m["executor"] == "python" && g.Executor == "go")
+		if g.FireKey != m["fire_key"] || g.Status != m["status"] || !execOK || g.Type != m["type"] ||
 			float64(g.Priority) != m["priority"] || float64(g.MaxRetries) != m["max_retries"] ||
 			!reflect.DeepEqual(gp, wp) || !eqTime(g.NextRunAt, wnext) || !jobWorkspaceOK(g, gp) {
 			t.Fatalf("job %d: got %+v (next %s), want %+v", i, g, fmtT(g.NextRunAt), m)
@@ -365,7 +368,7 @@ func TestScheduleNextMatchesVectors(t *testing.T) {
 			}
 			got, err := runSchedule(t, ctx, pool, audiencesched.ScheduleInput{
 				ID: id, WorkspaceID: ws, RefreshEnabled: enabled, IntervalMinutes: pyInt(a["refresh_interval_minutes"]),
-			}, now, c["executor"].(string))
+			}, now, "go") // the vector's executor is Python's; go is the only executor since the plan 15 cutover
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -412,7 +415,7 @@ func TestScheduleNextCancelsPendingOnly(t *testing.T) {
 		seed[i].NextRunAt = &old
 		insertJob(t, ctx, pool, seed[i])
 	}
-	if _, err := runSchedule(t, ctx, pool, audiencesched.ScheduleInput{ID: idPfx + "a", WorkspaceID: wsVec, RefreshEnabled: false}, frozenNow, "python"); err != nil {
+	if _, err := runSchedule(t, ctx, pool, audiencesched.ScheduleInput{ID: idPfx + "a", WorkspaceID: wsVec, RefreshEnabled: false}, frozenNow, "go"); err != nil {
 		t.Fatal(err)
 	}
 	got := jobs(t, ctx, pool)
@@ -434,7 +437,7 @@ func TestScheduleNextLikeWildcardsInIDAreLiteral(t *testing.T) {
 	old := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	insertJob(t, ctx, pool, jobRow{FireKey: "audience_refresh:" + idPfx + "uX1:2026-02-01T00:00:00+00:00", Status: "pending", NextRunAt: &old})
 	insertJob(t, ctx, pool, jobRow{FireKey: "audience_refresh:" + idPfx + "u_1:2026-02-01T00:00:00+00:00", Status: "pending", NextRunAt: &old})
-	if _, err := runSchedule(t, ctx, pool, audiencesched.ScheduleInput{ID: idPfx + "u_1", WorkspaceID: wsVec, RefreshEnabled: false}, frozenNow, "python"); err != nil {
+	if _, err := runSchedule(t, ctx, pool, audiencesched.ScheduleInput{ID: idPfx + "u_1", WorkspaceID: wsVec, RefreshEnabled: false}, frozenNow, "go"); err != nil {
 		t.Fatal(err)
 	}
 	got := jobs(t, ctx, pool)
@@ -474,7 +477,7 @@ func TestIntervalClamped(t *testing.T) {
 		id := idPfx + "iv"
 		_ = tenancy.InWorkspace(ctx, pool, wsVec, func(tx pgx.Tx) error { _, err := tx.Exec(ctx, `DELETE FROM audiences`); return err })
 		mkAudience(t, ctx, pool, audRow{ID: id, WS: wsVec, Enabled: true, Interval: 60})
-		got, err := runSchedule(t, ctx, pool, audiencesched.ScheduleInput{ID: id, WorkspaceID: wsVec, RefreshEnabled: true, IntervalMinutes: c.in}, frozenNow, "python")
+		got, err := runSchedule(t, ctx, pool, audiencesched.ScheduleInput{ID: id, WorkspaceID: wsVec, RefreshEnabled: true, IntervalMinutes: c.in}, frozenNow, "go")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -497,7 +500,7 @@ func TestScheduleSingleFlightConcurrent(t *testing.T) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			res[i], errs[i] = runSchedule(t, ctx, pool, in, frozenNow, "python")
+			res[i], errs[i] = runSchedule(t, ctx, pool, in, frozenNow, "go")
 		}(i)
 	}
 	wg.Wait()
@@ -534,7 +537,7 @@ func TestScheduleConcurrentDistinctClocksLeaveOnePending(t *testing.T) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			if _, err := runSchedule(t, ctx, pool, in, frozenNow.Add(time.Duration(i)*time.Second), "python"); err != nil {
+			if _, err := runSchedule(t, ctx, pool, in, frozenNow.Add(time.Duration(i)*time.Second), "go"); err != nil {
 				t.Error(err)
 			}
 		}(i)
@@ -557,7 +560,7 @@ func TestScheduleRollsBackWithTx(t *testing.T) {
 	mkAudience(t, ctx, pool, audRow{ID: id, WS: wsVec, Enabled: true, Interval: 60})
 	boom := fmt.Errorf("boom")
 	err := tenancy.InWorkspace(ctx, pool, wsVec, func(tx pgx.Tx) error {
-		if _, err := audiencesched.ScheduleNext(ctx, tx, audiencesched.ScheduleInput{ID: id, WorkspaceID: wsVec, RefreshEnabled: true, IntervalMinutes: 60}, frozenNow, "python"); err != nil {
+		if _, err := audiencesched.ScheduleNext(ctx, tx, audiencesched.ScheduleInput{ID: id, WorkspaceID: wsVec, RefreshEnabled: true, IntervalMinutes: 60}, frozenNow, "go"); err != nil {
 			return err
 		}
 		return boom
@@ -582,7 +585,7 @@ func TestScheduleNextRejectsForeignWorkspaceAndBadExecutor(t *testing.T) {
 	}
 	// Input names workspace B while the transaction is tenant A.
 	err := tenancy.InWorkspace(ctx, pool, wsVec, func(tx pgx.Tx) error {
-		_, err := audiencesched.ScheduleNext(ctx, tx, audiencesched.ScheduleInput{ID: id, WorkspaceID: wsOther, RefreshEnabled: true, IntervalMinutes: 60}, frozenNow, "python")
+		_, err := audiencesched.ScheduleNext(ctx, tx, audiencesched.ScheduleInput{ID: id, WorkspaceID: wsOther, RefreshEnabled: true, IntervalMinutes: 60}, frozenNow, "go")
 		return err
 	})
 	if err == nil {
@@ -660,7 +663,7 @@ func TestDueSchedules(t *testing.T) {
 // ---- reconcile ----
 
 func runReconcile(ctx context.Context, pool *pgxpool.Pool, jobID int64, payload map[string]any, errText string, willRetry bool) error {
-	return audiencesched.ReconcileFailure(ctx, pool, func(string) string { return "python" }, jobID, payload, errText, willRetry, frozenNow)
+	return audiencesched.ReconcileFailure(ctx, pool, func(string) string { return "go" }, jobID, payload, errText, willRetry, frozenNow)
 }
 
 func TestReconcileFailureMatchesVectors(t *testing.T) {

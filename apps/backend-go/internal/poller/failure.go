@@ -23,7 +23,7 @@ type Deps struct {
 	Cfg  Config
 	// Now is the clock (nil: time.Now).
 	Now func() time.Time
-	// ExecutorFor picks the executor for a workspace's next poll (nil: python).
+	// ExecutorFor picks the executor for a workspace's next poll (nil: go).
 	ExecutorFor func(ws string) string
 }
 
@@ -38,7 +38,7 @@ func (d Deps) executor(ws string) string {
 	if d.ExecutorFor != nil {
 		return d.ExecutorFor(ws)
 	}
-	return "python"
+	return "go"
 }
 
 const errPayload = "watch poll failure payload requires workspace_id and watch_id"

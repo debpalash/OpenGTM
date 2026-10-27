@@ -498,7 +498,7 @@ func TestStartRunSingleFlightConcurrent(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			errs <- tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
-				run, c, err := deststore.StartRun(ctx, tx, wsA, d.ID, "user-7", "python")
+				run, c, err := deststore.StartRun(ctx, tx, wsA, d.ID, "user-7", "go")
 				if err != nil {
 					return err
 				}
@@ -535,7 +535,7 @@ func TestStartRunSingleFlightConcurrent(t *testing.T) {
 		t.Fatalf("jobs = %d, want 1", len(jobs))
 	}
 	j := jobs[0]
-	if j.Executor != "python" || j.FireKey != "destination_sync:"+runIDs[0] {
+	if j.Executor != "go" || j.FireKey != "destination_sync:"+runIDs[0] {
 		t.Errorf("job = %+v", j)
 	}
 	if !reflect.DeepEqual(jsonOf(raw(j.Payload)), map[string]any{"workspace_id": wsA, "run_id": runIDs[0], "fire_key": "destination_sync:" + runIDs[0]}) {
@@ -736,10 +736,10 @@ func TestCancelAndRetryRuns(t *testing.T) {
 			t.Errorf("cancel unknown: %v", err)
 		}
 		// retry
-		if _, err := deststore.RetryRun(ctx, tx, "p10t7-k-done", func(string) string { return "python" }); !errors.Is(err, deststore.ErrNotRetryable) {
+		if _, err := deststore.RetryRun(ctx, tx, "p10t7-k-done", func(string) string { return "go" }); !errors.Is(err, deststore.ErrNotRetryable) {
 			t.Errorf("retry completed: %v", err)
 		}
-		if _, err := deststore.RetryRun(ctx, tx, "nope", func(string) string { return "python" }); !errors.Is(err, deststore.ErrRunNotFound) {
+		if _, err := deststore.RetryRun(ctx, tx, "nope", func(string) string { return "go" }); !errors.Is(err, deststore.ErrRunNotFound) {
 			t.Errorf("retry unknown: %v", err)
 		}
 		r, err = deststore.RetryRun(ctx, tx, "p10t7-k-failed", func(ty string) string {

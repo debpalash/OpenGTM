@@ -32,7 +32,7 @@ type Service struct {
 	Secrets autosvc.SecretChecker
 	// Outbound is the webhook_secret_ref policy (zero value: default prefixes, no registry deny-list).
 	Outbound secrets.OutboundPolicy
-	// ExecFor is go_executor.watch_poll_executor (nil: python).
+	// ExecFor is go_executor.watch_poll_executor (nil: go).
 	ExecFor func(ws string) string
 	Now     func() time.Time
 	Log     *slog.Logger
@@ -47,12 +47,8 @@ func (s *Service) now() time.Time {
 	return time.Now().UTC().Truncate(time.Microsecond)
 }
 
-func (s *Service) executor(ws string) string {
-	if s.ExecFor != nil && s.ExecFor(ws) == "go" {
-		return "go"
-	}
-	return "python"
-}
+// executor is "go": the only executor since the plan 15 cutover (ExecFor is no longer consulted).
+func (s *Service) executor(string) string { return "go" }
 
 func (s *Service) pcfg() poller.Config { return poller.Config{DefaultInterval: s.Cfg.DefaultInterval} }
 

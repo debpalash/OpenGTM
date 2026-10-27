@@ -386,10 +386,7 @@ func (e *env) runSchedule(t *testing.T, tz, scenario string, goExec bool) {
 		if err != nil {
 			return err
 		}
-		exec := func(string) string { return "python" }
-		if goExec {
-			exec = func(string) string { return "go" }
-		}
+		exec := func(string) string { return "go" }
 		next, err = SchedulePolicy(ctx, tx, &p, now, exec)
 		return err
 	})
@@ -452,9 +449,7 @@ func (e *env) runSchedule(t *testing.T, tz, scenario string, goExec bool) {
 				// Go deviation from the Python vector (which leaves it NULL): the scheduled job
 				// carries its workspace (tenant cap); the handler accepts both.
 				j["workspace_id"] = ws
-				if goExec {
-					j["executor"] = "go"
-				}
+				j["executor"] = "go" // the only executor since the plan 15 cutover
 			}
 		}
 		// Python ordered by fire_key too (same collation-independent ASCII keys).

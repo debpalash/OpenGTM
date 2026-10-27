@@ -12,25 +12,14 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 )
 
-// CohortExecutor is go_executor.trigger_eval_executor: "go" only when GO_EXECUTOR_ENABLED,
-// the per-job-kind flag (kindEnabled: GO_EXECUTOR_TRIGGER_EVAL or GO_EXECUTOR_WATCH_POLL) and the workspace is in
-// GO_EXECUTOR_WORKSPACES (workspaces); otherwise "python".
-// Legacy-outreach / non-Go re-enrich hand-back is decided later by the Go worker.
-func CohortExecutor(enabled, kindEnabled bool, workspaces map[string]bool) func(ws string) string {
-	return func(ws string) string {
-		if enabled && kindEnabled && (workspaces["*"] || workspaces[ws]) {
-			return "go"
-		}
-		return "python"
-	}
+// CohortExecutor names the executor of a trigger_eval / watch_poll job: always "go" since the plan 15
+// cutover (the cohort and per-kind flags are retired; the arguments are no longer consulted).
+func CohortExecutor(bool, bool, map[string]bool) func(ws string) string {
+	return func(string) string { return "go" }
 }
 
-func (h *hook) executor(ws string) string {
-	if h.exec != nil && h.exec(ws) == "go" {
-		return "go"
-	}
-	return "python"
-}
+// executor is "go": the only executor since the plan 15 cutover.
+func (h *hook) executor(string) string { return "go" }
 
 // guarded runs fn in a savepoint of the caller's transaction. A failure rolls the savepoint back
 // (the caller's tx stays usable), is logged without secrets, swallowed, and yields 0.

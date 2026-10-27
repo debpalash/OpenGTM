@@ -25,7 +25,7 @@ import (
 type Service struct {
 	Pool *pgxpool.Pool
 	Cfg  Config
-	// ExecFor is go_executor.trigger_eval_executor (nil: python).
+	// ExecFor is go_executor.trigger_eval_executor (nil: go).
 	ExecFor func(ws string) string
 	Now     func() time.Time
 	Log     *slog.Logger
@@ -38,12 +38,8 @@ func (s *Service) now() time.Time {
 	return time.Now().UTC()
 }
 
-func (s *Service) executor(ws string) string {
-	if s.ExecFor != nil && s.ExecFor(ws) == "go" {
-		return "go"
-	}
-	return "python"
-}
+// executor is "go": the only executor since the plan 15 cutover (ExecFor is no longer consulted).
+func (s *Service) executor(string) string { return "go" }
 
 func (s *Service) log() *slog.Logger {
 	if s.Log != nil {

@@ -137,7 +137,7 @@ func TestFireKeyAndPayloadEqualPythonJobRow(t *testing.T) {
 	key := poller.ScheduledFireKey(wID, next)
 	var created bool
 	inTx(t, ctx, pool, wsA, func(tx pgx.Tx) (err error) {
-		created, err = poller.EnqueuePollIfAbsent(ctx, tx, key, wsA, wID, next, false, "python")
+		created, err = poller.EnqueuePollIfAbsent(ctx, tx, key, wsA, wID, next, false, "go")
 		return
 	})
 	if !created {
@@ -148,7 +148,7 @@ func TestFireKeyAndPayloadEqualPythonJobRow(t *testing.T) {
 		t.Fatalf("jobs = %d", len(js))
 	}
 	j := js[0]
-	if j.Type != "watch_poll" || j.Executor != "python" || j.Status != "pending" || j.Priority != 1 || j.MaxRetries != 3 || j.FireKey != key || !j.NextRunAt.Equal(next) {
+	if j.Type != "watch_poll" || j.Executor != "go" || j.Status != "pending" || j.Priority != 1 || j.MaxRetries != 3 || j.FireKey != key || !j.NextRunAt.Equal(next) {
 		t.Fatalf("job = %+v", j)
 	}
 	var p map[string]any
@@ -272,7 +272,7 @@ func TestMirrorWrittenInSameTx(t *testing.T) {
 	}
 	// Rolled-back transaction leaves neither the job, the mirror nor the watch change.
 	err := tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
-		if _, err := poller.RescheduleWatch(ctx, tx, loadWatch(t, ctx, tx, wsA), false, vNow, cfg, "python"); err != nil {
+		if _, err := poller.RescheduleWatch(ctx, tx, loadWatch(t, ctx, tx, wsA), false, vNow, cfg, "go"); err != nil {
 			return err
 		}
 		return fmt.Errorf("boom")
@@ -284,7 +284,7 @@ func TestMirrorWrittenInSameTx(t *testing.T) {
 		t.Fatal("rolled-back reschedule leaked rows")
 	}
 	inTx(t, ctx, pool, wsA, func(tx pgx.Tx) error {
-		_, err := poller.RescheduleWatch(ctx, tx, loadWatch(t, ctx, tx, wsA), false, vNow, cfg, "python")
+		_, err := poller.RescheduleWatch(ctx, tx, loadWatch(t, ctx, tx, wsA), false, vNow, cfg, "go")
 		return err
 	})
 	if n, en := mirror(); n != 1 || !en || len(jobs(t, ctx, pool, "watch:"+wID+":%")) != 1 {
@@ -537,7 +537,7 @@ func TestRescheduleBackoffTable(t *testing.T) {
 		cf.MaxConsecutiveFailures = maxF
 		var got poller.Watch
 		inTx(t, ctx, pool, wsA, func(tx pgx.Tx) (err error) {
-			got, err = poller.RescheduleWatch(ctx, tx, loadWatch(t, ctx, tx, wsA), c.Failed, vNow, cf, "python")
+			got, err = poller.RescheduleWatch(ctx, tx, loadWatch(t, ctx, tx, wsA), c.Failed, vNow, cf, "go")
 			return
 		})
 		if got.ConsecutiveFailures != c.Fails || got.Enabled != c.Enabled {
@@ -565,7 +565,7 @@ func TestRescheduleBackoffTable(t *testing.T) {
 			for k, raw := range e {
 				m := raw.(map[string]any)
 				wantKey := strings.Replace(m["fire_key"].(string), "w-1", wID, 1)
-				if js[k].FireKey != wantKey || js[k].Executor != m["executor"] {
+				if js[k].FireKey != wantKey || js[k].Executor != "go" { // the vector's executor is Python's
 					t.Errorf("%s: job %+v want %v", tag, js[k], m)
 				}
 				var p map[string]any
@@ -732,7 +732,7 @@ func TestReconcileRetryVsFinal(t *testing.T) {
 		if c.Error != nil {
 			reason = *c.Error
 		}
-		d := poller.Deps{Pool: pool, Cfg: cfg, Now: func() time.Time { return vNow }, ExecutorFor: func(string) string { return "python" }}
+		d := poller.Deps{Pool: pool, Cfg: cfg, Now: func() time.Time { return vNow }, ExecutorFor: func(string) string { return "go" }}
 		err := poller.Reconcile(ctx, d, queue.FailureNotice{JobID: 7, JobType: "watch_poll", WorkspaceID: wsA, Payload: pb, Reason: reason, WillRetry: c.WillRetry})
 		if c.Raised != nil {
 			if err == nil || err.Error() != c.Raised.Message {
@@ -776,14 +776,14 @@ func TestAutoDisableCancelsPendingRetry(t *testing.T) {
 	pool, ctx := setup(t)
 	seed{ID: wID, WS: wsA, Interval: sp("daily"), Anchor: &vAnchor, Enabled: true, Fails: 11}.insert(t, ctx, pool)
 	inTx(t, ctx, pool, wsA, func(tx pgx.Tx) error {
-		ok, err := poller.EnqueuePollIfAbsent(ctx, tx, "watch:"+wID+":retry", wsA, wID, vNow.Add(time.Minute), false, "python")
+		ok, err := poller.EnqueuePollIfAbsent(ctx, tx, "watch:"+wID+":retry", wsA, wID, vNow.Add(time.Minute), false, "go")
 		if !ok {
 			t.Fatal("enqueue")
 		}
 		return err
 	})
 	js := jobs(t, ctx, pool, "watch:"+wID+":retry")
-	d := poller.Deps{Pool: pool, Cfg: cfg, Now: func() time.Time { return vNow }, ExecutorFor: func(string) string { return "python" }}
+	d := poller.Deps{Pool: pool, Cfg: cfg, Now: func() time.Time { return vNow }, ExecutorFor: func(string) string { return "go" }}
 	pb, _ := json.Marshal(map[string]string{"workspace_id": wsA, "watch_id": wID})
 	if err := poller.Reconcile(ctx, d, queue.FailureNotice{JobID: js[0].ID, JobType: "watch_poll", WorkspaceID: wsA, Payload: pb, Reason: "boom", WillRetry: true}); err != nil {
 		t.Fatal(err)
@@ -799,7 +799,7 @@ func TestReconcileTenantScoped(t *testing.T) {
 	pool, ctx := setup(t)
 	// The same watch id lives in workspace B; a failure for workspace A's payload must not touch it.
 	seed{ID: wID, WS: wsB, Interval: sp("daily"), Anchor: &vAnchor, Enabled: true}.insert(t, ctx, pool)
-	d := poller.Deps{Pool: pool, Cfg: cfg, Now: func() time.Time { return vNow }, ExecutorFor: func(string) string { return "python" }}
+	d := poller.Deps{Pool: pool, Cfg: cfg, Now: func() time.Time { return vNow }, ExecutorFor: func(string) string { return "go" }}
 	pb, _ := json.Marshal(map[string]string{"workspace_id": wsA, "watch_id": wID})
 	if err := poller.Reconcile(ctx, d, queue.FailureNotice{JobID: 99999, JobType: "watch_poll", WorkspaceID: wsA, Payload: pb, Reason: "boom", WillRetry: false}); err != nil {
 		t.Fatal(err)

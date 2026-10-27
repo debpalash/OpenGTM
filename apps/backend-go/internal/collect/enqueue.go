@@ -14,15 +14,15 @@ import (
 // only from jobs.workspace_id).
 var ErrNoWorkspace = errors.New("collect: enqueue without a workspace")
 
-// Enqueue is queue_service.add_job(priority 1, max_retries 3) for collect / bulk_enrich with the
-// executor the cohort chose (config.CollectExecutor / BulkEnrichExecutor). q may be the caller's
+// Enqueue is queue_service.add_job(priority 1, max_retries 3) for collect / bulk_enrich. executor must
+// be "go" (config.CollectExecutor / BulkEnrichExecutor; the only executor since the cutover). q may be the caller's
 // transaction. The payload keeps struct key order, without HTML escaping.
 func Enqueue(ctx context.Context, q gen.DBTX, jobType, workspaceID, executor string, payload any, fireKey string) (int64, error) {
 	if workspaceID == "" {
 		return 0, ErrNoWorkspace
 	}
 	if executor != "go" {
-		executor = "python"
+		return 0, fmt.Errorf("collect: executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)

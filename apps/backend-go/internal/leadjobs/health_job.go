@@ -78,7 +78,7 @@ func (d Deps) executor() string {
 	if d.Executor != nil {
 		return d.Executor()
 	}
-	return "python"
+	return "go"
 }
 
 func truthy(v string) bool {
@@ -264,8 +264,8 @@ func (d Deps) enqueueIfAbsent(ctx context.Context, tx pgx.Tx, selfID int64, k kn
 		return false, nil
 	}
 	executor := d.executor()
-	if executor != "go" && executor != "python" {
-		return false, fmt.Errorf("source_health: executor %q must be go or python", executor)
+	if executor != "go" {
+		return false, fmt.Errorf("source_health: executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
 	next := nextRunAt(k.interval, d.now())
 	key := FireKey(next)

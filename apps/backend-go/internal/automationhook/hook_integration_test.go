@@ -114,7 +114,7 @@ func TestEnqueuesOneJobPerCoveringRule(t *testing.T) {
 		t.Fatalf("jobs=%d", len(got))
 	}
 	for _, j := range got {
-		if j.Executor != "python" || j.Status != "pending" || j.Priority != 1 || j.WorkspaceID != ws || j.FireKey != nil {
+		if j.Executor != "go" || j.Status != "pending" || j.Priority != 1 || j.WorkspaceID != ws || j.FireKey != nil {
 			t.Fatalf("job row %+v", j)
 		}
 	}
@@ -191,7 +191,8 @@ func TestPayloadMatchesPythonJob(t *testing.T) {
 	}
 	for i, w := range rec.Jobs {
 		g := got[i]
-		if g.Type != w.Type || g.Priority != w.Priority || g.Executor != w.Executor || (g.FireKey == nil) != (w.FireKey == nil) {
+		// The recorded executor is Python's; every job is go since the plan 15 cutover.
+		if g.Type != w.Type || g.Priority != w.Priority || g.Executor != "go" || (g.FireKey == nil) != (w.FireKey == nil) {
 			t.Fatalf("job %d row mismatch: %+v vs %+v", i, g, w)
 		}
 		if compact(t, json.RawMessage(g.Payload)) != compact(t, w.Payload) {

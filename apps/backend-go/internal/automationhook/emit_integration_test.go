@@ -243,7 +243,7 @@ func TestExecutorColumnFollowsPolicy(t *testing.T) {
 	if len(got) != 2 || got[0].Executor != "go" || got[1].Executor != "go" {
 		t.Fatalf("%+v", got)
 	}
-	// cohort miss, flag off, and nonsense executor all land on python
+	// cohort miss, flag off, and a nonsense executor all land on go (the only executor since the plan 15 cutover)
 	for _, ex := range []func(string) string{
 		automationhook.CohortExecutor(true, true, map[string]bool{"other": true}),
 		automationhook.CohortExecutor(true, false, map[string]bool{emWS: true}),
@@ -253,7 +253,7 @@ func TestExecutorColumnFollowsPolicy(t *testing.T) {
 		_, _ = pool.Exec(ctx, `DELETE FROM jobs WHERE type='trigger_eval'`)
 		h := automationhook.NewWithExecutor(true, ex, slog.Default())
 		inTx(t, pool, ctx, emWS, func(tx pgx.Tx) error { _, err := h.RowsAdded(ctx, tx, emWS, "wb", []int64{1}); return err })
-		if g := jobs(t, pool, ctx); len(g) != 1 || g[0].Executor != "python" {
+		if g := jobs(t, pool, ctx); len(g) != 1 || g[0].Executor != "go" {
 			t.Fatalf("%+v", g)
 		}
 	}

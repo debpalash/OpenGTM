@@ -51,14 +51,14 @@ type SignalRef struct {
 // DefaultMaxTargets is INTENT_POLLER_MAX_FIRES_PER_SIGNAL's default (D4 fan-out cap).
 const DefaultMaxTargets = 200
 
-// New returns a Hook that always enqueues for the python executor. When enabled is false
+// New returns a Hook that enqueues for the go executor. When enabled is false
 // (AUTOMATIONS_ENABLED off) every call returns 0 without touching the database.
 func New(enabled bool, log *slog.Logger) Hook {
 	return NewWithOptions(enabled, nil, log, DefaultMaxTargets)
 }
 
 // NewWithExecutor is New with go_executor.trigger_eval_executor: exec(ws) names the executor
-// column of each inserted job ("go" or "python"; anything else is "python"; nil is python).
+// column of each inserted job. Since the plan 15 cutover every job is "go" and exec is not consulted.
 func NewWithExecutor(enabled bool, exec func(ws string) string, log *slog.Logger) Emitter {
 	return NewWithOptions(enabled, exec, log, DefaultMaxTargets)
 }

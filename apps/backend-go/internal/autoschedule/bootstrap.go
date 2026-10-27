@@ -28,7 +28,7 @@ func BootstrapForTrigger(ctx context.Context, tx pgx.Tx, t Trigger, now time.Tim
 // BootstrapSchedules is bootstrap_schedules: read the non-RLS mirror for due
 // rows with no workspace scope (the only cross-tenant read), then re-enter
 // tenancy.InWorkspace per rule, skipping missing, disabled or non-on_schedule
-// rules, and enqueue. execFor picks the executor per workspace (nil: python).
+// rules, and enqueue. execFor picks the executor per workspace (nil: go).
 // A failing rule does not stop the others; the errors are joined.
 func BootstrapSchedules(ctx context.Context, pool *pgxpool.Pool, now time.Time, execFor func(ws string) string) (int, error) {
 	due, err := gen.New(pool).DueScheduledTriggers(ctx, tstz(now))
@@ -38,7 +38,7 @@ func BootstrapSchedules(ctx context.Context, pool *pgxpool.Pool, now time.Time, 
 	var errs []error
 	enqueued := 0
 	for _, d := range due {
-		executor := "python"
+		executor := "go"
 		if execFor != nil {
 			executor = execFor(d.WorkspaceID)
 		}

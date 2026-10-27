@@ -38,12 +38,7 @@ func TestBootstrapWatchSchedules(t *testing.T) {
 	// A mirror row naming A's watch under workspace B must not touch A's watch.
 	inTx(t, ctx, pool, wsB, func(tx pgx.Tx) error { return poller.MirrorSet(ctx, tx, pfx+"later", wsB, nil, true) })
 
-	exec := func(ws string) string {
-		if ws == wsA {
-			return "go"
-		}
-		return "python"
-	}
+	exec := func(string) string { return "go" }
 	n, err := poller.BootstrapWatchSchedules(ctx, pool, vNow, cfg, exec)
 	if err != nil || n != 1 {
 		t.Fatalf("enqueued %d err %v", n, err)
@@ -91,7 +86,7 @@ func TestBootstrapWatchSchedulesIfGates(t *testing.T) {
 	if n, err := poller.BootstrapWatchSchedulesIf(ctx, pool, true, true, vNow, cfg, nil); err != nil || n != 1 {
 		t.Fatalf("enabled: %d %v", n, err)
 	}
-	if js := jobs(t, ctx, pool, "watch:"+pfx+"%"); len(js) != 1 || js[0].Executor != "python" {
-		t.Fatalf("nil execFor must be python: %+v", js)
+	if js := jobs(t, ctx, pool, "watch:"+pfx+"%"); len(js) != 1 || js[0].Executor != "go" {
+		t.Fatalf("nil execFor must be go: %+v", js)
 	}
 }

@@ -50,8 +50,8 @@ func truncRunes(s string, n int) string {
 // ..." (cut to 1000 characters) and one more consecutive failure. On a retry the
 // queue's next_run_at is mirrored into next_refresh_at and the schedule row
 // (the queue's job is not cancelled); after a terminal failure ScheduleNext
-// creates the next regular occurrence. executorFor picks "go" or "python" for
-// that job per workspace (nil: python). now is the aware UTC clock.
+// creates the next regular occurrence. executorFor picks the executor (always "go" since the plan 15 cutover) for
+// that job per workspace (nil: go). now is the aware UTC clock.
 func ReconcileFailure(ctx context.Context, pool *pgxpool.Pool, executorFor func(ws string) string, jobID int64, payload map[string]any, errText string, willRetry bool, now time.Time) error {
 	ws, id := payloadID(payload, "workspace_id"), payloadID(payload, "audience_id")
 	if ws == "" || id == "" {
@@ -61,7 +61,7 @@ func ReconcileFailure(ctx context.Context, pool *pgxpool.Pool, executorFor func(
 		return fmt.Errorf("audiencesched: job id %d out of range", jobID)
 	}
 	now = now.UTC().Truncate(time.Microsecond)
-	executor := "python"
+	executor := "go"
 	if executorFor != nil {
 		executor = executorFor(ws)
 	}

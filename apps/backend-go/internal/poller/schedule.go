@@ -212,8 +212,8 @@ type pollPayload struct {
 // insert (no follow-up UPDATE a crash could separate). tx must be inside
 // tenancy.InWorkspace; the job rolls back with it.
 func EnqueuePollIfAbsent(ctx context.Context, tx pgx.Tx, fireKey, ws, watchID string, next time.Time, pollNow bool, executor string) (bool, error) {
-	if executor != "go" && executor != "python" {
-		return false, fmt.Errorf("poller: executor %q must be go or python", executor)
+	if executor != "go" {
+		return false, fmt.Errorf("poller: executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
 	if fireKey == "" || ws == "" || watchID == "" {
 		return false, errors.New("poller: enqueue needs fire key, workspace and watch")

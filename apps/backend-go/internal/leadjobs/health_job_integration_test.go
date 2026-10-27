@@ -317,12 +317,12 @@ func TestRescheduleSingleFlight(t *testing.T) {
 		t.Fatal(payload)
 	}
 	// the executor of the next job follows the current flags
-	d.Executor = func() string { return "python" }
+	d.Executor = func() string { return "go" }
 	e.clean()
 	if err := HandleSourceHealthCheck(context.Background(), d, e.claim(t, "processing")); err != nil {
 		t.Fatal(err)
 	}
-	if p := e.pending(t); len(p) != 1 || p[0].executor != "python" {
+	if p := e.pending(t); len(p) != 1 || p[0].executor != "go" {
 		t.Fatalf("%v", p)
 	}
 }

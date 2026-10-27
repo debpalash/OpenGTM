@@ -186,7 +186,7 @@ func TestPayloadShapeEqualsPython(t *testing.T) {
 	pool, ctx := setup(t)
 	mkTrigger(t, ctx, pool, wsA, "trg-p", "on_schedule", true, "hourly", &anchor)
 	next := anchor.Add(time.Hour)
-	if ok, err := enqueue(ctx, pool, trig(wsA, "trg-p"), next, "python"); err != nil || !ok {
+	if ok, err := enqueue(ctx, pool, trig(wsA, "trg-p"), next, "go"); err != nil || !ok {
 		t.Fatalf("enqueue: %v %v", ok, err)
 	}
 	js := jobsFor(t, ctx, pool, wsA)
@@ -199,7 +199,7 @@ func TestPayloadShapeEqualsPython(t *testing.T) {
 	if j.Payload != wantPayload {
 		t.Errorf("payload %s", j.Payload)
 	}
-	if j.Type != "trigger_eval" || j.FireKey != key || j.Status != "pending" || j.Priority != 1 || j.MaxRetries != 3 || j.Executor != "python" {
+	if j.Type != "trigger_eval" || j.FireKey != key || j.Status != "pending" || j.Priority != 1 || j.MaxRetries != 3 || j.Executor != "go" {
 		t.Errorf("row %+v", j)
 	}
 	if !j.NextRunAt.Equal(time.Date(2026, 8, 29, 9, 0, 0, 0, time.UTC)) {
@@ -313,7 +313,7 @@ func TestBootstrapEntersWorkspaceScope(t *testing.T) {
 	if err := pool.QueryRow(ctx, `SELECT count(*) FROM triggers`).Scan(&c); err != nil || c != 0 {
 		t.Fatalf("unscoped triggers visible: %d %v", c, err)
 	}
-	execs := map[string]string{wsA: "go", wsB: "python"}
+	execs := map[string]string{wsA: "go", wsB: "go"}
 	n, err := autoschedule.BootstrapSchedules(ctx, pool, now, func(ws string) string { return execs[ws] })
 	if err != nil {
 		t.Fatal(err)
@@ -324,7 +324,7 @@ func TestBootstrapEntersWorkspaceScope(t *testing.T) {
 	if js := jobsFor(t, ctx, pool, wsA); len(js) != 1 || js[0].Executor != "go" {
 		t.Fatalf("A %+v", js)
 	}
-	if js := jobsFor(t, ctx, pool, wsB); len(js) != 1 || js[0].Executor != "python" || js[0].FireKey != "sched:trg-b:2026-08-30T08:00:00+00:00" {
+	if js := jobsFor(t, ctx, pool, wsB); len(js) != 1 || js[0].Executor != "go" || js[0].FireKey != "sched:trg-b:2026-08-30T08:00:00+00:00" {
 		t.Fatalf("B %+v", js)
 	}
 }
@@ -368,7 +368,7 @@ func TestExecutorColumnFollowsPolicy(t *testing.T) {
 	pool, ctx := setup(t)
 	mkTrigger(t, ctx, pool, wsA, "trg-e1", "on_schedule", true, "hourly", &anchor)
 	mkTrigger(t, ctx, pool, wsA, "trg-e2", "on_schedule", true, "hourly", &anchor)
-	for id, ex := range map[string]string{"trg-e1": "go", "trg-e2": "python"} {
+	for id, ex := range map[string]string{"trg-e1": "go", "trg-e2": "go"} {
 		if ok, err := enqueue(ctx, pool, trig(wsA, id), anchor.Add(time.Hour), ex); err != nil || !ok {
 			t.Fatalf("%v %v", ok, err)
 		}
@@ -377,7 +377,7 @@ func TestExecutorColumnFollowsPolicy(t *testing.T) {
 	for _, j := range jobsFor(t, ctx, pool, wsA) {
 		got[j.FireKey] = j.Executor
 	}
-	if got["sched:trg-e1:2026-08-29T09:00:00+00:00"] != "go" || got["sched:trg-e2:2026-08-29T09:00:00+00:00"] != "python" {
+	if got["sched:trg-e1:2026-08-29T09:00:00+00:00"] != "go" || got["sched:trg-e2:2026-08-29T09:00:00+00:00"] != "go" {
 		t.Fatalf("executors %v", got)
 	}
 	if _, err := enqueue(ctx, pool, trig(wsA, "trg-e1"), anchor.Add(5*time.Hour), "rust"); err == nil {

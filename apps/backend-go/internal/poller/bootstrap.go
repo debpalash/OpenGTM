@@ -18,7 +18,7 @@ import (
 // watch, skip missing or disabled watches (a watch of another workspace named by a mirror row
 // is "missing": the load is workspace scoped) and enqueue single-flight under the exact key
 // Python locks. On a created job the watch's next_poll_at and the mirror advance in the same
-// transaction. execFor picks the executor per workspace (nil: python). A failing watch does
+// transaction. execFor picks the executor per workspace (nil: go). A failing watch does
 // not stop the others; the errors are joined. The returned count is the jobs created.
 func BootstrapWatchSchedules(ctx context.Context, pool *pgxpool.Pool, now time.Time, cfg Config, execFor func(ws string) string) (int, error) {
 	due, err := gen.New(pool).PollDueMirror(ctx, tsz(&now))
@@ -28,7 +28,7 @@ func BootstrapWatchSchedules(ctx context.Context, pool *pgxpool.Pool, now time.T
 	var errs []error
 	enqueued := 0
 	for _, d := range due {
-		executor := "python"
+		executor := "go"
 		if execFor != nil {
 			executor = execFor(d.WorkspaceID)
 		}

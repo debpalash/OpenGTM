@@ -41,7 +41,7 @@ func enqueueSync(ctx context.Context, tx pgx.Tx, ws, runID, executor string) err
 // atomic even when the caller commits after an error: the writes sit in a savepoint
 // that a failed enqueue rolls back. wsID must be the transaction's tenant;
 // ErrNotFound / ErrDisabled for an unknown or disabled destination; executor is
-// "go" or "python"; requestedBy "" stores NULL.
+// "go" (the only executor since the plan 15 cutover); requestedBy "" stores NULL.
 func StartRun(ctx context.Context, tx pgx.Tx, wsID, destID, requestedBy, executor string) (Run, bool, error) {
 	return startRun(ctx, tx, wsID, destID, requestedBy, func(Destination) string { return executor })
 }
@@ -93,7 +93,7 @@ func startRun(ctx context.Context, tx pgx.Tx, wsID, destID, requestedBy string, 
 // "audience_refresh") for every enabled destination of the audience that has no
 // active run; it returns how many were started. executorFor picks the job's
 // executor per destination type and is only asked when a sync is actually started
-// (nil: python).
+// (nil: go).
 func EnqueueAudienceSyncs(ctx context.Context, tx pgx.Tx, wsID, audienceID string, executorFor func(destType string) string) (int, error) {
 	if err := requireTenant(ctx, tx, wsID); err != nil {
 		return 0, err
@@ -104,7 +104,7 @@ func EnqueueAudienceSyncs(ctx context.Context, tx pgx.Tx, wsID, audienceID strin
 	}
 	pick := func(d Destination) string {
 		if executorFor == nil {
-			return "python"
+			return "go"
 		}
 		return executorFor(d.Type)
 	}
@@ -149,7 +149,7 @@ func RetryRun(ctx context.Context, tx pgx.Tx, runID string, executorFor func(des
 	if !dest.Enabled {
 		return Run{}, ErrDisabled
 	}
-	executor := "python"
+	executor := "go"
 	if executorFor != nil {
 		executor = executorFor(dest.Type)
 	}

@@ -35,8 +35,8 @@ type Deps struct {
 	// Progress carries the best-effort source_page event (nil = none).
 	Progress progress.Publisher
 	Log      *slog.Logger
-	// Executor picks the executor of a new job per workspace ("go" or
-	// "python"); nil = always "python". See ExecutorFor.
+	// Executor picks the executor of a new job per workspace; nil = "go", the only
+	// executor since the plan 15 cutover. See ExecutorFor.
 	Executor func(workspaceID string) string
 }
 
@@ -47,28 +47,10 @@ func (d Deps) log() *slog.Logger {
 	return slog.Default()
 }
 
-// ExecutorFor is go_executor.ambitionbox_executor: "go" only when
-// GO_EXECUTOR_ENABLED, GO_EXECUTOR_AMBITIONBOX and cohort membership
-// (GO_EXECUTOR_WORKSPACES, comma separated) all hold.
-func ExecutorFor(getenv func(string) string) func(string) string {
-	truthy := func(k string) bool {
-		switch strings.ToLower(strings.TrimSpace(getenv(k))) {
-		case "1", "true", "yes", "on", "t", "y":
-			return true
-		}
-		return false
-	}
-	return func(ws string) string {
-		if !truthy("GO_EXECUTOR_ENABLED") || !truthy("GO_EXECUTOR_AMBITIONBOX") {
-			return "python"
-		}
-		for _, w := range strings.Split(getenv("GO_EXECUTOR_WORKSPACES"), ",") {
-			if w = strings.TrimSpace(w); w != "" && (w == "*" || w == ws) {
-				return "go"
-			}
-		}
-		return "python"
-	}
+// ExecutorFor names the executor of a new ambitionbox_import job: always "go" (GO_EXECUTOR_AMBITIONBOX and
+// the cohort flags are retired, plan 15 WP-CUTOVER). getenv is no longer consulted.
+func ExecutorFor(func(string) string) func(string) string {
+	return func(string) string { return "go" }
 }
 
 // StartParams are the inputs of start_ambitionbox_import.
@@ -146,12 +128,12 @@ func Start(ctx context.Context, d Deps, p StartParams) (StartResult, error) {
 	if maxPages < 1 {
 		maxPages = 1
 	}
-	executor := "python"
+	executor := "go"
 	if d.Executor != nil {
 		executor = d.Executor(p.WorkspaceID)
 	}
-	if executor != "go" && executor != "python" {
-		return StartResult{}, fmt.Errorf("ambitionimport: executor %q must be go or python", executor)
+	if executor != "go" {
+		return StartResult{}, fmt.Errorf("ambitionimport: executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
 	name := strings.TrimSpace(p.Name)
 	workbookID := ""

@@ -88,7 +88,7 @@ func TestSignalsInsertedEnqueuesLikePythonOnSignal(t *testing.T) {
 	}
 	byTrigger := map[string]job{}
 	for _, j := range got {
-		if j.Executor != "python" || j.Status != "pending" || j.Priority != 1 || j.WorkspaceID != sigWS || j.FireKey != nil && *j.FireKey != "" {
+		if j.Executor != "go" || j.Status != "pending" || j.Priority != 1 || j.WorkspaceID != sigWS || j.FireKey != nil && *j.FireKey != "" {
 			t.Fatalf("job %+v", j)
 		}
 		for _, id := range []string{"r-any", "r-hire"} {

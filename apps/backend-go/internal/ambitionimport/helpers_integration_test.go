@@ -195,7 +195,7 @@ func newEnv(t *testing.T) *env {
 		fetch: &fakeFetch{pages: map[int]sourceingest.Page{}, fail: map[int]string{}, before: map[int]func(){}, fired: map[string]bool{}},
 		pub:   &capPub{}, hook: &capHook{}}
 	e.d = ambitionimport.Deps{Pool: pool, Fetcher: e.fetch, Hook: e.hook, Progress: e.pub,
-		Executor: func(string) string { return "python" }}
+		Executor: func(string) string { return "go" }}
 	clean := func() {
 		for _, w := range []string{wsA, wsB} {
 			_ = tenancy.InWorkspace(ctx, pool, w, func(tx pgx.Tx) error {

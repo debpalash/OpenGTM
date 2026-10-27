@@ -131,7 +131,7 @@ func TestStartMatchesVectors(t *testing.T) {
 			if err := e.owner.QueryRow(e.ctx, `SELECT type, executor, priority, payload::text FROM jobs WHERE id=$1`, res.JobID).Scan(&typ, &exec, &prio, &payload); err != nil {
 				t.Fatal(err)
 			}
-			if typ != "ambitionbox_import" || exec != "python" || prio != 2 {
+			if typ != "ambitionbox_import" || exec != "go" || prio != 2 {
 				t.Fatalf("job %s %s %d", typ, exec, prio)
 			}
 			if got := strings.Join(orderedKeys(t, payload), ","); got != "workspace_id,workbook_id,run_id" {
@@ -271,7 +271,7 @@ func TestStartForeignWorkbookNotFound(t *testing.T) {
 
 func TestStartEnqueuesWithExecutorFlag(t *testing.T) {
 	e := newEnv(t)
-	for _, want := range []string{"go", "python"} {
+	for _, want := range []string{"go"} {
 		want := want
 		e.d.Executor = func(ws string) string {
 			if ws != wsA {
@@ -294,6 +294,7 @@ func TestStartEnqueuesWithExecutorFlag(t *testing.T) {
 	}
 }
 
+// The flags are retired (plan 15 cutover): every ambitionbox_import job is go.
 func TestExecutorFor(t *testing.T) {
 	env := func(m map[string]string) func(string) string { return func(k string) string { return m[k] } }
 	cases := []struct {
@@ -302,12 +303,12 @@ func TestExecutorFor(t *testing.T) {
 		ws   string
 		want string
 	}{
-		{"all off", nil, "w1", "python"},
-		{"flag only", map[string]string{"GO_EXECUTOR_AMBITIONBOX": "true"}, "w1", "python"},
-		{"enabled and flag, no cohort", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_AMBITIONBOX": "true"}, "w1", "python"},
+		{"all off", nil, "w1", "go"},
+		{"flag only", map[string]string{"GO_EXECUTOR_AMBITIONBOX": "true"}, "w1", "go"},
+		{"enabled and flag, no cohort", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_AMBITIONBOX": "true"}, "w1", "go"},
 		{"cohort member", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_AMBITIONBOX": "1", "GO_EXECUTOR_WORKSPACES": "w0, w1 ,w2"}, "w1", "go"},
-		{"cohort non member", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_AMBITIONBOX": "true", "GO_EXECUTOR_WORKSPACES": "w0"}, "w1", "python"},
-		{"ambitionbox flag off", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "w1"}, "w1", "python"},
+		{"cohort non member", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_AMBITIONBOX": "true", "GO_EXECUTOR_WORKSPACES": "w0"}, "w1", "go"},
+		{"ambitionbox flag off", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "w1"}, "w1", "go"},
 	}
 	for _, c := range cases {
 		if got := ambitionimport.ExecutorFor(env(c.env))(c.ws); got != c.want {

@@ -150,7 +150,7 @@ func (d Deps) triggerPass(ctx context.Context, ws string, fired map[string]bool,
 		if err != nil {
 			return err
 		}
-		executor := "python"
+		executor := "go"
 		if d.RefreshExecutor != nil {
 			executor = d.RefreshExecutor(ws)
 		}
@@ -222,7 +222,7 @@ func (d Deps) enqueueNextScan(ctx context.Context, intervalMinutes int) error {
 	if err != nil {
 		return err
 	}
-	executor := "python"
+	executor := "go"
 	if d.ScanExecutor != nil {
 		executor = d.ScanExecutor()
 	}

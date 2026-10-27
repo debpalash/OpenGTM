@@ -65,8 +65,8 @@ func FireKey(audienceID string, next time.Time) string {
 func tstz(t time.Time) pgtype.Timestamptz { return pgtype.Timestamptz{Time: t.UTC(), Valid: true} }
 
 func checkExecutor(executor string) error {
-	if executor != "go" && executor != "python" {
-		return fmt.Errorf("audiencesched: executor %q must be go or python", executor)
+	if executor != "go" {
+		return fmt.Errorf("audiencesched: executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
 	return nil
 }
@@ -100,9 +100,8 @@ func cancelPending(ctx context.Context, q *gen.Queries, audienceID string) error
 // audience, then, when disabled, clear next_refresh_at and mirror a disabled
 // row (nil returned); otherwise next = now + clamped interval, enqueue one job
 // due then (single-flight per fire key, payload {workspace_id, audience_id,
-// fire_key}, workspace_id NULL as Python), set audiences.next_refresh_at and
-// upsert the mirror. now is taken as an aware UTC instant. executor is "go" or
-// "python".
+// fire_key}, workspace_id set: Python wrote NULL), set audiences.next_refresh_at and
+// upsert the mirror. now is taken as an aware UTC instant. executor must be "go".
 func ScheduleNext(ctx context.Context, tx pgx.Tx, a ScheduleInput, now time.Time, executor string) (*time.Time, error) {
 	if a.ID == "" {
 		return nil, errors.New("audiencesched: an audience id is required")

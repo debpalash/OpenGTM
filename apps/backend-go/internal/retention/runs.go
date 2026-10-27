@@ -98,8 +98,8 @@ func StoredDays(raw json.RawMessage) (Days, error) {
 // with fire_key retention-run:<id> and payload {workspace_id, run_id}. ErrNoPolicy / ErrLegalHold
 // refuse the request.
 func RequestRun(ctx context.Context, tx pgx.Tx, ws string, userID int32, executor string) (Run, error) {
-	if executor != "go" && executor != "python" {
-		return Run{}, fmt.Errorf("retention: executor %q must be go or python", executor)
+	if executor != "go" {
+		return Run{}, fmt.Errorf("retention: executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
 	q := gen.New(tx)
 	row, err := q.RetPolicyLockShared(ctx, ws)

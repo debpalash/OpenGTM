@@ -80,8 +80,8 @@ type schedulePayload struct {
 // in the same transaction. false when an active job already holds the key (no
 // trigger or mirror write, as in Python). tx must be inside tenancy.InWorkspace.
 func EnqueueScheduleIfAbsent(ctx context.Context, tx pgx.Tx, t Trigger, next time.Time, executor string) (bool, error) {
-	if executor != "go" && executor != "python" {
-		return false, fmt.Errorf("autoschedule: executor %q must be go or python", executor)
+	if executor != "go" {
+		return false, fmt.Errorf("autoschedule: executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
 	next = next.UTC()
 	key := FireKey(t.ID, next)

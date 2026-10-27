@@ -489,7 +489,17 @@ func TestSourceScenarioVectors(t *testing.T) {
 			}
 			diff(t, sc.Name, "emits", emits, wantEmits)
 			for k, want := range sc.State {
-				diff(t, sc.Name, "state."+k, l.walk(state[k], k), rawGeneric(t, want))
+				w := rawGeneric(t, want)
+				if k == "jobs" { // Python's recorded executor; every job is go since the plan 15 cutover
+					if js, ok := w.([]any); ok {
+						for _, j := range js {
+							if m, ok := j.(map[string]any); ok && m["executor"] == "python" {
+								m["executor"] = "go"
+							}
+						}
+					}
+				}
+				diff(t, sc.Name, "state."+k, l.walk(state[k], k), w)
 			}
 
 			// calls the fakes saw (Python's provider construction is not a call here)

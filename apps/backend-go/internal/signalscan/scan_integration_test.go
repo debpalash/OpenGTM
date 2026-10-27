@@ -310,7 +310,7 @@ func TestOnSignalOnlyForNewRows(t *testing.T) {
 		len(p.Targets) != 1 || p.Targets[0].WorkbookID != e.prefix+"wb1" || p.Targets[0].RowID != fmt.Sprint(row) {
 		t.Fatalf("payload %s", got[0].payload)
 	}
-	if got[0].exec != "python" || got[0].status != "pending" || got[0].prio != 1 {
+	if got[0].exec != "go" || got[0].status != "pending" || got[0].prio != 1 {
 		t.Fatalf("job %+v", got[0])
 	}
 
@@ -392,7 +392,7 @@ func TestTriggerPassScopedPerWorkspace(t *testing.T) {
 	e.workbookRow(t, b, "wb-none", 0, `{}`)
 
 	d := e.deps(&hiringPy{})
-	d.RefreshExecutor = func(ws string) string { return map[bool]string{true: "go", false: "python"}[ws == a] }
+	d.RefreshExecutor = func(string) string { return "go" }
 	d.ScanExecutor = func() string { return "go" }
 	claim := &queue.Claim{ID: 1, Type: "signal_scan", Payload: json.RawMessage(`{"interval_minutes": 60, "signal_types": ["hiring", "news"]}`)}
 	if err := signalscan.HandleScan(context.Background(), d, claim); err != nil {
@@ -417,7 +417,7 @@ func TestTriggerPassScopedPerWorkspace(t *testing.T) {
 		t.Fatalf("jobs landed in the wrong workspace: %v", byWS)
 	}
 	for _, j := range jobs {
-		if (j.ws == a) != (j.exec == "go") {
+		if j.exec != "go" {
 			t.Errorf("executor %s for %s", j.exec, j.ws)
 		}
 	}

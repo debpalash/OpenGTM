@@ -37,7 +37,7 @@ type Deps struct {
 	Now func() time.Time
 	// BatchRows overrides RETENTION_BATCH_ROWS / DefaultBatchRows when > 0.
 	BatchRows int
-	// ExecutorFor picks "go" or "python" for the re-scheduled job (nil: python).
+	// ExecutorFor picks the executor of the re-scheduled job (nil: "go", the only executor since the cutover).
 	ExecutorFor func(workspaceID string) string
 	// AfterBatch, when set, runs after every committed delete batch (tests, metrics).
 	AfterBatch func(category string, deleted int64)

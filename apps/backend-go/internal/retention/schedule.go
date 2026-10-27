@@ -18,15 +18,9 @@ import (
 // JobType is the queue job type of a scheduled or requested enforcement.
 const JobType = "retention_enforce"
 
-// ExecutorFor is go_executor.executor_for("retention_enforce", ws): "go" only when
-// GO_EXECUTOR_ENABLED, GO_EXECUTOR_RETENTION and the workspace is in
-// GO_EXECUTOR_WORKSPACES. An empty workspace is never in the cohort.
-func ExecutorFor(ex config.ExecutorSettings, g config.GovernanceSettings, ws string) string {
-	if ws != "" && ex.Enabled && g.GoExecutorRetention && config.InCohort(ex.Workspaces, ws) {
-		return "go"
-	}
-	return "python"
-}
+// ExecutorFor names the executor of a retention_enforce job: always "go" since the plan 15 cutover
+// (GO_EXECUTOR_RETENTION and the cohort flags are retired).
+func ExecutorFor(config.ExecutorSettings, config.GovernanceSettings, string) string { return "go" }
 
 // FireKey is the scheduled occurrence key retention:<ws>:<YYYY-MM-DD> (the date of
 // the next run in UTC: Python's now is UTC and so is its next_at.date()).
@@ -39,8 +33,8 @@ func FireKey(ws string, next time.Time) string {
 // pending retention_enforce jobs whose fire key starts retention:<ws>:, compute the
 // next run (now+1 day only when the policy is enabled and not on legal hold), set the
 // policy's next_run_at and mirror it into retention_schedules, and enqueue one job
-// due at that time (single-flight per fire key). executorFor picks "go" or "python"
-// per workspace (nil: python). The returned time is the UTC next run, nil when no
+// due at that time (single-flight per fire key). executorFor picks the executor (always "go" since the plan 15 cutover)
+// per workspace (nil: go). The returned time is the UTC next run, nil when no
 // run is scheduled; p.NextRunAt/UpdatedAt are refreshed from the stored row.
 //
 // Unlike queue.EnqueueOnce the job's next_run_at is the next occurrence, not now:
@@ -87,12 +81,12 @@ func SchedulePolicy(ctx context.Context, tx pgx.Tx, p *Policy, now time.Time, ex
 	if next == nil {
 		return nil, nil
 	}
-	executor := "python"
+	executor := "go"
 	if executorFor != nil {
 		executor = executorFor(ws)
 	}
-	if executor != "go" && executor != "python" {
-		return nil, fmt.Errorf("retention: executor %q must be go or python", executor)
+	if executor != "go" {
+		return nil, fmt.Errorf("retention: executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
 	key := FireKey(ws, *next)
 	if err := q.LockJobFireKey(ctx, key); err != nil {
