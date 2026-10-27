@@ -20,14 +20,52 @@ from browser_service.config import ConfigError, Settings
 from browser_service.egress import EgressPolicy
 
 
-class FakeFlareSolverr:
-    """Records the payload, then behaves like a browser that was told to use
-    the given proxy: it tries to open a tunnel to an internal host through it."""
+class Origin:
+    """A loopback 'website' FlareSolverr's browser can reach through the proxy."""
 
     def __init__(self):
+        self.sock = socket.socket()
+        self.sock.bind(("127.0.0.1", 0))
+        self.sock.listen()
+        self.port = self.sock.getsockname()[1]
+        threading.Thread(target=self._serve, daemon=True).start()
+
+    def _serve(self):
+        while True:
+            try:
+                conn, _ = self.sock.accept()
+            except OSError:
+                return
+            with conn:
+                conn.recv(1024)
+                conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok")
+
+    def close(self):
+        self.sock.close()
+
+
+class FakeFlareSolverr:
+    """Records the payload, then behaves like a browser told to use the given
+    proxy. mode "good": fetches the origin through it; "evil": also tries an
+    internal host through it; "ignore": never touches the proxy (a FlareSolverr
+    build that drops the proxy object)."""
+
+    def __init__(self, origin_port=0, mode="good"):
         self.payloads = []
         self.tunnel_status = []
+        self.mode = mode
         outer = self
+
+        def tunnel(proxy, target):
+            u = urlsplit(proxy["url"])
+            cred = base64.b64encode(f"{proxy.get('username', '')}:{proxy.get('password', '')}".encode())
+            with socket.create_connection((u.hostname, u.port), timeout=5) as s:
+                s.sendall(f"CONNECT {target} HTTP/1.1\r\nProxy-Authorization: Basic ".encode() + cred + b"\r\n\r\n")
+                head = s.recv(64)
+                outer.tunnel_status.append(head.split(b"\r\n")[0].decode())
+                if head.startswith(b"HTTP/1.1 200"):
+                    s.sendall(b"GET / HTTP/1.1\r\nHost: origin.test\r\n\r\n")
+                    s.recv(1024)
 
         class H(http.server.BaseHTTPRequestHandler):
             def log_message(self, *a):
@@ -37,12 +75,10 @@ class FakeFlareSolverr:
                 body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
                 outer.payloads.append(body)
                 proxy = body.get("proxy") or {}
-                if proxy.get("url"):
-                    u = urlsplit(proxy["url"])
-                    cred = base64.b64encode(f"{proxy.get('username', '')}:{proxy.get('password', '')}".encode())
-                    with socket.create_connection((u.hostname, u.port), timeout=5) as s:
-                        s.sendall(b"CONNECT evil.test:443 HTTP/1.1\r\nProxy-Authorization: Basic " + cred + b"\r\n\r\n")
-                        outer.tunnel_status.append(s.recv(64).split(b"\r\n")[0].decode())
+                if proxy.get("url") and outer.mode != "ignore":
+                    tunnel(proxy, f"origin.test:{origin_port}")
+                    if outer.mode == "evil":
+                        tunnel(proxy, "evil.test:443")
                 out = json.dumps(
                     {
                         "status": "ok",
@@ -65,9 +101,10 @@ class FakeFlareSolverr:
 
 
 @pytest.fixture
-async def setup():
-    fs = FakeFlareSolverr()
-    table = {"site.test": ["93.184.216.34"], "evil.test": ["10.0.0.7"]}
+async def setup(request):
+    origin = Origin()
+    fs = FakeFlareSolverr(origin.port, getattr(request, "param", "good"))
+    table = {"site.test": ["93.184.216.34"], "evil.test": ["10.0.0.7"], "origin.test": ["127.0.0.1"]}
 
     async def resolve(host, port):
         return table[host]
@@ -81,6 +118,7 @@ async def setup():
     await c.aclose()
     await cm.__aexit__(None, None, None)
     fs.close()
+    origin.close()
 
 
 async def test_flaresolverr_is_routed_through_the_egress_proxy(setup):
@@ -90,9 +128,28 @@ async def test_flaresolverr_is_routed_through_the_egress_proxy(setup):
     proxy = fs.payloads[0]["proxy"]
     assert proxy["url"].startswith("http://") and proxy["username"] and proxy["password"]
     assert proxy["password"] not in r.text
-    # the internal destination FlareSolverr's browser tried was refused by the proxy
-    assert fs.tunnel_status == ["HTTP/1.1 403 Forbidden"]
-    assert r.json()["blocked_requests"] == 1
+    assert fs.tunnel_status == ["HTTP/1.1 200 Connection Established"]
+    assert r.json()["blocked_requests"] == 0
+
+
+# review M2: fail closed
+
+
+@pytest.mark.parametrize("setup", ["evil"], indirect=True)
+async def test_flaresolverr_result_is_refused_when_the_proxy_refused_a_destination(setup):
+    c, fs = setup
+    r = await c.post("/v1/render", headers=AUTH, json={"url": "https://site.test/", "engine": "flaresolverr"})
+    assert fs.tunnel_status == ["HTTP/1.1 200 Connection Established", "HTTP/1.1 403 Forbidden"]
+    assert r.status_code == 403 and r.json()["error"]["code"] == "egress_blocked"
+    assert "ok" not in r.json()["error"]["message"]
+
+
+@pytest.mark.parametrize("setup", ["ignore"], indirect=True)
+async def test_flaresolverr_result_is_refused_when_the_proxy_saw_no_traffic(setup):
+    c, fs = setup
+    r = await c.post("/v1/render", headers=AUTH, json={"url": "https://site.test/", "engine": "flaresolverr"})
+    assert fs.payloads and not fs.tunnel_status
+    assert r.status_code == 502 and r.json()["error"]["code"] == "upstream_error"
 
 
 async def test_flaresolverr_session_is_closed_after_the_call(setup):
