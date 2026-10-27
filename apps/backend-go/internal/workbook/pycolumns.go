@@ -39,9 +39,11 @@ const (
 const (
 	aiTimeout       = 45 * time.Second
 	researchTimeout = 120 * time.Second
-	agentTimeout    = 120 * time.Second
 	batchTimeout    = 120 * time.Second
 )
+
+// agentTimeout bounds an agent cell on both paths (a var only so tests can shorten it).
+var agentTimeout = 120 * time.Second
 
 var pyColumnTypes = map[string]bool{rpcAIFormula: true, rpcResearch: true, rpcAgent: true}
 
