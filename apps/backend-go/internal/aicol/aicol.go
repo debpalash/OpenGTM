@@ -55,6 +55,9 @@ type Deps struct {
 	// URLCheck is the SSRF guard for model-chosen URLs (egress.CheckURLFor, strict).
 	URLCheck func(rawURL string) error
 	Now      func() time.Time
+	// Spend reserves and settles every LLM call of the cell through the workbook spend
+	// ledger (nil: no workbook, e.g. a playbook step).
+	Spend Spend
 }
 
 func (d Deps) now() time.Time {

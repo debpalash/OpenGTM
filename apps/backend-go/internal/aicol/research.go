@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"net/url"
 	"sort"
 	"strconv"
@@ -192,7 +193,7 @@ func Research(ctx context.Context, d Deps, in ResearchInput) (Result, error) {
 		if pyStrip(q) == "" {
 			return Result{Value: "", Error: "empty_prompt"}, nil
 		}
-		return runLegacy(ctx, d, g, q, in.MaxSteps)
+		return runLegacy(ctx, d, g, q, in.MaxSteps, cellBudget(ctx, d, in.Budget))
 	}
 	fenced := make(map[string]string, len(values))
 	for k, v := range values {
@@ -205,22 +206,34 @@ func Research(ctx context.Context, d Deps, in ResearchInput) (Result, error) {
 	if pyStrip(q) == "" {
 		return Result{Value: "", Error: "empty_prompt"}, nil
 	}
-	budget := 0.0
-	if in.Budget != nil {
-		budget = *in.Budget
-	} else {
-		budget = max(0.0, settingFloat(ctx, d.Settings, "RESEARCH_CELL_BUDGET_USD", defaultCellBudgetUSD))
-	}
+	budget := cellBudget(ctx, d, in.Budget)
 	res, err := runNative(ctx, d, g, q, in.MaxSteps, budget)
 	if ctx.Err() != nil {
 		return Result{}, ctx.Err()
 	}
+	if errors.Is(err, ErrSpend) {
+		return Result{}, err
+	}
 	if err != nil {
 		// The provider cannot serve native tool use (first turn failed) or the native path
 		// broke: degrade to the legacy loop with the same (fenced) question.
-		return runLegacy(ctx, d, g, q, in.MaxSteps)
+		return runLegacy(ctx, d, g, q, in.MaxSteps, budget)
 	}
 	return res, nil
+}
+
+// cellBudget is the research budget of one cell: a positive cell_budget_usd, else
+// RESEARCH_CELL_BUDGET_USD, else 0.05. A budget <= 0 is never "unlimited" (review wave 3b
+// M1; Python skipped the check for a zero budget and had none in the legacy loop).
+func cellBudget(ctx context.Context, d Deps, b *float64) float64 {
+	ok := func(f float64) bool { return f > 0 && !math.IsInf(f, 0) && !math.IsNaN(f) }
+	if b != nil && ok(*b) {
+		return *b
+	}
+	if def := settingFloat(ctx, d.Settings, "RESEARCH_CELL_BUDGET_USD", defaultCellBudgetUSD); ok(def) {
+		return def
+	}
+	return defaultCellBudgetUSD
 }
 
 func nativeEnabled(ctx context.Context, d Deps) bool {
@@ -303,13 +316,21 @@ func (d Deps) search(ctx context.Context, q string, n int) []Hit {
 }
 
 // runLegacy is _run_legacy: the ReAct loop driven by ExtractJSON, then a forced synthesis.
-func runLegacy(ctx context.Context, d Deps, g Guard, question string, maxSteps int) (Result, error) {
+// Every LLM call is accounted and the cell budget is checked before each (Go only: Python's
+// legacy loop had no USD bound): a step needs the synthesis reserve left, the synthesis
+// needs any budget left.
+func runLegacy(ctx context.Context, d Deps, g Guard, question string, maxSteps int, budget float64) (Result, error) {
 	var steps []step
 	bound := boundSteps(maxSteps, maxStepsCap)
 	justIngested := false
 	allowed := map[string]bool{}
 	system := g.withNotice(reactSystem)
+	spent, reserve := 0.0, budget*synthReserveFraction
+loop:
 	for i := 0; i < bound; i++ {
+		if spent+reserve >= budget {
+			break
+		}
 		guidance := ""
 		if justIngested {
 			guidance = "\nNote: you just read a web page. Do NOT 'fetch' another URL on " +
@@ -318,9 +339,22 @@ func runLegacy(ctx context.Context, d Deps, g Guard, question string, maxSteps i
 		}
 		user := "Question: " + question + "\n\nObservations so far:\n" + scratchpad(g, steps) + "\n" +
 			guidance + "\nChoose your next action as a JSON object."
-		decision, err := d.LLM.ExtractJSON(ctx, user, system, 400)
+		var decision map[string]any
+		cost, err := d.llmCall(ctx, "research_step", estimateMicroUSD("", len(user)+len(system), 400, 2),
+			func(ctx context.Context) (float64, error) {
+				var e error
+				decision, e = d.LLM.ExtractJSON(ctx, user, system, 400)
+				return -1, e
+			})
+		spent += cost
 		if ctx.Err() != nil {
 			return Result{}, ctx.Err()
+		}
+		if errors.Is(err, ErrSpend) {
+			return Result{}, err
+		}
+		if isSpendStop(err) {
+			break loop
 		}
 		if err != nil {
 			decision = map[string]any{}
@@ -391,10 +425,22 @@ func runLegacy(ctx context.Context, d Deps, g Guard, question string, maxSteps i
 	finalPrompt := "Question: " + question + "\n\nResearch notes:\n" + scratchpad(g, steps) + "\n\n" +
 		"Give a concise, factual final answer based ONLY on the notes above. " +
 		"If the notes are insufficient, say what's known and that it's uncertain."
-	text, err := d.LLM.Complete(ctx, llm.CompleteRequest{Prompt: finalPrompt,
-		System: g.withNotice("You are a concise research assistant."), MaxTokens: 300})
+	if spent >= budget {
+		return Result{Value: "", Error: "no_answer"}, nil
+	}
+	synthSystem := g.withNotice("You are a concise research assistant.")
+	var text string
+	_, err := d.llmCall(ctx, "research_synthesis", estimateMicroUSD("", len(finalPrompt)+len(synthSystem), 300, 1),
+		func(ctx context.Context) (float64, error) {
+			var e error
+			text, e = d.LLM.Complete(ctx, llm.CompleteRequest{Prompt: finalPrompt, System: synthSystem, MaxTokens: 300})
+			return -1, e
+		})
 	if ctx.Err() != nil {
 		return Result{}, ctx.Err()
+	}
+	if errors.Is(err, ErrSpend) {
+		return Result{}, err
 	}
 	if err != nil {
 		text = ""
@@ -461,7 +507,7 @@ var errNativeUnsupported = errors.New("native tool use unsupported")
 func runNative(ctx context.Context, d Deps, g Guard, question string, maxSteps int, budget float64) (Result, error) {
 	prov, ok := d.LLM.AnthropicProvider(ctx)
 	if !ok {
-		return runLegacy(ctx, d, g, question, maxSteps)
+		return runLegacy(ctx, d, g, question, maxSteps, budget)
 	}
 	tools := []any{searchToolDef(), fetchToolDef()}
 	messages := []any{map[string]any{"role": "user", "content": "Question: " + question}}
@@ -482,10 +528,27 @@ loop:
 			break
 		}
 		p := prov
-		resp, err := d.LLM.AnthropicTurn(ctx, llm.AnthropicRequest{Messages: messages, System: system, Tools: tools,
-			ToolChoice: toolChoice, MaxTokens: 1024, Provider: &p})
+		req := llm.AnthropicRequest{Messages: messages, System: system, Tools: tools,
+			ToolChoice: toolChoice, MaxTokens: 1024, Provider: &p}
+		var resp *llm.AnthropicResponse
+		cost, err := d.llmCall(ctx, "research_turn", estimateMicroUSD(prov.Model, jsonLen(req.Messages)+jsonLen(tools)+len(system), 1024, 1),
+			func(ctx context.Context) (float64, error) {
+				var e error
+				if resp, e = d.LLM.AnthropicTurn(ctx, req); e != nil {
+					return -1, e
+				}
+				return llm.AnthropicCostUSD(resp.Usage, prov.Model), nil
+			})
+		spent += cost
 		if ctx.Err() != nil {
 			return Result{}, ctx.Err()
+		}
+		if errors.Is(err, ErrSpend) {
+			return Result{}, err
+		}
+		if isSpendStop(err) {
+			stopped = "budget"
+			break
 		}
 		if err != nil {
 			if turns == 0 {
@@ -495,7 +558,6 @@ loop:
 			break
 		}
 		turns++
-		spent += llm.AnthropicCostUSD(resp.Usage, prov.Model)
 		toolChoice = map[string]any{"type": "auto"}
 		content := make([]any, len(resp.Content))
 		for j, b := range resp.Content {
@@ -529,7 +591,7 @@ loop:
 		messages = append(messages, map[string]any{"role": "user", "content": results})
 		continue loop
 	}
-	return synthesize(ctx, d, system, messages, rc, spent, stopped, prov)
+	return synthesize(ctx, d, system, messages, rc, spent, budget, stopped, prov)
 }
 
 func runTool(ctx context.Context, d Deps, rc *researchCtx, u toolUse, nSearch, nChars int) (string, bool) {
@@ -610,7 +672,9 @@ func parseJSONObj(text string) map[string]any {
 	return m
 }
 
-func synthesize(ctx context.Context, d Deps, system string, messages []any, rc *researchCtx, spent float64,
+// synthesize makes the structured synthesis and, when it yields no answer, the plain-text
+// fallback; each only while budget is left (a skipped synthesis stops as "budget").
+func synthesize(ctx context.Context, d Deps, system string, messages []any, rc *researchCtx, spent, budget float64,
 	stopped string, prov llm.Provider) (Result, error) {
 	synth := append(append([]any(nil), messages...), map[string]any{"role": "user",
 		"content": "Now produce your FINAL answer to the question as JSON with `answer` " +
@@ -620,13 +684,36 @@ func synthesize(ctx context.Context, d Deps, system string, messages []any, rc *
 	var rawCitations []any
 	fallback := false
 	p := prov
-	resp, err := d.LLM.AnthropicTurn(ctx, llm.AnthropicRequest{Messages: synth, System: system,
+	budgetStop := false
+	turn := func(call string, req llm.AnthropicRequest) (*llm.AnthropicResponse, error) {
+		if spent >= budget {
+			budgetStop = true
+			return nil, &SpendRefused{Reason: "research_budget"}
+		}
+		var resp *llm.AnthropicResponse
+		cost, err := d.llmCall(ctx, call, estimateMicroUSD(prov.Model, jsonLen(req.Messages)+len(system), req.MaxTokens, 1),
+			func(ctx context.Context) (float64, error) {
+				var e error
+				if resp, e = d.LLM.AnthropicTurn(ctx, req); e != nil {
+					return -1, e
+				}
+				return llm.AnthropicCostUSD(resp.Usage, prov.Model), nil
+			})
+		spent += cost
+		if isSpendStop(err) {
+			budgetStop = budgetStop || !errors.Is(err, ErrSpend)
+		}
+		return resp, err
+	}
+	resp, err := turn("research_synthesis", llm.AnthropicRequest{Messages: synth, System: system,
 		OutputFormat: map[string]any{"type": "json_schema", "schema": researchSchema()}, MaxTokens: 1024, Provider: &p})
 	if ctx.Err() != nil {
 		return Result{}, ctx.Err()
 	}
+	if errors.Is(err, ErrSpend) {
+		return Result{}, err
+	}
 	if err == nil {
-		spent += llm.AnthropicCostUSD(resp.Usage, prov.Model)
 		if data := parseJSONObj(respText(resp)); len(data) > 0 {
 			answer = pyStrip(pyGetStr(data, "answer"))
 			if l, ok := data["citations"].([]any); ok {
@@ -636,12 +723,14 @@ func synthesize(ctx context.Context, d Deps, system string, messages []any, rc *
 	}
 	if answer == "" {
 		fallback = true
-		resp, err := d.LLM.AnthropicTurn(ctx, llm.AnthropicRequest{Messages: synth, System: system, MaxTokens: 512, Provider: &p})
+		resp, err := turn("research_synthesis_fallback", llm.AnthropicRequest{Messages: synth, System: system, MaxTokens: 512, Provider: &p})
 		if ctx.Err() != nil {
 			return Result{}, ctx.Err()
 		}
+		if errors.Is(err, ErrSpend) {
+			return Result{}, err
+		}
 		if err == nil {
-			spent += llm.AnthropicCostUSD(resp.Usage, prov.Model)
 			answer = respText(resp)
 		}
 		rawCitations = nil
@@ -665,6 +754,9 @@ func synthesize(ctx context.Context, d Deps, system string, messages []any, rc *
 	}
 	if answer == "" {
 		stopped = "no_answer"
+		if budgetStop {
+			stopped = "budget"
+		}
 	}
 	meta := NewObj("research", NewObj("answer", answer, "citations", citations, "cost_usd", round6(spent),
 		"stopped_reason", stopped, "synthesis_fallback", fallback))

@@ -90,9 +90,21 @@ func AIFormula(ctx context.Context, d Deps, tmpl string, row map[string]any, col
 	if err != nil {
 		return Result{Error: truncRunes(err.Error(), 200)}, nil
 	}
-	text, err := d.LLM.Complete(ctx, llm.CompleteRequest{Prompt: prompt, System: AIColumnSystem, MaxTokens: DefaultAIMaxTokens})
+	var text string
+	exposure := estimateMicroUSD("", len(prompt)+len(AIColumnSystem), DefaultAIMaxTokens, 1)
+	_, err = d.llmCall(ctx, "ai_formula", exposure, func(ctx context.Context) (float64, error) {
+		var e error
+		text, e = d.LLM.Complete(ctx, llm.CompleteRequest{Prompt: prompt, System: AIColumnSystem, MaxTokens: DefaultAIMaxTokens})
+		return -1, e
+	})
 	if ctx.Err() != nil {
 		return Result{}, ctx.Err()
+	}
+	if errors.Is(err, ErrSpend) {
+		return Result{}, err
+	}
+	if isSpendStop(err) {
+		return Result{Error: spendText(err)}, nil
 	}
 	if err != nil || text == "" {
 		return Result{Error: "llm_returned_empty"}, nil
