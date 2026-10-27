@@ -104,7 +104,9 @@ func (e *connEnv) serve(t *testing.T, dir, policy string) {
 // serveVars is serve with an explicit environment (a key present with an empty value is "set").
 func (e *connEnv) serveVars(t *testing.T, dir string, vars map[string]string) {
 	t.Helper()
-	vars["OPENGTM_CONNECTOR_MANIFESTS_DIR"], vars["OPENGTM_CONNECTOR_TRUST_STORE"] = dir, connTrust
+	if dir != "" { // "" = neither override set: the embedded built-ins
+		vars["OPENGTM_CONNECTOR_MANIFESTS_DIR"], vars["OPENGTM_CONNECTOR_TRUST_STORE"] = dir, connTrust
+	}
 	prev := connectorsLookupEnv
 	connectorsLookupEnv = func(k string) (string, bool) { v, ok := vars[k]; return v, ok }
 	t.Cleanup(func() { connectorsLookupEnv = prev })
@@ -320,5 +322,27 @@ func TestEmptySignaturePolicyIsRequired(t *testing.T) {
 	}
 	if got := policyOf(map[string]string{}); got != "optional" {
 		t.Errorf("unset policy = %q, want optional", got)
+	}
+}
+
+// With neither override set (a distroless image, CI without legacy/python) the catalog serves the
+// manifests embedded in the binary.
+func TestCatalogDefaultsToBuiltinManifests(t *testing.T) {
+	e := newConnEnv(t)
+	e.serveVars(t, "", map[string]string{"CONNECTOR_SIGNATURE_POLICY": "optional"})
+	rec, _ := e.do("GET", "/api/connectors/catalog", "", "", e.alice)
+	if rec.Code != 200 {
+		t.Fatalf("catalog: %d %s", rec.Code, rec.Body.String())
+	}
+	var out struct {
+		Connectors []struct {
+			ID string `json:"id"`
+		} `json:"connectors"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &out); err != nil {
+		t.Fatal(err)
+	}
+	if len(out.Connectors) != 4 {
+		t.Fatalf("builtin catalog has %d connectors, want 4: %s", len(out.Connectors), rec.Body.String())
 	}
 }
