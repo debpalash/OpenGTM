@@ -16,6 +16,12 @@ def main() -> None:
         print(f"browser-service: refusing to start: {e}", file=sys.stderr)
         sys.exit(2)
 
+    # before Playwright starts: no token in the environment it inherits, and
+    # this process's memory and /proc entries closed to same-uid processes
+    from .hardening import harden_process
+
+    harden_process()
+
     import uvicorn
 
     from .app import create_app

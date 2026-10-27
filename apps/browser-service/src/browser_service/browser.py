@@ -6,7 +6,9 @@ from __future__ import annotations
 
 import asyncio
 import importlib
+import json
 import logging
+import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any
@@ -46,17 +48,35 @@ STEALTH_ARGS = [a for a in CHROMIUM_ARGS if not a.startswith("--disable-blink-fe
 DRIVERS = {"playwright": "playwright.async_api", "patchright": "patchright.async_api"}
 
 
+# The only environment Chromium gets (no token, no keys).
+BROWSER_ENV_KEYS = ("PATH", "HOME", "TMPDIR", "LANG", "LC_ALL", "TZ", "FONTCONFIG_PATH", "XDG_CACHE_HOME")
+
+
+def browser_env() -> dict[str, str]:
+    return {k: os.environ[k] for k in BROWSER_ENV_KEYS if k in os.environ}
+
+
 class BrowserUnavailable(Exception):
     pass
 
 
 class BrowserPool:
-    def __init__(self, proxy: EgressProxy, *, headless: bool = True, driver: str = "playwright") -> None:
+    def __init__(
+        self,
+        proxy: EgressProxy,
+        *,
+        headless: bool = True,
+        driver: str = "playwright",
+        sandbox: bool = True,
+        remote_ws: str = "",
+    ) -> None:
         if driver not in DRIVERS:
             raise ValueError("unknown browser driver")
         self.proxy = proxy
         self.headless = headless
         self.driver = driver
+        self.sandbox = sandbox
+        self.remote_ws = remote_ws  # split mode: a loopback Playwright server running as another uid
         self._pw: Any = None
         self._browser: Any = None
         self._lock = asyncio.Lock()
@@ -66,10 +86,16 @@ class BrowserPool:
         return self._browser is not None and self._browser.is_connected()
 
     async def start(self) -> None:
-        try:
-            await self._ensure()
-        except BrowserUnavailable:
-            logger.warning("chromium did not start; browser endpoints answer 503 until it does")
+        # split mode: the Playwright server is started next to us and may need a moment
+        attempts = 20 if self.remote_ws else 1
+        for i in range(attempts):
+            try:
+                await self._ensure()
+                return
+            except BrowserUnavailable:
+                if i + 1 < attempts:
+                    await asyncio.sleep(0.5)
+        logger.warning("chromium did not start; browser endpoints answer 503 until it does")
 
     async def stop(self) -> None:
         async with self._lock:
@@ -93,11 +119,21 @@ class BrowserPool:
                 if self._pw is None:
                     mod = importlib.import_module(DRIVERS[self.driver])
                     self._pw = await mod.async_playwright().start()
-                self._browser = await self._pw.chromium.launch(
-                    headless=self.headless,
-                    proxy={"server": self.proxy.server_url},
-                    args=STEALTH_ARGS if self.driver == "patchright" else CHROMIUM_ARGS,
-                )
+                args = STEALTH_ARGS if self.driver == "patchright" else CHROMIUM_ARGS
+                proxy = {"server": self.proxy.server_url}
+                if self.remote_ws:
+                    opts = {"headless": self.headless, "proxy": proxy, "args": args, "chromiumSandbox": self.sandbox}
+                    self._browser = await self._pw.chromium.connect(
+                        self.remote_ws, headers={"x-playwright-launch-options": json.dumps(opts)}
+                    )
+                else:
+                    self._browser = await self._pw.chromium.launch(
+                        headless=self.headless,
+                        proxy=proxy,
+                        args=args,
+                        chromium_sandbox=self.sandbox,
+                        env=browser_env(),
+                    )
             except Exception as e:
                 logger.error("chromium launch failed: %s", type(e).__name__)
                 raise BrowserUnavailable from e

@@ -135,8 +135,9 @@ async def test_split_mode_connects_to_the_playwright_server(monkeypatch):
 
 
 def test_app_passes_sandbox_and_server_settings():
-    from browser_service.app import create_app
     from conftest import make_settings
+
+    from browser_service.app import create_app
 
     app = create_app(make_settings(chromium_sandbox=False, playwright_ws="ws://127.0.0.1:8095/p", maps_stealth=True))
     deps = app.state.deps
@@ -148,6 +149,6 @@ def test_entrypoint_script_exists_and_splits_users():
     from pathlib import Path
 
     script = (Path(__file__).parent.parent / "scripts" / "entrypoint.sh").read_text()
-    assert "setpriv" in script and "--reuid=10002" in script and "--reuid=10001" in script
+    assert "setpriv" in script and "drop_to 10002" in script and "--reuid=10001" in script
     assert "run-server" in script and "env -i" in script
     assert "BROWSER_SERVICE_TOKEN" not in script.split("env -i", 1)[1].split("\n", 1)[0]

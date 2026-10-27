@@ -10,6 +10,7 @@ import ipaddress
 import os
 from collections.abc import Mapping
 from dataclasses import dataclass
+from urllib.parse import urlsplit
 
 MIN_TOKEN_LEN = 32
 MiB = 1 << 20
@@ -49,12 +50,20 @@ class Settings:
     # the deployed legacy image had only vanilla Playwright (patchright was the
     # optional `browser` extra), so off matches what production ran.
     maps_stealth: bool = False
+    # Chromium's own sandbox (review M1). In a container it needs a seccomp
+    # profile that allows user namespaces (seccomp-chromium.json).
+    chromium_sandbox: bool = True
+    # Split mode: Chromium runs as its own uid behind a loopback Playwright /
+    # patchright server started by scripts/entrypoint.sh (ws://127.0.0.1:port/path).
+    playwright_ws: str = ""
+    patchright_ws: str = ""
     # destination ports the egress proxy may open (BROWSER_EGRESS_PORTS)
     egress_ports: frozenset[int] = frozenset({80, 443})
 
-    def __repr__(self) -> str:  # keep the token out of logs and tracebacks
+    def __repr__(self) -> str:  # keep the token and the server paths out of logs and tracebacks
         return (
-            f"Settings(host={self.host!r}, port={self.port}, max_concurrency={self.max_concurrency}, token=[redacted])"
+            f"Settings(host={self.host!r}, port={self.port}, max_concurrency={self.max_concurrency}, "
+            f"split={'yes' if self.playwright_ws else 'no'}, token=[redacted])"
         )
 
     @classmethod
@@ -95,6 +104,19 @@ class Settings:
                 cidrs = tuple(ipaddress.ip_network(c.strip(), strict=False) for c in cidrs_raw.split(",") if c.strip())
             except ValueError as e:
                 raise ConfigError("BROWSER_EGRESS_ALLOW_CIDRS is not a list of CIDRs") from e
+
+        def loopback_ws(name: str) -> str:
+            raw = env.get(name, "").strip()
+            if not raw:
+                return ""
+            try:
+                u = urlsplit(raw)
+                port = u.port
+            except ValueError as e:
+                raise ConfigError(f"{name} must be ws://127.0.0.1:<port>/<path>") from e
+            if u.scheme != "ws" or u.hostname not in ("127.0.0.1", "localhost", "::1") or not port:
+                raise ConfigError(f"{name} must be ws://127.0.0.1:<port>/<path>")
+            return raw
 
         ports_raw = env.get("BROWSER_EGRESS_PORTS", "").strip()
         egress_ports = frozenset({80, 443})
@@ -145,4 +167,7 @@ class Settings:
             staffspy_enabled=flag("BROWSER_STAFFSPY_ENABLED", False),
             maps_stealth=flag("BROWSER_MAPS_STEALTH", False),
             egress_ports=egress_ports,
+            chromium_sandbox=flag("BROWSER_CHROMIUM_SANDBOX", True),
+            playwright_ws=loopback_ws("BROWSER_PLAYWRIGHT_WS"),
+            patchright_ws=loopback_ws("BROWSER_PATCHRIGHT_WS"),
         )
