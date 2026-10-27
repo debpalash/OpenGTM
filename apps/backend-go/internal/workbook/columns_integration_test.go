@@ -14,8 +14,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/spend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
@@ -53,20 +53,20 @@ func obj(kv ...any) *providers.Obj {
 // fakePy is a pyworker stand-in.
 type fakePy struct {
 	mu    sync.Mutex
-	calls []pyworker.ProviderCall
-	fn    func(ctx context.Context, c pyworker.ProviderCall) (pyworker.ProviderResult, error)
+	calls []provcall.Call
+	fn    func(ctx context.Context, c provcall.Call) (provcall.Result, error)
 }
 
-func (f *fakePy) Call(ctx context.Context, c pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+func (f *fakePy) Call(ctx context.Context, c provcall.Call) (provcall.Result, error) {
 	f.mu.Lock()
 	f.calls = append(f.calls, c)
 	f.mu.Unlock()
 	return f.fn(ctx, c)
 }
 
-func okValue(v any) pyworker.ProviderResult {
+func okValue(v any) provcall.Result {
 	b, _ := json.Marshal(map[string]any{"success": true, "fields": map[string]any{"value": v}, "confidence": 1.0, "error": ""})
-	return pyworker.ProviderResult{Status: "ok", Output: b}
+	return provcall.Result{Status: "ok", Output: b}
 }
 
 // payloadNoManifests is a v1 payload whose providers are not declarative
@@ -144,7 +144,7 @@ func TestHTTPColumnCellsMatchPython(t *testing.T) {
 func TestAIColumnViaPyworkerWritesCell(t *testing.T) {
 	e := setup(t, wsA)
 	ids := e.seed(wsA, "wb-ai", `[{"id":"a1","type":"ai_formula","name":"A1","prompt":"Describe {company}"}]`, 1, 10)
-	py := &fakePy{fn: func(_ context.Context, _ pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+	py := &fakePy{fn: func(_ context.Context, _ provcall.Call) (provcall.Result, error) {
 		return okValue("a fine company"), nil
 	}}
 	pub := &recPub{}
@@ -185,8 +185,8 @@ func TestAIColumnViaPyworkerWritesCell(t *testing.T) {
 func TestAITimeoutIsCellErrorAndNotRetried(t *testing.T) {
 	e := setup(t, wsA)
 	e.seed(wsA, "wb-aito", `[{"id":"a1","type":"ai_formula","name":"A1","prompt":"x"}]`, 1, 10)
-	py := &fakePy{fn: func(context.Context, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
-		return pyworker.ProviderResult{Status: "timeout", Error: "provider timed out"}, nil
+	py := &fakePy{fn: func(context.Context, provcall.Call) (provcall.Result, error) {
+		return provcall.Result{Status: "timeout", Error: "provider timed out"}, nil
 	}}
 	d := e.deps(newSim(t, nil), nil)
 	d.Py = py
@@ -221,9 +221,9 @@ func TestOutputColumnWithoutFullRunIsRefused(t *testing.T) {
 	e.seed(wsA, "wb-out", cols, 1, 10)
 	c := e.claim(wsA, payloadNoManifests(wsA, "wb-out", nil, nil))
 	d := e.deps(newSim(t, nil), nil)
-	d.Py = &fakePy{fn: func(context.Context, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+	d.Py = &fakePy{fn: func(context.Context, provcall.Call) (provcall.Result, error) {
 		t.Error("python called for a job that must be refused")
-		return pyworker.ProviderResult{}, nil
+		return provcall.Result{}, nil
 	}}
 	if _, err := workbook.Run(e.ctx, d, c); !workbook.IsRefused(err) {
 		t.Fatalf("want a refusal, got %v", err)
@@ -315,7 +315,7 @@ func TestNoOverwriteOfCancelled(t *testing.T) {
 	e := setup(t, wsA)
 	e.seed(wsA, "wb-nooverwrite", `[{"id":"a1","type":"ai_formula","name":"A1","prompt":"x"}]`, 1, 10)
 	held := make(chan struct{})
-	py := &fakePy{fn: func(ctx context.Context, _ pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+	py := &fakePy{fn: func(ctx context.Context, _ provcall.Call) (provcall.Result, error) {
 		close(held)
 		<-ctx.Done()
 		return okValue("too late"), nil // answers after cancellation anyway
@@ -382,9 +382,9 @@ func TestRedisCellEventsMatchPython(t *testing.T) {
 	ids := e.seed(wsA, "wb-ev", cols, 1, 10)
 	pub := &recPub{}
 	d := e.deps(newSim(t, nil), pub)
-	d.Py = &fakePy{fn: func(context.Context, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+	d.Py = &fakePy{fn: func(context.Context, provcall.Call) (provcall.Result, error) {
 		t.Error("an empty prompt must not call python")
-		return pyworker.ProviderResult{}, nil
+		return provcall.Result{}, nil
 	}}
 	c := e.claim(wsA, payloadNoManifests(wsA, "wb-ev", nil, nil))
 	if _, err := workbook.Run(e.ctx, d, c); err != nil {
@@ -470,7 +470,7 @@ func TestUnknownPaidProviderSettlesAtZero(t *testing.T) {
 	e.seed(wsA, "wb-unkpaid", `[{"id":"c1","type":"waterfall","name":"C1","target_field":"founded_year","waterfall":["ghostpaid","freepy"]}]`, 1, 10)
 	fr := &fakeRunner{fn: func(_ context.Context, p string, _ providers.Input) (providers.Output, error) {
 		if p == "ghostpaid" {
-			return providers.Output{}, pyworker.ErrUnknownProvider
+			return providers.Output{}, provcall.ErrUnknownProvider
 		}
 		return providers.Output{Confidence: 0.7, Extra: obj("founded_year", "1999")}, nil
 	}}

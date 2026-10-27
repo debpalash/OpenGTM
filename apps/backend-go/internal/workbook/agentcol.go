@@ -12,8 +12,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/aicol"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/spend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
@@ -259,9 +259,9 @@ loop:
 				return pyOutput{}, context.Cause(ctx)
 			}
 			switch {
-			case errors.Is(rerr, pyworker.ErrUnknownProvider):
+			case errors.Is(rerr, provcall.ErrUnknownProvider):
 				call = providerCall{kind: callUnknown}
-			case errors.Is(rerr, pyworker.ErrUnavailable), errors.Is(rerr, pyworker.ErrUnauthorized):
+			case errors.Is(rerr, provcall.ErrUnavailable), errors.Is(rerr, provcall.ErrUnauthorized):
 				return pyOutput{}, fmt.Errorf("workbook: python worker: %w", rerr)
 			case rerr != nil:
 				call = providerCall{kind: callException, text: truncRunes(rerr.Error(), maxErrorRunes)}

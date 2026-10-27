@@ -1,6 +1,7 @@
 package poller
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -20,8 +21,8 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/firmo"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 )
 
 // ── helpers ─────────────────────────────────────────────────────────────────
@@ -116,11 +117,11 @@ func pcISOWeekTime(t *testing.T, label string) time.Time {
 // pcFakePy is a scripted PyCaller.
 type pcFakePy struct {
 	mu    sync.Mutex
-	calls []pyworker.ProviderCall
-	fn    func(n int, c pyworker.ProviderCall) (pyworker.ProviderResult, error)
+	calls []provcall.Call
+	fn    func(n int, c provcall.Call) (provcall.Result, error)
 }
 
-func (f *pcFakePy) Call(_ context.Context, c pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+func (f *pcFakePy) Call(_ context.Context, c provcall.Call) (provcall.Result, error) {
 	f.mu.Lock()
 	n := len(f.calls)
 	f.calls = append(f.calls, c)
@@ -128,17 +129,77 @@ func (f *pcFakePy) Call(_ context.Context, c pyworker.ProviderCall) (pyworker.Pr
 	return f.fn(n, c)
 }
 
-func pcOK(fields map[string]any) pyworker.ProviderResult {
+func pcOK(fields map[string]any) provcall.Result {
 	out, _ := json.Marshal(map[string]any{"provider": "x", "success": true, "fields": fields})
-	return pyworker.ProviderResult{Status: "ok", Output: out}
+	return provcall.Result{Status: "ok", Output: out}
 }
 
-func pcSearch(rows ...map[string]any) pyworker.ProviderResult {
+func pcSearch(rows ...map[string]any) provcall.Result {
 	rs := make([]any, 0, len(rows))
 	for _, r := range rows {
 		rs = append(rs, r)
 	}
 	return pcOK(map[string]any{"results": rs})
+}
+
+// pcHTTP replays recorded provider-call transcripts over HTTP: the test-side caller that posts the provider-call
+// envelope (call_id, provider, workspace_id, input) with a bearer token and decodes {status, output, error,
+// cost_usd}. It replaced the retired Python worker client (plan 15 cutover); the collectors only see provcall.
+type pcHTTP struct {
+	url, token string
+	hc         *http.Client
+}
+
+func newPCHTTP(url, token string, hc *http.Client) *pcHTTP {
+	if hc == nil {
+		hc = &http.Client{Timeout: 5 * time.Second}
+	}
+	return &pcHTTP{url: url, token: token, hc: hc}
+}
+
+func (c *pcHTTP) String() string { return "pcHTTP{" + c.url + "}" }
+
+func (c *pcHTTP) Call(ctx context.Context, call provcall.Call) (provcall.Result, error) {
+	in := call.Input
+	if len(in) == 0 {
+		in = json.RawMessage(`{}`)
+	}
+	body, _ := json.Marshal(map[string]any{"call_id": call.CallID, "provider": call.Provider,
+		"workspace_id": call.WorkspaceID, "input": in, "timeout_s": call.Timeout.Seconds()})
+	limit := call.Timeout + 5*time.Second
+	if call.Timeout <= 0 {
+		limit = 30 * time.Second
+	}
+	rctx, cancel := context.WithTimeout(ctx, limit)
+	defer cancel()
+	req, _ := http.NewRequestWithContext(rctx, http.MethodPost, c.url+"/internal/provider-call", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.token)
+	resp, err := c.hc.Do(req)
+	if err != nil {
+		if ctx.Err() != nil {
+			return provcall.Result{}, ctx.Err()
+		}
+		if errors.Is(rctx.Err(), context.DeadlineExceeded) {
+			return provcall.Result{Status: "timeout", Error: "provider call timed out"}, nil
+		}
+		return provcall.Result{Status: "error", Error: "provider runner unreachable"}, nil
+	}
+	defer resp.Body.Close()
+	var w struct {
+		Status  string          `json:"status"`
+		Output  json.RawMessage `json:"output"`
+		Error   *string         `json:"error"`
+		CostUSD float64         `json:"cost_usd"`
+	}
+	if resp.StatusCode != http.StatusOK || json.NewDecoder(resp.Body).Decode(&w) != nil {
+		return provcall.Result{Status: "error", Error: "provider runner answered " + resp.Status, HTTPStatus: resp.StatusCode}, nil
+	}
+	r := provcall.Result{Status: w.Status, Output: w.Output, CostUSD: w.CostUSD}
+	if w.Error != nil {
+		r.Error = *w.Error
+	}
+	return r, nil
 }
 
 func pcDeps(c PyCaller) PyDeps {
@@ -305,7 +366,7 @@ func TestHiringTechTranscripts(t *testing.T) {
 					t.Errorf("input = %v", in)
 				}
 			})
-			d := pcDeps(pyworker.New(srv.URL, "tok", srv.Client()))
+			d := pcDeps(newPCHTTP(srv.URL, "tok", srv.Client()))
 			d.Py.JobSpyMaxJobs = c.maxJobs
 			w := pcWatch()
 			w.Target = "  Acme "
@@ -364,9 +425,9 @@ func TestHiringTechTranscripts(t *testing.T) {
 }
 
 func TestHiringTargetWithoutCompanyNameMakesNoCall(t *testing.T) {
-	f := &pcFakePy{fn: func(int, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+	f := &pcFakePy{fn: func(int, provcall.Call) (provcall.Result, error) {
 		t.Error("a CIK-only target must not be searched")
-		return pyworker.ProviderResult{}, nil
+		return provcall.Result{}, nil
 	}}
 	for _, target := range []string{"sec_cik:320193", "  SEC_CIK:5", "", "   "} {
 		w := pcWatch()
@@ -383,7 +444,7 @@ func TestHiringBadPayloadsAreSourceFailures(t *testing.T) {
 		"invalid json": {"hiring_signals": "{bad"},
 		"not object":   {"hiring_signals": "[1]"},
 	} {
-		f := &pcFakePy{fn: func(int, pyworker.ProviderCall) (pyworker.ProviderResult, error) { return pcOK(fields), nil }}
+		f := &pcFakePy{fn: func(int, provcall.Call) (provcall.Result, error) { return pcOK(fields), nil }}
 		ev, patch, err := FetchHiringAndTech(context.Background(), pcDeps(f), pcWatch(), true, true, false)
 		var pe *PyCallError
 		if !errors.As(err, &pe) || ev != nil || patch != nil {
@@ -391,7 +452,7 @@ func TestHiringBadPayloadsAreSourceFailures(t *testing.T) {
 		}
 	}
 	// A missing hiring_signals field is the valid no-op.
-	f := &pcFakePy{fn: func(int, pyworker.ProviderCall) (pyworker.ProviderResult, error) { return pcOK(map[string]any{}), nil }}
+	f := &pcFakePy{fn: func(int, provcall.Call) (provcall.Result, error) { return pcOK(map[string]any{}), nil }}
 	ev, patch, err := FetchHiringAndTech(context.Background(), pcDeps(f), pcWatch(), true, false, false)
 	if err != nil || len(ev) != 0 || patch["hiring_band"] != "none" {
 		t.Errorf("missing field: (%v, %v, %v)", ev, patch, err)
@@ -666,7 +727,7 @@ func TestJobChangeCapAppliesToRPCCalls(t *testing.T) {
 		}
 		return out
 	}
-	f := &pcFakePy{fn: func(int, pyworker.ProviderCall) (pyworker.ProviderResult, error) { return pcSearch(), nil }}
+	f := &pcFakePy{fn: func(int, provcall.Call) (provcall.Result, error) { return pcSearch(), nil }}
 	d := pcDeps(f)
 	d.Py.JobChangeMaxContactsPerPoll = 50
 	w := pcWatch()
@@ -736,7 +797,7 @@ func TestDDGSTranscripts(t *testing.T) {
 		})
 		w := pcWatch()
 		w.Cursor = cursor
-		ev, patch, err := FetchJobChanges(context.Background(), pcDeps(pyworker.New(srv.URL, "tok", srv.Client())), w, contacts, false)
+		ev, patch, err := FetchJobChanges(context.Background(), pcDeps(newPCHTTP(srv.URL, "tok", srv.Client())), w, contacts, false)
 		return ev, patch, err, query
 	}
 
@@ -768,7 +829,7 @@ func TestDDGSTranscripts(t *testing.T) {
 
 func TestRPCCallIDsDeterministic(t *testing.T) {
 	ids := func(fire string) []string {
-		f := &pcFakePy{fn: func(int, pyworker.ProviderCall) (pyworker.ProviderResult, error) { return pcSearch(), nil }}
+		f := &pcFakePy{fn: func(int, provcall.Call) (provcall.Result, error) { return pcSearch(), nil }}
 		w := pcWatch()
 		w.FireKey = fire
 		cs := []Contact{{Name: "A B", Key: "k1"}, {Name: "C D", Key: "k2"}, {Name: "E F", Key: "k3"}}
@@ -796,7 +857,7 @@ func TestRPCCallIDsDeterministic(t *testing.T) {
 		t.Errorf("long id %q (%d)", x, len(x))
 	}
 	// Hiring and account group use their own sources.
-	f := &pcFakePy{fn: func(int, pyworker.ProviderCall) (pyworker.ProviderResult, error) { return pcOK(map[string]any{}), nil }}
+	f := &pcFakePy{fn: func(int, provcall.Call) (provcall.Result, error) { return pcOK(map[string]any{}), nil }}
 	w := pcWatch()
 	if _, _, err := FetchHiringAndTech(context.Background(), pcDeps(f), w, true, true, false); err != nil {
 		t.Fatal(err)
@@ -812,20 +873,20 @@ func TestRPCCallIDsDeterministic(t *testing.T) {
 }
 
 func TestPyworkerDownIsSourceFailure(t *testing.T) {
-	d := pcDeps(nil) // PY_WORKER_URL unset: pyworker.ErrUnavailable
+	d := pcDeps(nil) // PY_WORKER_URL unset: provcall.ErrUnavailable
 	w := pcWatch()
 	w.Cursor = map[string]any{"bootstrapped": true}
-	if ev, patch, err := FetchHiringAndTech(context.Background(), d, w, true, true, false); !errors.Is(err, pyworker.ErrUnavailable) || ev != nil || patch != nil {
+	if ev, patch, err := FetchHiringAndTech(context.Background(), d, w, true, true, false); !errors.Is(err, provcall.ErrUnavailable) || ev != nil || patch != nil {
 		t.Errorf("hiring: (%v, %v, %v)", ev, patch, err)
 	}
 	cs := []Contact{{Name: "A B", Key: "k1"}, {Name: "C D", Key: "k2"}}
-	if ev, patch, err := FetchJobChanges(context.Background(), d, w, cs, false); !errors.Is(err, ErrAllLookupsFailed) || !errors.Is(err, pyworker.ErrUnavailable) || ev != nil || patch != nil {
+	if ev, patch, err := FetchJobChanges(context.Background(), d, w, cs, false); !errors.Is(err, ErrAllLookupsFailed) || !errors.Is(err, provcall.ErrUnavailable) || ev != nil || patch != nil {
 		t.Errorf("job change: (%v, %v, %v)", ev, patch, err)
 	}
 	// A rejected token or an unknown provider is the same kind of failure.
-	for _, e := range []error{pyworker.ErrUnauthorized, pyworker.ErrUnknownProvider} {
-		f := &pcFakePy{fn: func(int, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
-			return pyworker.ProviderResult{Status: "error", HTTPStatus: 404, Err: e}, nil
+	for _, e := range []error{provcall.ErrUnauthorized, provcall.ErrUnknownProvider} {
+		f := &pcFakePy{fn: func(int, provcall.Call) (provcall.Result, error) {
+			return provcall.Result{Status: "error", HTTPStatus: 404, Err: e}, nil
 		}}
 		if _, _, err := FetchHiringAndTech(context.Background(), pcDeps(f), w, true, true, false); !errors.Is(err, e) {
 			t.Errorf("%v: err = %v", e, err)
@@ -849,12 +910,12 @@ func TestPyworkerDownIsSourceFailure(t *testing.T) {
 }
 
 func TestPyworkerTimeoutBounded(t *testing.T) {
-	timeoutRes := pyworker.ProviderResult{Status: "timeout", Error: "provider timed out"}
+	timeoutRes := provcall.Result{Status: "timeout", Error: "provider timed out"}
 	cs := []Contact{{Name: "A A", Key: "k1"}, {Name: "B B", Key: "k2"}, {Name: "C C", Key: "k3"}, {Name: "D D", Key: "k4"}}
 
 	// Every lookup times out: the batch stops after the first one (a hung worker
 	// costs one SearchTimeout, not one per contact) and the poll is a failure.
-	f := &pcFakePy{fn: func(int, pyworker.ProviderCall) (pyworker.ProviderResult, error) { return timeoutRes, nil }}
+	f := &pcFakePy{fn: func(int, provcall.Call) (provcall.Result, error) { return timeoutRes, nil }}
 	d := pcDeps(f)
 	ev, patch, err := FetchJobChanges(context.Background(), d, pcWatch(), cs, false)
 	if !errors.Is(err, ErrAllLookupsFailed) || !errors.Is(err, ErrPyTimeout) || ev != nil || patch != nil {
@@ -876,7 +937,7 @@ func TestPyworkerTimeoutBounded(t *testing.T) {
 
 	// One contact resolved, then a timeout: the resolved one keeps its state and
 	// the rest are left for the next poll (no state bump, so still first in LRU order).
-	f2 := &pcFakePy{fn: func(n int, _ pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+	f2 := &pcFakePy{fn: func(n int, _ provcall.Call) (provcall.Result, error) {
 		if n == 0 {
 			return pcSearch(), nil
 		}
@@ -907,9 +968,9 @@ func TestPyworkerTimeoutBounded(t *testing.T) {
 
 func TestPyworkerCancelledContextAborts(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
-	f := &pcFakePy{fn: func(int, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+	f := &pcFakePy{fn: func(int, provcall.Call) (provcall.Result, error) {
 		cancel()
-		return pyworker.ProviderResult{}, context.Canceled
+		return provcall.Result{}, context.Canceled
 	}}
 	cs := []Contact{{Name: "A A", Key: "k1"}, {Name: "B B", Key: "k2"}}
 	if _, _, err := FetchJobChanges(ctx, pcDeps(f), pcWatch(), cs, false); !errors.Is(err, context.Canceled) || errors.Is(err, ErrAllLookupsFailed) {
@@ -919,9 +980,9 @@ func TestPyworkerCancelledContextAborts(t *testing.T) {
 	w.Config = map[string]any{"accounts": []any{map[string]any{"account_id": "a1", "company": "C"}}}
 	w.SignalTypes = []string{"partnership_hiring"}
 	ctx2, cancel2 := context.WithCancel(context.Background())
-	f2 := &pcFakePy{fn: func(int, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+	f2 := &pcFakePy{fn: func(int, provcall.Call) (provcall.Result, error) {
 		cancel2()
-		return pyworker.ProviderResult{}, context.Canceled
+		return provcall.Result{}, context.Canceled
 	}}
 	if _, _, err := FetchAccountGroup(ctx2, pcDeps(f2), w, false); !errors.Is(err, context.Canceled) {
 		t.Errorf("account group: %v", err)
@@ -943,7 +1004,7 @@ func TestDDGSQueryNeverContainsSecrets(t *testing.T) {
 		_ = json.NewEncoder(w).Encode(map[string]any{"status": "ok", "output": map[string]any{"fields": map[string]any{"results": []any{}}}, "cost_usd": 0})
 	}))
 	defer srv.Close()
-	d := pcDeps(pyworker.New(srv.URL, token, srv.Client()))
+	d := pcDeps(newPCHTTP(srv.URL, token, srv.Client()))
 	w := pcWatch()
 	// Secret-looking values live next to the roster (config, cursor, company text only
 	// in unrelated keys): none may reach the search.
@@ -986,7 +1047,7 @@ func TestDDGSQueryNeverContainsSecrets(t *testing.T) {
 		}
 	}
 	// Errors never echo the token either.
-	d2 := pcDeps(pyworker.New("http://127.0.0.1:1", token, nil))
+	d2 := pcDeps(newPCHTTP("http://127.0.0.1:1", token, nil))
 	_, _, err := FetchJobChanges(context.Background(), d2, w, cs[:1], false)
 	if err == nil || strings.Contains(err.Error(), token) || strings.Contains(fmt.Sprintf("%v %+v", d2.Py.Client, d2.Py), token) {
 		t.Errorf("token leaked: %v", err)
@@ -1051,18 +1112,18 @@ func TestPartnershipJobsVectors(t *testing.T) {
 		t.Fatalf("vectors = %d", len(v.Cases))
 	}
 	for _, c := range v.Cases {
-		f := &pcFakePy{fn: func(int, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+		f := &pcFakePy{fn: func(int, provcall.Call) (provcall.Result, error) {
 			switch {
 			case c.Raises != "":
-				return pyworker.ProviderResult{Status: "timeout", Error: "provider timed out"}, nil // an exception inside the provider run
+				return provcall.Result{Status: "timeout", Error: "provider timed out"}, nil // an exception inside the provider run
 			case c.Result == nil:
-				return pyworker.ProviderResult{Status: "error", Error: "provider returned no result"}, nil
+				return provcall.Result{Status: "error", Error: "provider returned no result"}, nil
 			case !c.Result.Success:
 				msg := ""
 				if c.Result.Error != nil {
 					msg = *c.Result.Error
 				}
-				return pyworker.ProviderResult{Status: "error", Error: msg}, nil
+				return provcall.Result{Status: "error", Error: msg}, nil
 			}
 			return pcOK(c.Result.Fields), nil
 		}}

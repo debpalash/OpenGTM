@@ -19,7 +19,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/aicol"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
 
@@ -70,23 +70,9 @@ func StepTimeout() time.Duration {
 	return time.Duration(f * float64(time.Second))
 }
 
-type pyResearcher struct {
-	c       *pyworker.Client
-	timeout time.Duration
-}
-
-// NewPyResearcher runs steps on the Python worker's research_column provider.
-// The workspace travels in the RPC envelope only, never in the input.
-func NewPyResearcher(c *pyworker.Client, timeout time.Duration) Researcher {
-	if timeout <= 0 {
-		timeout = DefaultStepTimeout
-	}
-	return &pyResearcher{c: c, timeout: timeout}
-}
-
 // nativeResearcher runs research_column steps in process (GO_NATIVE_AI_COLUMNS, plan 15
 // WP-AICOLS): the Go research agent over the workspace's LLM client, search and page fetch.
-// It never reports pyworker.ErrUnavailable, so a run is never handed back for it.
+// It never reports provcall.ErrUnavailable, so a run is never handed back for it.
 type nativeResearcher struct {
 	deps    func(ctx context.Context, workspaceID string) aicol.Deps
 	timeout time.Duration
@@ -145,62 +131,9 @@ func toOrdered(v any) any {
 	return v
 }
 
-func isUnavailable(err error) bool { return errors.Is(err, pyworker.ErrUnavailable) }
+func isUnavailable(err error) bool { return errors.Is(err, provcall.ErrUnavailable) }
 
 func failed(msg string) ResearchResult { return ResearchResult{Error: msg} }
-
-func (p *pyResearcher) Research(ctx context.Context, ws string, req ResearchRequest) (ResearchResult, error) {
-	if math.IsNaN(req.CellBudgetUSD) || math.IsInf(req.CellBudgetUSD, 0) {
-		return failed("invalid max_steps or cell_budget_usd"), nil
-	}
-	cx := req.Context
-	if cx == nil {
-		cx = map[string]any{}
-	}
-	in := newObj()
-	in.set("prompt_template", req.PromptTemplate)
-	in.set("context", cx)
-	in.set("max_steps", req.MaxSteps)
-	in.set("output_format", req.OutputFormat)
-	in.set("cell_budget_usd", req.CellBudgetUSD)
-	input := raw(in)
-	if !json.Valid(input) {
-		return failed("research input is not valid JSON"), nil
-	}
-	res, err := p.c.Call(ctx, pyworker.ProviderCall{CallID: req.CallID, Provider: researchProvider, WorkspaceID: ws, Input: input, Timeout: p.timeout})
-	if err != nil {
-		return ResearchResult{}, err
-	}
-	if res.Err != nil {
-		return ResearchResult{}, res.Err
-	}
-	if res.Status != "ok" {
-		msg := res.Error
-		if msg == "" {
-			msg = "python worker call " + res.Status
-		}
-		return failed(msg), nil
-	}
-	doc, derr := decodeDoc(res.Output)
-	out, ok := doc.(*obj)
-	if derr != nil || !ok || out == nil {
-		return failed("python worker returned malformed research output"), nil
-	}
-	r := ResearchResult{}
-	if v, ok := out.get("success"); ok {
-		r.Success = truthy(v)
-	}
-	r.Value, _ = out.get("value")
-	if m, ok := out.get("metadata"); ok && truthy(m) {
-		if mo, ok := m.(*obj); ok {
-			r.meta, r.Metadata = mo, mo.vals
-		}
-	}
-	if e, ok := out.get("error"); ok && e != nil {
-		r.Error = valueText(e)
-	}
-	return r, nil
-}
 
 // truthy is bool(v) for decoded JSON values.
 func truthy(v any) bool {
@@ -388,7 +321,7 @@ func (g *engine) in(ctx context.Context, fn func(q *gen.Queries) error) error {
 // HandleRun because Run is the model type). Each database step is its own short
 // workspace transaction; the research calls run outside any transaction.
 //
-// A pyworker.ErrUnavailable from the Researcher stops the attempt and is
+// A provcall.ErrUnavailable from the Researcher stops the attempt and is
 // returned so the worker hands the job back: before this attempt processed a
 // member the run is restored exactly as found; afterwards it is left pending.
 func HandleRun(ctx context.Context, d Deps, workspaceID, runID string) error {
@@ -434,7 +367,7 @@ func HandleRun(ctx context.Context, d Deps, workspaceID, runID string) error {
 	if d.Researcher == nil {
 		// Nothing ran yet: put the run back as found and hand the job back.
 		_ = g.handBack(ctx, 0)
-		return pyworker.ErrUnavailable
+		return provcall.ErrUnavailable
 	}
 	g.steps, g.stepErr = g.parseSteps()
 
@@ -720,7 +653,7 @@ func metaValue(r ResearchResult) any {
 	return newObj()
 }
 
-// handBack undoes the current member's start after pyworker.ErrUnavailable
+// handBack undoes the current member's start after provcall.ErrUnavailable
 // and returns the error so the queue retries the job. resID 0 means no result
 // row was started.
 func (g *engine) handBack(ctx context.Context, resID int32) error {
@@ -744,7 +677,7 @@ func (g *engine) handBack(ctx context.Context, resID int32) error {
 	if err != nil {
 		return fmt.Errorf("playbooks: hand back: %w", err)
 	}
-	return pyworker.ErrUnavailable
+	return provcall.ErrUnavailable
 }
 
 // finish aggregates the ledger and closes the run unless it is no longer

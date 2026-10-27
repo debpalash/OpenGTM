@@ -13,19 +13,19 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/contact"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 )
 
 // KeyFunc resolves one credential for a workspace (credentials.Client.Get).
 // Credentials are per workspace and never shared across workspaces.
 type KeyFunc func(ctx context.Context, workspaceID, envVar string) (string, error)
 
-// ProviderCaller is the provider-call RPC: pyworker.Client, or the rpclocal
+// ProviderCaller is the provider caller: the rpclocal
 // composite that serves GO_LOCAL_PROVIDERS names (website_scraper) in process.
 type ProviderCaller interface {
-	Call(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error)
+	Call(ctx context.Context, call provcall.Call) (provcall.Result, error)
 }
 
 // LiveConfig wires the production Deps.
@@ -223,7 +223,7 @@ func (f *WebsiteFinder) Find(ctx context.Context, workspaceID string, lead map[s
 	}
 	id := make([]byte, 12)
 	_, _ = rand.Read(id)
-	res, err := f.Py.Call(ctx, pyworker.ProviderCall{
+	res, err := f.Py.Call(ctx, provcall.Call{
 		CallID: "emailwf-" + hex.EncodeToString(id), Provider: WebsiteProvider, WorkspaceID: workspaceID,
 		Input: input, Timeout: f.Timeout,
 	})

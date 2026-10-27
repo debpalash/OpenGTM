@@ -2,13 +2,12 @@ package providerrun_test
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"net/http"
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 )
 
 // gatedProv is a GO_LOCAL_PROVIDERS-gated provider (like providers/scrape).
@@ -27,31 +26,23 @@ var gated = &gatedProv{}
 
 func init() { providers.Register(gated) }
 
-type pyStub struct{ n int }
-
-func (p *pyStub) Call(context.Context, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
-	p.n++
-	return pyworker.ProviderResult{Status: "ok", Output: json.RawMessage(`{"success":true,"fields":{"email":"py@x.io"},"confidence":0.5}`)}, nil
-}
-
 type noSecrets struct{}
 
 func (noSecrets) Get(context.Context, string, string) (string, string, error) { return "", "", nil }
 
 func TestGatedProviderFollowsLocalGate(t *testing.T) {
 	t.Cleanup(func() { providers.SetLocalGate(nil) })
-	py := &pyStub{}
-	r := providerrun.New(providerrun.Deps{Secrets: noSecrets{}, Py: py})
+	r := providerrun.New(providerrun.Deps{Secrets: noSecrets{}})
 	in := providers.Input{Lead: map[string]any{"company": "x"}, Field: "email"}
 
+	// Not served in process: unavailable (no Python provider RPC since the plan 15 cutover).
 	providers.SetLocalGate(nil)
-	out, err := r.Run(context.Background(), "ws1", "providerrun_test_gated", in, 0)
-	if err != nil || out.Value != "py@x.io" || py.n != 1 {
-		t.Fatalf("unlisted: %+v %v %d", out, err, py.n)
+	if _, err := r.Run(context.Background(), "ws1", "providerrun_test_gated", in, 0); !errors.Is(err, providerrun.ErrUnavailable) {
+		t.Fatalf("unlisted: %v", err)
 	}
 	providers.SetLocalGate(func(n string) bool { return n == "providerrun_test_gated" })
-	out, err = r.Run(context.Background(), "ws1", "providerrun_test_gated", in, 0)
-	if err != nil || out.Value != "go@x.io" || py.n != 1 || gated.ws != "ws1" {
-		t.Fatalf("listed: %+v %v %d ws=%q", out, err, py.n, gated.ws)
+	out, err := r.Run(context.Background(), "ws1", "providerrun_test_gated", in, 0)
+	if err != nil || out.Value != "go@x.io" || gated.ws != "ws1" {
+		t.Fatalf("listed: %+v %v ws=%q", out, err, gated.ws)
 	}
 }

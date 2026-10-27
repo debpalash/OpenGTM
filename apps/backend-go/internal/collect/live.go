@@ -16,7 +16,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadprogress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/sourcecatalog"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/sourcehealth"
 )
@@ -85,9 +85,9 @@ func (s LiveSources) HealthDisabled(ctx context.Context) map[string]bool {
 	return out
 }
 
-// ProviderCaller is the provider-call RPC signature (pyworker.Client, rpclocal.Caller).
+// ProviderCaller is the in-process provider caller (rpclocal.Caller).
 type ProviderCaller interface {
-	Call(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error)
+	Call(ctx context.Context, call provcall.Call) (provcall.Result, error)
 }
 
 // LiveEnrich runs the email steps in internal/emailverify and the named providers through the
@@ -146,7 +146,7 @@ func (e LiveEnrich) Provider(ctx context.Context, ws, name string, l *Lead) (Pro
 	if timeout <= 0 {
 		timeout = 120 * time.Second
 	}
-	res, err := e.Caller.Call(ctx, pyworker.ProviderCall{CallID: "collect-" + randHex(12), Provider: name,
+	res, err := e.Caller.Call(ctx, provcall.Call{CallID: "collect-" + randHex(12), Provider: name,
 		WorkspaceID: ws, Input: input, Timeout: timeout})
 	if err != nil {
 		return ProviderResult{}, err

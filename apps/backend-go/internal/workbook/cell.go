@@ -15,8 +15,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/spend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
@@ -263,7 +263,7 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 	}
 	unknown := false
 	if rerr != nil {
-		if errors.Is(rerr, pyworker.ErrUnknownProvider) {
+		if errors.Is(rerr, provcall.ErrUnknownProvider) {
 			// The runner has no such provider: nothing can have reached a vendor,
 			// so the attempt settles at 0 (confirmed non-billable) below.
 			unknown = true
@@ -272,7 +272,7 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 			// The call was dispatched: whatever the runner reports, it may have
 			// reached the vendor, so the attempt stays `uncertain`.
 			rs.markUncertain(ctx, id)
-			if errors.Is(rerr, pyworker.ErrUnavailable) || errors.Is(rerr, pyworker.ErrUnauthorized) {
+			if errors.Is(rerr, provcall.ErrUnavailable) || errors.Is(rerr, provcall.ErrUnauthorized) {
 				return providerCall{}, fmt.Errorf("workbook: python worker: %w", rerr)
 			}
 			return providerCall{kind: callException, text: truncRunes(rerr.Error(), maxErrorRunes)}, nil
@@ -589,9 +589,9 @@ loop:
 				return cellOutcome{}, context.Cause(ctx)
 			}
 			switch {
-			case errors.Is(rerr, pyworker.ErrUnknownProvider):
+			case errors.Is(rerr, provcall.ErrUnknownProvider):
 				call = providerCall{kind: callUnknown}
-			case errors.Is(rerr, pyworker.ErrUnavailable), errors.Is(rerr, pyworker.ErrUnauthorized):
+			case errors.Is(rerr, provcall.ErrUnavailable), errors.Is(rerr, provcall.ErrUnauthorized):
 				return cellOutcome{}, fmt.Errorf("workbook: python worker: %w", rerr)
 			case rerr != nil:
 				call = providerCall{kind: callException, text: truncRunes(rerr.Error(), maxErrorRunes)}

@@ -11,22 +11,22 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 )
 
 // This file holds the pyworker-backed collectors' shared plumbing (decision
 // D1) and the hiring/tech collector: JobSpy hiring and tech detection cannot
 // run in Go, so it crosses the plan 06 provider RPC as `jobspy_signals`.
 
-// PyCaller is the slice of *pyworker.Client the collectors use.
+// PyCaller runs the provider collectors (provcall.Caller: the in-process rpclocal caller).
 type PyCaller interface {
-	Call(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error)
+	Call(ctx context.Context, call provcall.Call) (provcall.Result, error)
 }
 
 // PyCollectors configures the Python RPC side of the collectors.
 type PyCollectors struct {
-	// Client is the RPC client (nil: every call fails with pyworker.ErrUnavailable).
+	// Client is the RPC client (nil: every call fails with provcall.ErrUnavailable).
 	Client PyCaller
 	// JobSpyMaxJobs is INTENT_POLLER_JOBSPY_MAX_JOBS (<=0: 5).
 	JobSpyMaxJobs int
@@ -132,18 +132,18 @@ func pcCallID(w PyWatch, source string, n int) string {
 }
 
 // pcCall runs one provider on the Python worker and returns the output's
-// `fields`. Failures: pyworker.ErrUnavailable/ErrUnauthorized/ErrUnknownProvider,
+// `fields`. Failures: provcall.ErrUnavailable/ErrUnauthorized/ErrUnknownProvider,
 // ErrPyTimeout, *PyCallError, or the context's error. Nothing is retried here
 // beyond the client's own single same-call-id retry of transport errors.
 func (c PyCollectors) pcCall(ctx context.Context, w PyWatch, source string, n int, provider string, input map[string]any, timeout time.Duration) (map[string]any, error) {
 	if c.Client == nil {
-		return nil, pyworker.ErrUnavailable
+		return nil, provcall.ErrUnavailable
 	}
 	raw, err := json.Marshal(input)
 	if err != nil {
 		return nil, &PyCallError{Msg: "invalid input"}
 	}
-	res, err := c.Client.Call(ctx, pyworker.ProviderCall{
+	res, err := c.Client.Call(ctx, provcall.Call{
 		CallID: pcCallID(w, source, n), Provider: provider, WorkspaceID: w.WorkspaceID,
 		Input: raw, Timeout: timeout,
 	})
@@ -179,8 +179,8 @@ func (c PyCollectors) pcCall(ctx context.Context, w PyWatch, source string, n in
 // pointless or unbounded: the worker is down, rejects us, lacks the provider or
 // is hung.
 func isBatchStop(err error) bool {
-	return errors.Is(err, ErrPyTimeout) || errors.Is(err, pyworker.ErrUnavailable) ||
-		errors.Is(err, pyworker.ErrUnauthorized) || errors.Is(err, pyworker.ErrUnknownProvider)
+	return errors.Is(err, ErrPyTimeout) || errors.Is(err, provcall.ErrUnavailable) ||
+		errors.Is(err, provcall.ErrUnauthorized) || errors.Is(err, provcall.ErrUnknownProvider)
 }
 
 // ── Python str helpers ──────────────────────────────────────────────────────

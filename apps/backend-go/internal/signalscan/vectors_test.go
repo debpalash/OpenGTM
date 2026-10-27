@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 )
 
 // vectors.json is Python-generated (legacy/python/scripts/gen_enrichment_vectors.py, section signalscan).
@@ -163,7 +163,7 @@ func TestExtractHiringDataVectors(t *testing.T) {
 			continue
 		}
 		n++
-		res := pyworker.ProviderResult{Status: "ok", Output: json.RawMessage(`{"success":true,"fields":` + f + `}`)}
+		res := provcall.Result{Status: "ok", Output: json.RawMessage(`{"success":true,"fields":` + f + `}`)}
 		got := ExtractHiringData(res)
 		if (got == nil) != (c.Result.Value == nil) || (got != nil && len(got) != len(c.Result.Value)) {
 			t.Errorf("%s: got %v want %v", c.Name, got, c.Result.Value)
@@ -172,7 +172,7 @@ func TestExtractHiringDataVectors(t *testing.T) {
 	if n != len(fields) {
 		t.Fatalf("matched %d of %d cases", n, len(fields))
 	}
-	if ExtractHiringData(pyworker.ProviderResult{Status: "timeout"}) != nil || ExtractHiringData(pyworker.ProviderResult{Status: "error", Output: json.RawMessage(`{"success":false,"fields":{"hiring_signals":{"total_jobs":9}}}`)}) != nil {
+	if ExtractHiringData(provcall.Result{Status: "timeout"}) != nil || ExtractHiringData(provcall.Result{Status: "error", Output: json.RawMessage(`{"success":false,"fields":{"hiring_signals":{"total_jobs":9}}}`)}) != nil {
 		t.Fatal("non-ok results carry no hiring data")
 	}
 }
@@ -212,25 +212,25 @@ func TestBoostsMatchPython(t *testing.T) {
 }
 
 type scripted struct {
-	byCompany map[string]pyworker.ProviderResult
+	byCompany map[string]provcall.Result
 	errFor    map[string]bool
-	calls     []pyworker.ProviderCall
+	calls     []provcall.Call
 }
 
-func (s *scripted) Call(_ context.Context, c pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+func (s *scripted) Call(_ context.Context, c provcall.Call) (provcall.Result, error) {
 	s.calls = append(s.calls, c)
 	var in struct {
 		Company string `json:"company"`
 	}
 	_ = json.Unmarshal(c.Input, &in)
 	if s.errFor[in.Company] {
-		return pyworker.ProviderResult{}, errors.New("boom")
+		return provcall.Result{}, errors.New("boom")
 	}
 	return s.byCompany[in.Company], nil
 }
 
-func okHiring(sig string) pyworker.ProviderResult {
-	return pyworker.ProviderResult{Status: "ok", Output: json.RawMessage(`{"success":true,"fields":{"hiring_signals":` + sig + `}}`)}
+func okHiring(sig string) provcall.Result {
+	return provcall.Result{Status: "ok", Output: json.RawMessage(`{"success":true,"fields":{"hiring_signals":` + sig + `}}`)}
 }
 
 func TestDetectHiringVectors(t *testing.T) {
@@ -244,32 +244,32 @@ func TestDetectHiringVectors(t *testing.T) {
 		}
 		return s + `}`
 	}
-	all8 := map[string]pyworker.ProviderResult{"A": okHiring(hs(8, `["t"]`)), "B": okHiring(hs(8, `["t"]`)), "C": okHiring(hs(8, `["t"]`))}
+	all8 := map[string]provcall.Result{"A": okHiring(hs(8, `["t"]`)), "B": okHiring(hs(8, `["t"]`)), "C": okHiring(hs(8, `["t"]`))}
 	script := map[string]struct {
-		res  map[string]pyworker.ProviderResult
+		res  map[string]provcall.Result
 		errs map[string]bool
 	}{
-		"single_high_band":                           {res: map[string]pyworker.ProviderResult{"A": okHiring(hs(30, `["SDR","AE","CS","VP"]`))}},
-		"fields_json_string":                         {res: map[string]pyworker.ProviderResult{"A": okHiring(`"{\"total_jobs\": 7, \"top_titles\": [\"X\"]}"`)}},
-		"fields_dict":                                {res: map[string]pyworker.ProviderResult{"A": okHiring(hs(3, `[]`))}},
-		"fields_bad_json_skipped":                    {res: map[string]pyworker.ProviderResult{"A": okHiring(`"{not json"`)}},
-		"fields_json_list_skipped":                   {res: map[string]pyworker.ProviderResult{"A": okHiring(`"[1]"`)}},
-		"no_data_no_fields":                          {res: map[string]pyworker.ProviderResult{"A": {Status: "ok", Output: json.RawMessage(`{"success":true,"fields":{}}`)}}},
-		"failure_result_skipped":                     {res: map[string]pyworker.ProviderResult{"A": {Status: "error", Output: json.RawMessage(`{"success":false,"fields":{"hiring_signals":{"total_jobs":9}}}`)}}},
-		"zero_jobs_skipped":                          {res: map[string]pyworker.ProviderResult{"A": okHiring(hs(0, `[]`))}},
-		"missing_total_jobs_skipped":                 {res: map[string]pyworker.ProviderResult{"A": okHiring(`{"top_titles":["x"]}`)}},
-		"weight_capped_at_10":                        {res: map[string]pyworker.ProviderResult{"A": okHiring(hs(500, `["x"]`))}},
-		"weight_equals_total_when_small":             {res: map[string]pyworker.ProviderResult{"A": okHiring(hs(4, `["x"]`))}},
-		"negative_total_skipped":                     {res: map[string]pyworker.ProviderResult{"A": okHiring(hs(-3, `["x"]`))}},
-		"top_titles_first_three":                     {res: map[string]pyworker.ProviderResult{"A": okHiring(hs(5, `["a","b","c","d"]`))}},
-		"top_titles_missing":                         {res: map[string]pyworker.ProviderResult{"A": okHiring(hs(5, ``))}},
-		"lead_without_company_skipped":               {res: map[string]pyworker.ProviderResult{"B": okHiring(hs(25, `["t"]`))}},
-		"provider_exception_isolated":                {res: map[string]pyworker.ProviderResult{"B": okHiring(hs(25, `["t"]`))}, errs: map[string]bool{"A": true}},
+		"single_high_band":                           {res: map[string]provcall.Result{"A": okHiring(hs(30, `["SDR","AE","CS","VP"]`))}},
+		"fields_json_string":                         {res: map[string]provcall.Result{"A": okHiring(`"{\"total_jobs\": 7, \"top_titles\": [\"X\"]}"`)}},
+		"fields_dict":                                {res: map[string]provcall.Result{"A": okHiring(hs(3, `[]`))}},
+		"fields_bad_json_skipped":                    {res: map[string]provcall.Result{"A": okHiring(`"{not json"`)}},
+		"fields_json_list_skipped":                   {res: map[string]provcall.Result{"A": okHiring(`"[1]"`)}},
+		"no_data_no_fields":                          {res: map[string]provcall.Result{"A": {Status: "ok", Output: json.RawMessage(`{"success":true,"fields":{}}`)}}},
+		"failure_result_skipped":                     {res: map[string]provcall.Result{"A": {Status: "error", Output: json.RawMessage(`{"success":false,"fields":{"hiring_signals":{"total_jobs":9}}}`)}}},
+		"zero_jobs_skipped":                          {res: map[string]provcall.Result{"A": okHiring(hs(0, `[]`))}},
+		"missing_total_jobs_skipped":                 {res: map[string]provcall.Result{"A": okHiring(`{"top_titles":["x"]}`)}},
+		"weight_capped_at_10":                        {res: map[string]provcall.Result{"A": okHiring(hs(500, `["x"]`))}},
+		"weight_equals_total_when_small":             {res: map[string]provcall.Result{"A": okHiring(hs(4, `["x"]`))}},
+		"negative_total_skipped":                     {res: map[string]provcall.Result{"A": okHiring(hs(-3, `["x"]`))}},
+		"top_titles_first_three":                     {res: map[string]provcall.Result{"A": okHiring(hs(5, `["a","b","c","d"]`))}},
+		"top_titles_missing":                         {res: map[string]provcall.Result{"A": okHiring(hs(5, ``))}},
+		"lead_without_company_skipped":               {res: map[string]provcall.Result{"B": okHiring(hs(25, `["t"]`))}},
+		"provider_exception_isolated":                {res: map[string]provcall.Result{"B": okHiring(hs(25, `["t"]`))}, errs: map[string]bool{"A": true}},
 		"cap_limits_leads_scanned":                   {res: all8},
 		"cap_zero_scans_none":                        {res: all8},
-		"band_boundaries_one_lead_each":              {res: map[string]pyworker.ProviderResult{"C1": okHiring(hs(5, `["x"]`)), "C2": okHiring(hs(6, `["x"]`)), "C3": okHiring(hs(20, `["x"]`)), "C4": okHiring(hs(21, `["x"]`)), "C5": okHiring(hs(51, `["x"]`))}},
-		"unicode_company_title":                      {res: map[string]pyworker.ProviderResult{"Société Générale": okHiring(hs(12, `["Ingénieur"]`))}},
-		"same_lead_twice_same_id":                    {res: map[string]pyworker.ProviderResult{"A": okHiring(hs(12, `["x"]`))}},
+		"band_boundaries_one_lead_each":              {res: map[string]provcall.Result{"C1": okHiring(hs(5, `["x"]`)), "C2": okHiring(hs(6, `["x"]`)), "C3": okHiring(hs(20, `["x"]`)), "C4": okHiring(hs(21, `["x"]`)), "C5": okHiring(hs(51, `["x"]`))}},
+		"unicode_company_title":                      {res: map[string]provcall.Result{"Société Générale": okHiring(hs(12, `["Ingénieur"]`))}},
+		"same_lead_twice_same_id":                    {res: map[string]provcall.Result{"A": okHiring(hs(12, `["x"]`))}},
 		"data_dict_wins_over_fields":                 {},
 		"empty_data_dict_is_present_but_falsy_total": {},
 	}

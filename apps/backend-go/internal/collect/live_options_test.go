@@ -5,14 +5,14 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 )
 
-type capCaller struct{ calls []pyworker.ProviderCall }
+type capCaller struct{ calls []provcall.Call }
 
-func (c *capCaller) Call(_ context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+func (c *capCaller) Call(_ context.Context, call provcall.Call) (provcall.Result, error) {
 	c.calls = append(c.calls, call)
-	return pyworker.ProviderResult{Status: "ok", Output: json.RawMessage(`{"success":false,"fields":{}}`)}, nil
+	return provcall.Result{Status: "ok", Output: json.RawMessage(`{"success":false,"fields":{}}`)}, nil
 }
 
 // The provider stages use the job's settings, as JobRunner constructed them:

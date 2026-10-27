@@ -16,7 +16,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadsread"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadswrite"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
 
@@ -25,9 +25,9 @@ import (
 // imports ddgs, so it stays on the Python worker (decision D8).
 const hiringProvider = "jobspy"
 
-// Caller is the part of *pyworker.Client the scan uses.
+// Caller runs provider calls (provcall.Caller: the in-process rpclocal caller).
 type Caller interface {
-	Call(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error)
+	Call(ctx context.Context, call provcall.Call) (provcall.Result, error)
 }
 
 // Caps are the SIGNAL_SCAN_* settings.
@@ -102,7 +102,7 @@ type Lead struct {
 
 // ExtractHiringData is monitor._extract_hiring_data over a pyworker result: the
 // "hiring_signals" field (a JSON string, or an object) of a successful result, or nil.
-func ExtractHiringData(res pyworker.ProviderResult) map[string]any {
+func ExtractHiringData(res provcall.Result) map[string]any {
 	if res.Status != "ok" || len(res.Output) == 0 {
 		return nil
 	}
@@ -214,7 +214,7 @@ func detectHiring(ctx context.Context, d Deps, workspaceID string, leads []Lead,
 		if len(input) == 0 {
 			input, _ = json.Marshal(map[string]any{"id": lead.ID, "company": lead.Company})
 		}
-		res, err := d.Py.Call(ctx, pyworker.ProviderCall{
+		res, err := d.Py.Call(ctx, provcall.Call{
 			CallID:      fmt.Sprintf("signal_scan:%s:%d:%d:%d", workspaceID, lead.ID, now.UnixNano(), i),
 			Provider:    hiringProvider,
 			WorkspaceID: workspaceID,

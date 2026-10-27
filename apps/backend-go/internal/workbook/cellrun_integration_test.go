@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/spend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
@@ -325,7 +325,7 @@ func TestCellRunFinishesWaterfallAfterClientLeaves(t *testing.T) {
 		mu.Unlock()
 		if name == "hunter_io" {
 			cancel()                                               // the client leaves while the first paid call is in flight
-			return providers.Output{}, pyworker.ErrUnknownProvider // dispatched, settles at 0, next provider runs
+			return providers.Output{}, provcall.ErrUnknownProvider // dispatched, settles at 0, next provider runs
 		}
 		return providers.Output{Confidence: 0.7, Extra: obj("founded_year", "1999")}, nil
 	}}

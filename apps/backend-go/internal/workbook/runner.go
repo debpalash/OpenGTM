@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 )
 
 // ProviderRunner runs one provider call (providerrun.Runner). The runner owns
@@ -38,7 +38,7 @@ func (r manifestRunner) Run(ctx context.Context, _ string, provider string, in p
 	rs := r.rs
 	m, ok := r.manifest(provider)
 	if !ok {
-		return providers.Output{}, pyworker.ErrUnknownProvider
+		return providers.Output{}, provcall.ErrUnknownProvider
 	}
 	pctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()

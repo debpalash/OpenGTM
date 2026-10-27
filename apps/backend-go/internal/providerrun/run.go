@@ -1,6 +1,6 @@
 // Package providerrun runs one enrichment provider call: a Go-native provider
-// in a bounded, abandonable goroutine, or any other provider on the Python
-// worker through pyworker. It resolves credentials per workspace, fills
+// in a bounded, abandonable goroutine (any other name is ErrUnavailable since
+// the plan 15 cutover). It resolves credentials per workspace, fills
 // provider settings from global operator config only, reads and fills the
 // workspace-scoped enrichment cache, and writes the provider_stats ledger the
 // way Python's planner.record_attempt does.
@@ -23,9 +23,9 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/enrichcache"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/contact"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/vendorcatalog"
@@ -39,9 +39,9 @@ import (
 // to the Python executor. ErrUnknownProvider and ErrUnauthorized come from the
 // Python RPC (provider not on Python / bad token or disabled internal API).
 var (
-	ErrUnavailable     = pyworker.ErrUnavailable
-	ErrUnknownProvider = pyworker.ErrUnknownProvider
-	ErrUnauthorized    = pyworker.ErrUnauthorized
+	ErrUnavailable     = provcall.ErrUnavailable
+	ErrUnknownProvider = provcall.ErrUnknownProvider
+	ErrUnauthorized    = provcall.ErrUnauthorized
 )
 
 const (
@@ -62,17 +62,11 @@ type Secrets interface {
 	Get(ctx context.Context, ws, key string) (value, source string, err error)
 }
 
-// PyCaller is the Python worker RPC (pyworker.Client).
-type PyCaller interface {
-	Call(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error)
-}
-
 // Deps wires a Runner.
 type Deps struct {
 	Pool    *pgxpool.Pool // nil disables the ledger and the cache (unit tests)
 	HTTP    *http.Client  // egress-guarded client; nil builds egress.NewClient
 	Secrets Secrets
-	Py      PyCaller
 	// OperatorAllow is EGRESS_ALLOW_HOSTS: exact host[:port] entries the
 	// Reacher client may reach even when private.
 	OperatorAllow []string
@@ -168,11 +162,11 @@ func (r *Runner) run(ctx context.Context, workspaceID, provider string, in provi
 		timedOut    bool
 		err         error
 	)
-	if native {
-		out, timedOut, err = r.runGo(ctx, workspaceID, p, in, timeout)
-	} else {
-		out, rateLimited, timedOut, err = r.runPython(ctx, workspaceID, provider, in, timeout)
+	if !native {
+		// Only Go providers run (plan 15 cutover: the Python provider RPC is gone).
+		return providers.Output{}, ErrUnavailable
 	}
+	out, timedOut, err = r.runGo(ctx, workspaceID, p, in, timeout)
 	if err != nil {
 		return providers.Output{}, err
 	}
@@ -298,50 +292,6 @@ func (r *Runner) runGo(ctx context.Context, ws string, p providers.Provider, in 
 		}
 	}
 	return out, false, nil
-}
-
-// ---- Python path ------------------------------------------------------------
-
-func (r *Runner) runPython(ctx context.Context, ws, provider string, in providers.Input, timeout time.Duration) (out providers.Output, rateLimited, timedOut bool, err error) {
-	if r.d.Py == nil {
-		return providers.Output{}, false, false, ErrUnavailable
-	}
-	lead := in.Lead
-	if lead == nil {
-		lead = map[string]any{}
-	}
-	raw, merr := json.Marshal(lead)
-	if merr != nil {
-		return providers.Output{Error: "invalid provider call input"}, false, false, nil
-	}
-	// A fresh call_id per attempt: Python dedupes on (workspace, call_id) and a
-	// retried paid call must never be replayed as the old one.
-	res, cerr := r.d.Py.Call(ctx, pyworker.ProviderCall{
-		CallID: newCallID(), Provider: provider, WorkspaceID: ws, Input: raw, Timeout: timeout,
-	})
-	if cerr != nil {
-		return providers.Output{}, false, false, cerr
-	}
-	if res.Err != nil {
-		return providers.Output{}, false, false, res.Err
-	}
-	switch res.Status {
-	case "timeout":
-		return providers.Output{Error: "timeout"}, false, true, nil
-	case "ok", "error":
-	default:
-		return providers.Output{Error: "provider returned no result"}, false, false, nil
-	}
-	if o, ok := parsePythonOutput(res.Output, in.Field); ok {
-		o.CostUSD = res.CostUSD
-		if res.Status == "error" && o.Error == "" {
-			o.Error = firstNonEmpty(res.Error, "provider returned no result")
-		}
-		return o, false, false, nil
-	}
-	msg := firstNonEmpty(res.Error, "provider returned no result")
-	// No result dict: the Python provider raised, like Python's except branch.
-	return providers.Output{Error: msg}, looksRateLimited(msg), false, nil
 }
 
 func parsePythonOutput(raw json.RawMessage, field string) (providers.Output, bool) {

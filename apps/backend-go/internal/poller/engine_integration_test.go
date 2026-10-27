@@ -18,7 +18,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/poller"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
@@ -543,8 +543,8 @@ func mustTime(t *testing.T, s string) time.Time {
 // the surge signal, its deterministic id and the merged cursor.
 type recordedPy struct{ out json.RawMessage }
 
-func (r recordedPy) Call(context.Context, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
-	return pyworker.ProviderResult{Status: "ok", Output: r.out}, nil
+func (r recordedPy) Call(context.Context, provcall.Call) (provcall.Result, error) {
+	return provcall.Result{Status: "ok", Output: r.out}, nil
 }
 
 func TestPollRealHiringSourceEmitsSurge(t *testing.T) {

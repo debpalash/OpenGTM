@@ -17,7 +17,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/vendorcatalog"
 )
@@ -129,12 +129,12 @@ func decodeColumnOutput(raw json.RawMessage) (pyOutput, error) {
 // pyCall performs one RPC. A returned error means the whole run must unwind
 // (job cancelled) or the python worker is not usable; a cell-local failure is
 // reported through (status, output).
-func (rs *runState) pyCall(ctx context.Context, provider string, input map[string]any, timeout time.Duration) (pyworker.ProviderResult, error) {
+func (rs *runState) pyCall(ctx context.Context, provider string, input map[string]any, timeout time.Duration) (provcall.Result, error) {
 	b, err := json.Marshal(input)
 	if err != nil {
-		return pyworker.ProviderResult{Status: "error", Error: "invalid provider call input"}, nil
+		return provcall.Result{Status: "error", Error: "invalid provider call input"}, nil
 	}
-	res, err := rs.deps.Py.Call(ctx, pyworker.ProviderCall{CallID: newCallID(), Provider: provider,
+	res, err := rs.deps.Py.Call(ctx, provcall.Call{CallID: newCallID(), Provider: provider,
 		WorkspaceID: rs.p.WorkspaceID, Input: b, Timeout: timeout})
 	if err != nil {
 		if a := abortErr(ctx, err); a != nil {

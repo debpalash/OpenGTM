@@ -16,7 +16,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 )
 
@@ -109,9 +109,10 @@ type RowChangeEmitter interface {
 	RowsChanged(ctx context.Context, tx pgx.Tx, workspaceID, workbookID string, changes []automationhook.Change) (int, error)
 }
 
-// PyCaller is the Python worker RPC (pyworker.Client).
+// PyCaller is a provider-call runner for the AI column providers (provcall.Caller); unused by the worker since
+// the plan 15 cutover (the AI columns run in process through AICols).
 type PyCaller interface {
-	Call(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error)
+	Call(ctx context.Context, call provcall.Call) (provcall.Result, error)
 }
 
 // BatchConfig controls the ai_formula batch prepass (WORKBOOK_BATCH_*).

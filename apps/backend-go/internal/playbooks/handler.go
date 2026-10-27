@@ -13,7 +13,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
@@ -58,7 +58,7 @@ func RunHandler(d Deps, r Researcher) func(ctx context.Context, c *queue.Claim) 
 			return foreign(c)
 		}
 		err := HandleRun(ctx, d, f[0], f[1])
-		if errors.Is(err, pyworker.ErrUnavailable) {
+		if errors.Is(err, provcall.ErrUnavailable) {
 			// No research runner is wired (there is no Python worker to hand the run to since the cutover):
 			// a retry cannot succeed.
 			return &queue.PermanentError{Err: fmt.Errorf("playbooks: research runner unavailable: %w", err)}

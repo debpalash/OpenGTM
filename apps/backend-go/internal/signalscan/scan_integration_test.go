@@ -16,7 +16,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/signalscan"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
@@ -107,7 +107,7 @@ type hiringPy struct {
 	calls  int
 }
 
-func (h *hiringPy) Call(_ context.Context, c pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+func (h *hiringPy) Call(_ context.Context, c provcall.Call) (provcall.Result, error) {
 	h.calls++
 	var in struct {
 		Company string `json:"company"`
@@ -115,7 +115,7 @@ func (h *hiringPy) Call(_ context.Context, c pyworker.ProviderCall) (pyworker.Pr
 	_ = json.Unmarshal(c.Input, &in)
 	n, ok := h.jobs[in.Company]
 	if !ok {
-		return pyworker.ProviderResult{Status: "error", Output: json.RawMessage(`{"success":false,"fields":{}}`)}, nil
+		return provcall.Result{Status: "error", Output: json.RawMessage(`{"success":false,"fields":{}}`)}, nil
 	}
 	body := map[string]any{"total_jobs": n}
 	if t, ok := h.titles[in.Company]; ok {
@@ -123,7 +123,7 @@ func (h *hiringPy) Call(_ context.Context, c pyworker.ProviderCall) (pyworker.Pr
 	}
 	hs, _ := json.Marshal(body)
 	inner, _ := json.Marshal(string(hs)) // JobSpy returns the JSON as a string
-	return pyworker.ProviderResult{Status: "ok", Output: json.RawMessage(`{"success":true,"fields":{"hiring_signals":` + string(inner) + `}}`)}, nil
+	return provcall.Result{Status: "ok", Output: json.RawMessage(`{"success":true,"fields":{"hiring_signals":` + string(inner) + `}}`)}, nil
 }
 
 func (e *env) deps(py signalscan.Caller) signalscan.Deps {

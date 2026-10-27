@@ -21,7 +21,9 @@ type nativeLLM struct {
 	qs    []string
 }
 
-func (n *nativeLLM) Complete(context.Context, llm.CompleteRequest) (string, error) { return "", llm.ErrEmptyResponse }
+func (n *nativeLLM) Complete(context.Context, llm.CompleteRequest) (string, error) {
+	return "", llm.ErrEmptyResponse
+}
 func (n *nativeLLM) ExtractJSON(context.Context, string, string, int) (map[string]any, error) {
 	return nil, llm.ErrInvalidJSON
 }

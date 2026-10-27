@@ -15,7 +15,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 )
 
 type call struct {
@@ -441,9 +441,9 @@ func TestRunUnavailableWorkerBeforeStartHandsBack(t *testing.T) {
 	e := setup(t)
 	e.members(t, 1, 2)
 	_, run := e.engineRun(t, oneStep, 100)
-	f := &fakeRes{fn: func(n int, c call) (ResearchResult, error) { return ResearchResult{}, pyworker.ErrUnavailable }}
+	f := &fakeRes{fn: func(n int, c call) (ResearchResult, error) { return ResearchResult{}, provcall.ErrUnavailable }}
 	err := e.run(t, f, run)
-	if !errors.Is(err, pyworker.ErrUnavailable) {
+	if !errors.Is(err, provcall.ErrUnavailable) {
 		t.Fatalf("want ErrUnavailable, got %v", err)
 	}
 	if len(f.calls) != 1 {
@@ -466,12 +466,12 @@ func TestRunUnavailableMidRunMarksPending(t *testing.T) {
 	_, run := e.engineRun(t, oneStep, 100)
 	f := &fakeRes{fn: func(n int, c call) (ResearchResult, error) {
 		if n >= 2 {
-			return ResearchResult{}, pyworker.ErrUnavailable
+			return ResearchResult{}, provcall.ErrUnavailable
 		}
 		return ResearchResult{Success: true, Value: "x"}, nil
 	}}
 	err := e.run(t, f, run)
-	if !errors.Is(err, pyworker.ErrUnavailable) {
+	if !errors.Is(err, provcall.ErrUnavailable) {
 		t.Fatalf("want ErrUnavailable, got %v", err)
 	}
 	st := e.runState(t, e.ws, run.ID)

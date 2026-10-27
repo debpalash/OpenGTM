@@ -4,10 +4,8 @@ package providerrun_test
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -20,11 +18,11 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	_ "github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/contact"
 	_ "github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/firmo"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
@@ -200,54 +198,6 @@ func TestKeylessProviderAndKeyLookupFailsClosed(t *testing.T) {
 	}
 }
 
-func rpcServer(t *testing.T, h http.HandlerFunc) *pyworker.Client {
-	t.Helper()
-	srv := httptest.NewServer(h)
-	t.Cleanup(srv.Close)
-	return pyworker.New(srv.URL, "tok-tok-tok", nil)
-}
-
-func TestRunPythonProviderViaRPC(t *testing.T) {
-	name := uniq("t18_py")
-	var mu sync.Mutex
-	var calls []map[string]any
-	py := rpcServer(t, func(w http.ResponseWriter, r *http.Request) {
-		b, _ := io.ReadAll(r.Body)
-		var m map[string]any
-		_ = json.Unmarshal(b, &m)
-		mu.Lock()
-		calls = append(calls, m)
-		mu.Unlock()
-		_, _ = w.Write([]byte(`{"status":"ok","output":{"provider":"x","success":true,"fields":{"zeta":"z","email":"p@acme.co"},"confidence":0.7,"error":""},"error":null,"cost_usd":0.05}`))
-	})
-	h := newHarness(t, func(d *providerrun.Deps) { d.Py = py })
-	in := providers.Input{Lead: map[string]any{"company": "Acme"}, Field: "email"}
-	out, err := h.r.Run(context.Background(), "ws1", name, in, 3*time.Second)
-	if err != nil || out.Error != "" || out.Value != "p@acme.co" || out.Confidence != 0.7 || out.CostUSD != 0.05 {
-		t.Fatalf("out=%+v err=%v", out, err)
-	}
-	if keys := out.Extra.Keys(); len(keys) != 2 || keys[0] != "zeta" {
-		t.Fatalf("field order lost: %v", keys)
-	}
-	if _, err := h.r.Run(context.Background(), "ws1", name, in, 3*time.Second); err != nil {
-		t.Fatal(err)
-	}
-	mu.Lock()
-	defer mu.Unlock()
-	if len(calls) != 2 || calls[0]["provider"] != name || calls[0]["workspace_id"] != "ws1" {
-		t.Fatalf("calls %v", calls)
-	}
-	if calls[0]["call_id"] == "" || calls[0]["call_id"] == calls[1]["call_id"] {
-		t.Fatalf("call_id must be fresh per attempt: %v %v", calls[0]["call_id"], calls[1]["call_id"])
-	}
-	if lead, _ := calls[0]["input"].(map[string]any); lead["company"] != "Acme" {
-		t.Fatalf("input %v", calls[0]["input"])
-	}
-	if s, ok := h.stat(t, name, "email"); !ok || s.attempts != 2 || s.hits != 2 {
-		t.Fatalf("ledger %+v", s)
-	}
-}
-
 func TestRunTimeoutDoesNotBlockSlot(t *testing.T) {
 	slow, fast := uniq("t18_slow"), uniq("t18_fast")
 	providers.Register(&fakeProv{slow, func(ctx context.Context, _ *http.Client, _ func() (string, error), _ providers.Input) (providers.Output, error) {
@@ -350,71 +300,25 @@ func TestRunCacheHitSkipsProvider(t *testing.T) {
 	}
 }
 
-func TestRunCancelPropagatesToRPC(t *testing.T) {
-	name := uniq("t18_pycancel")
-	arrived, cancelled := make(chan struct{}), make(chan struct{})
-	py := rpcServer(t, func(w http.ResponseWriter, r *http.Request) {
-		_, _ = io.Copy(io.Discard, r.Body) // the server notices a dropped client only after the body is read
-		close(arrived)
-		<-r.Context().Done()
-		close(cancelled)
-	})
-	h := newHarness(t, func(d *providerrun.Deps) { d.Py = py })
-	ctx, cancel := context.WithCancel(context.Background())
-	done := make(chan error, 1)
-	go func() {
-		_, err := h.r.Run(ctx, "ws1", name, providers.Input{Field: "email"}, 30*time.Second)
-		done <- err
-	}()
-	<-arrived
-	cancel()
-	select {
-	case err := <-done:
-		if !errors.Is(err, context.Canceled) {
-			t.Fatalf("err=%v, want context.Canceled", err)
-		}
-	case <-time.After(3 * time.Second):
-		t.Fatal("Run did not return after cancel")
-	}
-	select {
-	case <-cancelled:
-	case <-time.After(3 * time.Second):
-		t.Fatal("RPC request was not cancelled")
-	}
-	if _, ok := h.stat(t, name, "email"); ok {
-		t.Fatal("a cancelled call must not write the ledger")
-	}
-}
-
 func TestStatsLedgerRowsMatchPython(t *testing.T) {
-	okP, badP, rlP := uniq("t18_ok"), uniq("t18_bad"), uniq("t18_rl")
+	okP, badP := uniq("t18_ok"), uniq("t18_bad")
 	providers.Register(&fakeProv{okP, func(context.Context, *http.Client, func() (string, error), providers.Input) (providers.Output, error) {
 		return okOut("phone", "+1", 0.6), nil
 	}})
 	providers.Register(&fakeProv{badP, func(context.Context, *http.Client, func() (string, error), providers.Input) (providers.Output, error) {
 		return providers.Output{Error: "HTTP 500"}, nil
 	}})
-	py := rpcServer(t, func(w http.ResponseWriter, r *http.Request) {
-		_, _ = w.Write([]byte(`{"status":"error","output":null,"error":"RuntimeError: 429 Too Many Requests","cost_usd":0}`))
-	})
-	h := newHarness(t, func(d *providerrun.Deps) { d.Py = py })
+	h := newHarness(t, nil)
 	ctx := context.Background()
 	for i := 0; i < 2; i++ {
 		_, _ = h.r.Run(ctx, "ws1", okP, providers.Input{Field: "phone"}, time.Second)
 	}
 	_, _ = h.r.Run(ctx, "ws1", badP, providers.Input{Field: "phone"}, time.Second)
-	out, err := h.r.Run(ctx, "ws1", rlP, providers.Input{Field: "phone"}, time.Second)
-	if err != nil || out.Error == "" {
-		t.Fatalf("rl: %+v %v", out, err)
-	}
 	if s, _ := h.stat(t, okP, "phone"); s.attempts != 2 || s.hits != 2 || s.conf != 1.2 || s.cost != 0.1 || s.cooldownSecondsAhead != -1 || s.latency < 0 {
 		t.Errorf("ok ledger %+v", s)
 	}
 	if s, _ := h.stat(t, badP, "phone"); s.attempts != 1 || s.hits != 0 || s.conf != 0 || s.cost != 0 || s.cooldownSecondsAhead != -1 {
 		t.Errorf("failure ledger %+v (a plain failed result sets no cooldown)", s)
-	}
-	if s, _ := h.stat(t, rlP, "phone"); s.attempts != 1 || s.hits != 0 || s.cooldownSecondsAhead < 270 || s.cooldownSecondsAhead > 301 {
-		t.Errorf("rate-limited exception ledger %+v (want 300s cooldown)", s)
 	}
 }
 
@@ -423,41 +327,11 @@ func TestUnavailableIsDistinctError(t *testing.T) {
 	in := providers.Input{Field: "email"}
 	h := newHarness(t, nil)
 	_, err := h.r.Run(context.Background(), "ws1", name, in, time.Second)
-	if !errors.Is(err, providerrun.ErrUnavailable) || !errors.Is(err, pyworker.ErrUnavailable) {
+	if !errors.Is(err, providerrun.ErrUnavailable) || !errors.Is(err, provcall.ErrUnavailable) {
 		t.Fatalf("nil Py: %v", err)
 	}
-	h = h.with(func(d *providerrun.Deps) { d.Py = pyworker.New("", "", nil) })
-	if _, err := h.r.Run(context.Background(), "ws1", name, in, time.Second); !errors.Is(err, providerrun.ErrUnavailable) {
-		t.Fatalf("unconfigured client: %v", err)
-	}
-	for status, want := range map[int]error{404: providerrun.ErrUnknownProvider, 401: providerrun.ErrUnauthorized} {
-		st := status
-		py := rpcServer(t, func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(st) })
-		h = h.with(func(d *providerrun.Deps) { d.Py = py })
-		_, err := h.r.Run(context.Background(), "ws1", name, in, time.Second)
-		if !errors.Is(err, want) {
-			t.Errorf("status %d: err=%v want %v", status, err, want)
-		}
-		if _, ok := h.stat(t, name, "email"); ok {
-			t.Errorf("status %d: rejected call must not write the ledger", status)
-		}
-	}
-}
-
-func TestPythonTimeoutNoRetry(t *testing.T) {
-	name := uniq("t18_pyto")
-	var n atomic.Int32
-	py := rpcServer(t, func(w http.ResponseWriter, r *http.Request) {
-		n.Add(1)
-		_, _ = w.Write([]byte(`{"status":"timeout","output":null,"error":"provider timed out","cost_usd":0}`))
-	})
-	h := newHarness(t, func(d *providerrun.Deps) { d.Py = py })
-	out, err := h.r.Run(context.Background(), "ws1", name, providers.Input{Field: "email"}, time.Second)
-	if err != nil || out.Error != "timeout" || n.Load() != 1 {
-		t.Fatalf("out=%+v err=%v calls=%d", out, err, n.Load())
-	}
-	if s, _ := h.stat(t, name, "email"); s.attempts != 1 || s.cooldownSecondsAhead < 150 {
-		t.Fatalf("ledger %+v", s)
+	if _, ok := h.stat(t, name, "email"); ok {
+		t.Error("an unavailable provider must not write the ledger")
 	}
 }
 

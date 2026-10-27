@@ -13,8 +13,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
@@ -74,7 +74,7 @@ func TestAgentVectors(t *testing.T) {
 				r, ok := sc.Providers[p]
 				switch {
 				case !ok:
-					return providers.Output{}, pyworker.ErrUnknownProvider
+					return providers.Output{}, provcall.ErrUnknownProvider
 				case r.Timeout:
 					return providers.Output{Error: "timeout"}, nil
 				case r.Raise != "":

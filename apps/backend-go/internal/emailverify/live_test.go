@@ -8,22 +8,22 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 )
 
 type fakePy struct {
-	res  pyworker.ProviderResult
+	res  provcall.Result
 	err  error
-	last pyworker.ProviderCall
+	last provcall.Call
 }
 
-func (f *fakePy) Call(_ context.Context, c pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+func (f *fakePy) Call(_ context.Context, c provcall.Call) (provcall.Result, error) {
 	f.last = c
 	return f.res, f.err
 }
 
 func TestWebsiteFinderPicksFirstUsableEmail(t *testing.T) {
-	py := &fakePy{res: pyworker.ProviderResult{Status: "ok",
+	py := &fakePy{res: provcall.Result{Status: "ok",
 		Output: json.RawMessage(`{"success":true,"fields":{"email":"logo@2x.png","secondary_emails":"noreply@acme.com|real@acme.com"}}`)}}
 	f := &WebsiteFinder{Py: py}
 	email, _, err := f.Find(context.Background(), "ws1", map[string]any{"website": "acme.com"}, "acme.com")
@@ -34,12 +34,12 @@ func TestWebsiteFinderPicksFirstUsableEmail(t *testing.T) {
 		t.Fatalf("call: %+v", py.last)
 	}
 	// no website: nothing to call
-	py.last = pyworker.ProviderCall{}
+	py.last = provcall.Call{}
 	if e, _, err := f.Find(context.Background(), "ws1", map[string]any{}, ""); e != "" || err != nil || py.last.Provider != "" {
 		t.Fatalf("no website must not call the worker: %q %v %+v", e, err, py.last)
 	}
 	// worker error becomes a recorded step error
-	py.res = pyworker.ProviderResult{Status: "error", Error: "provider worker expired"}
+	py.res = provcall.Result{Status: "error", Error: "provider worker expired"}
 	if _, _, err := f.Find(context.Background(), "ws1", map[string]any{"website": "acme.com"}, ""); err == nil || err.Error() != "provider worker expired" {
 		t.Fatalf("err=%v", err)
 	}
