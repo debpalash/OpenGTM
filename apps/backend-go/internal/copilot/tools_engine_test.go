@@ -29,7 +29,7 @@ func TestEngineToolsFallThroughOnUnmirroredArgs(t *testing.T) {
 			t.Errorf("%s %v: handled=%v err=%v res=%s", c.name, c.args, handled, err, res)
 		}
 	}
-	if isEngineTool("enrich_lead") || isEngineTool("track_account_signals") || !isEngineTool("create_source_workbook") {
+	if isEngineTool("enrich_lead") || !isEngineTool("track_account_signals") || !isEngineTool("create_source_workbook") {
 		t.Error("engine tool set")
 	}
 	// KeyError texts are answered in Go like execute()'s generic failure.

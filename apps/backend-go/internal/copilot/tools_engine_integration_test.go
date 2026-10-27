@@ -163,6 +163,13 @@ func toolSnapshot(t *testing.T, owner *pgxpool.Pool, ws string, before int64) ma
 			sync_to_leads, budget_max_usd, budget_spent_usd, refresh_policy::text AS refresh_policy
 			FROM workbooks WHERE workspace_id = $1 ORDER BY name, id`, ws),
 		"collection_jobs": q(`SELECT query, intent, intent_details, status FROM collection_jobs WHERE workspace_id = $1 ORDER BY created_at, id`, ws),
+		"watches": q(`SELECT kind, target, resolved_cik, lead_id, signal_types::text AS signal_types, interval, enabled,
+			next_poll_at IS NOT NULL AS scheduled, cursor::text AS cursor, last_error, consecutive_failures,
+			config::text AS config, schedule_anchor IS NOT NULL AS anchored
+			FROM watch_subscriptions WHERE workspace_id = $1 ORDER BY created_at, id`, ws),
+		"watch_schedules": q(`SELECT enabled, next_poll_at IS NOT NULL AS scheduled FROM watch_schedules WHERE workspace_id = $1 ORDER BY watch_id`, ws),
+		"cancelled_polls": q(`SELECT type, status, error, completed_at IS NOT NULL AS completed FROM jobs
+			WHERE type = 'watch_poll' AND status = 'cancelled' AND payload::text LIKE $1 ORDER BY id`, "%"+ws+"%"),
 	}
 	b, _ := json.Marshal(snap)
 	var out map[string]any
@@ -199,6 +206,9 @@ func deepNormJSON(t *testing.T, b []byte) string {
 // goRefreshJob is the shape Go's refresh.SetPolicy enqueues (the refresh package's documented deviation:
 // workspace_id is stamped on the row and a policy fire key dedupes the chain start).
 func goRefreshJob(j map[string]any) {
+	if j["type"] == "watch_poll" { // poller.EnqueuePollIfAbsent stamps the row's workspace_id (Python left it NULL)
+		delete(j, "workspace_id")
+	}
 	if j["type"] == "refresh_workbook" {
 		delete(j, "workspace_id")
 		delete(j, "fire_key")
@@ -215,11 +225,12 @@ func goRefreshJob(j map[string]any) {
 
 func TestEngineToolsMatchPython(t *testing.T) {
 	var f struct {
-		WS    string `json:"workspace_id"`
-		Slug  string `json:"slug"`
-		Base  int64  `json:"lead_id_base"`
-		Leads [][]any
-		Cases []struct {
+		WS          string `json:"workspace_id"`
+		Slug        string `json:"slug"`
+		Base        int64  `json:"lead_id_base"`
+		Leads       [][]any
+		AccountRows [][]any `json:"account_rows"`
+		Cases       []struct {
 			Name   string          `json:"name"`
 			Args   json.RawMessage `json:"args"`
 			Result string          `json:"result"`
@@ -246,6 +257,8 @@ func TestEngineToolsMatchPython(t *testing.T) {
 			exec(`DELETE FROM `+tb+` WHERE workspace_id = $1`, ws)
 		}
 		exec(`DELETE FROM jobs WHERE payload::text LIKE $1`, "%"+ws+"%")
+		exec(`DELETE FROM watch_schedules WHERE workspace_id = $1`, ws)
+		exec(`DELETE FROM watch_subscriptions WHERE workspace_id = $1`, ws)
 		exec(`DELETE FROM workspaces WHERE id = $1`, ws)
 	}
 	clean()
@@ -277,9 +290,22 @@ func TestEngineToolsMatchPython(t *testing.T) {
 	seedWB("wb-rec-1", "")
 	seedWB("wb-rec-2", "")
 	seedWB("wb-rec-3", `{"enabled": false, "interval": "daily"}`)
+	seedWB("wb-rec-acc", "")
+	for _, r := range f.AccountRows {
+		data, _ := json.Marshal(r[1])
+		var canon, lead any
+		if r[2] != nil {
+			canon = r[2]
+		}
+		if r[3] != nil {
+			lead = f.Base + int64(r[3].(float64))
+		}
+		exec(`INSERT INTO workbook_rows (workbook_id, workspace_id, position, data, canonical_entity_id, lead_id)
+			VALUES ('wb-rec-acc', $1, $2, $3::json, $4, $5)`, ws, int64(r[0].(float64)), string(data), canon, lead)
+	}
 
 	ab := &fakeAB{}
-	tn := &Turn{Deps: Deps{Pool: pool, Engine: &Engine{Ambition: ab, CollectionLedgerPG: true}}, WS: ws, Slug: f.Slug,
+	tn := &Turn{Deps: Deps{Pool: pool, Engine: &Engine{Ambition: ab, CollectionLedgerPG: true, IntentPollerEnabled: true, PGLeadStore: true}}, WS: ws, Slug: f.Slug,
 		Auth: copilotauth.Resolved{WorkspaceID: ws, Slug: f.Slug}}
 	for i, c := range f.Cases {
 		name := fmt.Sprintf("%02d_%s", i, c.Name)
@@ -320,7 +346,7 @@ func TestEngineToolsMatchPython(t *testing.T) {
 				goRefreshJob(j.(map[string]any))
 			}
 		}
-		for _, k := range []string{"jobs", "workbooks", "collection_jobs"} {
+		for _, k := range []string{"jobs", "workbooks", "collection_jobs", "watches", "watch_schedules", "cancelled_polls"} {
 			if !reflect.DeepEqual(gotAfter[k], wantAfter[k]) {
 				gb, _ := json.Marshal(gotAfter[k])
 				wb, _ := json.Marshal(wantAfter[k])
