@@ -955,7 +955,7 @@ Runbook: `docs/go-port/runbooks/leadgen-cutover.md`.
 - **Outbound caps (Go-only):** `POST /api/leads/domain-intel` allows 8 analyses in flight process-wide (503 `Too many domain analyses in progress; retry shortly`), and one workspace holds at most 4 of
   the 16 tech-stack fetch slots (503 `Too many website fetches in progress; retry shortly`). Python has neither.
 - **Ledger marker (Python change):** `job_ledger.ledger_for` selects the Postgres ledger only when `SQLITE_STORES_BACKEND=postgres` **and** `app_settings.__collection_ledger_backend` is `postgres`
-  (read once per process; a read error raises, it never guesses), and the stores-backend startup guard also refuses a sqlite-mode process when that marker is `postgres`. Rollback has no reverse copy
+  (read once per process — long-lived API/scheduler processes until restart, each worker job re-reads it; a read error raises, it never guesses), and the stores-backend startup guard also refuses a sqlite-mode process when that marker is `postgres`. Rollback has no reverse copy
   (see the runbook).
 - `tech-stack` success path, real DoH/RDAP and the `verify-email`/`tech-stack` rate limits are not recorded (no network in the recorder): covered by 409/400/422 fixtures, replayed transcripts and
   Go tests with seams.

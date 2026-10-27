@@ -31,8 +31,8 @@ func LoadCollectionLedgerBackend(ctx context.Context, pool *pgxpool.Pool) (strin
 func normalizeLedgerMarker(v string) string { return strings.ToLower(strings.TrimSpace(v)) }
 
 // leadgenRoutesEnabled reports whether the leadgen routes may register: GO_COLLECTION_ROUTES_ENABLED
-// and PG_LEAD_STORE on and the ledger marker "postgres". Otherwise nothing registers (requests fall
-// through to Python) and the reason is logged, so a canary cannot be enabled by mistake.
+// and PG_LEAD_STORE on and the ledger marker "postgres". Otherwise nothing registers (Go answers 404; nginx keeps
+// these paths on Python at 0%) and the reason is logged, so a canary cannot be enabled by mistake.
 func (d Deps) leadgenRoutesEnabled(area string) bool {
 	if !d.Flags.Leadgen.GoCollectionRoutesEnabled {
 		d.logger().Warn("leadgen routes not registered: GO_COLLECTION_ROUTES_ENABLED is false", "area", area)

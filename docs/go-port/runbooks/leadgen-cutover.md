@@ -29,7 +29,7 @@ The step that moves data is the **collection ledger cutover** (`collection_jobs`
 
 ### 1. Quiesce
 
-No new collection and no running one from the start of step 2 **until every process has restarted in step 3**. Python reads the marker once per process, so a process started before the
+No new collection and no running one from the start of step 2 **until every process has restarted in step 3**. Python reads the marker once per process (long-lived API and scheduler processes keep it until restart; each worker job runs in a fresh process and re-reads it), so a process started before the
 marker keeps writing the SQLite ledger; the window must therefore stay closed until the restart is finished.
 
 1. Stop new collects for the window. Add a temporary include **before** `go-routes.conf` in the `server` block (not committed), then `nginx -t && nginx -s reload`:
@@ -38,6 +38,11 @@ marker keeps writing the SQLite ledger; the window must therefore stay closed un
    location ~ ^/api/workbooks/[^/]+/sources(/[^/]+/run)?$ { if ($request_method = POST) { return 503; } proxy_pass http://api_backend; }
    ```
    (the second line stops `source_workbook` jobs, which run a collection inline and write the same ledger). `jobs/{id}/cancel` and `delete` may stay open.
+   The copilot can also start collections (`start_collection`, `create_source_workbook`, both approval-gated tools). Close the chat for the window too, in the same include:
+   ```
+   location = /api/copilot/chat { if ($request_method = POST) { return 503; } proxy_pass http://api_backend; }
+   ```
+   (Approvals already pending at the start of the window are resumed through the same POST, so they are blocked as well; users re-approve after the window.)
 2. Wait until nothing is queued or running. Run as the table owner (RLS applies to the app role); the result must be **empty**:
    ```sql
    SELECT type, status, count(*) FROM jobs

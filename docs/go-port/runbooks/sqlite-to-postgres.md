@@ -186,6 +186,8 @@ throwaway field or a value you are happy to keep.
 
 ## 7. Rollback
 
+If the plan 14 collection ledger has been cut over (`app_settings.__collection_ledger_backend = 'postgres'`), roll that back first (leadgen-cutover.md, rollback row **ledger**): the stores-backend startup guard refuses a sqlite-mode process while that marker says `postgres`.
+
 ### 7a. Before the first write (nothing has written to PostgreSQL since cutover)
 
 SQLite files are still authoritative and unchanged.
