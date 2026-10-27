@@ -46,6 +46,16 @@ CREATE FUNCTION public.outreach_send_by_message_id(p_message_id text) RETURNS TA
             LIMIT 1
         $$;
 
+REVOKE ALL ON FUNCTION public.outreach_send_by_message_id(p_message_id text) FROM PUBLIC;
+
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'yupcha_app') THEN
+        GRANT EXECUTE ON FUNCTION public.outreach_send_by_message_id(p_message_id text) TO yupcha_app;
+    END IF;
+END
+$$;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -4244,6 +4254,12 @@ CREATE INDEX ix_scrape_history_url ON public.scrape_history USING btree (url);
 --
 
 CREATE INDEX ix_send_ws_msgid ON public.outreach_sends USING btree (workspace_id, message_id);
+
+--
+-- Name: ix_outreach_sends_message_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_outreach_sends_message_id ON public.outreach_sends USING btree (message_id);
 
 --
 -- Name: ix_send_ws_sent_at; Type: INDEX; Schema: public; Owner: -
