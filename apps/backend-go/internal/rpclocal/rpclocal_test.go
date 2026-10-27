@@ -182,7 +182,7 @@ func TestScrubAndCredentials(t *testing.T) {
 
 // The email waterfall's website step runs without the Python worker once
 // website_scraper is listed.
-func TestEmailWaterfallWithoutPyworker(t *testing.T) {
+func TestEmailWaterfallWithoutProviderCaller(t *testing.T) {
 	scrape.Configure(scrape.Deps{Fetch: fakeFetch{pages: map[string]string{
 		"https://acme.example": `<html><body><a href="mailto:sales@acme.example">mail</a></body></html>`}}})
 	t.Cleanup(func() { scrape.Configure(scrape.Deps{}) })

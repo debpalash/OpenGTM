@@ -25,14 +25,14 @@ var DefaultPerf = PerfValues{RowConcurrency: 12, ProviderWorkers: 8, ProviderTim
 // Recomputer starts the reactive recompute that follows a row edit: the
 // run_workbook call of update_row_data / bulk_update_row_data. Python enqueues
 // ONE durable run_workbook job for its DB-polling worker; so does this port,
-// in the caller's transaction, with executor 'python'.
+// in the caller's transaction, with executor 'go'.
 //
 // With BILLING_ENABLED the run is planned, debited and enqueued by Run (the
 // run route's code, internal/runstart, injected because runplan imports this
-// package): the platform-credit debit and Python's Go-executor eligibility
+// package): the platform-credit debit and the run planner's eligibility
 // apply as in /run. Without a Run (GO_RUN_ROUTES_ENABLED off) Start reports
 // "unavailable" rather than running unmetered. With billing off this path is
-// unchanged: it always enqueues with executor 'python'.
+// unchanged: it always enqueues with executor 'go'.
 type Recomputer struct {
 	Perf           func(context.Context) (PerfValues, error) // nil: defaults
 	BillingEnabled bool

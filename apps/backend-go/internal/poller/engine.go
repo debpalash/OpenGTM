@@ -26,7 +26,7 @@ import (
 // HandlerDeps are the dependencies of the watch_poll handler. PyDeps carries
 // the poller Deps (pool, config, clock, executor routing), the HTTP-source deps
 // (egress client, shared host spacer; build ONE and share it, its AppEnv and
-// EgressAllowHosts must equal the client's) and the pyworker collectors.
+// EgressAllowHosts must equal the client's) and the provider-call collectors.
 type HandlerDeps struct {
 	PyDeps
 	// Hook receives every inserted signal in the emitting transaction (nil: none).

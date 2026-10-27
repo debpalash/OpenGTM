@@ -42,10 +42,10 @@ var ErrNotFound = errors.New("audiencerefresh: audience not found")
 type LeadSource func(ctx context.Context, tx pgx.Tx, filters map[string]any, page, pageSize int) (rows []json.RawMessage, total int, err error)
 
 // Deps are the refresh collaborators; the zero value is production behaviour
-// except AudienceEvents (nil emits nothing) and ExecutorFor (nil: python).
+// except AudienceEvents (nil emits nothing) and ExecutorFor (nil: go).
 type Deps struct {
 	AudienceEvents Emitter
-	// ExecutorFor picks the sync job executor per destination type (the cohort rule).
+	// ExecutorFor picks the sync job executor per destination type (always "go" since the cutover).
 	ExecutorFor func(destType string) string
 	// PageSize bounds lead, exit and event paging; 0 means PageSize (500).
 	PageSize int

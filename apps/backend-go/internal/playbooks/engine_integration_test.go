@@ -421,7 +421,7 @@ func TestRunResearcherErrorFailsOnlyThatMember(t *testing.T) {
 	_, run := e.engineRun(t, oneStep, 100)
 	f := &fakeRes{fn: func(n int, c call) (ResearchResult, error) {
 		if n == 1 {
-			return ResearchResult{}, errors.New("pyworker: python worker auth rejected")
+			return ResearchResult{}, errors.New("provider call: auth rejected")
 		}
 		return ResearchResult{Success: true, Value: "fine"}, nil
 	}}

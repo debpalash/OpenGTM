@@ -22,7 +22,7 @@ import (
 
 // hiringProvider is the Python provider that implements the hiring detector
 // (JobSpySignalProvider: registry name "jobspy", module jobspy_signals). It
-// imports ddgs, so it stays on the Python worker (decision D8).
+// is served through the provider-call seam (provcall), not in process.
 const hiringProvider = "jobspy"
 
 // Caller runs provider calls (provcall.Caller: the in-process rpclocal caller).
@@ -100,7 +100,7 @@ type Lead struct {
 	Input   json.RawMessage
 }
 
-// ExtractHiringData is monitor._extract_hiring_data over a pyworker result: the
+// ExtractHiringData is monitor._extract_hiring_data over a provider-call result: the
 // "hiring_signals" field (a JSON string, or an object) of a successful result, or nil.
 func ExtractHiringData(res provcall.Result) map[string]any {
 	if res.Status != "ok" || len(res.Output) == 0 {
@@ -192,7 +192,7 @@ func topRoles(m map[string]any) (string, bool) {
 // company, ask the Python hiring provider; one lead's failure never affects another.
 func detectHiring(ctx context.Context, d Deps, workspaceID string, leads []Lead, cap int) []Detected {
 	if d.Py == nil {
-		d.log().Warn("signal scan: hiring provider unavailable (no python worker)")
+		d.log().Warn("signal scan: hiring provider unavailable (no provider-call client)")
 		return nil
 	}
 	if cap < 0 {

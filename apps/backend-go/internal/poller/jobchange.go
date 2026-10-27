@@ -375,7 +375,7 @@ func textOr(t pgtype.Text) string {
 // observation can never prove a change.
 //
 // When EVERY attempted lookup failed the result is (nil, nil, err) and the
-// cursor is left alone. A pyworker timeout, outage or auth failure stops the
+// cursor is left alone. A provider-call timeout, outage or auth failure stops the
 // batch (the rest of the roster is retried next poll, least recently checked
 // first), so a hung worker costs at most one SearchTimeout.
 func FetchJobChanges(ctx context.Context, d PyDeps, w PyWatch, contacts []Contact, backfill bool) ([]DetectedEvent, map[string]any, error) {

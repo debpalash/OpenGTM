@@ -290,7 +290,7 @@ func pcLoadTranscripts(t *testing.T) map[string]pcTranscript {
 	t.Helper()
 	files, _ := filepath.Glob("testdata/transcripts/pyworker/*.json")
 	if len(files) < 12 {
-		t.Fatalf("pyworker transcripts missing: %d", len(files))
+		t.Fatalf("provider-call transcripts missing: %d", len(files))
 	}
 	out := map[string]pcTranscript{}
 	for _, f := range files {
@@ -873,7 +873,7 @@ func TestRPCCallIDsDeterministic(t *testing.T) {
 }
 
 func TestPyworkerDownIsSourceFailure(t *testing.T) {
-	d := pcDeps(nil) // PY_WORKER_URL unset: provcall.ErrUnavailable
+	d := pcDeps(nil) // no caller wired: provcall.ErrUnavailable
 	w := pcWatch()
 	w.Cursor = map[string]any{"bootstrapped": true}
 	if ev, patch, err := FetchHiringAndTech(context.Background(), d, w, true, true, false); !errors.Is(err, provcall.ErrUnavailable) || ev != nil || patch != nil {
@@ -1228,7 +1228,7 @@ func TestAccountGroupObservationVectors(t *testing.T) {
 }
 
 func TestAccountGroupPartialCollectorFailure(t *testing.T) {
-	// funding: SEC down. partnership_hiring: pyworker down. pricing: fine.
+	// funding: SEC down. partnership_hiring: provider-call down. pricing: fine.
 	rt := pcRT(func(r *http.Request) (*http.Response, error) {
 		return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {"text/html; charset=utf-8"}},
 			Body: io.NopCloser(strings.NewReader("<h1>Pricing</h1><p>Pro $49</p>")), Request: r}, nil

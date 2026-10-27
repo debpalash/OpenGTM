@@ -50,7 +50,7 @@ func obj(kv ...any) *providers.Obj {
 	return o
 }
 
-// fakePy is a pyworker stand-in.
+// fakePy is a provider-call stand-in.
 type fakePy struct {
 	mu    sync.Mutex
 	calls []provcall.Call
@@ -156,7 +156,7 @@ func TestAIColumnViaPyworkerWritesCell(t *testing.T) {
 		t.Fatalf("%+v %v", res, err)
 	}
 	if len(py.calls) != 1 || py.calls[0].Provider != "ai_formula" || py.calls[0].WorkspaceID != wsA || py.calls[0].CallID == "" {
-		t.Fatalf("pyworker calls %+v", py.calls)
+		t.Fatalf("provider calls %+v", py.calls)
 	}
 	var in map[string]any
 	if err := json.Unmarshal(py.calls[0].Input, &in); err != nil {

@@ -147,7 +147,7 @@ func TestScanSignalIDAppendsPeriodBucket(t *testing.T) {
 
 func TestExtractHiringDataVectors(t *testing.T) {
 	v := loadVectors(t)
-	// Only the shapes a pyworker result can take ({"success","fields":{...}}); the
+	// Only the shapes a provider-call result can take ({"success","fields":{...}}); the
 	// ".data" / no-attribute cases exist only on Python test doubles.
 	fields := map[string]string{
 		"fields_str":         `{"hiring_signals":"{\"x\": 2}"}`,

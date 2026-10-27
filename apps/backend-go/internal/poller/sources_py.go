@@ -15,7 +15,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 )
 
-// This file holds the pyworker-backed collectors' shared plumbing (decision
+// This file holds the provider-call-backed collectors' shared plumbing (decision
 // D1) and the hiring/tech collector: JobSpy hiring and tech detection cannot
 // run in Go, so it crosses the plan 06 provider RPC as `jobspy_signals`.
 
@@ -81,7 +81,7 @@ func (c PyCollectors) searchTimeout() time.Duration {
 	return defaultSearchTimeout
 }
 
-// PyDeps are the dependencies of the pyworker-backed collectors. The embedded
+// PyDeps are the dependencies of the provider-call-backed collectors. The embedded
 // SourceDeps carries the clock, the egress client (pricing fetch, SEC) and the
 // HTTP-source test seams.
 type PyDeps struct {
@@ -93,7 +93,7 @@ type PyDeps struct {
 	EgressAllowHosts []string
 }
 
-// PyWatch is the watch slice the pyworker collectors read: the HTTP sources'
+// PyWatch is the watch slice the provider-call collectors read: the HTTP sources'
 // WatchView plus the tenant, the poll's fire key (call ids), the config and
 // the signal types.
 type PyWatch struct {
@@ -104,8 +104,8 @@ type PyWatch struct {
 	SignalTypes []string
 }
 
-// ErrPyTimeout is a pyworker call that outlived its deadline (Status "timeout").
-var ErrPyTimeout = errors.New("pyworker call timed out")
+// ErrPyTimeout is a provider call that outlived its deadline (Status "timeout").
+var ErrPyTimeout = errors.New("provider call timed out")
 
 // ErrNoCompanyName is a hiring watch whose target has no company name to search.
 var ErrNoCompanyName = errors.New("watch target has no company name")
@@ -117,7 +117,7 @@ var ErrAllLookupsFailed = errors.New("every job change lookup failed")
 // "error"); Msg is the Python-sourced text, already scrubbed there.
 type PyCallError struct{ Msg string }
 
-func (e *PyCallError) Error() string { return "pyworker provider error: " + e.Msg }
+func (e *PyCallError) Error() string { return "provider error: " + e.Msg }
 
 // pcCallID is the deterministic RPC call id watch:<id>:<fire_key>:<source>:<n>,
 // so a retried poll dedupes at the Python side. Ids over the Python length
@@ -279,7 +279,7 @@ func companyNameFor(target string) string {
 
 // FetchHiringAndTech is sources.fetch_hiring_and_tech: it calls jobspy_signals
 // and diffs the returned growth band and tech list against the cursor. A
-// pyworker failure (down, error, timeout, bad payload) is an error: the engine
+// provider-call failure (down, error, timeout, bad payload) is an error: the engine
 // records a source failure and leaves the cursor untouched.
 func FetchHiringAndTech(ctx context.Context, d PyDeps, w PyWatch, wantHiring, wantTech, backfill bool) ([]DetectedEvent, map[string]any, error) {
 	signals, err := runJobSpy(ctx, d, w)

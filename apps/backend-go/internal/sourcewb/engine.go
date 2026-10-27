@@ -118,7 +118,7 @@ type Deps struct {
 	// PEOPLE_SEARCH_SOURCE_ENABLED.
 	CRMImportEnabled    bool
 	PeopleSearchEnabled bool
-	// EnqueueRun chains run_workbook after sourcing (payload enrich_after); nil: executor 'python'.
+	// EnqueueRun chains run_workbook after sourcing (payload enrich_after); nil: a plain run_workbook job.
 	EnqueueRun func(ctx context.Context, tx pgx.Tx, workspaceID, workbookID string) error
 	Log        *slog.Logger
 }

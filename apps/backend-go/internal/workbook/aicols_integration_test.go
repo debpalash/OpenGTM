@@ -83,7 +83,7 @@ func t0(e *env) *testing.T { return e.t }
 
 // With GO_NATIVE_AI_COLUMNS an ai_formula cell runs in process: no Python worker is
 // configured, the prompt is resolved and guarded in Go and the cell is written as "ai".
-func TestNativeAIFormulaWithoutPyworker(t *testing.T) {
+func TestNativeAIFormulaWithoutProviderCaller(t *testing.T) {
 	e := setup(t, wsA)
 	e.seed(wsA, "wb-nai", `[{"id":"company","type":"lead_field","name":"Company"},{"id":"a1","type":"ai_formula","name":"A1","prompt":"Describe {company}"}]`, 1, 10)
 	f := &fakeLLM{complete: func(string) string { return "a fine company" }}

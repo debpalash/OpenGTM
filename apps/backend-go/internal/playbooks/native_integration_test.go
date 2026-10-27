@@ -61,7 +61,7 @@ func (f flagSettings) Get(_ context.Context, k, def string) (string, error) {
 
 // A playbook run with the native researcher needs no Python worker: every step runs the Go
 // research agent and the ledger keeps the research metadata in Python's key order.
-func TestRunNativeResearcherWithoutPyworker(t *testing.T) {
+func TestRunNativeResearcherWithoutProviderCaller(t *testing.T) {
 	e := setup(t)
 	e.members(t, 10, 20)
 	_, run := e.engineRun(t, `[{"key":"s1","name":"S1","prompt_template":"Who runs {company}?","output_format":"text"},

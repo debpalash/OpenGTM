@@ -198,7 +198,7 @@ func objKeys(t *testing.T, raw []byte) []string {
 }
 
 func TestReformatFrameCaps(t *testing.T) {
-	const cap = 8<<20 + 64<<10 // pyworker per-line cap
+	const cap = 8<<20 + 64<<10 // per-line cap of the browser service
 	if MaxFrameBytes != cap {
 		t.Fatalf("MaxFrameBytes = %d, want %d", MaxFrameBytes, cap)
 	}

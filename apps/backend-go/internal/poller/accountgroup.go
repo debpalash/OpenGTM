@@ -25,7 +25,7 @@ import (
 )
 
 // Collectors for an exact group of persisted workbook accounts
-// (account_group.py): partnership hiring (JobSpy through the pyworker RPC),
+// (account_group.py): partnership hiring (JobSpy through the provider-call seam),
 // SEC funding/leadership (Task 11) and a pricing-page fingerprint over the
 // pinned HTTP client. One failing collector is that collector's failure
 // (_collector_failures + collector_health), never an exception that aborts the
@@ -90,7 +90,7 @@ type agItem struct{ ID, Title, URL string }
 
 func agFail(class string) agObservation { return agObservation{ErrorClass: class} }
 
-// PartnershipJobs is _partnership_jobs over the jobspy_signals RPC. A pyworker
+// PartnershipJobs is _partnership_jobs over the jobspy_signals RPC. A provider-call
 // outage, timeout or provider error is a failed observation, not an error.
 func PartnershipJobs(ctx context.Context, d PyDeps, w PyWatch, idx int, company string) agObservation {
 	fields, err := d.Py.pcCall(ctx, w, fmt.Sprintf("account_group_hiring_%d", idx), 0, jobspyProvider,

@@ -539,7 +539,7 @@ func mustTime(t *testing.T, s string) time.Time {
 	return tm
 }
 
-// A real hiring source (pyworker reply recorded from Python) through the handler:
+// A real hiring source (provider-call reply recorded from Python) through the handler:
 // the surge signal, its deterministic id and the merged cursor.
 type recordedPy struct{ out json.RawMessage }
 

@@ -437,9 +437,9 @@ func TestReEnrichSummaryAndBudgetSuffix(t *testing.T) {
 	}
 }
 
-func TestReEnrichPyworkerDownIsFailedNotPanic(t *testing.T) {
+func TestReEnrichProviderDownIsFailedNotPanic(t *testing.T) {
 	d := Deps{RunRows: func(context.Context, string, string, []string, []any, time.Duration) (workbook.RunSummary, error) {
-		return workbook.RunSummary{}, errors.New("pyworker: dial tcp 127.0.0.1:1: connect: connection refused")
+		return workbook.RunSummary{}, errors.New("provider call: dial tcp 127.0.0.1:1: connect: connection refused")
 	}}
 	res := Execute(context.Background(), d, "ws", reAct("a"), "wb", "5", nil, nil, abcCols, "i")
 	if res.Status != "failed" || !strings.Contains(res.Error, "connection refused") || res.SkipReason != "" {

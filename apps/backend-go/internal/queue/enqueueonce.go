@@ -16,8 +16,8 @@ import (
 // job_scheduling.enqueue_job_once: a transaction-scoped advisory lock on the
 // key hash, no second pending/processing row for the same key, and the partial
 // unique index uq_jobs_fire_key_active as backstop. created is false (id 0)
-// when an active occurrence already exists. executor ('go' or 'python') is
-// explicit. The payload must encode to a JSON object; as in Python the stored
+// when an active occurrence already exists. executor is explicit (only 'go' is accepted since
+// the plan 15 cutover). The payload must encode to a JSON object; as in Python the stored
 // payload is {**payload, "fire_key": fireKey} (fire_key last). The insert
 // rolls back with tx.
 func EnqueueOnce(ctx context.Context, tx pgx.Tx, jobType, workspaceID string, payload any, fireKey, executor string) (id int64, created bool, err error) {

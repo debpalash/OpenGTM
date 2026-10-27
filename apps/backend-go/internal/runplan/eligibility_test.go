@@ -122,7 +122,7 @@ func TestEligibilityExtraColumnTypes(t *testing.T) {
 }
 
 // GO_RUN_NATIVE_PROVIDERS (Go-only, default off = Python parity): a chain whose
-// providers are not in the manifest index (Go-native or pyworker) may run on Go.
+// providers are not in the manifest index (Go-native or otherwise unindexed) may run on Go.
 func TestEligibilityNativeProviders(t *testing.T) {
 	cols, err := colgraph.ParseCols([]byte(`[{"id":"e","type":"enrichment","target_field":"description","waterfall":["not_a_manifest_provider"]}]`))
 	if err != nil {

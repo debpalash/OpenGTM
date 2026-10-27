@@ -17,7 +17,7 @@ import (
 )
 
 // Deps are the poller core's dependencies; later poller files (HTTP sources,
-// pyworker collectors, the poll handler) extend nothing here and take Deps.
+// provider-call collectors, the poll handler) extend nothing here and take Deps.
 type Deps struct {
 	Pool *pgxpool.Pool
 	Cfg  Config
