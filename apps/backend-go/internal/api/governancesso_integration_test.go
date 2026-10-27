@@ -56,7 +56,7 @@ func newSSOEnv(t *testing.T) ssoEnv {
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
 	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Envelope: envl, Log: slog.New(slog.NewTextHandler(logs, &slog.HandlerOptions{Level: slog.LevelDebug})),
-		Flags: config.Flags{PGLeadStore: true}}
+		Flags: config.Flags{PGLeadStore: true, Governance: config.GovernanceSettings{SSORedirectBaseURL: "https://app.example.test"}}}
 	registerGovernanceSSO(r, d)
 	RegisterSCIM(r, d)
 	e := ssoEnv{mcpEnv: mcpEnv{env: env{h: r.Handler(), st: st}, pool: pool}, owner: owner, ids: map[string]int32{}, logs: logs}
@@ -378,5 +378,28 @@ func TestSCIMTokenResponseNotLogged(t *testing.T) {
 	}
 	if a := e.str(t, `SELECT coalesce(string_agg(metadata_json::text || route || resource_path,'|'),'') FROM governance_audit_events WHERE workspace_id='ws-alpha'`); strings.Contains(a, tok) || strings.Contains(a, tok[8:]) {
 		t.Error("the token appears in audit events")
+	}
+}
+
+// R-redirect: enabling SSO needs SSO_REDIRECT_BASE_URL on the server; saving a disabled config does not.
+func TestSSOEnableRequiresRedirectBaseURL(t *testing.T) {
+	e := newSSOEnv(t)
+	envl, err := secrets.NewEnvelope(secrets.Config{MasterKey: "sso-routes-test-key", AppEnv: "test"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r := httpx.NewRouter()
+	registerGovernanceSSO(r, Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Envelope: envl, Flags: config.Flags{PGLeadStore: true}})
+	e.h = r.Handler()
+	body := `{"enabled":true,"issuer":"https://login.example.test","client_id":"cid","client_secret":"` + ssoPlainSecret + `"}`
+	code, _, raw := e.req("alice", "ws-alpha", "PUT", "/api/governance/sso", body)
+	if code != 422 || !strings.Contains(raw, ssoRedirectBaseRequired) {
+		t.Fatalf("%d %s", code, raw)
+	}
+	if s := e.str(t, `SELECT coalesce(string_agg(value,'|'),'') FROM workspace_settings WHERE workspace_id='ws-alpha' AND key='OIDC_CONFIG'`); strings.Contains(s, `"enabled": true`) || strings.Contains(s, `"enabled":true`) {
+		t.Fatalf("enabled config saved: %s", s)
+	}
+	if code, _, raw := e.req("alice", "ws-alpha", "PUT", "/api/governance/sso", `{"enabled":false}`); code != 200 {
+		t.Fatalf("disabled: %d %s", code, raw)
 	}
 }

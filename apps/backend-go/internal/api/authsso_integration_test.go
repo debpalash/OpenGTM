@@ -22,6 +22,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
@@ -96,6 +97,12 @@ type ssoEnvT struct {
 // owner@<tag>.test (owner), admin@, editor@ (members), outsider@ (member of another workspace only).
 func newSSOLoginEnv(t *testing.T, autoProvision bool) *ssoEnvT {
 	t.Helper()
+	return newSSOLoginEnvBase(t, autoProvision, "https://app.example.test")
+}
+
+// newSSOLoginEnvBase is newSSOLoginEnv with SSO_REDIRECT_BASE_URL set to base ("" = unset).
+func newSSOLoginEnvBase(t *testing.T, autoProvision bool, base string) *ssoEnvT {
+	t.Helper()
 	idp := newFakeIdP(t)
 	t.Setenv("SSO_ALLOWED_ISSUERS", idp.srv.URL)
 	t.Setenv("SSO_ALLOWED_ISSUER_HOSTS", "")
@@ -109,7 +116,8 @@ func newSSOLoginEnv(t *testing.T, autoProvision bool) *ssoEnvT {
 	if err != nil {
 		t.Fatal(err)
 	}
-	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Envelope: envl, Getenv: func(string) string { return "" }}
+	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Envelope: envl, Getenv: func(string) string { return "" },
+		Flags: config.Flags{Governance: config.GovernanceSettings{SSORedirectBaseURL: base}}}
 	r := httpx.NewRouter()
 	RegisterAuth(r, d)
 	tag := fmt.Sprintf("ssol%d", time.Now().UnixNano()%1e9)
@@ -440,5 +448,22 @@ func TestSSONoImplicitLinkOfCrossWorkspaceAccounts(t *testing.T) {
 	}
 	if n := e.bindings(t); n != 0 {
 		t.Fatalf("bindings %d", n)
+	}
+}
+
+// R-redirect: with SSO enabled but no SSO_REDIRECT_BASE_URL, login and callback refuse with a
+// clear error; the callback URL is never built from the Host header.
+func TestSSOLoginRequiresRedirectBaseURL(t *testing.T) {
+	e := newSSOLoginEnvBase(t, false, "")
+	rec := e.get("/auth/sso/"+e.slug+"/login", nil)
+	if rec.Code != 404 || strings.TrimSpace(rec.Body.String()) != `{"detail":"`+ssoRedirectBaseRequired+`"}` {
+		t.Fatalf("login %d %s", rec.Code, rec.Body)
+	}
+	if loc := rec.Header().Get("Location"); loc != "" {
+		t.Fatalf("redirected to %q", loc)
+	}
+	rec = e.get("/auth/sso/"+e.slug+"/callback?state=x&code=y", nil)
+	if rec.Code != 303 || !strings.HasPrefix(rec.Header().Get("Location"), "/login#sso_error=") {
+		t.Fatalf("callback %d %q", rec.Code, rec.Header().Get("Location"))
 	}
 }
