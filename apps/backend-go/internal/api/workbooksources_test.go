@@ -323,11 +323,11 @@ func TestSourceForeignWorkbook404(t *testing.T) {
 	}
 }
 
-func TestPreviewNotRegisteredInGo(t *testing.T) {
+func TestPreviewNotRegisteredWhenFlagOff(t *testing.T) {
 	e := newSrcEnv(t, nil)
 	for _, p := range e.router.Patterns() {
 		if strings.Contains(p, "/preview") {
-			t.Fatalf("preview must stay on FastAPI, registered: %s", p)
+			t.Fatalf("preview stays on FastAPI unless GO_SOURCE_PREVIEW_ENABLED, registered: %s", p)
 		}
 	}
 	code, _ := e.call("GET", "/api/workbooks/wb-enrich-1/sources/src_icp/preview", "alice", "ws-alpha", "")
@@ -349,5 +349,74 @@ func TestAddSourceCanonicalizesNumbers(t *testing.T) {
 	})
 	if err != nil || !strings.Contains(raw, `100.0`) || strings.Contains(raw, `1e2`) || strings.Contains(raw, `1.50`) {
 		t.Fatalf("stored %s (%v)", raw, err)
+	}
+}
+
+func srcFlags(kv ...string) func(string) string {
+	m := map[string]string{}
+	for i := 0; i+1 < len(kv); i += 2 {
+		m[kv[i]] = kv[i+1]
+	}
+	return func(k string) string { return m[k] }
+}
+
+// TestSourceRunEnqueuesGoExecutorForCohort: GO_EXECUTOR_SOURCE_WORKBOOK routes the cohort's runs to
+// the Go worker (same payload and workspace stamp); other workspaces stay on Python.
+func TestSourceRunEnqueuesGoExecutorForCohort(t *testing.T) {
+	for _, c := range []struct {
+		cohort, want string
+	}{{"ws-alpha", "go"}, {"ws-other", "python"}} {
+		t.Run(c.cohort, func(t *testing.T) { // one env (and test-DB lock) per subtest
+			e := newSrcEnv(t, srcFlags("GO_EXECUTOR_ENABLED", "true", "GO_EXECUTOR_WORKSPACES", c.cohort,
+				"GO_EXECUTOR_SOURCE_WORKBOOK", "true"))
+			if code, resp := e.call("POST", "/api/workbooks/wb-enrich-1/sources/src_icp/run", "alice", "ws-alpha", ""); code != 200 {
+				t.Fatalf("got %d %s", code, resp.Body)
+			}
+			var executor, ws, payload string
+			if err := e.pool.QueryRow(context.Background(),
+				`SELECT executor, workspace_id, payload::text FROM jobs WHERE type='source_workbook'`).Scan(&executor, &ws, &payload); err != nil {
+				t.Fatal(err)
+			}
+			if executor != c.want || ws != "ws-alpha" ||
+				strings.ReplaceAll(payload, " ", "") != `{"workbook_id":"wb-enrich-1","column_id":"src_icp","workspace_id":"ws-alpha"}` {
+				t.Fatalf("cohort %s: executor=%s ws=%s payload=%s", c.cohort, executor, ws, payload)
+			}
+		})
+	}
+}
+
+// TestPreviewServedWhenFlagOn: any workspace member may preview; the body is
+// sourcewb.Preview (vector-tested against preview_source / preview_people_search).
+func TestPreviewServedWhenFlagOn(t *testing.T) {
+	e := newSrcEnv(t, srcFlags("GO_SOURCE_PREVIEW_ENABLED", "true"))
+	path := "/api/workbooks/wb-enrich-1/sources/src_icp/preview"
+	code, resp := e.call("GET", path, "bob", "ws-alpha", "")
+	if code != 200 {
+		t.Fatalf("member preview = %d %s", code, resp.Body)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(resp.Body, &got); err != nil {
+		t.Fatal(err)
+	}
+	if got["query"] != "B2B SaaS" || got["source_count"].(float64) < 1 {
+		t.Fatalf("preview body %s", resp.Body)
+	}
+	for _, c := range []struct {
+		path, who, ws string
+		code          int
+		body          string
+	}{
+		{"/api/workbooks/wb-enrich-1/sources/calc_len/preview", "alice", "ws-alpha", 404, `{"detail":"Source column not found"}`},
+		{"/api/workbooks/wb-enrich-1/sources/nope/preview", "alice", "ws-alpha", 404, `{"detail":"Source column not found"}`},
+		{path, "bob", "ws-beta", 404, `{"detail":"Workbook not found"}`},
+		{path, "", "ws-alpha", 401, ""},
+	} {
+		code, resp := e.call("GET", c.path, c.who, c.ws, "")
+		if code != c.code || (c.body != "" && string(resp.Body) != c.body) {
+			t.Errorf("%s as %q: %d %s", c.path, c.who, code, resp.Body)
+		}
+	}
+	if e.jobs(t) != 0 {
+		t.Fatal("preview must not enqueue")
 	}
 }
