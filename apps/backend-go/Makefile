@@ -4,7 +4,7 @@
 
 # opengtm-mcp: the MCP server (stdio, or `--sse [port]`).
 build-mcp:
-	go build -o bin/opengtm-mcp ./cmd/mcp
+	go build -o ../../bin/opengtm-mcp ./cmd/mcp
 
 schema:
 	../../scripts/go_schema_dump.sh

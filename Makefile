@@ -1,0 +1,74 @@
+# OpenGTM build. `make build` produces one self-contained Go API (UI embedded) in ./bin.
+#
+#   make build   clean, build the web UI, build bin/opengtm-{api,worker,mcp} + bin/suppressnorm
+#   make run     build, then start api + worker in the background (pids/logs in .run/)
+#   make dev     vite dev server for apps/web (pid in .run/web.pid; proxies to VITE_API_TARGET)
+#   make kill    stop what run/dev started (by pid file; never by port)
+#   make up/down docker compose stack
+#   make test    go vet + go test, web lint + build
+#
+# run needs the same environment as the API/worker (DATABASE_URL, SECRET_KEY, ...); it is inherited.
+SHELL := /bin/bash
+
+GO_DIR  := apps/backend-go
+WEB_DIR := apps/web
+UI_DIST := $(GO_DIR)/internal/webui/dist
+BIN     := $(CURDIR)/bin
+RUN     := $(CURDIR)/.run
+GOFLAGS_BUILD := -trimpath -ldflags="-s -w"
+
+.PHONY: build web clean run dev kill up down test
+
+build: clean web
+	rm -rf $(UI_DIST) && mkdir -p $(UI_DIST) $(BIN)
+	cp -a $(WEB_DIR)/dist/. $(UI_DIST)/
+	cd $(GO_DIR) && go build $(GOFLAGS_BUILD) -tags webui -o $(BIN)/opengtm-api ./cmd/api
+	cd $(GO_DIR) && go build $(GOFLAGS_BUILD) -o $(BIN)/opengtm-worker ./cmd/worker
+	cd $(GO_DIR) && go build $(GOFLAGS_BUILD) -o $(BIN)/opengtm-mcp ./cmd/mcp
+	cd $(GO_DIR) && go build $(GOFLAGS_BUILD) -o $(BIN)/suppressnorm ./cmd/suppressnorm
+	@echo "built $(BIN)/{opengtm-api,opengtm-worker,opengtm-mcp,suppressnorm}"
+
+web:
+	cd $(WEB_DIR) && bun install --frozen-lockfile && bun run build
+
+clean:
+	rm -rf $(BIN) $(WEB_DIR)/dist $(UI_DIST)
+
+run: build
+	@mkdir -p $(RUN)
+	@for s in api worker; do \
+		if [ -f $(RUN)/$$s.pid ] && kill -0 $$(cat $(RUN)/$$s.pid) 2>/dev/null; then \
+			echo "$$s already running (pid $$(cat $(RUN)/$$s.pid)); run 'make kill' first" >&2; exit 1; fi; \
+	done
+	@nohup $(BIN)/opengtm-api    >$(RUN)/api.log    2>&1 & echo $$! >$(RUN)/api.pid
+	@nohup $(BIN)/opengtm-worker >$(RUN)/worker.log 2>&1 & echo $$! >$(RUN)/worker.pid
+	@echo "started api (pid $$(cat $(RUN)/api.pid)) and worker (pid $$(cat $(RUN)/worker.pid)); logs in $(RUN)/"
+
+dev:
+	@mkdir -p $(RUN)
+	@if [ -f $(RUN)/web.pid ] && kill -0 $$(cat $(RUN)/web.pid) 2>/dev/null; then \
+		echo "vite already running (pid $$(cat $(RUN)/web.pid)); run 'make kill' first" >&2; exit 1; fi
+	@cd $(WEB_DIR) && (bun install --frozen-lockfile >/dev/null) && \
+		(nohup bun run dev:app >$(RUN)/web.log 2>&1 & echo $$! >$(RUN)/web.pid)
+	@echo "vite started (pid $$(cat $(RUN)/web.pid)); log $(RUN)/web.log; proxy target $${VITE_API_TARGET:-http://127.0.0.1:3000}"
+
+kill:
+	@pids=""; for f in $(RUN)/*.pid; do [ -f "$$f" ] || continue; p=$$(cat $$f); \
+		if kill -0 $$p 2>/dev/null; then kill -TERM $$p 2>/dev/null; pids="$$pids $$p"; fi; done; \
+	for i in 1 2 3 4 5 6 7 8 9 10; do \
+		alive=""; for p in $$pids; do kill -0 $$p 2>/dev/null && alive="$$alive $$p"; done; \
+		[ -z "$$alive" ] && break; sleep 0.5; pids="$$alive"; done; \
+	for p in $$pids; do kill -0 $$p 2>/dev/null && { echo "KILL $$p"; kill -KILL $$p 2>/dev/null; }; done; true
+	@rm -f $(RUN)/*.pid
+	@pkill -TERM -f '$(CURDIR)/bin/[o]pengtm-' 2>/dev/null || true
+	@echo "stopped"
+
+up:
+	docker compose up -d --build
+
+down:
+	docker compose down
+
+test:
+	cd $(GO_DIR) && go vet ./... && go test ./...
+	cd $(WEB_DIR) && bun install --frozen-lockfile && bun run lint && bun run build
