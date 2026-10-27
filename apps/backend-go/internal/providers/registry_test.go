@@ -11,6 +11,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	_ "github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/contact"
 	_ "github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/firmo"
+	_ "github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/scrape"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 )
 
@@ -40,9 +41,10 @@ func listed(t *testing.T) map[string]string {
 var pyProviderName = regexp.MustCompile(`(?m)^    name\s*=\s*"([^"]+)"`)
 
 // python_providers.txt is Go-side data: every entry carries a reason (runs without the Python tree).
+// Plan 15: every provider is ported, so the list must stay empty.
 func TestPythonProvidersListHasReasons(t *testing.T) {
-	if len(listed(t)) == 0 {
-		t.Fatal("python_providers.txt lists no modules")
+	if l := listed(t); len(l) != 0 {
+		t.Fatalf("python_providers.txt lists modules: %v", l)
 	}
 }
 
@@ -67,7 +69,11 @@ func TestEveryProviderPortedOrListed(t *testing.T) {
 			t.Fatal(err)
 		}
 		ported := false
-		for _, m := range pyProviderName.FindAllStringSubmatch(string(src), -1) {
+		decls := pyProviderName.FindAllStringSubmatch(string(src), -1)
+		if len(decls) == 0 {
+			continue // helper module (job_tech_intent): no provider to port
+		}
+		for _, m := range decls {
 			if _, ok := providers.Get(m[1]); ok {
 				ported = true
 			}

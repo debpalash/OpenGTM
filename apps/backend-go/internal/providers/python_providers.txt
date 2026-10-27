@@ -1,32 +1,10 @@
 # Python providers that stay behind the Python worker (called through pyworker), one per line:
 #   <module> <reason>
-# A test fails if a providers/*.py module is neither ported (registered in Go)
-# nor listed here. Task 14 appends its own section for the firmographic group.
-
-# --- contact group (Task 13) ---
-company_intel imports bs4 (HTML scraping)
-company_size_heuristic pure Python heuristic over leadgen size_heuristic, no vendor HTTP
-crosslinked DDGS/SearXNG search through the Python proxy pool
-ddg_company_provider DDGS search through the Python proxy client
-ddg_email_provider DDGS search plus Python email_finder
-decision_maker_provider Python decision_maker_finder (search and scraping)
-deep_scraper imports bs4 (HTML scraping)
-email_harvester DDGS/SearXNG search through the Python proxy pool
-facebook_pages DDGS search through the Python proxy client
-holehe_verify imports the holehe library (account-existence probes), no HTTP-only equivalent
-job_tech_intent helper module used by jobspy signals, not a registered provider
-jobspy_signals DDGS search signals through the Python proxy client
-lead_scorer_provider pure Python scoring over leadgen.scoring, no vendor HTTP
-local_business imports bs4 (HTML scraping)
-mailscout_verify imports the mailscout library (SMTP pattern verification) and runs in the Python worker
-social_finder_provider DDGS search through the Python proxy client
-staffspy_provider imports staffspy
-website_scraper_provider Python StealthClient scraper
-
-# --- firmographic group (Task 14) ---
-# All ten HTTP modules (ipinfo, gleif, companies_house, mca_registry,
-# wikidata_provider, sec_edgar, jsonld_firmographics, tech_stack_provider,
-# ats_hiring, google_maps) are ported in internal/providers/firmo and so are not
-# listed. The helpers they used from job_tech_intent (analyze_job_text) are
-# ported inside firmo/jobintent.go; the module itself stays listed above because
-# jobspy_signals still imports it in the Python worker.
+# A test fails if a providers/*.py module that declares a provider is neither
+# ported (registered in Go) nor listed here. Helper modules without a provider
+# class (job_tech_intent) need no entry.
+#
+# Empty since plan 15 WP-PROVIDERS: the contact group (Task 13) and the
+# firmographic group (Task 14) are in providers/contact and providers/firmo;
+# the scraping / search / library providers are in providers/scrape (gated
+# per name by GO_LOCAL_PROVIDERS until the cutover).
