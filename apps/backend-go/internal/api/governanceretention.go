@@ -28,6 +28,9 @@ type retentionRoutes struct{ d Deps }
 // retentionConfirmation is the phrase an operator must send to purge expired data.
 const retentionConfirmation = "PURGE EXPIRED DATA"
 
+// errRetentionRunning refuses an enforce while a run of the workspace is pending or running (409).
+var errRetentionRunning = errors.New("Retention enforcement already running")
+
 // registerGovernanceRetention registers the retention routes (Task 13). All five need governance.manage
 // (admin), as Python's require_admin: retention deletes data.
 func registerGovernanceRetention(r *httpx.Router, d Deps) {
@@ -337,13 +340,26 @@ func (h retentionRoutes) enforce(w http.ResponseWriter, r *http.Request) {
 	}
 	// The run row and its job commit together (Python commits the run first and can leave it
 	// pending forever if the enqueue fails: deviation D5).
+	// F19: a per-workspace advisory xact lock serializes enforce requests, and a pending or running
+	// run (manual or scheduled) refuses a new one, so a double submit creates one run, not two.
 	var run retention.Run
 	err := tenancy.InWorkspace(r.Context(), h.d.Pool, c.WorkspaceID, func(tx pgx.Tx) (err error) {
+		if _, err = tx.Exec(r.Context(), `SELECT pg_advisory_xact_lock(hashtextextended('retention-enforce:' || $1::text, 0))`, c.WorkspaceID); err != nil {
+			return err
+		}
+		var open bool
+		if err = tx.QueryRow(r.Context(), `SELECT EXISTS (SELECT 1 FROM retention_runs WHERE workspace_id = $1 AND status IN ('pending', 'running'))`,
+			c.WorkspaceID).Scan(&open); err != nil {
+			return err
+		}
+		if open {
+			return errRetentionRunning
+		}
 		run, err = retention.RequestRun(r.Context(), tx, c.WorkspaceID, c.User.ID, h.executorFor(c.WorkspaceID))
 		return err
 	})
 	switch {
-	case errors.Is(err, retention.ErrNoPolicy), errors.Is(err, retention.ErrLegalHold):
+	case errors.Is(err, retention.ErrNoPolicy), errors.Is(err, retention.ErrLegalHold), errors.Is(err, errRetentionRunning):
 		httpx.Detail(w, http.StatusConflict, err.Error())
 	case err != nil:
 		h.fail(w, "enforce", err)
