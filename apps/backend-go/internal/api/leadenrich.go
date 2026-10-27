@@ -406,6 +406,12 @@ func (e *enrichRun) leadMap() map[string]any {
 
 func noKey() (string, error) { return "", nil }
 
+// Lookup names per action: the Python provider name first, then the Go registry name.
+var (
+	emailProviderNames   = []string{"ddg_email_provider", "ddg_email"}
+	scraperProviderNames = []string{"website_scraper_provider", "website_scraper"}
+)
+
 func (e *enrichRun) provider(names ...string) (providers.Provider, bool) {
 	lk := e.h.providerLookup
 	if lk == nil {
@@ -421,7 +427,7 @@ func (e *enrichRun) provider(names ...string) (providers.Provider, bool) {
 
 func (e *enrichRun) findEmails() {
 	e.out.event("step", "start", "action", "find_emails", "message", "Finding emails...")
-	p, ok := e.provider("ddg_email_provider")
+	p, ok := e.provider(emailProviderNames...)
 	if !ok {
 		e.out.event("step", "error", "message", "Email finder is not available")
 		return
@@ -459,7 +465,7 @@ func (e *enrichRun) scrapeWebsite() {
 		e.out.event("step", "error", "message", "Website URL is not allowed")
 		return
 	}
-	p, ok := e.provider("website_scraper_provider", "website_scraper")
+	p, ok := e.provider(scraperProviderNames...)
 	if !ok {
 		e.out.event("step", "error", "message", "Website scraper is not available")
 		return
