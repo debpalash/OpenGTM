@@ -1,10 +1,8 @@
-// Package rpclocal is the in-process half of POST /internal/provider-call
-// (plan 15 WP-PROVIDERS, inventory A1): a caller with the pyworker.Client
-// Call signature that serves the names GO_LOCAL_PROVIDERS lists in Go (the
-// named RPCs of providers/scrape, then any registered Go provider) and sends
-// every other call to the Python worker.
+// Package rpclocal is the provider-call runner (plan 15 WP-PROVIDERS, inventory A1; it replaced the Python
+// worker's POST /internal/provider-call): a provcall.Caller that serves the named RPCs of providers/scrape,
+// then any registered Go provider, in process. A name it does not serve is provcall.ErrUnavailable.
 //
-// It keeps the Python endpoint's semantics: the timeout clamp (default 10 s,
+// It keeps the retired Python endpoint's semantics: the timeout clamp (default 10 s,
 // at most 120 s), status ok / error / timeout, `output` as the provider
 // result dict, cost only for a successful paid provider, (workspace,
 // call_id) dedupe of successful calls, and scrubbing of secret values from
@@ -22,10 +20,10 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/scrape"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/vendorcatalog"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
@@ -44,11 +42,6 @@ const (
 	maxIDLen       = 200
 )
 
-// PyCaller is the Python worker RPC (pyworker.Client).
-type PyCaller interface {
-	Call(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error)
-}
-
 // Secrets resolves one credential (secrets.Resolver); ws "" is global only.
 type Secrets interface {
 	Get(ctx context.Context, ws, key string) (value, source string, err error)
@@ -66,8 +59,7 @@ type Deps struct {
 	// Runner runs registered Go providers; nil builds a providerrun.Runner without a pool
 	// (settings and keys, no cache or stats ledger).
 	Runner  Runner
-	Py      PyCaller          // nil: names not served here fail with pyworker.ErrUnavailable
-	Local   func(string) bool // the GO_LOCAL_PROVIDERS gate; nil serves nothing here
+	Local   func(string) bool // the provider gate (config: every provider since the cutover); nil serves nothing
 	HTTP    *http.Client      // strict egress client for lead-supplied URLs; nil builds egress.NewClient
 	Secrets Secrets           // keyed Go providers; nil resolves no key
 	// Scrub lists extra secret values to remove from outputs (optional).
@@ -90,7 +82,7 @@ type dedupeKey struct{ ws, id string }
 type flight struct {
 	done chan struct{}
 	at   time.Time
-	res  pyworker.ProviderResult
+	res  provcall.Result
 	err  error
 }
 
@@ -131,16 +123,13 @@ func (c *Caller) Serves(name string) bool {
 	return ok && name != "reacher"
 }
 
-// Call runs call in process when served here, else on the Python worker.
-func (c *Caller) Call(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+// Call runs call in process; a name not served here is provcall.ErrUnavailable.
+func (c *Caller) Call(ctx context.Context, call provcall.Call) (provcall.Result, error) {
 	if !c.Serves(call.Provider) {
-		if c.d.Py == nil {
-			return pyworker.ProviderResult{}, pyworker.ErrUnavailable
-		}
-		return c.d.Py.Call(ctx, call)
+		return provcall.Result{}, provcall.ErrUnavailable
 	}
 	if call.CallID == "" || call.WorkspaceID == "" || len(call.CallID) > maxIDLen || len(call.WorkspaceID) > maxIDLen {
-		return pyworker.ProviderResult{Status: "error", Error: "invalid provider call", HTTPStatus: http.StatusUnprocessableEntity}, nil
+		return provcall.Result{Status: "error", Error: "invalid provider call", HTTPStatus: http.StatusUnprocessableEntity}, nil
 	}
 	f, created := c.claim(dedupeKey{call.WorkspaceID, call.CallID})
 	if !created {
@@ -148,7 +137,7 @@ func (c *Caller) Call(ctx context.Context, call pyworker.ProviderCall) (pyworker
 		case <-f.done:
 			return f.res, f.err
 		case <-ctx.Done():
-			return pyworker.ProviderResult{}, ctx.Err()
+			return provcall.Result{}, ctx.Err()
 		}
 	}
 	f.res, f.err = c.execute(ctx, call)
@@ -210,7 +199,7 @@ type noSecrets struct{}
 func (noSecrets) Get(context.Context, string, string) (string, string, error) { return "", "", nil }
 
 // execute is _execute: one run under the clamped timeout.
-func (c *Caller) execute(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+func (c *Caller) execute(ctx context.Context, call provcall.Call) (provcall.Result, error) {
 	input := call.Input
 	if len(input) == 0 {
 		input = json.RawMessage("{}")
@@ -219,7 +208,7 @@ func (c *Caller) execute(ctx context.Context, call pyworker.ProviderCall) (pywor
 	dec := json.NewDecoder(strings.NewReader(string(input)))
 	dec.UseNumber()
 	if err := dec.Decode(&lead); err != nil || lead == nil {
-		return pyworker.ProviderResult{Status: "error", Error: "invalid provider call", HTTPStatus: http.StatusUnprocessableEntity}, nil
+		return provcall.Result{Status: "error", Error: "invalid provider call", HTTPStatus: http.StatusUnprocessableEntity}, nil
 	}
 	settings := callOptions(lead)
 	var smu sync.Mutex
@@ -275,9 +264,9 @@ func (c *Caller) execute(ctx context.Context, call pyworker.ProviderCall) (pywor
 	case <-cctx.Done():
 		telemetry.ProviderCallAbandoned()
 		if ctx.Err() != nil {
-			return pyworker.ProviderResult{}, ctx.Err()
+			return provcall.Result{}, ctx.Err()
 		}
-		return pyworker.ProviderResult{Status: "timeout", Error: "provider timed out"}, nil
+		return provcall.Result{Status: "timeout", Error: "provider timed out"}, nil
 	}
 	if c.d.Scrub != nil {
 		for _, s := range c.d.Scrub(ctx, call.WorkspaceID) {
@@ -285,21 +274,21 @@ func (c *Caller) execute(ctx context.Context, call pyworker.ProviderCall) (pywor
 		}
 	}
 	if o.timedOut {
-		return pyworker.ProviderResult{Status: "timeout", Error: "provider timed out"}, nil
+		return provcall.Result{Status: "timeout", Error: "provider timed out"}, nil
 	}
 	if o.err != nil {
 		if ctx.Err() != nil {
-			return pyworker.ProviderResult{}, ctx.Err()
+			return provcall.Result{}, ctx.Err()
 		}
 		if cctx.Err() != nil {
-			return pyworker.ProviderResult{Status: "timeout", Error: "provider timed out"}, nil
+			return provcall.Result{Status: "timeout", Error: "provider timed out"}, nil
 		}
-		return pyworker.ProviderResult{Status: "error", Error: scrubString(o.err.Error(), secrets)}, nil
+		return provcall.Result{Status: "error", Error: scrubString(o.err.Error(), secrets)}, nil
 	}
 	out := scrubObj(o.out, secrets)
 	raw, err := out.MarshalJSON()
 	if err != nil {
-		return pyworker.ProviderResult{Status: "error", Error: "provider returned no result"}, nil
+		return provcall.Result{Status: "error", Error: "provider returned no result"}, nil
 	}
 	success, _ := out.Get("success")
 	if ok, _ := success.(bool); ok {
@@ -307,7 +296,7 @@ func (c *Caller) execute(ctx context.Context, call pyworker.ProviderCall) (pywor
 		if !isRPC && vendorcatalog.IsPaid(call.Provider) {
 			cost = c.d.Cost(call.Provider)
 		}
-		return pyworker.ProviderResult{Status: "ok", Output: raw, CostUSD: cost}, nil
+		return provcall.Result{Status: "ok", Output: raw, CostUSD: cost}, nil
 	}
 	msg := "provider returned no result"
 	if e, _ := out.Get("error"); e != nil {
@@ -315,7 +304,7 @@ func (c *Caller) execute(ctx context.Context, call pyworker.ProviderCall) (pywor
 			msg = s
 		}
 	}
-	return pyworker.ProviderResult{Status: "error", Output: raw, Error: msg}, nil
+	return provcall.Result{Status: "error", Output: raw, Error: msg}, nil
 }
 
 func scrubString(s string, secrets []string) string {

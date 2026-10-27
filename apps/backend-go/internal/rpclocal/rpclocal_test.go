@@ -12,17 +12,10 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/scrape"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 )
-
-type fakePy struct{ calls []pyworker.ProviderCall }
-
-func (f *fakePy) Call(_ context.Context, c pyworker.ProviderCall) (pyworker.ProviderResult, error) {
-	f.calls = append(f.calls, c)
-	return pyworker.ProviderResult{Status: "ok", Output: json.RawMessage(`{"from":"python"}`)}, nil
-}
 
 type fakeSearch struct {
 	n     atomic.Int32
@@ -64,19 +57,20 @@ func only(names ...string) func(string) bool {
 	}
 }
 
-func call(p, id string, in string) pyworker.ProviderCall {
-	return pyworker.ProviderCall{CallID: id, Provider: p, WorkspaceID: "ws1", Input: json.RawMessage(in), Timeout: time.Second}
+func call(p, id string, in string) provcall.Call {
+	return provcall.Call{CallID: id, Provider: p, WorkspaceID: "ws1", Input: json.RawMessage(in), Timeout: time.Second}
 }
 
-func TestUnlistedNamesGoToPython(t *testing.T) {
-	py := &fakePy{}
-	c := New(Deps{Py: py, Local: only("jobspy")})
-	res, err := c.Call(context.Background(), call("ddgs_search", "a", `{"query":"x"}`))
-	if err != nil || string(res.Output) != `{"from":"python"}` || len(py.calls) != 1 {
-		t.Fatalf("%+v %v", res, err)
+// Plan 15 cutover: there is no Python worker to fall back to; a name not served here is unavailable.
+func TestUnlistedNamesAreUnavailable(t *testing.T) {
+	c := New(Deps{Local: only("jobspy")})
+	for _, name := range []string{"ddgs_search", "no_such_provider"} {
+		if _, err := c.Call(context.Background(), call(name, "a", `{"query":"x"}`)); !errors.Is(err, provcall.ErrUnavailable) {
+			t.Fatalf("%s: %v", name, err)
+		}
 	}
-	if _, err := New(Deps{}).Call(context.Background(), call("jobspy", "a", `{}`)); !errors.Is(err, pyworker.ErrUnavailable) {
-		t.Fatalf("no worker: %v", err)
+	if _, err := New(Deps{}).Call(context.Background(), call("jobspy", "a", `{}`)); !errors.Is(err, provcall.ErrUnavailable) {
+		t.Fatalf("nothing served: %v", err)
 	}
 	// reacher keeps its operator-client path even when listed.
 	if New(Deps{Local: only("reacher")}).Serves("reacher") {
@@ -88,11 +82,10 @@ func TestLocalRPCAndProvider(t *testing.T) {
 	s := &fakeSearch{}
 	scrape.Configure(scrape.Deps{Search: s, Sleep: func(context.Context, time.Duration) error { return nil }})
 	t.Cleanup(func() { scrape.Configure(scrape.Deps{}) })
-	py := &fakePy{}
-	c := New(Deps{Py: py, Local: only("ddgs_search", "jobspy_signals", "jobspy")})
+	c := New(Deps{Local: only("ddgs_search", "jobspy_signals", "jobspy")})
 
 	res, err := c.Call(context.Background(), call("ddgs_search", "c1", `{"query":"acme","max_results":3}`))
-	if err != nil || res.Status != "ok" || len(py.calls) != 0 {
+	if err != nil || res.Status != "ok" {
 		t.Fatalf("%+v %v", res, err)
 	}
 	want := `{"provider":"ddgs_search","success":true,"fields":{"results":[{"title":"T","snippet":"b","url":"https://a.example"}]},"confidence":1.0,"error":"","billing_evidence":null,"license":"unknown"}`
@@ -193,7 +186,7 @@ func TestEmailWaterfallWithoutPyworker(t *testing.T) {
 	scrape.Configure(scrape.Deps{Fetch: fakeFetch{pages: map[string]string{
 		"https://acme.example": `<html><body><a href="mailto:sales@acme.example">mail</a></body></html>`}}})
 	t.Cleanup(func() { scrape.Configure(scrape.Deps{}) })
-	c := New(Deps{Local: only("website_scraper")}) // no Py at all
+	c := New(Deps{Local: only("website_scraper")})
 	d := emailverify.NewDeps()
 	d.Finders = []emailverify.Finder{&emailverify.WebsiteFinder{Py: c, Timeout: 5 * time.Second}}
 	lead := map[string]any{"company": "Acme", "website": "https://acme.example/about"}

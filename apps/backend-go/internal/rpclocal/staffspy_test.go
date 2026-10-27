@@ -12,8 +12,8 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	sec "github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
@@ -63,8 +63,8 @@ func TestStaffSpyWorkspaceSessionOnly(t *testing.T) {
 	if err != nil || c == nil {
 		t.Fatalf("%v %v", c, err)
 	}
-	run := func(ws, id string) pyworker.ProviderResult {
-		res, err := c.Call(context.Background(), pyworker.ProviderCall{CallID: id, Provider: "staffspy", WorkspaceID: ws,
+	run := func(ws, id string) provcall.Result {
+		res, err := c.Call(context.Background(), provcall.Call{CallID: id, Provider: "staffspy", WorkspaceID: ws,
 			Input: json.RawMessage(`{"company":"Acme"}`)})
 		if err != nil {
 			t.Fatal(err)

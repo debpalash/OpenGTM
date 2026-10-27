@@ -22,7 +22,6 @@ type Setup struct {
 	Getenv      func(string) string // nil: config.Getenv (GO_ALL_NATIVE resolved)
 	AppEnv      string              // egress bench/test allow-list scope
 	EgressAllow []string            // EGRESS_ALLOW_HOSTS
-	Py          PyCaller            // the Python worker client, or nil
 	Secrets     Secrets             // credential resolver (LinkedIn session, keyed providers), or nil
 	Log         *slog.Logger
 	// Web and Browser are the process's shared leadweb and browser-service client (one rate
@@ -35,11 +34,9 @@ type Setup struct {
 	Pool   *pgxpool.Pool
 }
 
-// Configure reads GO_LOCAL_PROVIDERS, the browser service and leadweb
-// settings, installs the provider gate and the providers/scrape seams, and
-// returns the composite caller. It returns nil (and no error) when there is
-// neither a Python worker nor a locally served name, so callers that test a
-// nil caller keep their "Python unavailable" behaviour.
+// Configure reads the provider gate (GO_LOCAL_PROVIDERS, retired: every provider), the browser service and
+// leadweb settings, installs the gate and the providers/scrape seams, and returns the caller. It returns nil (and
+// no error) only when the gate serves no name.
 func Configure(s Setup) (*Caller, error) {
 	get := s.Getenv
 	if get == nil {
@@ -112,7 +109,7 @@ func Configure(s Setup) (*Caller, error) {
 		}
 	}
 	scrape.Configure(d)
-	if s.Py == nil && !cfg.Local.Any() {
+	if !cfg.Local.Any() {
 		return nil, nil
 	}
 	if s.Log != nil && cfg.Local.Any() {
@@ -127,6 +124,6 @@ func Configure(s Setup) (*Caller, error) {
 		}
 		runner = providerrun.New(providerrun.Deps{Pool: s.Pool, HTTP: strict, Secrets: sec, Log: s.Log})
 	}
-	return New(Deps{Py: s.Py, Local: cfg.Local.Enabled, HTTP: strict, Runner: runner,
+	return New(Deps{Local: cfg.Local.Enabled, HTTP: strict, Runner: runner,
 		Secrets: s.Secrets, Scrub: session, Log: s.Log}), nil
 }
