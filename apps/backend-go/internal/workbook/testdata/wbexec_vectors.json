@@ -1,0 +1,5978 @@
+{
+ "now": "2026-10-28T12:00:00+00:00",
+ "workspace_id": "ws-wbexec",
+ "workbook_id": "wb-wbexec",
+ "scenarios": [
+  {
+   "name": "provenance_off_baseline",
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ]
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "fields": {
+      "phone": "+33 1 23",
+      "city": "Lyon",
+      "company_size": "11-50"
+     },
+     "confidence": 0.8
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "ph": {
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "website_scraper"
+    ],
+    "writebacks": [
+     {
+      "lead_id": 501,
+      "updates": {
+       "city": "Lyon"
+      }
+     },
+     {
+      "lead_id": 501,
+      "updates": {
+       "company_size": "11-50"
+      }
+     }
+    ],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "provenance_waterfall",
+   "provenance": true,
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ]
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "fields": {
+      "phone": "+33 1 23",
+      "city": "Lyon",
+      "company_size": "11-50"
+     },
+     "confidence": 0.8
+    }
+   },
+   "lead_field_provenance": {
+    "501": "{\"email\": {\"source\": \"csv\", \"license\": \"user-provided\", \"confidence\": null, \"fetched_at\": \"x\"}, \"phone\": {\"source\": \"old\"}}"
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "ph": {
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "provenance": {
+       "source": "website_scraper",
+       "license": "scraped",
+       "confidence": 0.8,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      }
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "cell_metadata": {
+       "provenance": {
+        "source": "website_scraper",
+        "license": "scraped",
+        "confidence": 0.8,
+        "fetched_at": "2026-10-28T12:00:00+00:00"
+       }
+      }
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "research": null,
+      "provenance": {
+       "source": "website_scraper",
+       "license": "scraped",
+       "confidence": 0.8,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      },
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "website_scraper"
+    ],
+    "writebacks": [
+     {
+      "lead_id": 501,
+      "updates": {
+       "city": "Lyon",
+       "field_provenance": "{\"email\": {\"source\": \"csv\", \"license\": \"user-provided\", \"confidence\": null, \"fetched_at\": \"x\"}, \"phone\": {\"source\": \"old\"}, \"city\": {\"source\": \"website_scraper\", \"license\": \"scraped\", \"confidence\": null, \"fetched_at\": \"2026-10-28T12:00:00+00:00\"}}",
+       "last_enriched_at": "2026-10-28T12:00:00+00:00"
+      }
+     },
+     {
+      "lead_id": 501,
+      "updates": {
+       "company_size": "11-50",
+       "field_provenance": "{\"email\": {\"source\": \"csv\", \"license\": \"user-provided\", \"confidence\": null, \"fetched_at\": \"x\"}, \"phone\": {\"source\": \"old\"}, \"company_size\": {\"source\": \"website_scraper\", \"license\": \"scraped\", \"confidence\": null, \"fetched_at\": \"2026-10-28T12:00:00+00:00\"}}",
+       "last_enriched_at": "2026-10-28T12:00:00+00:00"
+      }
+     }
+    ],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "provenance_zero_confidence_uses_default",
+   "provenance": true,
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "gleif"
+     ]
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "gleif": {
+     "fields": {
+      "phone": "+44"
+     },
+     "confidence": 0.0
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "ph": {
+      "value": "+44",
+      "status": "complete",
+      "provider": "gleif",
+      "error": null,
+      "provenance": {
+       "source": "gleif",
+       "license": "CC0-1.0",
+       "confidence": 0.5,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      }
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": "+44",
+      "status": "complete",
+      "provider": "gleif",
+      "error": null,
+      "cell_metadata": {
+       "provenance": {
+        "source": "gleif",
+        "license": "CC0-1.0",
+        "confidence": 0.5,
+        "fetched_at": "2026-10-28T12:00:00+00:00"
+       }
+      }
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "value": "+44",
+      "status": "complete",
+      "provider": "gleif",
+      "error": null,
+      "research": null,
+      "provenance": {
+       "source": "gleif",
+       "license": "CC0-1.0",
+       "confidence": 0.5,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      },
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "gleif"
+    ],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "provenance_no_lead_row",
+   "provenance": true,
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ]
+    }
+   ],
+   "row": {
+    "id": 12,
+    "lead_id": null,
+    "data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "fields": {
+      "phone": "+33 1 23",
+      "city": "Lyon",
+      "company_size": "11-50"
+     },
+     "confidence": 0.8
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "ph": {
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "provenance": {
+       "source": "website_scraper",
+       "license": "scraped",
+       "confidence": 0.8,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      }
+     }
+    },
+    "row_data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    },
+    "enrichments": [
+     {
+      "lead_id": 12,
+      "column_id": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "cell_metadata": {
+       "provenance": {
+        "source": "website_scraper",
+        "license": "scraped",
+        "confidence": 0.8,
+        "fetched_at": "2026-10-28T12:00:00+00:00"
+       }
+      }
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "ph",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "research": null,
+      "provenance": {
+       "source": "website_scraper",
+       "license": "scraped",
+       "confidence": 0.8,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      },
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "website_scraper"
+    ],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "provenance_error_cell",
+   "provenance": true,
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ]
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "success": false,
+     "fields": {},
+     "error": "nope"
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "ph": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "no_data"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "no_data",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "website_scraper"
+    ],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "provenance_formula_column",
+   "provenance": true,
+   "columns": [
+    {
+     "id": "f",
+     "name": "F",
+     "type": "formula",
+     "formula": "{company} + '!'"
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "f": {
+      "value": "Acme!",
+      "status": "complete",
+      "provider": "formula",
+      "error": null,
+      "provenance": {
+       "source": "formula",
+       "license": "unknown",
+       "confidence": null,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      }
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "f",
+      "value": "Acme!",
+      "status": "complete",
+      "provider": "formula",
+      "error": null,
+      "cell_metadata": {
+       "provenance": {
+        "source": "formula",
+        "license": "unknown",
+        "confidence": null,
+        "fetched_at": "2026-10-28T12:00:00+00:00"
+       }
+      }
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "f",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "f",
+      "value": "Acme!",
+      "status": "complete",
+      "provider": "formula",
+      "error": null,
+      "research": null,
+      "provenance": {
+       "source": "formula",
+       "license": "unknown",
+       "confidence": null,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      },
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "provenance_malformed_existing",
+   "provenance": true,
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ]
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "fields": {
+      "phone": "+33 1 23",
+      "city": "Lyon",
+      "company_size": "11-50"
+     },
+     "confidence": 0.8
+    }
+   },
+   "lead_field_provenance": {
+    "501": "not json"
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "ph": {
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "provenance": {
+       "source": "website_scraper",
+       "license": "scraped",
+       "confidence": 0.8,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      }
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "cell_metadata": {
+       "provenance": {
+        "source": "website_scraper",
+        "license": "scraped",
+        "confidence": 0.8,
+        "fetched_at": "2026-10-28T12:00:00+00:00"
+       }
+      }
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "research": null,
+      "provenance": {
+       "source": "website_scraper",
+       "license": "scraped",
+       "confidence": 0.8,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      },
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "website_scraper"
+    ],
+    "writebacks": [
+     {
+      "lead_id": 501,
+      "updates": {
+       "city": "Lyon",
+       "field_provenance": "{\"city\": {\"source\": \"website_scraper\", \"license\": \"scraped\", \"confidence\": null, \"fetched_at\": \"2026-10-28T12:00:00+00:00\"}}",
+       "last_enriched_at": "2026-10-28T12:00:00+00:00"
+      }
+     },
+     {
+      "lead_id": 501,
+      "updates": {
+       "company_size": "11-50",
+       "field_provenance": "{\"company_size\": {\"source\": \"website_scraper\", \"license\": \"scraped\", \"confidence\": null, \"fetched_at\": \"2026-10-28T12:00:00+00:00\"}}",
+       "last_enriched_at": "2026-10-28T12:00:00+00:00"
+      }
+     }
+    ],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "automations_same_task_flush",
+   "automations": true,
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ]
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": {
+     "ph": {
+      "value": "+1 old",
+      "status": "complete"
+     }
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "fields": {
+      "phone": "+33 1 23",
+      "city": "Lyon",
+      "company_size": "11-50"
+     },
+     "confidence": 0.8
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "ph": {
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "website_scraper"
+    ],
+    "writebacks": [
+     {
+      "lead_id": 501,
+      "updates": {
+       "city": "Lyon"
+      }
+     },
+     {
+      "lead_id": 501,
+      "updates": {
+       "company_size": "11-50"
+      }
+     }
+    ],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": [
+     {
+      "workspace_id": "ws-wbexec",
+      "workbook_id": "wb-wbexec",
+      "changes": [
+       {
+        "row_id": "11",
+        "field": "ph",
+        "old": null,
+        "new": "+33 1 23",
+        "cell_version": 1793131898197
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "automations_gather_flush_python_loses_deltas",
+   "automations": true,
+   "flush": "gather",
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ]
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "fields": {
+      "phone": "+33 1 23",
+      "city": "Lyon",
+      "company_size": "11-50"
+     },
+     "confidence": 0.8
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "ph": {
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "website_scraper"
+    ],
+    "writebacks": [
+     {
+      "lead_id": 501,
+      "updates": {
+       "city": "Lyon"
+      }
+     },
+     {
+      "lead_id": 501,
+      "updates": {
+       "company_size": "11-50"
+      }
+     }
+    ],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "automations_unchanged_value_no_delta",
+   "automations": true,
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ]
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": {
+     "ph": {
+      "value": "+33 1 23",
+      "status": "complete"
+     }
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "fields": {
+      "phone": "+33 1 23",
+      "city": "Lyon",
+      "company_size": "11-50"
+     },
+     "confidence": 0.8
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "ph": {
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "website_scraper"
+    ],
+    "writebacks": [
+     {
+      "lead_id": 501,
+      "updates": {
+       "city": "Lyon"
+      }
+     },
+     {
+      "lead_id": 501,
+      "updates": {
+       "company_size": "11-50"
+      }
+     }
+    ],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": [
+     {
+      "workspace_id": "ws-wbexec",
+      "workbook_id": "wb-wbexec",
+      "changes": [
+       {
+        "row_id": "11",
+        "field": "ph",
+        "old": null,
+        "new": "+33 1 23",
+        "cell_version": 1793131898204
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "condition_false_skips",
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ],
+     "condition": "{email} == \"\""
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "fields": {
+      "phone": "+33 1 23",
+      "city": "Lyon",
+      "company_size": "11-50"
+     },
+     "confidence": 0.8
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "ph": {
+      "value": null,
+      "status": "skipped",
+      "provider": null,
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": null,
+      "status": "skipped",
+      "provider": null,
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "skipped",
+      "value": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "condition_true_runs",
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ],
+     "condition": "{company} != \"\" AND {city} == \"Paris\""
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "fields": {
+      "phone": "+33 1 23",
+      "city": "Lyon",
+      "company_size": "11-50"
+     },
+     "confidence": 0.8
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "ph": {
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "website_scraper"
+    ],
+    "writebacks": [
+     {
+      "lead_id": 501,
+      "updates": {
+       "city": "Lyon"
+      }
+     },
+     {
+      "lead_id": 501,
+      "updates": {
+       "company_size": "11-50"
+      }
+     }
+    ],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "condition_by_display_name",
+   "columns": [
+    {
+     "id": "c1",
+     "name": "Company Name",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ],
+     "condition": "{Company Name} contains acme"
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "fields": {
+      "phone": "+33 1 23",
+      "city": "Lyon",
+      "company_size": "11-50"
+     },
+     "confidence": 0.8
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "ph": {
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "website_scraper"
+    ],
+    "writebacks": [
+     {
+      "lead_id": 501,
+      "updates": {
+       "city": "Lyon"
+      }
+     },
+     {
+      "lead_id": 501,
+      "updates": {
+       "company_size": "11-50"
+      }
+     }
+    ],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "condition_unparseable_fails_closed",
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ],
+     "condition": "garbage"
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "fields": {
+      "phone": "+33 1 23",
+      "city": "Lyon",
+      "company_size": "11-50"
+     },
+     "confidence": 0.8
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "ph": {
+      "value": null,
+      "status": "skipped",
+      "provider": null,
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": null,
+      "status": "skipped",
+      "provider": null,
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "skipped",
+      "value": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "condition_skip_blocks_dependent",
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ],
+     "condition": "never"
+    },
+    {
+     "id": "f",
+     "name": "F",
+     "type": "formula",
+     "formula": "{ph} + 'x'"
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "fields": {
+      "phone": "+33 1 23",
+      "city": "Lyon",
+      "company_size": "11-50"
+     },
+     "confidence": 0.8
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 2
+    },
+    "overlay": {
+     "ph": {
+      "value": null,
+      "status": "skipped",
+      "provider": null,
+      "error": null
+     },
+     "f": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "upstream_dependency_failed"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "f",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "upstream_dependency_failed",
+      "cell_metadata": null
+     },
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": null,
+      "status": "skipped",
+      "provider": null,
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "skipped",
+      "value": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "email_verify_valid",
+   "columns": [
+    {
+     "id": "em",
+     "name": "Col em",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "mailscout"
+     ]
+    }
+   ],
+   "row": {
+    "id": 12,
+    "lead_id": null,
+    "data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    }
+   },
+   "providers": {
+    "mailscout": {
+     "fields": {
+      "email": "a@beta.example.com"
+     },
+     "confidence": 0.9
+    }
+   },
+   "verify": {
+    "status": "valid",
+    "source": "smtp",
+    "confidence": 0.95
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "em": {
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null,
+      "verify_status": "valid"
+     }
+    },
+    "row_data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    },
+    "enrichments": [
+     {
+      "lead_id": 12,
+      "column_id": "em",
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null,
+      "cell_metadata": {
+       "verify": {
+        "status": "valid",
+        "confidence": 0.95,
+        "source": "smtp"
+       }
+      }
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "em",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "em",
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": "valid"
+     }
+    ],
+    "provider_calls": [
+     "mailscout"
+    ],
+    "writebacks": [],
+    "verify_calls": [
+     {
+      "email": "a@beta.example.com",
+      "workspace_id": "ws-wbexec"
+     }
+    ],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "email_verify_raises_is_best_effort",
+   "columns": [
+    {
+     "id": "em",
+     "name": "Col em",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "mailscout"
+     ]
+    }
+   ],
+   "row": {
+    "id": 12,
+    "lead_id": null,
+    "data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    }
+   },
+   "providers": {
+    "mailscout": {
+     "fields": {
+      "email": "a@beta.example.com"
+     },
+     "confidence": 0.9
+    }
+   },
+   "verify": "raise",
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "em": {
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    },
+    "enrichments": [
+     {
+      "lead_id": 12,
+      "column_id": "em",
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "em",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "em",
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "mailscout"
+    ],
+    "writebacks": [],
+    "verify_calls": [
+     {
+      "email": "a@beta.example.com",
+      "workspace_id": "ws-wbexec"
+     }
+    ],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "email_verify_false_skips_cascade",
+   "columns": [
+    {
+     "id": "em",
+     "name": "Col em",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "mailscout"
+     ],
+     "verify": false
+    }
+   ],
+   "row": {
+    "id": 12,
+    "lead_id": null,
+    "data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    }
+   },
+   "providers": {
+    "mailscout": {
+     "fields": {
+      "email": "a@beta.example.com"
+     },
+     "confidence": 0.9
+    }
+   },
+   "verify": {
+    "status": "valid",
+    "source": "smtp",
+    "confidence": 0.95
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "em": {
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    },
+    "enrichments": [
+     {
+      "lead_id": 12,
+      "column_id": "em",
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "em",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "em",
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "mailscout"
+    ],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "email_verify_no_value_no_cascade",
+   "columns": [
+    {
+     "id": "em",
+     "name": "Col em",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "mailscout"
+     ]
+    }
+   ],
+   "row": {
+    "id": 12,
+    "lead_id": null,
+    "data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    }
+   },
+   "providers": {
+    "mailscout": {
+     "success": false,
+     "fields": {}
+    }
+   },
+   "verify": {
+    "status": "valid",
+    "source": "smtp",
+    "confidence": 0.95
+   },
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "em": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "no_data"
+     }
+    },
+    "row_data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    },
+    "enrichments": [
+     {
+      "lead_id": 12,
+      "column_id": "em",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "no_data",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "em",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "em",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "mailscout"
+    ],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "email_verify_id_only_target_not_verified",
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email2",
+     "type": "waterfall",
+     "waterfall": [
+      "mailscout"
+     ]
+    }
+   ],
+   "row": {
+    "id": 12,
+    "lead_id": null,
+    "data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    }
+   },
+   "providers": {
+    "mailscout": {
+     "fields": {
+      "email": "a@beta.example.com"
+     },
+     "confidence": 0.9
+    }
+   },
+   "verify": {
+    "status": "valid",
+    "source": "smtp",
+    "confidence": 0.95
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "email": {
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    },
+    "enrichments": [
+     {
+      "lead_id": 12,
+      "column_id": "email",
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "email",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "email",
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "mailscout"
+    ],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "email_verify_with_provenance",
+   "provenance": true,
+   "columns": [
+    {
+     "id": "em",
+     "name": "Col em",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "mailscout"
+     ]
+    }
+   ],
+   "row": {
+    "id": 12,
+    "lead_id": null,
+    "data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    }
+   },
+   "providers": {
+    "mailscout": {
+     "fields": {
+      "email": "a@beta.example.com"
+     },
+     "confidence": 0.9
+    }
+   },
+   "verify": {
+    "status": "catch_all",
+    "source": "reacher",
+    "confidence": 0.6
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "em": {
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null,
+      "verify_status": "catch_all",
+      "provenance": {
+       "source": "mailscout",
+       "license": "scraped",
+       "confidence": 0.9,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      }
+     }
+    },
+    "row_data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    },
+    "enrichments": [
+     {
+      "lead_id": 12,
+      "column_id": "em",
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null,
+      "cell_metadata": {
+       "verify": {
+        "status": "catch_all",
+        "confidence": 0.6,
+        "source": "reacher"
+       },
+       "provenance": {
+        "source": "mailscout",
+        "license": "scraped",
+        "confidence": 0.9,
+        "fetched_at": "2026-10-28T12:00:00+00:00"
+       }
+      }
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "em",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "em",
+      "value": "a@beta.example.com",
+      "status": "complete",
+      "provider": "mailscout",
+      "error": null,
+      "research": null,
+      "provenance": {
+       "source": "mailscout",
+       "license": "scraped",
+       "confidence": 0.9,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      },
+      "verify_status": "catch_all"
+     }
+    ],
+    "provider_calls": [
+     "mailscout"
+    ],
+    "writebacks": [],
+    "verify_calls": [
+     {
+      "email": "a@beta.example.com",
+      "workspace_id": "ws-wbexec"
+     }
+    ],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "structured_target_summary_and_writeback",
+   "columns": [
+    {
+     "id": "dm",
+     "name": "Col dm",
+     "type": "waterfall",
+     "target_field": "decision_makers",
+     "waterfall": [
+      "decision_maker"
+     ]
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "decision_maker": {
+     "fields": {
+      "decision_makers": "[{\"name\": \"Ann\", \"title\": \"CEO\"}, {\"name\": \"Bob\"}]",
+      "city": "Nice"
+     },
+     "confidence": 0.7
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "dm": {
+      "value": "Ann +1 more",
+      "status": "complete",
+      "provider": "decision_maker",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "dm",
+      "value": "Ann +1 more",
+      "status": "complete",
+      "provider": "decision_maker",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "dm",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "dm",
+      "value": "Ann +1 more",
+      "status": "complete",
+      "provider": "decision_maker",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "decision_maker"
+    ],
+    "writebacks": [
+     {
+      "lead_id": 501,
+      "updates": {
+       "decision_makers": "[{\"name\": \"Ann\", \"title\": \"CEO\"}, {\"name\": \"Bob\"}]"
+      }
+     },
+     {
+      "lead_id": 501,
+      "updates": {
+       "city": "Nice"
+      }
+     },
+     {
+      "lead_id": 501,
+      "updates": {
+       "decision_makers": "[{\"name\": \"Ann\", \"title\": \"CEO\"}, {\"name\": \"Bob\"}]"
+      }
+     }
+    ],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "structured_target_no_name",
+   "columns": [
+    {
+     "id": "dm",
+     "name": "Col dm",
+     "type": "waterfall",
+     "target_field": "decision_makers",
+     "waterfall": [
+      "decision_maker"
+     ]
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "decision_maker": {
+     "fields": {
+      "decision_makers": "[{\"title\": \"CEO\"}]"
+     },
+     "confidence": 0.7
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "dm": {
+      "value": "1 results",
+      "status": "complete",
+      "provider": "decision_maker",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "dm",
+      "value": "1 results",
+      "status": "complete",
+      "provider": "decision_maker",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "dm",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "dm",
+      "value": "1 results",
+      "status": "complete",
+      "provider": "decision_maker",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "decision_maker"
+    ],
+    "writebacks": [
+     {
+      "lead_id": 501,
+      "updates": {
+       "decision_makers": "[{\"title\": \"CEO\"}]"
+      }
+     },
+     {
+      "lead_id": 501,
+      "updates": {
+       "decision_makers": "[{\"title\": \"CEO\"}]"
+      }
+     }
+    ],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_webhook_default_body",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "webhook",
+     "destination_config": {
+      "url": "https://hooks.example.com/{company}"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "webhook": {
+     "status": 200
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "webhook",
+      "method": "POST",
+      "url": "https://hooks.example.com/Acme",
+      "headers": {
+       "content-type": "application/json"
+      },
+      "body": "{\"company\":\"Acme\",\"website\":\"acme.example.com\",\"email\":\"jo@acme.example.com\",\"first_name\":\"Jo\",\"last_name\":\"Doe\",\"city\":\"Paris\",\"id\":501,\"__row_id\":11,\"__lead_id\":501}"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_webhook_template_body",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "webhook",
+     "destination_config": {
+      "url": "https://hooks.example.com/x",
+      "method": "put",
+      "headers": {
+       "X-Co": "{company}"
+      },
+      "body": "{\"co\": \"{company}\", \"n\": 1, \"tags\": [\"{city}\"]}"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "webhook": {
+     "status": 201
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "PUT 201",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "PUT 201",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "PUT 201",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "webhook",
+      "method": "PUT",
+      "url": "https://hooks.example.com/x",
+      "headers": {
+       "x-co": "Acme",
+       "content-type": "application/json"
+      },
+      "body": "{\"co\":\"Acme\",\"n\":1,\"tags\":[\"Paris\"]}"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_webhook_text_body",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "webhook",
+     "destination_config": {
+      "url": "https://hooks.example.com/x",
+      "body": "hello {company}"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "webhook": {
+     "status": 200
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "webhook",
+      "method": "POST",
+      "url": "https://hooks.example.com/x",
+      "headers": {
+       "content-type": "text/plain"
+      },
+      "body": "hello Acme"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_webhook_get_no_body",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "webhook",
+     "destination_config": {
+      "url": "https://hooks.example.com/x",
+      "method": "GET"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "webhook": {
+     "status": 204
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "GET 204",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "GET 204",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "GET 204",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "webhook",
+      "method": "GET",
+      "url": "https://hooks.example.com/x",
+      "headers": {},
+      "body": ""
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_webhook_http_500",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "webhook",
+     "destination_config": {
+      "url": "https://hooks.example.com/x"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "webhook": {
+     "status": 500,
+     "text": "boom xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "o": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "HTTP 500: boom xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "HTTP 500: boom xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": null,
+      "status": "error",
+      "provider": "webhook",
+      "error": "HTTP 500: boom xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "webhook",
+      "method": "POST",
+      "url": "https://hooks.example.com/x",
+      "headers": {
+       "content-type": "application/json"
+      },
+      "body": "{\"company\":\"Acme\",\"website\":\"acme.example.com\",\"email\":\"jo@acme.example.com\",\"first_name\":\"Jo\",\"last_name\":\"Doe\",\"city\":\"Paris\",\"id\":501,\"__row_id\":11,\"__lead_id\":501}"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_webhook_blocked",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "webhook",
+     "destination_config": {
+      "url": "https://blocked.example.com/x"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {},
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "o": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "blocked url: host resolves to non-public address 10.0.0.1"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "blocked url: host resolves to non-public address 10.0.0.1",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": null,
+      "status": "error",
+      "provider": "webhook",
+      "error": "blocked url: host resolves to non-public address 10.0.0.1",
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_webhook_no_url",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "webhook",
+     "destination_config": {
+      "url": "  "
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {},
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "o": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "webhook url not configured"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "webhook url not configured",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": null,
+      "status": "error",
+      "provider": "webhook",
+      "error": "webhook url not configured",
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_webhook_unknown_reference",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "webhook",
+     "destination_config": {
+      "url": "https://hooks.example.com/{nope}"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {},
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "o": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "Unknown column reference: nope. Fix the template before sending."
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "Unknown column reference: nope. Fix the template before sending.",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": null,
+      "status": "error",
+      "provider": "webhook",
+      "error": "Unknown column reference: nope. Fix the template before sending.",
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_crm_ok",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "crm",
+     "destination_config": {
+      "type": "hubspot"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "crm": {
+     "success": true,
+     "value": "HubSpot: created 77",
+     "error": null
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "HubSpot: created 77",
+      "status": "complete",
+      "provider": "crm",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "HubSpot: created 77",
+      "status": "complete",
+      "provider": "crm",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "HubSpot: created 77",
+      "status": "complete",
+      "provider": "crm",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "crm",
+      "cfg": {
+       "type": "hubspot"
+      },
+      "workspace_id": "ws-wbexec",
+      "workbook_id": "wb-wbexec",
+      "lead_id": 501,
+      "lead_email": "jo@acme.example.com"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_crm_fail",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "crm",
+     "destination_config": {
+      "type": "hubspot"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "crm": {
+     "success": false,
+     "value": "",
+     "error": "HubSpot not connected"
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "o": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "HubSpot not connected"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "HubSpot not connected",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": null,
+      "status": "error",
+      "provider": "crm",
+      "error": "HubSpot not connected",
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "crm",
+      "cfg": {
+       "type": "hubspot"
+      },
+      "workspace_id": "ws-wbexec",
+      "workbook_id": "wb-wbexec",
+      "lead_id": 501,
+      "lead_email": "jo@acme.example.com"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_sheets_defaults",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "sheets",
+     "destination_config": {
+      "spreadsheet_id": "sp1"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "sheets": {
+     "success": true,
+     "range": "Sheet1!A2:E2"
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "Sheets: Sheet1!A2:E2",
+      "status": "complete",
+      "provider": "sheets",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "Sheets: Sheet1!A2:E2",
+      "status": "complete",
+      "provider": "sheets",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "Sheets: Sheet1!A2:E2",
+      "status": "complete",
+      "provider": "sheets",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "sheets",
+      "spreadsheet_id": "sp1",
+      "values": [
+       "Acme",
+       "jo@acme.example.com",
+       "",
+       "acme.example.com",
+       "Paris"
+      ],
+      "range": "Sheet1",
+      "workspace_id": "ws-wbexec"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_sheets_columns_fail",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "sheets",
+     "destination_config": {
+      "spreadsheet_id": "sp1",
+      "columns": [
+       "company",
+       "missing"
+      ],
+      "range": "Leads"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "sheets": {
+     "success": false,
+     "error": "Google Sheets not connected"
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "o": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "Google Sheets not connected"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "Google Sheets not connected",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": null,
+      "status": "error",
+      "provider": "sheets",
+      "error": "Google Sheets not connected",
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "sheets",
+      "spreadsheet_id": "sp1",
+      "values": [
+       "Acme",
+       ""
+      ],
+      "range": "Leads",
+      "workspace_id": "ws-wbexec"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_airtable_defaults",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "airtable",
+     "destination_config": {
+      "base_id": "b1",
+      "table": "T"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "airtable": {
+     "success": true,
+     "record_id": "rec9"
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "Airtable: rec9",
+      "status": "complete",
+      "provider": "airtable",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "Airtable: rec9",
+      "status": "complete",
+      "provider": "airtable",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "Airtable: rec9",
+      "status": "complete",
+      "provider": "airtable",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "airtable",
+      "fields": {
+       "Company": "Acme",
+       "Email": "jo@acme.example.com",
+       "Phone": null,
+       "Website": "acme.example.com",
+       "City": "Paris"
+      },
+      "base_id": "b1",
+      "table": "T",
+      "typecast": true,
+      "workspace_id": "ws-wbexec"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_airtable_fieldmap_no_record_id",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "airtable",
+     "destination_config": {
+      "base_id": "b1",
+      "table": "T",
+      "field_map": {
+       "company": "Co",
+       "missing": "M"
+      }
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "airtable": {
+     "success": true
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "Airtable: created",
+      "status": "complete",
+      "provider": "airtable",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "Airtable: created",
+      "status": "complete",
+      "provider": "airtable",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "Airtable: created",
+      "status": "complete",
+      "provider": "airtable",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "airtable",
+      "fields": {
+       "Co": "Acme",
+       "M": null
+      },
+      "base_id": "b1",
+      "table": "T",
+      "typecast": true,
+      "workspace_id": "ws-wbexec"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_instantly_added",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "instantly",
+     "destination_config": {
+      "campaign_id": " c1 "
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "instantly": {
+     "success": true
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "Instantly: added",
+      "status": "complete",
+      "provider": "instantly",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "Instantly: added",
+      "status": "complete",
+      "provider": "instantly",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "Instantly: added",
+      "status": "complete",
+      "provider": "instantly",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "instantly",
+      "campaign_id": "c1",
+      "lead": {
+       "email": "jo@acme.example.com",
+       "first_name": "Jo",
+       "last_name": "Doe",
+       "company_name": "Acme"
+      },
+      "skip_if_in_campaign": true,
+      "workspace_id": "ws-wbexec"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_instantly_duplicate_template_map",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "instantly",
+     "destination_config": {
+      "campaign": "c2",
+      "skip_if_in_campaign": false,
+      "field_map": {
+       "{first_name} {last_name}": "full_name",
+       "email": "email",
+       "nope": "x"
+      }
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "instantly": {
+     "success": true,
+     "duplicate": true
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "Instantly: already in campaign",
+      "status": "complete",
+      "provider": "instantly",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "Instantly: already in campaign",
+      "status": "complete",
+      "provider": "instantly",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "Instantly: already in campaign",
+      "status": "complete",
+      "provider": "instantly",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "instantly",
+      "campaign_id": "c2",
+      "lead": {
+       "full_name": "Jo Doe",
+       "email": "jo@acme.example.com"
+      },
+      "skip_if_in_campaign": false,
+      "workspace_id": "ws-wbexec"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_instantly_no_campaign",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "instantly",
+     "destination_config": {}
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {},
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "o": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "Instantly campaign_id not configured"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "Instantly campaign_id not configured",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": null,
+      "status": "error",
+      "provider": "instantly",
+      "error": "Instantly campaign_id not configured",
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_smartlead_settings",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "smartlead",
+     "destination_config": {
+      "campaign_id": "9",
+      "settings": {
+       "ignore_global_block_list": true
+      }
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "smartlead": {
+     "success": false,
+     "error": "Smartlead rejected"
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "o": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "Smartlead rejected"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "Smartlead rejected",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": null,
+      "status": "error",
+      "provider": "smartlead",
+      "error": "Smartlead rejected",
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "smartlead",
+      "campaign_id": "9",
+      "lead": {
+       "email": "jo@acme.example.com",
+       "first_name": "Jo",
+       "last_name": "Doe",
+       "company_name": "Acme"
+      },
+      "settings": {
+       "ignore_global_block_list": true
+      },
+      "workspace_id": "ws-wbexec"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_sequencer_enrolled",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "sequencer",
+     "destination_config": {
+      "sequence_id": "seq1"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "sequencer": {}
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "enrolled",
+      "status": "complete",
+      "provider": "sequencer",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "enrolled",
+      "status": "complete",
+      "provider": "sequencer",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "enrolled",
+      "status": "complete",
+      "provider": "sequencer",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "sequencer",
+      "sequence_id": "seq1",
+      "lead_id": 501,
+      "email": "jo@acme.example.com",
+      "consent_source": "workbook_output"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_sequencer_suppressed",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "sequencer",
+     "destination_config": {
+      "sequence_id": "seq1"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "sequencer": {
+     "suppressed": true
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "o": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "output_failed"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "output_failed",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": null,
+      "status": "error",
+      "provider": "sequencer",
+      "error": "output_failed",
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_sequencer_already",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "sequencer",
+     "destination_config": {
+      "sequence_id": "seq1"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "sequencer": {
+     "already": true
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "o": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "output_failed"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "output_failed",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": null,
+      "status": "error",
+      "provider": "sequencer",
+      "error": "output_failed",
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "sequencer",
+      "sequence_id": "seq1",
+      "lead_id": 501,
+      "email": "jo@acme.example.com",
+      "consent_source": "workbook_output"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_sequencer_missing_sequence",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "sequencer",
+     "destination_config": {
+      "sequence_id": "seq1"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {
+    "sequencer": {
+     "exists": false
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "o": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "sequence not found in workspace"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "sequence not found in workspace",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": null,
+      "status": "error",
+      "provider": "sequencer",
+      "error": "sequence not found in workspace",
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_sequencer_no_email",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "sequencer",
+     "destination_config": {
+      "sequence_id": "seq1"
+     }
+    }
+   ],
+   "row": {
+    "id": 12,
+    "lead_id": null,
+    "data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    }
+   },
+   "dest": {
+    "sequencer": {}
+   },
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "o": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "no_email"
+     }
+    },
+    "row_data": {
+     "company": "Beta",
+     "website": "beta.example.com"
+    },
+    "enrichments": [
+     {
+      "lead_id": 12,
+      "column_id": "o",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "no_email",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 12,
+      "rowId": 12,
+      "colId": "o",
+      "value": null,
+      "status": "error",
+      "provider": "sequencer",
+      "error": "no_email",
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_unknown_destination",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "fax",
+     "destination_config": {}
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "dest": {},
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {
+     "o": {
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "unknown destination 'fax'"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": null,
+      "status": "error",
+      "provider": null,
+      "error": "unknown destination 'fax'",
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": null,
+      "status": "error",
+      "provider": "fax",
+      "error": "unknown destination 'fax'",
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_run_once_complete_is_skipped",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "webhook",
+     "destination_config": {
+      "url": "https://hooks.example.com/x"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": {
+     "o": {
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook"
+     }
+    }
+   },
+   "dest": {},
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook"
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [],
+    "broadcasts": [],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_run_once_false_resends",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "webhook",
+     "destination_config": {
+      "url": "https://hooks.example.com/x"
+     },
+     "run_once": false
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": {
+     "o": {
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook"
+     }
+    }
+   },
+   "dest": {
+    "webhook": {
+     "status": 200
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "webhook",
+      "method": "POST",
+      "url": "https://hooks.example.com/x",
+      "headers": {
+       "content-type": "application/json"
+      },
+      "body": "{\"company\":\"Acme\",\"website\":\"acme.example.com\",\"email\":\"jo@acme.example.com\",\"first_name\":\"Jo\",\"last_name\":\"Doe\",\"city\":\"Paris\",\"Out o\":\"POST 200\",\"o\":\"POST 200\",\"id\":501,\"__row_id\":11,\"__lead_id\":501}"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_force_resends",
+   "force": true,
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "webhook",
+     "destination_config": {
+      "url": "https://hooks.example.com/x"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": {
+     "o": {
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook"
+     }
+    }
+   },
+   "dest": {
+    "webhook": {
+     "status": 200
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 1,
+     "errors": 0
+    },
+    "overlay": {
+     "o": {
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "research": null,
+      "provenance": null,
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "webhook",
+      "method": "POST",
+      "url": "https://hooks.example.com/x",
+      "headers": {
+       "content-type": "application/json"
+      },
+      "body": "{\"company\":\"Acme\",\"website\":\"acme.example.com\",\"email\":\"jo@acme.example.com\",\"first_name\":\"Jo\",\"last_name\":\"Doe\",\"city\":\"Paris\",\"Out o\":\"POST 200\",\"o\":\"POST 200\",\"id\":501,\"__row_id\":11,\"__lead_id\":501}"
+     }
+    ],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_identity_requires_review",
+   "columns": [
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "webhook",
+     "destination_config": {
+      "url": "https://hooks.example.com/x"
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "prior_enrichments": [
+    {
+     "lead_id": 501,
+     "column_id": "o",
+     "value": "POST 200",
+     "status": "complete",
+     "provider": "webhook"
+    }
+   ],
+   "dest": {},
+   "expect": {
+    "row_result": {
+     "completed": 0,
+     "errors": 1
+    },
+    "overlay": {},
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "cell_metadata": null
+     }
+    ],
+    "broadcasts": [],
+    "provider_calls": [],
+    "writebacks": [],
+    "verify_calls": [],
+    "output_calls": [],
+    "emitted": []
+   }
+  },
+  {
+   "name": "output_after_enrichment_with_provenance",
+   "provenance": true,
+   "columns": [
+    {
+     "id": "ph",
+     "name": "Col ph",
+     "type": "waterfall",
+     "target_field": "phone",
+     "waterfall": [
+      "website_scraper"
+     ]
+    },
+    {
+     "id": "o",
+     "name": "Out o",
+     "type": "output",
+     "destination": "webhook",
+     "destination_config": {
+      "url": "https://hooks.example.com/x",
+      "body": {
+       "p": "{ph}"
+      }
+     }
+    }
+   ],
+   "row": {
+    "id": 11,
+    "lead_id": 501,
+    "data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    }
+   },
+   "providers": {
+    "website_scraper": {
+     "fields": {
+      "phone": "+33 1 23",
+      "city": "Lyon",
+      "company_size": "11-50"
+     },
+     "confidence": 0.8
+    }
+   },
+   "dest": {
+    "webhook": {
+     "status": 200
+    }
+   },
+   "expect": {
+    "row_result": {
+     "completed": 2,
+     "errors": 0
+    },
+    "overlay": {
+     "ph": {
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "provenance": {
+       "source": "website_scraper",
+       "license": "scraped",
+       "confidence": 0.8,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      }
+     },
+     "o": {
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "provenance": {
+       "source": "webhook",
+       "license": "unknown",
+       "confidence": null,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      }
+     }
+    },
+    "row_data": {
+     "company": "Acme",
+     "website": "acme.example.com",
+     "email": "jo@acme.example.com",
+     "first_name": "Jo",
+     "last_name": "Doe",
+     "city": "Paris"
+    },
+    "enrichments": [
+     {
+      "lead_id": 501,
+      "column_id": "o",
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "cell_metadata": {
+       "provenance": {
+        "source": "webhook",
+        "license": "unknown",
+        "confidence": null,
+        "fetched_at": "2026-10-28T12:00:00+00:00"
+       }
+      }
+     },
+     {
+      "lead_id": 501,
+      "column_id": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "cell_metadata": {
+       "provenance": {
+        "source": "website_scraper",
+        "license": "scraped",
+        "confidence": 0.8,
+        "fetched_at": "2026-10-28T12:00:00+00:00"
+       }
+      }
+     }
+    ],
+    "broadcasts": [
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "ph",
+      "value": "+33 1 23",
+      "status": "complete",
+      "provider": "website_scraper",
+      "error": null,
+      "research": null,
+      "provenance": {
+       "source": "website_scraper",
+       "license": "scraped",
+       "confidence": 0.8,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      },
+      "verify_status": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "status": "running",
+      "value": null
+     },
+     {
+      "type": "cell_update",
+      "leadId": 501,
+      "rowId": 11,
+      "colId": "o",
+      "value": "POST 200",
+      "status": "complete",
+      "provider": "webhook",
+      "error": null,
+      "research": null,
+      "provenance": {
+       "source": "webhook",
+       "license": "unknown",
+       "confidence": null,
+       "fetched_at": "2026-10-28T12:00:00+00:00"
+      },
+      "verify_status": null
+     }
+    ],
+    "provider_calls": [
+     "website_scraper"
+    ],
+    "writebacks": [
+     {
+      "lead_id": 501,
+      "updates": {
+       "city": "Lyon",
+       "field_provenance": "{\"city\": {\"source\": \"website_scraper\", \"license\": \"scraped\", \"confidence\": null, \"fetched_at\": \"2026-10-28T12:00:00+00:00\"}}",
+       "last_enriched_at": "2026-10-28T12:00:00+00:00"
+      }
+     },
+     {
+      "lead_id": 501,
+      "updates": {
+       "company_size": "11-50",
+       "field_provenance": "{\"company_size\": {\"source\": \"website_scraper\", \"license\": \"scraped\", \"confidence\": null, \"fetched_at\": \"2026-10-28T12:00:00+00:00\"}}",
+       "last_enriched_at": "2026-10-28T12:00:00+00:00"
+      }
+     }
+    ],
+    "verify_calls": [],
+    "output_calls": [
+     {
+      "kind": "webhook",
+      "method": "POST",
+      "url": "https://hooks.example.com/x",
+      "headers": {
+       "content-type": "application/json"
+      },
+      "body": "{\"p\":\"+33 1 23\"}"
+     }
+    ],
+    "emitted": []
+   }
+  }
+ ],
+ "journal": {
+  "steps": [
+   {
+    "name": "first_dispatch_records_receipt",
+    "request": {
+     "col_id": "o",
+     "row_id": 11,
+     "lead_id": 501,
+     "col_extra": {}
+    },
+    "result": {
+     "value": {
+      "success": true,
+      "value": "POST 200",
+      "error": null
+     }
+    },
+    "calls": [
+     "o"
+    ],
+    "attempts": {
+     "row:11/o": {
+      "contract_hash": "e4fb0a51af3982294f17eaaf41dd71af2b9d6c6980d36ef801075ae5d8266006",
+      "state": "recorded",
+      "result": {
+       "success": true,
+       "value": "POST 200",
+       "error": null
+      }
+     }
+    }
+   },
+   {
+    "name": "second_run_reuses_receipt",
+    "request": {
+     "col_id": "o",
+     "row_id": 11,
+     "lead_id": 501,
+     "col_extra": {}
+    },
+    "result": {
+     "value": {
+      "success": true,
+      "value": "POST 200",
+      "error": null
+     }
+    },
+    "calls": [
+     "o"
+    ],
+    "attempts": {
+     "row:11/o": {
+      "contract_hash": "e4fb0a51af3982294f17eaaf41dd71af2b9d6c6980d36ef801075ae5d8266006",
+      "state": "recorded",
+      "result": {
+       "success": true,
+       "value": "POST 200",
+       "error": null
+      }
+     }
+    }
+   },
+   {
+    "name": "changed_contract_is_refused",
+    "request": {
+     "col_id": "o",
+     "row_id": 11,
+     "lead_id": 501,
+     "col_extra": {
+      "destination": "crm"
+     }
+    },
+    "result": {
+     "error": "ValueError",
+     "message": "Output contract changed; review required"
+    },
+    "calls": [
+     "o"
+    ],
+    "attempts": {
+     "row:11/o": {
+      "contract_hash": "e4fb0a51af3982294f17eaaf41dd71af2b9d6c6980d36ef801075ae5d8266006",
+      "state": "recorded",
+      "result": {
+       "success": true,
+       "value": "POST 200",
+       "error": null
+      }
+     }
+    }
+   },
+   {
+    "name": "failed_send_records_failed_receipt",
+    "request": {
+     "col_id": "o2",
+     "row_id": 11,
+     "lead_id": 501,
+     "col_extra": {}
+    },
+    "result": {
+     "value": {
+      "success": false,
+      "value": null,
+      "error": "HTTP 500: x"
+     }
+    },
+    "calls": [
+     "o",
+     "o2"
+    ],
+    "attempts": {
+     "row:11/o": {
+      "contract_hash": "e4fb0a51af3982294f17eaaf41dd71af2b9d6c6980d36ef801075ae5d8266006",
+      "state": "recorded",
+      "result": {
+       "success": true,
+       "value": "POST 200",
+       "error": null
+      }
+     },
+     "row:11/o2": {
+      "contract_hash": "f1da2b0ef35fd7829ff0fe901da4c5c347ddc6f45e050a9579a8d2c485933b0b",
+      "state": "recorded",
+      "result": {
+       "success": false,
+       "value": null,
+       "error": "HTTP 500: x"
+      }
+     }
+    }
+   },
+   {
+    "name": "failed_receipt_is_reused_not_resent",
+    "request": {
+     "col_id": "o2",
+     "row_id": 11,
+     "lead_id": 501,
+     "col_extra": {}
+    },
+    "result": {
+     "value": {
+      "success": false,
+      "value": null,
+      "error": "HTTP 500: x"
+     }
+    },
+    "calls": [
+     "o",
+     "o2"
+    ],
+    "attempts": {
+     "row:11/o": {
+      "contract_hash": "e4fb0a51af3982294f17eaaf41dd71af2b9d6c6980d36ef801075ae5d8266006",
+      "state": "recorded",
+      "result": {
+       "success": true,
+       "value": "POST 200",
+       "error": null
+      }
+     },
+     "row:11/o2": {
+      "contract_hash": "f1da2b0ef35fd7829ff0fe901da4c5c347ddc6f45e050a9579a8d2c485933b0b",
+      "state": "recorded",
+      "result": {
+       "success": false,
+       "value": null,
+       "error": "HTTP 500: x"
+      }
+     }
+    }
+   },
+   {
+    "name": "dangling_claim_requires_review",
+    "request": {
+     "col_id": "o",
+     "row_id": 12,
+     "lead_id": 501,
+     "col_extra": {}
+    },
+    "result": {
+     "value": {
+      "success": false,
+      "value": null,
+      "error": "output_delivery_requires_review"
+     }
+    },
+    "calls": [
+     "o",
+     "o2"
+    ],
+    "attempts": {
+     "row:11/o": {
+      "contract_hash": "e4fb0a51af3982294f17eaaf41dd71af2b9d6c6980d36ef801075ae5d8266006",
+      "state": "recorded",
+      "result": {
+       "success": true,
+       "value": "POST 200",
+       "error": null
+      }
+     },
+     "row:11/o2": {
+      "contract_hash": "f1da2b0ef35fd7829ff0fe901da4c5c347ddc6f45e050a9579a8d2c485933b0b",
+      "state": "recorded",
+      "result": {
+       "success": false,
+       "value": null,
+       "error": "HTTP 500: x"
+      }
+     },
+     "row:12/o": {
+      "contract_hash": "cdea3efdebc060d2d4e5f081b86f78da5d882f39a6fc5aa128f254be34c45299",
+      "state": "dispatch_claimed"
+     }
+    }
+   },
+   {
+    "name": "lead_keyed_subject_without_row_id",
+    "request": {
+     "col_id": "o",
+     "row_id": null,
+     "lead_id": 501,
+     "col_extra": {}
+    },
+    "result": {
+     "value": {
+      "success": true,
+      "value": "POST 200",
+      "error": null
+     }
+    },
+    "calls": [
+     "o",
+     "o2",
+     "o"
+    ],
+    "attempts": {
+     "row:11/o": {
+      "contract_hash": "e4fb0a51af3982294f17eaaf41dd71af2b9d6c6980d36ef801075ae5d8266006",
+      "state": "recorded",
+      "result": {
+       "success": true,
+       "value": "POST 200",
+       "error": null
+      }
+     },
+     "row:11/o2": {
+      "contract_hash": "f1da2b0ef35fd7829ff0fe901da4c5c347ddc6f45e050a9579a8d2c485933b0b",
+      "state": "recorded",
+      "result": {
+       "success": false,
+       "value": null,
+       "error": "HTTP 500: x"
+      }
+     },
+     "row:12/o": {
+      "contract_hash": "cdea3efdebc060d2d4e5f081b86f78da5d882f39a6fc5aa128f254be34c45299",
+      "state": "dispatch_claimed"
+     },
+     "lead:501/o": {
+      "contract_hash": "f27b5d88fe3c1193da7d341701ff7d362c46235716f6aeca5baf0849a299fc03",
+      "state": "recorded",
+      "result": {
+       "success": true,
+       "value": "POST 200",
+       "error": null
+      }
+     }
+    }
+   }
+  ],
+  "summary": {
+   "total": 4,
+   "awaiting_receipt": 1,
+   "succeeded": 2,
+   "failed": 1,
+   "unknown": 0
+  },
+  "row11_contract_hash": "e4fb0a51af3982294f17eaaf41dd71af2b9d6c6980d36ef801075ae5d8266006",
+  "hash_input_example": {
+   "request": {
+    "col_config": {
+     "id": "o",
+     "type": "output"
+    },
+    "lead_data": {
+     "__row_id": 11,
+     "company": "Acme"
+    },
+    "columns_config": [],
+    "workbook_id": "wb-wbexec",
+    "lead_id": 501,
+    "workspace_id": "ws-wbexec"
+   },
+   "sha256": "e4fb0a51af3982294f17eaaf41dd71af2b9d6c6980d36ef801075ae5d8266006"
+  }
+ },
+ "licenses": {
+  "vocab": [
+   "CC-BY-4.0",
+   "CC0-1.0",
+   "proprietary-api",
+   "public-record",
+   "scraped",
+   "unknown",
+   "user-provided"
+  ],
+  "map": {
+   "gleif": "CC0-1.0",
+   "wikidata": "CC0-1.0",
+   "mca_registry": "public-record",
+   "companies_house": "public-record",
+   "sec": "public-record",
+   "sec_edgar": "public-record",
+   "hunter_io": "proprietary-api",
+   "apollo_io": "proprietary-api",
+   "snovio": "proprietary-api",
+   "prospeo": "proprietary-api",
+   "people_data_labs": "proprietary-api",
+   "clearbit": "proprietary-api",
+   "abstract_api": "proprietary-api",
+   "debounce": "proprietary-api",
+   "deep_scraper": "scraped",
+   "website_scraper": "scraped",
+   "jsonld_firmographics": "scraped",
+   "email_harvester": "scraped",
+   "ddg_email": "scraped",
+   "ddg_company": "scraped",
+   "mailscout": "scraped",
+   "holehe": "scraped",
+   "social_finder": "scraped",
+   "crosslinked": "scraped",
+   "staffspy": "scraped",
+   "decision_maker": "scraped",
+   "local_business": "scraped",
+   "facebook_pages": "scraped",
+   "google_maps": "scraped",
+   "tech_stack": "scraped",
+   "company_intel": "scraped",
+   "jobspy": "scraped",
+   "ats_hiring": "scraped",
+   "company_size_heuristic": "scraped",
+   "lead_scorer": "scraped",
+   "user-provided": "user-provided",
+   "csv": "user-provided",
+   "manual": "user-provided",
+   "csv_import": "user-provided"
+  },
+  "resolve": [
+   {
+    "provider": "gleif",
+    "declared": null,
+    "license": "CC0-1.0"
+   },
+   {
+    "provider": "cache:hunter_io",
+    "declared": null,
+    "license": "proprietary-api"
+   },
+   {
+    "provider": "nope",
+    "declared": null,
+    "license": "unknown"
+   },
+   {
+    "provider": null,
+    "declared": null,
+    "license": "unknown"
+   },
+   {
+    "provider": "",
+    "declared": "CC0-1.0",
+    "license": "CC0-1.0"
+   },
+   {
+    "provider": "hunter_io",
+    "declared": "unknown",
+    "license": "proprietary-api"
+   },
+   {
+    "provider": "hunter_io",
+    "declared": "bogus",
+    "license": "proprietary-api"
+   },
+   {
+    "provider": "x",
+    "declared": "scraped",
+    "license": "scraped"
+   },
+   {
+    "provider": "a:b:gleif",
+    "declared": null,
+    "license": "unknown"
+   },
+   {
+    "provider": "csv",
+    "declared": null,
+    "license": "user-provided"
+   }
+  ],
+  "provenance_for": [
+   {
+    "source": "gleif",
+    "license": "CC0-1.0",
+    "confidence": 0.1235,
+    "fetched_at": "2026-10-28T12:00:00+00:00"
+   },
+   {
+    "source": "unknown",
+    "license": "unknown",
+    "confidence": null,
+    "fetched_at": "2026-10-28T12:00:00+00:00"
+   },
+   {
+    "source": "x",
+    "license": "CC-BY-4.0",
+    "confidence": null,
+    "fetched_at": "2026-10-28T12:00:00+00:00"
+   },
+   {
+    "source": "x",
+    "license": "scraped",
+    "confidence": null,
+    "fetched_at": "2026-10-28T12:00:00+00:00"
+   },
+   {
+    "source": "hunter_io",
+    "license": "proprietary-api",
+    "confidence": 1.0,
+    "fetched_at": "2026-10-28T12:00:00+00:00"
+   }
+  ],
+  "merge": [
+   {
+    "current": null,
+    "updates": {
+     "a": {
+      "source": "x"
+     }
+    },
+    "result": "{\"a\": {\"source\": \"x\"}}"
+   },
+   {
+    "current": "",
+    "updates": {
+     "a": {
+      "x": 1
+     }
+    },
+    "result": "{\"a\": {\"x\": 1}}"
+   },
+   {
+    "current": "[1]",
+    "updates": {
+     "a": {}
+    },
+    "result": "{\"a\": {}}"
+   },
+   {
+    "current": "{\"b\": 1, \"a\": 2}",
+    "updates": {
+     "a": {
+      "é": "ü"
+     }
+    },
+    "result": "{\"b\": 1, \"a\": {\"\\u00e9\": \"\\u00fc\"}}"
+   },
+   {
+    "current": "{\"a\": 1.50, \"z\": [1e2, null, true]}",
+    "updates": {
+     "c": {
+      "n": null
+     }
+    },
+    "result": "{\"a\": 1.5, \"z\": [100.0, null, true], \"c\": {\"n\": null}}"
+   },
+   {
+    "current": "{bad",
+    "updates": {
+     "a": {}
+    },
+    "result": "{\"a\": {}}"
+   }
+  ]
+ }
+}
