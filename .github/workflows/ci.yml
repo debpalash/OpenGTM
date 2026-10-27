@@ -79,7 +79,7 @@ jobs:
   go:
     name: Go vet and tests (PostgreSQL + Redis)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     services:
       postgres:
         image: postgres:18
@@ -127,8 +127,10 @@ jobs:
           rev="$(grep -oP 'RequiredGoSchemaRevision = "\K[^"]+' internal/config/config.go)"
           psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -q -c "INSERT INTO alembic_version (version_num) VALUES ('$rev')"
       - run: go vet ./...
-      - name: Unit and integration tests (race)
+      - name: Unit tests (race)
         run: go test -race -count=1 ./...
+      - name: Integration tests (race)
+        run: go test -race -count=1 -tags integration -timeout 40m -p 4 ./...
       - name: Build shipping binaries (UI embedded)
         run: |
           mkdir -p internal/webui/dist && touch internal/webui/dist/index.html
