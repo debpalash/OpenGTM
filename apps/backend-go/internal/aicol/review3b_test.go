@@ -14,7 +14,7 @@ import (
 // scripted is a minimal LLM/search/page world for the review wave 3b tests.
 type scripted struct {
 	mu        sync.Mutex
-	decisions []map[string]any        // ExtractJSON answers (legacy loop)
+	decisions []map[string]any         // ExtractJSON answers (legacy loop)
 	turns     []*llm.AnthropicResponse // AnthropicTurn answers (native loop)
 	complete  string
 	hits      map[string][]Hit
