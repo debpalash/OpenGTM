@@ -79,9 +79,7 @@ func (p NativeProber) SourceProbe(ctx context.Context, names []string, timeout t
 		if !ok {
 			continue
 		}
-		wg.Add(1)
-		go func(n string, s Source) {
-			defer wg.Done()
+		goSafe(&wg, "probe "+n, func() {
 			y := ProbeYield(ctx, p.Web, s)
 			if ctx.Err() != nil {
 				return
@@ -89,7 +87,7 @@ func (p NativeProber) SourceProbe(ctx context.Context, names []string, timeout t
 			mu.Lock()
 			out[n] = &y
 			mu.Unlock()
-		}(n, s)
+		}, nil) // a crashed probe answers nil, as an unfinished one
 	}
 	wg.Wait()
 	return out, nil

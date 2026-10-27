@@ -638,11 +638,10 @@ func (j *job) searchRegistrySources(ctx context.Context) []*Lead {
 		results := make([][]*Lead, len(batch))
 		var wg sync.WaitGroup
 		for i, s := range batch {
-			wg.Add(1)
-			go func(i int, s Source) {
-				defer wg.Done()
-				results[i] = j.searchSource(ctx, s, city)
-			}(i, s)
+			goSafe(&wg, "registry source "+s.Name, func() { results[i] = j.searchSource(ctx, s, city) }, func(err error) {
+				results[i] = nil
+				j.progress("registry_sources", fmt.Sprintf("⚠️ %s failed: %v", s.Label, err))
+			})
 		}
 		wg.Wait()
 		count := 0

@@ -219,11 +219,8 @@ func (j *job) run(ctx context.Context) error {
 	errs := make([]error, len(tasks))
 	var wg sync.WaitGroup
 	for i, t := range tasks {
-		wg.Add(1)
-		go func(i int, t strategy) {
-			defer wg.Done()
-			results[i], errs[i] = j.runStrategy(ctx, t, stageIDs[i])
-		}(i, t)
+		goSafe(&wg, "strategy "+t.name, func() { results[i], errs[i] = j.runStrategy(ctx, t, stageIDs[i]) },
+			func(error) { results[i], errs[i] = nil, nil })
 	}
 	wg.Wait()
 	for _, err := range errs {

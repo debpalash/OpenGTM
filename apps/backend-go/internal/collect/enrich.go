@@ -35,13 +35,12 @@ func EnrichFromWebsites(ctx context.Context, w Web, leads []*Lead, batchSize int
 		var wg sync.WaitGroup
 		for k, l := range batch {
 			l.Website = NormalizeURL(l.Website)
-			wg.Add(1)
-			go func(k int, site string) {
-				defer wg.Done()
+			site := l.Website
+			goSafe(&wg, "website scan "+site, func() {
 				res[k] = leadweb.ScanSite(site, func(page string) (string, bool) {
 					return w.Fetch(ctx, page, 2, 12*time.Second)
 				})
-			}(k, l.Website)
+			}, func(error) { res[k] = leadweb.SiteContacts{} })
 		}
 		wg.Wait()
 		for k, l := range batch {
@@ -157,9 +156,7 @@ func EnrichDecisionMakers(ctx context.Context, w Web, sleep func(context.Context
 		if l.Company == "" || l.DecisionMakers != "" || l.ContactPerson != "" {
 			continue
 		}
-		wg.Add(1)
-		go func(l *Lead) {
-			defer wg.Done()
+		goSafe(&wg, "decision makers "+l.Company, func() {
 			select {
 			case sem <- struct{}{}:
 			case <-ctx.Done():
@@ -167,7 +164,7 @@ func EnrichDecisionMakers(ctx context.Context, w Web, sleep func(context.Context
 			}
 			defer func() { <-sem }()
 			FindDecisionMakersForLead(ctx, w, sleep, l, maxContacts)
-		}(l)
+		}, nil)
 	}
 	wg.Wait()
 }
