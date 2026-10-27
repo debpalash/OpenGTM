@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collectledger"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
@@ -24,11 +25,20 @@ const statsJobWindow = 100
 // they come from the pyworker RPC POST /internal/leadgen/system-stats, which takes no workspace input.
 func registerSystemStats(r *httpx.Router, d Deps) {
 	h := systemStatsRoute{d: d}
+	// plan 15 WP-ROUTES-B (D5): with GO_SCRAPE_ROUTES_ENABLED the counters come from this process (leadweb) and the
+	// browser service instead of the Python worker RPC.
+	if on, err := config.ScrapeRoutesFrom(d.getenv()); err == nil && on {
+		h.goStats = newGoStats(d)
+	}
 	r.Handle("GET /api/system-stats", http.HandlerFunc(h.get),
 		identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity))
 }
 
-type systemStatsRoute struct{ d Deps }
+type systemStatsRoute struct {
+	d Deps
+	// goStats, when set, replaces the worker RPC (see registerSystemStats).
+	goStats func(ctx context.Context) (pool, limiter *wbcrud.Obj, browser any)
+}
 
 func (h systemStatsRoute) get(w http.ResponseWriter, r *http.Request) {
 	wc, _ := identity.WorkspaceFrom(r.Context())
@@ -56,7 +66,14 @@ func (h systemStatsRoute) get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	out := wbcrud.NewObj()
-	pool, limiter, ok := h.workerStats(r.Context())
+	var browser any
+	var pool, limiter *wbcrud.Obj
+	ok := true
+	if h.goStats != nil {
+		pool, limiter, browser = h.goStats(r.Context())
+	} else {
+		pool, limiter, ok = h.workerStats(r.Context())
+	}
 	if !ok {
 		// deviation D5: Python cannot fail here (in-process); a worker outage degrades instead of erroring
 		pool, limiter = zeroProxyPool(), zeroRateLimiter()
@@ -70,6 +87,10 @@ func (h systemStatsRoute) get(w http.ResponseWriter, r *http.Request) {
 	out.Set("proxy_pool", pool)
 	out.Set("rate_limiter", limiter)
 	out.Set("jobs", counts)
+	if browser != nil {
+		// addition (D5): the browser service's own per-replica counters
+		out.Set("browser", browser)
+	}
 	writePy(w, out)
 }
 

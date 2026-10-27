@@ -163,4 +163,5 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterSourceSettings(r, d)
 	RegisterCapabilityRoutes(r, d) // plan 15 WP-ROUTES-A: behind GO_CAPABILITY_ROUTES_ENABLED
 	RegisterLLMRoutes(r, d)        // plan 15 WP-LLMROUTES: behind GO_LLM_ROUTES_ENABLED
+	RegisterScrapeRoutes(r, d)     // plan 15 WP-ROUTES-B: behind GO_SCRAPE_ROUTES_ENABLED
 }
