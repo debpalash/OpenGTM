@@ -59,6 +59,7 @@ func TestCopilotSettingsDefaultsAndParse(t *testing.T) {
 func TestChatRequireAuthFalseRefusedOutsideDev(t *testing.T) {
 	base := func(m map[string]string) map[string]string {
 		m["SECRET_KEY"] = strings.Repeat("k", 40)
+		m["COPILOT_GO_ENABLED"] = "true" // the guard covers only a deployment serving the Go copilot
 		return m
 	}
 	if _, err := loadAPI(apiEnv(base(map[string]string{"APP_ENV": "production", "CHAT_REQUIRE_AUTH": "false"}))); err == nil {

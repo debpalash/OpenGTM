@@ -79,6 +79,7 @@ func newChatHandler(d Deps) *chatHandler {
 		}
 		h.caps = ssestream.NewCaps(global, perUser)
 	}
+	h.caps.SetAnonLimit(cs.MaxAnonStreams)
 	if d.Registry != nil && d.Envelope != nil && d.Pool != nil {
 		h.settings = &settings.App{Store: secrets.NewPgStore(d.Pool), Env: d.Envelope, Secret: d.Registry.SecretSet(), Getenv: d.getenv()}
 	}
