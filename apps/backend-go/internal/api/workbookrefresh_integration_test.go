@@ -185,12 +185,34 @@ func TestRefreshEnqueuesWithWorkspaceID(t *testing.T) {
 			Scan(&ex, &payload, &status, &ws, &fire); err != nil {
 			t.Fatal(err)
 		}
-		if ex != c.want || status != "pending" || ws == nil || *ws != "ws-alpha" || fire != nil {
+		if ex != c.want || status != "pending" || ws == nil || *ws != "ws-alpha" || fire == nil || *fire != "refresh-manual:wb-enrich-1" {
 			t.Errorf("cohort %q: executor %q status %s ws %v fire %v", c.cohort, ex, status, ws, fire)
 		}
-		if payload != `{"workbook_id":"wb-enrich-1","reason":"manual","workspace_id":"ws-alpha"}` {
+		if !strings.HasPrefix(payload, `{"workbook_id":"wb-enrich-1","reason":"manual","workspace_id":"ws-alpha"`) || !strings.Contains(payload, `"fire_key"`) {
 			t.Errorf("payload %s", payload)
 		}
+	}
+}
+
+func TestRefreshNowDedupes(t *testing.T) {
+	e := newRefreshEnv(t, nil)
+	e.clearJobs()
+	for i := 0; i < 2; i++ {
+		if r := e.call("alice", "ws-alpha", "POST", "/api/workbooks/wb-enrich-1/refresh", ""); r.Status != 200 || strings.TrimSpace(string(r.Body)) != `{"status":"refreshing"}` {
+			t.Fatalf("call %d: %d %s", i, r.Status, r.Body)
+		}
+	}
+	var n int
+	_ = e.pool.QueryRow(context.Background(), `SELECT count(*) FROM jobs WHERE type='refresh_workbook'`).Scan(&n)
+	if n != 1 {
+		t.Fatalf("%d jobs after a double click, want 1", n)
+	}
+	// once the job is done a new manual refresh is accepted again
+	_, _ = e.pool.Exec(context.Background(), `UPDATE jobs SET status='completed' WHERE type='refresh_workbook'`)
+	e.call("alice", "ws-alpha", "POST", "/api/workbooks/wb-enrich-1/refresh", "")
+	_ = e.pool.QueryRow(context.Background(), `SELECT count(*) FROM jobs WHERE type='refresh_workbook'`).Scan(&n)
+	if n != 2 {
+		t.Fatalf("%d jobs after refresh following completion, want 2", n)
 	}
 }
 

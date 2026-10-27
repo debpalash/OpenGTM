@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -11,9 +10,9 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/refresh"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
@@ -160,6 +159,9 @@ func (h refreshRoutes) policy(w http.ResponseWriter, r *http.Request) {
 }
 
 // refreshNowPayload is {"workbook_id", "reason", "workspace_id"} in Python's key order.
+// refreshNowJobType is the queue type of a manual refresh.
+const refreshNowJobType = "refresh_workbook"
+
 type refreshNowPayload struct {
 	WorkbookID  string `json:"workbook_id"`
 	Reason      string `json:"reason"`
@@ -175,13 +177,9 @@ func (h refreshRoutes) refreshNow(w http.ResponseWriter, r *http.Request) {
 			return err
 		}
 		// OD-4: stamp the workbook's tenant (Owned already filtered by ws) so the refresh worker scopes correctly.
-		payload, err := json.Marshal(refreshNowPayload{WorkbookID: id, Reason: "manual", WorkspaceID: ws})
-		if err != nil {
-			return err
-		}
-		_, err = gen.New(tx).EnqueueRefreshNowJob(r.Context(), gen.EnqueueRefreshNowJobParams{
-			Executor: h.executor(ws), Payload: payload, WorkspaceID: ws,
-		})
+		// F5: one manual refresh at a time per workbook; a double click finds the active job and reuses it.
+		_, _, err = queue.EnqueueOnce(r.Context(), tx, refreshNowJobType, ws,
+			refreshNowPayload{WorkbookID: id, Reason: "manual", WorkspaceID: ws}, "refresh-manual:"+id, h.executor(ws))
 		return err
 	})
 	if err != nil {
