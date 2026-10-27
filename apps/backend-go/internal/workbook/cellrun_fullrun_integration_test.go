@@ -5,7 +5,6 @@ package workbook_test
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
@@ -15,8 +14,8 @@ import (
 
 // With GO_EXECUTOR_FULL_RUN the single-cell route never proxies to the Python API:
 // output columns and email verification run in process, and a column whose Python worker
-// is unavailable becomes an error cell instead of ErrNeedsPython.
-func TestCellRunFullRunNeverNeedsPython(t *testing.T) {
+// is unavailable becomes an error cell instead of a proxy to Python.
+func TestCellRunFullRunNeverProxies(t *testing.T) {
 	e := setup(t, wsA)
 	cols := `[{"id":"o","type":"output","name":"O","destination":"sequencer","destination_config":{"sequence_id":"s1"}},
 	  {"id":"em","type":"waterfall","name":"Em","target_field":"email","waterfall":["hunter_io"]},
@@ -36,10 +35,10 @@ func TestCellRunFullRunNeverNeedsPython(t *testing.T) {
 		return workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-full", RowID: int64(ids[0]), ColumnID: col}
 	}
 	// Without the full-run wiring there is no Python API to proxy to (plan 15 cutover): each cell is an error cell
-	// naming what is missing, never ErrNeedsPython.
-	for c, code := range map[string]string{"o": "output_column", "em": "email_verification", "ai": "python_worker_unavailable"} {
+	// naming what is missing, never a proxy.
+	for c, code := range map[string]string{"o": "output_column", "em": "email_verification", "ai": "ai_runner_unavailable"} {
 		r, err := workbook.EnrichCell(e.ctx, d, req(c))
-		if errors.Is(err, workbook.ErrNeedsPython) || err != nil || r.Status() != "error" || r.Error == nil || *r.Error != code {
+		if err != nil || r.Status() != "error" || r.Error == nil || *r.Error != code {
 			t.Fatalf("%s without the full-run wiring: %+v %v (want error %q)", c, r, err, code)
 		}
 	}
@@ -57,10 +56,10 @@ func TestCellRunFullRunNeverNeedsPython(t *testing.T) {
 		t.Fatalf("output cell: %+v %v", r, err)
 	}
 	r, err = workbook.EnrichCell(e.ctx, d, req("ai"))
-	if err != nil || r.Status() != "error" || r.Error == nil || *r.Error != "python_worker_unavailable" {
+	if err != nil || r.Status() != "error" || r.Error == nil || *r.Error != "ai_runner_unavailable" {
 		t.Fatalf("ai cell without a python worker: %+v %v", r, err)
 	}
-	if got := e.str(wsA, `SELECT enrichments::jsonb #>> '{ai,error}' FROM workbook_rows WHERE id = $1`, ids[0]); got != "python_worker_unavailable" {
+	if got := e.str(wsA, `SELECT enrichments::jsonb #>> '{ai,error}' FROM workbook_rows WHERE id = $1`, ids[0]); got != "ai_runner_unavailable" {
 		t.Fatalf("ai error cell %q", got)
 	}
 }

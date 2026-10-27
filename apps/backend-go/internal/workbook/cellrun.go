@@ -34,32 +34,12 @@ var (
 	ErrColumnNotFound    = errors.New("workbook: enrichment column not found")
 	ErrRowNotFound       = errors.New("workbook: workbook row not found")
 	ErrLegacyRowNotFound = errors.New("workbook: legacy lead row not found") // "Row not found"
-	// ErrNeedsPython is no longer returned (plan 15 cutover): a cell this process cannot run (output without
-	// ports, email verification without a verifier, an AI column without a runner) fails with the reason's
-	// code instead. Kept until the single-cell route drops its proxy branch (WP-CUTOVER part B).
-	ErrNeedsPython = errors.New("workbook: cell runs on the python api")
 	// ErrClientGone means the caller went away before any paid call was dispatched; nothing ran.
 	ErrClientGone = errors.New("workbook: client went away before dispatch")
 )
 
 // cellRunBudget bounds a detached in-request run (provider calls carry their own timeouts).
 const cellRunBudget = 5 * time.Minute
-
-type needsPythonError struct{ reason string }
-
-func (e *needsPythonError) Error() string {
-	return "workbook: cell runs on the python api: " + e.reason
-}
-func (e *needsPythonError) Is(t error) bool { return t == ErrNeedsPython }
-
-// NeedsPythonReason is the reason carried by an ErrNeedsPython error.
-func NeedsPythonReason(err error) string {
-	var n *needsPythonError
-	if errors.As(err, &n) {
-		return n.reason
-	}
-	return ""
-}
 
 // CellRequest is one in-request cell run.
 type CellRequest struct {
@@ -364,7 +344,6 @@ func legacyLeadsWorkbook(sourceType pgtype.Text, sourceConfig []byte) bool {
 	return !ok || v != 2
 }
 
-// needsPython names the reason a column cannot run in this process ("" = it can).
 // unrunnable names why this process cannot run col in a single-cell run ("" when it can).
 func (rs *runState) unrunnable(col column) string {
 	full := rs.deps.FullRun

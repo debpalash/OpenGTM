@@ -276,7 +276,7 @@ func TestCellRunSentinels(t *testing.T) {
 			}
 		})
 	}
-	// Output and email verification without their ports are error cells now, never ErrNeedsPython (no proxy).
+	// Output and email verification without their ports are error cells now, (no proxy).
 	for _, col := range []string{"o1", "w1"} {
 		r, err := workbook.EnrichCell(e.ctx, d, workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-s", RowID: int64(ids[0]), ColumnID: col})
 		if err != nil || r.Status() != "error" {

@@ -61,7 +61,7 @@ func (rs *runState) checkPyColumn(c column) error {
 		return nil // native: every AI column runs here, paid agent tools through the spend ledger
 	}
 	if rs.deps.Py == nil {
-		return refuse("python_worker_unavailable: column %q (%s) runs on the python worker", c.ID, c.Type)
+		return refuse("ai_runner_unavailable: column %q (%s) needs the in-process AI column runner", c.ID, c.Type)
 	}
 	if c.Type == rpcAgent {
 		// The agent picks tools at run time and, without the queue lease, the
