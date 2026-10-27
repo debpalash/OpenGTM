@@ -33,7 +33,7 @@ func (d Deps) pollWatchService() *watchsvc.Service {
 			JobChangeMaxContacts: a.PollerJobChangeMaxContacts, PollNowMinIntervalSec: a.PollerPollNowMinIntervalSec,
 			PollNowDailyQuota: a.PollerPollNowDailyQuota, AutomationsEnabled: d.Flags.AutomationsEnabled,
 			WebhookAllowlist: a.WebhookDomainAllowlist},
-		ExecFor: d.watchPollExecutor(),
+		ExecFor: goExecutor,
 		Log:     d.logger(),
 	}
 }

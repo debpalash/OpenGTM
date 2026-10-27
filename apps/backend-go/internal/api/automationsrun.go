@@ -41,7 +41,7 @@ func registerAutomationsRun(r *httpx.Router, d Deps) {
 		d.logger().Error("automations run routes NOT registered: Deps.Pool and Deps.Identity are required")
 		return
 	}
-	h := autoRunRoutes{d: d, svc: &autosvc.Service{Pool: d.Pool, ExecFor: d.automationExecutor(), Log: d.Log,
+	h := autoRunRoutes{d: d, svc: &autosvc.Service{Pool: d.Pool, ExecFor: goExecutor, Log: d.Log,
 		Now: func() time.Time { return autoRunNow() }}}
 	authn := identity.Authenticate(d.Signer, d.Identity)
 	workspace := identity.Workspace(d.Identity)

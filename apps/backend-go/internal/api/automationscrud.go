@@ -67,7 +67,7 @@ func newAutoCRUD(d Deps) autoCRUD {
 			Secrets:             secrets.NewResolver(d.Envelope, secrets.NewPgStore(d.Pool), d.getenv()),
 			Outbound:            d.outboundPolicy(),
 		},
-		ExecFor: d.automationExecutor(),
+		ExecFor: goExecutor,
 		Log:     d.Log,
 	}}
 }

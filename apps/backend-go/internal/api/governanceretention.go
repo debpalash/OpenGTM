@@ -45,10 +45,6 @@ func registerGovernanceRetention(r *httpx.Router, d Deps) {
 	r.Handle("GET /api/governance/retention/runs", http.HandlerFunc(h.runs), mw...)
 }
 
-func (h retentionRoutes) executorFor(ws string) string {
-	return retention.ExecutorFor(config.ExecutorCohortFrom(h.d.getenv()), h.d.Flags.Governance, ws)
-}
-
 // fail never logs request data; only the error type.
 func (h retentionRoutes) fail(w http.ResponseWriter, op string, err error) {
 	h.d.logger().Error("governance retention: request failed", "op", op, "err_type", errTypeName(err))
@@ -259,7 +255,7 @@ func (h retentionRoutes) put(w http.ResponseWriter, r *http.Request) {
 		}
 		// Reschedule in the same transaction on every update: a hold set or cleared, or the enabled
 		// flag flipped, changes the next run, and an unchanged policy just re-arms the same occurrence.
-		if _, err := retention.SchedulePolicy(r.Context(), tx, &p, time.Now(), h.executorFor); err != nil {
+		if _, err := retention.SchedulePolicy(r.Context(), tx, &p, time.Now(), goExecutor); err != nil {
 			return err
 		}
 		out = p
@@ -355,7 +351,7 @@ func (h retentionRoutes) enforce(w http.ResponseWriter, r *http.Request) {
 		if open {
 			return errRetentionRunning
 		}
-		run, err = retention.RequestRun(r.Context(), tx, c.WorkspaceID, c.User.ID, h.executorFor(c.WorkspaceID))
+		run, err = retention.RequestRun(r.Context(), tx, c.WorkspaceID, c.User.ID, config.ExecutorGo)
 		return err
 	})
 	switch {

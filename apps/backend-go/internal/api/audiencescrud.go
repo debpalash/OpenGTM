@@ -161,21 +161,11 @@ func audJSON(a gen.Audience) audiencerefresh.Audience {
 	return out
 }
 
-// refreshExecutor is the executor of a scheduled audience_refresh job: "go", the only executor since the plan 15
-// cutover (GO_EXECUTOR_AUDIENCE_REFRESH and the cohort are retired).
-func (h audCrud) refreshExecutor(string) string { return config.ExecutorGo }
-
-// destExecutor is the executor of an audience_destination_sync job for every destination type: "go" (GO_DEST_TYPES
-// is retired).
-func (h audCrud) destExecutor(string) func(string) string {
-	return func(string) string { return config.ExecutorGo }
-}
-
 // materialize is materialize_audience (refresh_audience_observed) bounded by the 120 s request timeout.
 func (h audCrud) materialize(r *http.Request, ws, id string) error {
 	_, err := audiencerefresh.RefreshObserved(r.Context(), h.d.Pool, ws, id, audiencerefresh.Deps{
 		AudienceEvents: h.d.AudienceEvents,
-		ExecutorFor:    h.destExecutor(ws),
+		ExecutorFor:    goExecutor,
 		PageSize:       h.d.Flags.Audiences.RefreshPageSize,
 		Timeout:        audiencerefresh.RouteTimeout,
 	})
@@ -185,7 +175,7 @@ func (h audCrud) materialize(r *http.Request, ws, id string) error {
 // reschedule is schedule_next in its own workspace transaction.
 func (h audCrud) reschedule(r *http.Request, ws string, in audiencesched.ScheduleInput) error {
 	return tenancy.InWorkspace(r.Context(), h.d.Pool, ws, func(tx pgx.Tx) error {
-		_, err := audiencesched.ScheduleNext(r.Context(), tx, in, time.Now(), h.refreshExecutor(ws))
+		_, err := audiencesched.ScheduleNext(r.Context(), tx, in, time.Now(), config.ExecutorGo)
 		return err
 	})
 }

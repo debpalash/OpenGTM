@@ -22,7 +22,7 @@ func registerPlaybooksRoutes(r *httpx.Router, d Deps) {
 	h := playbookRoutes{d: d}
 	// PATCH enqueues the next research_playbook_schedule occurrence: its executor follows the same cohort rule
 	// as run starts, read per request (the worker wires the same rule through playbooks.WireExecutors).
-	playbooks.ScheduleExecutor = h.runExecutor
+	playbooks.ScheduleExecutor = goExecutor
 	read := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity)}
 	write := append(append([]httpx.Middleware{}, read...), govadmin.Gate("agents.write"))
 	r.Handle("GET /api/research-playbooks", http.HandlerFunc(h.list), read...)

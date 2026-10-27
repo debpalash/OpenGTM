@@ -61,11 +61,6 @@ func (h playbookRoutes) runError(w http.ResponseWriter, err error) bool {
 	return false
 }
 
-// runExecutor is go_executor.executor_for("research_playbook_run", ws): the cohort rule, read per request.
-func (h playbookRoutes) runExecutor(ws string) string {
-	return playbooks.ExecutorFor(config.ExecutorCohortFrom(h.d.getenv()), h.d.Flags.Governance, ws)
-}
-
 // startRun snapshots the playbook into a pending run and enqueues its job in the same transaction.
 func (h playbookRoutes) startRun(w http.ResponseWriter, r *http.Request) {
 	c, ok := h.ctx(w, r)
@@ -90,7 +85,7 @@ func (h playbookRoutes) startRun(w http.ResponseWriter, r *http.Request) {
 		if run, err = playbooks.StartRun(r.Context(), tx, c.WorkspaceID, pb, in.AudienceID, in.MaxMembers, strconv.Itoa(int(c.User.ID))); err != nil {
 			return err
 		}
-		return playbooks.EnqueueRun(r.Context(), tx, c.WorkspaceID, run.ID, h.runExecutor(c.WorkspaceID))
+		return playbooks.EnqueueRun(r.Context(), tx, c.WorkspaceID, run.ID, config.ExecutorGo)
 	})
 	if err != nil {
 		if !h.runError(w, err) {
@@ -187,7 +182,7 @@ func (h playbookRoutes) retryRun(w http.ResponseWriter, r *http.Request) {
 		if run, err = playbooks.RetryRun(r.Context(), tx, c.WorkspaceID, r.PathValue("run_id")); err != nil {
 			return err
 		}
-		return playbooks.EnqueueRun(r.Context(), tx, c.WorkspaceID, run.ID, h.runExecutor(c.WorkspaceID))
+		return playbooks.EnqueueRun(r.Context(), tx, c.WorkspaceID, run.ID, config.ExecutorGo)
 	})
 	if err != nil {
 		if !h.runError(w, err) {

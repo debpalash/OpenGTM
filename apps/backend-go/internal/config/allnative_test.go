@@ -30,9 +30,9 @@ func TestAllNativeTurnsEverythingOn(t *testing.T) {
 		t.Fatal("non-flag keys must pass through")
 	}
 	for _, key := range []string{
-		"GO_EXECUTOR_ENABLED", "GO_EXECUTOR_FULL_RUN", "GO_EXECUTOR_LEGACY_OUTREACH_ACTIONS", "GO_CAPABILITY_ROUTES_ENABLED",
+		"GO_EXECUTOR_ENABLED", "GO_EXECUTOR_FULL_RUN", "GO_CAPABILITY_ROUTES_ENABLED",
 		"GO_TRAILING_SLASH_COMPAT", "GO_LLM_ROUTES_ENABLED", "GO_COPILOT_NATIVE", "GO_NATIVE_AI_COLUMNS", "GO_NATIVE_SOURCE_PROBE",
-		"GO_SCRAPE_ROUTES_ENABLED", "GO_EXECUTOR_SOURCE_WORKBOOK", "GO_SOURCE_PREVIEW_ENABLED", "GO_SCHEDULER_ENABLED",
+		"GO_SCRAPE_ROUTES_ENABLED", "GO_SOURCE_PREVIEW_ENABLED", "GO_SCHEDULER_ENABLED",
 		"GO_EXECUTOR_COLLECT", "GO_EXECUTOR_BULK_ENRICH", "GO_RUN_ROUTES_ENABLED", "GO_RUN_NATIVE_PROVIDERS", "GO_EXECUTOR_TRIGGER_EVAL",
 	} {
 		if v := get(key); v != "true" {
@@ -71,7 +71,7 @@ func TestAllNativeSwitchSpellings(t *testing.T) {
 }
 
 func TestExistingReadersConsultTheResolver(t *testing.T) {
-	get := AllNative(envOf(map[string]string{"GO_ALL_NATIVE": "true", "GO_EXECUTOR_LEGACY_OUTREACH_ACTIONS": "false"})) // retired: stays on
+	get := AllNative(envOf(map[string]string{"GO_ALL_NATIVE": "true"}))
 	if v, err := CapabilityRoutesFrom(get); err != nil || !v {
 		t.Fatal("capability routes", v, err)
 	}
@@ -86,7 +86,7 @@ func TestExistingReadersConsultTheResolver(t *testing.T) {
 		t.Fatalf("executor %+v", ex)
 	}
 	a, err := loadAutomations(get)
-	if err != nil || !a.GoExecutorTriggerEval || !a.GoExecutorLegacyOutreachActions {
+	if err != nil || !a.GoExecutorTriggerEval {
 		t.Fatalf("automations %+v %v", a, err)
 	}
 }

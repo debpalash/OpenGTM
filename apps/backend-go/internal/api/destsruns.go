@@ -174,7 +174,7 @@ func (h destRuns) sync(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	wc := h.ws(r)
-	executorFor := h.destExecutor(wc.WorkspaceID)
+	executorFor := goExecutor
 	var run deststore.Run
 	err := tenancy.InWorkspace(r.Context(), h.d.Pool, wc.WorkspaceID, func(tx pgx.Tx) error {
 		dest, err := deststore.GetDestination(r.Context(), tx, id)
@@ -369,7 +369,7 @@ func (h destRuns) retry(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	wc := h.ws(r)
-	executorFor := h.destExecutor(wc.WorkspaceID)
+	executorFor := goExecutor
 	var run deststore.Run
 	err := tenancy.InWorkspace(r.Context(), h.d.Pool, wc.WorkspaceID, func(tx pgx.Tx) (err error) {
 		run, err = deststore.RetryRun(r.Context(), tx, id, executorFor)

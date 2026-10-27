@@ -39,11 +39,6 @@ type refreshRoutes struct {
 	svc *wbcrud.Service
 }
 
-// executor is the executor of a refresh_workbook job: "go", the only executor since the plan 15 cutover.
-func (h refreshRoutes) executor(string) string {
-	return config.ExecutorGo
-}
-
 func (h refreshRoutes) fail(w http.ResponseWriter, what string, err error) {
 	if errors.Is(err, wbcrud.ErrNotFound) {
 		httpx.Detail(w, http.StatusNotFound, wbcrud.NotFoundDetail)
@@ -139,7 +134,7 @@ func (h refreshRoutes) policy(w http.ResponseWriter, r *http.Request) {
 		if _, err := h.svc.Owned(r.Context(), tx, ws, id, false); err != nil {
 			return err
 		}
-		result, err = refresh.SetPolicyExecutor(r.Context(), tx, id, policy, h.executor(ws))
+		result, err = refresh.SetPolicyExecutor(r.Context(), tx, id, policy, config.ExecutorGo)
 		return err
 	})
 	if err != nil {
@@ -178,7 +173,7 @@ func (h refreshRoutes) refreshNow(w http.ResponseWriter, r *http.Request) {
 		// OD-4: stamp the workbook's tenant (Owned already filtered by ws) so the refresh worker scopes correctly.
 		// F5: one manual refresh at a time per workbook; a double click finds the active job and reuses it.
 		_, _, err = queue.EnqueueOnce(r.Context(), tx, refreshNowJobType, ws,
-			refreshNowPayload{WorkbookID: id, Reason: "manual", WorkspaceID: ws}, "refresh-manual:"+id, h.executor(ws))
+			refreshNowPayload{WorkbookID: id, Reason: "manual", WorkspaceID: ws}, "refresh-manual:"+id, config.ExecutorGo)
 		return err
 	})
 	if err != nil {

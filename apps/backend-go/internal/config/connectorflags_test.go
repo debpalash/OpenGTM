@@ -15,19 +15,19 @@ func TestConnectorFlagsDefaultsAndEnv(t *testing.T) {
 		t.Fatal(err)
 	}
 	f := c.Flags
-	if f.GoConnectorRoutesEnabled || !f.GoExecutorAmbitionBox || f.CRMImportEnabled || // GO_EXECUTOR_AMBITIONBOX is retired
+	if f.GoConnectorRoutesEnabled || f.CRMImportEnabled ||
 		f.CertificationPath != "" || f.CertificationKey.Reveal() != "" || f.BuildSHA != "" {
 		t.Fatalf("defaults wrong: %+v", f)
 	}
 	c, err = loadAPI(apiEnv(map[string]string{"APP_ENV": "test",
-		"GO_CONNECTOR_ROUTES_ENABLED": "true", "GO_EXECUTOR_AMBITIONBOX": "1", "CRM_IMPORT_ENABLED": "true",
+		"GO_CONNECTOR_ROUTES_ENABLED": "true", "CRM_IMPORT_ENABLED": "true",
 		"OPENGTM_INTEGRATION_CERTIFICATIONS": "/c.json", "OPENGTM_INTEGRATION_CERTIFICATION_KEY": " cert-key-secret ",
 		"OPENGTM_BUILD_SHA": "abc123"}))
 	if err != nil {
 		t.Fatal(err)
 	}
 	f = c.Flags
-	if !f.GoConnectorRoutesEnabled || !f.GoExecutorAmbitionBox || !f.CRMImportEnabled ||
+	if !f.GoConnectorRoutesEnabled || !f.CRMImportEnabled ||
 		f.CertificationPath != "/c.json" || f.CertificationKey.Reveal() != "cert-key-secret" || f.BuildSHA != "abc123" {
 		t.Fatalf("flags not read: %+v", f)
 	}

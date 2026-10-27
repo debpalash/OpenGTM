@@ -53,10 +53,6 @@ func registerOutreachActions(r *httpx.Router, d Deps) {
 	r.Handle("GET /api/outreach/sequences/{seq_id}/sends", http.HandlerFunc(h.sends), read...)
 }
 
-func (h actionRoutes) executor(ws string) string {
-	return outreachsend.ExecutorFor(config.ExecutorCohortFrom(h.d.getenv()), h.d.Flags.Outreach, ws)
-}
-
 func (h actionRoutes) tickConfig() outreachsend.TickConfig {
 	o := h.d.Flags.Outreach
 	return outreachsend.TickConfig{
@@ -320,7 +316,7 @@ func (h actionRoutes) execute(w http.ResponseWriter, r *http.Request) {
 		if exists, e = outreachstore.SequenceExists(ctx, tx, ws, id); e != nil || !exists {
 			return e
 		}
-		n, e = outreachsend.EnqueueDue(ctx, tx, ws, id, h.d.Flags.Outreach.TickMaxEnqueue, h.executor(ws))
+		n, e = outreachsend.EnqueueDue(ctx, tx, ws, id, h.d.Flags.Outreach.TickMaxEnqueue, config.ExecutorGo)
 		return e
 	})
 	if err != nil {

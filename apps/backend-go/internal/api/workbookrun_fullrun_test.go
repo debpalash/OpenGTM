@@ -2,23 +2,19 @@ package api
 
 import "testing"
 
-// GO_EXECUTOR_FULL_RUN (plan 15 WP-WBEXEC) reaches runplan.Config; retired at the cutover, so it is on whatever
-// the environment says.
-func TestExecutorSettingsFullRun(t *testing.T) {
-	for _, v := range []string{"", "false", "maybe", "true"} {
-		get := func(k string) string {
-			if k == "GO_EXECUTOR_FULL_RUN" {
-				return v
-			}
-			return ""
+// The retired routing flags are not read by the planner: runplan.Build turns them on whatever the environment says,
+// so the config the API assembles carries none of them.
+func TestRunConfigCarriesNoRetiredFlags(t *testing.T) {
+	get := func(k string) string {
+		if k == "GO_EXECUTOR_FULL_RUN" || k == "GO_EXECUTOR_ENABLED" {
+			return "false"
 		}
-		if !executorSettings(get).FullRun {
-			t.Fatalf("GO_EXECUTOR_FULL_RUN=%q must read on", v)
-		}
-		h := &runRoutes{d: Deps{Getenv: get}, index: newManifestIndexer(func(string) string { return "" })}
-		if !h.config(t.Context(), "ws").FullRun {
-			t.Fatalf("runplan.Config.FullRun must be on (%q)", v)
-		}
+		return ""
+	}
+	h := &runRoutes{d: Deps{Getenv: get}, index: newManifestIndexer(func(string) string { return "" })}
+	c := h.config(t.Context(), "ws")
+	if c.GoExecutorEnabled || c.FullRun || c.NativeProviders || len(c.GoCohort) != 0 || len(c.ExtraColumnTypes) != 0 {
+		t.Fatalf("the API must leave the retired flags to runplan: %+v", c)
 	}
 }
 

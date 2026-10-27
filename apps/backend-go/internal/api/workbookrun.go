@@ -215,49 +215,18 @@ func runAuditMetadata(wbID string, plan runplan.Plan, req runplan.RunRequest) ma
 	return md
 }
 
-// executorConfig is the Go-executor routing read from the environment.
+// executorConfig is the run planner's environment: the routing flags are gone with the Python executor (runplan
+// treats them as on), so only the knobs that still vary remain.
 type executorConfig struct {
-	Enabled     bool            // GO_EXECUTOR_ENABLED
-	Cohort      map[string]bool // GO_EXECUTOR_WORKSPACES
-	Provenance  bool            // PROVENANCE_TRACKING_ENABLED
-	ExtraTypes  map[string]bool // GO_EXECUTOR_COLUMN_TYPES
-	Concurrency int             // WORKBOOK_RUN_CONCURRENCY (default 12)
-	NativeProv  bool            // GO_RUN_NATIVE_PROVIDERS (Go-only, default off)
-	FullRun     bool            // GO_EXECUTOR_FULL_RUN (plan 15, Go-only, default off)
-	Problems    []string        // malformed switches (read as off)
+	Provenance  bool     // PROVENANCE_TRACKING_ENABLED
+	Concurrency int      // WORKBOOK_RUN_CONCURRENCY (default 12)
+	Problems    []string // malformed switches (read as off)
 }
 
-// goExtraTypes are the column types GO_EXECUTOR_COLUMN_TYPES may add; anything
-// else is dropped. NOTE: a non-empty set also lifts runplan's column-reference
-// and structured-target hand-backs (the Go executor then orders referenced
-// columns), so enabling a type is also enabling those runs for the cohort.
-var goExtraTypes = map[string]bool{"formula": true, "http": true, "ai_formula": true, "research": true, "agent": true}
-
-// executorSettings reads the routing flags with pydantic's bool spelling.
+// executorSettings reads the planner knobs with pydantic's bool spelling.
 func executorSettings(getenv func(string) string) executorConfig {
-	truthy := func(k string) bool {
-		switch strings.ToLower(strings.TrimSpace(getenv(k))) {
-		case "1", "true", "yes", "on", "t", "y":
-			return true
-		}
-		return false
-	}
 	wx := config.LoadWbExec(getenv) // one parser for API, worker and single-cell route; malformed reads as off
-	c := executorConfig{Enabled: truthy("GO_EXECUTOR_ENABLED"), Provenance: wx.ProvenanceTracking,
-		Cohort: map[string]bool{}, ExtraTypes: map[string]bool{}, Concurrency: 12}
-	c.NativeProv = truthy("GO_RUN_NATIVE_PROVIDERS")
-	c.FullRun = wx.FullRun
-	c.Problems = wx.Problems
-	for _, w := range strings.Split(getenv("GO_EXECUTOR_WORKSPACES"), ",") {
-		if w = strings.TrimSpace(w); w != "" {
-			c.Cohort[w] = true
-		}
-	}
-	for _, t := range strings.Split(getenv("GO_EXECUTOR_COLUMN_TYPES"), ",") {
-		if t = strings.ToLower(strings.TrimSpace(t)); goExtraTypes[t] {
-			c.ExtraTypes[t] = true
-		}
-	}
+	c := executorConfig{Provenance: wx.ProvenanceTracking, Concurrency: 12, Problems: wx.Problems}
 	if n, err := strconv.Atoi(strings.TrimSpace(getenv("WORKBOOK_RUN_CONCURRENCY"))); err == nil && n > 0 {
 		c.Concurrency = n
 	}
@@ -281,9 +250,8 @@ func (h *runRoutes) config(ctx context.Context, ws string) runplan.Config {
 		WorkspaceID:        ws,
 		Perf:               runplan.Perf{RowConcurrency: perf.RowConcurrency, MaxProviders: perf.MaxProviders, RetryPasses: perf.RetryPasses, ProviderWorkers: perf.ProviderWorkers, ProviderTimeout: perf.ProviderTimeout},
 		DefaultConcurrency: ex.Concurrency,
-		GoExecutorEnabled:  ex.Enabled, GoCohort: ex.Cohort, ProvenanceTracking: ex.Provenance,
-		AutomationsEnabled: h.d.Flags.AutomationsEnabled, ExtraColumnTypes: ex.ExtraTypes, NativeProviders: ex.NativeProv,
-		FullRun: ex.FullRun, Index: h.index.get(), Leads: wbcrud.PGLeads{}, NewRunID: runNewID,
+		ProvenanceTracking: ex.Provenance, AutomationsEnabled: h.d.Flags.AutomationsEnabled,
+		Index: h.index.get(), Leads: wbcrud.PGLeads{}, NewRunID: runNewID,
 	}
 }
 

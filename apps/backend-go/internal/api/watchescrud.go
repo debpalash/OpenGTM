@@ -12,7 +12,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
@@ -25,11 +24,6 @@ const watchCursorMaxLen = 1024
 type watchCRUDRoutes struct {
 	d   Deps
 	svc *watchsvc.Service
-}
-
-// watchPollExecutor is the executor of a watch_poll job: "go", the only executor since the plan 15 cutover.
-func (d Deps) watchPollExecutor() func(ws string) string {
-	return func(string) string { return config.ExecutorGo }
 }
 
 // watchCRUDService builds the watch store behind the CRUD routes from the loaded settings. Webhook
@@ -50,7 +44,7 @@ func (d Deps) watchCRUDService() *watchsvc.Service {
 		Secrets: secrets.NewResolver(d.Envelope, secrets.NewPgStore(d.Pool), d.getenv()),
 		// Same outbound secret-ref policy as automation rules (S-M1): env prefixes plus the registered-credential deny-list.
 		Outbound: d.outboundPolicy(),
-		ExecFor:  d.watchPollExecutor(),
+		ExecFor:  goExecutor,
 		Log:      d.logger(),
 	}
 }

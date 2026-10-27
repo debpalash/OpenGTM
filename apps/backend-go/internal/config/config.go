@@ -404,7 +404,6 @@ type Flags struct {
 	PGLeadStore                    bool   // PG_LEAD_STORE (default true); Go supports only the Postgres lead store
 	GoRunRoutesEnabled             bool   // GO_RUN_ROUTES_ENABLED (default false): enrichment run/ingest/ws routes
 	GoConnectorRoutesEnabled       bool   // GO_CONNECTOR_ROUTES_ENABLED (default false): connectors, hubspot, /api/data, ambitionbox routes
-	GoExecutorAmbitionBox          bool   // GO_EXECUTOR_AMBITIONBOX (default false): enqueue ambitionbox_import for the Go executor
 	CertificationPath              string // OPENGTM_INTEGRATION_CERTIFICATIONS
 	CertificationKey               Secret // OPENGTM_INTEGRATION_CERTIFICATION_KEY (secret; never logged)
 	BuildSHA                       string // OPENGTM_BUILD_SHA
@@ -535,9 +534,6 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 		}
 	}
 	if c.Flags.GoConnectorRoutesEnabled, err = boolVar(get, "GO_CONNECTOR_ROUTES_ENABLED", false); err != nil {
-		return APIConfig{}, err
-	}
-	if c.Flags.GoExecutorAmbitionBox, err = boolVar(get, "GO_EXECUTOR_AMBITIONBOX", false); err != nil {
 		return APIConfig{}, err
 	}
 	if c.Flags.CRMImportEnabled, err = boolVar(get, "CRM_IMPORT_ENABLED", false); err != nil {

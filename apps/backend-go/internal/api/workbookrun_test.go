@@ -45,29 +45,12 @@ func TestInsufficientDetailNeverEncodesInf(t *testing.T) {
 }
 
 func TestExecutorSettingsFromEnv(t *testing.T) {
-	env := map[string]string{
-		"GO_EXECUTOR_ENABLED":         "Yes",
-		"GO_EXECUTOR_WORKSPACES":      " ws-a, ws-b ,,",
-		"GO_EXECUTOR_COLUMN_TYPES":    "formula, http ,bogus,research",
-		"PROVENANCE_TRACKING_ENABLED": "off",
-		"WORKBOOK_RUN_CONCURRENCY":    "7",
-	}
+	env := map[string]string{"PROVENANCE_TRACKING_ENABLED": "off", "WORKBOOK_RUN_CONCURRENCY": "7"}
 	s := executorSettings(func(k string) string { return env[k] })
-	if !s.Enabled || s.Provenance {
-		t.Fatalf("flags: %+v", s)
+	if s.Provenance || s.Concurrency != 7 {
+		t.Fatalf("settings: %+v", s)
 	}
-	if len(s.Cohort) != 2 || !s.Cohort["ws-a"] || !s.Cohort["ws-b"] {
-		t.Fatalf("cohort: %v", s.Cohort)
-	}
-	// unknown types are dropped (runplan only honours formula/http/ai_formula/research/agent)
-	if len(s.ExtraTypes) != 3 || !s.ExtraTypes["formula"] || !s.ExtraTypes["http"] || !s.ExtraTypes["research"] {
-		t.Fatalf("extra types: %v", s.ExtraTypes)
-	}
-	if s.Concurrency != 7 {
-		t.Fatalf("concurrency %d", s.Concurrency)
-	}
-	d := executorSettings(func(string) string { return "" })
-	if d.Enabled || len(d.Cohort) != 0 || len(d.ExtraTypes) != 0 || d.Concurrency != 12 {
+	if d := executorSettings(func(string) string { return "" }); d.Concurrency != 12 {
 		t.Fatalf("defaults: %+v", d)
 	}
 	// a non-numeric or non-positive concurrency falls back to 12 (Python would crash at import; Go stays safe)
@@ -78,19 +61,5 @@ func TestExecutorSettingsFromEnv(t *testing.T) {
 		return ""
 	}).Concurrency != 12 {
 		t.Fatal("bad concurrency must default")
-	}
-}
-
-func TestExecutorSettingsNativeProviders(t *testing.T) {
-	if executorSettings(func(string) string { return "" }).NativeProv {
-		t.Fatal("GO_RUN_NATIVE_PROVIDERS must default off")
-	}
-	if !executorSettings(func(k string) string {
-		if k == "GO_RUN_NATIVE_PROVIDERS" {
-			return "true"
-		}
-		return ""
-	}).NativeProv {
-		t.Fatal("GO_RUN_NATIVE_PROVIDERS=true must enable")
 	}
 }

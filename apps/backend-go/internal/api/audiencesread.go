@@ -49,7 +49,7 @@ func (h audRead) refresh(w http.ResponseWriter, r *http.Request) {
 	// Concurrent refreshes of one audience serialize on its row lock inside the engine (single-flight).
 	res, err := audiencerefresh.RefreshObserved(r.Context(), h.d.Pool, ws, id, audiencerefresh.Deps{
 		AudienceEvents: h.d.AudienceEvents,
-		ExecutorFor:    h.destExecutor(ws),
+		ExecutorFor:    goExecutor,
 		PageSize:       h.d.Flags.Audiences.RefreshPageSize,
 		Timeout:        audReadRefreshTimeout,
 	})

@@ -11,7 +11,6 @@ package config
 // CRM_IMPORT_ENABLED and PEOPLE_SEARCH_SOURCE_ENABLED are settings.py's flags of the
 // crm_import and people_search source kinds (default off: clean refusal, no network).
 type SourceWbSettings struct {
-	GoExecutor          bool // GO_EXECUTOR_SOURCE_WORKBOOK
 	PreviewEnabled      bool // GO_SOURCE_PREVIEW_ENABLED
 	CRMImportEnabled    bool // CRM_IMPORT_ENABLED
 	PeopleSearchEnabled bool // PEOPLE_SEARCH_SOURCE_ENABLED
@@ -25,7 +24,6 @@ func LoadSourceWb(get func(string) string) (SourceWbSettings, error) {
 		dst *bool
 		key string
 	}{
-		{&s.GoExecutor, "GO_EXECUTOR_SOURCE_WORKBOOK"},
 		{&s.PreviewEnabled, "GO_SOURCE_PREVIEW_ENABLED"},
 		{&s.CRMImportEnabled, "CRM_IMPORT_ENABLED"},
 		{&s.PeopleSearchEnabled, "PEOPLE_SEARCH_SOURCE_ENABLED"},
@@ -44,7 +42,6 @@ func LoadSourceWb(get func(string) string) (SourceWbSettings, error) {
 func SourceWbFrom(get func(string) string) SourceWbSettings {
 	get = AllNative(get) // retired flags read as on
 	return SourceWbSettings{
-		GoExecutor:          pyBool(get("GO_EXECUTOR_SOURCE_WORKBOOK")),
 		PreviewEnabled:      pyBool(get("GO_SOURCE_PREVIEW_ENABLED")),
 		CRMImportEnabled:    pyBool(get("CRM_IMPORT_ENABLED")),
 		PeopleSearchEnabled: pyBool(get("PEOPLE_SEARCH_SOURCE_ENABLED")),
