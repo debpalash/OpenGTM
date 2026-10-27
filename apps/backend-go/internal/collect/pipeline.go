@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 	"sync"
@@ -837,8 +838,11 @@ func (j *job) hiringStage(ctx context.Context, scored []*Lead) error {
 			l.HiringSignals = v
 			var sig map[string]any
 			if json.Unmarshal([]byte(v), &sig) == nil {
-				if b, ok := sig["score_boost"].(float64); ok {
-					l.Score = min(100, l.Score+int(b))
+				if b, ok := sig["score_boost"].(float64); ok && !math.IsNaN(b) {
+					// Fix: an unbounded boost (or one >= 2^63) corrupted the score; clamp the boost
+					// to -100..100 and the score to 0..100.
+					b = max(-100, min(100, b))
+					l.Score = max(0, min(100, l.Score+int(b)))
 				}
 			}
 			found++
