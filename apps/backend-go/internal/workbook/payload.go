@@ -32,15 +32,20 @@ func clampF(v, lo, hi float64) float64 {
 // ErrUnsupportedPayload is returned for a go block the executor must refuse.
 var ErrUnsupportedPayload = errors.New("workbook: unsupported go payload")
 
-// RefusalError is a deterministic refusal discovered before any work began:
-// retrying on Go cannot succeed, so the job is handed back to Python.
+// RefusalError is a deterministic refusal discovered before any work began: retrying cannot succeed, so Run
+// fails the job permanently (since the plan 15 cutover there is no Python executor to hand it to).
 type RefusalError struct{ Reason string }
 
 func (e *RefusalError) Error() string { return "workbook: refused: " + e.Reason }
 
-// ErrHandedBack is returned by Run after it handed the job back to Python;
-// the caller must not finalize (the lease no longer exists).
-var ErrHandedBack = errors.New("workbook: job handed back to python")
+// Is makes every refusal match ErrRefused.
+func (e *RefusalError) Is(t error) bool { return t == ErrRefused }
+
+// ErrRefused matches every refusal (errors.Is).
+var ErrRefused = errors.New("workbook: refused")
+
+// IsRefused reports whether err is a refusal of the run (see RefusalError).
+func IsRefused(err error) bool { return errors.Is(err, ErrRefused) || errors.Is(err, ErrUnsupportedPayload) }
 
 func refuse(format string, a ...any) error { return &RefusalError{Reason: fmt.Sprintf(format, a...)} }
 

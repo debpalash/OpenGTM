@@ -35,28 +35,18 @@ func (w workItem) rowID() int64 { return intOf(w.lead["__row_id"]) }
 
 // Run executes one claimed run_workbook job. The returned error fails the job
 // (the queue retries it); ErrLeaseLost and context cancellation mean this
-// executor must stop writing and leave the claim to its new owner.
+// executor must stop writing and leave the claim to its new owner. A
+// deterministic refusal (RefusalError, ErrUnsupportedPayload) is a permanent
+// failure: retrying cannot succeed and there is no other executor.
 func Run(ctx context.Context, deps Deps, c *queue.Claim) (Result, error) {
 	var started bool
 	res, err := run(ctx, deps, c, &started)
 	if err != nil && !started && ctx.Err() == nil && !errors.Is(err, ErrLeaseLost) {
 		if reason, ok := refusalReason(err); ok {
-			// Deterministic refusal: Python runs the job normally. No retry is
-			// spent and the workbook is not marked failed (nothing failed).
-			handed, herr := queue.HandBack(ctx, deps.Pool, c, reason)
-			switch {
-			case herr == nil && handed:
-				if deps.Log != nil {
-					deps.Log.Warn("handed job back to python", "reason", reason)
-				}
-				return res, fmt.Errorf("%w: %s", ErrHandedBack, reason)
-			case herr == nil:
-				return res, ErrLeaseLost
-			default:
-				if deps.Log != nil {
-					deps.Log.Error("hand back failed; failing the job instead", "err", herr)
-				}
+			if deps.Log != nil {
+				deps.Log.Warn("run_workbook refused", "reason", reason)
 			}
+			err = &queue.PermanentError{Err: err}
 		}
 		failWorkbook(ctx, deps, c)
 	}
@@ -95,7 +85,11 @@ func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result,
 	if log == nil {
 		log = slog.Default()
 	}
-	p, err := parsePayload(c.Payload)
+	raw, err := planMissingGoBlock(ctx, deps, c)
+	if err != nil {
+		return Result{}, err
+	}
+	p, err := parsePayload(raw)
 	if err != nil {
 		return Result{}, err
 	}

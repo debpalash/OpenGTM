@@ -268,8 +268,6 @@ func TestCellRunSentinels(t *testing.T) {
 		{"column", workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-s", RowID: int64(ids[0]), ColumnID: "zzz"}, workbook.ErrColumnNotFound},
 		{"lead_field column", workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-s", RowID: int64(ids[0]), ColumnID: "lf"}, workbook.ErrColumnNotFound},
 		{"row", workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-s", RowID: 99999, ColumnID: "c1"}, workbook.ErrRowNotFound},
-		{"output runs on python", workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-s", RowID: int64(ids[0]), ColumnID: "o1"}, workbook.ErrNeedsPython},
-		{"email verify runs on python", workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-s", RowID: int64(ids[0]), ColumnID: "w1"}, workbook.ErrNeedsPython},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -277,6 +275,13 @@ func TestCellRunSentinels(t *testing.T) {
 				t.Fatalf("got %v, want %v", err, c.want)
 			}
 		})
+	}
+	// Output and email verification without their ports are error cells now, never ErrNeedsPython (no proxy).
+	for _, col := range []string{"o1", "w1"} {
+		r, err := workbook.EnrichCell(e.ctx, d, workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-s", RowID: int64(ids[0]), ColumnID: col})
+		if err != nil || r.Status() != "error" {
+			t.Fatalf("%s: %+v %v", col, r, err)
+		}
 	}
 	if _, err := workbook.EnrichCell(e.ctx, d, workbook.CellRequest{WorkspaceID: wsOther, WorkbookID: "wb-s", RowID: int64(ids[0]), ColumnID: "c1"}); !errors.Is(err, workbook.ErrWorkbookNotFound) {
 		t.Fatalf("a foreign workspace must not see the workbook: %v", err)

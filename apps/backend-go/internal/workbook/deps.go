@@ -43,6 +43,10 @@ type Deps struct {
 	// Manifests is required: the payload's manifests are only claims, and the
 	// executor runs the fetched copy whose sha256 matches the payload's.
 	Manifests ManifestSource
+	// PlanGoBlock builds the "go" block of a run_workbook payload that has none (refresh, source
+	// workbook and recompute enqueues, and Python-era rows reassigned to Go at the cutover) from the
+	// workbook's current columns. nil refuses such payloads.
+	PlanGoBlock func(ctx context.Context, workspaceID, workbookID string) (json.RawMessage, error)
 	Progress  progress.Publisher // nil = no broadcasts
 	Log       *slog.Logger
 	// Runner runs every enrichment provider call (providerrun.Runner: Go

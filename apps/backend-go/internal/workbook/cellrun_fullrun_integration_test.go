@@ -35,10 +35,12 @@ func TestCellRunFullRunNeverNeedsPython(t *testing.T) {
 	req := func(col string) workbook.CellRequest {
 		return workbook.CellRequest{WorkspaceID: wsA, WorkbookID: "wb-full", RowID: int64(ids[0]), ColumnID: col}
 	}
-	// flag off: today's proxy answers
-	for _, c := range []string{"o", "em", "ai"} {
-		if _, err := workbook.EnrichCell(e.ctx, d, req(c)); !errors.Is(err, workbook.ErrNeedsPython) {
-			t.Fatalf("%s with the flag off must proxy: %v", c, err)
+	// Without the full-run wiring there is no Python API to proxy to (plan 15 cutover): each cell is an error cell
+	// naming what is missing, never ErrNeedsPython.
+	for c, code := range map[string]string{"o": "output_column", "em": "email_verification", "ai": "python_worker_unavailable"} {
+		r, err := workbook.EnrichCell(e.ctx, d, req(c))
+		if errors.Is(err, workbook.ErrNeedsPython) || err != nil || r.Status() != "error" || r.Error == nil || *r.Error != code {
+			t.Fatalf("%s without the full-run wiring: %+v %v (want error %q)", c, r, err, code)
 		}
 	}
 	d.FullRun = true

@@ -34,9 +34,9 @@ var (
 	ErrColumnNotFound    = errors.New("workbook: enrichment column not found")
 	ErrRowNotFound       = errors.New("workbook: workbook row not found")
 	ErrLegacyRowNotFound = errors.New("workbook: legacy lead row not found") // "Row not found"
-	// ErrNeedsPython marks a cell this process does not execute (output columns, email
-	// verification, columns whose Python worker is unavailable): the route proxies the
-	// request to the Python API unchanged. See NeedsPythonReason.
+	// ErrNeedsPython is no longer returned (plan 15 cutover): a cell this process cannot run (output without
+	// ports, email verification without a verifier, an AI column without a runner) fails with the reason's
+	// code instead. Kept until the single-cell route drops its proxy branch (WP-CUTOVER part B).
 	ErrNeedsPython = errors.New("workbook: cell runs on the python api")
 	// ErrClientGone means the caller went away before any paid call was dispatched; nothing ran.
 	ErrClientGone = errors.New("workbook: client went away before dispatch")
@@ -365,7 +365,8 @@ func legacyLeadsWorkbook(sourceType pgtype.Text, sourceConfig []byte) bool {
 }
 
 // needsPython names the reason a column cannot run in this process ("" = it can).
-func (rs *runState) needsPython(col column) string {
+// unrunnable names why this process cannot run col in a single-cell run ("" when it can).
+func (rs *runState) unrunnable(col column) string {
 	full := rs.deps.FullRun
 	if col.Type == "output" && !(full && rs.deps.Output != nil) {
 		return "output column"
@@ -432,12 +433,9 @@ func (rs *runState) runOneCell(ctx context.Context, lc loadedCell, force bool) (
 			}
 		}
 	}
-	if reason := rs.needsPython(col); reason != "" {
-		if !rs.deps.FullRun {
-			return CellResult{}, &needsPythonError{reason: reason}
-		}
-		// GO_EXECUTOR_FULL_RUN: there is no Python API to proxy to; the cell fails with the
-		// reason's code (e.g. python_worker_unavailable) instead.
+	if reason := rs.unrunnable(col); reason != "" {
+		// There is no Python API to proxy to (plan 15 cutover): the cell fails with the reason's code
+		// (e.g. output_column, email_verification) instead.
 		code, _, _ := strings.Cut(reason, ":")
 		code = strings.ReplaceAll(strings.TrimSpace(code), " ", "_")
 		return res(rs.failDependent(ctx, lead, col, code))
