@@ -16,6 +16,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/aicol"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
@@ -81,6 +82,67 @@ func NewPyResearcher(c *pyworker.Client, timeout time.Duration) Researcher {
 		timeout = DefaultStepTimeout
 	}
 	return &pyResearcher{c: c, timeout: timeout}
+}
+
+// nativeResearcher runs research_column steps in process (GO_NATIVE_AI_COLUMNS, plan 15
+// WP-AICOLS): the Go research agent over the workspace's LLM client, search and page fetch.
+// It never reports pyworker.ErrUnavailable, so a run is never handed back for it.
+type nativeResearcher struct {
+	deps    func(ctx context.Context, workspaceID string) aicol.Deps
+	timeout time.Duration
+}
+
+// NewNativeResearcher runs steps with aicol.PlaybookResearch; deps builds the column
+// collaborators of a workspace. timeout bounds one step (PLAYBOOK_STEP_TIMEOUT_SECONDS).
+func NewNativeResearcher(deps func(ctx context.Context, workspaceID string) aicol.Deps, timeout time.Duration) Researcher {
+	if timeout <= 0 {
+		timeout = DefaultStepTimeout
+	}
+	return &nativeResearcher{deps: deps, timeout: timeout}
+}
+
+func (n *nativeResearcher) Research(ctx context.Context, ws string, req ResearchRequest) (ResearchResult, error) {
+	sctx, cancel := context.WithTimeout(ctx, n.timeout)
+	defer cancel()
+	res, err := aicol.PlaybookResearch(sctx, n.deps(sctx, ws), aicol.PlaybookRequest{PromptTemplate: req.PromptTemplate,
+		Context: req.Context, MaxSteps: req.MaxSteps, OutputFormat: req.OutputFormat, CellBudgetUSD: req.CellBudgetUSD})
+	if ctx.Err() != nil {
+		return ResearchResult{}, ctx.Err()
+	}
+	if err != nil {
+		return failed("research step timed out"), nil
+	}
+	r := ResearchResult{Success: res.Success, Value: res.Value, Error: res.Error}
+	if o := toObj(res.Metadata); o != nil && len(o.keys) > 0 {
+		r.meta, r.Metadata = o, o.vals
+	}
+	return r, nil
+}
+
+// toObj converts an aicol.Obj tree to the ledger's ordered object.
+func toObj(o *aicol.Obj) *obj {
+	if o == nil {
+		return nil
+	}
+	out := newObj()
+	for _, k := range o.Keys {
+		out.set(k, toOrdered(o.Vals[k]))
+	}
+	return out
+}
+
+func toOrdered(v any) any {
+	switch t := v.(type) {
+	case *aicol.Obj:
+		return toObj(t)
+	case []any:
+		l := make([]any, len(t))
+		for i, e := range t {
+			l[i] = toOrdered(e)
+		}
+		return l
+	}
+	return v
 }
 
 func isUnavailable(err error) bool { return errors.Is(err, pyworker.ErrUnavailable) }
