@@ -4,7 +4,6 @@ package workbook_test
 
 import (
 	"context"
-	"errors"
 	"strings"
 	"testing"
 
