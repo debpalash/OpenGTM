@@ -3,8 +3,13 @@
 package api
 
 import (
+	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 )
 
 // Final review M2 (S-L3): preview masks the resolved webhook URL for a caller without
@@ -26,5 +31,25 @@ func TestPreviewMasksWebhookURLForNonManagers(t *testing.T) {
 	owner := e.call("alice", "ws-alpha", "POST", "/api/automations/triggers/trg-a-01/preview", body)
 	if !strings.Contains(string(owner.Body), `"url":"https://hooks.example.com/auto/Hot Pursuit Labs"`) {
 		t.Fatalf("manager preview masked: %s", owner.Body)
+	}
+}
+
+// R-targets: oversized explicit targets are a 422 even when AUTOMATIONS_MAX_ROWS_PER_EVAL is
+// unset in Deps (the engine's default cap of 500 then applies), never a silent truncation.
+func TestRunTargetsOverDefaultCapAre422(t *testing.T) {
+	e := newArunEnv(t, true, nil)
+	r := httpx.NewRouter()
+	registerAutomationsRun(r, Deps{Pool: e.pool, Signer: testSigner, Identity: e.st,
+		Flags: config.Flags{PGLeadStore: true, AutomationsEnabled: true,
+			Automations: config.AutomationsSettings{GoExecutorTriggerEval: true}}})
+	e.h = r.Handler()
+	ids := make([]string, 501)
+	for i := range ids {
+		ids[i] = fmt.Sprint(i + 1)
+	}
+	b, _ := json.Marshal(map[string]any{"row_ids": ids})
+	got := e.call("alice", "", "POST", "/api/automations/triggers/trg-a-01/run", string(b))
+	if got.Status != 422 || !strings.Contains(string(got.Body), `"max_length":500`) {
+		t.Fatalf("%d %s", got.Status, got.Body)
 	}
 }
