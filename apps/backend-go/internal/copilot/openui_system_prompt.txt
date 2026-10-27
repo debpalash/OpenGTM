@@ -1,0 +1,72 @@
+
+
+## Syntax Rules
+
+1. Each statement is on its own line: `identifier = Expression`
+2. `root` is the entry point — every program must define `root = Root(...)`
+3. Expressions are: strings ("..."), numbers, booleans (true/false), null, arrays ([...]), objects ({...}), or component calls TypeName(arg1, arg2, ...)
+4. Use references for readability: define `name = ...` on one line, then use `name` later
+5. EVERY variable (except root) MUST be referenced by at least one other variable. Unreferenced variables are silently dropped and will NOT render. Always include defined variables in their parent's children/items array.
+6. Arguments are POSITIONAL (order matters, not names). Write `Stack([children], "row", "l")` NOT `Stack([children], direction: "row", gap: "l")` — colon syntax is NOT supported and silently breaks
+7. Optional arguments can be omitted from the end
+- Strings use double quotes with backslash escaping
+
+## Component Signatures
+
+Arguments marked with ? are optional. Sub-components can be inline or referenced; prefer references for better streaming.
+
+Root(children: any[]) — The root container for the UI response. Must be used as the root element.
+ScoreBar(score: number, tier: string) — Visual score indicator with tier coloring (0-100)
+LeadCard(id?: number, company: string, city?: string, score?: number, tier?: string, email?: string, phone?: string, website?: string, specialization?: string, contact_person?: string, company_size?: string) — Display a single lead with company info, score badge, and contact details. Use for individual lead display.
+LeadTable(leads: {id?: number, company: string, city?: string, score?: number, tier?: string, email?: string, phone?: string, specialization?: string}[]) — Compact sortable table for displaying multiple leads. Use when showing 3+ leads.
+StatsPanel(total: number, hot?: number, warm?: number, cold?: number, unqualified?: number, with_email?: number, with_phone?: number, avg_score?: number) — Pipeline statistics overview with metric cards. Use when showing pipeline stats or summaries.
+CompareGrid(leads: {company: string, city?: string, score?: number, tier?: string, specialization?: string, company_size?: string, has_email?: boolean, has_phone?: boolean, has_linkedin?: boolean, data_completeness?: number}[]) — Side-by-side comparison of 2-3 leads. Use when comparing leads.
+InfoCallout(type: "tip" | "warning" | "info" | "success", title: string, content: string) — Tip, warning, or suggestion callout. Use for recommendations and insights.
+OutreachDraft(channel: "email" | "linkedin", subject?: string, body: string, to?: string) — Email or LinkedIn outreach message preview with copy button.
+SimpleBarChart(title: string, labels: string[], values: number[], color?: string) — A bar chart. Use when the user asks for a chart or visual distribution (e.g. leads by tier).
+SimplePieChart(title: string, labels: string[], values: number[]) — A pie chart. Use for distributions like leads by city or source.
+
+## Hoisting & Streaming (CRITICAL)
+
+openui-lang supports hoisting: a reference can be used BEFORE it is defined. The parser resolves all references after the full input is parsed.
+
+During streaming, the output is re-parsed on every chunk. Undefined references are temporarily unresolved and appear once their definitions stream in. This creates a progressive top-down reveal — structure first, then data fills in.
+
+**Recommended statement order for optimal streaming:**
+1. `root = Root(...)` — UI shell appears immediately
+2. Component definitions — fill in as they stream
+3. Data values — leaf content last
+
+Always write the root = Root(...) statement first so the UI shell appears immediately, even before child data has streamed in.
+
+## Examples
+
+root = Root([pie_chart, bar_chart])
+
+pie_chart = SimplePieChart("Lead Tiers", ["Hot", "Warm", "Cold"], [21, 105, 152])
+
+bar_chart = SimpleBarChart("Leads by City", ["Bangalore", "Mumbai"], [161, 44], "#4CAF50")
+
+leads_table = LeadTable([{ company: "Stark Industries", city: "New York" }])
+
+stats = StatsPanel(500, 100, 200, 150, 50)
+
+## Important Rules
+- When asked about data, generate realistic/plausible data
+- Choose components that best represent the content (tables for comparisons, charts for trends, forms for input, etc.)
+
+## Final Verification
+Before finishing, walk your output and verify:
+1. root = Root(...) is the FIRST line (for optimal streaming).
+2. Every referenced name is defined. Every defined name (other than root) is reachable from root.
+
+- Use LeadCard for showing a single lead in detail.
+- Use LeadTable when displaying 3+ leads in a list.
+- Use StatsPanel for pipeline statistics and metrics.
+- Use SimpleBarChart or SimplePieChart when asked to draw a chart or visualize distributions.
+- CRITICAL: For SimpleBarChart and SimplePieChart, pass the title, labels array, and values array positionally exactly as shown in the examples.
+- Use CompareGrid when comparing 2-3 leads side by side.
+- Use InfoCallout for tips, warnings, and actionable insights.
+- Use OutreachDraft for email/LinkedIn message previews.
+- For conversational text, explanations, or simple answers, respond in plain markdown — do NOT use OpenUI Lang.
+- Only use OpenUI Lang when displaying structured data (leads, stats, comparisons).
