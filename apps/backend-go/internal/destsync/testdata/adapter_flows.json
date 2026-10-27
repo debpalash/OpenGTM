@@ -1,0 +1,2601 @@
+{
+  "note": "scripts/gen_dest_adapter_vectors.py: handle_destination_sync with the real _deliver and integration clients, httpx faked (requests recorded, responses scripted in order), workspace secrets from input.secrets. Clock frozen at FIXED_TS.",
+  "scenarios": [
+    {
+      "name": "instantly_mixed",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "instantly",
+          "enabled": true,
+          "config": {
+            "campaign_id": "camp-1"
+          },
+          "field_map": {
+            "email": "email",
+            "company": "company_name",
+            "city": "city",
+            "score": "score"
+          },
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          },
+          {
+            "lead_id": 2,
+            "snapshot": {
+              "id": 2,
+              "company": "Co 2",
+              "email": "u2@x.test",
+              "phone": "+1 555 010 0002",
+              "city": "Austin",
+              "score": 2,
+              "contact_person": "Pat Lee2",
+              "website": "https://co2.test"
+            }
+          },
+          {
+            "lead_id": 3,
+            "snapshot": {
+              "id": 3,
+              "company": "Co 3",
+              "email": "u3@x.test",
+              "phone": "+1 555 010 0003",
+              "city": "Austin",
+              "score": 3,
+              "contact_person": "Pat Lee3",
+              "website": "https://co3.test"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 200,
+            "json": {
+              "id": "il-1",
+              "status": 1
+            }
+          },
+          {
+            "status": 400,
+            "json": {
+              "error": "Lead already exists in campaign"
+            }
+          },
+          {
+            "status": 500,
+            "text": "upstream boom"
+          }
+        ],
+        "secrets": {
+          "INSTANTLY_API_KEY": "inst-test-key"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 3,
+          "succeeded": 2,
+          "failed": 1,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "1 deliveries failed",
+          "last_success_at": "2026-08-29T10:40:00"
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:d4e62872cc2b7e73b52e5294e2bc6a9e5b06a11f89e8930bbe3b52f3ada895ee",
+            "payload_fingerprint": "d4e62872cc2b7e73b52e5294e2bc6a9e5b06a11f89e8930bbe3b52f3ada895ee",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": "il-1",
+            "summary": "Lead added to campaign",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "lead_id": 2,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:2:4279938a88c5a34e806fb30cb873293d5b5c4a5fd43b1d020f5e11f7a5f45556",
+            "payload_fingerprint": "4279938a88c5a34e806fb30cb873293d5b5c4a5fd43b1d020f5e11f7a5f45556",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "Lead already in campaign",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "lead_id": 3,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:3:26ca35dfe08f4df4df3e32517062d14ac08eeefdede5b43d01aed28f5b1cc298",
+            "payload_fingerprint": "26ca35dfe08f4df4df3e32517062d14ac08eeefdede5b43d01aed28f5b1cc298",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "HTTP 500: upstream boom",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 2
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 3
+          }
+        ],
+        "cancellation_checks": 4,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://api.instantly.ai/api/v2/leads",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer inst-test-key",
+              "content-type": "application/json"
+            },
+            "json": {
+              "campaign": "camp-1",
+              "skip_if_in_campaign": true,
+              "email": "u1@x.test",
+              "company_name": "Co 1",
+              "custom_variables": {
+                "city": "Austin",
+                "score": 1
+              }
+            }
+          },
+          {
+            "method": "POST",
+            "url": "https://api.instantly.ai/api/v2/leads",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer inst-test-key",
+              "content-type": "application/json"
+            },
+            "json": {
+              "campaign": "camp-1",
+              "skip_if_in_campaign": true,
+              "email": "u2@x.test",
+              "company_name": "Co 2",
+              "custom_variables": {
+                "city": "Austin",
+                "score": 2
+              }
+            }
+          },
+          {
+            "method": "POST",
+            "url": "https://api.instantly.ai/api/v2/leads",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer inst-test-key",
+              "content-type": "application/json"
+            },
+            "json": {
+              "campaign": "camp-1",
+              "skip_if_in_campaign": true,
+              "email": "u3@x.test",
+              "company_name": "Co 3",
+              "custom_variables": {
+                "city": "Austin",
+                "score": 3
+              }
+            }
+          }
+        ],
+        "unused_http": 0
+      }
+    },
+    {
+      "name": "instantly_skip_status_and_no_email",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "instantly",
+          "enabled": true,
+          "config": {
+            "campaign_id": "camp-1",
+            "skip_if_in_campaign": false
+          },
+          "field_map": {},
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1
+            }
+          },
+          {
+            "lead_id": 2,
+            "snapshot": {
+              "id": 2,
+              "company": "Co 2",
+              "email": "",
+              "phone": "+1 555 010 0002",
+              "city": "Austin",
+              "score": 2
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 200,
+            "json": {
+              "id": "il-9",
+              "status": -3
+            }
+          }
+        ],
+        "secrets": {
+          "INSTANTLY_API_KEY": "inst-test-key"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 2,
+          "succeeded": 1,
+          "failed": 1,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "1 deliveries failed",
+          "last_success_at": "2026-08-29T10:40:00"
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:97f3e269ed62db05c8700fe94516ec88250fb71070f95263846d8c6b03ddf92d",
+            "payload_fingerprint": "97f3e269ed62db05c8700fe94516ec88250fb71070f95263846d8c6b03ddf92d",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": "il-9",
+            "summary": "Lead already in campaign",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "lead_id": 2,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:2:1e3b7d9bbf89161a55c420d8c0d0663c00a33257d35d585a5ca23e79f8010ece",
+            "payload_fingerprint": "1e3b7d9bbf89161a55c420d8c0d0663c00a33257d35d585a5ca23e79f8010ece",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "no_email",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 2
+          }
+        ],
+        "cancellation_checks": 3,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://api.instantly.ai/api/v2/leads",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer inst-test-key",
+              "content-type": "application/json"
+            },
+            "json": {
+              "campaign": "camp-1",
+              "skip_if_in_campaign": false,
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "custom_variables": {
+                "id": 1,
+                "company": "Co 1",
+                "city": "Austin",
+                "score": 1
+              }
+            }
+          }
+        ],
+        "unused_http": 0
+      }
+    },
+    {
+      "name": "instantly_not_connected",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "instantly",
+          "enabled": true,
+          "config": {
+            "campaign_id": "camp-1"
+          },
+          "field_map": {},
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          },
+          {
+            "lead_id": 2,
+            "snapshot": {
+              "id": 2,
+              "company": "Co 2",
+              "email": "u2@x.test",
+              "phone": "+1 555 010 0002",
+              "city": "Austin",
+              "score": 2,
+              "contact_person": "Pat Lee2",
+              "website": "https://co2.test"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [],
+        "secrets": {}
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 2,
+          "succeeded": 0,
+          "failed": 2,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "2 deliveries failed",
+          "last_success_at": null
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload_fingerprint": "58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "Instantly not connected (set INSTANTLY_API_KEY)",
+            "delivered_at": null
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "lead_id": 2,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:2:f66ead46682e9f7a308708d0690140227dce4e7de5275268cb2ac11dbcd9092f",
+            "payload_fingerprint": "f66ead46682e9f7a308708d0690140227dce4e7de5275268cb2ac11dbcd9092f",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "Instantly not connected (set INSTANTLY_API_KEY)",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 2
+          }
+        ],
+        "cancellation_checks": 3,
+        "cancel_fired": null,
+        "requests": [],
+        "unused_http": 0
+      }
+    },
+    {
+      "name": "instantly_prior_success_skipped",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "instantly",
+          "enabled": true,
+          "config": {
+            "campaign_id": "camp-1"
+          },
+          "field_map": {
+            "email": "email"
+          },
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          },
+          {
+            "lead_id": 2,
+            "snapshot": {
+              "id": 2,
+              "company": "Co 2",
+              "email": "u2@x.test",
+              "phone": "+1 555 010 0002",
+              "city": "Austin",
+              "score": 2,
+              "contact_person": "Pat Lee2",
+              "website": "https://co2.test"
+            }
+          }
+        ],
+        "prior_deliveries": [
+          {
+            "id": 101,
+            "run_id": "run-0",
+            "destination_id": "dest-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:17192430a3ae6d44c3be4fe02961811557c54a69c8b460ef13c876d84b9ce9df",
+            "payload_fingerprint": "17192430a3ae6d44c3be4fe02961811557c54a69c8b460ef13c876d84b9ce9df",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": "il-old",
+            "summary": null,
+            "error": null,
+            "delivered_at_set": true
+          }
+        ],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 201,
+            "json": {
+              "id": "il-2"
+            }
+          }
+        ],
+        "secrets": {
+          "INSTANTLY_API_KEY": "inst-test-key"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed",
+          "error": null,
+          "attempted": 1,
+          "succeeded": 1,
+          "failed": 0,
+          "skipped": 1,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": "2026-08-29T10:40:00"
+        },
+        "deliveries": [
+          {
+            "id": 101,
+            "run_id": "run-0",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:17192430a3ae6d44c3be4fe02961811557c54a69c8b460ef13c876d84b9ce9df",
+            "payload_fingerprint": "17192430a3ae6d44c3be4fe02961811557c54a69c8b460ef13c876d84b9ce9df",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": "il-old",
+            "summary": null,
+            "error": null,
+            "delivered_at": "2026-08-01T09:05:00"
+          },
+          {
+            "id": 102,
+            "run_id": "run-1",
+            "lead_id": 2,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:2:e86487d2a74782ba9a29ad962b15e977cb98e28946579e2129cab653bfa3a776",
+            "payload_fingerprint": "e86487d2a74782ba9a29ad962b15e977cb98e28946579e2129cab653bfa3a776",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": "il-2",
+            "summary": "Lead added to campaign",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 2
+          }
+        ],
+        "cancellation_checks": 3,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://api.instantly.ai/api/v2/leads",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer inst-test-key",
+              "content-type": "application/json"
+            },
+            "json": {
+              "campaign": "camp-1",
+              "skip_if_in_campaign": true,
+              "email": "u2@x.test"
+            }
+          }
+        ],
+        "unused_http": 0
+      }
+    },
+    {
+      "name": "smartlead_mixed",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "smartlead",
+          "enabled": true,
+          "config": {
+            "campaign_id": "77",
+            "settings": {
+              "ignore_global_block_list": true
+            }
+          },
+          "field_map": {
+            "email": "email",
+            "company": "company_name",
+            "phone": "phone_number",
+            "city": "city"
+          },
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          },
+          {
+            "lead_id": 2,
+            "snapshot": {
+              "id": 2,
+              "company": "Co 2",
+              "email": "u2@x.test",
+              "phone": "+1 555 010 0002",
+              "city": "Austin",
+              "score": 2,
+              "contact_person": "Pat Lee2",
+              "website": "https://co2.test"
+            }
+          },
+          {
+            "lead_id": 3,
+            "snapshot": {
+              "id": 3,
+              "company": "Co 3",
+              "email": "u3@x.test",
+              "phone": "+1 555 010 0003",
+              "city": "Austin",
+              "score": 3,
+              "contact_person": "Pat Lee3",
+              "website": "https://co3.test"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 200,
+            "json": {
+              "ok": true,
+              "upload_count": 1,
+              "duplicate_count": 0
+            }
+          },
+          {
+            "status": 200,
+            "json": {
+              "ok": true,
+              "upload_count": 0,
+              "duplicate_count": 1
+            }
+          },
+          {
+            "status": 401,
+            "text": "unauthorized"
+          }
+        ],
+        "secrets": {
+          "SMARTLEAD_API_KEY": "sl-test-key"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 3,
+          "succeeded": 2,
+          "failed": 1,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "1 deliveries failed",
+          "last_success_at": "2026-08-29T10:40:00"
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:6f2879d648f5552911430c1ee1572cf4293a95e51d97d4105d2541b41098d539",
+            "payload_fingerprint": "6f2879d648f5552911430c1ee1572cf4293a95e51d97d4105d2541b41098d539",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "Lead added to campaign",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "lead_id": 2,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:2:9691c384d258abf76154bdb47ba9682bb98b4bb2e4e7d8158d5b1b8ad0e22a66",
+            "payload_fingerprint": "9691c384d258abf76154bdb47ba9682bb98b4bb2e4e7d8158d5b1b8ad0e22a66",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "Lead already in campaign",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "lead_id": 3,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:3:8df9dd42b927488ec76181394f14b3dc477c3da5e8869220dd00a50d238a1719",
+            "payload_fingerprint": "8df9dd42b927488ec76181394f14b3dc477c3da5e8869220dd00a50d238a1719",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "Smartlead auth failed (invalid SMARTLEAD_API_KEY)",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 2
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 3
+          }
+        ],
+        "cancellation_checks": 4,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://server.smartlead.ai/api/v1/campaigns/77/leads?api_key=sl-test-key",
+            "headers": {
+              "accept": "*/*",
+              "content-type": "application/json"
+            },
+            "json": {
+              "lead_list": [
+                {
+                  "email": "u1@x.test",
+                  "company_name": "Co 1",
+                  "phone_number": "+1 555 010 0001",
+                  "custom_fields": {
+                    "city": "Austin"
+                  }
+                }
+              ],
+              "settings": {
+                "ignore_global_block_list": true
+              }
+            }
+          },
+          {
+            "method": "POST",
+            "url": "https://server.smartlead.ai/api/v1/campaigns/77/leads?api_key=sl-test-key",
+            "headers": {
+              "accept": "*/*",
+              "content-type": "application/json"
+            },
+            "json": {
+              "lead_list": [
+                {
+                  "email": "u2@x.test",
+                  "company_name": "Co 2",
+                  "phone_number": "+1 555 010 0002",
+                  "custom_fields": {
+                    "city": "Austin"
+                  }
+                }
+              ],
+              "settings": {
+                "ignore_global_block_list": true
+              }
+            }
+          },
+          {
+            "method": "POST",
+            "url": "https://server.smartlead.ai/api/v1/campaigns/77/leads?api_key=sl-test-key",
+            "headers": {
+              "accept": "*/*",
+              "content-type": "application/json"
+            },
+            "json": {
+              "lead_list": [
+                {
+                  "email": "u3@x.test",
+                  "company_name": "Co 3",
+                  "phone_number": "+1 555 010 0003",
+                  "custom_fields": {
+                    "city": "Austin"
+                  }
+                }
+              ],
+              "settings": {
+                "ignore_global_block_list": true
+              }
+            }
+          }
+        ],
+        "unused_http": 0
+      }
+    },
+    {
+      "name": "smartlead_rejected_body",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "smartlead",
+          "enabled": true,
+          "config": {
+            "campaign_id": "77"
+          },
+          "field_map": {},
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 200,
+            "json": {
+              "ok": false,
+              "message": "campaign paused"
+            }
+          }
+        ],
+        "secrets": {
+          "SMARTLEAD_API_KEY": "sl-test-key"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 1,
+          "succeeded": 0,
+          "failed": 1,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "1 deliveries failed",
+          "last_success_at": null
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload_fingerprint": "58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "campaign paused",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          }
+        ],
+        "cancellation_checks": 2,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://server.smartlead.ai/api/v1/campaigns/77/leads?api_key=sl-test-key",
+            "headers": {
+              "accept": "*/*",
+              "content-type": "application/json"
+            },
+            "json": {
+              "lead_list": [
+                {
+                  "email": "u1@x.test",
+                  "website": "https://co1.test",
+                  "custom_fields": {
+                    "id": 1,
+                    "company": "Co 1",
+                    "phone": "+1 555 010 0001",
+                    "city": "Austin",
+                    "score": 1,
+                    "contact_person": "Pat Lee1"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "unused_http": 0
+      }
+    },
+    {
+      "name": "google_sheets_mixed",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "google_sheets",
+          "enabled": true,
+          "config": {
+            "spreadsheet_id": "sheet-1",
+            "columns": [
+              "email",
+              "company",
+              "score"
+            ],
+            "range": "Leads!A:ZZ"
+          },
+          "field_map": {},
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          },
+          {
+            "lead_id": 2,
+            "snapshot": {
+              "id": 2,
+              "company": "Co 2",
+              "email": "u2@x.test",
+              "phone": "+1 555 010 0002",
+              "city": "Austin",
+              "score": 2,
+              "contact_person": "Pat Lee2",
+              "website": "https://co2.test"
+            }
+          },
+          {
+            "lead_id": 3,
+            "snapshot": {
+              "id": 3,
+              "company": "Co 3",
+              "email": "u3@x.test",
+              "phone": "+1 555 010 0003",
+              "city": "Austin",
+              "score": 3,
+              "contact_person": "Pat Lee3",
+              "website": "https://co3.test"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 200,
+            "json": {
+              "values": [
+                [
+                  "header"
+                ]
+              ]
+            }
+          },
+          {
+            "status": 200,
+            "json": {
+              "updates": {
+                "updatedRange": "Leads!A2:D2"
+              }
+            }
+          },
+          {
+            "status": 200,
+            "json": {
+              "values": [
+                [
+                  "header"
+                ],
+                [
+                  "dest:dest-1:lead:2",
+                  "old"
+                ]
+              ]
+            }
+          },
+          {
+            "status": 200,
+            "json": {
+              "updatedRange": "Leads!A2:D2"
+            }
+          },
+          {
+            "status": 403,
+            "text": "permission denied"
+          }
+        ],
+        "secrets": {
+          "GOOGLE_SHEETS_TOKEN": "gs-test-token"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 3,
+          "succeeded": 2,
+          "failed": 1,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "1 deliveries failed",
+          "last_success_at": "2026-08-29T10:40:00"
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload_fingerprint": "58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": "Leads!A2:D2",
+            "summary": "Sheet row appended",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "lead_id": 2,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:2:f66ead46682e9f7a308708d0690140227dce4e7de5275268cb2ac11dbcd9092f",
+            "payload_fingerprint": "f66ead46682e9f7a308708d0690140227dce4e7de5275268cb2ac11dbcd9092f",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": "Leads!A2:D2",
+            "summary": "Sheet row updated",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "lead_id": 3,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:3:4b15a867aa956034c3cd8ff09419060ec61bc623a5ec321171164b08eddcb783",
+            "payload_fingerprint": "4b15a867aa956034c3cd8ff09419060ec61bc623a5ec321171164b08eddcb783",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "HTTP 403: permission denied",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 2
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 3
+          }
+        ],
+        "cancellation_checks": 4,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://sheets.googleapis.com/v4/spreadsheets/sheet-1/values/Leads%21A%3AZZ?majorDimension=ROWS",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer gs-test-token",
+              "content-type": "application/json"
+            },
+            "json": null
+          },
+          {
+            "method": "POST",
+            "url": "https://sheets.googleapis.com/v4/spreadsheets/sheet-1/values/Leads%21A%3AZZ:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer gs-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "values": [
+                [
+                  "dest:dest-1:lead:1",
+                  "u1@x.test",
+                  "Co 1",
+                  "1"
+                ]
+              ]
+            }
+          },
+          {
+            "method": "GET",
+            "url": "https://sheets.googleapis.com/v4/spreadsheets/sheet-1/values/Leads%21A%3AZZ?majorDimension=ROWS",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer gs-test-token",
+              "content-type": "application/json"
+            },
+            "json": null
+          },
+          {
+            "method": "PUT",
+            "url": "https://sheets.googleapis.com/v4/spreadsheets/sheet-1/values/Leads%21A2%3AD2?valueInputOption=USER_ENTERED",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer gs-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "values": [
+                [
+                  "dest:dest-1:lead:2",
+                  "u2@x.test",
+                  "Co 2",
+                  "2"
+                ]
+              ]
+            }
+          },
+          {
+            "method": "GET",
+            "url": "https://sheets.googleapis.com/v4/spreadsheets/sheet-1/values/Leads%21A%3AZZ?majorDimension=ROWS",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer gs-test-token",
+              "content-type": "application/json"
+            },
+            "json": null
+          }
+        ],
+        "unused_http": 0
+      }
+    },
+    {
+      "name": "google_sheets_default_range_write_error",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "google_sheets",
+          "enabled": true,
+          "config": {
+            "spreadsheet_id": "sheet/2",
+            "columns": [
+              "email",
+              "missing"
+            ]
+          },
+          "field_map": {
+            "email": "email"
+          },
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 200,
+            "json": {}
+          },
+          {
+            "status": 500,
+            "text": "backend error"
+          }
+        ],
+        "secrets": {
+          "GOOGLE_SHEETS_TOKEN": "gs-test-token"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 1,
+          "succeeded": 0,
+          "failed": 1,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "1 deliveries failed",
+          "last_success_at": null
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:17192430a3ae6d44c3be4fe02961811557c54a69c8b460ef13c876d84b9ce9df",
+            "payload_fingerprint": "17192430a3ae6d44c3be4fe02961811557c54a69c8b460ef13c876d84b9ce9df",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "HTTP 500: backend error",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          }
+        ],
+        "cancellation_checks": 2,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://sheets.googleapis.com/v4/spreadsheets/sheet/2/values/Sheet1%21A%3AZZ?majorDimension=ROWS",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer gs-test-token",
+              "content-type": "application/json"
+            },
+            "json": null
+          },
+          {
+            "method": "POST",
+            "url": "https://sheets.googleapis.com/v4/spreadsheets/sheet/2/values/Sheet1%21A%3AZZ:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer gs-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "values": [
+                [
+                  "dest:dest-1:lead:1",
+                  "u1@x.test",
+                  ""
+                ]
+              ]
+            }
+          }
+        ],
+        "unused_http": 0
+      }
+    },
+    {
+      "name": "airtable_mixed",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "airtable",
+          "enabled": true,
+          "config": {
+            "base_id": "appBase1",
+            "table": "Leads Table"
+          },
+          "field_map": {
+            "email": "Email",
+            "company": "Company",
+            "score": "Score",
+            "city": "City"
+          },
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          },
+          {
+            "lead_id": 2,
+            "snapshot": {
+              "id": 2,
+              "company": "Co 2",
+              "email": "u2@x.test",
+              "phone": "+1 555 010 0002",
+              "city": "",
+              "score": 2,
+              "contact_person": "Pat Lee2",
+              "website": "https://co2.test"
+            }
+          },
+          {
+            "lead_id": 3,
+            "snapshot": {
+              "id": 3,
+              "company": "Co 3",
+              "email": "u3@x.test",
+              "phone": "+1 555 010 0003",
+              "city": "",
+              "score": 3,
+              "contact_person": "Pat Lee3",
+              "website": "https://co3.test"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 200,
+            "json": {
+              "records": [
+                {
+                  "id": "rec1"
+                }
+              ],
+              "createdRecords": [
+                "rec1"
+              ]
+            }
+          },
+          {
+            "status": 200,
+            "json": {
+              "records": [
+                {
+                  "id": "rec2"
+                }
+              ],
+              "updatedRecords": [
+                "rec2"
+              ]
+            }
+          },
+          {
+            "status": 422,
+            "json": {
+              "error": {
+                "type": "INVALID_VALUE_FOR_COLUMN"
+              }
+            }
+          }
+        ],
+        "secrets": {
+          "AIRTABLE_API_KEY": "at-test-token",
+          "AIRTABLE_TOKEN": "at-test-token"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 3,
+          "succeeded": 2,
+          "failed": 1,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "1 deliveries failed",
+          "last_success_at": "2026-08-29T10:40:00"
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:bd4336f2957fe4a891e44568741460332602c33074d5e33c8014ff80311c94ff",
+            "payload_fingerprint": "bd4336f2957fe4a891e44568741460332602c33074d5e33c8014ff80311c94ff",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": "rec1",
+            "summary": "Airtable record created",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "lead_id": 2,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:2:df60f7126a08f890e71a6bcc0b094412ca1b2680435c0b68285c275f84ff184c",
+            "payload_fingerprint": "df60f7126a08f890e71a6bcc0b094412ca1b2680435c0b68285c275f84ff184c",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": "rec2",
+            "summary": "Airtable record updated",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "lead_id": 3,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:3:c2aeceb3f940abcb4affc8bf45aeee24449efb1eaad739d2109663f0e308f071",
+            "payload_fingerprint": "c2aeceb3f940abcb4affc8bf45aeee24449efb1eaad739d2109663f0e308f071",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "HTTP 422: {\"error\":{\"type\":\"INVALID_VALUE_FOR_COLUMN\"}}",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 2
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 3
+          }
+        ],
+        "cancellation_checks": 4,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "PATCH",
+            "url": "https://api.airtable.com/v0/appBase1/Leads%20Table",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer at-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "performUpsert": {
+                "fieldsToMergeOn": [
+                  "OpenGTM ID"
+                ]
+              },
+              "records": [
+                {
+                  "fields": {
+                    "Email": "u1@x.test",
+                    "Company": "Co 1",
+                    "Score": 1,
+                    "OpenGTM ID": "dest:dest-1:lead:1"
+                  }
+                }
+              ],
+              "typecast": true
+            }
+          },
+          {
+            "method": "PATCH",
+            "url": "https://api.airtable.com/v0/appBase1/Leads%20Table",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer at-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "performUpsert": {
+                "fieldsToMergeOn": [
+                  "OpenGTM ID"
+                ]
+              },
+              "records": [
+                {
+                  "fields": {
+                    "Email": "u2@x.test",
+                    "Company": "Co 2",
+                    "Score": 2,
+                    "OpenGTM ID": "dest:dest-1:lead:2"
+                  }
+                }
+              ],
+              "typecast": true
+            }
+          },
+          {
+            "method": "PATCH",
+            "url": "https://api.airtable.com/v0/appBase1/Leads%20Table",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer at-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "performUpsert": {
+                "fieldsToMergeOn": [
+                  "OpenGTM ID"
+                ]
+              },
+              "records": [
+                {
+                  "fields": {
+                    "Email": "u3@x.test",
+                    "Company": "Co 3",
+                    "Score": 3,
+                    "OpenGTM ID": "dest:dest-1:lead:3"
+                  }
+                }
+              ],
+              "typecast": true
+            }
+          }
+        ],
+        "unused_http": 0
+      }
+    },
+    {
+      "name": "airtable_custom_field_no_typecast",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "airtable",
+          "enabled": true,
+          "config": {
+            "base_id": "appBase1",
+            "table": "tbl1",
+            "idempotency_field": "Key",
+            "typecast": false
+          },
+          "field_map": {},
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 201,
+            "json": {
+              "records": [],
+              "createdRecords": []
+            }
+          }
+        ],
+        "secrets": {
+          "AIRTABLE_API_KEY": "at-test-token",
+          "AIRTABLE_TOKEN": "at-test-token"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed",
+          "error": null,
+          "attempted": 1,
+          "succeeded": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "healthy",
+          "last_error": null,
+          "last_success_at": "2026-08-29T10:40:00"
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload_fingerprint": "58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "Airtable record updated",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          }
+        ],
+        "cancellation_checks": 2,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "PATCH",
+            "url": "https://api.airtable.com/v0/appBase1/tbl1",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer at-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "performUpsert": {
+                "fieldsToMergeOn": [
+                  "Key"
+                ]
+              },
+              "records": [
+                {
+                  "fields": {
+                    "id": 1,
+                    "company": "Co 1",
+                    "email": "u1@x.test",
+                    "phone": "+1 555 010 0001",
+                    "city": "Austin",
+                    "score": 1,
+                    "contact_person": "Pat Lee1",
+                    "website": "https://co1.test",
+                    "Key": "dest:dest-1:lead:1"
+                  }
+                }
+              ],
+              "typecast": false
+            }
+          }
+        ],
+        "unused_http": 0
+      }
+    },
+    {
+      "name": "hubspot_mixed",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "hubspot",
+          "enabled": true,
+          "config": {},
+          "field_map": {},
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          },
+          {
+            "lead_id": 2,
+            "snapshot": {
+              "id": 2,
+              "company": "Co 2",
+              "email": "u2@x.test",
+              "phone": "+1 555 010 0002",
+              "city": "Austin",
+              "score": 2,
+              "contact_person": "Pat Lee2",
+              "website": "https://co2.test"
+            }
+          },
+          {
+            "lead_id": 3,
+            "snapshot": {
+              "id": 3,
+              "company": "Co 3",
+              "email": "u3@x.test",
+              "phone": "+1 555 010 0003",
+              "city": "Austin",
+              "score": 3,
+              "contact_person": "Pat Lee3",
+              "website": "https://co3.test"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 200,
+            "json": {
+              "total": 0,
+              "results": []
+            }
+          },
+          {
+            "status": 201,
+            "json": {
+              "id": "101"
+            }
+          },
+          {
+            "status": 200,
+            "json": {
+              "total": 1,
+              "results": [
+                {
+                  "id": "202"
+                }
+              ]
+            }
+          },
+          {
+            "status": 200,
+            "json": {
+              "id": "202"
+            }
+          },
+          {
+            "status": 500,
+            "text": "search down"
+          },
+          {
+            "status": 500,
+            "text": "hubspot down"
+          }
+        ],
+        "secrets": {
+          "HUBSPOT_TOKEN": "hs-test-token"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 3,
+          "succeeded": 2,
+          "failed": 1,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "1 deliveries failed",
+          "last_success_at": "2026-08-29T10:40:00"
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload_fingerprint": "58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "HubSpot: created 101",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "lead_id": 2,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:2:f66ead46682e9f7a308708d0690140227dce4e7de5275268cb2ac11dbcd9092f",
+            "payload_fingerprint": "f66ead46682e9f7a308708d0690140227dce4e7de5275268cb2ac11dbcd9092f",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "HubSpot: updated 202",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "lead_id": 3,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:3:4b15a867aa956034c3cd8ff09419060ec61bc623a5ec321171164b08eddcb783",
+            "payload_fingerprint": "4b15a867aa956034c3cd8ff09419060ec61bc623a5ec321171164b08eddcb783",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "HTTP 500: hubspot down",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 2
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 3
+          }
+        ],
+        "cancellation_checks": 4,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer hs-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "filterGroups": [
+                {
+                  "filters": [
+                    {
+                      "propertyName": "email",
+                      "operator": "EQ",
+                      "value": "u1@x.test"
+                    }
+                  ]
+                }
+              ],
+              "limit": 1
+            }
+          },
+          {
+            "method": "POST",
+            "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer hs-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "properties": {
+                "company": "Co 1",
+                "email": "u1@x.test",
+                "phone": "+1 555 010 0001",
+                "website": "https://co1.test",
+                "city": "Austin",
+                "firstname": "Pat",
+                "lastname": "Lee1",
+                "hs_lead_status": "1"
+              }
+            }
+          },
+          {
+            "method": "POST",
+            "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer hs-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "filterGroups": [
+                {
+                  "filters": [
+                    {
+                      "propertyName": "email",
+                      "operator": "EQ",
+                      "value": "u2@x.test"
+                    }
+                  ]
+                }
+              ],
+              "limit": 1
+            }
+          },
+          {
+            "method": "PATCH",
+            "url": "https://api.hubapi.com/crm/v3/objects/contacts/202",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer hs-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "properties": {
+                "company": "Co 2",
+                "email": "u2@x.test",
+                "phone": "+1 555 010 0002",
+                "website": "https://co2.test",
+                "city": "Austin",
+                "firstname": "Pat",
+                "lastname": "Lee2",
+                "hs_lead_status": "2"
+              }
+            }
+          },
+          {
+            "method": "POST",
+            "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer hs-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "filterGroups": [
+                {
+                  "filters": [
+                    {
+                      "propertyName": "email",
+                      "operator": "EQ",
+                      "value": "u3@x.test"
+                    }
+                  ]
+                }
+              ],
+              "limit": 1
+            }
+          },
+          {
+            "method": "POST",
+            "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer hs-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "properties": {
+                "company": "Co 3",
+                "email": "u3@x.test",
+                "phone": "+1 555 010 0003",
+                "website": "https://co3.test",
+                "city": "Austin",
+                "firstname": "Pat",
+                "lastname": "Lee3",
+                "hs_lead_status": "3"
+              }
+            }
+          }
+        ],
+        "unused_http": 0
+      }
+    },
+    {
+      "name": "hubspot_not_connected",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "hubspot",
+          "enabled": true,
+          "config": {},
+          "field_map": {},
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [],
+        "secrets": {}
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 1,
+          "succeeded": 0,
+          "failed": 1,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "1 deliveries failed",
+          "last_success_at": null
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload_fingerprint": "58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "HubSpot not connected",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          }
+        ],
+        "cancellation_checks": 2,
+        "cancel_fired": null,
+        "requests": [],
+        "unused_http": 0
+      }
+    },
+    {
+      "name": "salesforce_mixed",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "salesforce",
+          "enabled": true,
+          "config": {},
+          "field_map": {},
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          },
+          {
+            "lead_id": 2,
+            "snapshot": {
+              "id": 2,
+              "company": "Co 2",
+              "email": "u2@x.test",
+              "phone": "+1 555 010 0002",
+              "city": "Austin",
+              "score": 2,
+              "contact_person": "Pat Lee2",
+              "website": "https://co2.test"
+            }
+          },
+          {
+            "lead_id": 3,
+            "snapshot": {
+              "id": 3,
+              "company": "Co 3",
+              "email": "u3@x.test",
+              "phone": "+1 555 010 0003",
+              "city": "Austin",
+              "score": 3,
+              "contact_person": "Pat Lee3",
+              "website": "https://co3.test"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 200,
+            "json": {
+              "totalSize": 0,
+              "records": []
+            }
+          },
+          {
+            "status": 201,
+            "json": {
+              "id": "00Q1",
+              "success": true
+            }
+          },
+          {
+            "status": 200,
+            "json": {
+              "totalSize": 1,
+              "records": [
+                {
+                  "Id": "00Q2"
+                }
+              ]
+            }
+          },
+          {
+            "status": 204,
+            "text": ""
+          },
+          {
+            "status": 500,
+            "text": "query down"
+          },
+          {
+            "status": 400,
+            "text": "[{\"message\":\"REQUIRED_FIELD_MISSING\",\"errorCode\":\"REQUIRED_FIELD_MISSING\"}]"
+          }
+        ],
+        "secrets": {
+          "SALESFORCE_INSTANCE_URL": "https://acme.my.salesforce.com",
+          "SALESFORCE_ACCESS_TOKEN": "sf-test-token"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 3,
+          "succeeded": 2,
+          "failed": 1,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "1 deliveries failed",
+          "last_success_at": "2026-08-29T10:40:00"
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload_fingerprint": "58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "Salesforce: created 00Q1",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "lead_id": 2,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:2:f66ead46682e9f7a308708d0690140227dce4e7de5275268cb2ac11dbcd9092f",
+            "payload_fingerprint": "f66ead46682e9f7a308708d0690140227dce4e7de5275268cb2ac11dbcd9092f",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "Salesforce: updated 00Q2",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "lead_id": 3,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:3:4b15a867aa956034c3cd8ff09419060ec61bc623a5ec321171164b08eddcb783",
+            "payload_fingerprint": "4b15a867aa956034c3cd8ff09419060ec61bc623a5ec321171164b08eddcb783",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "HTTP 400: [{\"message\":\"REQUIRED_FIELD_MISSING\",\"errorCode\":\"REQUIRED_FIELD_MISSING\"}]",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 2
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 3
+          }
+        ],
+        "cancellation_checks": 4,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://acme.my.salesforce.com/services/data/v59.0/query?q=SELECT+Id+FROM+Lead+WHERE+Email+%3D+%27u1%40x.test%27+LIMIT+1",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer sf-test-token",
+              "content-type": "application/json"
+            },
+            "json": null
+          },
+          {
+            "method": "POST",
+            "url": "https://acme.my.salesforce.com/services/data/v59.0/sobjects/Lead",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer sf-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "Company": "Co 1",
+              "Email": "u1@x.test",
+              "Phone": "+1 555 010 0001",
+              "Website": "https://co1.test",
+              "City": "Austin",
+              "FirstName": "Pat",
+              "LastName": "Lee1"
+            }
+          },
+          {
+            "method": "GET",
+            "url": "https://acme.my.salesforce.com/services/data/v59.0/query?q=SELECT+Id+FROM+Lead+WHERE+Email+%3D+%27u2%40x.test%27+LIMIT+1",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer sf-test-token",
+              "content-type": "application/json"
+            },
+            "json": null
+          },
+          {
+            "method": "PATCH",
+            "url": "https://acme.my.salesforce.com/services/data/v59.0/sobjects/Lead/00Q2",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer sf-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "Company": "Co 2",
+              "Email": "u2@x.test",
+              "Phone": "+1 555 010 0002",
+              "Website": "https://co2.test",
+              "City": "Austin",
+              "FirstName": "Pat",
+              "LastName": "Lee2"
+            }
+          },
+          {
+            "method": "GET",
+            "url": "https://acme.my.salesforce.com/services/data/v59.0/query?q=SELECT+Id+FROM+Lead+WHERE+Email+%3D+%27u3%40x.test%27+LIMIT+1",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer sf-test-token",
+              "content-type": "application/json"
+            },
+            "json": null
+          },
+          {
+            "method": "POST",
+            "url": "https://acme.my.salesforce.com/services/data/v59.0/sobjects/Lead",
+            "headers": {
+              "accept": "*/*",
+              "authorization": "Bearer sf-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "Company": "Co 3",
+              "Email": "u3@x.test",
+              "Phone": "+1 555 010 0003",
+              "Website": "https://co3.test",
+              "City": "Austin",
+              "FirstName": "Pat",
+              "LastName": "Lee3"
+            }
+          }
+        ],
+        "unused_http": 0
+      }
+    }
+  ]
+}
