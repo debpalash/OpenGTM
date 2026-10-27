@@ -101,6 +101,7 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 	}
 	pcfg.ConnConfig.RuntimeParams["lock_timeout"] = dbLockTimeout
 	pcfg.ConnConfig.RuntimeParams["statement_timeout"] = dbStmtTimeout
+	pcfg.ConnConfig.RuntimeParams["TimeZone"] = "UTC" // naive timestamps (DEFAULT now(), casts) are UTC whatever the server zone
 	pool, err := pgxpool.NewWithConfig(ctx, pcfg)
 	if err != nil {
 		return nil, errors.New("connect to database: " + redactErr(err))

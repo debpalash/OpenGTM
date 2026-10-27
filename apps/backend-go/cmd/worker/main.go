@@ -149,6 +149,7 @@ func poolConfig(cfg config.Config) (*pgxpool.Config, error) {
 	}
 	pcfg.ConnConfig.RuntimeParams["lock_timeout"] = dbLockTimeout
 	pcfg.ConnConfig.RuntimeParams["statement_timeout"] = dbStatementTimeout
+	pcfg.ConnConfig.RuntimeParams["TimeZone"] = "UTC" // naive timestamps (DEFAULT now(), casts) are UTC whatever the server zone
 	return pcfg, nil
 }
 

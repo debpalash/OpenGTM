@@ -80,6 +80,7 @@ func run() error {
 	}
 	pcfg.ConnConfig.RuntimeParams["lock_timeout"] = dbLockTimeout
 	pcfg.ConnConfig.RuntimeParams["statement_timeout"] = dbStmtTimeout
+	pcfg.ConnConfig.RuntimeParams["TimeZone"] = "UTC" // naive timestamps (DEFAULT now(), casts) are UTC whatever the server zone
 	pool, err := pgxpool.NewWithConfig(ctx, pcfg)
 	if err != nil {
 		return err
