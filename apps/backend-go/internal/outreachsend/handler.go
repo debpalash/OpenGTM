@@ -30,7 +30,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/smtpclient"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/smtpmail"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
 // DefaultJobTimeout is the job cap passed to the SMTP exchange.
@@ -196,7 +195,7 @@ func (h *Handler) Handle(ctx context.Context, c *queue.Claim) error {
 	cost := h.SendCostUSD
 	paid := cost > 0
 	if paid && h.Caps == nil {
-		return h.handBack(ctx, c, "paid outreach send needs caps (plan 08)")
+		return &queue.PermanentError{Err: errors.New("outreachsend: paid outreach send needs caps (plan 08)")}
 	}
 	timeout := h.JobTimeout
 	if timeout <= 0 {
@@ -205,17 +204,6 @@ func (h *Handler) Handle(ctx context.Context, c *queue.Claim) error {
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	return h.run(ctx, ws, j, cost, paid)
-}
-
-func (h *Handler) handBack(ctx context.Context, c *queue.Claim, why string) error {
-	ok, err := queue.HandBack(ctx, h.Pool, c, why)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return nil // lease lost: nothing to write
-	}
-	return fmt.Errorf("%w: %s", workbook.ErrHandedBack, why)
 }
 
 type gateOutcome int

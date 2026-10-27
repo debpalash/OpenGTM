@@ -263,7 +263,7 @@ func TestHandleScheduleCreatesRunOnce(t *testing.T) {
 		t.Fatalf("requested_by %q", by)
 	}
 	rj := e.jobs(t, "research_playbook_run", e.ws)
-	if len(rj) != 1 || rj[0].key != "playbook:"+r.ID || rj[0].status != "pending" || rj[0].executor != "python" {
+	if len(rj) != 1 || rj[0].key != "playbook:"+r.ID || rj[0].status != "pending" || rj[0].executor != "go" {
 		t.Fatalf("run jobs %+v", rj)
 	}
 	if k := e.pendingKeys(t, e.ws); len(k) != 1 || k[0] != "playbook_schedule:"+pb.ID+":2026-06-15T12:30:00+00:00" {

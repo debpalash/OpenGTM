@@ -45,10 +45,11 @@ func TestExecutorForPlaybooks(t *testing.T) {
 		want string
 	}{
 		{ex, on, "w1", "go"},
-		{ex, on, "w2", "python"},
-		{ex, on, "", "python"},
-		{ex, config.GovernanceSettings{}, "w1", "python"},
-		{config.ExecutorSettings{Workspaces: ex.Workspaces}, on, "w1", "python"},
+		// The cohort and GO_EXECUTOR_PLAYBOOKS are retired (plan 15 cutover): always go.
+		{ex, on, "w2", "go"},
+		{ex, on, "", "go"},
+		{ex, config.GovernanceSettings{}, "w1", "go"},
+		{config.ExecutorSettings{Workspaces: ex.Workspaces}, on, "w1", "go"},
 	}
 	for i, c := range cases {
 		if got := ExecutorFor(c.ex, c.g, c.ws); got != c.want {

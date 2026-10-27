@@ -15,16 +15,9 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
 
-// ExecutorFor is go_executor.executor_for for research_playbook_run and
-// research_playbook_schedule: "go" only when GO_EXECUTOR_ENABLED,
-// GO_EXECUTOR_PLAYBOOKS and the workspace is in GO_EXECUTOR_WORKSPACES. An
-// empty workspace is never in the cohort.
-func ExecutorFor(ex config.ExecutorSettings, g config.GovernanceSettings, ws string) string {
-	if ws != "" && ex.Enabled && g.GoExecutorPlaybooks && config.InCohort(ex.Workspaces, ws) {
-		return "go"
-	}
-	return "python"
-}
+// ExecutorFor names the executor of research_playbook_run and research_playbook_schedule jobs:
+// always "go" since the plan 15 cutover (GO_EXECUTOR_PLAYBOOKS and the cohort flags are retired).
+func ExecutorFor(config.ExecutorSettings, config.GovernanceSettings, string) string { return "go" }
 
 // WireExecutors points the package-level ScheduleExecutor (used by Patch and
 // ScheduleNext) at the cohort rule. Call it once at server start.
@@ -133,8 +126,8 @@ type Deps struct {
 	Pool *pgxpool.Pool
 	// Now is the clock (default time.Now).
 	Now func() time.Time
-	// RunExecutor picks "go" or "python" for the research_playbook_run job
-	// (nil: python). The schedule job's executor is ScheduleExecutor.
+	// RunExecutor picks the executor of the research_playbook_run job (nil: "go", the
+	// only executor since the cutover). The schedule job's executor is ScheduleExecutor.
 	RunExecutor func(workspaceID string) string
 	// Researcher runs a playbook step (HandleRun); nil means the Python worker
 	// is not configured and a claimed run is handed back.
@@ -196,7 +189,7 @@ func HandleSchedule(ctx context.Context, d Deps, workspaceID, playbookID string)
 			if err != nil {
 				return err
 			}
-			executor := "python"
+			executor := "go"
 			if d.RunExecutor != nil {
 				executor = d.RunExecutor(workspaceID)
 			}

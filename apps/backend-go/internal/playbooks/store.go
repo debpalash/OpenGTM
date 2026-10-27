@@ -43,11 +43,9 @@ const (
 	maxOffset       = 100000
 )
 
-// ScheduleExecutor picks the executor ("go" or "python") of the
-// research_playbook_schedule job Patch enqueues (go_executor.executor_for).
-// The default is the Python worker; the server wiring replaces it from the
-// GO_EXECUTOR_PLAYBOOKS flag and workspace cohort.
-var ScheduleExecutor = func(workspaceID string) string { return "python" }
+// ScheduleExecutor picks the executor of the research_playbook_schedule job Patch enqueues: "go",
+// the only executor since the plan 15 cutover.
+var ScheduleExecutor = func(workspaceID string) string { return "go" }
 
 func ts(t pgtype.Timestamp) time.Time { return t.Time }
 
@@ -315,8 +313,8 @@ func pyISOAware(t time.Time) string { return isoNaive(t) + "+00:00" }
 // enqueueSchedule is enqueue_job_once for the next scheduled occurrence.
 func enqueueSchedule(ctx context.Context, tx pgx.Tx, ws, playbookID string, at time.Time) error {
 	executor := ScheduleExecutor(ws)
-	if executor != "go" && executor != "python" {
-		return fmt.Errorf("playbooks: schedule executor %q must be go or python", executor)
+	if executor != "go" {
+		return fmt.Errorf("playbooks: schedule executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
 	key := schedulePrefix(playbookID) + pyISOAware(at)
 	payload, err := jsonNoEscape(struct {
@@ -420,11 +418,11 @@ func StartRun(ctx context.Context, tx pgx.Tx, ws string, pb Playbook, audienceID
 }
 
 // EnqueueRun adds the research_playbook_run job for a run (queue_service.add_job,
-// fire_key "playbook:<run id>"). executor is "go" or "python". Call it in the
+// fire_key "playbook:<run id>"). executor must be "go". Call it in the
 // same transaction as StartRun / RetryRun.
 func EnqueueRun(ctx context.Context, tx pgx.Tx, ws, runID, executor string) error {
-	if executor != "go" && executor != "python" {
-		return fmt.Errorf("playbooks: run executor %q must be go or python", executor)
+	if executor != "go" {
+		return fmt.Errorf("playbooks: run executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
 	payload, err := jsonNoEscape(struct {
 		WorkspaceID string `json:"workspace_id"`

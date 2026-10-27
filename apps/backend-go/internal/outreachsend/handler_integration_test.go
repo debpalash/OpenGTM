@@ -908,12 +908,12 @@ func TestReservationReleasedOnEveryNonSuccess(t *testing.T) {
 	})
 }
 
-func TestCostWithoutCapsHandsBack(t *testing.T) {
+func TestCostWithoutCapsFailsPermanently(t *testing.T) {
 	e := newEnv(t, uniqWS(t))
 	e.seedBasic(t)
 	e.h.SendCostUSD = 0.05 // Caps nil
 	err := e.h.Handle(context.Background(), e.payload(nil))
-	if err != nil && !strings.Contains(err.Error(), "handed back") {
+	if !queue.IsPermanent(err) || !strings.Contains(err.Error(), "needs caps") {
 		t.Fatalf("err %v", err)
 	}
 	if e.mail.n() != 0 || e.send(t, e.idem(1, 0)) != nil {

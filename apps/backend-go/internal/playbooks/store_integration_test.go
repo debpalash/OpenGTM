@@ -618,7 +618,7 @@ func TestCancelOnlyActive(t *testing.T) {
 	for _, st := range []string{"pending", "running"} {
 		run := e.mkRun(t, e.ws, pb, e.aud)
 		e.sql(t, e.ws, `UPDATE playbook_runs SET status=$2 WHERE id=$1`, run.ID, st)
-		if err := e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error { return EnqueueRun(ctx, tx, e.ws, run.ID, "python") }); err != nil {
+		if err := e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error { return EnqueueRun(ctx, tx, e.ws, run.ID, "go") }); err != nil {
 			t.Fatal(err)
 		}
 		got, err := cancel(run.ID)

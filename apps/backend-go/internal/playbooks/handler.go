@@ -16,7 +16,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
 // Queue job types of the playbook executor.
@@ -46,8 +45,8 @@ func foreign(c *queue.Claim) error {
 }
 
 // RunHandler is the research_playbook_run job handler. The worker's heartbeat, panic
-// guard and failure hook own the lease and failure bookkeeping. When the Researcher (the
-// Python worker) is unavailable the job goes back to Python with no retry spent.
+// guard and failure hook own the lease and failure bookkeeping. When no Researcher is wired
+// the run fails permanently (there is no Python worker to hand it to since the cutover).
 func RunHandler(d Deps, r Researcher) func(ctx context.Context, c *queue.Claim) error {
 	d.Researcher = r
 	return func(ctx context.Context, c *queue.Claim) error {
@@ -59,17 +58,12 @@ func RunHandler(d Deps, r Researcher) func(ctx context.Context, c *queue.Claim) 
 			return foreign(c)
 		}
 		err := HandleRun(ctx, d, f[0], f[1])
-		if !errors.Is(err, pyworker.ErrUnavailable) {
-			return err
+		if errors.Is(err, pyworker.ErrUnavailable) {
+			// No research runner is wired (there is no Python worker to hand the run to since the cutover):
+			// a retry cannot succeed.
+			return &queue.PermanentError{Err: fmt.Errorf("playbooks: research runner unavailable: %w", err)}
 		}
-		ok, herr := queue.HandBack(ctx, d.Pool, c, "python worker unavailable")
-		if herr != nil {
-			return herr
-		}
-		if !ok {
-			return workbook.ErrLeaseLost
-		}
-		return fmt.Errorf("%w: python worker unavailable", workbook.ErrHandedBack)
+		return err
 	}
 }
 

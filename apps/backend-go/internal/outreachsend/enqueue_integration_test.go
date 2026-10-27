@@ -134,7 +134,7 @@ func TestEnqueueDueMatchesPythonPayloads(t *testing.T) {
 	e := enqSetup(t)
 	seq := e.seq("active")
 	id := e.enroll(seq, 7, "Ann@Example.com", time.Now().Add(-time.Hour))
-	if n := e.enqueue(seq, 10, "python"); n != 1 {
+	if n := e.enqueue(seq, 10, "go"); n != 1 {
 		t.Fatalf("enqueued %d", n)
 	}
 	js := e.jobs()
@@ -145,7 +145,7 @@ func TestEnqueueDueMatchesPythonPayloads(t *testing.T) {
 	idem := "seq:" + enqWS + ":" + seq + ":" + itoa(id) + ":0"
 	if j["idempotency_key"] != idem || j["workspace_id"] != enqWS || j["sequence_id"] != seq ||
 		j["enrollment_id"] != float64(id) || j["lead_id"] != float64(7) || j["step_number"] != float64(0) ||
-		j["to_email"] != "ann@example.com" && j["to_email"] != "Ann@Example.com" || j["_executor"] != "python" || j["_status"] != "pending" {
+		j["to_email"] != "ann@example.com" && j["to_email"] != "Ann@Example.com" || j["_executor"] != "go" || j["_status"] != "pending" {
 		t.Fatalf("payload %v", j)
 	}
 	// key order of the stored json text
@@ -234,10 +234,10 @@ func TestEnqueueLimit(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		e.enroll(seq, i+1, "u"+itoa(i)+"@example.com", time.Now().Add(-time.Hour))
 	}
-	if n := e.enqueue(seq, 3, "python"); n != 3 {
+	if n := e.enqueue(seq, 3, "go"); n != 3 {
 		t.Fatalf("limit 3 got %d", n)
 	}
-	if n := e.enqueue(seq, 0, "python"); n != 0 {
+	if n := e.enqueue(seq, 0, "go"); n != 0 {
 		t.Fatalf("limit 0 got %d", n)
 	}
 	if got := len(e.jobs()); got != 3 {
@@ -308,9 +308,10 @@ func TestEnqueueExecutorFollowsFlag(t *testing.T) {
 		want string
 	}{
 		{"all gates", on, flag, enqWS, "go"},
-		{"master off", config.ExecutorSettings{Workspaces: on.Workspaces}, flag, enqWS, "python"},
-		{"outside cohort", on, flag, enqOther, "python"},
-		{"flag off", on, config.OutreachSettings{}, enqWS, "python"},
+		// The gates are retired (plan 15 cutover): every send job is "go".
+		{"master off", config.ExecutorSettings{Workspaces: on.Workspaces}, flag, enqWS, "go"},
+		{"outside cohort", on, flag, enqOther, "go"},
+		{"flag off", on, config.OutreachSettings{}, enqWS, "go"},
 	} {
 		if got := outreachsend.ExecutorFor(c.ex, c.o, c.ws); got != c.want {
 			t.Errorf("%s: %s want %s", c.name, got, c.want)

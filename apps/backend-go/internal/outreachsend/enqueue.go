@@ -72,8 +72,8 @@ func EnqueueSend(ctx context.Context, tx pgx.Tx, wsID string, p SendPayload, exe
 // EnqueueDue is enqueue_due_sends: a send job per due enrollment step (idem from
 // current_step), stopping at limit. Returns the number enqueued.
 func EnqueueDue(ctx context.Context, tx pgx.Tx, wsID, seqID string, limit int, executor string) (int, error) {
-	if executor != "go" && executor != "python" {
-		return 0, fmt.Errorf("outreachsend: executor %q must be go or python", executor)
+	if executor != "go" {
+		return 0, fmt.Errorf("outreachsend: executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
 	due, err := outreachstore.DueEnrollments(ctx, tx, seqID, limit)
 	if err != nil {
