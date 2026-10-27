@@ -45,7 +45,9 @@ func (e *RefusalError) Is(t error) bool { return t == ErrRefused }
 var ErrRefused = errors.New("workbook: refused")
 
 // IsRefused reports whether err is a refusal of the run (see RefusalError).
-func IsRefused(err error) bool { return errors.Is(err, ErrRefused) || errors.Is(err, ErrUnsupportedPayload) }
+func IsRefused(err error) bool {
+	return errors.Is(err, ErrRefused) || errors.Is(err, ErrUnsupportedPayload)
+}
 
 func refuse(format string, a ...any) error { return &RefusalError{Reason: fmt.Sprintf(format, a...)} }
 

@@ -47,8 +47,8 @@ type Deps struct {
 	// workbook and recompute enqueues, and Python-era rows reassigned to Go at the cutover) from the
 	// workbook's current columns. nil refuses such payloads.
 	PlanGoBlock func(ctx context.Context, workspaceID, workbookID string) (json.RawMessage, error)
-	Progress  progress.Publisher // nil = no broadcasts
-	Log       *slog.Logger
+	Progress    progress.Publisher // nil = no broadcasts
+	Log         *slog.Logger
 	// Runner runs every enrichment provider call (providerrun.Runner: Go
 	// providers in process, others on the Python worker). nil runs only the
 	// payload's verified declarative manifests (tests, standalone use).
