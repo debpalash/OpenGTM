@@ -30,6 +30,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rowtmpl"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook/outurl"
 )
 
 // Output columns (workbook/output.py + output_attempts.py): push the row to an external
@@ -471,7 +472,12 @@ func (rs *runState) sendWebhook(ctx context.Context, cfg map[string]any, ordered
 	if rawURL == "" {
 		return outFail("webhook url not configured"), nil
 	}
-	target, err := rs.resolve(rawURL, row)
+	// The scheme and authority are literal in the template and substituted path/query values are
+	// percent-encoded: a row value can never pick the destination (plan 15 review M3). Fail closed.
+	target, err := outurl.Resolve(rawURL, row, rs.resolve)
+	if errors.Is(err, outurl.ErrNotLiteral) || errors.Is(err, outurl.ErrHostChanged) {
+		return outFail(err.Error()), nil
+	}
 	if err != nil {
 		return outResult{}, err
 	}
