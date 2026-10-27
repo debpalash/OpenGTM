@@ -1,11 +1,13 @@
 # syntax=docker/dockerfile:1
 # OpenGTM Go backend: one multi-stage build, one target per binary.
 #
-#   docker build --target api    -t opengtm-api-go:local    --build-context web=apps/web apps/backend-go
-#   docker build --target worker -t opengtm-worker-go:local apps/backend-go
-#   docker build --target mcp    -t opengtm-mcp-go:local    apps/backend-go
+#   docker build --target api       -t opengtm-api-go:local       --build-context web=apps/web apps/backend-go
+#   docker build --target worker    -t opengtm-worker-go:local    apps/backend-go
+#   docker build --target mcp       -t opengtm-mcp-go:local       apps/backend-go
+#   docker build --target scheduler -t opengtm-scheduler-go:local apps/backend-go   (also carries /opengtm-seed)
+#   docker build --target migrate   -t opengtm-migrate-go:local   apps/backend-go
 #
-# The api image also carries /opengtm-migrate (schema migrations; compose `migrate` service).
+# The api image also carries /opengtm-migrate (schema migrations), so a single image can run both.
 #
 # The api image embeds the web UI: the `web` named build context (compose: additional_contexts,
 # ./apps/web) is built with Bun and baked in via the `webui` build tag. worker/mcp need no `web`.
@@ -24,7 +26,9 @@ RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache
     go build -ldflags="-s -w" -o /out/worker ./cmd/worker \
  && go build -ldflags="-s -w" -o /out/suppressnorm ./cmd/suppressnorm \
  && go build -ldflags="-s -w" -o /out/opengtm-mcp ./cmd/mcp \
- && go build -ldflags="-s -w" -o /out/opengtm-migrate ./cmd/migrate
+ && go build -ldflags="-s -w" -o /out/opengtm-migrate ./cmd/migrate \
+ && go build -ldflags="-s -w" -o /out/opengtm-scheduler ./cmd/scheduler \
+ && go build -ldflags="-s -w" -o /out/opengtm-seed ./cmd/seed
 
 # Stage: build apps/web (the `web` named context) into static files.
 FROM oven/bun:1 AS web-build
@@ -66,3 +70,18 @@ COPY --from=build /out/opengtm-mcp /opengtm-mcp
 USER nonroot:nonroot
 # stdio by default; the compose `mcp` service passes `--sse 3100`.
 ENTRYPOINT ["/opengtm-mcp"]
+
+# Recurring-job scheduler (one active instance: Postgres advisory lock). Also carries the opt-in demo seed:
+# compose `seed-go` (profile demo) runs /opengtm-seed from this image.
+FROM gcr.io/distroless/static-debian12:nonroot AS scheduler
+COPY --from=build /out/opengtm-scheduler /opengtm-scheduler
+COPY --from=build /out/opengtm-seed /opengtm-seed
+USER nonroot:nonroot
+ENTRYPOINT ["/opengtm-scheduler"]
+
+# One-shot schema migrations (`opengtm-migrate up`); no web UI build needed.
+FROM gcr.io/distroless/static-debian12:nonroot AS migrate
+COPY --from=build /out/opengtm-migrate /opengtm-migrate
+USER nonroot:nonroot
+ENTRYPOINT ["/opengtm-migrate"]
+CMD ["up"]
