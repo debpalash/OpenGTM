@@ -15,7 +15,9 @@ import (
 // owners and admins of other workspaces. Here an identity resolves only:
 //   - through an existing (workspace, issuer, subject) binding, or
 //   - to an existing member of THIS workspace whose username is the verified email and who is
-//     not an owner, a workspace admin or a global admin (never implicitly linked), or
+//     not an owner or admin here, not a global admin, owns no workspace and is a member of no
+//     other workspace (the session is not workspace-scoped, so this workspace's IdP must not be
+//     able to mint a login for an account that matters elsewhere), or
 //   - with auto_provision, to a brand-new user (no user of that name exists anywhere) added to
 //     this workspace with the configured default role.
 // A user of that name who is not a member of this workspace is never linked or added.
@@ -25,6 +27,7 @@ const (
 	MsgSSONoAccount     = "No provisioned OpenGTM account matches this identity"
 	MsgSSONotMember     = "This account is not provisioned in the workspace"
 	MsgSSOPrivileged    = "SSO cannot be linked automatically to an owner or admin account"
+	MsgSSOCrossWS       = "SSO cannot be linked automatically to an account that belongs to other workspaces"
 	MsgSSOOtherIdentity = "This account is already linked to another SSO identity"
 	MsgSSOInactive      = "This SSO identity is not an active workspace member"
 )
@@ -62,6 +65,14 @@ func ResolveSSOUser(ctx context.Context, tx pgx.Tx, ws, issuer, subject, email s
 		}
 		if owner || globalAdmin || memberRole == "owner" || memberRole == "admin" {
 			return 0, &ValueError{MsgSSOPrivileged}
+		}
+		var elsewhere bool
+		if err := tx.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM workspace_members WHERE user_id = $1 AND workspace_id <> $2)
+			OR EXISTS (SELECT 1 FROM workspaces WHERE owner_id = $1)`, uid, ws).Scan(&elsewhere); err != nil {
+			return 0, fmt.Errorf("govidp: sso other workspaces: %w", err)
+		}
+		if elsewhere {
+			return 0, &ValueError{MsgSSOCrossWS}
 		}
 	case errors.Is(err, pgx.ErrNoRows):
 		var exists bool
