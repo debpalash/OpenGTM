@@ -158,3 +158,16 @@ func TestMainRefusesNonLoopbackWithoutAuth(t *testing.T) {
 		t.Fatalf("loopback keyless: code=%d called=%v err=%q", code, called, errb.String())
 	}
 }
+
+// R-secret: the MCP server refuses to start without a strong SECRET_KEY unless APP_ENV=test.
+func TestMainRefusesWeakSecretKey(t *testing.T) {
+	for _, m := range []map[string]string{
+		{}, {"APP_ENV": "dev"}, {"APP_ENV": "production", "SECRET_KEY": "short"}, {"APP_ENV": "local", "SECRET_KEY": "short"},
+	} {
+		m["OPENGTM_MCP_TOKEN"] = "t"
+		var out, errb bytes.Buffer
+		if code := run([]string{"--sse", "3100"}, env(m), &out, &errb); code != 1 || !strings.Contains(errb.String(), "SECRET_KEY") {
+			t.Fatalf("env %v: code=%d stderr=%q", m, code, errb.String())
+		}
+	}
+}
