@@ -468,7 +468,7 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 		handlers[typ] = h
 	}
 	registerCollect(handlers, cfg, pool, log, provRPC, localSecrets, api) // plan 15 WP-COLLECT (after leadgen: native probe)
-	registerSourcewb(handlers, pool, log, prog, emitter, localSecrets)
+	registerSourcewb(handlers, cfg, pool, log, prog, emitter, localSecrets, provRPC, api)
 	route := dispatch(handlers)
 	return func(ctx context.Context, c *queue.Claim) error {
 		if block > 0 {
