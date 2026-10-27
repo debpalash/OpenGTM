@@ -257,6 +257,68 @@ func previewPayload(a previewAction, lead map[string]any, cols []autoactions.Col
 	return wbcrud.NewObj()
 }
 
+// MaskWebhookURLs masks every webhook preview URL in a Preview result in place, for a
+// caller without automations.manage (final review M2, S-L3): the URL keeps only
+// scheme://host, as GET and list show the stored rule config (autosvc Trigger.Masked).
+// The preview never renders headers, so there is nothing else to mask.
+func MaskWebhookURLs(out *wbcrud.Obj) {
+	if out == nil {
+		return
+	}
+	sample, _ := out.Get("sample")
+	items, _ := sample.([]any)
+	for _, it := range items {
+		s, ok := it.(*wbcrud.Obj)
+		if !ok {
+			continue
+		}
+		acts, _ := s.Get("actions")
+		list, _ := acts.([]any)
+		for _, a := range list {
+			act, ok := a.(*wbcrud.Obj)
+			if !ok {
+				continue
+			}
+			if typ, _ := act.Get("type"); typ != "webhook" {
+				continue
+			}
+			pv, _ := act.Get("resolved_payload_preview")
+			p, ok := pv.(*wbcrud.Obj)
+			if !ok {
+				continue
+			}
+			if u, ok := p.Get("url"); ok {
+				if str, isStr := u.(string); isStr && str != "" {
+					p.Set("url", maskURL(str))
+				}
+			}
+		}
+	}
+}
+
+// maskURL keeps scheme://authority (userinfo dropped) and hides any path, query or
+// fragment; the same rule as autosvc's GET/list masking.
+func maskURL(u string) string {
+	const masked = "***"
+	sep := strings.Index(u, "://")
+	if sep < 0 {
+		return masked
+	}
+	rest := u[sep+3:]
+	end := len(rest)
+	if j := strings.IndexAny(rest, "/?#"); j >= 0 {
+		end = j
+	}
+	auth := rest[:end]
+	if at := strings.LastIndexByte(auth, '@'); at >= 0 {
+		auth = auth[at+1:]
+	}
+	if end == len(rest) {
+		return u[:sep+3] + auth
+	}
+	return u[:sep+3] + auth + "/" + masked
+}
+
 func previewErr(err error) any {
 	o := wbcrud.NewObj()
 	o.Set("error", "preview failed: "+err.Error())

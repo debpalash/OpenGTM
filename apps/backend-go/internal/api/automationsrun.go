@@ -176,13 +176,21 @@ func (h autoRunRoutes) preview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	limit := autoengine.ClampPreviewLimit(body.limit)
-	var out any
+	var out *wbcrud.Obj
 	err := tenancy.InWorkspace(r.Context(), h.d.Pool, ws, func(tx pgx.Tx) error {
 		if _, err := tx.Exec(r.Context(), "SET TRANSACTION READ ONLY"); err != nil {
 			return err
 		}
-		res, err := autoengine.Preview(r.Context(), tx, ws, id, body.rowIDs, limit, h.d.Flags.Automations.MaxRowsPerEval, autoRunNow())
-		out = res
+		// S-L3 (final review M2): a caller who cannot manage rules sees webhook URLs masked,
+		// as GET and list mask the stored config.
+		manage, err := identity.HasPermissionTx(r.Context(), tx, ws, wc.User.ID, "automations.manage", "admin")
+		if err != nil {
+			return err
+		}
+		out, err = autoengine.Preview(r.Context(), tx, ws, id, body.rowIDs, limit, h.d.Flags.Automations.MaxRowsPerEval, autoRunNow())
+		if err == nil && !manage {
+			autoengine.MaskWebhookURLs(out)
+		}
 		return err
 	})
 	if err != nil {
