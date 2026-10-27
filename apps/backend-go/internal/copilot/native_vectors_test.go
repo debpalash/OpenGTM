@@ -96,9 +96,9 @@ func TestDescribeActionMatchesPython(t *testing.T) {
 // geographies replace Python's, and missing_fields, complete and brief_id follow from them.
 var briefDeviations = map[string]struct{ types, geos []any }{
 	"build me a list of 30 logistics companies in Mumbai which are hiring sales": {types: []any{"logistics"}},
-	"build a list of 12 healthcare companies in Delhi":                          {types: []any{"healthcare"}},
-	"find 15 companies":                                                         {types: []any{}},
-	"please find 20 retail companies in São Paulo":                              {geos: []any{"São Paulo"}},
+	"build a list of 12 healthcare companies in Delhi":                           {types: []any{"healthcare"}},
+	"find 15 companies":                            {types: []any{}},
+	"please find 20 retail companies in São Paulo": {geos: []any{"São Paulo"}},
 }
 
 func TestAccountBriefMatchesPython(t *testing.T) {
