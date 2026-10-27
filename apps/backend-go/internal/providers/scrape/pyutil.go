@@ -105,7 +105,7 @@ func trunc(s string, n int) string {
 	return s
 }
 
-// digitsOnly is re.sub(r'\D', '', s).
+// digitsOnly is re.sub(r'\D', ”, s).
 func digitsOnly(s string) string {
 	var b strings.Builder
 	for _, r := range s {

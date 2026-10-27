@@ -78,7 +78,7 @@ func clTitle(text string) string {
 // Person is one LinkedIn candidate found through search (crosslinked
 // _parse_result), with the discovery evidence attached.
 type Person struct {
-	Name, Title, LinkedIn                        string
+	Name, Title, LinkedIn                       string
 	EvidenceURL, EvidenceTitle, EvidenceSnippet string
 }
 

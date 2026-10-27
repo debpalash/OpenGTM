@@ -45,7 +45,6 @@ func (d Deps) now() time.Time {
 	return Clock().UTC()
 }
 
-
 // enrichmentTypes are the column types the stale scan covers
 // (enrichment_cols in refresh.py); runnable types are ENRICHMENT_COL_TYPES.
 var (

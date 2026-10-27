@@ -438,4 +438,3 @@ func (leadScorer) ResultProvider(out providers.Output) string {
 	}
 	return "lead_scorer"
 }
-

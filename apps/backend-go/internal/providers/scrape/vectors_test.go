@@ -23,11 +23,11 @@ import (
 // replaced by the scripted answers stored in each scenario.
 
 type page struct {
-	Status *int   `json:"status"`
+	Status *int    `json:"status"`
 	Ctype  *string `json:"ctype"`
-	HTML   string `json:"html"`
-	Error  string `json:"error"`
-	Raise  bool   `json:"raise"`
+	HTML   string  `json:"html"`
+	Error  string  `json:"error"`
+	Raise  bool    `json:"raise"`
 }
 
 type mailAns struct {

@@ -29,7 +29,9 @@ func check(c emailverify.EmailCheck) MailCheck {
 	return MailCheck{Email: c.Email, Confidence: c.Confidence, Deliverable: c.Deliverable, CatchAll: c.CatchAll}
 }
 
-func (m LiveMail) HasMX(ctx context.Context, domain string) bool { return emailverify.HasMX(ctx, m.D, domain) }
+func (m LiveMail) HasMX(ctx context.Context, domain string) bool {
+	return emailverify.HasMX(ctx, m.D, domain)
+}
 
 func (m LiveMail) PickBest(ctx context.Context, c []string) (MailCheck, error) {
 	r, err := emailverify.PickBestEmail(ctx, m.D, c)
