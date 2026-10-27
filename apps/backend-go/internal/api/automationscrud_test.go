@@ -115,7 +115,7 @@ func (e autoEnv) purgeAuto() {
 func (e autoEnv) seedAuto(t *testing.T) {
 	t.Helper()
 	ctx := context.Background()
-	if _, err := e.pool.Exec(ctx, `DELETE FROM users WHERE id IN (1,2,3,4) OR username IN ('alice','bob','carol','erin')`); err != nil {
+	if _, err := e.pool.Exec(ctx, `DELETE FROM users WHERE id IN (1,2,4) OR username IN ('alice','bob','erin')`); err != nil {
 		t.Fatal(err)
 	}
 	for _, u := range []struct {
