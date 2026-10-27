@@ -1,3 +1,16 @@
+# ──────────────────────────────────────────────────────────────────
+# OpenGTM stack. Copy .env.example to .env first (optional for a dev stack: every
+# variable has a development default).
+#
+# PREREQUISITE: the Python backend lives in ./legacy/python, which is its own git
+# repo and is gitignored here. It must be cloned into ./legacy/python before the
+# Python images (migrate, api, seed, worker, scheduler, frontend_assets) can build;
+# the root Dockerfile stops with an explicit message otherwise. The Go images build
+# from ./apps/backend-go and need nothing else. See docs/go-port/runbooks/docker-compose.md.
+#
+# Default `docker compose up` = the Python stack (Go profile off, canary 0%).
+# Go services are opt-in:  docker compose --profile go up -d api-go worker-go
+# ──────────────────────────────────────────────────────────────────
 services:
   # ── Postgres (primary store — MVCC, real concurrent writers) ───
   # The workbook enrichment run depends on concurrent writers; SQLite would
@@ -33,7 +46,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     environment:
       - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
       - PYTHONPATH=/app
@@ -58,7 +73,9 @@ services:
       dockerfile: Dockerfile
     container_name: lead-data-api
     user: "${APP_UID:-1000}:${APP_GID:-1000}"
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     environment:
       # Postgres is the source of truth. This overrides any SQLite DB_PATH and
       # makes the documented Postgres default take effect. ${VAR:-default} lets
@@ -82,7 +99,7 @@ services:
       - ./data:/app/data
     ports:
       # Host-local diagnostics only. LAN traffic goes through nginx on 3010.
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:${API_PORT:-8000}:8000"
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -109,7 +126,9 @@ services:
       dockerfile: Dockerfile
     container_name: lead-data-seed
     user: "${APP_UID:-1000}:${APP_GID:-1000}"
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     environment:
       - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
       - PYTHONPATH=/app
@@ -140,7 +159,9 @@ services:
       dockerfile: Dockerfile
     # NOTE: no fixed container_name so `--scale worker=N` can run multiple.
     user: "${APP_UID:-1000}:${APP_GID:-1000}"
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     environment:
       - DATABASE_URL=${APP_DATABASE_URL:-postgresql+psycopg://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
       - PYTHONPATH=/app
@@ -179,7 +200,9 @@ services:
       context: .
       dockerfile: Dockerfile
     user: "${APP_UID:-1000}:${APP_GID:-1000}"
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     environment:
       - DATABASE_URL=${APP_DATABASE_URL:-postgresql+psycopg://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
       - PYTHONPATH=/app
@@ -264,7 +287,7 @@ services:
     ports:
       # Redis has no authentication in this self-host profile; never expose it
       # to the LAN. Containers reach it through the private lead_net network.
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     volumes:
       - redisdata:/data
     healthcheck:
@@ -301,24 +324,104 @@ services:
     networks:
       - lead_net
 
-  # ── Go workbook executor (OPTIONAL: docker compose --profile go up -d worker-go) ──
-  # Claims only jobs with executor='go' (routed by the API per
-  # GO_EXECUTOR_ENABLED / GO_EXECUTOR_WORKSPACES). No published ports. See
-  # docs/go-executor.md for rollout and rollback.
+  # ── Go API (opt-in: --profile go) ──────────────────────────────
+  # nginx sends it traffic only when the canary percentage in
+  # infra/nginx/go-split.conf is raised (shipped at 0% = all Python), so starting
+  # it is harmless. It shares SECRET_KEY/DATABASE with the Python API and refuses
+  # to start unless the schema is at the expected Alembic head (hence `migrate`).
+  # Every GO_* route/executor flag defaults OFF here: raise them per runbook.
+  api-go:
+    profiles: ["go"]
+    build:
+      context: ./apps/backend-go
+      dockerfile: Dockerfile
+      target: api
+    image: opengtm-api-go:local
+    environment:
+      - API_ADDR=:8000
+      # pgx takes a plain postgresql:// URL (not the SQLAlchemy +psycopg form) and
+      # must use the non-superuser runtime role so forced RLS applies.
+      - DATABASE_URL=${GO_DATABASE_URL:-postgresql://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
+      - REDIS_URL=redis://redis:6379
+      - APP_ENV=${APP_ENV:-dev}
+      # Must equal the Python api's SECRET_KEY so tokens cross over.
+      - SECRET_KEY=${SECRET_KEY:-}
+      - SECRETS_PROVIDER=${SECRETS_PROVIDER:-}
+      - SECRETS_MASTER_KEY=${SECRETS_MASTER_KEY:-}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+      # Calls back into the Python API (research steps, copilot) over lead_net.
+      - PY_WORKER_URL=${PY_WORKER_URL:-http://api:8000}
+      - PY_WORKER_TOKEN=${PY_WORKER_TOKEN:-}
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+      # nginx is the only client on lead_net: trust its X-Real-IP. The default
+      # covers every private range Docker allocates compose networks from.
+      - TRUST_PROXY=true
+      - TRUST_PROXY_CIDRS=${TRUST_PROXY_CIDRS:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
+      - PG_LEAD_STORE=${PG_LEAD_STORE:-true}
+      # Route/executor flags: ALL OFF until the matching runbook says otherwise.
+      - GO_EXECUTOR_ENABLED=${GO_EXECUTOR_ENABLED:-false}
+      - GO_EXECUTOR_WORKSPACES=${GO_EXECUTOR_WORKSPACES:-}
+      - GO_RUN_ROUTES_ENABLED=${GO_RUN_ROUTES_ENABLED:-false}
+      - GO_AUDIENCE_ROUTES_ENABLED=${GO_AUDIENCE_ROUTES_ENABLED:-false}
+      - GO_DEST_ROUTES_ENABLED=${GO_DEST_ROUTES_ENABLED:-false}
+      - GO_AUTOMATION_ROUTES_ENABLED=${GO_AUTOMATION_ROUTES_ENABLED:-false}
+      - GO_COLLECTION_ROUTES_ENABLED=${GO_COLLECTION_ROUTES_ENABLED:-false}
+      - GO_CONNECTOR_ROUTES_ENABLED=${GO_CONNECTOR_ROUTES_ENABLED:-false}
+      - GO_GOVERNANCE_ROUTES_ENABLED=${GO_GOVERNANCE_ROUTES_ENABLED:-false}
+      - GO_OUTREACH_ROUTES_ENABLED=${GO_OUTREACH_ROUTES_ENABLED:-false}
+      - GO_PLAYBOOK_ROUTES_ENABLED=${GO_PLAYBOOK_ROUTES_ENABLED:-false}
+      - GO_AI_BATCH_ENABLED=${GO_AI_BATCH_ENABLED:-false}
+      - COPILOT_GO_ENABLED=${COPILOT_GO_ENABLED:-false}
+    ports:
+      # Host-local diagnostics only; public traffic goes through nginx.
+      - "127.0.0.1:${API_GO_PORT:-8001}:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      # Distroless: no shell/curl. `/api -healthcheck` GETs 127.0.0.1:8000/healthz.
+      test: ["CMD", "/api", "-healthcheck"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      lead_net:
+        # nginx upstreams and scripts/nginx-routing-check.sh address it by this name.
+        aliases: [api-go]
+
+  # ── Go workbook executor (opt-in: --profile go) ──
+  # Claims only jobs with executor='go' (routed by the API per GO_EXECUTOR_ENABLED /
+  # GO_EXECUTOR_WORKSPACES; both default OFF, so it idles). No published ports.
+  # Needs INTERNAL_SERVICE_TOKEN (>= 32 chars, same value as the Python api) or it exits at
+  # boot with a config error. Liveness is the DB heartbeat (the image is distroless
+  # and exposes no HTTP probe); see docs/go-port/runbooks.
   worker-go:
     profiles: ["go"]
     build:
       context: ./apps/backend-go
       dockerfile: Dockerfile
+      target: worker
     image: opengtm-worker-go:local
     environment:
-      # Go (pgx) takes a plain postgresql:// URL, not the SQLAlchemy +psycopg form.
-      # Must be the non-superuser runtime role so forced RLS applies.
-      - DATABASE_URL=${GO_WORKER_DATABASE_URL:-postgresql://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
+      - DATABASE_URL=${GO_DATABASE_URL:-postgresql://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
       - REDIS_URL=redis://redis:6379
       - INTERNAL_API_URL=http://api:8000
       - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+      - PY_WORKER_URL=${PY_WORKER_URL:-http://api:8000}
+      - PY_WORKER_TOKEN=${PY_WORKER_TOKEN:-}
       - APP_ENV=${APP_ENV:-dev}
+      - SECRET_KEY=${SECRET_KEY:-}
+      - SECRETS_PROVIDER=${SECRETS_PROVIDER:-}
+      - SECRETS_MASTER_KEY=${SECRETS_MASTER_KEY:-}
+      - PG_LEAD_STORE=${PG_LEAD_STORE:-true}
+      - GO_EXECUTOR_ENABLED=${GO_EXECUTOR_ENABLED:-false}
+      - GO_EXECUTOR_WORKSPACES=${GO_EXECUTOR_WORKSPACES:-}
       - GO_WORKER_CONCURRENCY=${GO_WORKER_CONCURRENCY:-4}
       - GO_WORKER_DB_MAX_CONNS=${GO_WORKER_DB_MAX_CONNS:-20}
       - GO_WORKER_HEARTBEAT_SECONDS=${GO_WORKER_HEARTBEAT_SECONDS:-10}
@@ -333,6 +436,36 @@ services:
       redis:
         condition: service_healthy
       api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - lead_net
+
+  # ── Go MCP server, SSE transport (opt-in: --profile mcp) ──
+  # Replaces `python -m apps.mcp.server --sse`. Internal only (no host port); clients
+  # on lead_net reach http://mcp:3100. stdio use is `opengtm-mcp` run directly.
+  mcp:
+    profiles: ["mcp"]
+    build:
+      context: ./apps/backend-go
+      dockerfile: Dockerfile
+      target: mcp
+    image: opengtm-mcp-go:local
+    command: ["--sse", "3100"]
+    environment:
+      - DATABASE_URL=${GO_DATABASE_URL:-postgresql://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
+      - OPENGTM_MCP_SSE_HOST=0.0.0.0
+      - APP_ENV=${APP_ENV:-dev}
+      - SECRET_KEY=${SECRET_KEY:-}
+      - SECRETS_PROVIDER=${SECRETS_PROVIDER:-}
+      - SECRETS_MASTER_KEY=${SECRETS_MASTER_KEY:-}
+      - PY_WORKER_URL=${PY_WORKER_URL:-http://api:8000}
+      - PY_WORKER_TOKEN=${PY_WORKER_TOKEN:-}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
         condition: service_healthy
     restart: unless-stopped
     networks:
