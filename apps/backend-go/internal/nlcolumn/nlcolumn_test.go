@@ -1,6 +1,7 @@
 package nlcolumn
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -19,10 +20,10 @@ type vectors struct {
 	DSL        string   `json:"dsl_reference"`
 	System     string   `json:"system"`
 	Cases      []struct {
-		Name        string          `json:"name"`
-		Instruction string          `json:"instruction"`
-		Columns     json.RawMessage `json:"columns"`
-		LLM         []any           `json:"llm"`
+		Name        string            `json:"name"`
+		Instruction string            `json:"instruction"`
+		Columns     json.RawMessage   `json:"columns"`
+		LLM         []json.RawMessage `json:"llm"`
 		Calls       []struct {
 			Prompt    string `json:"prompt"`
 			System    string `json:"system"`
@@ -57,24 +58,22 @@ type call struct {
 }
 
 type fakeLLM struct {
-	script []any
+	script []json.RawMessage
 	calls  []call
 }
 
-func (f *fakeLLM) ExtractJSON(_ context.Context, prompt, system string, max int) (map[string]any, error) {
+func (f *fakeLLM) ExtractJSON(_ context.Context, prompt, system string, max int) (*wbcrud.Obj, error) {
 	f.calls = append(f.calls, call{prompt, system, max})
 	if len(f.script) == 0 {
-		return map[string]any{}, nil
+		return wbcrud.NewObj(), nil
 	}
 	r := f.script[0]
 	f.script = f.script[1:]
-	switch x := r.(type) {
-	case map[string]any:
-		return x, nil
-	case []any:
+	o, err := wbcrud.ParseObjectCanon(r)
+	if err != nil {
 		return nil, errors.New("not an object") // the Go client never returns a non-object
 	}
-	return nil, errors.New("boom")
+	return o, nil
 }
 
 func TestDSLReference(t *testing.T) {
@@ -169,32 +168,14 @@ func orNull(b json.RawMessage) []byte {
 	return b
 }
 
-// jsonEqual compares two JSON documents including object key order, except http_headers and http_body whose
-// order comes from an unordered parsed LLM object (sorted in Go).
+// jsonEqual compares two JSON documents textually after compaction, so every nested key order counts.
 func jsonEqual(t *testing.T, a, b []byte, _ string) bool {
 	t.Helper()
-	var x, y any
-	if json.Unmarshal(a, &x) != nil || json.Unmarshal(b, &y) != nil {
+	var x, y bytes.Buffer
+	if json.Compact(&x, a) != nil || json.Compact(&y, b) != nil {
 		return false
 	}
-	if !reflect.DeepEqual(x, y) {
-		return false
-	}
-	return keyOrder(a) == keyOrder(b)
-}
-
-// keyOrder is the top-level key sequence of an object.
-func keyOrder(b []byte) string {
-	dec := json.NewDecoder(strings.NewReader(string(b)))
-	dec.Token()
-	var keys []string
-	for dec.More() {
-		k, _ := dec.Token()
-		keys = append(keys, k.(string))
-		var skip json.RawMessage
-		dec.Decode(&skip)
-	}
-	return strings.Join(keys, ",")
+	return x.String() == y.String()
 }
 
 func TestPyTitleAndSlug(t *testing.T) {
@@ -219,6 +200,18 @@ func TestContextCancelledIsNotAnEmptyAnswer(t *testing.T) {
 
 type cancelLLM struct{}
 
-func (cancelLLM) ExtractJSON(ctx context.Context, _, _ string, _ int) (map[string]any, error) {
+func (cancelLLM) ExtractJSON(ctx context.Context, _, _ string, _ int) (*wbcrud.Obj, error) {
 	return nil, ctx.Err()
+}
+
+func TestHTTPKeyOrderPreserved(t *testing.T) {
+	f := &fakeLLM{script: []json.RawMessage{json.RawMessage(`{"kind":"http","name":"T","http_url":"https://x.test","http_method":"post","http_headers":{"Zed":"1","Alpha":2},"http_body":{"z":1,"a":{"y":1,"b":2}}}`)}}
+	res, err := Generate(context.Background(), f, "call it", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, _ := json.Marshal(res.Column)
+	if !strings.Contains(string(got), `"http_headers":{"Zed":"1","Alpha":"2"},"http_body":{"z":1,"a":{"y":1,"b":2}}`) {
+		t.Errorf("key order lost: %s", got)
+	}
 }

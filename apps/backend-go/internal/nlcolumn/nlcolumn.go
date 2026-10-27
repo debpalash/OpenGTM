@@ -12,7 +12,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"unicode"
@@ -21,9 +20,11 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
-// LLM is the slice of internal/llm.Client the generator uses.
+// LLM is the slice of internal/llm.Client the generator uses. The answer is an order-preserving object: key order
+// of http_headers and http_body must survive as the model wrote it (llm.Client returns an unordered map; the api
+// package adapts it, see api/llmorder.go).
 type LLM interface {
-	ExtractJSON(ctx context.Context, prompt, system string, maxTokens int) (map[string]any, error)
+	ExtractJSON(ctx context.Context, prompt, system string, maxTokens int) (*wbcrud.Obj, error)
 }
 
 // Error is NLColumnError: generation failed in a way that cannot be repaired (bad or empty LLM output). The
@@ -98,8 +99,8 @@ func pyFalsy(v any) bool {
 		return f == 0
 	case []any:
 		return len(x) == 0
-	case map[string]any:
-		return len(x) == 0
+	case *wbcrud.Obj:
+		return x.Len() == 0
 	}
 	return false
 }
@@ -129,8 +130,8 @@ func pyStr(v any) string {
 }
 
 // strOr is str(data.get(key) or "").
-func strOr(m map[string]any, key string) string {
-	v := m[key]
+func strOr(m *wbcrud.Obj, key string) string {
+	v, _ := m.Get(key)
 	if pyFalsy(v) {
 		return ""
 	}
@@ -365,8 +366,8 @@ func runeHead(s string, n int) string {
 // buildCandidate turns one LLM answer into (column, kind, explanation, formulaErr). formulaErr is set (and column
 // is zero) only when kind is formula and the expression failed the evaluator; the caller retries or falls back.
 // Any other invalid answer returns *Error.
-func buildCandidate(data map[string]any, instruction string, cols []wbcrud.Column) (col wbcrud.Column, kind, explanation, formulaErr string, err error) {
-	if len(data) == 0 {
+func buildCandidate(data *wbcrud.Obj, instruction string, cols []wbcrud.Column) (col wbcrud.Column, kind, explanation, formulaErr string, err error) {
+	if data.Len() == 0 {
 		return col, "", "", "", &Error{"empty LLM response"}
 	}
 	kind = pyStrip(strOr(data, "kind"))
@@ -418,19 +419,17 @@ func buildCandidate(data map[string]any, instruction string, cols []wbcrud.Colum
 		}
 		c.Set("http_url", url)
 		c.Set("http_method", method)
-		if h, ok := data["http_headers"].(map[string]any); ok && len(h) > 0 {
-			keys := make([]string, 0, len(h))
-			for k := range h {
-				keys = append(keys, k)
+		if hv, _ := data.Get("http_headers"); hv != nil {
+			if h, ok := hv.(*wbcrud.Obj); ok && h.Len() > 0 {
+				ho := wbcrud.NewObj()
+				for _, k := range h.Keys() {
+					v, _ := h.Get(k)
+					ho.Set(k, pyStr(v))
+				}
+				c.Set("http_headers", ho)
 			}
-			sort.Strings(keys) // the parsed LLM object has no key order
-			ho := wbcrud.NewObj()
-			for _, k := range keys {
-				ho.Set(k, pyStr(h[k]))
-			}
-			c.Set("http_headers", ho)
 		}
-		if b, present := data["http_body"]; present && b != nil && method != "GET" {
+		if b, present := data.Get("http_body"); present && b != nil && method != "GET" {
 			c.Set("http_body", b)
 		}
 		if ex := pyStrip(strOr(data, "http_extract")); ex != "" {
@@ -481,13 +480,16 @@ func Generate(ctx context.Context, l LLM, instruction string, cols []wbcrud.Colu
 	if instruction == "" {
 		return Result{}, &Error{"empty instruction"}
 	}
-	ask := func(feedback string) (map[string]any, error) {
+	ask := func(feedback string) (*wbcrud.Obj, error) {
 		data, err := l.ExtractJSON(ctx, BuildPrompt(instruction, cols, feedback), System, 1024)
 		if err != nil {
 			if ctx.Err() != nil {
 				return nil, ctx.Err()
 			}
-			return map[string]any{}, nil
+			return wbcrud.NewObj(), nil
+		}
+		if data == nil {
+			data = wbcrud.NewObj()
 		}
 		return data, nil
 	}
@@ -515,7 +517,7 @@ func Generate(ctx context.Context, l LLM, instruction string, cols []wbcrud.Colu
 		}
 		if ferr != "" {
 			src := retry
-			if len(src) == 0 {
+			if src.Len() == 0 {
 				src = data
 			}
 			name := pyStrip(strOr(src, "name"))
