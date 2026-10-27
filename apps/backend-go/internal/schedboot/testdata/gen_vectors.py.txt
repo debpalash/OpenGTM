@@ -168,11 +168,11 @@ def child(name):
         mir("a6", "wsA", -3600)  # audience row missing
         aud("a7", "wsB"); mir("a7", "wsB", -3600)
         c.execute(text("INSERT INTO jobs (type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, fire_key, executor) "
-                       "VALUES ('audience_refresh', '{}', 'pending', 1, :t, :t, 0, 3, 'audience_refresh:a7:older', 'python')"), {"t": naive(0)})
+                       "VALUES ('audience_refresh', '{}', 'pending', 1, :t, :t, 0, 3, 'audience_refresh:a7:"+aware(-7200)+"', 'python')"), {"t": naive(0)})
         aud("a_b", "wsA"); mir("a_b", "wsA", -7200)  # underscore id: LIKE wildcard in Python's active-job check
         aud("axb", "wsA"); mir("axb", "wsA", -7200)
         c.execute(text("INSERT INTO jobs (type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, fire_key, executor) "
-                       "VALUES ('audience_refresh', '{}', 'pending', 1, :t, :t, 0, 3, 'audience_refresh:axb:older', 'python')"), {"t": naive(0)})
+                       "VALUES ('audience_refresh', '{}', 'pending', 1, :t, :t, 0, 3, 'audience_refresh:axb:"+aware(-7200)+"', 'python')"), {"t": naive(0)})
 
     cases["audiences/mixed"] = run(bootstrap_audience_schedules, seed_audiences,
                                    [("audience_schedules", "audience_id, workspace_id, next_refresh_at, enabled", "audience_id")])
@@ -193,14 +193,14 @@ def child(name):
         pol("wsD", enabled=False); sch("wsD", -86400)
         pol("wsE"); sch("wsE", -86400)
         c.execute(text("INSERT INTO jobs (type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, fire_key, executor) "
-                       "VALUES ('retention_enforce', '{}', 'pending', 1, :t, :t, 0, 3, 'retention:wsE:2020-01-01', 'python')"), {"t": naive(0)})
+                       "VALUES ('retention_enforce', '{}', 'pending', 1, :t, :t, 0, 3, 'retention:wsE:"+(T0 - timedelta(days=3)).date().isoformat()+"', 'python')"), {"t": naive(0)})
         pol("wsF"); sch("wsF", None)
         pol("wsG"); sch("wsG", -86400, False)  # schedule disabled
         sch("wsH", -86400)  # no policy row
         pol("w_I"); sch("w_I", -86400)  # underscore workspace id
         pol("wsJ"); sch("wsJ", -86400)
         c.execute(text("INSERT INTO jobs (type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, fire_key, executor) "
-                       "VALUES ('retention_enforce', '{}', 'pending', 1, :t, :t, 0, 3, 'retention:wsJ:2020-01-01', 'python')"), {"t": naive(0)})
+                       "VALUES ('retention_enforce', '{}', 'pending', 1, :t, :t, 0, 3, 'retention:wsJ:"+(T0 - timedelta(days=3)).date().isoformat()+"', 'python')"), {"t": naive(0)})
 
     cases["retention/mixed"] = run(bootstrap_retention_schedules, seed_retention,
                                    [("retention_schedules", "workspace_id, enabled, next_run_at", "workspace_id")])
@@ -222,7 +222,7 @@ def child(name):
         pb("p2", "wsB", aud=None); sch("p2", "wsB", -3600)
         pb("p3", "wsA"); sch("p3", "wsA", -3600)
         c.execute(text("INSERT INTO jobs (type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, fire_key, executor) "
-                       "VALUES ('research_playbook_schedule', '{}', 'processing', 1, :t, :t, 0, 3, 'playbook_schedule:p3:older', 'python')"), {"t": naive(0)})
+                       "VALUES ('research_playbook_schedule', '{}', 'processing', 1, :t, :t, 0, 3, 'playbook_schedule:p3:"+aware(-7200)+"', 'python')"), {"t": naive(0)})
         pb("p4", "wsA"); sch("p4", "wsA", None)
         pb("p5", "wsB", enabled=False); sch("p5", "wsB", -3600)
         pb("p6", "wsA"); sch("p6", "wsA", 3600)

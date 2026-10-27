@@ -67,10 +67,12 @@ func loadVectors(t *testing.T) map[string]recordedConfig {
 	return v
 }
 
-// now is a whole-second instant; recorded offsets are seconds from it.
-var now = time.Date(2026, 10, 28, 12, 0, 0, 0, time.UTC)
+// now is the whole-second wall clock at start: enqueued jobs are due at the database clock, so the offsets are real-time.
+var now = time.Now().UTC().Truncate(time.Second)
 
-func naive(off int) string { return now.Add(time.Duration(off) * time.Second).Format("2006-01-02 15:04:05") }
+func naive(off int) string {
+	return now.Add(time.Duration(off) * time.Second).Format("2006-01-02 15:04:05")
+}
 func aware(off int) string {
 	return now.Add(time.Duration(off) * time.Second).Format(time.RFC3339)
 }
@@ -83,6 +85,12 @@ func opt(f func(int) string, off *int) any {
 	return f(*off)
 }
 func ip(i int) *int { return &i }
+
+// iso is datetime.isoformat() of an aware UTC instant; day is a UTC date, days from today.
+func iso(off int) string {
+	return now.Add(time.Duration(off)*time.Second).Format("2006-01-02T15:04:05") + "+00:00"
+}
+func day(d int) string { return now.AddDate(0, 0, d).Format("2006-01-02") }
 
 func owner(t *testing.T) *pgxpool.Pool {
 	t.Helper()
@@ -327,10 +335,10 @@ func scenarios() []scenario {
 		audRow("a5", "wsA", false), audMir("a5", "wsA", ip(-3600), true),
 		audMir("a6", "wsA", ip(-3600), true),
 		audRow("a7", "wsB", true), audMir("a7", "wsB", ip(-3600), true),
-		q(insJob, "audience_refresh", "pending", naive(0), "audience_refresh:a7:older"),
+		q(insJob, "audience_refresh", "pending", naive(0), "audience_refresh:a7:"+iso(-7200)),
 		audRow("a_b", "wsA", true), audMir("a_b", "wsA", ip(-7200), true),
 		audRow("axb", "wsA", true), audMir("axb", "wsA", ip(-7200), true),
-		q(insJob, "audience_refresh", "pending", naive(0), "audience_refresh:axb:older"),
+		q(insJob, "audience_refresh", "pending", naive(0), "audience_refresh:axb:"+iso(-7200)),
 	}
 	// retention
 	pol := func(ws string, enabled, hold bool) []any {
@@ -345,13 +353,13 @@ func scenarios() []scenario {
 		pol("wsC", true, false), rsch("wsC", ip(86400), true),
 		pol("wsD", false, false), rsch("wsD", ip(-86400), true),
 		pol("wsE", true, false), rsch("wsE", ip(-86400), true),
-		q(insJob, "retention_enforce", "pending", naive(0), "retention:wsE:2020-01-01"),
+		q(insJob, "retention_enforce", "pending", naive(0), "retention:wsE:"+day(-3)),
 		pol("wsF", true, false), rsch("wsF", nil, true),
 		pol("wsG", true, false), rsch("wsG", ip(-86400), false),
 		rsch("wsH", ip(-86400), true),
 		pol("w_I", true, false), rsch("w_I", ip(-86400), true),
 		pol("wsJ", true, false), rsch("wsJ", ip(-86400), true),
-		q(insJob, "retention_enforce", "pending", naive(0), "retention:wsJ:2020-01-01"),
+		q(insJob, "retention_enforce", "pending", naive(0), "retention:wsJ:"+day(-3)),
 	}
 	// playbooks
 	pbRow := func(id, ws string, enabled bool, aud any) []any {
@@ -366,7 +374,7 @@ func scenarios() []scenario {
 		pbRow("p1", "wsA", true, "aud1"), pbMir("p1", "wsA", ip(-3600), true),
 		pbRow("p2", "wsB", true, nil), pbMir("p2", "wsB", ip(-3600), true),
 		pbRow("p3", "wsA", true, "aud1"), pbMir("p3", "wsA", ip(-3600), true),
-		q(insJob, "research_playbook_schedule", "processing", naive(0), "playbook_schedule:p3:older"),
+		q(insJob, "research_playbook_schedule", "processing", naive(0), "playbook_schedule:p3:"+iso(-7200)),
 		pbRow("p4", "wsA", true, "aud1"), pbMir("p4", "wsA", nil, true),
 		pbRow("p5", "wsB", false, "aud1"), pbMir("p5", "wsB", ip(-3600), true),
 		pbRow("p6", "wsA", true, "aud1"), pbMir("p6", "wsA", ip(3600), true),
@@ -417,12 +425,16 @@ func scenarios() []scenario {
 		scan("only_completed", scanJob("completed")),
 		{key: "audiences/mixed", seed: aud, run: func(d schedboot.Deps, ctx context.Context) (any, error) { return d.Audiences(ctx) },
 			tables: [][3]string{{"audience_schedules", "audience_id, workspace_id, next_refresh_at, enabled", "audience_id"}},
-			adjust: func(_ string, c *recordedCase) {
+			adjust: func(cfgName string, c *recordedCase) {
 				// Python's active-job check is a LIKE with '_' as a wildcard: the pending job of audience
 				// "axb" suppressed the refresh of "a_b". Go matches the id exactly, so a_b is enqueued.
 				c.First = float64(asInt(c.First) + 1)
-				c.Jobs = append(c.Jobs, recordedJob{Type: "audience_refresh", Executor: "python", Status: "pending",
-					Payload: map[string]any{"audience_id": "a_b", "workspace_id": "wsA", "fire_key": "audience_refresh:a_b:{t:-7200}"},
+				exec := "python"
+				if cfgName == "go_cohort_wsA" {
+					exec = "go"
+				}
+				c.Jobs = append(c.Jobs, recordedJob{Type: "audience_refresh", Executor: exec, Status: "pending",
+					Payload:  map[string]any{"audience_id": "a_b", "workspace_id": "wsA", "fire_key": "audience_refresh:a_b:{t:-7200}"},
 					Priority: 1, MaxRetries: 3, NextRunAt: ip(0), FireKey: sp("audience_refresh:a_b:{t:-7200}"), WorkspaceID: sp("wsA")})
 			}},
 		{key: "retention/mixed", seed: ret, run: func(d schedboot.Deps, ctx context.Context) (any, error) { return d.Retention(ctx) },
@@ -443,6 +455,13 @@ func sp(s string) *string { return &s }
 func adjustWorkspace(c *recordedCase) {
 	for i := range c.Jobs {
 		j := &c.Jobs[i]
+		if j.Type == "send" && j.FireKey == nil {
+			// plan 09: Go's EnqueueSend single-flights on the idempotency key as the fire key
+			// (Python left fire_key NULL and deduplicated by a payload lookup).
+			k := j.Payload["idempotency_key"].(string)
+			j.FireKey = &k
+			j.Payload["fire_key"] = k
+		}
 		if j.WorkspaceID == nil && j.Type != "signal_scan" && len(j.Payload) > 0 {
 			if ws, ok := j.Payload["workspace_id"].(string); ok {
 				j.WorkspaceID = &ws
