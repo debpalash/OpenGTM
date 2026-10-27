@@ -240,7 +240,11 @@ func (rs *runState) executeOutputJournaled(ctx context.Context, lead map[string]
 		return outResult{Error: "output_delivery_requires_review"}, nil
 	}
 	// No database transaction is held while contacting the destination.
-	res, err := rs.executeOutput(ctx, lead, col, leadID)
+	exec := rs.executeOutput
+	if rs.outputExec != nil {
+		exec = rs.outputExec
+	}
+	res, err := exec(ctx, lead, col, leadID)
 	if err != nil {
 		return outResult{}, err
 	}

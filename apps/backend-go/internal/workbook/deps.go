@@ -154,6 +154,8 @@ type runState struct {
 	cols           []column         // every configured column (name aliases for {column} references)
 	legacy         bool             // no Deps.Runner: only the payload's manifests exist
 	allCols        []colgraph.Col
+	// outputExec replaces executeOutput (journal tests only).
+	outputExec func(ctx context.Context, lead map[string]any, col column, leadID int64) (outResult, error)
 	cycleBlocked   map[string]bool
 }
 
