@@ -107,7 +107,9 @@ func (a authRoutes) token(w http.ResponseWriter, r *http.Request) {
 		bad()
 		return
 	}
-	if !auth.VerifyPassword(password, hash) {
+	// The inactive check follows the real verify so a disabled account costs
+	// the same time and answers the same 401 as a wrong password (S-L22).
+	if !auth.VerifyPassword(password, hash) || !u.IsActive {
 		bad()
 		return
 	}
