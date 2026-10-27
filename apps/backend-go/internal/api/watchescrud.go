@@ -12,7 +12,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
@@ -28,14 +27,9 @@ type watchCRUDRoutes struct {
 	svc *watchsvc.Service
 }
 
-// watchPollExecutor is go_executor.watch_poll_executor: "go" only when GO_EXECUTOR_ENABLED,
-// GO_EXECUTOR_WATCH_POLL and the workspace is in GO_EXECUTOR_WORKSPACES (read per call so a flag
-// change applies at once, like automationExecutor).
+// watchPollExecutor is the executor of a watch_poll job: "go", the only executor since the plan 15 cutover.
 func (d Deps) watchPollExecutor() func(ws string) string {
-	return func(ws string) string {
-		c := config.ExecutorCohortFrom(d.getenv())
-		return automationhook.CohortExecutor(c.Enabled, d.Flags.Automations.GoExecutorWatchPoll, c.Workspaces)(ws)
-	}
+	return func(string) string { return config.ExecutorGo }
 }
 
 // watchCRUDService builds the watch store behind the CRUD routes from the loaded settings. Webhook

@@ -8,7 +8,6 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 	"testing"
@@ -152,51 +151,12 @@ func TestEveryOutreachRouteHasFixtureOrIsRetained(t *testing.T) {
 	assertFixturesCover(t, rest, fixtureRequests(t, "outreach"))
 }
 
-// `send` and `outreach_inbound_poll` are the only outreach job types the Go worker dispatches; Python registers
-// both, and no other Python job type may be claimed by the outreach wiring.
-func TestEveryOutreachJobTypeHandledOrPython(t *testing.T) {
-	reg, err := os.ReadFile(testutil.LegacyPath(t, "apps", "api", "services", "job_registry.py"))
-	if err != nil {
-		t.Skipf("legacy Python tree not present (%v)", err)
-	}
-	py := map[string]bool{}
-	for _, m := range pyJobKey.FindAllStringSubmatch(string(reg), -1) {
-		py[m[1]] = true
-	}
-	src, err := os.ReadFile(filepath.Join("..", "..", "cmd", "worker", "outreach.go"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	blk := regexp.MustCompile(`(?s)handlers := map\[string\]runner\{(.*?)\n\t\}`).FindStringSubmatch(string(src))
-	if blk == nil {
-		t.Fatal("handlers map not found in cmd/worker/outreach.go")
-	}
-	consts := map[string]string{"jobSend": "", "outreachinbound.JobType": "outreach_inbound_poll"}
-	if m := regexp.MustCompile(`jobSend\s*=\s*"([a-z_]+)"`).FindStringSubmatch(string(src)); m != nil {
-		consts["jobSend"] = m[1]
-	}
-	got := map[string]bool{}
-	for _, m := range goHandlerKy.FindAllStringSubmatch(blk[1], -1) {
-		v, ok := consts[m[1]]
-		if !ok || v == "" {
-			t.Fatalf("cannot resolve job type constant %s", m[1])
-		}
-		got[v] = true
-	}
-	if len(got) != 2 || !got["send"] || !got["outreach_inbound_poll"] {
-		t.Errorf("outreach wiring must dispatch exactly send and outreach_inbound_poll, got %v", got)
-	}
-	for ty := range got {
-		if !py[ty] {
-			t.Errorf("Go dispatches %q, which Python does not register", ty)
-		}
-	}
-	// The other outreach-adjacent types stay Python-only (scheduler, drafting, enrichment).
-	for _, ty := range []string{"outreach_tick", "outreach_schedule", "draft", "bulk_enrich"} {
-		if got[ty] {
-			t.Errorf("job type %s must stay on the Python worker", ty)
-		}
-	}
+// send and outreach_inbound_poll are claimable and handled by the Go worker unconditionally (the plan 15 cutover
+// retired the cohort flags and the Python worker).
+func TestEveryOutreachJobTypeHandledByGoWorker(t *testing.T) {
+	const file = "outreach.go"
+	allowed, handled := workerJobTypes(t, file, map[string]string{"jobSend": "send", "outreachinbound.JobType": "outreach_inbound_poll"})
+	assertWorkerHandlesExactly(t, file, allowed, handled, "send", "outreach_inbound_poll")
 }
 
 func mustRead(t *testing.T, p string) string {

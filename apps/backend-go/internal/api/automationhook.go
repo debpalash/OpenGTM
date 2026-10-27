@@ -5,14 +5,9 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 )
 
-// automationExecutor is go_executor.trigger_eval_executor: "go" only when GO_EXECUTOR_ENABLED,
-// GO_EXECUTOR_TRIGGER_EVAL and the workspace is in GO_EXECUTOR_WORKSPACES. The cohort is read
-// from the environment per call, like the refresh executor, so a flag change applies at once.
+// automationExecutor is the executor of a trigger_eval job: "go", the only executor since the plan 15 cutover.
 func (d Deps) automationExecutor() func(ws string) string {
-	return func(ws string) string {
-		c := config.ExecutorCohortFrom(d.getenv())
-		return automationhook.CohortExecutor(c.Enabled, d.Flags.Automations.GoExecutorTriggerEval, c.Workspaces)(ws)
-	}
+	return func(string) string { return config.ExecutorGo }
 }
 
 // automationHook is the row/signal/audience emitter every API write site shares: executor-routed

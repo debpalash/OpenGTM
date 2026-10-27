@@ -5,9 +5,7 @@ import (
 	"net/http"
 	"unicode/utf8"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/autosvc"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/watchsvc"
@@ -29,14 +27,13 @@ func registerWatchesPoll(r *httpx.Router, d Deps) {
 // with the cohort executor of the watch_poll job (go_executor.watch_poll_executor).
 func (d Deps) pollWatchService() *watchsvc.Service {
 	a := d.Flags.Automations
-	c := config.ExecutorCohortFrom(d.getenv())
 	return &watchsvc.Service{
 		Pool: d.Pool,
 		Cfg: watchsvc.Config{DefaultInterval: a.PollerDefaultInterval, MaxWatchesPerWS: a.PollerMaxWatchesPerWS,
 			JobChangeMaxContacts: a.PollerJobChangeMaxContacts, PollNowMinIntervalSec: a.PollerPollNowMinIntervalSec,
 			PollNowDailyQuota: a.PollerPollNowDailyQuota, AutomationsEnabled: d.Flags.AutomationsEnabled,
 			WebhookAllowlist: a.WebhookDomainAllowlist},
-		ExecFor: automationhook.CohortExecutor(c.Enabled, a.GoExecutorWatchPoll, c.Workspaces),
+		ExecFor: d.watchPollExecutor(),
 		Log:     d.logger(),
 	}
 }

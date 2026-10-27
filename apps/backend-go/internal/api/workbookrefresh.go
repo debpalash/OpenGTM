@@ -39,10 +39,9 @@ type refreshRoutes struct {
 	svc *wbcrud.Service
 }
 
-// executor is go_executor.refresh_executor: the same cohort resolution the
-// worker applies when it chains the next refresh (config.ExecutorSettings).
-func (h refreshRoutes) executor(ws string) string {
-	return config.ExecutorCohortFrom(h.d.getenv()).RefreshExecutor(ws)
+// executor is the executor of a refresh_workbook job: "go", the only executor since the plan 15 cutover.
+func (h refreshRoutes) executor(string) string {
+	return config.ExecutorGo
 }
 
 func (h refreshRoutes) fail(w http.ResponseWriter, what string, err error) {

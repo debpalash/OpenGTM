@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -235,50 +236,60 @@ func TestEveryAudienceDestinationRouteHasFixtureOrIsRetained(t *testing.T) {
 	assertFixturesCover(t, rest, fixtureRequests(t, "audiences", "destinations"))
 }
 
-// audience_refresh and audience_destination_sync are the only job types the plan 10 wiring dispatches; Python
-// registers both, and nothing else (scheduler, drafting, other workers) is claimed by it.
-func TestEveryAudienceJobTypeHandledOrPython(t *testing.T) {
-	reg := pythonAPIFile(t, "services", "job_registry.py")
-	py := map[string]bool{}
-	for _, m := range pyJobKey.FindAllStringSubmatch(reg, -1) {
-		py[m[1]] = true
-	}
-	src, err := os.ReadFile(filepath.Join("..", "..", "cmd", "worker", "handlers_audiences.go"))
+// audience_refresh and audience_destination_sync are claimable and handled by the Go worker unconditionally
+// (the plan 15 cutover retired the cohort flags and the Python worker).
+func TestEveryAudienceJobTypeHandledByGoWorker(t *testing.T) {
+	const file = "handlers_audiences.go"
+	allowed, handled := workerJobTypes(t, file, map[string]string{"audiencesched.JobType": audiencesched.JobType, "deststore.JobType": deststore.JobType})
+	assertWorkerHandlesExactly(t, file, allowed, handled, "audience_refresh", "audience_destination_sync")
+}
+
+// workerJobTypes reads one cmd/worker source file and returns the job types it makes claimable
+// (queue.AllowJobType) and those it maps to a handler (map literal keys of handlers and handlers[k] = ...),
+// resolving the identifiers through consts.
+func workerJobTypes(t *testing.T, file string, consts map[string]string) (allowed, handled map[string]bool) {
+	t.Helper()
+	b, err := os.ReadFile(filepath.Join("..", "..", "cmd", "worker", file))
 	if err != nil {
 		t.Fatal(err)
 	}
-	consts := map[string]string{"audiencesched.JobType": audiencesched.JobType, "deststore.JobType": deststore.JobType}
-	body := regexp.MustCompile(`(?s)handlers := map\[string\]runner\{(.*?)\n\t\}`).FindStringSubmatch(string(src))
-	if body == nil {
-		t.Fatal("handlers map not found in cmd/worker/handlers_audiences.go")
-	}
-	got := map[string]bool{}
-	resolve := func(name string) {
+	src := string(b)
+	resolve := func(set map[string]bool, name string) {
 		v, ok := consts[name]
-		if !ok {
-			t.Fatalf("cannot resolve job type constant %s", name)
+		if !ok || v == "" {
+			t.Fatalf("%s: cannot resolve job type %s", file, name)
 		}
-		got[v] = true
+		set[v] = true
 	}
-	for _, m := range goHandlerKy.FindAllStringSubmatch(body[1], -1) {
-		resolve(m[1])
+	allowed, handled = map[string]bool{}, map[string]bool{}
+	for _, m := range regexp.MustCompile(`queue\.AllowJobType\(([\w.]+)\)`).FindAllStringSubmatch(src, -1) {
+		resolve(allowed, m[1])
 	}
-	for _, m := range regexp.MustCompile(`handlers\[([\w.]+)\]\s*=`).FindAllStringSubmatch(string(src), -1) {
-		resolve(m[1])
+	for _, m := range regexp.MustCompile(`handlers\[([\w.]+)\]\s*=`).FindAllStringSubmatch(src, -1) {
+		resolve(handled, m[1])
 	}
-	if len(got) != 2 || !got["audience_refresh"] || !got["audience_destination_sync"] {
-		t.Errorf("audience wiring must dispatch exactly audience_refresh and audience_destination_sync, got %v", got)
-	}
-	for ty := range got {
-		if !py[ty] {
-			t.Errorf("Go dispatches %q, which Python does not register", ty)
+	// entries of a multi-line handlers literal (two tabs in) and the first key of a one-line literal
+	for _, re := range []string{`(?m)^\t\t([\w.]+):\s`, `map\[string\]runner\{([\w.]+):`} {
+		for _, m := range regexp.MustCompile(re).FindAllStringSubmatch(src, -1) {
+			resolve(handled, m[1])
 		}
 	}
-	// The scheduler is Python-only (D9).
-	for _, ty := range []string{"audience_schedule", "bootstrap_audience_schedules", "audience_tick"} {
-		if got[ty] {
-			t.Errorf("job type %s must stay on the Python worker", ty)
-		}
+	return allowed, handled
+}
+
+// assertWorkerHandlesExactly checks that the worker makes exactly want claimable and gives each a Go handler: since
+// the plan 15 cutover there is no Python worker to hand a job type back to.
+func assertWorkerHandlesExactly(t *testing.T, file string, allowed, handled map[string]bool, want ...string) {
+	t.Helper()
+	w := map[string]bool{}
+	for _, ty := range want {
+		w[ty] = true
+	}
+	if !reflect.DeepEqual(allowed, w) {
+		t.Errorf("%s: claimable job types %v, want %v", file, allowed, w)
+	}
+	if !reflect.DeepEqual(handled, w) {
+		t.Errorf("%s: handled job types %v, want %v", file, handled, w)
 	}
 }
 

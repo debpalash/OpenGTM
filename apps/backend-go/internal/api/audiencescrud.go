@@ -9,7 +9,6 @@ import (
 	"log/slog"
 	"net/http"
 	"reflect"
-	"slices"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -20,7 +19,6 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audiencerefresh"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audiencesched"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -163,23 +161,14 @@ func audJSON(a gen.Audience) audiencerefresh.Audience {
 	return out
 }
 
-// refreshExecutor is go_executor.audience_refresh_executor: "go" only with GO_EXECUTOR_ENABLED, GO_EXECUTOR_AUDIENCE_REFRESH
-// and the workspace in GO_EXECUTOR_WORKSPACES, read from the environment per call.
-func (h audCrud) refreshExecutor(ws string) string {
-	c := config.ExecutorCohortFrom(h.d.getenv())
-	return automationhook.CohortExecutor(c.Enabled, h.d.Flags.Audiences.GoExecutorAudienceRefresh, c.Workspaces)(ws)
-}
+// refreshExecutor is the executor of a scheduled audience_refresh job: "go", the only executor since the plan 15
+// cutover (GO_EXECUTOR_AUDIENCE_REFRESH and the cohort are retired).
+func (h audCrud) refreshExecutor(string) string { return config.ExecutorGo }
 
-// destExecutor is go_executor.destination_executor for workspace ws: "go" only with GO_EXECUTOR_ENABLED, the destination
-// type in GO_DEST_TYPES and the workspace in the cohort.
-func (h audCrud) destExecutor(ws string) func(string) string {
-	c := config.ExecutorCohortFrom(h.d.getenv())
-	return func(destType string) string {
-		if c.Enabled && config.InCohort(c.Workspaces, ws) && slices.Contains(h.d.Flags.Audiences.GoDestTypes, strings.ToLower(strings.TrimSpace(destType))) {
-			return "go"
-		}
-		return "python"
-	}
+// destExecutor is the executor of an audience_destination_sync job for every destination type: "go" (GO_DEST_TYPES
+// is retired).
+func (h audCrud) destExecutor(string) func(string) string {
+	return func(string) string { return config.ExecutorGo }
 }
 
 // materialize is materialize_audience (refresh_audience_observed) bounded by the 120 s request timeout.
