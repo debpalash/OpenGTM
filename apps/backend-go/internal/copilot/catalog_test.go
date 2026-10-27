@@ -193,8 +193,8 @@ func TestCatalogEveryToolHasExecutor(t *testing.T) {
 			t.Errorf("native tool %s is not in the catalog", n)
 		}
 	}
-	if len(native) != 16 {
-		t.Errorf("Go tools = %d, want 16 (4 always native + 12 behind GO_COPILOT_NATIVE)", len(native))
+	if len(native) != 24 {
+		t.Errorf("Go tools = %d, want 24 (4 always native + 20 behind GO_COPILOT_NATIVE)", len(native))
 	}
 }
 

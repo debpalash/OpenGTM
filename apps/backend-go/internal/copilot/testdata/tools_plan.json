@@ -1,0 +1,986 @@
+{
+ "draft": [
+  {
+   "name": "draft_plan",
+   "args": {
+    "goal": "find 20 IT staffing firms in Pune with founder emails",
+    "target_count": 20
+   },
+   "user_id": 7,
+   "history": [
+    {
+     "name": "enrich_people_contacts",
+     "result": {
+      "ok": true,
+      "company": "Acme",
+      "function": "partnerships",
+      "action_id": "src-1",
+      "people": [
+       {
+        "person_id": "person_a",
+        "name": "Ann Lee",
+        "title": "Head of Partnerships",
+        "function": "partnerships",
+        "contactability": {
+         "email": "Ann.Lee@Acme.com",
+         "status": "verified",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "verification_confidence": 0.9
+       },
+       {
+        "person_id": "person_b",
+        "name": "Bob Roy",
+        "title": "Partnerships Manager",
+        "function": "partnerships",
+        "contactability": {
+         "email": "bob@acme.com",
+         "status": "risky",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "confidence": 1.7
+       }
+      ]
+     }
+    }
+   ],
+   "result": "{\"plan\": {\"goal\": \"find 20 IT staffing firms in Pune with founder emails\", \"estimated_rows\": 20, \"steps\": [{\"kind\": \"create_source_workbook\", \"description\": \"Create a live-sourcing workbook for: find 20 IT staffing firms in Pune with founder emails (target 20 rows)\", \"params\": {\"icp_description\": \"find 20 IT staffing firms in Pune with founder emails\", \"target_rows\": 20, \"auto_run\": true, \"auto_enrich\": true}}, {\"kind\": \"add_agent_column\", \"description\": \"Add an agent column \\\"Founder Email\\\" \\u2014 Find the verified email address of the founder, CEO, or owner.\", \"params\": {\"column_name\": \"Founder Email\", \"goal\": \"Find the verified email address of the founder, CEO, or owner.\", \"target_field\": \"email\"}}, {\"kind\": \"report\", \"description\": \"Summarize the results and link the workbook\", \"params\": {}}]}, \"plan_id\": \"00000000000000000000000000000001\", \"nonce\": \"00000000000000000000000000000002\", \"message\": \"Drafted a plan. Call execute_plan with {plan_id, nonce} to run it (the user will be asked to approve).\"}",
+   "calls": []
+  },
+  {
+   "name": "draft_plan",
+   "args": {
+    "goal": "x",
+    "target_count": "15"
+   },
+   "user_id": 7,
+   "history": [
+    {
+     "name": "enrich_people_contacts",
+     "result": {
+      "ok": true,
+      "company": "Acme",
+      "function": "partnerships",
+      "action_id": "src-1",
+      "people": [
+       {
+        "person_id": "person_a",
+        "name": "Ann Lee",
+        "title": "Head of Partnerships",
+        "function": "partnerships",
+        "contactability": {
+         "email": "Ann.Lee@Acme.com",
+         "status": "verified",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "verification_confidence": 0.9
+       },
+       {
+        "person_id": "person_b",
+        "name": "Bob Roy",
+        "title": "Partnerships Manager",
+        "function": "partnerships",
+        "contactability": {
+         "email": "bob@acme.com",
+         "status": "risky",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "confidence": 1.7
+       }
+      ]
+     }
+    }
+   ],
+   "result": "{\"plan\": {\"goal\": \"x\", \"estimated_rows\": 15, \"steps\": [{\"kind\": \"create_source_workbook\", \"description\": \"Create a live-sourcing workbook for: x (target 15 rows)\", \"params\": {\"icp_description\": \"x\", \"target_rows\": 15, \"auto_run\": true, \"auto_enrich\": false}}, {\"kind\": \"report\", \"description\": \"Summarize the results and link the workbook\", \"params\": {}}]}, \"plan_id\": \"00000000000000000000000000000003\", \"nonce\": \"00000000000000000000000000000004\", \"message\": \"Drafted a plan. Call execute_plan with {plan_id, nonce} to run it (the user will be asked to approve).\"}",
+   "calls": []
+  },
+  {
+   "name": "draft_plan",
+   "args": {
+    "goal": "x",
+    "target_count": 7.9
+   },
+   "user_id": 7,
+   "history": [
+    {
+     "name": "enrich_people_contacts",
+     "result": {
+      "ok": true,
+      "company": "Acme",
+      "function": "partnerships",
+      "action_id": "src-1",
+      "people": [
+       {
+        "person_id": "person_a",
+        "name": "Ann Lee",
+        "title": "Head of Partnerships",
+        "function": "partnerships",
+        "contactability": {
+         "email": "Ann.Lee@Acme.com",
+         "status": "verified",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "verification_confidence": 0.9
+       },
+       {
+        "person_id": "person_b",
+        "name": "Bob Roy",
+        "title": "Partnerships Manager",
+        "function": "partnerships",
+        "contactability": {
+         "email": "bob@acme.com",
+         "status": "risky",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "confidence": 1.7
+       }
+      ]
+     }
+    }
+   ],
+   "result": "{\"plan\": {\"goal\": \"x\", \"estimated_rows\": 7, \"steps\": [{\"kind\": \"create_source_workbook\", \"description\": \"Create a live-sourcing workbook for: x (target 7 rows)\", \"params\": {\"icp_description\": \"x\", \"target_rows\": 7, \"auto_run\": true, \"auto_enrich\": false}}, {\"kind\": \"report\", \"description\": \"Summarize the results and link the workbook\", \"params\": {}}]}, \"plan_id\": \"00000000000000000000000000000005\", \"nonce\": \"00000000000000000000000000000006\", \"message\": \"Drafted a plan. Call execute_plan with {plan_id, nonce} to run it (the user will be asked to approve).\"}",
+   "calls": []
+  },
+  {
+   "name": "draft_plan",
+   "args": {
+    "goal": null
+   },
+   "user_id": 7,
+   "history": [
+    {
+     "name": "enrich_people_contacts",
+     "result": {
+      "ok": true,
+      "company": "Acme",
+      "function": "partnerships",
+      "action_id": "src-1",
+      "people": [
+       {
+        "person_id": "person_a",
+        "name": "Ann Lee",
+        "title": "Head of Partnerships",
+        "function": "partnerships",
+        "contactability": {
+         "email": "Ann.Lee@Acme.com",
+         "status": "verified",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "verification_confidence": 0.9
+       },
+       {
+        "person_id": "person_b",
+        "name": "Bob Roy",
+        "title": "Partnerships Manager",
+        "function": "partnerships",
+        "contactability": {
+         "email": "bob@acme.com",
+         "status": "risky",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "confidence": 1.7
+       }
+      ]
+     }
+    }
+   ],
+   "result": "{\"plan\": {\"goal\": \"\", \"estimated_rows\": null, \"steps\": [{\"kind\": \"create_source_workbook\", \"description\": \"Create a live-sourcing workbook for: \", \"params\": {\"icp_description\": \"\", \"target_rows\": 0, \"auto_run\": true, \"auto_enrich\": false}}, {\"kind\": \"report\", \"description\": \"Summarize the results and link the workbook\", \"params\": {}}]}, \"plan_id\": \"00000000000000000000000000000007\", \"nonce\": \"00000000000000000000000000000008\", \"message\": \"Drafted a plan. Call execute_plan with {plan_id, nonce} to run it (the user will be asked to approve).\"}",
+   "calls": []
+  },
+  {
+   "name": "draft_plan",
+   "args": {
+    "goal": 5
+   },
+   "user_id": 7,
+   "history": [
+    {
+     "name": "enrich_people_contacts",
+     "result": {
+      "ok": true,
+      "company": "Acme",
+      "function": "partnerships",
+      "action_id": "src-1",
+      "people": [
+       {
+        "person_id": "person_a",
+        "name": "Ann Lee",
+        "title": "Head of Partnerships",
+        "function": "partnerships",
+        "contactability": {
+         "email": "Ann.Lee@Acme.com",
+         "status": "verified",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "verification_confidence": 0.9
+       },
+       {
+        "person_id": "person_b",
+        "name": "Bob Roy",
+        "title": "Partnerships Manager",
+        "function": "partnerships",
+        "contactability": {
+         "email": "bob@acme.com",
+         "status": "risky",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "confidence": 1.7
+       }
+      ]
+     }
+    }
+   ],
+   "result": "{\"error\": \"Tool 'draft_plan' failed: 'int' object has no attribute 'strip'\"}",
+   "calls": []
+  },
+  {
+   "name": "draft_plan",
+   "args": {
+    "goal": "x",
+    "target_count": "abc"
+   },
+   "user_id": 7,
+   "history": [
+    {
+     "name": "enrich_people_contacts",
+     "result": {
+      "ok": true,
+      "company": "Acme",
+      "function": "partnerships",
+      "action_id": "src-1",
+      "people": [
+       {
+        "person_id": "person_a",
+        "name": "Ann Lee",
+        "title": "Head of Partnerships",
+        "function": "partnerships",
+        "contactability": {
+         "email": "Ann.Lee@Acme.com",
+         "status": "verified",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "verification_confidence": 0.9
+       },
+       {
+        "person_id": "person_b",
+        "name": "Bob Roy",
+        "title": "Partnerships Manager",
+        "function": "partnerships",
+        "contactability": {
+         "email": "bob@acme.com",
+         "status": "risky",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "confidence": 1.7
+       }
+      ]
+     }
+    }
+   ],
+   "result": "{\"error\": \"Tool 'draft_plan' failed: invalid literal for int() with base 10: 'abc'\"}",
+   "calls": []
+  },
+  {
+   "name": "draft_plan",
+   "args": {},
+   "user_id": 7,
+   "history": [
+    {
+     "name": "enrich_people_contacts",
+     "result": {
+      "ok": true,
+      "company": "Acme",
+      "function": "partnerships",
+      "action_id": "src-1",
+      "people": [
+       {
+        "person_id": "person_a",
+        "name": "Ann Lee",
+        "title": "Head of Partnerships",
+        "function": "partnerships",
+        "contactability": {
+         "email": "Ann.Lee@Acme.com",
+         "status": "verified",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "verification_confidence": 0.9
+       },
+       {
+        "person_id": "person_b",
+        "name": "Bob Roy",
+        "title": "Partnerships Manager",
+        "function": "partnerships",
+        "contactability": {
+         "email": "bob@acme.com",
+         "status": "risky",
+         "attempts": [
+          {
+           "stage": "verification",
+           "status": "VALID",
+           "provider": "zerobounce"
+          }
+         ],
+         "verification_confidence": 0.87,
+         "observed_at": "2026-01-03T00:00:00+00:00",
+         "is_role": false,
+         "finder_provider": "hunter",
+         "verifier_provider": "zb"
+        },
+        "checked_at": "2026-01-02",
+        "verification_sources": [
+         {
+          "url": "https://acme.com/team",
+          "label": "Team page"
+         },
+         {
+          "url": "ftp://x/y",
+          "label": "bad"
+         },
+         {
+          "url": "https://acme.com/team",
+          "title": "dup"
+         },
+         {
+          "url": "https://news.example/a",
+          "title": "News title"
+         },
+         "junk"
+        ],
+        "evidence_url": "https://acme.com/about",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "confidence": 1.7
+       }
+      ]
+     }
+    }
+   ],
+   "result": "{\"error\": \"Tool 'draft_plan' failed: 'goal'\"}",
+   "calls": []
+  }
+ ],
+ "describe": [
+  {
+   "args": {
+    "plan_id": "00000000000000000000000000000001"
+   },
+   "workspace_id": "ws-1",
+   "text": "🤖 Autopilot — find 20 IT staffing firms in Pune with founder emails\n1. Create a live-sourcing workbook for: find 20 IT staffing firms in Pune with founder emails (target 20 rows)\n2. Add an agent column \"Founder Email\" — Find the verified email address of the founder, CEO, or owner.\n3. Summarize the results and link the workbook\nTarget: ~20 companies"
+  },
+  {
+   "args": {
+    "plan_id": "00000000000000000000000000000001"
+   },
+   "workspace_id": "ws-other",
+   "text": "🤖 Run Autopilot Plan\nBuilds a workbook and runs sourcing + agent-column enrichment (spends resources)."
+  },
+  {
+   "args": {
+    "plan": {
+     "goal": "client",
+     "steps": [
+      {
+       "kind": "report",
+       "description": "Client step"
+      }
+     ],
+     "estimated_rows": 3
+    }
+   },
+   "workspace_id": "ws-1",
+   "text": "🤖 Autopilot — client\n1. Client step\nTarget: ~3 companies"
+  },
+  {
+   "args": {},
+   "workspace_id": "ws-1",
+   "text": "🤖 Run Autopilot Plan\nBuilds a workbook and runs sourcing + agent-column enrichment (spends resources)."
+  },
+  {
+   "args": {
+    "plan_id": "missing"
+   },
+   "workspace_id": "ws-1",
+   "text": "🤖 Run Autopilot Plan\nBuilds a workbook and runs sourcing + agent-column enrichment (spends resources)."
+  }
+ ],
+ "execute": [
+  {
+   "name": "execute_plan",
+   "args": {
+    "plan_id": "00000000000000000000000000000001",
+    "nonce": "wrong"
+   },
+   "user_id": 7,
+   "result": "{\"error\": \"Plan not found or already executed. Re-draft and approve the plan.\"}",
+   "calls": []
+  },
+  {
+   "name": "execute_plan",
+   "args": {
+    "plan_id": "00000000000000000000000000000001",
+    "nonce": "00000000000000000000000000000002"
+   },
+   "user_id": 8,
+   "result": "{\"error\": \"Plan not found or already executed. Re-draft and approve the plan.\"}",
+   "calls": []
+  },
+  {
+   "name": "execute_plan",
+   "args": {
+    "plan_id": "00000000000000000000000000000001",
+    "nonce": "00000000000000000000000000000002"
+   },
+   "user_id": 99,
+   "result": "{\"error\": \"Insufficient workspace role\"}",
+   "calls": []
+  },
+  {
+   "name": "execute_plan",
+   "args": {
+    "plan_id": "00000000000000000000000000000001",
+    "nonce": "00000000000000000000000000000002"
+   },
+   "user_id": 7,
+   "result": "{\"ok\": true, \"workbook_id\": \"wb-plan\", \"goal\": \"find 20 IT staffing firms in Pune with founder emails\", \"steps_done\": [{\"kind\": \"create_source_workbook\", \"workbook_id\": \"wb-plan\", \"ok\": true}, {\"kind\": \"add_agent_column\", \"column\": \"Founder Email\", \"ok\": true}], \"message\": \"Autopilot built workbook wb-plan. Sourcing and enrichment are running in the background \\u2014 open /workbooks/wb-plan to watch rows and agent columns fill in.\"}",
+   "calls": [
+    {
+     "fn": "tool",
+     "name": "create_source_workbook",
+     "args": {
+      "icp_description": "find 20 IT staffing firms in Pune with founder emails",
+      "target_rows": 20,
+      "auto_run": true,
+      "auto_enrich": true
+     },
+     "workspace_id": "ws-1",
+     "user_id": 7
+    },
+    {
+     "fn": "tool",
+     "name": "add_agent_column",
+     "args": {
+      "column_name": "Founder Email",
+      "goal": "Find the verified email address of the founder, CEO, or owner.",
+      "target_field": "email",
+      "workbook_id": "wb-plan"
+     },
+     "workspace_id": "ws-1",
+     "user_id": 7
+    }
+   ]
+  },
+  {
+   "name": "execute_plan",
+   "args": {
+    "plan_id": "00000000000000000000000000000001",
+    "nonce": "00000000000000000000000000000002"
+   },
+   "user_id": 7,
+   "result": "{\"error\": \"Plan not found or already executed. Re-draft and approve the plan.\"}",
+   "calls": []
+  },
+  {
+   "name": "execute_plan",
+   "args": {
+    "nonce": "00000000000000000000000000000002"
+   },
+   "user_id": 7,
+   "result": "{\"error\": \"Plan not found or already executed. Re-draft and approve the plan.\"}",
+   "calls": []
+  },
+  {
+   "name": "execute_plan",
+   "args": {
+    "plan": {
+     "goal": "find 20 IT staffing firms in Pune with founder emails",
+     "estimated_rows": 20,
+     "steps": [
+      {
+       "kind": "create_source_workbook",
+       "description": "Create a live-sourcing workbook for: find 20 IT staffing firms in Pune with founder emails (target 20 rows)",
+       "params": {
+        "icp_description": "find 20 IT staffing firms in Pune with founder emails",
+        "target_rows": 20,
+        "auto_run": true,
+        "auto_enrich": true
+       }
+      },
+      {
+       "kind": "add_agent_column",
+       "description": "Add an agent column \"Founder Email\" — Find the verified email address of the founder, CEO, or owner.",
+       "params": {
+        "column_name": "Founder Email",
+        "goal": "Find the verified email address of the founder, CEO, or owner.",
+        "target_field": "email"
+       }
+      },
+      {
+       "kind": "report",
+       "description": "Summarize the results and link the workbook",
+       "params": {}
+      }
+     ]
+    }
+   },
+   "user_id": 7,
+   "result": "{\"error\": \"Plan not found or already executed. Re-draft and approve the plan.\"}",
+   "calls": []
+  }
+ ],
+ "memory_after": [
+  {
+   "goal": "find 20 IT staffing firms in Pune with founder emails",
+   "workbook_id": "wb-plan",
+   "outcome": "ok"
+  }
+ ],
+ "ids": [
+  "00000000000000000000000000000001",
+  "00000000000000000000000000000002",
+  "00000000000000000000000000000003",
+  "00000000000000000000000000000004",
+  "00000000000000000000000000000005",
+  "00000000000000000000000000000006",
+  "00000000000000000000000000000007",
+  "00000000000000000000000000000008",
+  "00000000000000000000000000000009",
+  "0000000000000000000000000000000a",
+  "0000000000000000000000000000000b",
+  "0000000000000000000000000000000c",
+  "0000000000000000000000000000000d",
+  "0000000000000000000000000000000e",
+  "0000000000000000000000000000000f",
+  "00000000000000000000000000000010",
+  "00000000000000000000000000000011",
+  "00000000000000000000000000000012",
+  "00000000000000000000000000000013"
+ ]
+}

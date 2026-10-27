@@ -502,10 +502,20 @@ class _Store:
 STORE = _Store()
 
 
+def history_rows():
+    rows = []
+    for n, results in HISTORY.items():
+        for i, r in results:
+            rows.append((i, n, r))
+    return [{"name": n, "result": copy.deepcopy(r)} for i, n, r in sorted(rows, key=lambda x: x[0])]
+
+
 def call(name, args, uid=UID):
     PEOPLE_CALLS.clear()
+    hist = history_rows()
     out = run(T.execute(name, copy.deepcopy(args), ctx(uid)))
-    return {"name": name, "args": args, "user_id": uid, "result": out, "calls": copy.deepcopy(PEOPLE_CALLS)}
+    return {"name": name, "args": args, "user_id": uid, "history": hist, "result": out,
+            "calls": copy.deepcopy(PEOPLE_CALLS)}
 
 
 outreach_out = [call("suggest_outreach", a) for a in [

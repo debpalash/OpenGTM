@@ -38,8 +38,9 @@ type preVector struct {
 	} `json:"approvals"`
 }
 
-// preDelegated are the corpus cases whose first matching branch belongs to a tool still served by Python.
-var preDelegated = map[string]bool{"explicit_people_card": true, "contacts": true, "verify": true, "workbook": true, "draft": true}
+// preDelegated are the corpus cases delegated to the worker when the engine has no People (leadpeople):
+// explicit people research and verification. tools_people_integration_test.go replays them with People.
+var preDelegated = map[string]bool{"explicit_people_card": true, "verify": true}
 
 // preGoFixes are the Python defects fixed in Go: recorded text -> Go text.
 var preGoFixes = map[string][2]string{
