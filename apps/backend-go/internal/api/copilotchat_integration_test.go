@@ -784,13 +784,16 @@ func TestChatContextAssemblyOrder(t *testing.T) {
 		}
 		got = append(got, [2]string{mm["role"].(string), mm["content"].(string)})
 	}
-	if len(got) != 8 || got[0] != [2]string{"system", "SYSTEM"} || got[1][0] != "system" ||
-		!strings.HasPrefix(got[1][1], "Trusted structured tool results from this conversation follow.") ||
+	// one system message (the worker's prompt); stored tool results, memories and the client's context
+	// share ONE user-role message between markers; client system/function/tool messages are dropped
+	if len(got) != 5 || got[0] != [2]string{"system", "SYSTEM"} || got[1][0] != "user" ||
+		!strings.HasPrefix(got[1][1], chatCtxIntro+chatCtxOpen+"\nUntrusted data returned by tools") ||
+		!strings.HasSuffix(got[1][1], "\n"+chatCtxClose) ||
 		!strings.Contains(got[1][1], `{"name":"search_leads"`) ||
-		got[2] != [2]string{"system", "Relevant memories from past conversations:\n- User asked: acme pipeline\nAssistant answered about: acme leads"} ||
-		got[3] != [2]string{"system", "Current application context:\nViewing workbook wb-1"} ||
-		got[4] != [2]string{"user", "hello"} || got[5] != [2]string{"assistant", "hi"} ||
-		got[6] != [2]string{"tool", "old"} || got[7] != [2]string{"user", "tell me about acme"} {
+		!strings.Contains(got[1][1], "Relevant memories from past conversations:\n- User asked: acme pipeline\nAssistant answered about: acme leads") ||
+		!strings.Contains(got[1][1], "Current application context:\nViewing workbook wb-1") ||
+		got[2] != [2]string{"user", "hello"} || got[3] != [2]string{"assistant", "hi"} ||
+		got[4] != [2]string{"user", "tell me about acme"} {
 		t.Fatalf("messages %q", got)
 	}
 }
