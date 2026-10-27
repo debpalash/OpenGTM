@@ -51,8 +51,9 @@ type loVec struct {
 
 // Deliberate departures from Python (WP-AUTOLEGACY report): a suppressed address
 // never gets enrolled or queued by send_email, and a lead-less standalone send is
-// keyed by the address instead of the literal "None".
-var loDeviation = map[string]bool{"send_email_seq_suppressed": true, "send_email_standalone_lead_none": true}
+// keyed by the address instead of the literal "None". Review wave 2a M4: a trigger row without a lead id is
+// refused by sequencer (Python enrolled it as lead_id 0, shared by every lead-less row).
+var loDeviation = map[string]bool{"send_email_seq_suppressed": true, "send_email_standalone_lead_none": true, "sequencer_lead_none": true}
 
 func loClean(t *testing.T, ctx context.Context, d Deps) {
 	t.Helper()

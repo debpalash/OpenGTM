@@ -49,6 +49,9 @@ func legacySequencer(ctx context.Context, d Deps, ws string, cfg map[string]any,
 	if email == "" {
 		return Result{Status: "skipped", SkipReason: "no_email", Summary: "lead has no email"}
 	}
+	if leadID == nil {
+		return failed(errNoLeadID)
+	}
 	if d.Pool == nil {
 		return failed("outreach store not configured")
 	}
@@ -71,10 +74,18 @@ func legacySequencer(ctx context.Context, d Deps, ws string, cfg map[string]any,
 			res = Result{Status: "skipped", SkipReason: "suppressed", Summary: "suppressed"}
 			return nil
 		}
-		_, created, err := outreachstore.Enroll(ctx, tx, ws, seq, int(idOrZero(leadID)), email,
+		_, created, err := outreachstore.Enroll(ctx, tx, ws, seq, int(*leadID), email,
 			"trigger:"+str0(cfg["_trigger_id"]), now(d))
 		if err != nil {
 			return err
+		}
+		if !created {
+			if _, stored, found, err := existingEnrollment(ctx, tx, ws, seq, *leadID); err != nil {
+				return err
+			} else if found && stored != email {
+				res = failed(errEnrollmentEmail)
+				return nil
+			}
 		}
 		res = Result{Status: "success", Summary: "already enrolled"}
 		if created {
@@ -120,6 +131,9 @@ func legacySendEmail(ctx context.Context, d Deps, ws string, cfg map[string]any,
 	if err != nil {
 		return failed(truncErr(err))
 	}
+	if seqID != nil && leadID == nil {
+		return failed(errNoLeadID)
+	}
 	if d.Pool == nil {
 		return failed("outreach store not configured")
 	}
@@ -149,17 +163,22 @@ func legacySendEmail(ctx context.Context, d Deps, ws string, cfg map[string]any,
 				res.SkipReason = "not_connected"
 				return nil
 			}
-			eid, created, err := outreachstore.Enroll(ctx, tx, ws, *seqID, int(idOrZero(leadID)), email, "trigger_send", time.Time{})
+			eid, created, err := outreachstore.Enroll(ctx, tx, ws, *seqID, int(*leadID), email, "trigger_send", time.Time{})
 			if err != nil {
 				return err
 			}
 			if !created {
-				err = tx.QueryRow(ctx, `SELECT id FROM outreach_enrollments
-				  WHERE workspace_id=$1 AND sequence_id=$2 AND lead_id=$3`, ws, *seqID, int32(idOrZero(leadID))).Scan(&eid)
-				if errors.Is(err, pgx.ErrNoRows) {
-					eid = 0
-				} else if err != nil {
+				id, stored, found, err := existingEnrollment(ctx, tx, ws, *seqID, *leadID)
+				if err != nil {
 					return err
+				}
+				if found && stored != email {
+					res = failed(errEnrollmentEmail)
+					return nil
+				}
+				eid = 0
+				if found {
+					eid = id
 				}
 			}
 			if eid != 0 {
@@ -182,6 +201,25 @@ func legacySendEmail(ctx context.Context, d Deps, ws string, cfg map[string]any,
 		return failed(truncErr(err))
 	}
 	return res
+}
+
+// Refusals that keep one recipient's data from reaching another (review wave2a M4).
+const (
+	errNoLeadID        = "trigger row has no lead id; sequence enrollment and sends need a lead"
+	errEnrollmentEmail = "existing enrollment for this lead has a different email; not reusing it"
+)
+
+// existingEnrollment is the enrollment of (sequence, lead) and its stored (normalized) address.
+func existingEnrollment(ctx context.Context, tx pgx.Tx, ws, seq string, leadID int64) (id int, email string, found bool, err error) {
+	err = tx.QueryRow(ctx, `SELECT id, to_email_snapshot FROM outreach_enrollments
+	  WHERE workspace_id=$1 AND sequence_id=$2 AND lead_id=$3`, ws, seq, int32(leadID)).Scan(&id, &email)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return 0, "", false, nil
+	}
+	if err != nil {
+		return 0, "", false, err
+	}
+	return id, emailnorm.Normalize(email), true, nil
 }
 
 // enqueueIfAbsent is _enqueue_if_absent (outreachsend.EnqueueSend with a payload
@@ -220,13 +258,6 @@ func now(d Deps) time.Time {
 		return d.Now()
 	}
 	return time.Now().UTC()
-}
-
-func idOrZero(id *int64) int64 {
-	if id == nil {
-		return 0
-	}
-	return *id
 }
 
 // adhocWho keys a standalone send without an engine key. Python used the literal
