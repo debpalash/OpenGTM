@@ -14,68 +14,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  backend:
-    name: Backend tests (SQLite)
-    # legacy/python is local-only and not in this repo; hashFiles() is not
-    # available at job level, so opt in with a repository variable.
-    if: vars.LEGACY_PYTHON_CI == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    defaults:
-      run:
-        working-directory: legacy/python
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@v7
-        with:
-          python-version: '3.13'
-          enable-cache: true
-      - run: uv run --frozen pytest -q -m 'not live and not postgres'
-
-  postgres:
-    name: PostgreSQL integrity and tenancy
-    # legacy/python is local-only and not in this repo; hashFiles() is not
-    # available at job level, so opt in with a repository variable.
-    if: vars.LEGACY_PYTHON_CI == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    services:
-      postgres:
-        image: postgres:18
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: opengtm_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d opengtm_test"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-    defaults:
-      run:
-        working-directory: legacy/python
-    env:
-      TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/opengtm_test
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@v7
-        with:
-          python-version: '3.13'
-          enable-cache: true
-      - run: >-
-          uv run --frozen pytest -q
-          tests/test_create_merge_pg.py
-          tests/test_entity_identity_pg.py
-          tests/test_pg_tenancy_rls.py
-          tests/test_lead_paging_pg.py
-          tests/test_workbook_refresh_stale_sql_pg.py
-
   go:
     name: Go vet and tests (PostgreSQL + Redis)
     runs-on: ubuntu-latest
@@ -131,7 +69,7 @@ jobs:
         run: |
           mkdir -p internal/webui/dist && touch internal/webui/dist/index.html
           go build -tags webui -o /dev/null ./cmd/api
-          go build -o /dev/null ./cmd/worker ./cmd/mcp
+          go build -o /dev/null ./cmd/worker ./cmd/mcp ./cmd/migrate ./cmd/scheduler ./cmd/seed
 
   browser-service:
     name: Browser service lint and tests
@@ -180,38 +118,3 @@ jobs:
         run: |
           bun install --frozen-lockfile
           bun test
-
-  frontend-browser:
-    name: Frontend browser regressions
-    # legacy/python is local-only and not in this repo; hashFiles() is not
-    # available at job level, so opt in with a repository variable.
-    if: vars.LEGACY_PYTHON_CI == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    defaults:
-      run:
-        working-directory: legacy/python
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@v7
-        with:
-          python-version: '3.13'
-          enable-cache: true
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: '1.4.2'
-      - name: Install web dependencies
-        working-directory: legacy/python/apps/web
-        run: bun install --frozen-lockfile
-      - run: uv run --frozen playwright install --with-deps chromium
-      - name: Run mounted React interaction regressions
-        shell: bash
-        run: |
-          export OPENGTM_BUN="$(command -v bun)"
-          export OPENGTM_CHROMIUM="$(uv run --frozen python -c 'from playwright.sync_api import sync_playwright; p = sync_playwright().start(); print(p.chromium.executable_path); p.stop()')"
-          uv run --frozen pytest -q \
-            tests/test_workbook_socket_browser.py \
-            tests/test_lead_selection_browser.py \
-            tests/test_workbook_clipboard_browser.py
