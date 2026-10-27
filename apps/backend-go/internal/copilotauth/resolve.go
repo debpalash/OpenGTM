@@ -115,7 +115,12 @@ func Resolve(r *http.Request, d Deps) (Resolved, *Err) {
 		return Resolved{}, internal()
 	}
 
+	// An SSO session (sso_ws) acts in its own workspace only: the scope replaces the stored active
+	// workspace and any other workspace is refused, as identity.Workspace does.
 	ws := r.Header.Get("X-Workspace-Id")
+	if ws == "" {
+		ws = claims.Workspace
+	}
 	if ws == "" {
 		if ws, err = d.Identity.ActiveWorkspaceID(ctx, u.ID); err != nil {
 			return Resolved{}, internal()
@@ -123,6 +128,9 @@ func Resolve(r *http.Request, d Deps) (Resolved, *Err) {
 	}
 	if ws == "" {
 		return Resolved{}, &Err{Status: http.StatusForbidden, Detail: noWorkspace}
+	}
+	if !claims.AllowsWorkspace(ws) {
+		return Resolved{}, &Err{Status: http.StatusForbidden, Detail: "Workspace access denied"}
 	}
 	member, err := d.Identity.IsMember(ctx, ws, u.ID)
 	if err != nil {

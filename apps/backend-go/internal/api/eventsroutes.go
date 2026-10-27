@@ -225,7 +225,15 @@ func (h *eventsRoute) authenticate(w http.ResponseWriter, r *http.Request, q url
 		httpx.Detail(w, http.StatusUnauthorized, queryTokenGoneDetail)
 		return 0, "", nil, false
 	}
-	p, err := identity.AuthenticateQueryTokenCtx(ctx, h.d.Signer, h.d.Identity, tok, false)
+	// Workspace-bound: an SSO session (sso_ws) streams its own workspace only; without workspace_id
+	// its scope (not the stored active workspace) is the workspace.
+	ws = q.Get("workspace_id")
+	if ws == "" {
+		if c, perr := h.d.Signer.ParseAccess(tok); perr == nil {
+			ws = c.Workspace
+		}
+	}
+	p, err := identity.AuthenticateQueryTokenForWorkspace(ctx, h.d.Signer, h.d.Identity, tok, false, ws)
 	if err != nil {
 		var qe *identity.QueryTokenError
 		if errors.As(err, &qe) {
@@ -235,7 +243,7 @@ func (h *eventsRoute) authenticate(w http.ResponseWriter, r *http.Request, q url
 		httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
 		return 0, "", nil, false
 	}
-	return p.User.ID, q.Get("workspace_id"), p.Claims.AMR, true
+	return p.User.ID, ws, p.Claims.AMR, true
 }
 
 // deadlineWriter arms a fresh write deadline before every frame so a client

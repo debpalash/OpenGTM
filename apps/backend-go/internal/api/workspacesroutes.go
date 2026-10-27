@@ -55,6 +55,13 @@ func userID(r *http.Request) int32 {
 	return p.User.ID
 }
 
+// ssoScope is the workspace an SSO session is scoped to (sso_ws), "" for an unscoped session. A scoped
+// session sees and switches to that workspace only and cannot create workspaces.
+func ssoScope(r *http.Request) string {
+	p, _ := identity.PrincipalFrom(r.Context())
+	return p.Claims.Workspace
+}
+
 // epochFloat marshals like Python's float repr: always a fractional part
 // (1788000000.0), shortest round-trip digits.
 type epochFloat float64
@@ -106,11 +113,21 @@ func (w wsRoutes) leads(ctx context.Context, id string) (int64, error) {
 	return n, err
 }
 
-// userWorkspaces lists the caller's workspaces with leads counts.
-func (w wsRoutes) userWorkspaces(ctx context.Context, uid int32) ([]gen.Workspace, []int64, error) {
+// userWorkspaces lists the caller's workspaces with leads counts; scope (an SSO session's workspace)
+// keeps only that one.
+func (w wsRoutes) userWorkspaces(ctx context.Context, uid int32, scope string) ([]gen.Workspace, []int64, error) {
 	rows, err := w.q().ListWorkspacesForUser(ctx, uid)
 	if err != nil {
 		return nil, nil, err
+	}
+	if scope != "" {
+		kept := rows[:0]
+		for _, row := range rows {
+			if row.ID == scope {
+				kept = append(kept, row)
+			}
+		}
+		rows = kept
 	}
 	counts := make([]int64, len(rows))
 	for i, row := range rows {
@@ -149,16 +166,22 @@ func (w wsRoutes) activeID(ctx context.Context, uid int32) (*string, error) {
 }
 
 func (w wsRoutes) list(rw http.ResponseWriter, r *http.Request) {
-	ctx, uid := r.Context(), userID(r)
+	ctx, uid, scope := r.Context(), userID(r), ssoScope(r)
 	active, err := w.activeID(ctx, uid)
 	if err != nil {
 		w.fail(rw, "active")
 		return
 	}
-	rows, counts, err := w.userWorkspaces(ctx, uid)
+	rows, counts, err := w.userWorkspaces(ctx, uid, scope)
 	if err != nil {
 		w.fail(rw, "list")
 		return
+	}
+	if scope != "" { // the scoped workspace is the active one for this session (if still accessible)
+		active = nil
+		if len(rows) == 1 {
+			active = &scope
+		}
 	}
 	items := make([]wsItem, len(rows))
 	for i, row := range rows {
@@ -243,6 +266,10 @@ func isSlugCollision(err error) bool {
 }
 
 func (w wsRoutes) create(rw http.ResponseWriter, r *http.Request) {
+	if ssoScope(r) != "" { // an SSO session acts in its own workspace only
+		httpx.Detail(rw, http.StatusForbidden, "Workspace access denied")
+		return
+	}
 	f, ok := bodyStrings(rw, r, []string{"name"}, map[string]string{"description": "", "icon": "🏢"})
 	if !ok {
 		return
@@ -289,6 +316,10 @@ func (w wsRoutes) switchTo(rw http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	if s := ssoScope(r); s != "" && s != f["workspace_id"] {
+		httpx.Detail(rw, http.StatusForbidden, "Workspace access denied")
+		return
+	}
 	ctx, uid, q := r.Context(), userID(r), w.q()
 	member, err := q.IsMember(ctx, gen.IsMemberParams{WorkspaceID: f["workspace_id"], UserID: uid})
 	if err != nil {
@@ -312,7 +343,7 @@ func (w wsRoutes) switchTo(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (w wsRoutes) dashboard(rw http.ResponseWriter, r *http.Request) {
-	rows, counts, err := w.userWorkspaces(r.Context(), userID(r))
+	rows, counts, err := w.userWorkspaces(r.Context(), userID(r), ssoScope(r))
 	if err != nil {
 		w.fail(rw, "dashboard")
 		return

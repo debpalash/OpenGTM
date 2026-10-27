@@ -132,7 +132,8 @@ func (h *wsRoute) authorize(ctx context.Context, token, workspaceID, workbookID 
 	if token == "" || workspaceID == "" {
 		return 0, false
 	}
-	p, err := identity.AuthenticateQueryTokenCtx(ctx, h.d.Signer, h.d.Identity, token, false)
+	// Workspace-bound: an SSO session (sso_ws) is accepted for its own workspace only.
+	p, err := identity.AuthenticateQueryTokenForWorkspace(ctx, h.d.Signer, h.d.Identity, token, false, workspaceID)
 	if err != nil {
 		var qe *identity.QueryTokenError
 		if !errors.As(err, &qe) {
