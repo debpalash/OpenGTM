@@ -2,12 +2,25 @@ package api
 
 import (
 	"net/http"
-	"net/url"
 	"strings"
 	"sync"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 )
+
+// RegisterTrailingSlashCompat installs RegisterTrailingSlash when GO_TRAILING_SLASH_COMPAT is true (default off:
+// the Python path / nginx pin keeps answering these forms). An invalid value keeps it off and is logged.
+func RegisterTrailingSlashCompat(r *httpx.Router, d Deps) {
+	on, err := config.TrailingSlashCompatFrom(d.getenv())
+	if err != nil {
+		d.Log.Error("GO_TRAILING_SLASH_COMPAT is invalid; trailing-slash redirects stay off")
+		return
+	}
+	if on {
+		RegisterTrailingSlash(r)
+	}
+}
 
 // RegisterTrailingSlash adds FastAPI's redirect_slashes behaviour for every registered route (plan 15 F10).
 //
@@ -27,8 +40,11 @@ func RegisterTrailingSlash(r *httpx.Router) {
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			once.Do(func() { tpls, wsTpls = routeTemplates(r.Patterns()) })
-			p := req.URL.Path
-			if p == "/" || strings.Contains(p, "//") || strings.Contains(p, `\`) || !strings.HasPrefix(p, "/") {
+			// Matching and the Location use the raw (escaped) path, so "%2F" stays one segment and an escaped
+			// character is not decoded on the way through; the safety checks also run on the decoded path.
+			p := req.URL.EscapedPath()
+			if dec := req.URL.Path; p == "/" || strings.Contains(p, "//") || strings.Contains(p, `\`) || !strings.HasPrefix(p, "/") ||
+				strings.Contains(dec, "//") || strings.Contains(dec, `\`) {
 				next.ServeHTTP(w, req)
 				return
 			}
@@ -37,7 +53,11 @@ func RegisterTrailingSlash(r *httpx.Router) {
 				toggled = p + "/"
 			}
 			if toggled != "/" && !templatesMatch(tpls, p) && templatesMatch(tpls, toggled) {
-				w.Header().Set("Location", (&url.URL{Path: toggled, RawQuery: req.URL.RawQuery}).String())
+				loc := toggled
+				if req.URL.RawQuery != "" {
+					loc += "?" + req.URL.RawQuery
+				}
+				w.Header().Set("Location", loc)
 				w.WriteHeader(http.StatusTemporaryRedirect)
 				return
 			}

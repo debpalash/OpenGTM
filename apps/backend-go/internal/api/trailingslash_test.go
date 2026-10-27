@@ -104,6 +104,7 @@ func TestTrailingSlashMatchesRecordedFastAPI(t *testing.T) {
 	r := httpx.NewRouter()
 	d, restore := capDeps(t, true)
 	defer restore()
+	d.Getenv = func(k string) string { return map[string]string{"GO_CAPABILITY_ROUTES_ENABLED": "true", "GO_TRAILING_SLASH_COMPAT": "true"}[k] }
 	RegisterCapabilityRoutes(r, d)
 	registerEnrich(r, enrichDepsWithPool(t))
 	ported := map[string]bool{}
@@ -177,7 +178,7 @@ func TestTrailingSlashLocationKeepsEscaping(t *testing.T) {
 	}
 }
 
-// GO_TRAILING_SLASH_COMPAT, not GO_CAPABILITY_ROUTES_ENABLED, switches the redirect behaviour of every route.
+// GO_TRAILING_SLASH_COMPAT (read by RegisterCapabilityRoutes' group registration), not GO_CAPABILITY_ROUTES_ENABLED, switches the redirect behaviour of every route.
 func TestTrailingSlashCompatHasItsOwnFlag(t *testing.T) {
 	for _, tc := range []struct {
 		env  map[string]string
@@ -191,13 +192,12 @@ func TestTrailingSlashCompatHasItsOwnFlag(t *testing.T) {
 		d.Getenv = func(k string) string { return tc.env[k] }
 		r := httpx.NewRouter()
 		RegisterCapabilityRoutes(r, d)
-		r.Handle("GET /health", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(200) }))
-		RegisterTrailingSlashCompat(r, d)
+		r.Handle("GET /zzz", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(200) }))
 		rec := httptest.NewRecorder()
-		r.Handler().ServeHTTP(rec, httptest.NewRequest("POST", "/health/", nil))
+		r.Handler().ServeHTTP(rec, httptest.NewRequest("POST", "/zzz/", nil))
 		restore()
 		if rec.Code != tc.want {
-			t.Errorf("env %v: POST /health/ = %d, want %d", tc.env, rec.Code, tc.want)
+			t.Errorf("env %v: POST /zzz/ = %d, want %d", tc.env, rec.Code, tc.want)
 		}
 	}
 }

@@ -19,11 +19,14 @@ var capabilityClock func() time.Time
 //     /api/research-playbooks/capabilities: the signed-certification maturity catalogs (integrations/certification.py).
 //     Auth is the global authenticator plus current_workspace (any member, no role gate), as in the Python routers.
 //   - GET /health and GET /api (main.py): public, fixed bodies.
-//   - FastAPI's redirect_slashes for every registered route (RegisterTrailingSlash).
+//
+// FastAPI's redirect_slashes for every registered route (RegisterTrailingSlash) has its own flag,
+// GO_TRAILING_SLASH_COMPAT (default off), so the two cut over independently.
 //
 // Maturity is fail closed: "supported" only with a valid attested controlled-live certificate; otherwise "beta"
 // with certification null. The certificate file is re-read per request, like Python.
 func RegisterCapabilityRoutes(r *httpx.Router, d Deps) {
+	RegisterTrailingSlashCompat(r, d)
 	if d.Pool == nil || d.Identity == nil {
 		return
 	}
@@ -43,7 +46,6 @@ func RegisterCapabilityRoutes(r *httpx.Router, d Deps) {
 	r.Handle("GET /api/governance/capabilities", http.HandlerFunc(h.governance), authn, workspace)
 	r.Handle("GET /api/research-playbooks/capabilities", http.HandlerFunc(h.playbooks), authn, workspace)
 	registerHealth(r)
-	RegisterTrailingSlash(r)
 }
 
 type capabilityRoutes struct{ opts func() certification.Options }
