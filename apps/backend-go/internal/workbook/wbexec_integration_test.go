@@ -14,6 +14,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -290,9 +291,24 @@ func norm(v any) any {
 	return out
 }
 
+// scrubBodies drops the response-body suffix of Python's "HTTP 500: <body>" cell errors: Go
+// never stores a webhook response body in a cell (plan 15 review L5, documented deviation).
+func scrubBodies(v any) any {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return v
+	}
+	b = regexp.MustCompile(`HTTP (\d{3}): [^"]*`).ReplaceAll(b, []byte("HTTP $1"))
+	var out any
+	if json.Unmarshal(b, &out) != nil {
+		return v
+	}
+	return out
+}
+
 func sameJSON(t *testing.T, what string, got, want any) {
 	t.Helper()
-	g, w := norm(got), norm(want)
+	g, w := norm(got), scrubBodies(norm(want))
 	if g == nil {
 		g = []any{}
 	}

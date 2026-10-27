@@ -9,11 +9,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -429,7 +429,7 @@ func (rs *runState) dispatchOutput(ctx context.Context, dest string, cfg map[str
 		if ports == nil || ports.Outreach == nil {
 			return notWired()
 		}
-		return enrollSequence(ctx, ports.Outreach, cfg, leadID, row, ws), nil
+		return enrollSequence(ctx, rs.log, ports.Outreach, cfg, leadID, row, ws), nil
 	case "airtable":
 		if ports == nil || ports.Airtable == nil {
 			return notWired()
@@ -516,7 +516,7 @@ func (rs *runState) sendWebhook(ctx context.Context, cfg map[string]any, ordered
 	defer cancel()
 	req, err := http.NewRequestWithContext(rctx, method, target, bytes.NewReader(body))
 	if err != nil {
-		return outFail(truncRunes(err.Error(), maxErrorRunes)), nil
+		return outFail("invalid webhook request"), nil // the error text can hold the resolved URL
 	}
 	if body == nil {
 		req.Body, req.ContentLength = http.NoBody, 0
@@ -536,20 +536,15 @@ func (rs *runState) sendWebhook(ctx context.Context, cfg map[string]any, ordered
 		return outFail(truncRunes(webhookErrText(err), maxErrorRunes)), nil
 	}
 	defer resp.Body.Close()
-	text, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
+	// The response body is drained but never stored: an echoing endpoint would put the request's
+	// headers (credentials) into the cell and its broadcast.
+	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 64<<10))
 	value := fmt.Sprintf("%s %d", method, resp.StatusCode)
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return outResult{Success: true, Value: value, HasVal: true}, nil
 	}
 	return outResult{Value: value, HasVal: true,
-		Error: fmt.Sprintf("HTTP %d: %s", resp.StatusCode, truncRunes(validUTF8(text), 160))}, nil
-}
-
-func validUTF8(b []byte) string {
-	if utf8.Valid(b) {
-		return string(b)
-	}
-	return strings.ToValidUTF8(string(b), "�")
+		Error: fmt.Sprintf("HTTP %d", resp.StatusCode)}, nil
 }
 
 // webhookErrText strips the request URL Go prepends to transport errors (it may carry a
@@ -567,7 +562,7 @@ func webhookErrText(err error) string {
 func (rs *runState) webhookURLProblem(raw string) string {
 	u, err := url.Parse(raw)
 	if err != nil {
-		return "unparseable url: " + err.Error()
+		return "unparseable url" // the parse error quotes the resolved URL (row values)
 	}
 	if u.Scheme != "http" && u.Scheme != "https" {
 		return "only http/https allowed"
@@ -794,7 +789,7 @@ func (rs *runState) pushSmartlead(ctx context.Context, c SmartleadAdder, cfg map
 }
 
 // enrollSequence is _enroll_sequence. Any store failure is the cell's error text.
-func enrollSequence(ctx context.Context, store OutreachEnroller, cfg map[string]any, leadID int64, row map[string]any, ws string) outResult {
+func enrollSequence(ctx context.Context, log *slog.Logger, store OutreachEnroller, cfg map[string]any, leadID int64, row map[string]any, ws string) outResult {
 	seq := cfg["sequence_id"]
 	if !manifest.PyTruthy(seq) {
 		return outFail("sequence_id not configured")
@@ -810,7 +805,13 @@ func enrollSequence(ctx context.Context, store OutreachEnroller, cfg map[string]
 		return outFail("no_email")
 	}
 	seqID := rowtmpl.PyStr(seq)
-	fail := func(err error) outResult { return outFail(truncRunes(err.Error(), maxErrorRunes)) }
+	// A store failure is logged; the cell gets a short fixed message, never the raw database error.
+	fail := func(err error) outResult {
+		if log != nil {
+			log.Error("sequencer output failed", "err", err)
+		}
+		return outFail("sequencer_error")
+	}
 	exists, err := store.SequenceExists(ctx, ws, seqID)
 	if err != nil {
 		return fail(err)
