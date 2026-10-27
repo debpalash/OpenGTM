@@ -180,3 +180,5 @@ func batch(ctx context.Context, pool *pgxpool.Pool, ws string, last int32, o Opt
 	st.Merged += merged
 	return read, next, nil
 }
+
+var testHookBeforeRekey func(key string)

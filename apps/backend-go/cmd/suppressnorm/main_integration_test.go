@@ -101,3 +101,89 @@ func TestNormalizeRekeysLegacyGmailRows(t *testing.T) {
 		t.Fatalf("rows\n got %v\nwant %v", got, want)
 	}
 }
+
+func seedSupp(t *testing.T, pool *pgxpool.Pool, ws string, seed [][]any) {
+	t.Helper()
+	ctx := context.Background()
+	t.Cleanup(func() {
+		_ = tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
+			_, err := tx.Exec(ctx, `DELETE FROM outreach_suppressions WHERE workspace_id=$1`, ws)
+			return err
+		})
+	})
+	err := tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
+		for _, r := range seed {
+			if _, err := tx.Exec(ctx, `INSERT INTO outreach_suppressions (workspace_id, email, reason, source, locked) VALUES ($1,$2,$3,$4,$5)`, append([]any{ws}, r...)...); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func randWS(prefix string) string {
+	b := make([]byte, 4)
+	_, _ = rand.Read(b)
+	return prefix + hex.EncodeToString(b)
+}
+
+// Two legacy variants collapse to one key with no canonical row: a real run rekeys one and merges the
+// other, and the dry run (any batch size) must report the same counts without writing.
+func TestDryRunCountsMatchRealRun(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	ctx := context.Background()
+	for _, bs := range []int{1, 2, 500} {
+		ws := randWS("supd-")
+		seedSupp(t, pool, ws, [][]any{
+			{"a.b.c@gmail.com", "manual", "manual", false},
+			{"ab.c@gmail.com", "bounce", "imap", false},
+			{"x.y@gmail.com", "complaint", "inbound", true},
+			{"xy@gmail.com", "manual", "manual", false},
+		})
+		dry, err := Normalize(ctx, pool, Options{Workspace: ws, BatchSize: bs, DryRun: true})
+		if err != nil || len(rows(t, pool, ws)) != 4 {
+			t.Fatalf("batch %d dry: %+v %v", bs, dry, err)
+		}
+		real, err := Normalize(ctx, pool, Options{Workspace: ws, BatchSize: bs})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if dry != real || real.Rekeyed != 1 || real.Merged != 2 {
+			t.Fatalf("batch %d: dry=%+v real=%+v", bs, dry, real)
+		}
+	}
+}
+
+// A canonical row inserted between the SELECT and the UPDATE hits uq_suppress_ws_email: the batch is
+// retried (and then merges into the new row) instead of aborting the run.
+func TestRetriesOnConcurrentCanonicalInsert(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	ctx := context.Background()
+	ws := randWS("supr-")
+	seedSupp(t, pool, ws, [][]any{{"c.o.n@gmail.com", "unsubscribe", "seq", true}})
+	fired := 0
+	testHookBeforeRekey = func(key string) {
+		if fired++; fired > 1 {
+			return
+		}
+		err := tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
+			_, err := tx.Exec(ctx, `INSERT INTO outreach_suppressions (workspace_id, email, reason, source, locked) VALUES ($1,$2,'manual','manual',false)`, ws, key)
+			return err
+		})
+		if err != nil {
+			t.Error(err)
+		}
+	}
+	t.Cleanup(func() { testHookBeforeRekey = nil })
+	st, err := Normalize(ctx, pool, Options{Workspace: ws})
+	if err != nil {
+		t.Fatalf("concurrent insert aborted the run: %v", err)
+	}
+	got := rows(t, pool, ws)
+	if st.Rekeyed != 0 || st.Merged != 1 || len(got) != 1 || got["con@gmail.com"] != "unsubscribe/seq/true" {
+		t.Fatalf("stats=%+v rows=%v", st, got)
+	}
+}
