@@ -3,6 +3,7 @@ package runplan
 import (
 	"encoding/json"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
@@ -161,8 +162,8 @@ func TestEligibilityFullRun(t *testing.T) {
 			all = append(all, col)
 		}
 		cfg := Config{WorkspaceID: c.WorkspaceID, FullRun: true,
-			GoExecutorEnabled: c.Flags.Enabled == nil || *c.Flags.Enabled,
-			GoCohort:          map[string]bool{"ws-1": c.Flags.Cohort == nil || *c.Flags.Cohort, "ws-2": true},
+			GoExecutorEnabled:  c.Flags.Enabled == nil || *c.Flags.Enabled,
+			GoCohort:           map[string]bool{"ws-1": c.Flags.Cohort == nil || *c.Flags.Cohort, "ws-2": true},
 			ProvenanceTracking: c.Flags.Provenance, AutomationsEnabled: c.Flags.Automation}
 		if c.Flags.Cohort != nil && !*c.Flags.Cohort {
 			cfg.GoCohort = map[string]bool{"ws-9": true}
@@ -170,6 +171,9 @@ func TestEligibilityFullRun(t *testing.T) {
 		wantOK, wantReason := c.OK, c.Reason
 		if closed[c.Name] {
 			wantOK, wantReason = true, ReasonOK
+		}
+		if c.Name == "structured_target" { // the next check answers: its provider maps more than the target
+			wantOK, wantReason = false, ReasonMappingNotTargetOnly
 		}
 		ok, reason := Eligible(colsByID(all, c.ColumnIDs), idx, cfg)
 		if ok != wantOK || reason != wantReason {
@@ -195,5 +199,21 @@ func TestEligibilityFullRun(t *testing.T) {
 	cfg.FullRun = false
 	if ok, why := Eligible(cols, idx, cfg); ok || why != ReasonProvenanceOn {
 		t.Fatalf("flag off keeps python: %v %s", ok, why)
+	}
+}
+
+// Output, formula and http columns carry no provider chain: an id that names a default
+// waterfall (an output column called "email") must not pull that chain into the go block.
+func TestGoBlockSkipsChainlessColumns(t *testing.T) {
+	cols, err := colgraph.ParseCols([]byte(`[{"id":"email","type":"output","destination":"webhook"},{"id":"phone","type":"formula","formula":"1"}]`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := GoBlock(cols, nil, func(string) float64 { return 0 }, 4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := `"manifests":{}`; !strings.Contains(string(b), want) {
+		t.Fatalf("go block %s", b)
 	}
 }

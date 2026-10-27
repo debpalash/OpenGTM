@@ -154,6 +154,9 @@ func providerNames(cols []colgraph.Col) ([]string, error) {
 	seen := map[string]bool{}
 	var names []string
 	for _, c := range cols {
+		if !goColumnTypes[colType(c)] {
+			continue // computed, output and Python-run columns have no provider chain
+		}
 		chain, err := providerChain(c)
 		if err != nil {
 			return nil, err

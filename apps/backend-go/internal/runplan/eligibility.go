@@ -34,6 +34,11 @@ const (
 // goColumnTypes are the column types the Go executor runs (go_executor.GO_COLUMN_TYPES).
 var goColumnTypes = map[string]bool{"enrichment": true, "waterfall": true}
 
+// fullRunColumnTypes are the types GO_EXECUTOR_FULL_RUN adds: computed columns and output
+// columns (delivered through the Go destination clients). The Python-run AI types stay behind
+// GO_EXECUTOR_COLUMN_TYPES.
+var fullRunColumnTypes = map[string]bool{"formula": true, "http": true, "output": true}
+
 // extraColumnTypes are the types GO_EXECUTOR_COLUMN_TYPES may add.
 var extraColumnTypes = map[string]bool{"formula": true, "http": true, "ai_formula": true, "research": true, "agent": true}
 
@@ -178,33 +183,35 @@ func Eligible(cols []colgraph.Col, idx map[string]manifest.Entry, cfg Config) (b
 		return false, ReasonFlagOff
 	case !cfg.GoCohort[cfg.WorkspaceID]:
 		return false, ReasonNotInCohort
-	case cfg.ProvenanceTracking:
+	case cfg.ProvenanceTracking && !cfg.FullRun:
 		return false, ReasonProvenanceOn
-	case cfg.AutomationsEnabled:
+	case cfg.AutomationsEnabled && !cfg.FullRun:
 		return false, ReasonAutomationsOn
 	case len(cols) == 0:
 		return false, ReasonNoColumns
 	}
 	for _, c := range cols {
 		ct := colType(c)
-		extra := cfg.ExtraColumnTypes[ct] && extraColumnTypes[ct]
+		extra := (cfg.ExtraColumnTypes[ct] && extraColumnTypes[ct]) || (cfg.FullRun && fullRunColumnTypes[ct])
 		if !goColumnTypes[ct] && !extra {
 			return false, ReasonColumnType
 		}
-		if truthy(c.Get("condition")) {
+		if truthy(c.Get("condition")) && !cfg.FullRun {
 			return false, ReasonCondition
 		}
-		if hasColumnRefs(c) && len(cfg.ExtraColumnTypes) == 0 { // the Go executor orders referenced columns (task 20)
+		// The Go executor orders referenced columns (task 20) and writes structured targets back.
+		relaxed := len(cfg.ExtraColumnTypes) > 0 || cfg.FullRun
+		if hasColumnRefs(c) && !relaxed {
 			return false, ReasonColumnRefs
 		}
 		if extra {
 			continue // no provider chain, structured target or email verification
 		}
 		t := target(c)
-		if workbook.IsStructuredField(t) && len(cfg.ExtraColumnTypes) == 0 {
+		if workbook.IsStructuredField(t) && !relaxed {
 			return false, ReasonStructuredTarget
 		}
-		if v, present := c.Lookup("verify"); t == "email" && (!present || truthy(v)) {
+		if v, present := c.Lookup("verify"); t == "email" && (!present || truthy(v)) && !cfg.FullRun {
 			return false, ReasonEmailVerify
 		}
 		chain, err := providerChain(c)
