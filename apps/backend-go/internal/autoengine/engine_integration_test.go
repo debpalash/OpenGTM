@@ -397,7 +397,8 @@ func TestStopOnErrorBreaksBothLoops(t *testing.T) {
 	}
 }
 
-func TestLegacyOutreachActionHandsBack(t *testing.T) {
+// Since the plan 15 cutover the legacy outreach actions always run in Go: no hand-back, the job stays on Go.
+func TestLegacyOutreachActionsNeverHandBack(t *testing.T) {
 	e := newEnv(t)
 	for _, typ := range []string{"send_email", "sequencer"} {
 		e.clean()
@@ -406,16 +407,14 @@ func TestLegacyOutreachActionHandsBack(t *testing.T) {
 		rec := &recorder{}
 		e.d.Execute = rec.exec
 		c := e.claim(pl("fk1", nil))
-		err := Handle(e.ctx, e.d, c)
-		if !errors.Is(err, workbook.ErrHandedBack) {
+		if err := Handle(e.ctx, e.d, c); err != nil {
 			t.Fatalf("%s: %v", typ, err)
 		}
-		ex, st := e.job(c.ID)
-		if ex != "python" || st != "pending" {
-			t.Fatalf("%s: job %s/%s", typ, ex, st)
+		if ex, _ := e.job(c.ID); ex != "go" {
+			t.Fatalf("%s: job executor %s", typ, ex)
 		}
-		if len(rec.calls) != 0 || e.count(ws1, "trigger_runs") != 0 || e.count(ws1, "trigger_action_results") != 0 {
-			t.Fatalf("%s: wrote before handing back", typ)
+		if len(rec.calls) == 0 || e.count(ws1, "trigger_runs") != 1 {
+			t.Fatalf("%s: the eval did not run in Go (calls %d)", typ, len(rec.calls))
 		}
 	}
 }
@@ -457,48 +456,45 @@ func TestDryRunNeverHandsBack(t *testing.T) {
 	}
 }
 
-func TestPythonOnlyColumnReEnrichHandsBack(t *testing.T) {
+// Since the plan 15 cutover a re_enrich of any column type runs in Go (the workbook runner fails the cells it
+// cannot run); nothing is handed back.
+func TestReEnrichOfAnyColumnRunsInGo(t *testing.T) {
 	e := newEnv(t)
 	cols := `[{"id":"ag","name":"Agent","type":"agent"},{"id":"ok","type":"waterfall","target_field":"description","waterfall":["research"]},
-	 {"id":"em","type":"enrichment","target_field":"email"},{"id":"cond","type":"enrichment","target_field":"x","condition":"{a} == 1"}]`
+	 {"id":"em","type":"enrichment","target_field":"email"},{"id":"cond","type":"enrichment","target_field":"x","condition":"{a} == 1"},
+	 {"id":"af","type":"ai_formula"}]`
 	e.workbook(ws1, "wbA", cols)
 	e.row(ws1, "wbA", `{"a":1}`, "", nil)
-	for _, tc := range []struct {
-		ids  string
-		hand bool
-	}{{`["ag"]`, true}, {`["ok"]`, false}, {`["ok","ag"]`, true}, {`["em"]`, true}, {`["cond"]`, true}, {`["missing"]`, false}} {
+	for _, ids := range []string{`["ag"]`, `["ok"]`, `["ok","ag"]`, `["em"]`, `["cond"]`, `["af"]`, `["missing"]`} {
 		e.inWS(ws1, func(tx pgx.Tx) error { _, err := tx.Exec(e.ctx, `DELETE FROM triggers`); return err })
-		e.trigger(ws1, "trg-1", trig{Actions: `[{"type":"re_enrich","config":{"column_ids":` + tc.ids + `}}]`})
+		e.trigger(ws1, "trg-1", trig{Actions: `[{"type":"re_enrich","config":{"column_ids":` + ids + `}}]`})
 		rec := &recorder{}
 		e.d.Execute = rec.exec
 		before := e.count(ws1, "trigger_runs")
-		c := e.claim(pl("fk-"+tc.ids, nil))
-		err := Handle(e.ctx, e.d, c)
-		if tc.hand {
-			if !errors.Is(err, workbook.ErrHandedBack) {
-				t.Fatalf("%s: %v", tc.ids, err)
-			}
-			if ex, _ := e.job(c.ID); ex != "python" {
-				t.Fatalf("%s: executor %s", tc.ids, ex)
-			}
-			if e.count(ws1, "trigger_runs") != before || len(rec.calls) != 0 {
-				t.Fatalf("%s: wrote before handing back", tc.ids)
-			}
-		} else if err != nil || e.count(ws1, "trigger_runs") != before+1 {
-			t.Fatalf("%s: err %v", tc.ids, err)
+		c := e.claim(pl("fk-"+ids, nil))
+		if err := Handle(e.ctx, e.d, c); err != nil || e.count(ws1, "trigger_runs") != before+1 {
+			t.Fatalf("%s: err %v", ids, err)
+		}
+		if ex, _ := e.job(c.ID); ex != "go" {
+			t.Fatalf("%s: executor %s", ids, ex)
 		}
 	}
-	// a ai_formula column runs in Go only when the worker has the Python RPC
-	e.workbook(ws1, "wbC", `[{"id":"af","type":"ai_formula"}]`)
-	e.inWS(ws1, func(tx pgx.Tx) error { _, err := tx.Exec(e.ctx, `DELETE FROM triggers`); return err })
-	e.trigger(ws1, "trg-1", trig{Actions: `[{"type":"re_enrich","config":{"column_ids":["af"]}}]`})
-	c := e.claim(pl("fk-af", nil))
-	if err := Handle(e.ctx, e.d, c); !errors.Is(err, workbook.ErrHandedBack) {
-		t.Fatalf("no python rpc: %v", err)
+}
+
+// The tenant is the job row's workspace only (plan 15 cutover): a claim without one is refused permanently,
+// whatever the payload names.
+func TestEmptyJobWorkspaceIsRefused(t *testing.T) {
+	e := newEnv(t)
+	e.defaultSeed(trig{})
+	rec := &recorder{}
+	e.d.Execute = rec.exec
+	c := e.claim(pl("fk-nows", nil))
+	c.WorkspaceID = ""
+	if err := Handle(e.ctx, e.d, c); !queue.IsPermanent(err) {
+		t.Fatalf("want a permanent refusal, got %v", err)
 	}
-	e.d.PyColumns = true
-	if err := e.run(pl("fk-af2", nil)); err != nil {
-		t.Fatalf("with python rpc: %v", err)
+	if len(rec.calls) != 0 || e.count(ws1, "trigger_runs") != 0 {
+		t.Fatal("ran without a job workspace")
 	}
 }
 

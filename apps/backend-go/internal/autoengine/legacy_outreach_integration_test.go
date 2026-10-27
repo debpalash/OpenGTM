@@ -41,7 +41,7 @@ func (e *env) legacyCounts() (enr, sendJobs int) {
 	return
 }
 
-// D5: with GO_EXECUTOR_LEGACY_OUTREACH_ACTIONS on, an eval with sequencer and
+// D5: an eval with sequencer and
 // send_email runs fully in Go: the job stays on the Go executor, the sequencer
 // enrols the rows with an email, and send_email only enqueues `send` jobs (no
 // mail leaves this process; the outreachsend handler owns the send).
@@ -55,14 +55,9 @@ func TestLegacyOutreachActionsRunInGo(t *testing.T) {
 		_, err := tx.Exec(e.ctx, `UPDATE workbook_rows SET lead_id=3 WHERE id=$1`, e.rowIDs[0])
 		return err
 	})
-	e.d.LegacyOutreach = true
-	e.d.Actions.LegacyOutreach = true
 	e.d.Actions.Pool = e.pool
 	c := e.claim(pl("fk-legacy", nil))
 	if err := Handle(e.ctx, e.d, c); err != nil {
-		if errors.Is(err, workbook.ErrHandedBack) {
-			t.Fatal("handed back with the flag on")
-		}
 		t.Fatal(err)
 	}
 	if ex, _ := e.job(c.ID); ex == "python" {
@@ -91,14 +86,11 @@ func TestLegacyOutreachActionsRunInGo(t *testing.T) {
 	}
 }
 
-// The flag defaults off: the legacy actions still hand back (TestLegacyOutreachActionHandsBack).
-// A dry run with the flag on previews only: no enrolment, no job, no send.
+// A dry run previews only: no enrolment, no job, no send.
 func TestLegacyOutreachDryRunWritesNothing(t *testing.T) {
 	e := newEnv(t)
 	seq := e.legacySeq()
 	e.defaultSeed(trig{Actions: fmt.Sprintf(`[{"type":"sequencer","config":{"sequence_id":%q}},{"type":"send_email","config":{}}]`, seq)})
-	e.d.LegacyOutreach = true
-	e.d.Actions.LegacyOutreach = true
 	e.d.Actions.Pool = e.pool
 	if err := Handle(e.ctx, e.d, e.claim(pl("fk-legacy-dry", map[string]any{"dry_run": true}))); err != nil {
 		t.Fatal(err)
@@ -117,8 +109,6 @@ func TestLegacyOutreachRefusesLeadlessRow(t *testing.T) {
 	e := newEnv(t)
 	seq := e.legacySeq()
 	e.defaultSeed(trig{Actions: fmt.Sprintf(`[{"type":"sequencer","config":{"sequence_id":%q}}]`, seq)})
-	e.d.LegacyOutreach = true
-	e.d.Actions.LegacyOutreach = true
 	e.d.Actions.Pool = e.pool
 	if err := Handle(e.ctx, e.d, e.claim(pl("fk-legacy-nolead", nil))); err != nil {
 		t.Fatal(err)

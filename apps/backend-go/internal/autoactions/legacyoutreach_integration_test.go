@@ -92,7 +92,7 @@ func loIn(t *testing.T, ctx context.Context, d Deps, fn func(tx pgx.Tx) error) {
 
 func TestLegacyOutreachVectors(t *testing.T) {
 	ctx := context.Background()
-	d := Deps{Pool: testpg.NewAppPool(t, 8), LegacyOutreach: true}
+	d := Deps{Pool: testpg.NewAppPool(t, 8)}
 	for _, v := range loadVectors[loVec](t, "legacy_outreach_vectors.json") {
 		t.Run(v.Name, func(t *testing.T) {
 			loClean(t, ctx, d)
@@ -239,7 +239,7 @@ func normJSON(t *testing.T, s string) string {
 // Deviations from Python, pinned explicitly.
 func TestLegacyOutreachSuppressedNeverQueued(t *testing.T) {
 	ctx := context.Background()
-	d := Deps{Pool: testpg.NewAppPool(t, 8), LegacyOutreach: true}
+	d := Deps{Pool: testpg.NewAppPool(t, 8)}
 	loClean(t, ctx, d)
 	seq := loSeq(t, ctx, d)
 	loIn(t, ctx, d, func(tx pgx.Tx) error {
@@ -267,7 +267,7 @@ func TestLegacyOutreachSuppressedNeverQueued(t *testing.T) {
 
 func TestLegacyOutreachLeadlessKeysDiffer(t *testing.T) {
 	ctx := context.Background()
-	d := Deps{Pool: testpg.NewAppPool(t, 8), LegacyOutreach: true}
+	d := Deps{Pool: testpg.NewAppPool(t, 8)}
 	loClean(t, ctx, d)
 	for _, e := range []string{"a@x.com", "b@x.com"} {
 		r := Execute(ctx, d, loWS, map[string]any{"type": "send_email", "config": map[string]any{}}, "wb", "1", nil, map[string]any{"email": e}, nil, "")
@@ -283,7 +283,7 @@ func ptr(i int64) *int64 { return &i }
 // job, and concurrent identical calls each yield exactly one job and never a send.
 func TestLegacySendEmailAtMostOnce(t *testing.T) {
 	ctx := context.Background()
-	d := Deps{Pool: testpg.NewAppPool(t, 16), LegacyOutreach: true, SendExecutor: func(string) string { return "go" }}
+	d := Deps{Pool: testpg.NewAppPool(t, 16), SendExecutor: func(string) string { return "go" }}
 	loClean(t, ctx, d)
 	act := map[string]any{"type": "send_email", "config": map[string]any{"subject": "s", "body_html": "<p>{{name}}</p>"}}
 	lead := map[string]any{"email": "a@x.com", "name": "<b>A</b>"}
@@ -339,7 +339,7 @@ func loCount(t *testing.T, ctx context.Context, d Deps) (jobs, enr int) {
 // recipient's data to another).
 func TestLegacyOutreachRefusesEnrollmentWithoutLeadID(t *testing.T) {
 	ctx := context.Background()
-	d := Deps{Pool: testpg.NewAppPool(t, 8), LegacyOutreach: true}
+	d := Deps{Pool: testpg.NewAppPool(t, 8)}
 	loClean(t, ctx, d)
 	seq := loSeq(t, ctx, d)
 	for _, typ := range []string{"sequencer", "send_email"} {
@@ -359,7 +359,7 @@ func TestLegacyOutreachRefusesEnrollmentWithoutLeadID(t *testing.T) {
 // M4: an existing enrollment is reused only when the stored email matches the lead's current email.
 func TestLegacyOutreachNeverReusesEnrollmentOfAnotherEmail(t *testing.T) {
 	ctx := context.Background()
-	d := Deps{Pool: testpg.NewAppPool(t, 8), LegacyOutreach: true}
+	d := Deps{Pool: testpg.NewAppPool(t, 8)}
 	loClean(t, ctx, d)
 	seq := loSeq(t, ctx, d)
 	loIn(t, ctx, d, func(tx pgx.Tx) error {
