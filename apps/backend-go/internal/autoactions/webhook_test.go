@@ -1086,3 +1086,15 @@ func TestHeaderSecretFromNonWorkspaceResolverFailsTheAction(t *testing.T) {
 		t.Fatal("request sent without its auth header")
 	}
 }
+
+// LiteralBody: the body is sent without {name} substitution; the default still templates it.
+func TestBuildBodyLiteral(t *testing.T) {
+	lead := map[string]any{"a": "1"}
+	b, _, err := buildBody(map[string]any{"x": "{unknown}"}, lead, nil, true)
+	if err != nil || string(b) != `{"x":"{unknown}"}` {
+		t.Fatalf("literal: %s %v", b, err)
+	}
+	if _, _, err := buildBody(map[string]any{"x": "{unknown}"}, lead, nil, false); err == nil {
+		t.Fatal("templated body must still reject an unknown reference")
+	}
+}

@@ -63,8 +63,11 @@ type WebhookDeps struct {
 	Allowlist  []string // webhook domain allowlist: exact host or ".suffix"
 	Secrets    SecretGetter
 	Outbound   secrets.OutboundPolicy // which refs header_secret_ref may name (zero value: default prefixes, no registry deny-list)
-	Timeout    time.Duration          // 0 = DefaultWebhookTimeout
-	Log        *slog.Logger           // optional; never receives URLs with queries, headers or secrets
+	// LiteralBody sends the body without {name} substitution (destination webhooks and Slack: the body is data,
+	// a lead value such as "{x}" is sent as is and never fails the delivery). url and headers still resolve.
+	LiteralBody bool
+	Timeout     time.Duration // 0 = DefaultWebhookTimeout
+	Log         *slog.Logger  // optional; never receives URLs with queries, headers or secrets
 }
 
 // NewWebhookDeps builds the production deps: the dial-time guarded client with
@@ -399,7 +402,7 @@ func Webhook(ctx context.Context, d WebhookDeps, ws string, cfg map[string]any, 
 	var body []byte
 	if method == "POST" || method == "PUT" || method == "PATCH" {
 		var ct string
-		body, ct, err = buildBody(cfg["body"], leadData, cols)
+		body, ct, err = buildBody(cfg["body"], leadData, cols, d.LiteralBody)
 		if err != nil {
 			return failed(err.Error())
 		}
@@ -484,8 +487,19 @@ func headerPairs(h any) (keys []string, vals []any, ok bool) {
 
 // buildBody mirrors _act_webhook: nil -> the lead row as JSON; dict/list ->
 // ResolveDeep; anything else -> str(), resolved, JSON if it parses else raw text.
-func buildBody(raw any, lead map[string]any, cols []Column) ([]byte, string, error) {
+func buildBody(raw any, lead map[string]any, cols []Column, literal bool) ([]byte, string, error) {
 	const jsonCT = "application/json"
+	if literal {
+		switch t := raw.(type) {
+		case nil:
+			b, err := rowtmpl.MarshalOrdered(rowtmpl.CanonNumbers(lead))
+			return b, jsonCT, err
+		case map[string]any, colgraph.Col, []any:
+			b, err := rowtmpl.MarshalOrdered(rowtmpl.CanonNumbers(t))
+			return b, jsonCT, err
+		}
+		return []byte(str(raw)), "text/plain", nil
+	}
 	switch t := raw.(type) {
 	case nil:
 		b, err := rowtmpl.MarshalOrdered(rowtmpl.CanonNumbers(lead))
