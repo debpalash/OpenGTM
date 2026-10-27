@@ -31,27 +31,9 @@ http-level only, so it lives in its own file. Responses on Go-eligible routes ca
    `DATABASE_URL` must use a non-superuser, NOBYPASSRLS role: api-go queries `pg_roles` at startup and
    refuses to start otherwise (`PG_RLS_REQUIRE_SAFE_ROLE=false` downgrades it to a CRITICAL log, same as
    Python; not recommended).
-4. The two nginx mounts below are ALREADY in `docker-compose.yml` (nginx would not start without them, since `default.conf` includes both files). The `api-go` service is not added yet; use this snippet:
-
-```yaml
-  nginx:
-    volumes:
-      - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./infra/nginx/go-split.conf:/etc/nginx/go-split.conf:ro
-      - ./infra/nginx/go-routes.conf:/etc/nginx/go-routes.conf:ro
-    depends_on: [api, api-go]   # api-go resolves lazily (`resolve`), but keep ordering explicit
-
-  api-go:
-    image: opengtm-api-go:local          # built from apps/backend-go/Dockerfile.api
-    environment:
-      API_ADDR: ":8000"
-      DATABASE_URL: ${DATABASE_URL}      # runtime role: non-superuser NOBYPASSRLS
-      SECRET_KEY: ${SECRET_KEY}
-      APP_ENV: ${APP_ENV}
-    depends_on: *same-as-api             # copy the `api` service's depends_on (db, migrations)
-    healthcheck:
-      test: ["CMD", "/api", "-healthcheck"]   # distroless: no wget/shell; checks 127.0.0.1:<port of API_ADDR>/healthz
-```
+4. `api-go` is already defined in `docker-compose.yml` under the `go` profile (image `opengtm-api-go:local`, built from
+   `apps/backend-go/Dockerfile` target `api`), as are the nginx mounts. Start it with
+   `docker compose --profile go up -d api-go`; see `docker-compose.md` for env, flags and healthcheck.
 
 ## Canary ramp
 
