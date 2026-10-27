@@ -23,7 +23,10 @@ type bulkPayload struct {
 }
 
 // bulkFields are the columns scrape_website may write (handle_bulk_enrich).
-var bulkFields = []string{"email", "phone", "description", "contact_person"}
+// email_confidence and email_provider travel with a found email (review 3a L4); the website
+// action writes only the contact fields (its social links are not stored: bulk enrich fills
+// contact data, the LinkedIn/Twitter URLs come from collection and the waterfall).
+var bulkFields = []string{"email", "email_confidence", "email_provider", "phone", "description", "contact_person"}
 
 // HandleBulkEnrich is handle_bulk_enrich: "find_emails" runs enrich_emails over the leads,
 // anything else runs the website contact scrape over the leads that have a website; changed
@@ -74,7 +77,8 @@ func HandleBulkEnrich(ctx context.Context, d Deps, c *queue.Claim) error {
 			needed := !l.HasEmail() && l.Company != ""
 			EnrichEmails(ctx, r.Web, r.Enrich, l)
 			if l.Email != "" && l.Email != before {
-				if err := write(l, map[string]string{"email": l.Email}); err != nil {
+				if err := write(l, map[string]string{"email": l.Email, "email_confidence": l.EmailConfidence,
+					"email_provider": "email_finder"}); err != nil {
 					return fail(err)
 				}
 				updated++
