@@ -442,12 +442,18 @@ func TestBulkEnrichOnPostgres(t *testing.T) {
 	if err := HandleBulkEnrich(ctx, d, &queue.Claim{WorkspaceID: itWS, Payload: payload}); err != nil {
 		t.Fatal(err)
 	}
-	var email, last string
+	var email, last, conf, prov string
 	_ = tenancy.InWorkspace(ctx, pool, itWS, func(tx pgx.Tx) error {
-		return tx.QueryRow(ctx, `SELECT email, last_enriched_at FROM leads WHERE id = $1`, l1.ID).Scan(&email, &last)
+		return tx.QueryRow(ctx, `SELECT email, last_enriched_at, email_confidence, email_provider FROM leads WHERE id = $1`,
+			l1.ID).Scan(&email, &last, &conf, &prov)
 	})
 	if email != want || !strings.HasSuffix(last, "+00:00") {
 		t.Errorf("find_emails wrote %q / %q, want %q / iso", email, last, want)
+	}
+	// Review 3a L4: the email is stored with its confidence and source, so outreach can tell a
+	// searched address from an unverified info@ guess.
+	if conf != "verified" || prov != "email_finder" {
+		t.Errorf("find_emails confidence/source = %q / %q, want verified / email_finder", conf, prov)
 	}
 	types := []string{}
 	for _, e := range em.events {
