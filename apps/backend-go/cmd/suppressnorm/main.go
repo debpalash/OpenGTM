@@ -18,6 +18,7 @@ import (
 	"syscall"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailnorm"
@@ -93,8 +94,13 @@ func Normalize(ctx context.Context, pool *pgxpool.Pool, o Options) (Stats, error
 	for _, ws := range wss {
 		st.Workspaces++
 		last := int32(0)
+		// A dry run writes nothing, so it tracks the keys a real run would have created by now.
+		var claimed map[string]row
+		if o.DryRun {
+			claimed = map[string]row{}
+		}
 		for {
-			n, next, err := batch(ctx, pool, ws, last, o, &st)
+			n, next, err := batchRetry(ctx, pool, ws, last, o, &st, claimed)
 			if err != nil {
 				return st, fmt.Errorf("workspace %s: %w", ws, err)
 			}
@@ -113,12 +119,27 @@ type row struct {
 	locked                bool
 }
 
+// batchRetry runs batch, retrying when a concurrent insert of a canonical key makes the rekey UPDATE hit
+// uq_suppress_ws_email. The failed transaction rolled back whole; the retry then finds the new row and
+// merges into it. Earlier batches are already committed, so a re-run after any failure is safe.
+func batchRetry(ctx context.Context, pool *pgxpool.Pool, ws string, last int32, o Options, st *Stats, claimed map[string]row) (int, int32, error) {
+	for attempt := 1; ; attempt++ {
+		n, next, err := batch(ctx, pool, ws, last, o, st, claimed)
+		var pe *pgconn.PgError
+		if err == nil || !errors.As(err, &pe) || pe.Code != "23505" || attempt >= maxBatchAttempts {
+			return n, next, err
+		}
+	}
+}
+
 // batch handles one page of gmail rows after id `last` and returns how many it read and the last id seen.
-func batch(ctx context.Context, pool *pgxpool.Pool, ws string, last int32, o Options, st *Stats) (int, int32, error) {
+func batch(ctx context.Context, pool *pgxpool.Pool, ws string, last int32, o Options, st *Stats, claimed map[string]row) (int, int32, error) {
 	read, next := 0, last
 	var rekeyed, merged int
+	var newClaims map[string]row
 	err := tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
 		rekeyed, merged = 0, 0
+		newClaims = map[string]row{}
 		rs, err := tx.Query(ctx, `SELECT id, email, COALESCE(reason,''), COALESCE(source,''), COALESCE(locked,false)
 			FROM outreach_suppressions
 			WHERE workspace_id = $1 AND id > $2 AND (lower(email) LIKE '%@gmail.com' OR lower(email) LIKE '%@googlemail.com')
@@ -145,9 +166,16 @@ func batch(ctx context.Context, pool *pgxpool.Pool, ws string, last int32, o Opt
 				FROM outreach_suppressions WHERE workspace_id = $1 AND email = $2`, ws, key).
 				Scan(&target.id, &target.email, &target.reason, &target.source, &target.locked)
 			switch {
+			case errors.Is(err, pgx.ErrNoRows) && o.DryRun && claimedRow(claimed, newClaims, key) != nil:
+				merged++ // an earlier legacy variant in this dry run would already hold the key
 			case errors.Is(err, pgx.ErrNoRows):
 				rekeyed++
-				if !o.DryRun {
+				if o.DryRun {
+					newClaims[key] = r
+				} else {
+					if testHookBeforeRekey != nil {
+						testHookBeforeRekey(key)
+					}
 					if _, err := tx.Exec(ctx, `UPDATE outreach_suppressions SET email = $1 WHERE workspace_id = $2 AND id = $3`, key, ws, r.id); err != nil {
 						return err
 					}
@@ -175,10 +203,29 @@ func batch(ctx context.Context, pool *pgxpool.Pool, ws string, last int32, o Opt
 	if err != nil {
 		return 0, last, err
 	}
+	for k, v := range newClaims {
+		claimed[k] = v
+	}
 	st.Scanned += read
 	st.Rekeyed += rekeyed
 	st.Merged += merged
 	return read, next, nil
 }
 
+// testHookBeforeRekey is a test seam: called after the canonical-key lookup found nothing and before
+// the UPDATE, to simulate a concurrent insert of that key.
 var testHookBeforeRekey func(key string)
+
+// maxBatchAttempts bounds the retries of one batch that lost a race to a concurrent insert.
+const maxBatchAttempts = 5
+
+// claimedRow returns the dry-run row that would hold key, from earlier batches or this one.
+func claimedRow(prev, cur map[string]row, key string) *row {
+	if r, ok := cur[key]; ok {
+		return &r
+	}
+	if r, ok := prev[key]; ok {
+		return &r
+	}
+	return nil
+}
