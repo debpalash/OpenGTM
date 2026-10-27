@@ -396,18 +396,20 @@ func TestStdioRevokedSessionExitsOne(t *testing.T) {
 func TestGracefulShutdownFinishesInFlightCall(t *testing.T) {
 	s := seed(t)
 	started := make(chan struct{}, 1)
-	py := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// a slow browser service: get_hiring_signals searches job boards through its /v1/search
+	browser := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		select {
 		case started <- struct{}{}:
 		default:
 		}
 		time.Sleep(1500 * time.Millisecond)
 		w.Header().Set("Content-Type", "application/json")
-		io.WriteString(w, `{"status":"ok","output":{"success":true,"fields":{"company":"Slow Co","open_roles":2}},"error":null,"cost_usd":0}`)
+		io.WriteString(w, `{"query":"q","method":"text","hits":[{"title":"Engineer - Slow Co","url":"https://jobs.example.com/1","body":"Slow Co is hiring"}],"error":"","elapsed_ms":1}`)
 	}))
-	defer py.Close()
+	defer browser.Close()
 	cmd := exec.Command(buildBinary(t))
-	cmd.Env = baseEnv("DATABASE_URL="+appURL(t), "OPENGTM_MCP_TOKEN="+s.tokens["read"], "PY_WORKER_URL="+py.URL, "PY_WORKER_TOKEN=t17-secret")
+	cmd.Env = baseEnv("DATABASE_URL="+appURL(t), "OPENGTM_MCP_TOKEN="+s.tokens["read"], "BROWSER_SERVICE_URL="+browser.URL,
+		"BROWSER_SERVICE_TOKEN=t17-secret")
 	in, _ := cmd.StdinPipe()
 	outp, _ := cmd.StdoutPipe()
 	var errb bytes.Buffer
@@ -420,7 +422,7 @@ func TestGracefulShutdownFinishesInFlightCall(t *testing.T) {
 	select {
 	case <-started:
 	case <-time.After(15 * time.Second):
-		t.Fatalf("tool never reached the worker; stderr=%s", errb.String())
+		t.Fatalf("tool never reached the browser service; stderr=%s", errb.String())
 	}
 	if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
 		t.Fatal(err)

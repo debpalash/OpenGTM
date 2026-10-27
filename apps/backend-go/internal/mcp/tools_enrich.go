@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"log/slog"
+	"regexp"
+	"slices"
+	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -21,9 +24,6 @@ var (
 	recordAudit = Record
 )
 
-// errLeadMiss is returned by a cost call whose Python side reported not_found.
-var errLeadMiss = errors.New("lead not found")
-
 const (
 	maxEmailLen   = 320
 	maxCompanyLen = 500
@@ -35,11 +35,11 @@ const (
 	msgLeadNotFound      = "Lead not found"
 )
 
-// enrichTools are the Python-RPC and cost-bearing read tools (D7, D10).
+// enrichTools are the provider-backed and cost-bearing read tools (D7, D10).
 // verify_email, enrich_company and get_hiring_signals spend provider credits and
 // probe third-party hosts behind a plain leads:read grant, so each call is
 // audited, counted against MCP_MAX_ENRICH_PER_DAY and bounded by
-// MCP_TOOL_TIMEOUT_SECONDS. No Python exception text ever reaches a client.
+// MCP_TOOL_TIMEOUT_SECONDS. No provider error text ever reaches a client.
 func enrichTools(d Deps) []Tool {
 	return []Tool{
 		{Name: "verify_email", Capability: "leads:read", Handler: func(ctx context.Context, c Ctx, a Args) (string, error) {
@@ -155,13 +155,6 @@ func runCost(ctx context.Context, d Deps, c Ctx, tool string, args Args, shape f
 	}()
 	text, err := do(ctx)
 	finished = true
-	if errors.Is(err, errLeadMiss) { // lead vanished after the check: nothing was spent
-		if reserved {
-			finishCap(ctx, d, c, res, releaseCap)
-		}
-		recordAudit(ctx, d, c, tool, args, AuditOutcome{Status: "error", Error: "lead not found"})
-		return shape(msgLeadNotFound)
-	}
 	if err != nil {
 		slog.Error("mcp enrich failed", "tool", tool, "cause", errorKind(err))
 		if reserved {
@@ -234,6 +227,38 @@ func argText(err error) string {
 	return errorText(safeErrorText(err))
 }
 
+// enrichChains is enrich_company's field waterfall over the in-process providers (registry names, run through
+// the provider-call port: providerrun's settings, cache and stats). Per field the first valid value wins; a field
+// the lead already has is not looked up. Python built a WaterfallEnricher with no chains and so always answered
+// empty; the chains here are the ones its docstring describes, on the providers Go serves.
+var enrichChains = []struct {
+	field     string
+	providers []string
+}{
+	{"email", []string{"website_scraper", "ddg_email"}},
+	{"phone", []string{"website_scraper"}},
+	{"linkedin_url", []string{"website_scraper"}},
+}
+
+var enrichEmailRe = regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]+$`)
+
+func validEnriched(field, v string) bool {
+	if v == "" || len(v) > 2048 {
+		return false
+	}
+	if field == "email" {
+		return len(v) <= 254 && enrichEmailRe.MatchString(v)
+	}
+	return true
+}
+
+func leadStr(p *string) string {
+	if p == nil {
+		return ""
+	}
+	return strings.TrimSpace(*p)
+}
+
 func enrichCompanyTool(ctx context.Context, d Deps, c Ctx, a Args) (string, error) {
 	id, err := leadIDArg(a)
 	if err != nil {
@@ -243,34 +268,62 @@ func enrichCompanyTool(ctx context.Context, d Deps, c Ctx, a Args) (string, erro
 	defer cancel()
 	// Resolve the lead through the workspace-scoped store first: a cross-tenant id
 	// is a miss, so enrichment spend can only be triggered for the caller's leads.
-	var found bool
+	var lead *Lead
 	if err := d.RunInWorkspace(ctx, c.WorkspaceID, func(tx pgx.Tx) error {
 		l, e := d.LeadPort().ByID(ctx, tx, id)
-		found = e == nil && l != nil
+		lead = l
 		return e
 	}); err != nil {
 		return "", err
 	}
-	if !found {
+	if lead == nil {
 		recordAudit(ctx, d, c, "enrich_company", a, AuditOutcome{Status: "error", Error: "lead not found"})
 		return errorText(msgLeadNotFound), nil
 	}
+	l := *lead
 	return runCost(ctx, d, c, "enrich_company", a, errShape(), func(ctx context.Context) (string, error) {
-		f, err := pyFields(ctx, d, c, "mcp.enrich_company", map[string]any{"lead_id": id})
-		if err != nil {
-			return "", err
+		in := map[string]any{"id": l.ID, "company": l.Company, "website": leadStr(l.Website), "email": leadStr(l.Email),
+			"phone": leadStr(l.Phone), "city": leadStr(l.City), "contact_person": leadStr(l.ContactPerson),
+			"linkedin_url": leadStr(l.LinkedinURL)}
+		have := map[string]bool{"email": leadStr(l.Email) != "", "phone": leadStr(l.Phone) != "", "linkedin_url": leadStr(l.LinkedinURL) != ""}
+		runnable := map[string]bool{"website_scraper": leadStr(l.Website) != "", "ddg_email": l.Company != "" || leadStr(l.Website) != ""}
+		results := map[string]rpcFields{}
+		run := func(provider string) (rpcFields, error) {
+			if f, ok := results[provider]; ok {
+				return f, nil
+			}
+			f, err := pyFields(ctx, d, c, provider, in)
+			if err != nil {
+				return rpcFields{}, err
+			}
+			results[provider] = f
+			return f, nil
 		}
-		if isNotFound(f) {
-			return "", errLeadMiss
+		fields := pyjson.NewObj()
+		var winners []string
+		for _, ch := range enrichChains {
+			if have[ch.field] {
+				continue
+			}
+			for _, prov := range ch.providers {
+				if !runnable[prov] {
+					continue
+				}
+				f, err := run(prov)
+				if err != nil {
+					return "", err
+				}
+				var v string
+				if raw := f.get(ch.field); len(raw) > 0 && json.Unmarshal(raw, &v) == nil && validEnriched(ch.field, strings.TrimSpace(v)) {
+					fields.Set(ch.field, strings.TrimSpace(v))
+					if !slices.Contains(winners, prov) {
+						winners = append(winners, prov)
+					}
+					break
+				}
+			}
 		}
-		ef, prov := f.get("enriched_fields"), f.get("provider")
-		if len(ef) == 0 {
-			ef = json.RawMessage(`{}`)
-		}
-		if len(prov) == 0 {
-			prov = json.RawMessage(`""`)
-		}
-		return dumpObj(pyjson.NewObj("enriched_fields", ef, "provider", prov), 2)
+		return dumpObj(pyjson.NewObj("enriched_fields", fields, "provider", strings.Join(winners, ",")), 2)
 	}), nil
 }
 
@@ -304,6 +357,8 @@ func hiringSignalsTool(ctx context.Context, d Deps, c Ctx, a Args) (string, erro
 	}), nil
 }
 
+// scoreLeadTool is scoring.score_lead (internal/leadscore) over the workspace's lead. Scoring is local CPU and
+// bills nothing: no cap, no audit row.
 func scoreLeadTool(ctx context.Context, d Deps, c Ctx, a Args) (string, error) {
 	id, err := leadIDArg(a)
 	if err != nil {
@@ -311,31 +366,26 @@ func scoreLeadTool(ctx context.Context, d Deps, c Ctx, a Args) (string, error) {
 	}
 	ctx, cancel := toolDeadline(ctx, d)
 	defer cancel()
-	// Scoring is local CPU in Python and bills nothing: no cap, no audit row.
-	f, err := pyFields(ctx, d, c, "mcp.score_lead", map[string]any{"lead_id": id})
-	if err != nil {
-		slog.Error("mcp score_lead failed", "tool", "mcp.score_lead", "cause", errorKind(err))
-		return errorText(enrichMessage(err)), nil
+	var lead *Lead
+	if err := d.RunInWorkspace(ctx, c.WorkspaceID, func(tx pgx.Tx) error {
+		l, e := d.LeadPort().ByID(ctx, tx, id)
+		lead = l
+		return e
+	}); err != nil {
+		return "", err
 	}
-	if isNotFound(f) {
+	if lead == nil {
 		return errorText(msgLeadNotFound), nil
 	}
-	var body any
-	if v, ok := f.m["value"]; ok { // Python score_lead returns a bare int, carried as {"value": n}
-		body = v
-	} else {
-		body = f.raw
-	}
-	b, err := pyjson.Dumps(body, 2)
+	b, err := pyjson.Dumps(int64(scoreLead(*lead)), 2)
 	if err != nil {
 		return errorText(msgEnrichFailed), nil
 	}
 	return string(b), nil
 }
 
-// pyFields calls a Python RPC tool provider and returns the tool result, which
-// the worker carries in output.fields. An object without a "fields" key is taken
-// as the result itself.
+// pyFields calls a provider through the provider-call port and returns its result, carried in output.fields. An
+// object without a "fields" key is taken as the result itself.
 func pyFields(ctx context.Context, d Deps, c Ctx, provider string, in any) (rpcFields, error) {
 	raw, err := d.EnrichPort().Py(ctx, c.WorkspaceID, provider, in)
 	if err != nil {
@@ -343,13 +393,13 @@ func pyFields(ctx context.Context, d Deps, c Ctx, provider string, in any) (rpcF
 	}
 	var out map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &out); err != nil || out == nil {
-		return rpcFields{}, errors.New("python rpc: output is not an object")
+		return rpcFields{}, errors.New("provider call: output is not an object")
 	}
 	if fr, ok := out["fields"]; ok {
 		raw = fr
 		out = nil
 		if err := json.Unmarshal(fr, &out); err != nil || out == nil {
-			return rpcFields{}, errors.New("python rpc: fields is not an object")
+			return rpcFields{}, errors.New("provider call: fields is not an object")
 		}
 	}
 	return rpcFields{m: out, raw: raw}, nil

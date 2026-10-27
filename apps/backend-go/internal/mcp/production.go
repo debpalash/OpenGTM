@@ -18,7 +18,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadsread"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadswrite"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
@@ -174,15 +174,12 @@ func (PGWorkbookPort) Delete(ctx context.Context, tx pgx.Tx, ws, id string) (boo
 	return n > 0, err
 }
 
-// ProviderCaller is the provider-call RPC: *pyworker.Client, or the
-// rpclocal composite that serves GO_LOCAL_PROVIDERS names in process first.
-type ProviderCaller interface {
-	Call(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error)
-}
+// ProviderCaller runs provider calls: the rpclocal caller (the in-process providers).
+type ProviderCaller = provcall.Caller
 
-// PyEnrichPort is the production EnrichPort: the email cascade runs in Go and
-// the remaining cost-bearing providers go through the provider-call RPC
-// (in process for the names GO_LOCAL_PROVIDERS lists, else the Python worker).
+// PyEnrichPort is the production EnrichPort: the email cascade and the remaining
+// cost-bearing providers run in process (the rpclocal provider caller). The name
+// is historical (the provider calls once went to the Python worker).
 type PyEnrichPort struct {
 	Verify emailverify.Deps
 	Worker ProviderCaller
@@ -196,8 +193,8 @@ func (p *PyEnrichPort) VerifyEmail(ctx context.Context, ws, email string) (Verif
 	return VerifyResult{Status: r.Status, Deliverable: r.Deliverable(), Confidence: r.Confidence, Source: r.Source, Detail: r.Detail}, nil
 }
 
-// Py calls the provider on the Python worker and returns the RPC `output`
-// object. pyworker.ErrUnavailable, ErrUnknownProvider and ErrUnauthorized pass
+// Py runs one provider through the provider caller and returns its `output`
+// object. provcall.ErrUnavailable, ErrUnknownProvider and ErrUnauthorized pass
 // through unchanged.
 func (p *PyEnrichPort) Py(ctx context.Context, ws, provider string, in any) (json.RawMessage, error) {
 	input, err := json.Marshal(in)
@@ -209,9 +206,9 @@ func (p *PyEnrichPort) Py(ctx context.Context, ws, provider string, in any) (jso
 		return nil, err
 	}
 	if p.Worker == nil {
-		return nil, pyworker.ErrUnavailable
+		return nil, provcall.ErrUnavailable
 	}
-	res, err := p.Worker.Call(ctx, pyworker.ProviderCall{
+	res, err := p.Worker.Call(ctx, provcall.Call{
 		CallID: "mcp-" + hex.EncodeToString(b[:]), Provider: provider, WorkspaceID: ws, Input: input, Timeout: 120 * time.Second,
 	})
 	if err != nil {
@@ -221,7 +218,7 @@ func (p *PyEnrichPort) Py(ctx context.Context, ws, provider string, in any) (jso
 		return nil, res.Err
 	}
 	if res.Status != "ok" {
-		return nil, errors.New("python provider call " + res.Status)
+		return nil, errors.New("provider call " + res.Status)
 	}
 	return res.Output, nil
 }

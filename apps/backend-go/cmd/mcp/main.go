@@ -23,7 +23,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/mcp"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rpclocal"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
@@ -121,7 +120,6 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 	if _, err := queue.AssertSafeRole(ctx, pool, true); err != nil {
 		return nil, err
 	}
-	py := pyworker.New(get("PY_WORKER_URL"), get("PY_WORKER_TOKEN"), nil)
 	envelope, err := secrets.NewEnvelope(secrets.Config{
 		Provider: strings.ToLower(strings.TrimSpace(get("SECRETS_PROVIDER"))), MasterKey: get("SECRETS_MASTER_KEY"),
 		SecretKey: get("SECRET_KEY"), AppEnv: get("APP_ENV"),
@@ -132,9 +130,9 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 		return nil, fmt.Errorf("secrets envelope: %w", err)
 	}
 	resolver := secrets.NewResolver(envelope, secrets.NewPgStore(pool), get)
-	// Provider calls: names GO_LOCAL_PROVIDERS lists run in process (plan 15 WP-PROVIDERS), the rest on the worker.
+	// Provider calls run in process (plan 15 WP-PROVIDERS; the browser service does the browser work).
 	rpc, err := rpclocal.Configure(rpclocal.Setup{Getenv: config.AllNative(get), AppEnv: get("APP_ENV"),
-		EgressAllow: splitHosts(get("EGRESS_ALLOW_HOSTS")), Py: py, Secrets: resolver, Pool: pool})
+		EgressAllow: splitHosts(get("EGRESS_ALLOW_HOSTS")), Secrets: resolver, Pool: pool})
 	if err != nil {
 		return nil, err
 	}

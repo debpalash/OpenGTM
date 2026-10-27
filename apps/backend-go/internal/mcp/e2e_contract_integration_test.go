@@ -23,7 +23,6 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
 
@@ -169,7 +168,7 @@ func newE2E(t *testing.T, flags map[string]any) *e2eEnv {
 	}
 	verify := emailverify.NewDeps()
 	verify.SMTPDisabled = true
-	d := NewProductionDeps(e.cfg, a.pool, pyworker.New("", "", nil), verify)
+	d := NewProductionDeps(e.cfg, a.pool, nil, verify) // no provider caller: provider tools answer "backend unavailable"
 	e.srv = NewServer(d, BuildRegistry(d))
 	e.d = d
 	return e
@@ -277,9 +276,9 @@ var portlessTools = map[string]bool{"enroll_leads": true, "send_email": true, "c
 // tools/ fixture, profile by profile in recording order, through Server.Handle
 // built by BuildRegistry over the production adapters. Cases that cannot match
 // by design are counted, not hidden: Go-deviation cases (asserted by their own
-// tests), enrichment cases that need Python stubs, score_lead (Python worker,
-// D10) and tools whose adapters land with plans 08/09 (must answer "not
-// available in this build" or match).
+// tests), enrichment cases that need provider stubs and tools whose adapters land
+// with plans 08/09 (must answer "not available in this build" or match). score_lead
+// is scored in Go (leadscore) and compared.
 func TestEveryRecordedFixtureReplaysByteForByte(t *testing.T) {
 	idx := loadE2EIndex(t)
 	profiles := make([]string, 0, len(idx.Profiles))
@@ -287,7 +286,7 @@ func TestEveryRecordedFixtureReplaysByteForByte(t *testing.T) {
 		profiles = append(profiles, p)
 	}
 	sort.Strings(profiles)
-	var compared, skipped, portless, pyless int
+	var compared, skipped, portless int
 	for _, p := range profiles {
 		prof := idx.Profiles[p]
 		t.Run(p, func(t *testing.T) {
@@ -343,10 +342,6 @@ func TestEveryRecordedFixtureReplaysByteForByte(t *testing.T) {
 						portless++
 						continue
 					}
-					if tool == "score_lead" && strings.Contains(gt, "enrichment backend unavailable") {
-						pyless++ // scoring runs on the Python worker (D10); none in this test
-						continue
-					}
 					e.learn(gt, wt)
 					gt, wt = e.toFixture(gt), mask(wt)
 					if tool == "get_pipeline_stats" {
@@ -370,7 +365,7 @@ func TestEveryRecordedFixtureReplaysByteForByte(t *testing.T) {
 			}
 		})
 	}
-	t.Logf("compared=%d skipped(deviation/stubs)=%d portless=%d pyworker-less=%d", compared, skipped, portless, pyless)
+	t.Logf("compared=%d skipped(deviation/stubs)=%d portless=%d", compared, skipped, portless)
 	if compared < 100 {
 		t.Fatalf("only %d fixtures compared; replay is vacuous", compared)
 	}

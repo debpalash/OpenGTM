@@ -13,8 +13,9 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadscore"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadsread"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
@@ -66,9 +67,9 @@ type WriteTool struct {
 // ErrUnavailable is returned by a port that has no adapter in this build (D9).
 var ErrUnavailable = errors.New("not available in this build")
 
-// IsUnavailable reports whether err means "no adapter or no Python worker".
+// IsUnavailable reports whether err means "no adapter or no provider runner".
 func IsUnavailable(err error) bool {
-	return errors.Is(err, ErrUnavailable) || errors.Is(err, pyworker.ErrUnavailable)
+	return errors.Is(err, ErrUnavailable) || errors.Is(err, provcall.ErrUnavailable)
 }
 
 // HTTPError is a REST-style rejection surfaced by AutomationPort.ValidateRule.
@@ -245,8 +246,11 @@ type VerifyResult struct {
 	Detail      string
 }
 
-// EnrichPort reaches the cost-bearing providers. Py calls the Python worker RPC
-// (internal/pyworker) and returns its output; the sentinels pyworker.ErrUnavailable,
+// scoreLead is scoring.score_lead (internal/leadscore) without a source reliability: local CPU, no port needed.
+func scoreLead(l Lead) int { return leadscore.Score(l, nil) }
+
+// EnrichPort reaches the cost-bearing providers. Py runs one provider through the provider-call port
+// (rpclocal: the in-process providers) and returns its output; the sentinels provcall.ErrUnavailable,
 // ErrUnknownProvider and ErrUnauthorized pass through unchanged.
 type EnrichPort interface {
 	VerifyEmail(ctx context.Context, ws, email string) (VerifyResult, error)

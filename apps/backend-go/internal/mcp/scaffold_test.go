@@ -9,7 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 )
 
 func TestConfigDefaultsMatchPython(t *testing.T) {
@@ -128,7 +128,7 @@ func TestNilPortReturnsUnavailable(t *testing.T) {
 	if he := d.AutomationPort().ValidateRule(ctx, nil, "w", RuleInput{}); he == nil || he.Status != 503 {
 		t.Fatal(he)
 	}
-	if !IsUnavailable(pyworker.ErrUnavailable) || IsUnavailable(errors.New("x")) {
+	if !IsUnavailable(provcall.ErrUnavailable) || IsUnavailable(errors.New("x")) {
 		t.Fatal("IsUnavailable")
 	}
 }
