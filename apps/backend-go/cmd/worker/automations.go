@@ -104,7 +104,7 @@ func crmPushGuard(local *secrets.Resolver, evalOn bool, log *slog.Logger) autoac
 // secrets; emitter is the shared emitter; local is the in-process secret resolver (nil:
 // CRM tokens come from the environment only).
 func buildAutomations(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, wbDeps workbook.Deps,
-	sec autoactions.SecretGetter, local *secrets.Resolver, pyRPC *pyworker.Client,
+	sec autoactions.SecretGetter, local *secrets.Resolver, pyRPC *pyworker.Client, provRPC poller.PyCaller,
 	emitter automationhook.Emitter) map[string]runner {
 	a := cfg.Flags.Automations
 	queue.AllowJobType(jobTriggerEval)
@@ -118,8 +118,8 @@ func buildAutomations(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, w
 		FeedMaxEntries: a.PollerFeedMaxEntries, Spacer: poller.NewHostSpacer(time.Second)}
 	py := poller.PyDeps{SourceDeps: src, AppEnv: cfg.AppEnv, EgressAllowHosts: cfg.EgressAllowHosts,
 		Py: poller.PyCollectors{JobSpyMaxJobs: a.PollerJobspyMaxJobs, JobChangeMaxContactsPerPoll: a.PollerJobChangeMaxContactsPerPoll}}
-	if pyRPC != nil { // never a typed-nil client behind the interface
-		py.Py.Client = pyRPC
+	if provRPC != nil { // in-process providers first, then the worker (rpclocal); nil keeps ErrUnavailable
+		py.Py.Client = provRPC
 	}
 	pollDeps := poller.HandlerDeps{PyDeps: py, Hook: emitter, Enabled: cfg.Flags.IntentPollerEnabled,
 		PGStore: cfg.Flags.PGLeadStore, Backfill: a.PollerBackfill, Log: log}

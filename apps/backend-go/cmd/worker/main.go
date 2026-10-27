@@ -31,6 +31,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rpclocal"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/refresh"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
@@ -382,6 +383,14 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 	}
 	var pyRPC *pyworker.Client
 	deps.Runner, deps.Py, pyRPC = buildProviderRunner(cfg, pool, log, api, localSecrets)
+	var provSec rpclocal.Secrets = apiSecrets{api}
+	if localSecrets != nil {
+		provSec = localSecrets
+	}
+	provRPC, err := providerRPC(cfg, log, pyRPC, provSec)
+	if err != nil {
+		return nil, nil, err
+	}
 	deps.AIBatch = workbook.BatchConfig{Enabled: envBool("GO_AI_BATCH_ENABLED"), MinRows: envInt("WORKBOOK_BATCH_MIN_ROWS", 20)}
 	closeFn := func() {}
 	var prog progress.Publisher
@@ -421,8 +430,8 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 	rfDeps := refresh.Deps{Pool: pool, SourceWait: sourceWait, NextExecutor: ""}
 	ssDeps := signalscan.Deps{Pool: pool, Hook: abDeps.Hook, Log: log, Caps: ptr(signalCaps(cfg.Executor)),
 		RefreshExecutor: cfg.Executor.RefreshExecutor, ScanExecutor: cfg.Executor.SignalScanExecutor}
-	if pyRPC != nil {
-		ssDeps.Py = pyRPC
+	if provRPC != nil {
+		ssDeps.Py = provRPC
 	}
 	rfFail := rfDeps
 	rfFail.NextExecutorFor = cfg.Executor.RefreshExecutor
@@ -443,7 +452,7 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 	if localSecrets != nil {
 		sec = localSecrets
 	}
-	for typ, h := range buildAutomations(cfg, pool, log, deps, sec, localSecrets, pyRPC, emitter) {
+	for typ, h := range buildAutomations(cfg, pool, log, deps, sec, localSecrets, pyRPC, provRPC, emitter) {
 		handlers[typ] = h
 	}
 	for typ, h := range buildOutreach(cfg, pool, log, localSecrets, outreachOpts{}) {
