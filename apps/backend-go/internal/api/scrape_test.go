@@ -308,7 +308,6 @@ func TestScrapeNeverSendsTheOperatorLinkedInCookie(t *testing.T) {
 			return 200, renderBody(v, 403, "<html>wall</html>", "wall") // non-200: forces the browser engine
 		})
 		h := routesFor(f)
-		h.liAt = "SECRET-LI-AT"
 		if _, err := h.scrape(context.Background(), c.url); err != nil {
 			t.Fatal(err)
 		}

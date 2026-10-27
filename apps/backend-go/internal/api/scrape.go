@@ -68,7 +68,6 @@ type scrapeRoutes struct {
 	guard  urlGuard
 	search unifiedSearcher
 	store  scrapeStore
-	liAt   string
 
 	// one limiter pool per route, built on first use (Limiter.Limit makes a fresh budget on every call)
 	publicLim, adminLim, unifiedLim limitedOnce
@@ -121,7 +120,7 @@ func newScrapeRoutes(d Deps) *scrapeRoutes {
 		bc = browserclient.New(cfg.BrowserURL, cfg.BrowserToken.Reveal(), nil)
 	}
 	hc := egress.NewClientForEnv(appEnv, d.EgressAllowHosts)
-	h := &scrapeRoutes{d: d, log: d.logger(), render: bc, store: pgScrapeStore{pool: d.Pool}, liAt: cfg.LinkedInLiAt.Reveal(),
+	h := &scrapeRoutes{d: d, log: d.logger(), render: bc, store: pgScrapeStore{pool: d.Pool},
 		guard: urlGuard{appEnv: appEnv, allow: d.EgressAllowHosts}}
 	h.search = unisearch.NewRegistry(unisearch.Config{GoogleAPIKey: cfg.GoogleAPIKey.Reveal(), GoogleCSEID: cfg.GoogleCSEID.Reveal(),
 		GoogleBooksKey: cfg.GoogleBooksKey.Reveal()}, hc, unisearch.URLs{})
@@ -267,15 +266,6 @@ func jsWall(html string) bool {
 	return strings.Contains(lower, "enable javascript") || (strings.Contains(lower, "please wait...") && utf8.RuneCountInString(html) < 2000)
 }
 
-func linkedInHost(raw string) bool {
-	u, err := url.Parse(strings.TrimSpace(raw))
-	if err != nil {
-		return false
-	}
-	h := strings.ToLower(u.Hostname())
-	return h == "linkedin.com" || strings.HasSuffix(h, ".linkedin.com")
-}
-
 // scrape is UniversalScraper.scrape without the screenshot stream: the URL is guarded, a plain fetch is tried
 // first (method "fast"), and a JS wall, a non-200 or a fetch error falls back to the real browser with lazy-load
 // scrolling (method "robust"). A blocked destination is a security decision, not a reason to retry elsewhere.
@@ -304,9 +294,10 @@ func (h *scrapeRoutes) scrape(ctx context.Context, pageURL string) (scrapeResult
 	}
 	req := browserclient.RenderRequest{URL: pageURL, Engine: "browser", WaitUntil: "domcontentloaded", WaitMS: 2000, Scroll: true, MaxScrolls: 5,
 		IncludeHTML: true, IncludeText: true, MaxBytes: scrapeMaxBytes, UserAgent: scrapeUA, Timeout: scrapeSlowTimeout}
-	if h.liAt != "" && linkedInHost(pageURL) {
-		req.Cookies = []browserclient.Cookie{{Name: "li_at", Value: h.liAt, Domain: ".linkedin.com", Path: "/", Secure: true}}
-	}
+	// Credential rule (review 3b M5): user-facing scrape routes fetch pages logged-out only. The operator's
+	// LINKEDIN_LI_AT_COOKIE is never attached, because any workspace editor could reach it. Credentials may
+	// transit to the browser service per request only when they are workspace-owned secrets of a workspace
+	// feature that needs them (e.g. staffspy), and the service never stores them.
 	res, err := h.render.Render(ctx, req)
 	if err != nil {
 		if errors.Is(err, browserclient.ErrBlocked) {

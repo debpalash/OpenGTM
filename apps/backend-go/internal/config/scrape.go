@@ -20,10 +20,6 @@ type ScrapeSettings struct {
 	GoogleAPIKey   Secret // GOOGLE_API_KEY
 	GoogleCSEID    Secret // GOOGLE_CSE_ID
 	GoogleBooksKey Secret // GOOGLE_BOOKS_API_KEY
-
-	// LinkedInLiAt is the li_at session cookie the legacy scraper attached to linkedin.com pages
-	// (LINKEDIN_LI_AT_COOKIE). It is sent to the browser service, per request, for linkedin.com hosts only.
-	LinkedInLiAt Secret
 }
 
 // ScrapeFrom reads the scrape settings.
@@ -35,6 +31,5 @@ func ScrapeFrom(get func(string) string) ScrapeSettings {
 		GoogleAPIKey:   Secret(t("GOOGLE_API_KEY")),
 		GoogleCSEID:    Secret(t("GOOGLE_CSE_ID")),
 		GoogleBooksKey: Secret(t("GOOGLE_BOOKS_API_KEY")),
-		LinkedInLiAt:   Secret(t("LINKEDIN_LI_AT_COOKIE")),
 	}
 }

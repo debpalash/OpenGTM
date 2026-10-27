@@ -16,13 +16,13 @@ func TestScrapeRoutesFrom(t *testing.T) {
 
 func TestScrapeFromRedactsSecrets(t *testing.T) {
 	env := map[string]string{"BROWSER_SERVICE_URL": " http://browser:8090 ", "BROWSER_SERVICE_TOKEN": "tok", "GOOGLE_API_KEY": "gk", "GOOGLE_CSE_ID": "cx",
-		"GOOGLE_BOOKS_API_KEY": "bk", "LINKEDIN_LI_AT_COOKIE": "li"}
+		"GOOGLE_BOOKS_API_KEY": "bk"}
 	s := ScrapeFrom(func(k string) string { return env[k] })
 	if s.BrowserURL != "http://browser:8090" || s.BrowserToken.Reveal() != "tok" || s.GoogleAPIKey.Reveal() != "gk" || s.GoogleCSEID.Reveal() != "cx" ||
-		s.GoogleBooksKey.Reveal() != "bk" || s.LinkedInLiAt.Reveal() != "li" {
+		s.GoogleBooksKey.Reveal() != "bk" {
 		t.Errorf("unexpected settings")
 	}
-	if got := s.LinkedInLiAt.String(); got != "[redacted]" {
+	if got := s.BrowserToken.String(); got != "[redacted]" {
 		t.Errorf("secret prints %q", got)
 	}
 }
