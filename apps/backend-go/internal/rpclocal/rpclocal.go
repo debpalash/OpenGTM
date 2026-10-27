@@ -53,8 +53,18 @@ type Secrets interface {
 	Get(ctx context.Context, ws, key string) (value, source string, err error)
 }
 
+// Runner runs one registered Go provider the way every other Go caller does
+// (providerrun.Runner: operator settings, per-workspace keys, cache, stats
+// ledger, worker semaphore).
+type Runner interface {
+	Run(ctx context.Context, workspaceID, provider string, in providers.Input, timeout time.Duration) (providers.Output, error)
+}
+
 // Deps wire a Caller.
 type Deps struct {
+	// Runner runs registered Go providers; nil builds a providerrun.Runner without a pool
+	// (settings and keys, no cache or stats ledger).
+	Runner Runner
 	Py      PyCaller          // nil: names not served here fail with pyworker.ErrUnavailable
 	Local   func(string) bool // the GO_LOCAL_PROVIDERS gate; nil serves nothing here
 	HTTP    *http.Client      // strict egress client for lead-supplied URLs; nil builds egress.NewClient
