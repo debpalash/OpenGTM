@@ -150,3 +150,9 @@ func (zeroReader) Read(p []byte) (int, error) {
 	}
 	return len(p), nil
 }
+
+// jsWall serves every page as a JavaScript wall, so a test of the Python
+// fallback never touches the network.
+func jsWall(context.Context, string) ([]byte, error) {
+	return []byte(`<html><body>Please enable JavaScript</body></html>`), nil
+}

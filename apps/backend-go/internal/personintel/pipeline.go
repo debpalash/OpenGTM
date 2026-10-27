@@ -33,6 +33,10 @@ type Deps struct {
 	// PyWorker runs the deep scrape (provider person_intel_deep). nil, or a
 	// nil *pyworker.Client, skips the deep phase with step deep_unavailable.
 	PyWorker Caller
+	// Fetch loads one result page for the deep scrape. nil means the
+	// egress-guarded HTTP client above (2 MiB cap, same-host redirects only).
+	// Tests inject their own.
+	Fetch PageFetcher
 	// WorkspaceID is the RPC envelope workspace (person_intel itself is global). The worker rejects an empty
 	// one (422), so empty means DefaultWorkspaceID.
 	WorkspaceID string
@@ -248,17 +252,17 @@ func randomCallID() string {
 	return "pi-" + hex.EncodeToString(b[:])
 }
 
-// deepScrape (_deep_scrape_results) fetches up to DeepMaxPages result pages
-// through the Python worker, one provider call per page, inside deepBudget.
+// deepScrape (_deep_scrape_results) fetches up to DeepMaxPages result pages in
+// Go (egress-guarded, capped); only JavaScript-wall pages go to the Python worker, one provider call per page, inside deepBudget.
 // Page failures are skipped; an unreachable worker ends the phase with step
 // deep_unavailable. Only the caller's ctx ending is returned as an error.
 func deepScrape(ctx context.Context, d Deps, p *Profile, all []Result, emit func(string, map[string]any)) error {
 	unavailable := func() {
 		emit("deep_unavailable", map[string]any{"message": "Deep scraping unavailable: Python worker not reachable"})
 	}
-	if nilCaller(d.PyWorker) {
-		unavailable()
-		return nil
+	fetch := d.Fetch
+	if fetch == nil {
+		fetch = fetchPage(d.HTTP)
 	}
 	var idx []int
 	seen := map[string]struct{}{}
@@ -289,6 +293,45 @@ pick:
 		}
 		u := all[i].URL
 		emit("scrape_progress", map[string]any{"url": u, "progress": strconv.Itoa(n+1) + "/" + strconv.Itoa(total)})
+		skip := func() {
+			emit("scrape_progress", map[string]any{"url": u, "progress": strconv.Itoa(n+1) + "/" + strconv.Itoa(total), "skipped": true})
+		}
+		// A URL the egress guard refuses is never fetched and never sent to the worker.
+		if vetDeepURL(u) != nil {
+			skip()
+			continue
+		}
+		// Fast path: fetch in Go through the egress-pinned client, capped.
+		body, ferr := fetch(dctx, u)
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		if dctx.Err() != nil {
+			return nil // phase budget spent
+		}
+		if ferr != nil {
+			skip()
+			continue
+		}
+		if !needsBrowser(body) {
+			if out := extractPage(body); out != nil {
+				mergeScraped(p, &all[i], out)
+			}
+			if n < total-1 && deepDelay > 0 {
+				t := time.NewTimer(deepDelay)
+				select {
+				case <-t.C:
+				case <-dctx.Done():
+					t.Stop()
+				}
+			}
+			continue
+		}
+		// JavaScript wall: only the Python browser can render it.
+		if nilCaller(d.PyWorker) {
+			skip()
+			continue
+		}
 		in, _ := json.Marshal(map[string]string{"url": u})
 		res, err := d.PyWorker.Call(dctx, pyworker.ProviderCall{
 			CallID: randomCallID(), Provider: "person_intel_deep", WorkspaceID: cmp.Or(d.WorkspaceID, DefaultWorkspaceID),

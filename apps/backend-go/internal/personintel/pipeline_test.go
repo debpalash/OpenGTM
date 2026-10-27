@@ -229,17 +229,19 @@ func fastDeep(t *testing.T) {
 	t.Cleanup(func() { deepDelay = old })
 }
 
-func TestDeepSkippedWithoutPyWorker(t *testing.T) {
+// Without a worker the deep phase still runs in Go; only JavaScript-wall pages are skipped.
+func TestDeepWithoutPyWorkerSkipsOnlyJSWallPages(t *testing.T) {
 	html := recordedDDGHTML(t)
 	for name, w := range map[string]Caller{"nil interface": nil, "nil client": (*pyworker.Client)(nil)} {
 		t.Run(name, func(t *testing.T) {
+			fastDeep(t)
 			c := withPipelineStubs(t, func(rw http.ResponseWriter, r *http.Request) { _, _ = rw.Write([]byte(html)) })
 			r := &recorder{}
-			p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: w}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
+			p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: w, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
 			if err != nil || p.Status != "completed" {
 				t.Fatalf("%q %v", p.Status, err)
 			}
-			if r.count("deep_unavailable") != 1 || r.count("deep_scraping") != 0 || r.count("scrape_progress") != 0 {
+			if r.count("deep_unavailable") != 0 || r.count("deep_scraping") != 1 {
 				t.Fatalf("steps %v", r.steps())
 			}
 		})
@@ -254,7 +256,7 @@ func TestDeepUnavailableWhenWorkerRejects(t *testing.T) {
 			return pyworker.ProviderResult{}, e
 		}}
 		r := &recorder{}
-		p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
+		p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
 		if err != nil || p.Status != "completed" || r.count("deep_unavailable") != 1 || len(fc.calls) != 1 {
 			t.Fatalf("%v: status %q err %v calls %d steps %v", e, p.Status, err, len(fc.calls), r.steps())
 		}
@@ -270,7 +272,7 @@ func TestDeepBoundedAndCancelled(t *testing.T) {
 			return okOutput(strings.Repeat("é", 1500), []string{"jane@acme.io", "not an email", "x@" + strings.Repeat("a", 400) + ".io"}, 7), nil
 		}}
 		r := &recorder{}
-		p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, WorkspaceID: "ws1"}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
+		p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: jsWall, WorkspaceID: "ws1"}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
 		if err != nil || p.Status != "completed" {
 			t.Fatalf("%q %v", p.Status, err)
 		}
@@ -329,7 +331,7 @@ func TestDeepBoundedAndCancelled(t *testing.T) {
 		}}
 		r := &recorder{}
 		start := time.Now()
-		p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
+		p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
 		if err != nil || p.Status != "completed" || time.Since(start) > 5*time.Second || len(fc.calls) != 1 || r.count("completed") != 1 {
 			t.Fatalf("%q %v calls %d", p.Status, err, len(fc.calls))
 		}
@@ -346,7 +348,7 @@ func TestDeepBoundedAndCancelled(t *testing.T) {
 			return pyworker.ProviderResult{}, ctx.Err()
 		}}
 		r := &recorder{}
-		_, err := Enrich(ctx, Deps{HTTP: c, PyWorker: fc}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
+		_, err := Enrich(ctx, Deps{HTTP: c, PyWorker: fc, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
 		if err == nil || ctx.Err() == nil || len(fc.calls) != 1 || r.count("completed") != 0 {
 			t.Fatalf("err %v calls %d steps %v", err, len(fc.calls), r.steps())
 		}
@@ -412,7 +414,7 @@ func TestDeepKeepsPageFinishingAtBudgetExpiry(t *testing.T) {
 		<-ctx.Done() // the answer lands as the budget expires
 		return okOutput("late page", []string{"late@acme.io"}, 3), nil
 	}}
-	p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc}, "https://www.linkedin.com/in/jane-doe", true, nil)
+	p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, nil)
 	if err != nil || len(fc.calls) != 1 || !contains(p.Emails, "late@acme.io") {
 		t.Fatalf("err %v calls %d emails %v", err, len(fc.calls), p.Emails)
 	}
@@ -427,7 +429,7 @@ func TestDeepScrapeCarriesWorkspace(t *testing.T) {
 		fc := &fakeCaller{fn: func(context.Context, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
 			return okOutput("t", nil, 1), nil
 		}}
-		if _, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, WorkspaceID: tc.in}, "https://www.linkedin.com/in/jane-doe", true, nil); err != nil {
+		if _, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: jsWall, WorkspaceID: tc.in}, "https://www.linkedin.com/in/jane-doe", true, nil); err != nil {
 			t.Fatal(err)
 		}
 		if len(fc.calls) == 0 {
