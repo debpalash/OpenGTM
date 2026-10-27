@@ -19,7 +19,7 @@ const notBuilt = "UI not built (build with make build)\n"
 
 // apiPrefixes are the paths the Go API owns (and nginx proxies); the UI never answers them.
 // "/health" also covers /healthz; "/metrics" is reserved for the Prometheus endpoint.
-var apiPrefixes = []string{"/api", "/auth", "/internal", "/ws", "/admin", "/health", "/metrics"}
+var apiPrefixes = []string{"/api", "/auth", "/internal", "/ws", "/admin", "/health", "/metrics", "/scim"}
 
 // Excluded reports whether p belongs to the API rather than the UI.
 func Excluded(p string) bool {

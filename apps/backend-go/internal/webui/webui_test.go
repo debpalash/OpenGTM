@@ -65,7 +65,7 @@ func TestMissingFileWithExtensionIs404(t *testing.T) {
 
 func TestExcludedPrefixes(t *testing.T) {
 	h := Handler(testFS())
-	for _, p := range []string{"/api/leads", "/api", "/auth/me", "/health", "/healthz", "/internal/x", "/metrics", "/ws/person/enrich", "/admin/users"} {
+	for _, p := range []string{"/api/leads", "/api", "/auth/me", "/health", "/healthz", "/internal/x", "/metrics", "/scim/v2/acme/Users", "/ws/person/enrich", "/admin/users"} {
 		if !Excluded(p) {
 			t.Fatalf("%s should be excluded", p)
 		}
