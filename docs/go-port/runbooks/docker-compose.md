@@ -62,7 +62,7 @@ A default `docker compose up` creates no user. The first admin is created by you
 
 Token rules: `SETUP_TOKEN` wins; only `SETUP_TOKEN_DISABLED=1` opens setup without a
 token; `APP_ENV` never does (so a dev-default install still demands the logged token). After setup
-`POST /auth/setup` returns 409 permanently. nginx routes `/auth/setup` and `/auth/setup/status` to `api-go`
+`POST /auth/setup` returns 409 to a caller with a valid token (without one it is 401/403 first). nginx routes `/auth/setup` and `/auth/setup/status` to `api-go`
 at every canary percentage, so `api-go` must be running for first run.
 
 The old `seed` service (admin/admin plus a demo workbook) is behind the `demo` profile:
@@ -76,12 +76,11 @@ same `SECRET_KEY`, `SECRETS_PROVIDER`, `SECRETS_MASTER_KEY`, `INTERNAL_SERVICE_T
 no secret is in `docker-compose.yml`). `lead_net` has a fixed subnet (`LEAD_NET_SUBNET`, default `172.29.250.0/24`) and `TRUST_PROXY_CIDRS` defaults to
 it (the code default is loopback only; `TRUST_PROXY` is gone). Change both if the subnet collides. When
 `GO_OUTREACH_ROUTES_ENABLED` or `GO_EXECUTOR_OUTREACH_SEND` is on, `OUTREACH_PUBLIC_BASE_URL` must be an https URL
-(or `APP_ENV=dev`), otherwise the Go process refuses to start. After upgrading, run `suppressnorm --dry-run` then
+(`APP_ENV=dev` still allows http), otherwise the Go process refuses to start. After upgrading, run `suppressnorm --dry-run` then
 `suppressnorm` once (`docker compose run --rm --entrypoint /suppressnorm worker-go --dry-run`; needs
 `DATABASE_URL`, already set on `worker-go`). Schema revision `e7b2c4d6f8a0` is required (`migrate` applies it). Every `GO_*_ENABLED` route/executor flag and `COPILOT_GO_ENABLED`
 defaults to `false`; with them off, and `go-split.conf` at 0%, the stack behaves like Python even with the `go`
-profile running. Production: set `APP_ENV` and a `SECRET_KEY` of at least 32 bytes (api-go refuses to start
-otherwise), identical on `api` and `api-go`.
+profile running. `SECRET_KEY` of at least 32 bytes is required on api-go, worker-go and mcp (they refuse to start otherwise unless `APP_ENV=test`; `dev` does not relax it, and compose fails without it), identical on `api` and `api-go`. Production: also set `APP_ENV=production`. Go sessions require Postgres `timezone=UTC` (see `api-cutover.md`, "Final fix wave").
 
 ## Canary
 

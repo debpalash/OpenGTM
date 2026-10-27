@@ -26,9 +26,9 @@ http-level only, so it lives in its own file. Responses on Go-eligible routes ca
 2. **Migrate before starting api-go.** The Go schema gate is an exact match on Alembic head
    `e7b2c4d6f8a0` (down `d3f5a7b9c1e2`); api-go refuses to start on any other revision. Run the Python migration first.
 3. `SECRET_KEY` identical on `api` and `api-go` (tokens must cross over). api-go refuses to start when
-   `SECRET_KEY` is empty, the insecure default, or shorter than 32 bytes, unless `APP_ENV` is EXPLICITLY a
-   dev value (`dev`, `development`, `test`, `testing`, `local`). An unset `APP_ENV` counts as non-dev
-   (fail closed; Python treats it as dev), so set `APP_ENV` on the `api-go` service.
+   `SECRET_KEY` is empty, the insecure default, or shorter than 32 bytes, unless `APP_ENV=test`. `APP_ENV=dev`
+   (the compose default) does NOT relax this; compose itself fails when `SECRET_KEY` is unset. The worker and
+   the MCP server enforce the same rule.
    `MCP_TOKEN_TTL_DAYS=0` (or negative) is accepted and means MCP tokens never expire, as in Python.
    `DATABASE_URL` must use a non-superuser, NOBYPASSRLS role: api-go queries `pg_roles` at startup and
    refuses to start otherwise (`PG_RLS_REQUIRE_SAFE_ROLE=false` downgrades it to a CRITICAL log, same as
@@ -40,7 +40,7 @@ http-level only, so it lives in its own file. Responses on Go-eligible routes ca
 ## Canary ramp
 
 The percentage lives on the single `go` line in `go-split.conf`, shipped commented out (0%).
-Buckets are sticky per `Authorization` header + client address.
+Buckets are sticky per **client address only** (`$remote_addr`); the key never includes an `Authorization` header or any other client-chosen value, so a caller cannot steer itself onto the weaker stack. Behind another proxy or load balancer, restore the real client address (realip) first, or all clients share one bucket. `/auth/setup*`, `/auth/sso/*`, `/api/outreach/unsubscribe` and `/api/outreach/webhooks/bounce` are pinned to Go at every percentage. `/auth/token` and `/auth/refresh` still follow the canary: **move them to 100 % first** (the inactive-user and SSO-scope fixes only apply to Go-served traffic), before the rest of the ramp. The workspace-sticky routes (run, copilot) key on the `X-Workspace-Id` header and fall back to the client address.
 
 ```
 # 0%:    "# 5%  go;" (commented)       # nginx rejects a literal 0%
@@ -70,7 +70,7 @@ Before the reload that routes `/auth/sso/` to Go:
 1. Set `SSO_ALLOWED_ISSUERS` to the full issuer URL of every enabled workspace config (comma list). Host-only approval no longer works: an issuer must equal an entry exactly (scheme, host, port, path). List them with, as the schema owner:
    `SELECT workspace_id, value::json->>'issuer' FROM workspace_settings WHERE key='OIDC_CONFIG';`
    `SSO_ALLOWED_ISSUER_HOSTS` is deprecated: when set it only narrows and never approves alone. Stored configs approved only by host stop working until the issuer is listed.
-2. Optionally set `SSO_REDIRECT_BASE_URL=https://<public origin>` so the redirect URI does not depend on `Host` / `X-Forwarded-Proto`; the IdP's registered redirect URI stays `https://<origin>/auth/sso/<slug>/callback`.
+2. Set `SSO_REDIRECT_BASE_URL=https://<public origin>` (**required whenever SSO is enabled**: there is no `Host` / `X-Forwarded-Proto` fallback, and SSO config/login is refused with a clear error without it); the IdP's registered redirect URI stays `https://<origin>/auth/sso/<slug>/callback`.
 3. A self-hosted IdP on a private address: set `SSO_EGRESS_ALLOW_HOSTS=<idp host>[:port]` (comma list). `EGRESS_ALLOW_HOSTS` does not apply to SSO. Nothing is allowed by default; public IdPs work as before.
 4. Review Python-era bindings of privileged accounts and delete unexpected rows. Go honours existing `(workspace, issuer, subject)` bindings (also for owners and admins, who would otherwise be locked out under `enforce_sso`) but never creates one for an owner, admin or global admin:
    `SELECT i.workspace_id, i.issuer, i.subject, u.username, m.role FROM workspace_oidc_identities i JOIN users u ON u.id=i.user_id LEFT JOIN workspace_members m ON m.workspace_id=i.workspace_id AND m.user_id=i.user_id WHERE m.role IN ('owner','admin') OR u.is_admin;`
@@ -95,6 +95,8 @@ PY_URL=http://127.0.0.1:8000 GO_URL=http://127.0.0.1:8001 CHECK_EMAIL=... CHECK_
   created in that case. Go also requires `exp` on tokens (Python tolerates absence; all minted tokens carry it).
 
 ## Required deploy step before Python is retired: tenancy backfill
+
+(Fresh databases need no backfill: first-run `/setup` claims the ownerless workspaces. This step matters only for databases migrated from a Python install, where the admin and workspaces already exist.)
 
 Python runs `ensure_tenancy_backfill(admin.id)` at every boot (`legacy/python/apps/api/main.py:100-116`): it picks the oldest global admin and gives that user a workspace membership and a default workspace. **Go has no equivalent.** While the Python API still boots, nothing is lost. A Go-only boot against a fresh or restored database leaves the global admin without memberships, so every workspace-scoped route answers 403.
 
@@ -134,7 +136,7 @@ Operator-visible behaviour changes since the first Go cutover plans. Read before
 - `POST /api/events/ticket` and `GET /api/events?ticket=` replace `?token=` for SSE. `SSE_QUERY_TOKEN_UNTIL` (default `2027-01-31T00:00:00Z`) ends the legacy window; move `/api/events` to Go at 100 % before it passes.
 
 **First run and compose**
-- A fresh install has no users: the UI redirects to `/setup`. `SETUP_TOKEN` (wins) or a token that api-go logs once; `SETUP_TOKEN_DISABLED=1` is the only switch that opens setup without a token (`APP_ENV` does not). `POST /auth/setup` answers 409 permanently afterwards. Set `SETUP_TOKEN` explicitly with more than one api-go replica. The `seed` service (admin/admin) now lives behind the `demo` profile. Setup is served only by api-go, so it must be running.
+- A fresh install has no users: the UI redirects to `/setup`. `SETUP_TOKEN` (wins) or a token that api-go logs once; `SETUP_TOKEN_DISABLED=1` is the only switch that opens setup without a token (`APP_ENV` does not). Afterwards `POST /auth/setup` answers 409 once the caller presents a valid token (a missing or wrong token gets 401/403 first). On a migrated install that already has users, api-go writes the `setup_complete` marker at start, which closes setup. Set `SETUP_TOKEN` explicitly with more than one api-go replica. The `seed` service (admin/admin) now lives behind the `demo` profile. Setup is served only by api-go, so it must be running.
 - `FILES_API_MODE=legacy` was removed; api-go refuses to start with it. Delete it from env files.
 - `TRUST_PROXY` was removed (a deprecation warning is logged); `TRUST_PROXY_CIDRS` defaults to loopback only. Compose gives `lead_net` the fixed subnet `LEAD_NET_SUBNET` and defaults `TRUST_PROXY_CIDRS` to it. Set it explicitly outside compose.
 - `OUTREACH_PUBLIC_BASE_URL` must be an https URL when `GO_OUTREACH_ROUTES_ENABLED` or `GO_EXECUTOR_OUTREACH_SEND` is on and `APP_ENV` is not a dev value (unset counts as non-dev); otherwise the Go process refuses to start.
@@ -151,3 +153,14 @@ Operator-visible behaviour changes since the first Go cutover plans. Read before
 - Person-intel deep scrape runs in Go; `deep_unavailable` is emitted only when a JavaScript-wall page needs the Python worker and it is unreachable.
 - Bounce webhook events other than bounce, hard_bounce, soft_bounce, complaint and spam_report answer 200 `ignored`; suppressions without exactly one `@` are 422.
 - Audience PATCH with a null `name`, `description`, `refresh_enabled` or `refresh_interval_minutes` answers 422 (not the duplicate-name 409); `POST /api/events/ticket` is a Go-only route.
+
+## Final fix wave: deploy notes
+
+1. **Legacy Python prerequisite.** `legacy/python` commit `86f41c6` (Alembic schema `e7b2c4d6f8a0`) must be deployed and migrated before api-go starts; api-go refuses any other revision.
+2. **Only Go-served traffic has the fixes.** The post-port security fixes (inactive-user login, bounce-webhook hardening, limiter pools, SSO scoping through Go `/auth/refresh`) are effective only for requests Go serves. At 0 % the edge still sends `/auth/token`, `/auth/refresh` and most `/api/*` to Python. Plan the ramp accordingly: `/auth/token` + `/auth/refresh` to 100 % first.
+3. **Canary key.** Client address only (see "Canary ramp"). Public outreach unsubscribe and bounce routes are pinned to Go: enable `GO_OUTREACH_ROUTES_ENABLED` / `PG_LEAD_STORE` first.
+4. **UTC session precondition (hard).** Go connections must run with Postgres `timezone = UTC`. Go no longer reads the session TimeZone; schedule/fire keys and naive timestamps are UTC. Set it on the runtime role or in `DATABASE_URL` before the first canary percentage.
+5. **SECRET_KEY.** At least 32 bytes on api, worker and mcp, identical to Python. Only `APP_ENV=test` relaxes it.
+6. **SSO.** `SSO_REDIRECT_BASE_URL` is required when SSO is enabled.
+7. **First-run token in logs.** The generated setup token is logged once at WARN and stays in log storage after setup closes. It is useless once `setup_complete` is set, but apply your normal log-retention policy, or set `SETUP_TOKEN` yourself.
+8. **Oversized run `targets`** now answer 422 instead of being truncated; **dry runs** never hand back to Python and send nothing.

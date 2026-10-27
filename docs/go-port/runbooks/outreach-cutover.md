@@ -8,7 +8,7 @@ Deviations: `apps/backend-go/testdata/contract/README.md`, section "Plan 09 (out
 
 1. Alembic revision `a7c1e9d3b5f2` (Task 2, `outreach_send_by_message_id`) and the later `e7b2c4d6f8a0` (revokes PUBLIC `EXECUTE`, grants `yupcha_app`, builds `ix_outreach_sends_message_id` with `CREATE INDEX CONCURRENTLY`) are applied and the Go schema check passes (`RequiredGoSchemaRevision` is `e7b2c4d6f8a0`; run `alembic upgrade head` first). The migration role must bypass RLS (`rolsuper` or `rolbypassrls`): the function is `SECURITY DEFINER` and `outreach_sends` has FORCE RLS. `yupcha_app` only gets `EXECUTE`.
 2. `PG_LEAD_STORE=true` on `api-go`. Routes register only when `GO_OUTREACH_ROUTES_ENABLED` **and** `PG_LEAD_STORE` are on; otherwise Go registers nothing, logs `outreach routes not registered`, and a request that reaches it gets 404. nginx cannot see the flags:
-   never raise the canary above 0% until the startup log has no such line.
+   never deploy the pinned nginx config or raise the canary above 0% until the startup log has no such line.
 3. `SECRETS_MASTER_KEY` is **identical on both stacks** (and on the Go worker). It encrypts the SMTP/IMAP passwords and derives the unsubscribe-token key; a mismatch makes every link already mailed fail on one stack. Without a usable key Go answers 503 on the public unsubscribe routes and the worker hands `send`/`outreach_inbound_poll` jobs back to Python (error log at startup).
    `SECRET_KEY` and `APP_ENV` must also match (an insecure default `SECRET_KEY` in production is refused).
 4. `OUTREACH_PUBLIC_BASE_URL` (no trailing slash) is the URL recipients reach, used in `List-Unsubscribe` and the footer link; same value on both stacks. `OUTREACH_UNSUB_TTL_DAYS` (90) and `OUTREACH_BOUNCE_WEBHOOK_SECRET` (shared with the bounce provider; unset = the webhook answers 503) are the same on both stacks.
@@ -35,7 +35,7 @@ Flip one at a time, in this order, watching between steps (all default false):
 
 - `POST /api/campaigns/generate` is always `api_backend` (retained).
 - `/api/outreach/*` routes follow the canary bucket (`X-Upstream` response header shows `py` or `go`). Unknown siblings and trailing-slash variants stay on Python at every percentage.
-- `/api/outreach/unsubscribe` (GET landing, POST one-click) and `/api/outreach/webhooks/bounce` are public and sticky to one stack per request source (the bucket key is the client address when no `Authorization` header is sent). They forward `X-Real-IP` and `X-Forwarded-For`, so the public limiter sees the client.
+- `/api/outreach/unsubscribe` (GET landing, POST one-click) and `/api/outreach/webhooks/bounce` are public and **pinned to Go at every percentage** (not bucketed, no `X-Upstream` header): a client must not be able to pick the weaker stack, so `GO_OUTREACH_ROUTES_ENABLED=true` and `PG_LEAD_STORE=true` must be set on `api-go` before this nginx config is deployed (with a flag off these two routes answer 404 and mailed unsubscribe links break). They forward `X-Real-IP` and `X-Forwarded-For`, so the public limiter sees the client.
   **Links already mailed keep resolving at every percentage**: tokens are verified with the same derived key on both stacks, so either stack accepts either stack's token (given an identical `SECRETS_MASTER_KEY` and `SECRET_KEY`).
 - The limiter (20 requests per 60 s per IP and per token) is per process and per replica.
 
