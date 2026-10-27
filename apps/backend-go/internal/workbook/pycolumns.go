@@ -13,9 +13,9 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/aicol"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colcompute"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
