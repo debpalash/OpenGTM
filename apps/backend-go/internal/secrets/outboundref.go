@@ -18,9 +18,11 @@ var ErrOutboundRefNotAllowed = errors.New(OutboundRefMessage)
 var DefaultOutboundRefPrefixes = []string{"WEBHOOK_", "AUTOMATION_", "DEST_", "SLACK_"}
 
 // deniedOutboundPrefixes are credential families that never leave through a
-// user-chosen URL, whatever the prefix list says.
+// user-chosen URL, whatever the prefix list says: provider/CRM/mail credentials and the
+// server's own secrets (OIDC client secret, signing keys, database and Redis URLs).
 var deniedOutboundPrefixes = []string{
 	"SMTP_", "IMAP_", "HUBSPOT_", "SALESFORCE_", "META_", "LINKEDIN_", "GOOGLE_ADS_",
+	"OIDC_", "STRIPE_", "SECRET_", "JWT_", "DATABASE_", "REDIS_", "INSTANTLY_", "SMARTLEAD_", "AIRTABLE_",
 }
 
 // OutboundPolicy decides which secret names may be sent to a user-chosen URL.
@@ -31,6 +33,16 @@ type OutboundPolicy struct {
 	// Registered reports a registered provider/CRM credential (settings
 	// Registry.SecretSet()). May be nil.
 	Registered func(name string) bool
+}
+
+// NewOutboundPolicy is the one builder for production policies (final review L9). registered is
+// the settings registry's credential set; nil (no registry) fails closed: every name counts as a
+// registered credential, so no ref is allowed. Empty prefixes means DefaultOutboundRefPrefixes.
+func NewOutboundPolicy(prefixes []string, registered func(string) bool) OutboundPolicy {
+	if registered == nil {
+		registered = func(string) bool { return true }
+	}
+	return OutboundPolicy{Prefixes: prefixes, Registered: registered}
 }
 
 // CheckOutboundRef returns nil when name may be used as an outbound secret ref, else

@@ -15,7 +15,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destdeliver"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/deststore"
@@ -245,11 +244,7 @@ func destSecretField(typ string) string {
 
 // outboundPolicy is the R2 policy for references a destination sends to its configured URL.
 func (h destCrud) outboundPolicy() secrets.OutboundPolicy {
-	p := secrets.OutboundPolicy{Prefixes: config.OutboundSecretRefPrefixes(h.d.getenv())}
-	if h.d.Registry != nil {
-		p.Registered = h.d.Registry.SecretSet()
-	}
-	return p
+	return h.d.outboundPolicy()
 }
 
 // destCheckConfig is _validate_config plus, for the types with a secret reference, the get_secret lookup. A refusal is the

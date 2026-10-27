@@ -44,12 +44,19 @@ type autoCRUD struct {
 	svc *autosvc.Service
 }
 
-func newAutoCRUD(d Deps) autoCRUD {
-	a := d.Flags.Automations
+// outboundPolicy is the R2 secret-ref policy for every ref sent to a user-chosen URL (automation
+// webhooks, watches, destinations): OUTBOUND_SECRET_REF_PREFIXES plus the registered-credential
+// deny-list. Without a settings registry it fails closed (final review L9).
+func (d Deps) outboundPolicy() secrets.OutboundPolicy {
 	var registered func(string) bool
 	if d.Registry != nil {
 		registered = d.Registry.SecretSet()
 	}
+	return secrets.NewOutboundPolicy(config.OutboundSecretRefPrefixes(d.getenv()), registered)
+}
+
+func newAutoCRUD(d Deps) autoCRUD {
+	a := d.Flags.Automations
 	return autoCRUD{d: d, svc: &autosvc.Service{
 		Pool: d.Pool,
 		Cfg: autosvc.Config{
@@ -58,7 +65,7 @@ func newAutoCRUD(d Deps) autoCRUD {
 			AllowLegacyOutreach: d.Flags.AutomationsAllowLegacyOutreach,
 			WebhookAllowlist:    a.WebhookDomainAllowlist,
 			Secrets:             secrets.NewResolver(d.Envelope, secrets.NewPgStore(d.Pool), d.getenv()),
-			Outbound:            secrets.OutboundPolicy{Prefixes: config.OutboundSecretRefPrefixes(d.getenv()), Registered: registered},
+			Outbound:            d.outboundPolicy(),
 		},
 		ExecFor: d.automationExecutor(),
 		Log:     d.Log,

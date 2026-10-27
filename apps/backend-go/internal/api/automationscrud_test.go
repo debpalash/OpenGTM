@@ -86,7 +86,7 @@ func newAutoEnv(t *testing.T, profile string) autoEnv {
 	st := identity.NewStore(pool)
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
-	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{},
+	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Registry: testRegistry(t),
 		Flags: config.Flags{PGLeadStore: true, AutomationsEnabled: p.on, Automations: config.AutomationsSettings{
 			GoRoutesEnabled: true, MaxRulesPerWS: p.maxRules, MaxActionsPerRule: p.maxAction}}}
 	RegisterAutomations(r, d)

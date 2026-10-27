@@ -49,7 +49,7 @@ func newDestEnv(t *testing.T) destEnv {
 	if err != nil {
 		t.Fatal(err)
 	}
-	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Envelope: env,
+	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Envelope: env, Registry: testRegistry(t),
 		Getenv:         destTestGetenv,
 		Flags:          config.Flags{PGLeadStore: true, Audiences: config.AudienceSettings{GoAudienceRoutesEnabled: true, GoDestRoutesEnabled: true, RefreshPageSize: 500}},
 		AudienceEvents: nopEmitter{}}

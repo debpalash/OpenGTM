@@ -74,13 +74,13 @@ type WebhookDeps struct {
 // the webhook hardening, the configured domain allowlist and the secret resolver.
 func NewWebhookDeps(appEnv string, egressAllow []string, a config.AutomationsSettings, sec SecretGetter, log *slog.Logger) WebhookDeps {
 	d := &net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}
-	// A registry that cannot load denies every registered-looking name: fail closed.
-	registered := func(string) bool { return true }
+	// A registry that cannot load denies every ref: fail closed (secrets.NewOutboundPolicy).
+	var registered func(string) bool
 	if reg, err := settings.Load(); err == nil {
 		registered = reg.SecretSet()
 	}
 	return WebhookDeps{
-		Outbound: secrets.OutboundPolicy{Prefixes: config.OutboundSecretRefPrefixes(os.Getenv), Registered: registered},
+		Outbound: secrets.NewOutboundPolicy(config.OutboundSecretRefPrefixes(os.Getenv), registered),
 		Client:   newWebhookClient(appEnv, egressAllow, net.DefaultResolver, d.DialContext),
 		AppEnv:   appEnv, AllowHosts: egressAllow, Allowlist: a.WebhookDomainAllowlist,
 		Secrets: sec, Log: log,

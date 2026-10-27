@@ -174,7 +174,7 @@ func newWcrudEnv(t *testing.T, profile string, mod ...func(*Deps)) wcrudEnv {
 	if err != nil {
 		t.Fatal(err)
 	}
-	d := Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Flags: wcrudFlags(profile), Envelope: envl}
+	d := Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Flags: wcrudFlags(profile), Envelope: envl, Registry: testRegistry(t)}
 	if err := secrets.NewResolver(envl, secrets.NewPgStore(e.pool), os.Getenv).Set(context.Background(), "ws-alpha", "AUTOMATION_HOOK_SECRET", wcrudHookSecret); err != nil {
 		t.Fatal(err)
 	}

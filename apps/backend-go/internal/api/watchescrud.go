@@ -42,10 +42,6 @@ func (d Deps) watchPollExecutor() func(ws string) string {
 // secret references resolve inside the caller's workspace only (secrets.Resolver.Has).
 func (d Deps) watchCRUDService() *watchsvc.Service {
 	a := d.Flags.Automations
-	var registered func(string) bool
-	if d.Registry != nil {
-		registered = d.Registry.SecretSet()
-	}
 	return &watchsvc.Service{
 		Pool: d.Pool,
 		Cfg: watchsvc.Config{
@@ -59,7 +55,7 @@ func (d Deps) watchCRUDService() *watchsvc.Service {
 		},
 		Secrets: secrets.NewResolver(d.Envelope, secrets.NewPgStore(d.Pool), d.getenv()),
 		// Same outbound secret-ref policy as automation rules (S-M1): env prefixes plus the registered-credential deny-list.
-		Outbound: secrets.OutboundPolicy{Prefixes: config.OutboundSecretRefPrefixes(d.getenv()), Registered: registered},
+		Outbound: d.outboundPolicy(),
 		ExecFor:  d.watchPollExecutor(),
 		Log:      d.logger(),
 	}
