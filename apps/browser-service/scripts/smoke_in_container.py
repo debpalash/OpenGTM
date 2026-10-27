@@ -85,7 +85,7 @@ all_procs = procs()
 chrome = [p for p in all_procs if "chrome" in p[2] or "headless_shell" in p[2]]
 if not chrome:
     failures.append("no chromium process found")
-for d, uid, cmd in chrome:
+for _d, uid, cmd in chrome:
     if "--no-sandbox" in cmd:
         failures.append(f"chromium runs without its sandbox: {cmd[:120]}")
     if uid != want_uid:
