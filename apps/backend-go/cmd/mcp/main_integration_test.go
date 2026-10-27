@@ -317,6 +317,10 @@ func TestStdioEndToEndBinary(t *testing.T) {
 	// Byte-exact: no ids involved.
 	for _, name := range []string{"read__initialize_ping_list.json", "read__capability_denied.json"} {
 		_, stdin, want, _ := fixtureJSON(t, name)
+		if name == "read__capability_denied.json" {
+			// F7: Python recorded isError false for a tool error; Go sets true (MCP spec), so the frame is one byte shorter.
+			want = strings.Replace(strings.Replace(want, `"isError": false`, `"isError": true`, 1), "Content-Length: 171\r\n", "Content-Length: 170\r\n", 1)
+		}
 		out, errs, code := runBinary(t, env("read"), stdin)
 		if code != 0 || out != want {
 			t.Errorf("%s: code=%d stderr=%q\n got %q\nwant %q", name, code, errs, out, want)
