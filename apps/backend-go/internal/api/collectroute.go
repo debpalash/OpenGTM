@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
@@ -140,12 +141,18 @@ func (h *collectRoutes) parse(w http.ResponseWriter, r *http.Request) (collectBo
 	} else if n := utf8.RuneCountInString(s); n > h.maxChars {
 		errs = append(errs, httpx.FieldError{Type: "string_too_long", Loc: []any{"body", "query"}, Input: s,
 			Msg: fmt.Sprintf("String should have at most %d character%s", h.maxChars, plural(h.maxChars)), Ctx: map[string]any{"max_length": h.maxChars}})
+	} else if strings.ContainsRune(s, 0) { // Postgres cannot store NUL; Python answers 500 (audit F12)
+		errs = append(errs, httpx.FieldError{Type: "value_error", Loc: []any{"body", "query"}, Input: s,
+			Msg: "Value error, string contains a NUL byte"})
 	} else {
 		out.Query = s
 	}
 	if v, ok := obj.Get("intent"); ok && v != nil {
 		if s, ok := v.(string); !ok {
 			errs = append(errs, strErr("intent", v))
+		} else if strings.ContainsRune(s, 0) {
+			errs = append(errs, httpx.FieldError{Type: "value_error", Loc: []any{"body", "intent"}, Input: s,
+				Msg: "Value error, string contains a NUL byte"})
 		} else {
 			out.Intent = &s
 		}

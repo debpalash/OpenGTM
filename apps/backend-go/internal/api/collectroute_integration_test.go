@@ -393,6 +393,19 @@ func TestCollectQueryTooLong422(t *testing.T) {
 	}
 }
 
+func TestCollectNulByte422(t *testing.T) {
+	e := newCollectEnv(t)
+	for body, loc := range map[string]string{`{"query":"a\u0000b"}`: `"query"`, `{"query":"x","intent":"a\u0000"}`: `"intent"`} {
+		rec := e.post("alice", "", body)
+		if rec.Code != 422 || !strings.Contains(rec.Body.String(), `"type":"value_error","loc":["body",`+loc+`],"msg":"Value error, string contains a NUL byte"`) {
+			t.Errorf("%s: %d %s", body, rec.Code, rec.Body.String())
+		}
+	}
+	if l, q := e.rows(t); l != 0 || q != 0 {
+		t.Errorf("rows written: ledger %d queue %d", l, q)
+	}
+}
+
 func TestCollectNonStringQuery422(t *testing.T) {
 	e := newCollectEnv(t)
 	cases := map[string]string{
