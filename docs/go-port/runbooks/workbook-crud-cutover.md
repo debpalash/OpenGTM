@@ -32,10 +32,9 @@ them (`TestRetainedWorkbookRoutesNotRegistered`), so a mis-route is visible.
    `trigger_eval` jobs for rows it adds only when it is true; a mismatch silently drops or doubles triggers.
 4. `IMPORT_MEMORY_BUDGET_MB` (default 512, range 64..65536) sized for concurrent CSV imports. Over budget,
    Go answers 503 `Too many imports in progress` (Retry-After: 5) instead of exhausting memory.
-5. `FILES_API_MODE` is unset or `hardened` (default): `/api/files/*` and `/api/system/stats` require
-   authentication plus global admin, use a safe path check and never recurse on delete. `legacy` restores
-   exact FastAPI behaviour, including the unauthenticated recursive delete: use it only as a temporary
-   escape hatch for a client that depends on it, and never on an internet-facing deployment.
+5. `FILES_API_MODE` is unset or `hardened` (the only mode): `/api/files/*` and `/api/system/stats` require
+   authentication plus global admin, use a safe path check and never recurse on delete. `FILES_API_MODE=legacy`
+   was removed: api-go refuses to start with it in every `APP_ENV`, so delete it from any env file before upgrading.
 6. `DATA_DIR` and the data mount: `api-go` must see the same data directory as `api`. Set `DATA_DIR=/app/data`
    and mount `./data:/app/data` (the same bind mount `api` uses). Go defaults `DATA_DIR` to `data`
    relative to its working directory (`/data` in the distroless image) and `docker-compose.yml` ships no

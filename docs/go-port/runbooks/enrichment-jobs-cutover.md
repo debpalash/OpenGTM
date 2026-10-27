@@ -145,3 +145,4 @@ curl -s -D- -o /dev/null -X POST -H "Authorization: Bearer $TOKEN" -H "X-Workspa
 - ipinfo resolves the lead's domain with the system resolver (a DNS query outside the egress guard, as Python); the
   resolved IP is only sent to ipinfo.io as a path segment.
 - Recorded fixture for the billed recompute 402 is still open (shape asserted byte-exact in `internal/runstart` tests).
+- Post-port fix wave: `POST /api/workbooks/{id}/refresh` is deduplicated while a manual refresh is pending or processing (fire key `refresh-manual:<workbook_id>`; response still `{"status":"refreshing"}`); `from-jobs` with `workbook_id` always persists the merged `job_ids` union; `functions/apply` answers 422 when the change introduces a circular dependency; bulk/import `too_long` 422 bodies show `<omitted>` instead of echoing input; naive condition timestamps are read as UTC (no `TZ` alignment needed).

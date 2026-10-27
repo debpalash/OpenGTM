@@ -24,7 +24,7 @@ Go serves 26 routes next to FastAPI: 17 under `/api/governance` (audit list and 
 
 Flip one at a time, in this order, watching between steps. All default false.
 
-1. `GO_GOVERNANCE_ROUTES_ENABLED=true` on `api-go`: audit, retention, RBAC, members, SSO, SCIM token routes. Retention enforce still enqueues `executor=python` jobs (the cohort is off).
+1. `GO_GOVERNANCE_ROUTES_ENABLED=true` on `api-go`: audit, retention, RBAC, members, SSO, SCIM token routes. Retention enforce still enqueues `executor=python` jobs (the cohort is off). Behaviour differences from Python: `POST /retention/enforce` answers 409 `Retention enforcement already running` while a pending or running run exists (per-workspace advisory lock); a delegated non-admin manager cannot remove a member who carries a `deny` override (403 `Cannot grant or manage access above your own`); a final-failure reconcile of an already `failed` playbook run is a no-op. For SSO see `api-cutover.md` (`SSO_ALLOWED_ISSUERS` must be set first).
 2. `GO_PLAYBOOK_ROUTES_ENABLED=true`: playbook routes. Runs still enqueue `executor=python`.
 3. `GO_EXECUTOR_RETENTION=true` (api-go **and** worker, and the Python replicas that run the scheduler) with `GO_EXECUTOR_ENABLED=true` and a first canary workspace in `GO_EXECUTOR_WORKSPACES`:
    retention jobs of that workspace are executed by Go in 5000-row batches (`RETENTION_BATCH_ROWS`). Do the dry-run (below) first.

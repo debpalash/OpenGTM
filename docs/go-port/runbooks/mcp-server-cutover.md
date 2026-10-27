@@ -86,3 +86,4 @@ the key stays retryable); D6 nested audit redaction, loopback Host/Origin guard,
 optional cap on cost-bearing read tools; D8 stdio revocation within the interval (exit 1); plus the items in the
 contract README (stats bucket order, NaN, `enabled: null`, actions bounds, `update_lead` check order, post-commit
 cancel, falsy idempotency key, IDNA2003 approximation).
+- Post-port fix wave: a tool result is an error (`isError` true) when it is a JSON object with an `error` key (same rule as the write audit).

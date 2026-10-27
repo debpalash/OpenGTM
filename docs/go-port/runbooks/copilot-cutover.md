@@ -23,9 +23,9 @@ section "Plan 12 (copilot chat and person intel)".
 5. **`openmemory` must NOT be installed on the Python workers (D3).** Python prefers it over the builtin store and its data is a private SQLite file
    Go cannot read; with it installed chats on the two stacks would recall different memories. If it was installed, its old memories stop being
    recalled after cutover. Confirm with `GET /api/copilotkit/memories` on both stacks for a test user (same list = builtin store in use).
-6. `CHAT_REQUIRE_AUTH` **equal on both stacks** (unset defaults to `PG_LEAD_STORE`). Self-host (`false`) binds to the active workspace; with no
+6. `CHAT_REQUIRE_AUTH` **equal on both stacks**; in Go it now defaults to **true** (S-L9), so self-host must set `false` explicitly. Self-host (`false`) binds to the active workspace; with no
    resolvable workspace Go answers 403 where Python used an empty id. Go refuses to start with `CHAT_REQUIRE_AUTH=false` set explicitly and a non-dev
-   `APP_ENV` unless `COPILOT_ALLOW_ANONYMOUS_CHAT=true` (anonymous chat lets anyone who reaches nginx approve dangerous tools).
+   `APP_ENV` unless `COPILOT_ALLOW_ANONYMOUS_CHAT=true` (anonymous chat lets anyone who reaches nginx approve dangerous tools); that boot refusal applies only when `COPILOT_GO_ENABLED` and `PG_LEAD_STORE` are on. Anonymous streams are capped by `COPILOT_MAX_ANON_STREAMS` (default 4, 1..1000).
 7. Limits (defaults in parentheses): `COPILOT_MAX_BODY_BYTES` (1 MiB), `COPILOT_MAX_STREAMS_PER_USER` (3), `COPILOT_TURN_TIMEOUT_SECONDS` (900),
    `COPILOT_TOOL_TIMEOUT_SECONDS` (120), `SSE_MAX_STREAMS` (1000, **one pool shared with `/api/events`**), `WS_MAX_MESSAGE_BYTES`. The Go API must be
    restarted after any flag change (config is read at boot). The integer limits have hard ranges and a value outside them (or a non-integer) **fails
@@ -102,3 +102,4 @@ cd apps/backend-go && make vet test test-integration          # needs TEST_DATAB
 go test -race -tags integration -run 'TestChaos' ./internal/copilot   # chaos: worker cut/stall, disconnect, panic, concurrent approvals
 scripts/nginx-routing-check.sh                                  # 12 paths follow the bucket at 0%, 50% (workspace stickiness) and 100%
 ```
+- Post-port fix wave: the person-intel deep scrape fetches result pages in Go (egress-guarded; http/https, ports 80/443, 2 MiB, same-host redirects) and calls the Python worker only for JavaScript-wall pages; with no worker those pages are skipped, and `deep_unavailable` is emitted only when a JavaScript-wall page needs the worker and it is unreachable. Tool context, memories and app context travel in one user-role message between markers and client messages are limited to the `user`/`assistant` roles. `update_lead_status` accepts only `new, contacted, qualified, negotiating, converted, dead`. Person history `limit` is capped at 1000. Conversation ids with NUL/invalid UTF-8 answer 404.
