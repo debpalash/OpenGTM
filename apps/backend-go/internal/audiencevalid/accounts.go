@@ -268,11 +268,11 @@ func Rollup(members iter.Seq2[Member, error], signals map[int]Signal, limit, off
 			a.DecisionMakers++
 		}
 		if truthy(snap["score"]) {
-			f, err := pyFloat(snap["score"])
-			if err != nil {
-				return Result{}, fmt.Errorf("lead %d score: %w", m.LeadID, err)
+			// A score float() rejects (or one that is not finite, which would make the average unrenderable) counts
+			// as no score; Python answered 500 (F14).
+			if f, err := pyFloat(snap["score"]); err == nil && !math.IsNaN(f) && !math.IsInf(f, 0) {
+				a.scoreTotal += f
 			}
-			a.scoreTotal += f
 		}
 		s := signals[m.LeadID]
 		a.SignalCount += s.Count

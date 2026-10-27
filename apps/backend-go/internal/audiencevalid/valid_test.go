@@ -402,3 +402,18 @@ func TestPyRoundHalfEvenVectors(t *testing.T) {
 		t.Errorf("-0.04 -> %v want -0.0", z)
 	}
 }
+
+// F14: a score float() rejects, or one that is not finite, counts as no score instead of failing the rollup.
+func TestRollupUnparseableScoreCountsAsNone(t *testing.T) {
+	ms := []Member{
+		{1, map[string]any{"company": "Z", "score": "abc"}}, {2, map[string]any{"company": "Z", "score": json.Number("30")}},
+		{3, map[string]any{"company": "Z", "score": "inf"}}, {4, map[string]any{"company": "Z", "score": []any{1}}},
+	}
+	res, err := Rollup(seqOf(ms), nil, 50, 0, 100)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res.Accounts) != 1 || float64(res.Accounts[0].AvgScore) != 7.5 {
+		t.Fatalf("%+v", res.Accounts)
+	}
+}

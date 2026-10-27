@@ -291,22 +291,36 @@ func (h audCrud) patch(w http.ResponseWriter, r *http.Request) {
 		h.invalid(w, err)
 		return
 	}
+	// A null on a NOT NULL column is a 422 body error, as the destination PATCH answers (Python let it reach the
+	// database and answered the duplicate-name 409; F15).
+	var nulls []httpx.FieldError
+	if in.Name.Null {
+		nulls = append(nulls, destNullField("name", "string_type", "Input should be a valid string"))
+	}
+	if in.Description.Null {
+		nulls = append(nulls, destNullField("description", "string_type", "Input should be a valid string"))
+	}
+	if in.RefreshEnabled.Null {
+		nulls = append(nulls, destNullField("refresh_enabled", "bool_type", "Input should be a valid boolean"))
+	}
+	if in.Interval.Null {
+		nulls = append(nulls, destNullField("refresh_interval_minutes", "int_type", "Input should be a valid integer"))
+	}
+	if len(nulls) > 0 {
+		httpx.ValidationError(w, nulls...)
+		return
+	}
 	id, ok := h.audienceID(w, r)
 	if !ok {
 		return
 	}
 	ws := h.ws(r).WorkspaceID
 	var cur gen.Audience
-	var errConflict = errors.New("conflict")
 	err = tenancy.InWorkspace(r.Context(), h.d.Pool, ws, func(tx pgx.Tx) error {
 		q := gen.New(tx)
 		a, err := q.AudCrudGetForUpdate(r.Context(), gen.AudCrudGetForUpdateParams{ID: id, WorkspaceID: ws})
 		if err != nil {
 			return err
-		}
-		// A null on a NOT NULL column fails the commit in Python (IntegrityError -> 409) and nothing is applied.
-		if in.Name.Null || in.Description.Null || in.RefreshEnabled.Null || in.Interval.Null {
-			return errConflict
 		}
 		next := a
 		if in.Name.Set {
@@ -342,7 +356,7 @@ func (h audCrud) patch(w http.ResponseWriter, r *http.Request) {
 	case errors.Is(err, pgx.ErrNoRows):
 		httpx.Detail(w, http.StatusNotFound, audNotFound)
 		return
-	case err == errConflict || audIsUnique(err):
+	case audIsUnique(err):
 		httpx.Detail(w, http.StatusConflict, audDuplicateName)
 		return
 	case err != nil:

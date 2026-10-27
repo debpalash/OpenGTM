@@ -242,10 +242,14 @@ func TestAccountsBadWebsiteNoCrash(t *testing.T) {
 			t.Fatalf("%s missing in %s", k, got)
 		}
 	}
-	// A score Python's float() rejects is a 500 there; here too, without taking the process down.
-	accSeed(t, "ws-alpha", "acc-badscore", []accMember{{9301, `{"company":"Z","score":"abc"}`}})
-	if code, _, _ := e.accounts(t, "alice", "ws-alpha", "/api/audiences/acc-badscore/accounts"); code != 500 {
-		t.Fatalf("bad score: %d", code)
+	// F14: a score Python's float() rejects (a 500 there) counts as no score.
+	accSeed(t, "ws-alpha", "acc-badscore", []accMember{{9301, `{"company":"Z","score":"abc"}`}, {9302, `{"company":"Z","score":"40"}`}, {9303, `{"company":"Z","score":"nan"}`}})
+	code, m, raw = e.accounts(t, "alice", "ws-alpha", "/api/audiences/acc-badscore/accounts")
+	if code != 200 {
+		t.Fatalf("bad score: %d %s", code, raw)
+	}
+	if accts, _ := m["accounts"].([]any); len(accts) != 1 || accts[0].(map[string]any)["avg_score"] != float64(13.3) {
+		t.Fatalf("bad score rollup: %s", raw)
 	}
 }
 

@@ -296,6 +296,11 @@ func TestAudienceCRUDMatchesFixtures(t *testing.T) {
 		"aud_patch_filters_and_name", "aud_patch_same_name_ok"} {
 		done[n] = true
 	}
+	// F15: Python answered these four with the duplicate-name 409; Go answers a pydantic-shaped 422 (asserted in
+	// TestPatchOnlyGivenFields below).
+	for _, n := range []string{"aud_patch_description_null_409", "aud_patch_interval_null_409", "aud_patch_name_null_409", "aud_patch_refresh_enabled_null_409"} {
+		done[n] = true
+	}
 	for _, n := range audFixtureNames(t, "aud_patch_") {
 		if !done[n] {
 			e.replay(t, n, ids)
@@ -569,15 +574,22 @@ func TestPatchOnlyGivenFields(t *testing.T) {
 			t.Errorf("%s bumped updated_at", body)
 		}
 	}
-	// null on a NOT NULL column is the 409 the recording shows; nothing is applied.
-	for _, body := range []string{`{"name":null}`, `{"description":null}`, `{"refresh_enabled":null}`, `{"refresh_interval_minutes":null}`, `{"description":"zz","name":null}`} {
-		rec, _ := e.patch("alice", "ws-alpha", id, body)
-		if rec.Code != 409 || rec.Body.String() != `{"detail":"An audience with this name already exists"}` {
-			t.Errorf("%s: %d %s", body, rec.Code, rec.Body.String())
+	// F15: null on a NOT NULL column is a 422 body error (Python: the duplicate-name 409); nothing is applied.
+	for _, tc := range []struct{ body, typ, field string }{
+		{`{"name":null}`, "string_type", "name"}, {`{"description":null}`, "string_type", "description"},
+		{`{"refresh_enabled":null}`, "bool_type", "refresh_enabled"}, {`{"refresh_interval_minutes":null}`, "int_type", "refresh_interval_minutes"},
+		{`{"description":"zz","name":null}`, "string_type", "name"},
+	} {
+		rec, _ := e.patch("alice", "ws-alpha", id, tc.body)
+		if rec.Code != 422 || !strings.Contains(rec.Body.String(), `"type":"`+tc.typ+`"`) || !strings.Contains(rec.Body.String(), `"loc":["body","`+tc.field+`"]`) {
+			t.Errorf("%s: %d %s", tc.body, rec.Code, rec.Body.String())
 		}
 	}
+	if rec, _ := e.patch("alice", "ws-alpha", "no-such-audience", `{"name":null}`); rec.Code != 422 {
+		t.Errorf("body validation precedes the lookup: %d", rec.Code)
+	}
 	if _, m := e.patch("alice", "ws-alpha", id, `{}`); m["description"] != "d1" {
-		t.Errorf("a 409 patch leaked: %v", m["description"])
+		t.Errorf("a refused patch leaked: %v", m["description"])
 	}
 	if rec, _ := e.patch("alice", "ws-alpha", id, `{"name":"Everyone"}`); rec.Code != 409 {
 		t.Errorf("duplicate rename: %d", rec.Code)
