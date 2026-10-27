@@ -23,7 +23,7 @@ func TestGovernanceSettingsParseAndReject(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := GovernanceSettings{true, true, true, true, " a.com,B.com ", "https://a.com/t1", ""}
+	want := GovernanceSettings{true, true, true, true, " a.com,B.com ", "https://a.com/t1", "", ""}
 	if g != want {
 		t.Fatalf("got %#v want %#v", g, want)
 	}
@@ -50,5 +50,20 @@ func TestGovernanceSSORedirectBaseURL(t *testing.T) {
 		if _, err := loadGovernance(func(k string) string { return map[string]string{"SSO_REDIRECT_BASE_URL": bad}[k] }); err == nil {
 			t.Errorf("%q accepted", bad)
 		}
+	}
+}
+
+func TestSSOEgressAllowHostsDefaultEmpty(t *testing.T) {
+	g, err := loadGovernance(func(k string) string {
+		if k == "SSO_EGRESS_ALLOW_HOSTS" {
+			return "idp.corp.internal, 10.0.0.5:8443"
+		}
+		return ""
+	})
+	if err != nil || g.SSOEgressAllowHosts != "idp.corp.internal, 10.0.0.5:8443" {
+		t.Fatalf("got %q %v", g.SSOEgressAllowHosts, err)
+	}
+	if g, _ := loadGovernance(func(string) string { return "" }); g.SSOEgressAllowHosts != "" {
+		t.Fatalf("default %q", g.SSOEgressAllowHosts)
 	}
 }
