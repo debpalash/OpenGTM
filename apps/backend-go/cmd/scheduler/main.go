@@ -3,14 +3,20 @@
 // bootstraps of internal/schedboot; a failing one never starves the rest. A Postgres session advisory
 // lock keeps exactly one scheduler active, so a second replica (or the Python scheduler, which must take
 // the same lock) idles.
+//
+// The scheduler only runs with GO_SCHEDULER_ENABLED=true (default false: it prints why and exits 0).
+// apps/api/scheduler.py does not take the lease, so WP-RETIRE-INFRA enables this binary and removes the Python
+// scheduler in one step; until then two reconcilers must never coexist.
 package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -19,6 +25,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachcfg"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/schedboot"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
@@ -27,11 +34,53 @@ import (
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, "scheduler:", err)
+		if errors.Is(err, errDisabled) {
+			os.Exit(0) // intentionally idle: not a failure, so a restart policy does not loop on it
+		}
 		os.Exit(1)
 	}
 }
 
+// errDisabled is returned while GO_SCHEDULER_ENABLED is not true.
+var errDisabled = errors.New("disabled: set GO_SCHEDULER_ENABLED=true to run the Go scheduler (it must be the only scheduler: stop the Python scheduler first)")
+
+// gate refuses to run unless GO_SCHEDULER_ENABLED is a true boolean; an invalid value is a configuration error.
+func gate(get func(string) string) error {
+	switch strings.ToLower(strings.TrimSpace(get("GO_SCHEDULER_ENABLED"))) {
+	case "true", "1", "yes", "on", "t", "y":
+		return nil
+	case "", "false", "0", "no", "off", "f", "n":
+		return errDisabled
+	}
+	return errors.New("GO_SCHEDULER_ENABLED: not a boolean")
+}
+
+// strictRole is PG_RLS_REQUIRE_SAFE_ROLE (default true; only an explicit false value downgrades the refusal).
+func strictRole(get func(string) string) bool {
+	switch strings.ToLower(strings.TrimSpace(get("PG_RLS_REQUIRE_SAFE_ROLE"))) {
+	case "false", "0", "no", "off", "f", "n":
+		return false
+	}
+	return true
+}
+
+// checkRole refuses a superuser or BYPASSRLS database role (Row-Level Security would be inert), like api and
+// worker; PG_RLS_REQUIRE_SAFE_ROLE=false downgrades the refusal to a CRITICAL log.
+func checkRole(ctx context.Context, pool *pgxpool.Pool, strict bool, log *slog.Logger) error {
+	safe, err := queue.AssertSafeRole(ctx, pool, strict)
+	if err != nil {
+		return err
+	}
+	if !safe {
+		log.Error("CRITICAL: database role is superuser/BYPASSRLS; Row-Level Security is inert (PG_RLS_REQUIRE_SAFE_ROLE=false)")
+	}
+	return nil
+}
+
 func run() error {
+	if err := gate(os.Getenv); err != nil {
+		return err
+	}
 	cfg, err := config.Load()
 	if err != nil {
 		return err
@@ -53,6 +102,9 @@ func run() error {
 	}
 	defer pool.Close()
 	if err := migrate.CheckSchema(ctx, pool, config.RequiredGoSchemaVersion); err != nil {
+		return err
+	}
+	if err := checkRole(ctx, pool, strictRole(os.Getenv), log); err != nil {
 		return err
 	}
 	imap, err := imapChecker(cfg, pool)

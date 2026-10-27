@@ -29,6 +29,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/auth"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/demoseed"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 )
 
@@ -72,7 +73,24 @@ func run(getenv func(string) string, out io.Writer) int {
 		return 1
 	}
 	defer pool.Close()
+	if err := checkRole(ctx, pool, cfg.RLSRequireSafeRole, log); err != nil {
+		log.Error("seed: " + err.Error())
+		return 1
+	}
 	return seed(ctx, pool, cfg, getenv, log)
+}
+
+// checkRole refuses a superuser or BYPASSRLS database role (Row-Level Security would be inert), like api and
+// worker; PG_RLS_REQUIRE_SAFE_ROLE=false downgrades the refusal to a CRITICAL log.
+func checkRole(ctx context.Context, pool *pgxpool.Pool, strict bool, log *slog.Logger) error {
+	safe, err := queue.AssertSafeRole(ctx, pool, strict)
+	if err != nil {
+		return err
+	}
+	if !safe {
+		log.Error("CRITICAL: database role is superuser/BYPASSRLS; Row-Level Security is inert (PG_RLS_REQUIRE_SAFE_ROLE=false)")
+	}
+	return nil
 }
 
 func seed(ctx context.Context, pool *pgxpool.Pool, cfg config.APIConfig, getenv func(string) string, log *slog.Logger) int {

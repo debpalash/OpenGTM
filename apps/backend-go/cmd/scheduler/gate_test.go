@@ -25,3 +25,12 @@ func TestGateDefaultsOff(t *testing.T) {
 		t.Errorf("an invalid value is a config error, got %v", err)
 	}
 }
+
+func TestStrictRoleDefaultsTrue(t *testing.T) {
+	env := func(v string) func(string) string { return func(string) string { return v } }
+	for v, want := range map[string]bool{"": true, "true": true, "garbage": true, "false": false, " OFF ": false, "0": false} {
+		if got := strictRole(env(v)); got != want {
+			t.Errorf("%q: %v, want %v", v, got, want)
+		}
+	}
+}

@@ -36,11 +36,22 @@ func ReconcileInterval(get func(string) string) time.Duration {
 // ReconcileOnce runs every subsystem in order. A failing, panicking or hung subsystem is reported as
 // "error: ..." under its name and never stops the ones after it (reconcile_once).
 func ReconcileOnce(ctx context.Context, subs []Subsystem, log *slog.Logger, timeout time.Duration) map[string]any {
+	return reconcile(ctx, subs, log, timeout, nil)
+}
+
+// reconcile is ReconcileOnce with a lease guard: still is asked before every subsystem after the first and the
+// pass stops (the remaining subsystems do not run) as soon as it reports the lease lost, so a connection that
+// died mid-pass cannot leave two reconcilers working at once.
+func reconcile(ctx context.Context, subs []Subsystem, log *slog.Logger, timeout time.Duration, still func(context.Context) bool) map[string]any {
 	if timeout <= 0 {
 		timeout = DefaultSubsystemTimeout
 	}
 	res := make(map[string]any, len(subs))
-	for _, s := range subs {
+	for i, s := range subs {
+		if i > 0 && still != nil && !still(ctx) {
+			log.Warn("scheduler lost the lease mid-pass; stopping the pass", "next", s.Name)
+			break
+		}
 		res[s.Name] = runOne(ctx, s, log, timeout)
 	}
 	return res
@@ -96,7 +107,14 @@ func Run(ctx context.Context, c RunConfig) error {
 			if !wasLeader {
 				log.Info("scheduler is active (lease held)")
 			}
-			log.Info("scheduler reconciliation", "results", ReconcileOnce(ctx, c.Subsystems, log, c.SubsystemTimeout))
+			var still func(context.Context) bool
+			if c.Hold != nil {
+				still = func(ctx context.Context) bool {
+					ok, err := c.Hold(ctx)
+					return err == nil && ok
+				}
+			}
+			log.Info("scheduler reconciliation", "results", reconcile(ctx, c.Subsystems, log, c.SubsystemTimeout, still))
 		case wasLeader:
 			log.Warn("scheduler lost the lease; standing by")
 		}

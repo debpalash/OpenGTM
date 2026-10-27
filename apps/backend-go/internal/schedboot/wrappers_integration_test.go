@@ -3,10 +3,10 @@
 package schedboot_test
 
 import (
-	"sync"
-	"time"
 	"context"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
