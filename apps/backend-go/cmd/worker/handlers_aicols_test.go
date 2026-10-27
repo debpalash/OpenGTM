@@ -22,6 +22,13 @@ func TestWireAICols(t *testing.T) {
 	if r := wireAICols(&d, cfg, nil, slog.Default()); r != nil || d.AICols != nil {
 		t.Fatal("a malformed switch reads as off")
 	}
+	t.Setenv("GO_NATIVE_AI_COLUMNS", "")
+	t.Setenv("GO_ALL_NATIVE", "yes")
+	var dn workbook.Deps
+	if r := wireAICols(&dn, cfg, nil, slog.Default()); r == nil || dn.AICols == nil {
+		t.Fatal("GO_ALL_NATIVE must turn native AI columns on")
+	}
+	t.Setenv("GO_ALL_NATIVE", "")
 	t.Setenv("GO_NATIVE_AI_COLUMNS", "1")
 	t.Setenv("BROWSER_SERVICE_URL", "")
 	if r := wireAICols(&d, cfg, nil, slog.Default()); r == nil || d.AICols == nil {

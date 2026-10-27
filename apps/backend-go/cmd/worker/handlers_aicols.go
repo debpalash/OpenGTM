@@ -24,7 +24,7 @@ import (
 // returned researcher runs playbook research steps in process. It returns nil (the Python
 // worker paths stay) when the flag is off or the LLM settings cannot be wired.
 func wireAICols(d *workbook.Deps, cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) playbooks.Researcher {
-	ac := config.LoadAICols(os.Getenv)
+	ac := config.LoadAICols(config.Getenv) // GO_ALL_NATIVE applies
 	for _, p := range ac.Problems {
 		log.Error("invalid AI column setting", "problem", p)
 	}
