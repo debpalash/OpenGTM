@@ -374,6 +374,9 @@ services:
       - GO_PLAYBOOK_ROUTES_ENABLED=${GO_PLAYBOOK_ROUTES_ENABLED:-false}
       - GO_AI_BATCH_ENABLED=${GO_AI_BATCH_ENABLED:-false}
       - COPILOT_GO_ENABLED=${COPILOT_GO_ENABLED:-false}
+      # Internal browser service (--profile browser); reached over browser_net only.
+      - BROWSER_SERVICE_URL=${BROWSER_SERVICE_URL:-http://browser:8090}
+      - BROWSER_SERVICE_TOKEN=${BROWSER_SERVICE_TOKEN:-}
     ports:
       # Host-local diagnostics only; public traffic goes through nginx.
       - "127.0.0.1:${API_GO_PORT:-8001}:8000"
@@ -396,6 +399,7 @@ services:
       lead_net:
         # nginx upstreams and scripts/nginx-routing-check.sh address it by this name.
         aliases: [api-go]
+      browser_net: {}
 
   # ── Go workbook executor (opt-in: --profile go) ──
   # Claims only jobs with executor='go' (routed by the API per GO_EXECUTOR_ENABLED /
@@ -433,6 +437,8 @@ services:
       # Outreach send: default off; when on, OUTREACH_PUBLIC_BASE_URL must be https unless APP_ENV=dev.
       - GO_EXECUTOR_OUTREACH_SEND=${GO_EXECUTOR_OUTREACH_SEND:-false}
       - OUTREACH_PUBLIC_BASE_URL=${OUTREACH_PUBLIC_BASE_URL:-}
+      - BROWSER_SERVICE_URL=${BROWSER_SERVICE_URL:-http://browser:8090}
+      - BROWSER_SERVICE_TOKEN=${BROWSER_SERVICE_TOKEN:-}
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -445,6 +451,44 @@ services:
     restart: unless-stopped
     networks:
       - lead_net
+      - browser_net
+
+  # ── Internal browser service (opt-in: --profile browser) ──
+  # Playwright Chromium + scraper libraries (apps/browser-service), called only by api-go /
+  # worker-go with BROWSER_SERVICE_TOKEN (>= 32 chars; it refuses to start without one).
+  # No published port: browser_net is internal (no route out) and is shared only with the
+  # Go services; browser_egress is its own internet path, which nothing else joins. All page
+  # traffic goes through the in-process egress proxy (private/metadata IPs refused, DNS pinned).
+  # See docs/go-port/runbooks/browser-service.md.
+  browser:
+    profiles: ["browser"]
+    build:
+      context: ./apps/browser-service
+    image: opengtm-browser:local
+    environment:
+      - BROWSER_SERVICE_TOKEN=${BROWSER_SERVICE_TOKEN:-}
+      - BROWSER_MAX_CONCURRENCY=${BROWSER_MAX_CONCURRENCY:-4}
+      - BROWSER_MAX_TIMEOUT_S=${BROWSER_MAX_TIMEOUT_S:-180}
+      - BROWSER_MAX_RESPONSE_BYTES=${BROWSER_MAX_RESPONSE_BYTES:-5242880}
+      # FlareSolverr engine (optional): its browser may fetch only through our egress proxy, so
+      # FLARESOLVERR_URL requires BROWSER_EGRESS_PROXY_LISTEN=0.0.0.0:8091 and
+      # BROWSER_EGRESS_PROXY_URL=http://browser:8091 (the service refuses to start otherwise).
+      - FLARESOLVERR_URL=${FLARESOLVERR_URL:-}
+      - BROWSER_EGRESS_PROXY_LISTEN=${BROWSER_EGRESS_PROXY_LISTEN:-}
+      - BROWSER_EGRESS_PROXY_URL=${BROWSER_EGRESS_PROXY_URL:-}
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /home/browser
+    shm_size: "1gb"
+    mem_limit: ${BROWSER_MEM_LIMIT:-2g}
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    networks:
+      - browser_net
+      - browser_egress
 
   # ── Go MCP server, SSE transport (opt-in: --profile mcp) ──
   # Replaces `python -m apps.mcp.server --sse`. Internal only (no host port); clients
@@ -496,6 +540,12 @@ volumes:
   redisdata:
 
 networks:
+  # Go services <-> browser service only; internal = no route to the outside.
+  browser_net:
+    internal: true
+  # The browser service's own way out (nothing else attaches to it).
+  browser_egress:
+    driver: bridge
   lead_net:
     driver: bridge
     ipam:
