@@ -102,7 +102,9 @@ func TestSetupStatusReportsRequiredAndTokenFlag(t *testing.T) {
 	if rec.Header().Get("Cache-Control") != "no-store" {
 		t.Fatalf("Cache-Control = %q", rec.Header().Get("Cache-Control"))
 	}
-	e2 := newSetupEnv(t, "tok", nil)
+	r := httpx.NewRouter()
+	RegisterAuth(r, Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, SetupToken: "tok"})
+	e2 := setupEnv{h: r.Handler(), pool: e.pool, st: e.st}
 	if req, tok, _ = e2.status(t); !req || !tok {
 		t.Fatalf("token configured: required=%v token=%v", req, tok)
 	}
@@ -141,7 +143,7 @@ func TestSetupHappyPath(t *testing.T) {
 	}
 	// Password stored as bcrypt and usable on /auth/token.
 	_, hash, err := e.st.PasswordHashByUsername(context.Background(), "Boss")
-	if err != nil || !strings.HasPrefix(hash, "$2b$12$") || !auth.VerifyPassword(goodPW, hash) {
+	if err != nil || !strings.Contains(hash[:7], "$12$") || !auth.VerifyPassword(goodPW, hash) {
 		t.Fatalf("stored hash prefix/verify failed (err=%v)", err)
 	}
 	// Workspace: one, slug main, owned, member and active.

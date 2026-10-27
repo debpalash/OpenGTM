@@ -215,6 +215,16 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool, str
 		}
 		deps.CollectionLedgerBackend = marker
 	}
+	// First-admin setup token (random + logged once while setup is open, unless configured or disabled).
+	if pool != nil {
+		sctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		tok, err := api.ResolveSetupToken(sctx, pool, os.Getenv, cfg.AppEnv, log)
+		cancel()
+		if err != nil {
+			return nil, fmt.Errorf("setup token: %w", err)
+		}
+		deps.SetupToken = tok
+	}
 	// Rate limits (slowapi parity); plan 06 routes (run 20/min ...) are unlimited without it.
 	deps.Limiter = ratelimit.New(nil)
 	// Vendor catalog, research flag and billing cost catalog for run planning: once, before serving.
