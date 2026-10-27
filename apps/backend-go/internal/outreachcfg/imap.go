@@ -42,6 +42,18 @@ func LoadIMAP(ctx context.Context, r *secrets.Resolver, workspaceID string) IMAP
 		if (user != "" && !userWS) || (pw != "" && !pwWS) {
 			user, pw = "", ""
 		}
+	} else {
+		// a global host: only platform-level credentials may go to it. A workspace's own SMTP or IMAP
+		// credentials never travel to the operator's mailbox host.
+		user, pw = "", ""
+		gg := &getter{ctx: ctx, r: r, ws: ""}
+		if user = gg.get("IMAP_USER", ""); user == "" {
+			user = gg.get("SMTP_EMAIL", "")
+		}
+		if pw = gg.get("IMAP_PASSWORD", ""); pw == "" {
+			pw = gg.get("SMTP_PASSWORD", "")
+		}
+		g.bad = g.bad || gg.bad
 	}
 	c := IMAP{
 		Host:     host,

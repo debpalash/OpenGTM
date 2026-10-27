@@ -10,6 +10,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/smtpmail"
 )
 
 // SMTP is the resolved sender configuration.
@@ -21,8 +22,9 @@ type SMTP struct {
 	FromName   string
 	UseTLS     bool
 	MaxPerHour int
-	// Mixed marks a workspace host or port override that has no workspace credentials of its own;
-	// the global username/password are withheld (plan 09 final security H1) and Configured is false.
+	// Mixed marks a config that mixes workspace and platform levels (a workspace host or port with platform
+	// credentials, or a workspace email or password without the full workspace bundle), or an invalid stored
+	// email; the credentials are withheld and Configured is false.
 	Mixed bool
 }
 
@@ -40,8 +42,9 @@ func (c SMTP) ConfigError() string {
 }
 
 func mixedErr(kind string) string {
-	return kind + " host or port is set for this workspace without its own username and password; " +
-		"the platform credentials are never used with a workspace host"
+	return kind + " settings mix workspace and platform levels; set the host, port, username and password " +
+		"for this workspace together (platform credentials are never used with a workspace host, and a workspace " +
+		"username or password is never sent to the platform host)"
 }
 
 // getter resolves one key with a default (Python get_secret(ws, key, default)).
@@ -72,6 +75,12 @@ func (g *getter) getSrc(key, def string) (string, bool) {
 	return v, src == secrets.SourceWorkspace
 }
 
+// globalSet reports whether key has a value at the global/env level (not the workspace).
+func (g *getter) globalSet(key string) bool {
+	v, src, err := g.r.Get(g.ctx, g.ws, key)
+	return err == nil && v != "" && src != secrets.SourceWorkspace
+}
+
 // num mirrors int(_g(key, def) or def); a parse error poisons the load.
 func (g *getter) num(key, def string) int {
 	n, err := strconv.Atoi(strings.TrimSpace(g.get(key, def)))
@@ -87,14 +96,29 @@ func LoadSMTP(ctx context.Context, r *secrets.Resolver, workspaceID string) SMTP
 	g := &getter{ctx: ctx, r: r, ws: workspaceID}
 	host, hostWS := g.getSrc("SMTP_HOST", "")
 	_, portWS := g.getSrc("SMTP_PORT", "587")
+	portGlobal := g.globalSet("SMTP_PORT")
 	email, emailWS := g.getSrc("SMTP_EMAIL", "")
 	pw, pwWS := g.getSrc("SMTP_PASSWORD", "")
 	mixed := false
-	if hostWS || portWS {
+	switch {
+	case hostWS || portWS:
 		// global credentials only travel to the global host and port
 		if (email != "" && !emailWS) || (pw != "" && !pwWS) {
-			mixed, email, pw = true, "", ""
+			mixed = true
 		}
+	case emailWS || pwWS:
+		// a workspace that names its own mailbox or password must bring the whole bundle: otherwise the
+		// platform host would carry its mailbox as From or its password would reach the platform relay
+		if !(emailWS && pwWS && hostWS) || portGlobal {
+			mixed = true
+		}
+	}
+	if !mixed && emailWS && !smtpmail.ValidRecipient(email) {
+		// values stored before the route validated them (a list, a display name) are never used as From
+		mixed = true
+	}
+	if mixed {
+		email, pw = "", ""
 	}
 	c := SMTP{
 		Host:       host,

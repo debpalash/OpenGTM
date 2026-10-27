@@ -249,3 +249,54 @@ func TestLoadIMAPGlobalFlag(t *testing.T) {
 		t.Fatalf("workspace mailbox: %+v", c)
 	}
 }
+
+// S-L11: email, password and host come from the same level.
+func TestLoadSMTPPartialWorkspaceOverrideIsMixed(t *testing.T) {
+	global := map[string]string{"SMTP_HOST": "smtp.platform.example", "SMTP_EMAIL": "platform@x.co", "SMTP_PASSWORD": "platform-pw"}
+	cases := map[string]map[string]string{
+		"email only":            {"SMTP_EMAIL": "spoof@victim.co"},
+		"password only":         {"SMTP_PASSWORD": "ws-pw"},
+		"email+pw, global host": {"SMTP_EMAIL": "me@x.co", "SMTP_PASSWORD": "ws-pw"},
+	}
+	for name, kv := range cases {
+		r := newRes(t, newStore(), global)
+		for k, v := range kv {
+			set(t, r, "w1", k, v)
+		}
+		c := LoadSMTP(context.Background(), r, "w1")
+		if c.Configured() || !c.Mixed || c.Email != "" || c.Password != "" {
+			t.Fatalf("%s: %+v", name, c)
+		}
+	}
+	// a list stored by Python as the workspace email is never used
+	r := newRes(t, newStore(), nil)
+	set(t, r, "w1", "SMTP_HOST", "mx.own.example")
+	set(t, r, "w1", "SMTP_EMAIL", "a@x.co, b@y.co")
+	set(t, r, "w1", "SMTP_PASSWORD", "ws-pw")
+	if c := LoadSMTP(context.Background(), r, "w1"); c.Configured() || c.Email != "" {
+		t.Fatalf("list email: %+v", c)
+	}
+	// the full workspace bundle works
+	r = newRes(t, newStore(), global)
+	for k, v := range map[string]string{"SMTP_HOST": "mx.own.example", "SMTP_EMAIL": "me@x.co", "SMTP_PASSWORD": "ws-pw"} {
+		set(t, r, "w1", k, v)
+	}
+	if c := LoadSMTP(context.Background(), r, "w1"); !c.Configured() || c.Email != "me@x.co" {
+		t.Fatalf("bundle: %+v", c)
+	}
+}
+
+// S-L12: a workspace's SMTP credentials never go to the global IMAP host.
+func TestLoadIMAPWorkspaceCredsNeverGoToGlobalHost(t *testing.T) {
+	r := newRes(t, newStore(), map[string]string{"IMAP_HOST": "imap.platform.example"})
+	set(t, r, "w1", "SMTP_EMAIL", "me@x.co")
+	set(t, r, "w1", "SMTP_PASSWORD", "own-pw")
+	if c := LoadIMAP(context.Background(), r, "w1"); c.Configured() || c.User != "" || c.Password != "" {
+		t.Fatalf("workspace creds with global host: %+v", c)
+	}
+	set(t, r, "w1", "IMAP_USER", "own")
+	set(t, r, "w1", "IMAP_PASSWORD", "own-pw-1")
+	if c := LoadIMAP(context.Background(), r, "w1"); c.Configured() {
+		t.Fatalf("workspace IMAP creds with global host: %+v", c)
+	}
+}
