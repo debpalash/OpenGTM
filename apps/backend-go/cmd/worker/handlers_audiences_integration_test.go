@@ -8,7 +8,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
+	"net/http/httptest"
 	"os"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -116,9 +119,14 @@ func (noSecrets) Get(context.Context, string, string) (string, string, error) { 
 // runAud runs the audience handlers over a slot until no pending go job is due.
 func (g *audEnv) runAud(t *testing.T, cfg config.Config, em audiencerefresh.Emitter, o audienceOpts) {
 	t.Helper()
+	g.runAudSec(t, cfg, em, o, noSecrets{})
+}
+
+func (g *audEnv) runAudSec(t *testing.T, cfg config.Config, em audiencerefresh.Emitter, o audienceOpts, sec destdeliver.SecretResolver) {
+	t.Helper()
 	ctx := context.Background()
 	log := telemetry.NewLogger(io.Discard)
-	rn := dispatch(audienceHandlers(cfg, g.pool, log, noSecrets{}, em, o))
+	rn := dispatch(audienceHandlers(cfg, g.pool, log, sec, em, o))
 	cctx, stop := context.WithTimeout(ctx, 20*time.Second)
 	defer stop()
 	done := make(chan struct{})
@@ -301,7 +309,7 @@ func TestWorkerHandsBackIneligibleType(t *testing.T) {
 		ports     destdeliver.Ports
 	}{
 		{"not listed", "hubspot", []string{"webhook"}, destdeliver.Ports{Webhook: &fakeWebhook{}}},
-		{"listed without port", "webhook", []string{"webhook"}, destdeliver.Ports{}},
+		{"listed without port", "hubspot", []string{"hubspot"}, destdeliver.Ports{}}, // webhook/slack always have the Go port (S-M3)
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			g := setupAud(t)
@@ -466,5 +474,67 @@ func TestAudienceRefreshRefusesForeignPayloadWorkspace(t *testing.T) {
 	err := h(context.Background(), &queue.Claim{ID: 1, Type: "audience_refresh", WorkspaceID: g.ws, Payload: p})
 	if err == nil || !queue.IsPermanent(err) {
 		t.Fatalf("err %v, want permanent", err)
+	}
+}
+
+// secretsByName answers fixed (value, source) pairs.
+type secretsByName map[string][2]string
+
+func (m secretsByName) Get(_ context.Context, _, name string) (string, string, error) {
+	return m[name][0], m[name][1], nil
+}
+
+// S-M3: webhook destinations deliver in Go over the egress-pinned sender. A header ref that resolves only to a
+// global value sends nothing, the run fails (the row is not handed back to Python's global/env fallback); a
+// workspace secret in the outbound namespace is sent as the header.
+func TestWorkerWebhookDestinationHeaderRefWorkspaceOnly(t *testing.T) {
+	var mu sync.Mutex
+	var auth []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		auth = append(auth, r.Header.Get("Authorization"))
+		mu.Unlock()
+	}))
+	defer srv.Close()
+	host := strings.TrimPrefix(srv.URL, "http://")
+	host = host[:strings.LastIndex(host, ":")]
+	for _, tc := range []struct {
+		name, ref string
+		wantRun   string
+		wantSent  int
+	}{
+		{"global only", "WEBHOOK_GLOBAL_TOKEN", "failed", 0},
+		{"outside namespace", "HUBSPOT_API_KEY", "failed", 0},
+		{"workspace in namespace", "WEBHOOK_WS_TOKEN", "completed", 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			mu.Lock()
+			auth = nil
+			mu.Unlock()
+			g := setupAud(t)
+			run, mk := g.destRun(t, "webhook", 1)
+			g.exec(t, `UPDATE audience_destinations SET config = $1::json WHERE id='d1'`,
+				fmt.Sprintf(`{"url":%q,"header_secret_ref":%q}`, srv.URL, tc.ref))
+			job := mk(0, "go")
+			cfg := audConfig(g.ws, "webhook")
+			cfg.EgressAllowHosts = []string{host}
+			g.runAudSec(t, cfg, &nopEmitter{}, audienceOpts{}, secretsByName{
+				"WEBHOOK_GLOBAL_TOKEN": {"gtok-123456", "global"}, "HUBSPOT_API_KEY": {"hub-123456", "workspace"},
+				"WEBHOOK_WS_TOKEN": {"wtok-123456", "workspace"}})
+			if st, ex, _ := g.jobRow(t, job); ex != "go" || st == "pending" {
+				t.Fatalf("job %s/%s: handed back or untouched", st, ex)
+			}
+			mu.Lock()
+			defer mu.Unlock()
+			if len(auth) != tc.wantSent {
+				t.Fatalf("sent %d requests (%v), want %d", len(auth), auth, tc.wantSent)
+			}
+			if tc.wantSent == 1 && auth[0] != "wtok-123456" {
+				t.Fatalf("Authorization %q", auth[0])
+			}
+			if s, _ := g.runState(t, run); s != tc.wantRun && !(tc.wantRun == "failed" && s == "completed_with_errors") {
+				t.Fatalf("run %s, want %s", s, tc.wantRun)
+			}
+		})
 	}
 }

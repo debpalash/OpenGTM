@@ -16,6 +16,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/adsdrv"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audiencerefresh"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audiencesched"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/autoactions"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destdeliver"
@@ -224,6 +225,15 @@ func destSyncHandler(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, se
 	if ports.Secrets == nil && sec != nil {
 		ports.Secrets = sec
 	}
+	// Webhook and Slack deliver through the egress-pinned automation sender with the outbound secret-ref
+	// policy (S-M3, R2); the same policy gates the warehouse and Slack references at delivery.
+	wd := autoactions.NewWebhookDeps(cfg.AppEnv, cfg.EgressAllowHosts, cfg.Flags.Automations, sec, log)
+	if ports.Webhook == nil {
+		ports.Webhook = destdeliver.AutoWebhook{Deps: wd}
+	}
+	if ports.Outbound.Prefixes == nil && ports.Outbound.Registered == nil {
+		ports.Outbound = wd.Outbound
+	}
 	types := goDestTypes(cfg)
 	for t := range types {
 		if !provenanceEligible(sec, t) {
@@ -243,7 +253,7 @@ func destSyncHandler(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, se
 	dd := destsync.Deps{
 		Pool: pool, Deliverer: destdeliver.New(ports, aud.DestDeliveryTimeout),
 		Ads:            destsync.NewAdSyncer(adsdrv.NewClient(get, cfg.AppEnv, cfg.EgressAllowHosts)),
-		Warehouse:      destsync.NewWarehouseSyncer(warehouse.NewClient(cfg.AppEnv, cfg.EgressAllowHosts), destdeliver.WorkspaceOnly(sec)),
+		Warehouse:      destsync.NewWarehouseSyncer(warehouse.NewClient(cfg.AppEnv, cfg.EgressAllowHosts).WithOutbound(ports.Outbound), destdeliver.WorkspaceOnly(sec)),
 		MemberPageSize: aud.DestMemberPageSize, AdBatchSize: aud.DestAdBatchSize, Log: log,
 	}
 	if o.lease != nil {
