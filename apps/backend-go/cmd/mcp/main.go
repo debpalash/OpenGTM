@@ -311,6 +311,10 @@ func run(args []string, get func(string) string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "mcp: config:", err)
 		return 1
 	}
+	if err := config.CheckSecretKey(get("SECRET_KEY"), get("APP_ENV")); err != nil {
+		fmt.Fprintln(stderr, "mcp:", err)
+		return 1
+	}
 	sse, port, err := parseTransport(args)
 	if err != nil {
 		fmt.Fprintln(stderr, "mcp:", err)

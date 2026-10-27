@@ -38,13 +38,13 @@ func TestParseTransport(t *testing.T) {
 
 func TestMainRefusesNonLoopbackWithoutOverride(t *testing.T) {
 	var out, errb bytes.Buffer
-	code := run([]string{"--sse", "3100"}, env(map[string]string{"OPENGTM_MCP_SSE_HOST": "0.0.0.0"}), &out, &errb)
+	code := run([]string{"--sse", "3100"}, env(map[string]string{"APP_ENV": "test", "OPENGTM_MCP_SSE_HOST": "0.0.0.0"}), &out, &errb)
 	if code != 1 || !strings.Contains(errb.String(), "OPENGTM_MCP_SSE_ALLOW_NONLOOPBACK") || out.Len() != 0 {
 		t.Fatalf("code=%d out=%q err=%q", code, out.String(), errb.String())
 	}
 	// Overridden: passes the bind check; the scaffold then reports no transport.
 	errb.Reset()
-	code = run([]string{"--sse"}, env(map[string]string{"OPENGTM_MCP_SSE_HOST": "0.0.0.0", "OPENGTM_MCP_SSE_ALLOW_NONLOOPBACK": "true"}), &out, &errb)
+	code = run([]string{"--sse"}, env(map[string]string{"APP_ENV": "test", "OPENGTM_MCP_SSE_HOST": "0.0.0.0", "OPENGTM_MCP_SSE_ALLOW_NONLOOPBACK": "true"}), &out, &errb)
 	if code != 1 || strings.Contains(errb.String(), "NONLOOPBACK") || out.Len() != 0 {
 		t.Fatalf("override: code=%d err=%q", code, errb.String())
 	}
@@ -146,14 +146,14 @@ func TestMainRefusesNonLoopbackWithoutAuth(t *testing.T) {
 	}
 	t.Cleanup(func() { startSSE = old })
 	code := run([]string{"--sse", "3100"}, env(map[string]string{
-		"OPENGTM_MCP_SSE_HOST": "0.0.0.0", "OPENGTM_MCP_SSE_ALLOW_NONLOOPBACK": "true", "MCP_REQUIRE_AUTH": "false",
+		"APP_ENV": "test", "OPENGTM_MCP_SSE_HOST": "0.0.0.0", "OPENGTM_MCP_SSE_ALLOW_NONLOOPBACK": "true", "MCP_REQUIRE_AUTH": "false",
 	}), &out, &errb)
 	if code != 1 || called || !strings.Contains(errb.String(), "MCP_REQUIRE_AUTH") || out.Len() != 0 {
 		t.Fatalf("code=%d called=%v err=%q", code, called, errb.String())
 	}
 	// keyless on loopback stays allowed
 	errb.Reset()
-	code = run([]string{"--sse", "3100"}, env(map[string]string{"MCP_REQUIRE_AUTH": "false"}), &out, &errb)
+	code = run([]string{"--sse", "3100"}, env(map[string]string{"APP_ENV": "test", "MCP_REQUIRE_AUTH": "false"}), &out, &errb)
 	if code != 0 || !called {
 		t.Fatalf("loopback keyless: code=%d called=%v err=%q", code, called, errb.String())
 	}

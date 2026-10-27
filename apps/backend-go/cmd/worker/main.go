@@ -63,6 +63,9 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	if err := config.CheckSecretKey(cfg.SecretKey, cfg.AppEnv); err != nil {
+		return err
+	}
 	log := telemetry.NewLogger(os.Stdout)
 	log.Info("starting worker", "config", cfg)
 	logAutomationFlags(log, cfg)

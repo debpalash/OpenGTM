@@ -307,6 +307,20 @@ const minSecretKeyBytes = 32
 // APP_ENV values where the insecure default SECRET_KEY is tolerated.
 var devEnvs = map[string]bool{"dev": true, "development": true, "test": true, "testing": true, "local": true}
 
+// CheckSecretKey is the shared startup gate of the api, worker and mcp binaries: SECRET_KEY must be
+// set, not the insecure default and at least minSecretKeyBytes long. Only APP_ENV=test is exempt (dev,
+// development, testing and local are not: a dev-labelled compose stack still signs real tokens).
+// The key never appears in the error.
+func CheckSecretKey(secretKey, appEnv string) error {
+	if strings.EqualFold(strings.TrimSpace(appEnv), "test") {
+		return nil
+	}
+	if strings.Contains(secretKey, InsecureDefaultSecretKey) || len(secretKey) < minSecretKeyBytes {
+		return fmt.Errorf("config: refusing to start: SECRET_KEY must be set, not the insecure default, and at least %d bytes unless APP_ENV=test; APP_ENV=%q", minSecretKeyBytes, appEnv)
+	}
+	return nil
+}
+
 // IsDevEnv reports whether appEnv is one of Python's _DEV_ENVS (case and edge whitespace ignored).
 func IsDevEnv(appEnv string) bool { return devEnvs[strings.ToLower(strings.TrimSpace(appEnv))] }
 
@@ -426,9 +440,7 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	if c.CORSOrigins == "" {
 		c.CORSOrigins = "*"
 	}
-	// Fail closed: an unset APP_ENV is NOT a dev environment for the API's
-	// signing-key check (Python defaults it to dev, Go does not trust that).
-	explicitDev := devEnvs[strings.ToLower(strings.TrimSpace(c.AppEnv))]
+	appEnvRaw := c.AppEnv
 	if c.AppEnv == "" {
 		c.AppEnv = "dev"
 	}
@@ -438,8 +450,9 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	if c.Algorithm != "HS256" {
 		return APIConfig{}, errors.New("config: ALGORITHM must be HS256")
 	}
-	if !explicitDev && (strings.Contains(c.SecretKey, InsecureDefaultSecretKey) || len(c.SecretKey) < minSecretKeyBytes) {
-		return APIConfig{}, fmt.Errorf("config: refusing to start: SECRET_KEY must be set, not the insecure default, and at least %d bytes unless APP_ENV is explicitly a development value (dev, development, test, testing, local); APP_ENV=%q", minSecretKeyBytes, get("APP_ENV"))
+	// R-secret: only an explicit APP_ENV=test tolerates a missing or weak key (an unset APP_ENV does not).
+	if err := CheckSecretKey(c.SecretKey, appEnvRaw); err != nil {
+		return APIConfig{}, err
 	}
 	const maxMinutes = 60 * 24 * 365 * 10
 	am, err := intVar(get, "ACCESS_TOKEN_EXPIRE_MINUTES", 30, 1, maxMinutes)

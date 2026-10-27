@@ -163,7 +163,7 @@ func seed(t *testing.T) *seeded {
 }
 
 func baseEnv(extra ...string) []string {
-	return append([]string{"PATH=" + os.Getenv("PATH"), "HOME=" + os.Getenv("HOME")}, extra...)
+	return append([]string{"PATH=" + os.Getenv("PATH"), "HOME=" + os.Getenv("HOME"), "APP_ENV=test"}, extra...)
 }
 
 func frame(body string) string {
