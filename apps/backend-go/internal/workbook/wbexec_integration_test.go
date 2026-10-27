@@ -64,10 +64,10 @@ type wbProvider struct {
 
 type wbExpect struct {
 	RowResult     struct{ Completed, Errors int } `json:"row_result"`
-	Overlay       map[string]any                 `json:"overlay"`
-	Enrichments   []map[string]any               `json:"enrichments"`
-	Broadcasts    []map[string]any               `json:"broadcasts"`
-	ProviderCalls []string                       `json:"provider_calls"`
+	Overlay       map[string]any                  `json:"overlay"`
+	Enrichments   []map[string]any                `json:"enrichments"`
+	Broadcasts    []map[string]any                `json:"broadcasts"`
+	ProviderCalls []string                        `json:"provider_calls"`
 	Writebacks    []struct {
 		LeadID  int64          `json:"lead_id"`
 		Updates map[string]any `json:"updates"`

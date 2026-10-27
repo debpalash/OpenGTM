@@ -120,7 +120,7 @@ func parsePayload(raw []byte) (*runPayload, error) {
 	p := &runPayload{
 		WorkspaceID: rp.WorkspaceID, WorkbookID: rp.WorkbookID,
 		FillMissing: rp.FillMissing, Force: rawTruthy(rp.Force),
-		Costs:       rp.Go.Costs, ManifestSHA256: rp.Go.ManifestSHA256, Manifests: make(map[string]manifest.Manifest, len(rp.Go.Manifests)),
+		Costs: rp.Go.Costs, ManifestSHA256: rp.Go.ManifestSHA256, Manifests: make(map[string]manifest.Manifest, len(rp.Go.Manifests)),
 		Concurrency: rp.Go.DefaultConcurrency, RetryPasses: 1, ProviderTimeout: defaultProviderTimeout,
 	}
 	if p.Costs == nil {

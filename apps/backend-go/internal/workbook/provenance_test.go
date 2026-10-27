@@ -17,9 +17,9 @@ type licenseVectors struct {
 		} `json:"resolve"`
 		ProvenanceFor []map[string]any `json:"provenance_for"`
 		Merge         []struct {
-			Current *string                   `json:"current"`
+			Current *string                    `json:"current"`
 			Updates map[string]json.RawMessage `json:"updates"`
-			Result  string                    `json:"result"`
+			Result  string                     `json:"result"`
 		} `json:"merge"`
 	} `json:"licenses"`
 }
