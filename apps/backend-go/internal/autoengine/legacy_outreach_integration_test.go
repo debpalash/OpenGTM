@@ -49,6 +49,12 @@ func TestLegacyOutreachActionsRunInGo(t *testing.T) {
 	e := newEnv(t)
 	seq := e.legacySeq()
 	e.defaultSeed(trig{Actions: fmt.Sprintf(`[{"type":"sequencer","config":{"sequence_id":%q}},{"type":"send_email","config":{"subject":"s","body_html":"<p>x</p>"}}]`, seq)})
+	// Enrollment and sends need a lead (review wave2a M4): give the Acme row
+	// one (the Gamma row has lead 7; the email-less Beta row skips first).
+	e.inWS(ws1, func(tx pgx.Tx) error {
+		_, err := tx.Exec(e.ctx, `UPDATE workbook_rows SET lead_id=3 WHERE id=$1`, e.rowIDs[0])
+		return err
+	})
 	e.d.LegacyOutreach = true
 	e.d.Actions.LegacyOutreach = true
 	e.d.Actions.Pool = e.pool
@@ -102,5 +108,32 @@ func TestLegacyOutreachDryRunWritesNothing(t *testing.T) {
 	}
 	if runs := e.runs(ws1); len(runs) != 1 || runs[0].Status != "dry_run" {
 		t.Fatalf("%+v", runs)
+	}
+}
+
+// Review wave2a M4: a trigger row without a lead id is refused by sequencer and
+// send_email (Python enrolled it as lead 0, shared by every lead-less row).
+func TestLegacyOutreachRefusesLeadlessRow(t *testing.T) {
+	e := newEnv(t)
+	seq := e.legacySeq()
+	e.defaultSeed(trig{Actions: fmt.Sprintf(`[{"type":"sequencer","config":{"sequence_id":%q}}]`, seq)})
+	e.d.LegacyOutreach = true
+	e.d.Actions.LegacyOutreach = true
+	e.d.Actions.Pool = e.pool
+	if err := Handle(e.ctx, e.d, e.claim(pl("fk-legacy-nolead", nil))); err != nil {
+		t.Fatal(err)
+	}
+	var failed int
+	for _, r := range e.results(ws1) {
+		if r.Status == "failed" {
+			failed++
+		}
+	}
+	// Acme has an email and no lead: failed. Beta has no email: skipped. Gamma has lead 7: enrolled.
+	if failed != 1 {
+		t.Fatalf("failed results %d", failed)
+	}
+	if enr, _ := e.legacyCounts(); enr != 1 {
+		t.Fatalf("enrollments %d", enr)
 	}
 }
