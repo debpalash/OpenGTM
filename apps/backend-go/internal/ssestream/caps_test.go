@@ -112,24 +112,40 @@ func TestAcquireThenDeferReleasesOnPanic(t *testing.T) {
 	}
 }
 
-// Self-host (CHAT_REQUIRE_AUTH off) has no user id. Python has no per-user chat cap at all, so
-// anonymous callers must not share one capped bucket: AnonymousUser bypasses the per-user
-// limit and is bounded only by the global pool.
-func TestAnonymousBypassesPerUserCap(t *testing.T) {
-	c := NewCaps(10, 1)
+// Self-host (CHAT_REQUIRE_AUTH off) has no user id: anonymous callers share one separate counter
+// (default 4, SetAnonLimit) that does not eat the per-user budget; the 5th concurrent anonymous stream gets 429.
+func TestAnonymousStreamsAreCappedSeparately(t *testing.T) {
+	c := NewCaps(20, 1)
 	var rels []func()
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 4; i++ {
 		r, err := c.Acquire(context.Background(), "ws", AnonymousUser)
 		if err != nil {
 			t.Fatalf("anon %d: %v", i, err)
 		}
 		rels = append(rels, r)
 	}
-	if c.Active() != 5 {
-		t.Fatalf("active %d", c.Active())
+	_, err := c.Acquire(context.Background(), "ws", AnonymousUser)
+	var ce *CapError
+	if !errors.As(err, &ce) || ce.Status != http.StatusTooManyRequests {
+		t.Fatalf("5th anonymous acquire: %v", err)
+	}
+	if r, err := c.Acquire(context.Background(), "ws", 7); err != nil { // real users unaffected
+		t.Fatalf("user blocked by anon load: %v", err)
+	} else {
+		r()
+	}
+	rels[0]()
+	rels[0]()
+	r, err := c.Acquire(context.Background(), "ws", AnonymousUser)
+	if err != nil {
+		t.Fatalf("slot not freed: %v", err)
+	}
+	rels = append(rels[1:], r)
+	c.SetAnonLimit(2)
+	if _, err := c.Acquire(context.Background(), "ws", AnonymousUser); err == nil {
+		t.Fatal("SetAnonLimit(2) not applied")
 	}
 	for _, r := range rels {
-		r()
 		r()
 	}
 	if c.Active() != 0 {

@@ -5,13 +5,13 @@ import (
 	"testing"
 )
 
-func TestChatRequireAuthDefaultsToPGLeadStore(t *testing.T) {
+func TestChatRequireAuthDefaultsToTrue(t *testing.T) {
 	for _, c := range []struct {
 		env  map[string]string
 		want bool
 	}{
-		{map[string]string{}, true}, // PG_LEAD_STORE defaults true
-		{map[string]string{"PG_LEAD_STORE": "false"}, false},
+		{map[string]string{}, true},
+		{map[string]string{"PG_LEAD_STORE": "false"}, true}, // unconditional default (S-L9)
 		{map[string]string{"PG_LEAD_STORE": "false", "CHAT_REQUIRE_AUTH": "true"}, true},
 		{map[string]string{"PG_LEAD_STORE": "true", "CHAT_REQUIRE_AUTH": "false"}, false},
 	} {
@@ -75,6 +75,46 @@ func TestChatRequireAuthFalseRefusedOutsideDev(t *testing.T) {
 	} {
 		if _, err := loadAPI(apiEnv(base(env))); err != nil {
 			t.Errorf("%v refused: %v", env, err)
+		}
+	}
+}
+
+// The production refusal covers only a deployment that serves the Go copilot (GoCopilotEnabled and PG_LEAD_STORE).
+func TestAnonymousChatGuardScopedToGoCopilot(t *testing.T) {
+	prod := func(m map[string]string) map[string]string {
+		m["SECRET_KEY"] = strings.Repeat("k", 40)
+		m["APP_ENV"] = "production"
+		m["CHAT_REQUIRE_AUTH"] = "false"
+		return m
+	}
+	for _, c := range []struct {
+		env     map[string]string
+		refused bool
+	}{
+		{map[string]string{}, false}, // copilot off
+		{map[string]string{"COPILOT_GO_ENABLED": "true", "PG_LEAD_STORE": "false"}, false},
+		{map[string]string{"COPILOT_GO_ENABLED": "true"}, true},
+		{map[string]string{"COPILOT_GO_ENABLED": "true", "COPILOT_ALLOW_ANONYMOUS_CHAT": "true"}, false},
+	} {
+		_, err := loadAPI(apiEnv(prod(c.env)))
+		if (err != nil) != c.refused {
+			t.Errorf("%v: err=%v want refused=%v", c.env, err, c.refused)
+		}
+	}
+}
+
+func TestCopilotMaxAnonStreams(t *testing.T) {
+	c, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test"}))
+	if err != nil || c.Flags.Copilot.MaxAnonStreams != 4 {
+		t.Fatalf("default %+v %v", c.Flags.Copilot, err)
+	}
+	c, err = loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "COPILOT_MAX_ANON_STREAMS": "9"}))
+	if err != nil || c.Flags.Copilot.MaxAnonStreams != 9 {
+		t.Fatalf("parsed %+v %v", c.Flags.Copilot, err)
+	}
+	for _, bad := range []string{"0", "-1", "x"} {
+		if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "COPILOT_MAX_ANON_STREAMS": bad})); err == nil {
+			t.Errorf("%q accepted", bad)
 		}
 	}
 }
