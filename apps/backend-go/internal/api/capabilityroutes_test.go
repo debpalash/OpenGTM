@@ -100,9 +100,9 @@ func TestCapabilityBodiesByteEqualPython(t *testing.T) {
 	defer restore()
 	h := newCapabilityRoutes(d)
 	routes := map[string]http.HandlerFunc{
-		"/api/audiences/capabilities":         h.audiences,
-		"/api/audience-destinations/types":    h.destinationTypes,
-		"/api/governance/capabilities":        h.governance,
+		"/api/audiences/capabilities":          h.audiences,
+		"/api/audience-destinations/types":     h.destinationTypes,
+		"/api/governance/capabilities":         h.governance,
 		"/api/research-playbooks/capabilities": h.playbooks,
 	}
 	if len(f.Capabilities) != len(routes) {
