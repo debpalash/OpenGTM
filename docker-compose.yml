@@ -476,6 +476,13 @@ services:
       - FLARESOLVERR_URL=${FLARESOLVERR_URL:-}
       - BROWSER_EGRESS_PROXY_LISTEN=${BROWSER_EGRESS_PROXY_LISTEN:-}
       - BROWSER_EGRESS_PROXY_URL=${BROWSER_EGRESS_PROXY_URL:-}
+      # destination ports the egress proxy may open; Chromium sandbox (needs the security_opt in
+      # docs/go-port/runbooks/browser-service.md); patchright for Google Maps; LinkedIn roster
+      # scraping (LinkedIn ToS: off unless opted in; cookies come per request from Go)
+      - BROWSER_EGRESS_PORTS=${BROWSER_EGRESS_PORTS:-80,443}
+      - BROWSER_CHROMIUM_SANDBOX=${BROWSER_CHROMIUM_SANDBOX:-true}
+      - BROWSER_MAPS_STEALTH=${BROWSER_MAPS_STEALTH:-false}
+      - BROWSER_STAFFSPY_ENABLED=${BROWSER_STAFFSPY_ENABLED:-false}
     read_only: true
     tmpfs:
       - /tmp
