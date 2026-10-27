@@ -266,3 +266,19 @@ func TestTokenEmptyHashRunsDummyVerify(t *testing.T) {
 		t.Fatalf("DummyVerify calls after unknown user = %d, want 2", calls)
 	}
 }
+
+// S-L22: an inactive user with the right password gets the bad-password 401 and no token.
+func TestTokenRejectsInactiveUser(t *testing.T) {
+	e := newEnv(t)
+	e.seedPW(t, "t22-off", "off-pass-1", false)
+	fx := contract.Load(t, "auth/token_bad_password")
+	rec, got := e.do("POST", "/auth/token", formCT, form("username", "t22-off", "password", "off-pass-1"), nil)
+	contract.AssertEqual(t, got, fx.Response)
+	if strings.Contains(rec.Body.String(), "access_token") {
+		t.Fatal("inactive user got a token")
+	}
+	u, _ := e.st.ByUsername(context.Background(), "t22-off")
+	if u.LastLogin != nil {
+		t.Fatal("inactive login touched last_login")
+	}
+}
