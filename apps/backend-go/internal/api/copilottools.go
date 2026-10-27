@@ -77,6 +77,10 @@ func newCopilotTools(d Deps, s autopilot.Settings) *copilotTools {
 		Discover: leadpeople.RunnerDiscoverer{Runner: runner},
 		Verify:   leadpeople.DepsVerifier{Deps: (&leadUtils{d: d}).verifyDeps()},
 	}
+	if d.Pool != nil {
+		// Paid contact lookups are ledgered (review wave 3b M4); without a pool none run.
+		ct.people.Spend = leadpeople.LedgerSpend{Pool: d.Pool}
+	}
 	return ct
 }
 
