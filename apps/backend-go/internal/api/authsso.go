@@ -45,10 +45,11 @@ const (
 )
 
 // ssoHTTPClient builds the client for discovery, token and JWKS calls (tests replace it). The
-// issuer is operator-approved (SSO_ALLOWED_ISSUERS), so it is the operator egress client:
-// EGRESS_ALLOW_HOSTS can admit a self-hosted IdP on a private address.
+// issuer is operator-approved (SSO_ALLOWED_ISSUERS), so it is the operator egress client, but
+// with its own allow-list: only SSO_EGRESS_ALLOW_HOSTS admits a self-hosted IdP on a private
+// address (empty by default; EGRESS_ALLOW_HOSTS does not widen it).
 var ssoHTTPClient = func(d Deps) *http.Client {
-	c := egress.NewOperatorClient(d.EgressAllowHosts)
+	c := egress.NewOperatorClient(strings.Split(d.Flags.Governance.SSOEgressAllowHosts, ","))
 	c.Timeout = 15 * time.Second
 	return c
 }

@@ -22,6 +22,10 @@ type GovernanceSettings struct {
 	// SSORedirectBaseURL (SSO_REDIRECT_BASE_URL) is the public origin the /auth/sso callback URL is built on,
 	// e.g. https://app.example.com (no trailing slash). Empty: derived from the request (Host, X-Forwarded-Proto).
 	SSORedirectBaseURL string
+	// SSOEgressAllowHosts (SSO_EGRESS_ALLOW_HOSTS) is a comma list of IdP hosts ("host" or "host:port")
+	// the SSO OIDC client may reach although they resolve to a private address (self-hosted IdP).
+	// Empty (default): every IdP must be public. EGRESS_ALLOW_HOSTS does not apply to SSO.
+	SSOEgressAllowHosts string
 }
 
 func loadGovernance(get func(string) string) (GovernanceSettings, error) {
@@ -42,6 +46,7 @@ func loadGovernance(get func(string) string) (GovernanceSettings, error) {
 	}
 	g.SSOAllowedIssuerHosts = get("SSO_ALLOWED_ISSUER_HOSTS")
 	g.SSOAllowedIssuers = get("SSO_ALLOWED_ISSUERS")
+	g.SSOEgressAllowHosts = get("SSO_EGRESS_ALLOW_HOSTS")
 	g.SSORedirectBaseURL = strings.TrimRight(strings.TrimSpace(get("SSO_REDIRECT_BASE_URL")), "/")
 	if b := g.SSORedirectBaseURL; b != "" {
 		if u, err := url.Parse(b); err != nil || (u.Scheme != "https" && u.Scheme != "http") || u.Host == "" || u.User != nil ||
