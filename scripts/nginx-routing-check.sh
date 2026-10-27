@@ -65,7 +65,8 @@ check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
            "GET /api/lead/7" "PUT /api/lead/7" "DELETE /api/lead/7" "GET /api/lead/7/timeline" "GET /api/lead/7/similar" \
            "POST /api/lead/7/status" "GET /api/export/csv" "POST /api/leads/dedup" "POST /api/leads/dedup/merge" \
            "POST /api/leads/bulk-enrich" "GET /api/signals" "GET /api/signals/analytics" "GET /api/signals/counts" \
-           "POST /api/signals/scan" "POST /api/signals/mark-read" "GET /api/events?token=SECRET"; do
+           "POST /api/signals/scan" "POST /api/signals/mark-read" "GET /api/events?token=SECRET" \
+           "POST /api/events/ticket"; do
     set -- $r
     expect "$r X-Upstream" "$(hdr "$1" "$2" X-Upstream)" "$want"
     expect "$r X-Stub     " "$(hdr "$1" "$2" X-Stub)" "$want"
@@ -73,7 +74,7 @@ check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
   done
   # Proxy settings must match the location each route would otherwise fall into.
   for r in "GET /api/workspaces" "GET /api/mcp/tokens" "GET /api/settings/providers" "GET /api/settings/system" \
-           "GET /api/settings/llm-usage" "POST /api/billing/webhook" "GET /api/leads"; do
+           "GET /api/settings/llm-usage" "POST /api/billing/webhook" "GET /api/leads" "POST /api/events/ticket"; do
     set -- $r
     expect "$2 upstream HTTP version" "$(curl -s -D- -o /dev/null -H 'Upgrade: websocket' "http://127.0.0.1:$PORT$2" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-seen-proto"{print $2}')" "HTTP/1.1"
     expect "$2 Connection to upstream" "$(curl -s -D- -o /dev/null -H 'Upgrade: websocket' "http://127.0.0.1:$PORT$2" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-seen-conn"{print $2}')" upgrade
@@ -85,7 +86,7 @@ check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
   for l in "^~ /api/workspaces" "^~ /api/mcp/tokens" "^~ /api/settings/providers" "^~ /api/settings/enrichment-perf" \
            "= /api/settings/system" "^~ /api/settings/models/" "^~ /api/settings/enrichment-providers" \
            "= /api/settings/llm-usage" "^~ /api/settings/integrations" "^~ /api/settings/workspace-integrations" \
-           "^~ /api/billing/"; do
+           "^~ /api/billing/" "= /api/events/ticket"; do
     expect "timeouts/buffering of '$l' == '/api/'" "$(blk "$l")" "$(blk "/api/")"
   done
   # First-admin setup: always Go at any percentage (Python has no such route), URI forwarded unchanged.
@@ -117,6 +118,9 @@ check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
   for d in "proxy_buffering off;" "proxy_read_timeout 1h;" "proxy_http_version 1.1;" "add_header X-Accel-Buffering no always;" "access_log /dev/stdout sse_noquery;" "error_log /dev/stderr crit;" "limit_conn sse_per_ip 20;" "limit_conn_status 429;"; do
     case "$E" in *"$d"*) echo "  ok   /api/events has '$d'";; *) echo "  FAIL /api/events missing '$d'"; FAIL=1;; esac
   done
+  # SSE ticket mint (S-L23): exact match only; a sibling path stays on the generic /api/ location (Python).
+  expect "POST /api/events/ticketx X-Stub" "$(hdr POST /api/events/ticketx X-Stub)" py
+  expect "POST /api/events/ticketx X-Upstream (unset)" "$(hdr POST /api/events/ticketx X-Upstream)" ""
   expect "GET /api/events X-Accel-Buffering" "$(hdr GET '/api/events?token=SECRET' X-Accel-Buffering)" no
   curl -s -o /dev/null "http://127.0.0.1:$PORT/api/events?token=SECRETVALUE123"; sleep 0.3
   if docker logs "$RUN-gw" 2>&1 | grep -q SECRETVALUE123; then echo "  FAIL token leaked into gateway log"; FAIL=1; else echo "  ok   token absent from gateway log"; fi
