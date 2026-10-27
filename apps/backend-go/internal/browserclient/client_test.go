@@ -84,7 +84,7 @@ func TestTimeoutDefaultsAndCap(t *testing.T) {
 		want float64
 	}{
 		{func() error {
-			_, err := c.Render(context.Background(), RenderRequest{URL: "u", Timeout: time.Hour})
+			_, err := c.Render(context.Background(), RenderRequest{URL: "https://e.com/u", Timeout: time.Hour})
 			return err
 		}, 600},
 		{func() error {
@@ -92,7 +92,7 @@ func TestTimeoutDefaultsAndCap(t *testing.T) {
 			return err
 		}, 120},
 		{func() error {
-			_, err := c.JustDialPage(context.Background(), JustDialPageRequest{URL: "u"})
+			_, err := c.JustDialPage(context.Background(), JustDialPageRequest{URL: "https://e.com/u"})
 			return err
 		}, 45},
 		{func() error {
@@ -165,7 +165,7 @@ func TestSearchPathsAndOptions(t *testing.T) {
 
 func TestScreenshotDecodesImage(t *testing.T) {
 	srv := server(t, 200, `{"url":"u","final_url":"u","status":200,"content_type":"image/png","image_base64":"iVBORw==","bytes":4,"elapsed_ms":1}`, nil)
-	res, err := New(srv.URL, testToken, nil).Screenshot(context.Background(), ScreenshotRequest{URL: "u", Format: "png"})
+	res, err := New(srv.URL, testToken, nil).Screenshot(context.Background(), ScreenshotRequest{URL: "https://e.com/u", Format: "png"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -213,7 +213,7 @@ func TestErrorMapping(t *testing.T) {
 	}
 	for _, tc := range cases {
 		srv := server(t, tc.status, tc.body, nil)
-		_, err := New(srv.URL, testToken, nil).Render(context.Background(), RenderRequest{URL: "u"})
+		_, err := New(srv.URL, testToken, nil).Render(context.Background(), RenderRequest{URL: "https://e.com/u"})
 		var e *Error
 		if !errors.As(err, &e) || !errors.Is(err, tc.want) || e.Code != tc.code || e.HTTPStatus != tc.status {
 			t.Fatalf("%d %s: got %v", tc.status, tc.body, err)
@@ -226,7 +226,7 @@ func TestErrorMapping(t *testing.T) {
 
 func TestBadRequestFieldsAreFiltered(t *testing.T) {
 	srv := server(t, 400, `{"error":{"code":"bad_request","message":"m","fields":["url","timeout_s","<script>","x y"]}}`, nil)
-	_, err := New(srv.URL, testToken, nil).Render(context.Background(), RenderRequest{URL: "u"})
+	_, err := New(srv.URL, testToken, nil).Render(context.Background(), RenderRequest{URL: "https://e.com/u"})
 	var e *Error
 	if !errors.As(err, &e) || strings.Join(e.Fields, ",") != "url,timeout_s" || !errors.Is(err, ErrBadRequest) {
 		t.Fatalf("%v", err)
@@ -237,11 +237,11 @@ func TestBodyCapAndInvalidJSON(t *testing.T) {
 	srv := server(t, 200, `{"html":"`+strings.Repeat("a", 4096)+`"}`, nil)
 	c := New(srv.URL, testToken, nil)
 	c.MaxBodyBytes = 1024
-	if _, err := c.Render(context.Background(), RenderRequest{URL: "u"}); !errors.Is(err, ErrTooLarge) {
+	if _, err := c.Render(context.Background(), RenderRequest{URL: "https://e.com/u"}); !errors.Is(err, ErrTooLarge) {
 		t.Fatalf("want too large, got %v", err)
 	}
 	srv = server(t, 200, `not json`, nil)
-	if _, err := New(srv.URL, testToken, nil).Render(context.Background(), RenderRequest{URL: "u"}); !errors.Is(err, ErrInvalidResponse) {
+	if _, err := New(srv.URL, testToken, nil).Render(context.Background(), RenderRequest{URL: "https://e.com/u"}); !errors.Is(err, ErrInvalidResponse) {
 		t.Fatalf("want invalid response, got %v", err)
 	}
 }
@@ -250,7 +250,7 @@ func TestTransportErrors(t *testing.T) {
 	srv := httptest.NewServer(http.NotFoundHandler())
 	url := srv.URL
 	srv.Close()
-	_, err := New(url, testToken, nil).Render(context.Background(), RenderRequest{URL: "u"})
+	_, err := New(url, testToken, nil).Render(context.Background(), RenderRequest{URL: "https://e.com/u"})
 	if !errors.Is(err, ErrUnreachable) || !Retryable(err) || strings.Contains(err.Error(), "127.0.0.1") {
 		t.Fatalf("got %v", err)
 	}
@@ -266,13 +266,13 @@ func TestTransportErrors(t *testing.T) {
 	defer close(release)
 	c := New(slow.URL, testToken, nil)
 	c.slack = 10 * time.Millisecond
-	_, err = c.Render(context.Background(), RenderRequest{URL: "u", Timeout: 50 * time.Millisecond})
+	_, err = c.Render(context.Background(), RenderRequest{URL: "https://e.com/u", Timeout: 50 * time.Millisecond})
 	if !errors.Is(err, ErrTimeout) {
 		t.Fatalf("want timeout, got %v", err)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() { time.Sleep(30 * time.Millisecond); cancel() }()
-	_, err = New(slow.URL, testToken, nil).Render(ctx, RenderRequest{URL: "u"})
+	_, err = New(slow.URL, testToken, nil).Render(ctx, RenderRequest{URL: "https://e.com/u"})
 	if !errors.Is(err, context.Canceled) {
 		t.Fatalf("want canceled, got %v", err)
 	}
@@ -308,7 +308,7 @@ func TestRedirectsAreNotFollowed(t *testing.T) {
 		http.Redirect(w, r, target.URL+"/v1/render", http.StatusTemporaryRedirect)
 	}))
 	defer srv.Close()
-	if _, err := New(srv.URL, testToken, nil).Render(context.Background(), RenderRequest{URL: "u"}); err == nil {
+	if _, err := New(srv.URL, testToken, nil).Render(context.Background(), RenderRequest{URL: "https://e.com/u"}); err == nil {
 		t.Fatal("redirect must fail")
 	}
 	if hits.Load() != 0 {

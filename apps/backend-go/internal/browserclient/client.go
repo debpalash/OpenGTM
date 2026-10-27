@@ -8,12 +8,15 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 )
 
 const (
@@ -105,6 +108,9 @@ type Client struct {
 	hc      *http.Client
 	// MaxBodyBytes caps success bodies (default DefaultMaxBodyBytes).
 	MaxBodyBytes int64
+	// AllowedPorts are the destination ports URLs may name (the service's
+	// BROWSER_EGRESS_PORTS); empty allows any. New sets 80 and 443.
+	AllowedPorts []int
 	slack        time.Duration
 }
 
@@ -119,9 +125,51 @@ func New(baseURL, token string, hc *http.Client) *Client {
 		cp.Timeout = 0
 		hc = &cp
 	}
+	// Never honour HTTP(S)_PROXY: the bearer token and target URLs must not go
+	// through an environment proxy (review L8).
+	switch tr := hc.Transport.(type) {
+	case nil:
+		t := http.DefaultTransport.(*http.Transport).Clone()
+		t.Proxy = nil
+		hc.Transport = t
+	case *http.Transport:
+		t := tr.Clone()
+		t.Proxy = nil
+		hc.Transport = t
+	}
 	hc.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
 	return &Client{baseURL: strings.TrimRight(strings.TrimSpace(baseURL), "/"), token: config.Secret(token), hc: hc,
-		MaxBodyBytes: DefaultMaxBodyBytes, slack: clientSlack}
+		MaxBodyBytes: DefaultMaxBodyBytes, slack: clientSlack, AllowedPorts: []int{80, 443}}
+}
+
+// checkTarget pre-checks a URL the service will open with the Go egress guard
+// (scheme, literal private/metadata IPs, blocked hostnames), refuses userinfo
+// and ports outside AllowedPorts. The service re-checks every hop itself.
+func (c *Client) checkTarget(raw string) error {
+	if !c.Configured() {
+		return ErrUnavailable
+	}
+	blocked := &Error{Code: "egress_blocked"}
+	if err := egress.CheckURL(raw, true); err != nil {
+		return blocked
+	}
+	u, err := url.Parse(strings.TrimSpace(raw))
+	if err != nil || u.User != nil || u.Hostname() == "" {
+		return blocked
+	}
+	port := 443
+	if strings.EqualFold(u.Scheme, "http") {
+		port = 80
+	}
+	if p := u.Port(); p != "" {
+		if port, err = strconv.Atoi(p); err != nil {
+			return blocked
+		}
+	}
+	if len(c.AllowedPorts) > 0 && !slices.Contains(c.AllowedPorts, port) {
+		return blocked
+	}
+	return nil
 }
 
 // Format redacts the token for every fmt verb.
@@ -153,6 +201,9 @@ func (c *Client) Health(ctx context.Context) (Health, error) {
 
 // Render loads one page (POST /v1/render).
 func (c *Client) Render(ctx context.Context, req RenderRequest) (RenderResult, error) {
+	if err := c.checkTarget(req.URL); err != nil {
+		return RenderResult{}, err
+	}
 	req.Timeout = clamp(req.Timeout, 30*time.Second)
 	var out RenderResult
 	return out, c.post(ctx, "/v1/render", req, req.Timeout, &out)
@@ -160,6 +211,9 @@ func (c *Client) Render(ctx context.Context, req RenderRequest) (RenderResult, e
 
 // Screenshot captures one page (POST /v1/screenshot).
 func (c *Client) Screenshot(ctx context.Context, req ScreenshotRequest) (ScreenshotResult, error) {
+	if err := c.checkTarget(req.URL); err != nil {
+		return ScreenshotResult{}, err
+	}
 	req.Timeout = clamp(req.Timeout, 30*time.Second)
 	var out ScreenshotResult
 	return out, c.post(ctx, "/v1/screenshot", req, req.Timeout, &out)
@@ -174,6 +228,9 @@ func (c *Client) GoogleMaps(ctx context.Context, req GoogleMapsRequest) (GoogleM
 
 // JustDialPage scrapes one JustDial listing page (POST /v1/scrape/justdial_page).
 func (c *Client) JustDialPage(ctx context.Context, req JustDialPageRequest) (JustDialPageResult, error) {
+	if err := c.checkTarget(req.URL); err != nil {
+		return JustDialPageResult{}, err
+	}
 	req.Timeout = clamp(req.Timeout, 45*time.Second)
 	var out JustDialPageResult
 	return out, c.post(ctx, "/v1/scrape/justdial_page", req, req.Timeout, &out)
@@ -229,6 +286,11 @@ func (c *Client) Search(ctx context.Context, req SearchRequest) (SearchOut, erro
 
 // Extract returns main text, metadata and markdown for HTML or a URL.
 func (c *Client) Extract(ctx context.Context, req ExtractRequest) (ExtractResult, error) {
+	if req.HTML == "" {
+		if err := c.checkTarget(req.URL); err != nil {
+			return ExtractResult{}, err
+		}
+	}
 	req.Timeout = clamp(req.Timeout, 30*time.Second)
 	var out ExtractResult
 	return out, c.post(ctx, "/v1/extract", req, req.Timeout, &out)
