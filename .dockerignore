@@ -18,3 +18,10 @@ reference/research
 docs
 gtm
 .claude
+# Python repo working files and the Go backend are not part of the Python/web image.
+legacy/python/.git
+legacy/python/.venv
+legacy/python/data
+legacy/python/tests
+apps/backend-go
+.superpowers

@@ -9,6 +9,25 @@
 # remote build from a clean git checkout must provide legacy/python first, or
 # every COPY legacy/python/... below fails.
 #
+# Stage 0: the ONLY stage that reads legacy/python from the build context. It fails
+# fast, with an obvious message, when legacy/python is absent (the bracket globs
+# match nothing instead of erroring on a missing path, so the RUN can explain;
+# .dockerignore keeps .git/.venv/data/tests out of this copy).
+# Every later stage takes Python sources `COPY --from=legacy-src`, so BuildKit
+# cannot report a cryptic "not found" from a parallel branch first.
+FROM busybox:1.37 AS legacy-src
+COPY legac[y]/pytho[n]/ /legacy/
+RUN test -f /legacy/pyproject.toml && test -f /legacy/alembic.ini \
+    && test -d /legacy/migrations && test -f /legacy/apps/api/main.py || { \
+      echo "" >&2; \
+      echo "ERROR: legacy/python is missing from the build context." >&2; \
+      echo "  The Python backend lives in legacy/python, which is its own git repo and is" >&2; \
+      echo "  gitignored by this repo. Clone it to ./legacy/python before building the" >&2; \
+      echo "  Python images (api, worker, scheduler, migrate, seed, frontend_assets)." >&2; \
+      echo "  See docs/go-port/runbooks/docker-compose.md." >&2; \
+      echo "" >&2; \
+      exit 1; }
+
 # Stage 1: Build Frontend
 # The repo is a Bun workspace with a single root bun.lock, so the install has
 # to run from the root with every workspace manifest present for
@@ -18,7 +37,6 @@ WORKDIR /app
 COPY package.json bun.lock ./
 COPY apps/web/package.json ./apps/web/
 COPY apps/web/vendor/ ./apps/web/vendor/
-COPY legacy/python/apps/api/package.json ./apps/api/
 COPY apps/docs/package.json ./apps/docs/
 COPY packages/chrome-extension/package.json ./packages/chrome-extension/
 COPY packages/n8n-nodes-yupcha/package.json ./packages/n8n-nodes-yupcha/
@@ -36,24 +54,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY legacy/python/apps/api/pyproject.toml legacy/python/apps/api/setup.py* legacy/python/apps/api/setup.cfg* ./apps/api/
-COPY legacy/python/pyproject.toml* ./
+COPY --from=legacy-src /legacy/apps/api/pyproject.toml /legacy/apps/api/setup.py* /legacy/apps/api/setup.cfg* ./apps/api/
+COPY --from=legacy-src /legacy/pyproject.toml ./
 RUN pip install --no-cache-dir -e ./apps/api 2>/dev/null || \
     (cd apps/api && pip install --no-cache-dir -e .) 2>/dev/null || \
     echo "No pyproject.toml install, will use requirements.txt"
 
 # Fallback: requirements.txt
-COPY legacy/python/apps/api/requirements.txt* ./apps/api/
+COPY --from=legacy-src /legacy/apps/api/requirements.txt* ./apps/api/
 RUN if [ -f apps/api/requirements.txt ]; then pip install --no-cache-dir -r apps/api/requirements.txt; fi
 
 # Copy backend code
-COPY legacy/python/apps/api/ ./apps/api/
+COPY --from=legacy-src /legacy/apps/api/ ./apps/api/
 
 # Alembic is the production schema authority. These live at the
 # legacy/python/ root, so copying apps/api alone produces an image that can create tables but
 # cannot apply migrations or RLS policies.
-COPY legacy/python/alembic.ini ./alembic.ini
-COPY legacy/python/migrations/ ./migrations/
+COPY --from=legacy-src /legacy/alembic.ini ./alembic.ini
+COPY --from=legacy-src /legacy/migrations/ ./migrations/
 
 # Copy built frontend from Stage 1
 COPY --from=frontend-builder /app/apps/web/dist ./apps/web/dist
