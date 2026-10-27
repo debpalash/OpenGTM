@@ -51,7 +51,7 @@ type Deps struct {
 	Caps          *Caps
 	HiringTimeout time.Duration // per-lead provider call limit; default 60s
 	// RefreshExecutor / ScanExecutor choose the executor of enqueued refresh_workbook and
-	// signal_scan jobs (go_executor.refresh_executor / signal_scan_executor). nil: "python".
+	// signal_scan jobs; nil: "go", the only executor since the plan 15 cutover.
 	RefreshExecutor func(workspaceID string) string
 	ScanExecutor    func() string
 }

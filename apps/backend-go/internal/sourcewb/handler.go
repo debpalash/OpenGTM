@@ -82,16 +82,16 @@ type JobPayload struct {
 	WorkspaceID string `json:"workspace_id"`
 }
 
-// Enqueue inserts a source_workbook job for executor "python" (queue_service.add_job,
-// unchanged) or "go" (same row with executor 'go'); q may be the caller's transaction.
+// Enqueue inserts a source_workbook job (queue_service.add_job's row) for executor "go", the only executor since
+// the plan 15 cutover (any other executor is refused); q may be the caller's transaction.
 func Enqueue(ctx context.Context, q gen.DBTX, ws, wbID, colID, executor string) (int64, error) {
 	if ws == "" { // the worker derives the tenant from jobs.workspace_id only
 		return 0, errors.New("sourcewb: enqueue needs a workspace")
 	}
-	p := JobPayload{WorkbookID: wbID, ColumnID: colID, WorkspaceID: ws}
 	if executor != "go" {
-		return queue.Enqueue(ctx, q, JobType, ws, p, "")
+		return 0, fmt.Errorf("sourcewb: executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
+	p := JobPayload{WorkbookID: wbID, ColumnID: colID, WorkspaceID: ws}
 	raw, err := json.Marshal(p)
 	if err != nil {
 		return 0, err

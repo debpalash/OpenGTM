@@ -1,8 +1,8 @@
 // Package automationhook ports the enqueue half of the Python automation
 // events (services/automations/events.py emit_row_added): when rows are added to
 // a workbook it enqueues one `trigger_eval` job per enabled `on_row_added`
-// trigger whose scope covers the workbook. The jobs are executed by the Python
-// worker (executor "python") exactly as FastAPI would have queued them.
+// trigger whose scope covers the workbook, in the shape FastAPI queued them. Since the plan 15 cutover the jobs
+// are executor go.
 package automationhook
 
 import (
