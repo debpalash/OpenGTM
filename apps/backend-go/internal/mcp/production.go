@@ -26,7 +26,7 @@ import (
 // NewProductionDeps wires the production ports over pool (a runtime, non-superuser
 // role). Outreach and Automation stay nil until plans 08 (automations) and 09 (outreach) provide
 // adapters: their tools answer "not available in this build" (D9).
-func NewProductionDeps(cfg Config, pool *pgxpool.Pool, py *pyworker.Client, verify emailverify.Deps) Deps {
+func NewProductionDeps(cfg Config, pool *pgxpool.Pool, py ProviderCaller, verify emailverify.Deps) Deps {
 	return Deps{
 		InWorkspace: func(ctx context.Context, ws string, fn func(pgx.Tx) error) error {
 			return tenancy.InWorkspace(ctx, pool, ws, fn)
@@ -174,11 +174,18 @@ func (PGWorkbookPort) Delete(ctx context.Context, tx pgx.Tx, ws, id string) (boo
 	return n > 0, err
 }
 
+// ProviderCaller is the provider-call RPC: *pyworker.Client, or the
+// rpclocal composite that serves GO_LOCAL_PROVIDERS names in process first.
+type ProviderCaller interface {
+	Call(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error)
+}
+
 // PyEnrichPort is the production EnrichPort: the email cascade runs in Go and
-// the remaining cost-bearing providers go through the Python worker RPC.
+// the remaining cost-bearing providers go through the provider-call RPC
+// (in process for the names GO_LOCAL_PROVIDERS lists, else the Python worker).
 type PyEnrichPort struct {
 	Verify emailverify.Deps
-	Worker *pyworker.Client
+	Worker ProviderCaller
 }
 
 func (p *PyEnrichPort) VerifyEmail(ctx context.Context, ws, email string) (VerifyResult, error) {
@@ -200,6 +207,9 @@ func (p *PyEnrichPort) Py(ctx context.Context, ws, provider string, in any) (jso
 	var b [12]byte
 	if _, err := rand.Read(b[:]); err != nil {
 		return nil, err
+	}
+	if p.Worker == nil {
+		return nil, pyworker.ErrUnavailable
 	}
 	res, err := p.Worker.Call(ctx, pyworker.ProviderCall{
 		CallID: "mcp-" + hex.EncodeToString(b[:]), Provider: provider, WorkspaceID: ws, Input: input, Timeout: 120 * time.Second,
