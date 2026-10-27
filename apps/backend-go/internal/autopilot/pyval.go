@@ -146,7 +146,9 @@ func typeName(v any) string {
 	return "dict"
 }
 
-func isPySpace(r rune) bool { return unicode.IsSpace(r) || r == '\x1c' || r == '\x1d' || r == '\x1e' || r == '\x1f' }
+func isPySpace(r rune) bool {
+	return unicode.IsSpace(r) || r == '\x1c' || r == '\x1d' || r == '\x1e' || r == '\x1f'
+}
 
 func strip(s string) string { return strings.TrimFunc(s, isPySpace) }
 
