@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 
+	collectq "github.com/debpalash/OpenGTM/apps/backend-go/internal/collect"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collectintent"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collectledger"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadprogress"
@@ -382,7 +383,11 @@ func (t *Turn) startCollection(ctx context.Context, a map[string]any) (string, b
 		if err := collectledger.Create(ctx, tx, t.WS, jobID, query, d.Intent, details, time.Now().UTC()); err != nil {
 			return err
 		}
-		id, err := queue.Enqueue(ctx, tx, "collect", t.WS, collectPayload{jobID, query, d.Intent, t.WS, t.Slug}, "collect:"+t.WS+":"+jobID)
+		executor := "python"
+		if e.CollectExecutor != nil {
+			executor = e.CollectExecutor(t.WS)
+		}
+		id, err := collectq.Enqueue(ctx, tx, "collect", t.WS, executor, collectPayload{jobID, query, d.Intent, t.WS, t.Slug}, "collect:"+t.WS+":"+jobID)
 		if err != nil {
 			enqueueFailed = true
 			return err

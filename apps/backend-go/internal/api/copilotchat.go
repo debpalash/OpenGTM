@@ -137,6 +137,7 @@ func (h *chatHandler) engine(ws string) *copilot.Engine {
 		Ambition: h.ab, AmbitionImportExecutor: ambitionimport.ExecutorFor(getenv),
 		RefreshExecutor: config.ExecutorCohortFrom(getenv).RefreshExecutor, WatchExecutor: h.d.watchPollExecutor(),
 		CollectionLedgerPG: h.d.CollectionLedgerBackend == "postgres", Progress: progressBus(h.d),
+		CollectExecutor: func(ws string) string { return config.CollectExecutor(getenv, ws) },
 	}
 	h.tools.apply(e, ws)
 	return e

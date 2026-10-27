@@ -33,6 +33,9 @@ type Engine struct {
 	// WatchExecutor picks the executor of the first watch_poll job track_account_signals schedules
 	// (go_executor.watch_poll_executor); nil means "python".
 	WatchExecutor func(workspaceID string) string
+	// CollectExecutor picks the executor of the collect job start_collection enqueues
+	// (config.CollectExecutor: "go" with GO_EXECUTOR_COLLECT and cohort membership); nil means "python".
+	CollectExecutor func(workspaceID string) string
 	// CollectionLedgerPG is __collection_ledger_backend == "postgres"; start_collection needs it in Go.
 	CollectionLedgerPG bool
 	// Progress receives start_collection's job_created event (nil: none).
