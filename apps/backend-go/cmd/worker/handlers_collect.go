@@ -9,7 +9,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collect"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/credentials"
@@ -110,12 +109,11 @@ func liveCollectDeps(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, ge
 	if sc.BrowserURL == "" || sc.BrowserToken == "" {
 		return nil, nil, errNoBrowser
 	}
-	lw, err := config.LeadwebFrom(get)
+	sw, err := workerLeadweb(cfg, get) // the worker's one leadweb (shared rate limits and cache)
 	if err != nil {
 		return nil, nil, err
 	}
-	bc := browserclient.New(sc.BrowserURL, sc.BrowserToken.Reveal(), nil)
-	web := leadweb.New(lw, bc, cfg.AppEnv, cfg.EgressAllowHosts)
+	bc, web := sw.Browser, sw.Web
 	env, err := secrets.NewEnvelope(secrets.Config{
 		Provider: cfg.SecretsProvider, MasterKey: cfg.SecretsMasterKey, SecretKey: cfg.SecretKey, AppEnv: cfg.AppEnv,
 		VaultAddr: cfg.VaultAddr, VaultToken: cfg.VaultToken, VaultTokenFile: cfg.VaultTokenFile,
