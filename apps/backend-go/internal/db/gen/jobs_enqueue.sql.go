@@ -9,27 +9,27 @@ import (
 	"context"
 )
 
-const enqueuePythonJob = `-- name: EnqueuePythonJob :one
+const enqueueDefaultJob = `-- name: EnqueueDefaultJob :one
 
 INSERT INTO jobs (executor, type, payload, workspace_id, priority, fire_key, status,
                   created_at, next_run_at, max_retries, retry_count)
-VALUES ('python', $1::text, $2::json, NULLIF($3::text, ''), 1,
+VALUES ('go', $1::text, $2::json, NULLIF($3::text, ''), 1,
         NULLIF($4::text, ''), 'pending',
         (now() AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'), 3, 0)
 RETURNING id
 `
 
-type EnqueuePythonJobParams struct {
+type EnqueueDefaultJobParams struct {
 	JobType     string
 	Payload     []byte
 	WorkspaceID string
 	FireKey     string
 }
 
-// Python-executor job insertion (port of queue_service.add_job). `jobs` is a
+// Job insertion (port of queue_service.add_job; executor 'go', the only executor since the plan 15 cutover). `jobs` is a
 // global control table. Timestamps are naive UTC columns.
-func (q *Queries) EnqueuePythonJob(ctx context.Context, arg EnqueuePythonJobParams) (int32, error) {
-	row := q.db.QueryRow(ctx, enqueuePythonJob,
+func (q *Queries) EnqueueDefaultJob(ctx context.Context, arg EnqueueDefaultJobParams) (int32, error) {
+	row := q.db.QueryRow(ctx, enqueueDefaultJob,
 		arg.JobType,
 		arg.Payload,
 		arg.WorkspaceID,

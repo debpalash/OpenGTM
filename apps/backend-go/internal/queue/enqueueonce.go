@@ -24,8 +24,8 @@ func EnqueueOnce(ctx context.Context, tx pgx.Tx, jobType, workspaceID string, pa
 	if fireKey == "" {
 		return 0, false, errors.New("queue: EnqueueOnce needs a fire key")
 	}
-	if executor != "go" && executor != "python" {
-		return 0, false, fmt.Errorf("queue: EnqueueOnce executor %q must be go or python", executor)
+	if executor != "go" {
+		return 0, false, fmt.Errorf("queue: EnqueueOnce executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
 	body, err := onceBody(jobType, payload, fireKey)
 	if err != nil {
