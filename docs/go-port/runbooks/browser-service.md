@@ -27,6 +27,14 @@ Go reaches it only through `internal/browserclient`.
 | `POST /v1/scrape/google_maps` | Maps places for query + city. |
 | `POST /v1/scrape/justdial_page` | Listing cards from a justdial.com page. |
 | `POST /v1/scrape/{linkedin,job_boards,crunchbase,review_directories,web_directories,google_search}` | Raw search hits per search string. The search strings are the exact legacy templates. |
+| `POST /v1/search` | One keyless ddgs query (text or news) with the caller's backends, region, safesearch and timelimit. Failures come back as `error`: `no_results`, `rate_limited`, `timeout` or `failed` (rate_limited and timeout are the legacy block signals). |
+| `POST /v1/extract` | Main text and metadata (trafilatura, legacy content_extract) plus markdown (markdownify) from given HTML or a fetched URL. Its body cap is `BROWSER_MAX_EXTRACT_BYTES`. |
+| `POST /v1/holehe` | Per-site holehe results for one email (first 50 modules, concurrency 10, as legacy). The verdict mapping stays in Go. |
+| `POST /v1/staffspy` | A company's LinkedIn roster. Off (503 `engine_unavailable`) unless `BROWSER_STAFFSPY_ENABLED`. The LinkedIn cookies come with each request; nothing is written to disk. |
+| `GET /v1/stats` | This process's counters: calls, ok and error codes per op, search failures by class, egress sessions, refusals and upstream failures. Per replica, not aggregated. |
+
+Every page, search, holehe and staffspy request takes an optional `upstream_proxy` (http, socks5 or socks4 URL).
+Go picks it from `PROXY_LIST` or the proxy manager; the service never stores or logs it. See "Upstream proxies" below.
 
 Errors use the envelope `{"error":{"code","message","fields?"}}`. Each code has one fixed message, so page text
 and library exception text never reach the caller. The codes are: `unauthorized` 401, `bad_request` 400,
@@ -46,6 +54,12 @@ and library exception text never reach the caller. The codes are: `unauthorized`
 | `BROWSER_SEARCH_BACKENDS` / `BROWSER_SEARCH_TIMEOUT_S` | legacy list / 10 | ddgs engines and per-search timeout. |
 | `FLARESOLVERR_URL` | empty | Turns on the `flaresolverr` engine. Requires the two proxy settings below. |
 | `BROWSER_EGRESS_PROXY_LISTEN` / `BROWSER_EGRESS_PROXY_URL` | loopback | Where the egress proxy listens (e.g. `0.0.0.0:8091`) and the URL FlareSolverr uses to reach it (`http://browser:8091`). |
+| `BROWSER_EGRESS_PORTS` | 80,443 | Destination ports the egress proxy may open. The upstream proxy's own port is not limited. |
+| `BROWSER_MAX_EXTRACT_BYTES` | 8 MiB | Request body cap for `/v1/extract` only (it takes page HTML). |
+| `BROWSER_CHROMIUM_SANDBOX` | true | Chromium's own sandbox. In a container it needs the security options under "Chromium sandbox". With it on and those options missing, Chromium does not start and browser endpoints answer 503. |
+| `BROWSER_MAPS_STEALTH` | false | Google Maps through patchright (stealth Playwright). Off matches what legacy production ran: patchright was the optional `browser` extra and the image only had Playwright. |
+| `BROWSER_STAFFSPY_ENABLED` | false | `/v1/staffspy` (LinkedIn ToS; legacy `STAFFSPY_ENABLED`). |
+| `BROWSER_PLAYWRIGHT_WS` / `BROWSER_PATCHRIGHT_WS` | empty | Split mode only, set by the entrypoint: loopback `ws://127.0.0.1:<port>/<random path>` of the Playwright servers that run Chromium as uid 10002. |
 | `BROWSER_EGRESS_ALLOW_CIDRS` | empty | **Test only.** Exempts ranges from the egress block list. The service refuses to start with it unless `APP_ENV=test`, and metadata IPs stay blocked even then. |
 
 The Go client adds 10 s on top of `timeout_s` to its own deadline to cover queueing and the grace period. It
@@ -73,9 +87,65 @@ caps success bodies at 16 MiB (`Client.MaxBodyBytes`). It never retries on its o
   that request's credentials. The credentials are revoked when the call returns. The service also DNS-vets the
   target and the final URL as a second layer, and refuses to start with `FLARESOLVERR_URL` set unless the proxy
   is reachable from FlareSolverr.
+- Only ports 80 and 443 are opened unless `BROWSER_EGRESS_PORTS` lists more.
+- FlareSolverr fails closed: its answer is refused (`upstream_error`) when the session's proxy carried no traffic
+  (a build that ignored the proxy object fetched from its own network), and refused (`egress_blocked`) when the
+  proxy refused any destination during the solve. FlareSolverr logs request bodies, so the per-request proxy
+  credentials it receives end up in its log; they are revoked when the call returns.
+- `locale`, `user_agent` and cookie names/values are validated (no CR/LF or control characters) because they end
+  up in request headers.
 - When a navigation or redirect is refused, the service returns 403 `egress_blocked`. When a subresource is
   refused, the page still loads and the refusal is counted in `blocked_requests`.
 - Each request also has a download byte cap, and its tunnels are torn down when the request ends.
+
+**Upstream proxies.** When a request names an `upstream_proxy`, the egress proxy still resolves and vets the target
+first, then opens the tunnel through the upstream (HTTP CONNECT, SOCKS5 with optional user/password, or SOCKS4),
+asking it for the vetted IP, never the name, so the far side cannot be rebound either. The upstream's own address is
+vetted by the same policy: a private or metadata proxy address is refused (502 with `x-opengtm-egress:
+upstream_blocked`). A refused or failed handshake is 502 `upstream_failed`, and the API answers `upstream_error`, so
+Go can mark the proxy bad. The credentials live only in that request's session.
+
+**Chromium sandbox and process split (review M1).**
+
+- Chromium runs with its sandbox on. Docker's defaults block it in two ways: the default seccomp profile refuses the
+  user/pid/net namespaces it creates, and the default AppArmor profile refuses its `/proc/self/uid_map` write. Run
+  the container with `seccomp-chromium.json`, which is moby's v26 default profile plus `clone`, `unshare`, `setns`
+  and `chroot`, and with AppArmor unconfined:
+
+  ```yaml
+  browser:
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=./apps/browser-service/seccomp-chromium.json
+      - apparmor=unconfined
+  ```
+
+  `cap_drop: ALL` stays. A stricter custom AppArmor profile that only allows the uid_map write would be a host-level
+  follow-up.
+- Before Playwright starts, the service removes `BROWSER_SERVICE_TOKEN` from its environment, so the Playwright
+  driver and Chromium never inherit it. It also makes itself non-dumpable (`PR_SET_DUMPABLE=0`), so a same-uid
+  process cannot read its `/proc/<pid>/environ` or memory. Chromium is launched with a minimal environment.
+- **Split mode** (Chromium as its own uid): start the container as root with only `SETUID` and `SETGID`. The
+  entrypoint then starts a Playwright server (and a patchright one when `BROWSER_MAPS_STEALTH` is on) as uid 10002 on
+  loopback with a random path, and the service as uid 10001. Every process drops all capabilities and sets
+  no-new-privs.
+
+  ```yaml
+  browser:
+    user: "0"
+    cap_drop: [ALL]
+    cap_add: [SETUID, SETGID]
+  ```
+
+  Without these the image runs as uid 10001 and Chromium is a child of the service; it is still sandboxed and still
+  has no token.
+- `scripts/smoke_container.sh` runs both modes with the compose hardening and the security options above. It checks
+  that Chromium has no `--no-sandbox` flag, runs as the expected uid, and that the service's environment cannot be
+  read from another process.
+- **Still open, for RETIRE-INFRA:** the egress proxy runs inside the browser container, so a Chromium that escapes its
+  sandbox has a direct route on `browser_egress` and can reach api-go and worker-go on `browser_net`. The fix is to
+  move the proxy into its own container on a separate network, and to give the browser container only an internal
+  network that reaches that proxy and the Go services.
 
 **Network.** Compose attaches `browser` to two networks:
 
@@ -89,6 +159,7 @@ private addresses anyway.
 
 ```bash
 # token: openssl rand -hex 32  ->  BROWSER_SERVICE_TOKEN in .env (same value for api-go/worker-go)
+# Chromium sandbox: the browser service needs the security_opt shown under "Chromium sandbox" above
 docker compose --profile browser up -d browser
 docker compose --profile browser ps browser          # healthy = /healthz answers
 docker compose exec api-go /api -healthcheck          # (Go side unaffected)
@@ -107,12 +178,20 @@ docker compose exec api-go /api -healthcheck          # (Go side unaffected)
   and update the Go types. The Python test `test_checked_in_openapi_matches_the_service` and the Go
   `TestContract*` tests each fail on drift.
 
-## Not in the service (Go owns these)
+## Not in the service (Go owns these, in `internal/leadweb`)
 
-- gosom `gmaps_service_client`: a plain REST client to another sidecar. There is no browser work in it, and the
-  egress guard would block that internal host.
-- Search result cache and per-host backoff, keyed search engines (they need API keys), proxy-pool rotation.
-- Company-name extraction and lead mapping from hits, dedup, scoring.
+- gosom `gmaps_service_client`: `leadweb.GMaps`, a plain REST client. Its egress client allow-lists only the
+  `GMAPS_SCRAPER_URL` host.
+- The search chain: `leadweb.Searcher` (the legacy `_ResilientDDGS`). It handles the result cache (tenant-salted,
+  TTL 600 s, empty TTL 60 s, LRU 2000), per-host backoff, direct-then-proxy attempts through `/v1/search`, and the
+  keyed fallback engines (SerpAPI, Bing, Google CSE, Brave, Serping, Serply), whose API keys never reach the
+  service. It also covers the SearXNG pool and direct path that providers used (`WebSearch`).
+- Proxies: `PROXY_LIST` rotation (`ProxyPool`) and the proxy manager (`ProxyManager`, `PROXY_MANAGER_URL`). Go
+  passes the chosen proxy per request.
+- The page fetch facade, `leadweb.Fetcher` (the legacy StealthClient). It handles per-domain rate limiting and the
+  circuit breaker, then escalates from impersonate to the browser to FlareSolverr.
+- HTML helpers (emails, phones, challenge detection, links, meta, the website contact scan), company-name
+  extraction, lead mapping, dedup and scoring.
 
 ## Rollback
 
