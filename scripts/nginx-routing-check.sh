@@ -88,6 +88,13 @@ check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
            "^~ /api/billing/"; do
     expect "timeouts/buffering of '$l' == '/api/'" "$(blk "$l")" "$(blk "/api/")"
   done
+  # First-admin setup: always Go at any percentage (Python has no such route), URI forwarded unchanged.
+  for r in "GET /auth/setup/status" "POST /auth/setup"; do
+    set -- $r
+    expect "$r X-Stub" "$(hdr "$1" "$2" X-Stub)" go
+    expect "$r X-Seen-Uri" "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+    expect "$r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
+  done
   # Always Python, at any percentage
   expect "GET /auth/sso/x X-Stub" "$(hdr GET /auth/sso/x X-Stub)" py
   expect "GET /auth/sso/x X-Upstream (unset)" "$(hdr GET /auth/sso/x X-Upstream)" ""
