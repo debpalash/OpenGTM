@@ -22,7 +22,7 @@ const JobType = "retention_enforce"
 // GO_EXECUTOR_ENABLED, GO_EXECUTOR_RETENTION and the workspace is in
 // GO_EXECUTOR_WORKSPACES. An empty workspace is never in the cohort.
 func ExecutorFor(ex config.ExecutorSettings, g config.GovernanceSettings, ws string) string {
-	if ws != "" && ex.Enabled && g.GoExecutorRetention && ex.Workspaces[ws] {
+	if ws != "" && ex.Enabled && g.GoExecutorRetention && config.InCohort(ex.Workspaces, ws) {
 		return "go"
 	}
 	return "python"

@@ -181,7 +181,7 @@ func Eligible(cols []colgraph.Col, idx map[string]manifest.Entry, cfg Config) (b
 	switch {
 	case !cfg.GoExecutorEnabled:
 		return false, ReasonFlagOff
-	case !cfg.GoCohort[cfg.WorkspaceID]:
+	case !(cfg.GoCohort["*"] || cfg.GoCohort[cfg.WorkspaceID]):
 		return false, ReasonNotInCohort
 	case cfg.ProvenanceTracking && !cfg.FullRun:
 		return false, ReasonProvenanceOn

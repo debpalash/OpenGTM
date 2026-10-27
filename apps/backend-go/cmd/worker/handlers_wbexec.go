@@ -19,7 +19,7 @@ import (
 // being handed back. Output clients resolve credentials through local (nil: environment only);
 // the verify cascade is the one the API's verify-email route uses. A malformed flag is fatal.
 func wireFullRun(d *workbook.Deps, cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, local *secrets.Resolver) error {
-	wx, err := config.LoadWbExec(os.Getenv)
+	wx, err := config.LoadWbExec(config.Getenv)
 	if err != nil {
 		return err
 	}

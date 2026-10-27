@@ -80,7 +80,7 @@ func audienceHandlers(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, s
 
 // cohortExecutor is "go" only with GO_EXECUTOR_ENABLED, the per-type flag and the workspace in the cohort.
 func cohortExecutor(cfg config.Config, flag bool, ws string) string {
-	if cfg.Executor.Enabled && flag && cfg.Executor.Workspaces[ws] {
+	if cfg.Executor.Enabled && flag && config.InCohort(cfg.Executor.Workspaces, ws) {
 		return "go"
 	}
 	return "python"
@@ -92,7 +92,7 @@ func destExecutorFor(cfg config.Config) func(ws string) func(destType string) st
 	types := goDestTypes(cfg)
 	return func(ws string) func(string) string {
 		return func(destType string) string {
-			if cfg.Executor.Enabled && cfg.Executor.Workspaces[ws] && types[strings.ToLower(strings.TrimSpace(destType))] {
+			if cfg.Executor.Enabled && config.InCohort(cfg.Executor.Workspaces, ws) && types[strings.ToLower(strings.TrimSpace(destType))] {
 				return "go"
 			}
 			return "python"

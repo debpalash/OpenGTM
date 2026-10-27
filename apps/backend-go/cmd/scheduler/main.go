@@ -78,7 +78,7 @@ func checkRole(ctx context.Context, pool *pgxpool.Pool, strict bool, log *slog.L
 }
 
 func run() error {
-	if err := gate(os.Getenv); err != nil {
+	if err := gate(config.Getenv); err != nil {
 		return err
 	}
 	cfg, err := config.Load()
@@ -112,7 +112,7 @@ func run() error {
 		return err
 	}
 	d := schedboot.Deps{Pool: pool, Cfg: cfg, Log: log, IMAPConfigured: imap}
-	return serve(ctx, pool, d, schedboot.ReconcileInterval(os.Getenv), log)
+	return serve(ctx, pool, d, schedboot.ReconcileInterval(config.Getenv), log)
 }
 
 // serve runs the reconcile loop while this process holds the scheduler lease, and releases it on exit.

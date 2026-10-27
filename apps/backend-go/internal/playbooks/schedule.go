@@ -20,7 +20,7 @@ import (
 // GO_EXECUTOR_PLAYBOOKS and the workspace is in GO_EXECUTOR_WORKSPACES. An
 // empty workspace is never in the cohort.
 func ExecutorFor(ex config.ExecutorSettings, g config.GovernanceSettings, ws string) string {
-	if ws != "" && ex.Enabled && g.GoExecutorPlaybooks && ex.Workspaces[ws] {
+	if ws != "" && ex.Enabled && g.GoExecutorPlaybooks && config.InCohort(ex.Workspaces, ws) {
 		return "go"
 	}
 	return "python"

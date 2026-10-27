@@ -2,7 +2,6 @@ package main
 
 import (
 	"log/slog"
-	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -51,7 +50,7 @@ func leadgenHandlers(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, py
 	}
 	get := o.getenv
 	if get == nil {
-		get = os.Getenv
+		get = config.Getenv
 	}
 	handlers[leadjobs.JobType] = leadjobs.Handler(leadjobs.Deps{Pool: pool, Py: prober, Getenv: get,
 		Executor: cfg.Executor.SourceHealthExecutor, Log: log})

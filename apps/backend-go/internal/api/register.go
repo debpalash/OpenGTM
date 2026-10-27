@@ -6,7 +6,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 	"log/slog"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -94,7 +93,7 @@ func (d Deps) getenv() func(string) string {
 	if d.Getenv != nil {
 		return d.Getenv
 	}
-	return os.Getenv
+	return config.Getenv
 }
 
 // workbooksEnabled reports whether the workbook route groups may register.

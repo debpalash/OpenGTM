@@ -18,7 +18,7 @@ import (
 // Legacy-outreach / non-Go re-enrich hand-back is decided later by the Go worker.
 func CohortExecutor(enabled, kindEnabled bool, workspaces map[string]bool) func(ws string) string {
 	return func(ws string) string {
-		if enabled && kindEnabled && workspaces[ws] {
+		if enabled && kindEnabled && (workspaces["*"] || workspaces[ws]) {
 			return "go"
 		}
 		return "python"

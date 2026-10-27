@@ -510,7 +510,7 @@ func buildProviderRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger
 func ptr[T any](v T) *T { return &v }
 
 func envBool(key string) bool {
-	switch strings.ToLower(strings.TrimSpace(os.Getenv(key))) {
+	switch strings.ToLower(strings.TrimSpace(config.Getenv(key))) {
 	case "1", "true", "yes", "on":
 		return true
 	}
@@ -518,7 +518,7 @@ func envBool(key string) bool {
 }
 
 func envInt(key string, def int) int {
-	if n, err := strconv.Atoi(strings.TrimSpace(os.Getenv(key))); err == nil && n > 0 {
+	if n, err := strconv.Atoi(strings.TrimSpace(config.Getenv(key))); err == nil && n > 0 {
 		return n
 	}
 	return def

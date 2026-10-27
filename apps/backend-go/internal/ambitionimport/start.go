@@ -63,7 +63,7 @@ func ExecutorFor(getenv func(string) string) func(string) string {
 			return "python"
 		}
 		for _, w := range strings.Split(getenv("GO_EXECUTOR_WORKSPACES"), ",") {
-			if w = strings.TrimSpace(w); w != "" && w == ws {
+			if w = strings.TrimSpace(w); w != "" && (w == "*" || w == ws) {
 				return "go"
 			}
 		}

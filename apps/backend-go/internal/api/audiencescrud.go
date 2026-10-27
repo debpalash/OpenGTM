@@ -175,7 +175,7 @@ func (h audCrud) refreshExecutor(ws string) string {
 func (h audCrud) destExecutor(ws string) func(string) string {
 	c := config.ExecutorCohortFrom(h.d.getenv())
 	return func(destType string) string {
-		if c.Enabled && c.Workspaces[ws] && slices.Contains(h.d.Flags.Audiences.GoDestTypes, strings.ToLower(strings.TrimSpace(destType))) {
+		if c.Enabled && config.InCohort(c.Workspaces, ws) && slices.Contains(h.d.Flags.Audiences.GoDestTypes, strings.ToLower(strings.TrimSpace(destType))) {
 			return "go"
 		}
 		return "python"
