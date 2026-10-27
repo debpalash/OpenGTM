@@ -248,3 +248,36 @@ func Eligible(cols []colgraph.Col, idx map[string]manifest.Entry, cfg Config) (b
 	}
 	return true, ReasonOK
 }
+
+// RequiredCapabilities lists what the selected columns and flags need from the worker beyond the
+// default executor (plan 15 review M4), sorted: the go block's "requires". A worker that lacks
+// one hands the job back to Python rather than silently dropping it.
+func RequiredCapabilities(cols []colgraph.Col, cfg Config) []string {
+	need := map[string]bool{}
+	if cfg.ProvenanceTracking {
+		need[workbook.CapProvenance] = true
+	}
+	if cfg.AutomationsEnabled {
+		need[workbook.CapAutomations] = true
+	}
+	for _, c := range cols {
+		ct := colType(c)
+		if ct == "output" {
+			need[workbook.CapOutput] = true
+		}
+		if truthy(c.Get("condition")) {
+			need[workbook.CapConditions] = true
+		}
+		if ct == "enrichment" || ct == "waterfall" {
+			if v, present := c.Lookup("verify"); target(c) == "email" && (!present || truthy(v)) {
+				need[workbook.CapEmailVerify] = true
+			}
+		}
+	}
+	var out []string
+	for k := range need {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
+}

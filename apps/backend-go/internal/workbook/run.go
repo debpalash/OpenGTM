@@ -102,6 +102,9 @@ func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result,
 	if p.WorkspaceID != c.WorkspaceID {
 		return Result{}, errors.New("workbook: payload workspace does not match the claimed job")
 	}
+	if err := checkRequires(deps, p.Requires); err != nil {
+		return Result{}, err
+	}
 	if err := verifyManifests(ctx, deps.Manifests, p); err != nil {
 		return Result{}, err
 	}

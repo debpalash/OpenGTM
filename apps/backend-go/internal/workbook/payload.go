@@ -62,6 +62,7 @@ type goBlock struct {
 	ManifestSHA256     map[string]string          `json:"manifest_sha256"`
 	Costs              map[string]float64         `json:"costs"`
 	DefaultConcurrency int                        `json:"default_concurrency"`
+	Requires           []string                   `json:"requires"`
 }
 
 type rawPayload struct {
@@ -97,6 +98,7 @@ type runPayload struct {
 	Manifests               map[string]manifest.Manifest
 	ManifestSHA256          map[string]string // the payload's claimed hashes
 	Costs                   map[string]float64
+	Requires                []string // capabilities the enqueuer needs from the worker (go.requires)
 }
 
 // parsePayload validates the payload against the v1 go contract. The manifest
@@ -120,7 +122,7 @@ func parsePayload(raw []byte) (*runPayload, error) {
 	p := &runPayload{
 		WorkspaceID: rp.WorkspaceID, WorkbookID: rp.WorkbookID,
 		FillMissing: rp.FillMissing, Force: rawTruthy(rp.Force),
-		Costs: rp.Go.Costs, ManifestSHA256: rp.Go.ManifestSHA256, Manifests: make(map[string]manifest.Manifest, len(rp.Go.Manifests)),
+		Requires: rp.Go.Requires, Costs: rp.Go.Costs, ManifestSHA256: rp.Go.ManifestSHA256, Manifests: make(map[string]manifest.Manifest, len(rp.Go.Manifests)),
 		Concurrency: rp.Go.DefaultConcurrency, RetryPasses: 1, ProviderTimeout: defaultProviderTimeout,
 	}
 	if p.Costs == nil {

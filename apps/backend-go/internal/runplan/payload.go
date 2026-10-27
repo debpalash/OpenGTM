@@ -176,6 +176,12 @@ func providerNames(cols []colgraph.Col) ([]string, error) {
 // costs, never credentials. cols are the selected columns; every provider of
 // their chains must be in idx.
 func GoBlock(cols []colgraph.Col, idx map[string]manifest.Entry, cost func(string) float64, defaultConcurrency int) ([]byte, error) {
+	return GoBlockRequiring(cols, idx, cost, defaultConcurrency, nil)
+}
+
+// GoBlockRequiring is GoBlock with the capabilities the run needs from its worker (Go-only key
+// "requires", omitted when empty so the block stays byte-equal to Python's).
+func GoBlockRequiring(cols []colgraph.Col, idx map[string]manifest.Entry, cost func(string) float64, defaultConcurrency int, requires []string) ([]byte, error) {
 	names, err := providerNames(cols)
 	if err != nil {
 		return nil, err
@@ -193,13 +199,17 @@ func GoBlock(cols []colgraph.Col, idx map[string]manifest.Entry, cost func(strin
 	if manifests == nil { // empty dicts, not null
 		manifests, shas, costs = ordered{}, ordered{}, ordered{}
 	}
-	return render(ordered{
+	doc := ordered{
 		{"version", int64(PayloadVersion)},
 		{"manifests", manifests},
 		{"manifest_sha256", shas},
 		{"costs", costs},
 		{"default_concurrency", int64(defaultConcurrency)},
-	})
+	}
+	if len(requires) > 0 {
+		doc = append(doc, kv{"requires", requires})
+	}
+	return render(doc)
 }
 
 // jobFields are the run_workbook job payload fields in Python's key order.

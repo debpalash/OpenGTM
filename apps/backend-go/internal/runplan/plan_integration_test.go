@@ -452,6 +452,16 @@ func TestExecutorGoOnlyInCohort(t *testing.T) {
 		if p := run(out, "mob"); p.Executor != "python" || p.Reason != "not_in_cohort" || bytes.Contains(p.Payload, []byte(`"go"`)) {
 			t.Fatalf("not in cohort: %s %s", p.Executor, p.Reason)
 		}
+		// review M4: a full run that needs provenance records it in the go block; the default
+		// run's block carries no "requires" key.
+		if bytes.Contains(p.Payload, []byte(`"requires"`)) {
+			t.Fatalf("default run must not record requirements: %s", p.Payload)
+		}
+		prov := base
+		prov.FullRun, prov.ProvenanceTracking = true, true
+		if p := run(prov, "mob"); p.Executor != "go" || !bytes.Contains(p.Payload, []byte(`"requires":["provenance"]`)) {
+			t.Fatalf("provenance requirement: %s %s", p.Executor, p.Payload)
+		}
 		if p := run(base, "mob", "cl"); p.Executor != "python" || p.Reason != "column_type" {
 			t.Fatalf("formula column: %s %s", p.Executor, p.Reason)
 		}
