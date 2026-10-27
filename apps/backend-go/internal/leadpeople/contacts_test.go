@@ -133,7 +133,7 @@ func TestContactsVectors(t *testing.T) {
 		t.Run(c.Name, func(t *testing.T) {
 			disc, ver := &fakeDisc{script: c.Discovery, calls: []discCall{}}, &fakeVerify{script: c.Verify, calls: []verifyCall{}}
 			clk := &stepClock{t: time.Unix(100, 0)}
-			s := &Service{Discover: disc, Verify: ver, Now: func() time.Time { return fixedNow }, Mono: clk.now, Concurrency: 1}
+			s := &Service{Discover: disc, Verify: ver, Spend: &fakeContactSpend{}, Now: func() time.Time { return fixedNow }, Mono: clk.now, Concurrency: 1}
 			got, err := s.EnrichPeopleContacts(context.Background(), c.Company, c.Function, asMaps(c.People), ContactOptions{
 				CompanyResolution: c.Resolution, PersonIDs: c.PersonIDs, WorkspaceID: c.WorkspaceID, ActionID: c.ActionID,
 				ProviderTimeout: time.Duration(c.ProviderTimeout * float64(time.Second)),
@@ -150,7 +150,7 @@ func TestContactsVectors(t *testing.T) {
 
 func TestContactsCallerCancel(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
-	s := &Service{Discover: cancelDisc{cancel}, Verify: &fakeVerify{}}
+	s := &Service{Discover: cancelDisc{cancel}, Verify: &fakeVerify{}, Spend: &fakeContactSpend{}}
 	_, err := s.EnrichPeopleContacts(ctx, "Stripe", "Sales", []map[string]any{{"name": "Jane Doe"}},
 		ContactOptions{CompanyResolution: map[string]any{"canonical_domain": "stripe.com"}, WorkspaceID: "w"})
 	if !errors.Is(err, context.Canceled) {
