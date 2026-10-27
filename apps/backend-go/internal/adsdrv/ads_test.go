@@ -534,3 +534,43 @@ func TestSecretsNeverInErrorsOrLogs(t *testing.T) {
 		}
 	}
 }
+
+// F16: a pre-hashed phone under either key survives a remove, and no snapshot reaches the row builder raw.
+func TestRemoveKeepsPrehashedMobilePhone(t *testing.T) {
+	h := "b5fc85e55755f9e0d030a10ab4429b6b2944855f9a0d60077fe832becbc41d72"
+	rows := batchRows("remove", []map[string]any{{"mobile_phone": h}, {"phone": "", "mobile_phone": strings.ToUpper(h)}})
+	want := []map[string]string{{"phone": h}, {"phone": h}}
+	if !reflect.DeepEqual(rows, want) {
+		t.Errorf("rows %v want %v", rows, want)
+	}
+}
+
+// S-L26: the row carries only hashes.
+func TestIdentifierRowHoldsOnlyHashes(t *testing.T) {
+	row := IdentifierRow("add", map[string]any{"email": "Raw@Example.com", "phone": "+1 415 555 0100", "company": "x"})
+	for k, v := range row {
+		if !hex64.MatchString(v) || (k != "email" && k != "phone") {
+			t.Errorf("row %s=%q", k, v)
+		}
+	}
+	if len(row) != 2 {
+		t.Errorf("row %v", row)
+	}
+}
+
+func TestLinkedInStatusOnlyIntegerCreatedIsSuccess(t *testing.T) {
+	for _, tc := range []struct {
+		raw string
+		ok  bool
+	}{{"201", true}, {"201.0", false}, {"2.01e2", false}, {"true", false}, {"200", false}} {
+		var v any
+		dec := json.NewDecoder(strings.NewReader(`{"elements":[{"status":` + tc.raw + `}]}`))
+		dec.UseNumber()
+		if err := dec.Decode(&v); err != nil {
+			t.Fatal(err)
+		}
+		if _, failed := linkedinBatchFailure(v, 1); failed == tc.ok {
+			t.Errorf("status %s: failed=%v", tc.raw, failed)
+		}
+	}
+}

@@ -583,7 +583,7 @@
         ]
       },
       "expected": 1,
-      "result": null
+      "result": "LinkedIn rejected batch elements (count=1, statuses=unknown)"
     },
     {
       "body": {

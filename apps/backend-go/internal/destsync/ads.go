@@ -30,9 +30,9 @@ func (e *Engine) flushAds(ctx context.Context, rs *runState, op string, cands []
 		return true, err
 	}
 	ids := make([]int32, len(cands))
-	snaps := make([]map[string]any, len(cands))
+	rows := make([]map[string]string, len(cands))
 	for i, c := range cands {
-		ids[i], snaps[i] = c.id, c.snapshot
+		ids[i], rows[i] = c.id, c.row
 	}
 	var cancelled bool
 	e.tick(rs)
@@ -49,7 +49,7 @@ func (e *Engine) flushAds(ctx context.Context, rs *runState, op string, cands []
 	}
 	rs.st.attempted += len(cands)
 
-	res := e.callAds(ctx, rs, op, snaps)
+	res := e.callAds(ctx, rs, op, rows)
 
 	// Detached from the job context: a finished platform call is always recorded.
 	sctx, cancel := settleContext(ctx)
@@ -85,13 +85,13 @@ func settleParams(ws string, ids []int32, ok bool, summary, errText, external st
 
 // callAds makes the platform request. A returned error (Python raised) is the failed result
 // with its text redacted and cut to 500 characters; a panic gets a fixed text.
-func (e *Engine) callAds(ctx context.Context, rs *runState, op string, snaps []map[string]any) (res adsdrv.Result) {
+func (e *Engine) callAds(ctx context.Context, rs *runState, op string, rows []map[string]string) (res adsdrv.Result) {
 	defer func() {
 		if r := recover(); r != nil {
 			res = adsdrv.Result{Error: "ad batch failed unexpectedly"}
 		}
 	}()
-	r, err := e.d.Ads.SyncBatch(ctx, rs.ws, rs.dest.Type, rs.cfg, snaps, op)
+	r, err := e.d.Ads.SyncRows(ctx, rs.ws, rs.dest.Type, rs.cfg, rows, op)
 	if err != nil {
 		return adsdrv.Result{Error: truncRunes(cleanError(err.Error()), adErrorChars)}
 	}
@@ -141,7 +141,7 @@ func (e *Engine) reconcileExits(ctx context.Context, rs *runState) (stop bool, e
 				rs.st.skipped++
 				continue
 			}
-			batch = append(batch, adCand{id: id, snapshot: prior})
+			batch = append(batch, adCand{id: id, row: adsdrv.IdentifierRow("remove", prior)})
 			if len(batch) >= e.d.AdBatchSize {
 				if stop, err := e.flushAds(ctx, rs, "remove", batch); err != nil || stop {
 					return true, err

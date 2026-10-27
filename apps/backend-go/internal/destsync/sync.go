@@ -51,9 +51,10 @@ type Deliverer interface {
 	Deliver(ctx context.Context, dest destdeliver.Destination, leadID int, snapshot map[string]any, idem string) destdeliver.Result
 }
 
-// AdSyncer uploads one bounded ad-platform batch (adsdrv.SyncBatch).
+// AdSyncer uploads one bounded ad-platform batch (adsdrv.SyncRows). Rows hold only hashed
+// identifiers (adsdrv.IdentifierRow): the raw member snapshot is never kept for a batch.
 type AdSyncer interface {
-	SyncBatch(ctx context.Context, wsID, destType string, cfg map[string]any, snapshots []map[string]any, op string) (adsdrv.Result, error)
+	SyncRows(ctx context.Context, wsID, destType string, cfg map[string]any, rows []map[string]string, op string) (adsdrv.Result, error)
 }
 
 // WarehouseSyncer posts the buffered export (warehouse.Sync).
@@ -66,8 +67,8 @@ type adSyncer struct{ c adsdrv.Client }
 // NewAdSyncer adapts an adsdrv.Client.
 func NewAdSyncer(c adsdrv.Client) AdSyncer { return adSyncer{c} }
 
-func (a adSyncer) SyncBatch(ctx context.Context, wsID, destType string, cfg map[string]any, snaps []map[string]any, op string) (adsdrv.Result, error) {
-	return adsdrv.SyncBatch(ctx, a.c, wsID, destType, cfg, snaps, op)
+func (a adSyncer) SyncRows(ctx context.Context, wsID, destType string, cfg map[string]any, rows []map[string]string, op string) (adsdrv.Result, error) {
+	return adsdrv.SyncRows(ctx, a.c, wsID, destType, cfg, rows, op)
 }
 
 type whSyncer struct {
@@ -387,9 +388,10 @@ func (e *Engine) stream(ctx context.Context, rs *runState, buf *warehouse.Buffer
 	return e.finish(ctx, rs, memberCount)
 }
 
+// adCand is one queued ad delivery: its row id and the hashed identifier row (S-L26).
 type adCand struct {
-	id       int32
-	snapshot map[string]any
+	id  int32
+	row map[string]string
 }
 
 // oneMember is one pass of Python's member loop body. It returns an ad candidate to add to the
@@ -456,7 +458,7 @@ func (e *Engine) oneMember(ctx context.Context, rs *runState, m member, buf *war
 	}
 	switch {
 	case rs.ads:
-		return &adCand{id: int32(del.ID), snapshot: snapshot}, false, nil
+		return &adCand{id: int32(del.ID), row: adsdrv.IdentifierRow("add", snapshot)}, false, nil
 	case rs.wh:
 		if err := buf.Append(int(m.leadID), mapped); err != nil {
 			return nil, true, fmt.Errorf("destsync: warehouse buffer: %w", err)

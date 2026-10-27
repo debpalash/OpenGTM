@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math/big"
 	"sort"
-	"strconv"
 	"strings"
 )
 
@@ -77,17 +76,15 @@ func pyInt(v any) (*big.Int, bool) {
 	return nil, false
 }
 
-// statusIs201 is item.get("status") == 201 (201.0 equals 201 in Python).
+// statusIs201 reports success only for the integer 201: a float spelling (201.0) or a boolean
+// is a rejection (Python's == let 201.0 through; the batch cannot be trusted to mean success).
 func statusIs201(v any) bool {
 	n, ok := v.(json.Number)
-	if !ok {
+	if !ok || strings.ContainsAny(string(n), ".eE") {
 		return false
 	}
-	if i, isInt := pyInt(n); isInt {
-		return i.Cmp(big.NewInt(201)) == 0
-	}
-	f, err := strconv.ParseFloat(string(n), 64)
-	return err == nil && f == 201
+	i, isInt := pyInt(n)
+	return isInt && i.Cmp(big.NewInt(201)) == 0
 }
 
 // linkedinBatchFailure validates every batch element without retaining LinkedIn's messages.

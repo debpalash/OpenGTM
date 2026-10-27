@@ -171,21 +171,31 @@ func seg(s string) string { return url.PathEscape(s) }
 
 var hex64 = regexp.MustCompile(`^[0-9a-f]{64}$`)
 
-// batchRows builds the per-lead identifier rows. remove accepts the already-hashed values the
-// matching add persisted, unchanged (lower-cased) rather than hashing them again.
+// IdentifierRow builds the hashed identifier row of one snapshot. remove accepts the
+// already-hashed values the matching add persisted, unchanged (lower-cased), under both phone
+// keys, rather than hashing them again (a pre-hashed value would otherwise become a bogus hash).
+// The row holds only {email, phone} SHA-256 hex; callers keep it instead of the raw snapshot.
+func IdentifierRow(op string, s map[string]any) map[string]string {
+	row := HashedIdentifiers(s)
+	if op == "remove" {
+		if v := strings.ToLower(strings.TrimSpace(orEmptyStr(s["email"]))); hex64.MatchString(v) {
+			row["email"] = v
+		}
+		for _, k := range []string{"phone", "mobile_phone"} {
+			if v := strings.ToLower(strings.TrimSpace(orEmptyStr(s[k]))); hex64.MatchString(v) {
+				row["phone"] = v
+				break
+			}
+		}
+	}
+	return row
+}
+
+// batchRows builds the per-lead identifier rows, dropping leads with no usable identifier.
 func batchRows(op string, snapshots []map[string]any) []map[string]string {
 	var rows []map[string]string
 	for _, s := range snapshots {
-		row := HashedIdentifiers(s)
-		if op == "remove" {
-			for _, k := range []string{"email", "phone"} {
-				v := strings.ToLower(strings.TrimSpace(orEmptyStr(s[k])))
-				if hex64.MatchString(v) {
-					row[k] = v
-				}
-			}
-		}
-		if len(row) > 0 {
+		if row := IdentifierRow(op, s); len(row) > 0 {
 			rows = append(rows, row)
 		}
 	}
@@ -199,7 +209,21 @@ func SyncBatch(ctx context.Context, c Client, wsID, destType string, cfg map[str
 	if op != "add" && op != "remove" {
 		return Result{}, errors.New("ad sync operation must be add or remove")
 	}
-	rows := batchRows(op, snapshots)
+	return SyncRows(ctx, c, wsID, destType, cfg, batchRows(op, snapshots), op)
+}
+
+// SyncRows is SyncBatch over rows already reduced by IdentifierRow (the batch loader keeps only
+// hashed identifiers in memory); rows without an identifier are dropped.
+func SyncRows(ctx context.Context, c Client, wsID, destType string, cfg map[string]any, all []map[string]string, op string) (Result, error) {
+	if op != "add" && op != "remove" {
+		return Result{}, errors.New("ad sync operation must be add or remove")
+	}
+	var rows []map[string]string
+	for _, r := range all {
+		if len(r) > 0 {
+			rows = append(rows, r)
+		}
+	}
 	if len(rows) == 0 {
 		return Result{Error: "no valid email or phone identifiers"}, nil
 	}

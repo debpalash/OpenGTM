@@ -137,9 +137,17 @@ func (f *fakePorts) Deliver(ctx context.Context, dest destdeliver.Destination, l
 	return destdeliver.Result{Success: bool(e.Success), Summary: e.Summary, Error: e.Error, ExternalID: e.ExternalID}
 }
 
-func (f *fakePorts) SyncBatch(ctx context.Context, ws, destType string, cfg map[string]any, snaps []map[string]any, op string) (adsdrv.Result, error) {
+func (f *fakePorts) SyncRows(ctx context.Context, ws, destType string, cfg map[string]any, rows []map[string]string, op string) (adsdrv.Result, error) {
 	if f.before != nil {
 		f.before("ad")
+	}
+	// S-L26: the batch carries hashed identifier rows only; "snapshots" keeps the recorded key.
+	snaps := make([]map[string]any, len(rows))
+	for i, r := range rows {
+		snaps[i] = map[string]any{}
+		for k, v := range r {
+			snaps[i][k] = v
+		}
 	}
 	i := f.record(map[string]any{"kind": "ad_batch", "workspace_id": ws, "type": destType, "config": cfg, "operation": op, "snapshots": snaps})
 	e := f.pop("ad")
@@ -700,6 +708,7 @@ func TestSyncMatchesPythonTranscripts(t *testing.T) {
 				t.Fatalf("%d external calls, want %d:\n got  %s\n want %s", len(h.fake.calls), len(out.Calls), jstr(h.fake.calls), jstr(out.Calls))
 			}
 			for i := range out.Calls {
+				hashAdCall(out.Calls[i]) // the Python vectors recorded raw snapshots; Go batches hold hashes only
 				if !reflect.DeepEqual(roundTrip(h.fake.calls[i]), roundTrip(out.Calls[i])) {
 					t.Errorf("call %d:\n got  %s\n want %s", i, jstr(h.fake.calls[i]), jstr(out.Calls[i]))
 				}
@@ -1009,6 +1018,14 @@ func TestAdUnsupportedIdentifiersSkipped(t *testing.T) {
 	}
 	if n := len(h.fake.calls[0]["snapshots"].([]any)); n != 1 {
 		t.Fatalf("batch carried %d snapshots, want only the supported member", n)
+	}
+	// S-L26: the batch builder receives hashed identifier rows only, never a raw email or phone.
+	for _, row := range h.fake.calls[0]["snapshots"].([]any) {
+		for k, v := range row.(map[string]any) {
+			if (k != "email" && k != "phone") || len(v.(string)) != 64 || strings.ContainsAny(v.(string), "@+ ") {
+				t.Errorf("batch row %s=%v is not a hash", k, v)
+			}
+		}
 	}
 }
 
@@ -1569,4 +1586,24 @@ func TestLateSettleDoesNotOverwriteReconciledRow(t *testing.T) {
 	if r := h.run(wsVec, "run-1"); r.Succeeded != 0 {
 		t.Fatalf("late result counted: %+v", *r)
 	}
+}
+
+// hashAdCall rewrites a recorded Python ad_batch call's raw snapshots to the hashed identifier rows
+// Go hands the platform client (S-L26).
+func hashAdCall(c map[string]any) {
+	if c["kind"] != "ad_batch" {
+		return
+	}
+	op, _ := c["operation"].(string)
+	raw, _ := c["snapshots"].([]any)
+	rows := make([]any, 0, len(raw))
+	for _, r := range raw {
+		m, _ := r.(map[string]any)
+		row := map[string]any{}
+		for k, v := range adsdrv.IdentifierRow(op, m) {
+			row[k] = v
+		}
+		rows = append(rows, row)
+	}
+	c["snapshots"] = rows
 }
