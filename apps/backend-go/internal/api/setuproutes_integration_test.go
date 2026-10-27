@@ -393,3 +393,39 @@ func TestResolveSetupToken(t *testing.T) {
 		t.Fatalf("after setup: token=%q log=%q", got, buf.String())
 	}
 }
+
+// R-marker (final review L1): on a migrated install (users, no setup_complete marker) the API
+// start writes the marker, so setup stays closed even if the users table is emptied later.
+func TestCloseSetupOnMigratedInstall(t *testing.T) {
+	e := newSetupEnv(t, "", nil)
+	ctx := context.Background()
+	// Greenfield: no user, no marker written.
+	if err := CloseSetupIfUsersExist(ctx, e.pool); err != nil {
+		t.Fatal(err)
+	}
+	if n := count(t, e.pool, `SELECT count(*) FROM app_settings WHERE key='setup_complete'`); n != 0 {
+		t.Fatal("marker written with no users")
+	}
+	u, err := e.st.Insert(ctx, identity.NewUser{Username: "legacy", HashedPassword: "x", IsActive: true, Role: "admin", IsAdmin: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := CloseSetupIfUsersExist(ctx, e.pool); err != nil {
+		t.Fatal(err)
+	}
+	if err := CloseSetupIfUsersExist(ctx, e.pool); err != nil { // idempotent
+		t.Fatal(err)
+	}
+	if n := count(t, e.pool, `SELECT count(*) FROM app_settings WHERE key='setup_complete'`); n != 1 {
+		t.Fatalf("marker rows %d", n)
+	}
+	if err := e.st.Delete(ctx, u.ID); err != nil {
+		t.Fatal(err)
+	}
+	if req, _, _ := e.status(t); req {
+		t.Fatal("setup re-opened after the users table was emptied")
+	}
+	if rec := e.post(setupBody("boss", goodPW, "")); rec.Code != 409 {
+		t.Fatalf("setup: %d", rec.Code)
+	}
+}
