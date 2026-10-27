@@ -97,6 +97,24 @@ func TestBulkUpdateRequestValidationMatchesFixtures(t *testing.T) {
 		if len(errs) == 0 {
 			_, errs = ParseBulkUpdate(doc)
 		}
+		if name == "bulk_1001_updates" {
+			// F6: Python echoed all 1001 updates as input; Go answers "<omitted>", rest unchanged.
+			if len(errs) != 1 || errs[0].Input != "<omitted>" {
+				t.Fatalf("%+v", errs)
+			}
+			errs[0].Input = nil
+			fx := contract.Load(t, "rows/"+name)
+			var want struct {
+				Detail []httpx.FieldError `json:"detail"`
+			}
+			if err := json.Unmarshal(fx.Response.Body, &want); err != nil {
+				t.Fatal(err)
+			}
+			want.Detail[0].Input = nil
+			contract.AssertEqual(t, contract.Resp{Status: 422, Headers: fx.Response.Headers, Body: detailOf(errs)},
+				contract.Resp{Status: 422, Headers: fx.Response.Headers, Body: detailOf(want.Detail)})
+			continue
+		}
 		assertValidation(t, name, errs)
 	}
 	// bulk_bad_items also carries a recompute query error, so only the body part is compared.

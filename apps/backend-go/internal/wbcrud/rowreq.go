@@ -283,7 +283,7 @@ func ParseBulkUpdate(doc any) (BulkUpdateRequest, []httpx.FieldError) {
 		return BulkUpdateRequest{}, fe("list_type", "Input should be a valid list", []any{"body", "updates"}, uv)
 	}
 	if len(list) > MaxBulkUpdates {
-		return BulkUpdateRequest{}, []httpx.FieldError{{Type: "too_long", Loc: []any{"body", "updates"}, Input: list,
+		return BulkUpdateRequest{}, []httpx.FieldError{{Type: "too_long", Loc: []any{"body", "updates"}, Input: "<omitted>",
 			Msg: fmt.Sprintf("List should have at most %d items after validation, not %d", MaxBulkUpdates, len(list)),
 			Ctx: map[string]any{"field_type": "List", "max_length": MaxBulkUpdates, "actual_length": len(list)}}}
 	}

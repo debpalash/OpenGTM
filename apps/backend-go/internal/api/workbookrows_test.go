@@ -230,6 +230,16 @@ func (e rowsEnv) replay(t *testing.T, area, name string, users map[string]map[st
 		body = o
 	}
 	_, got := e.do(fx.Request.Method, fx.Request.Path, "application/json", body, users[whoIs(name)])
+	if name == "bulk_1001_updates" {
+		// F6: the recorded Python body echoes all 1001 updates; Go answers "<omitted>".
+		t.Run(name, func(t *testing.T) {
+			b := string(got.Body)
+			if got.Status != 422 || !strings.Contains(b, `"too_long"`) || !strings.Contains(b, `"input":"<omitted>"`) || len(b) > 1000 {
+				t.Fatalf("%d %.300s", got.Status, b)
+			}
+		})
+		return
+	}
 	t.Run(name, func(t *testing.T) { contract.AssertEqual(t, got, fx.Response, opts...) })
 }
 

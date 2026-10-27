@@ -249,7 +249,7 @@ func validateImport(o *Obj) (ImportRequest, []httpx.FieldError) {
 				e[0].Loc = []any{"body", "rows"}
 				errs = append(errs, e...)
 			case len(list) > MaxImportRows:
-				errs = append(errs, httpx.FieldError{Type: "too_long", Loc: []any{"body", "rows"}, Input: list,
+				errs = append(errs, httpx.FieldError{Type: "too_long", Loc: []any{"body", "rows"}, Input: "<omitted>",
 					Msg: fmt.Sprintf("List should have at most %d items after validation, not %d", MaxImportRows, len(list)),
 					Ctx: map[string]any{"field_type": "List", "max_length": MaxImportRows, "actual_length": len(list)}})
 			}

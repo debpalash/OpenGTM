@@ -89,7 +89,7 @@ func TestImport50001Rows422(t *testing.T) {
 	}
 	e := errs[0]
 	if e.Type != "too_long" || e.Msg != "List should have at most 50000 items after validation, not 50001" ||
-		e.Ctx["max_length"] != 50000 || e.Ctx["actual_length"] != 50001 || e.Ctx["field_type"] != "List" {
+		e.Input != "<omitted>" || e.Ctx["max_length"] != 50000 || e.Ctx["actual_length"] != 50001 || e.Ctx["field_type"] != "List" {
 		t.Errorf("wrong error: %+v", e)
 	}
 	// exactly 50000 is accepted
