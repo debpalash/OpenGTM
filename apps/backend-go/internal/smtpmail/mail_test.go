@@ -187,8 +187,12 @@ func parseMsg(t *testing.T, raw []byte) parsed {
 	return p
 }
 
+var encodedGap = regexp.MustCompile(`\?=\s+=\?`)
+
 func decodeHdr(t *testing.T, v string) string {
 	t.Helper()
+	// RFC 2047 5: whitespace between adjacent encoded words is not part of the text
+	v = encodedGap.ReplaceAllString(v, "?==?")
 	d, err := new(mime.WordDecoder).DecodeHeader(v)
 	if err != nil {
 		t.Fatalf("decode %q: %v", v, err)
@@ -371,5 +375,21 @@ func TestComposeLongListUnsubscribeUnencoded(t *testing.T) {
 	}
 	if got := p.hdr.Get("List-Unsubscribe-Post"); got != "List-Unsubscribe=One-Click" {
 		t.Fatalf("post: %q", got)
+	}
+}
+
+// F28: a long ASCII subject without spaces is split into RFC 2047 words; no line passes 998 octets.
+func TestComposeLongSpacelessSubjectFolds(t *testing.T) {
+	long := strings.Repeat("A", 1500)
+	raw, _ := Compose(Message{FromEmail: "a@b.com", To: "t@example.com", Subject: "Re: " + long, HTML: "x", Text: "x"})
+	head, _, _ := strings.Cut(string(raw), "\r\n\r\n")
+	for _, l := range strings.Split(head, "\r\n") {
+		if len(l) > 998 {
+			t.Fatalf("line of %d octets: %.60q", len(l), l)
+		}
+	}
+	got := decodeHdr(t, parseMsg(t, raw).hdr.Get("Subject"))
+	if want := "Re: " + long[:994]; got != want { // SanitizeHeader caps the subject at 998
+		t.Fatalf("decoded subject differs: %.60q (%d)", got, len(got))
 	}
 }

@@ -3,6 +3,7 @@ package smtpmail
 import (
 	"bytes"
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/binary"
 	"fmt"
 	"mime"
@@ -52,7 +53,7 @@ func Compose(m Message) (raw []byte, messageID string) {
 	hdr("MIME-Version", "1.0")
 	hdr("From", fromHeader(name, SanitizeHeader(m.FromEmail, 998)))
 	hdr("To", SanitizeHeader(m.To, 998))
-	hdr("Subject", encodeValue(SanitizeHeader(m.Subject, 998)))
+	hdr("Subject", encodeSubject(SanitizeHeader(m.Subject, 998)))
 	keys := make([]string, 0, len(m.Headers))
 	for k := range m.Headers {
 		keys = append(keys, k)
@@ -108,6 +109,33 @@ func encodeValue(v string) string {
 		return v
 	}
 	return mime.QEncoding.Encode("utf-8", v)
+}
+
+// longTokenMax is the longest unbroken ASCII run left in a Subject. A longer run has no folding point, so the line
+// would pass the 998-octet limit of RFC 5322; it is split into RFC 2047 encoded words instead.
+const longTokenMax = 76
+
+// encodeSubject is encodeValue for the Subject: non-ASCII subjects are Q-encoded as before; in an ASCII subject
+// every run of more than longTokenMax characters without a space becomes a series of B-encoded words (45 source
+// bytes each, 72 characters), which decode back to the same text.
+func encodeSubject(v string) string {
+	if !isASCII(v) {
+		return encodeValue(v)
+	}
+	words := strings.Split(v, " ")
+	for i, w := range words {
+		if len(w) <= longTokenMax {
+			continue
+		}
+		var parts []string
+		for len(w) > 0 {
+			n := min(45, len(w))
+			parts = append(parts, "=?utf-8?b?"+base64.StdEncoding.EncodeToString([]byte(w[:n]))+"?=")
+			w = w[n:]
+		}
+		words[i] = strings.Join(parts, " ")
+	}
+	return strings.Join(words, " ")
 }
 
 func fromHeader(name, email string) string {
