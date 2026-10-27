@@ -141,7 +141,10 @@ func newHarness(t *testing.T, h http.HandlerFunc) *harness {
 	}
 	client := newWebhookClient("production", nil, hh.res, dial)
 	client.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //nolint:gosec // test server cert
-	hh.deps = WebhookDeps{Client: client, AppEnv: "production", Secrets: hh.sec, Timeout: 5 * time.Second}
+	hh.deps = WebhookDeps{Client: client, AppEnv: "production", Secrets: hh.sec, Timeout: 5 * time.Second,
+		// The Python-recorded fixtures use bare refs (HOOK, HOOK_SECRET, NO_SUCH, EMPTY_SECRET);
+		// the outbound namespace policy has its own tests (webhookpolicy_test.go).
+		Outbound: secrets.OutboundPolicy{Prefixes: []string{"HOOK", "NO_SUCH", "EMPTY_"}}}
 	return hh
 }
 
@@ -238,7 +241,9 @@ func trColumns(in []map[string]any) []Column {
 
 // transcript deviations from Python (documented in testdata/contract/README.md).
 var transcriptDeviation = map[string]bool{
-	"allowlist_subdomain_ok": true, // bare allowlist entry is exact-host only (TestAllowlistEnforced)
+	// S-L1: the Go sender refuses a templated authority (Python resolved it, then blocked the IP).
+	"blocked_templated_to_loopback": true,
+	"allowlist_subdomain_ok":        true, // bare allowlist entry is exact-host only (TestAllowlistEnforced)
 }
 
 func TestWebhookTranscripts(t *testing.T) {
@@ -417,7 +422,10 @@ type vec struct {
 // vectorDeviation: vectors whose Python outcome the Go sender deliberately
 // changes (README D4 webhook hardening). Each is asserted separately below.
 var vectorDeviation = map[string]bool{
-	"url_cgnat": true, "url_localhost_subdomain": true, "url_loopback_short": true,
+	// S-L1: a templated scheme/host fails closed before resolution (see TestTemplatedURLHostLiteral).
+	"templated_url_resolves_to_loopback_blocked": true,
+	"templated_scheme_blocked":                   true,
+	"url_cgnat":                                  true, "url_localhost_subdomain": true, "url_loopback_short": true,
 	"allowlist_hit_subdomain": true,                                // bare entry is exact-host only
 	"status_304":              true, "status_199_is_failure": true, // net/http servers cannot emit a 304 body or a 1xx final status
 	"secret_does_not_override_explicit_header":          true, // setdefault is case-insensitive
@@ -626,12 +634,13 @@ func TestCGNATBlockedAtDialForResolvedHost(t *testing.T) {
 	}
 }
 
+// S-L1: row data can no longer choose the host, so a loopback value never reaches the dialer.
 func TestTemplatedURLResolvingToLoopbackBlocked(t *testing.T) {
 	for _, val := range []string{"127.0.0.1", "127.1", "a.localhost", "100.64.0.9", "localhost", "169.254.169.254"} {
 		h := newHarness(t, nil)
 		lead := map[string]any{"company": "x", "email": val}
 		got := Webhook(context.Background(), h.deps, "ws-1", map[string]any{"url": "http://{email}/x"}, lead, testCols)
-		if got.Status != "failed" || got.SkipReason != "blocked_url" || h.hits.Load() != 0 || len(h.dials) != 0 {
+		if got.Status != "failed" || h.hits.Load() != 0 || len(h.dials) != 0 {
 			t.Errorf("%s -> %+v", val, got)
 		}
 	}

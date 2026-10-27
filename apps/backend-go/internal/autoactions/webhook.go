@@ -28,6 +28,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rowtmpl"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 )
 
 // Result is one action outcome: Status is success|failed|skipped.
@@ -61,17 +62,24 @@ type WebhookDeps struct {
 	AllowHosts []string // egress test/bench allowlist (never effective in production)
 	Allowlist  []string // webhook domain allowlist: exact host or ".suffix"
 	Secrets    SecretGetter
-	Timeout    time.Duration // 0 = DefaultWebhookTimeout
-	Log        *slog.Logger  // optional; never receives URLs with queries, headers or secrets
+	Outbound   secrets.OutboundPolicy // which refs header_secret_ref may name (zero value: default prefixes, no registry deny-list)
+	Timeout    time.Duration          // 0 = DefaultWebhookTimeout
+	Log        *slog.Logger           // optional; never receives URLs with queries, headers or secrets
 }
 
 // NewWebhookDeps builds the production deps: the dial-time guarded client with
 // the webhook hardening, the configured domain allowlist and the secret resolver.
 func NewWebhookDeps(appEnv string, egressAllow []string, a config.AutomationsSettings, sec SecretGetter, log *slog.Logger) WebhookDeps {
 	d := &net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}
+	// A registry that cannot load denies every registered-looking name: fail closed.
+	registered := func(string) bool { return true }
+	if reg, err := settings.Load(); err == nil {
+		registered = reg.SecretSet()
+	}
 	return WebhookDeps{
-		Client: newWebhookClient(appEnv, egressAllow, net.DefaultResolver, d.DialContext),
-		AppEnv: appEnv, AllowHosts: egressAllow, Allowlist: a.WebhookDomainAllowlist,
+		Outbound: secrets.OutboundPolicy{Prefixes: config.OutboundSecretRefPrefixes(os.Getenv), Registered: registered},
+		Client:   newWebhookClient(appEnv, egressAllow, net.DefaultResolver, d.DialContext),
+		AppEnv:   appEnv, AllowHosts: egressAllow, Allowlist: a.WebhookDomainAllowlist,
 		Secrets: sec, Log: log,
 	}
 }
@@ -310,7 +318,14 @@ func Webhook(ctx context.Context, d WebhookDeps, ws string, cfg map[string]any, 
 	if rawURL == "" {
 		return failed("webhook url not configured")
 	}
-	resolved, err := rowtmpl.Resolve(rawURL, leadData, cols)
+	// Policy first, before anything is resolved or dialled: a stored rule that names a
+	// credential outside the outbound namespace must send nothing (fail closed).
+	if ref, _ := cfg["header_secret_ref"].(string); ref != "" {
+		if err := secrets.CheckOutboundRef(ref, d.Outbound); err != nil {
+			return failed(secrets.OutboundRefMessage)
+		}
+	}
+	resolved, err := resolveWebhookURL(rawURL, leadData, cols)
 	if err != nil {
 		return failed(err.Error())
 	}
@@ -525,3 +540,40 @@ func sanitizeErr(err error, u *url.URL, redact []string, parent context.Context)
 }
 
 func sprintf(format string, a ...any) string { return fmt.Sprintf(format, a...) }
+
+// resolveWebhookURL templates the URL from the row without letting row data pick the
+// destination: scheme and authority must be literal, and every substituted value in the
+// path, query or fragment is percent-encoded. The resolved host must equal the literal one.
+func resolveWebhookURL(raw string, leadData map[string]any, cols []Column) (string, error) {
+	if !strings.Contains(raw, "{") {
+		return rowtmpl.Resolve(raw, leadData, cols)
+	}
+	head, tail := raw, ""
+	if i := strings.Index(raw, "://"); i >= 0 {
+		if j := strings.IndexAny(raw[i+3:], "/?#"); j >= 0 {
+			head, tail = raw[:i+3+j], raw[i+3+j:]
+		}
+	}
+	if strings.Contains(head, "{") || !strings.Contains(head, "://") {
+		return "", errors.New("webhook url scheme and host must be literal")
+	}
+	enc := make(map[string]any, len(leadData))
+	for k, v := range leadData {
+		if s, ok := v.(string); ok {
+			enc[k] = strings.ReplaceAll(url.QueryEscape(s), "+", "%20")
+		} else {
+			enc[k] = v
+		}
+	}
+	rt, err := rowtmpl.Resolve(tail, enc, cols)
+	if err != nil {
+		return "", err
+	}
+	out := head + rt
+	a, err1 := url.Parse(head)
+	b, err2 := url.Parse(strings.NewReplacer("\t", "", "\r", "", "\n", "").Replace(out))
+	if err1 != nil || err2 != nil || !strings.EqualFold(a.Host, b.Host) {
+		return "", errors.New("webhook url host changed by template")
+	}
+	return out, nil
+}
