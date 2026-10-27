@@ -276,7 +276,7 @@ func (h *runRoutes) config(ctx context.Context, ws string) runplan.Config {
 		DefaultConcurrency: ex.Concurrency,
 		GoExecutorEnabled:  ex.Enabled, GoCohort: ex.Cohort, ProvenanceTracking: ex.Provenance,
 		AutomationsEnabled: h.d.Flags.AutomationsEnabled, ExtraColumnTypes: ex.ExtraTypes, NativeProviders: ex.NativeProv,
-		FullRun:            ex.FullRun, Index: h.index.get(), Leads: wbcrud.PGLeads{}, NewRunID: runNewID,
+		FullRun: ex.FullRun, Index: h.index.get(), Leads: wbcrud.PGLeads{}, NewRunID: runNewID,
 	}
 }
 
