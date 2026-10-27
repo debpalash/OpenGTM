@@ -10,11 +10,15 @@ build/
 
 # ── Node ────────────────────────────────────
 node_modules/
-.turbo/
 apps/web/dist/
 
+# ── Build output / local run state (Makefile) ───────────────
+/bin/
+/.run/
+apps/backend-go/internal/webui/dist/
+
 # ── Lockfiles ───────────────────────────────
-# uv.lock and bun.lock ARE tracked (reproducible CI + Docker builds).
+# uv.lock and each app's bun.lock ARE tracked (reproducible CI + Docker builds).
 bun.lockb
 package-lock.json
 
@@ -82,7 +86,6 @@ apps/searxng-pool/searxng-pool
 # Rust build artifacts
 /crates/target/
 
-# Turborepo writes agent rules at the repo root
 /AGENTS.md
 
 # ── Legacy Python backend (kept on disk, untracked; see legacy/python) ──

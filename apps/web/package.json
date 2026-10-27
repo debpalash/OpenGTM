@@ -9,7 +9,13 @@
     "build": "tsc -b && vite build",
     "build:ui-preview": "tsc -b && vite build --config vite.ui-preview.config.ts",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "portless:domain": "portless proxy start --tld sh",
+    "portless:local": "portless proxy start --no-tls --port 1355 --tld sh",
+    "portless:lan": "portless proxy start --lan --no-tls --port 1355",
+    "portless:docker": "portless alias opengtm 3010 --force",
+    "portless:list": "portless list",
+    "portless:doctor": "portless doctor"
   },
   "portless": {
     "name": "opengtm",
@@ -60,6 +66,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
+    "portless": "^0.15.8",
     "typescript": "^7.0.2",
     "typescript-eslint": "^8.72.0",
     "vite": "^8.0.10"

@@ -4,6 +4,10 @@ import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import { twentyCss } from "./config/twenty-css"
 
+// Dev proxy target: nginx (docker compose, port 3000) so `make dev` routes like the deployed stack.
+// Point VITE_API_TARGET at a bare Go API (e.g. http://127.0.0.1:8000) to skip nginx.
+const apiTarget = process.env.VITE_API_TARGET || "http://127.0.0.1:3000"
+
 export default defineConfig({
   build: { manifest: true },
   plugins: [react(), tailwindcss()],
@@ -17,12 +21,12 @@ export default defineConfig({
     port: 4099,
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:8000",
+        target: apiTarget,
         changeOrigin: true,
         ws: true,
       },
       "/auth": {
-        target: "http://127.0.0.1:8000",
+        target: apiTarget,
         changeOrigin: true,
       },
     },
