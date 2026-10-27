@@ -57,6 +57,10 @@ var ssoHTTPClient = func(d Deps) *http.Client {
 // ssoNow is the callback clock (ID token exp/iat, cookie expiry).
 var ssoNow = time.Now
 
+// ssoRedirectBaseRequired refuses SSO when SSO_REDIRECT_BASE_URL is unset (R-redirect): the
+// callback URL and the cookie Secure flag are never derived from Host / X-Forwarded-Proto.
+const ssoRedirectBaseRequired = "SSO is not available: the server has no SSO_REDIRECT_BASE_URL configured"
+
 type ssoLogin struct {
 	d   Deps
 	hc  *http.Client
@@ -118,6 +122,9 @@ func (h *ssoLogin) ready(ctx context.Context, ws string) (govidp.OIDCConfig, str
 	if !cfg.Enabled {
 		return cfg, "", &govidp.ValueError{Msg: "Workspace SSO is not enabled"}
 	}
+	if h.redirectBase() == "" {
+		return cfg, "", &govidp.ValueError{Msg: ssoRedirectBaseRequired}
+	}
 	if _, err := govidp.ValidateIssuer(cfg.Issuer); err != nil {
 		return cfg, "", err
 	}
@@ -135,16 +142,8 @@ func (h *ssoLogin) ready(ctx context.Context, ws string) (govidp.OIDCConfig, str
 	return cfg, secret, nil
 }
 
-func (h *ssoLogin) redirectBase(r *http.Request) string {
-	if b := h.d.Flags.Governance.SSORedirectBaseURL; b != "" {
-		return b
-	}
-	scheme := "http"
-	if r.TLS != nil || strings.EqualFold(r.Header.Get("X-Forwarded-Proto"), "https") {
-		scheme = "https"
-	}
-	return scheme + "://" + r.Host
-}
+// redirectBase is SSO_REDIRECT_BASE_URL; "" refuses SSO (ready). There is no Host-header fallback.
+func (h *ssoLogin) redirectBase() string { return h.d.Flags.Governance.SSORedirectBaseURL }
 
 type ssoFlowCookie struct {
 	WS       string `json:"w"`
@@ -165,7 +164,7 @@ func (h *ssoLogin) mac(payload string) string {
 
 func (h *ssoLogin) setCookie(w http.ResponseWriter, r *http.Request, value string, maxAge int) {
 	http.SetCookie(w, &http.Cookie{Name: ssoCookieName, Value: value, Path: ssoCookiePath, MaxAge: maxAge,
-		HttpOnly: true, Secure: strings.HasPrefix(h.redirectBase(r), "https://"), SameSite: http.SameSiteLaxMode})
+		HttpOnly: true, Secure: !strings.HasPrefix(h.redirectBase(), "http://"), SameSite: http.SameSiteLaxMode})
 }
 
 func (h *ssoLogin) readCookie(r *http.Request) (ssoFlowCookie, bool) {
@@ -218,7 +217,7 @@ func (h *ssoLogin) login(w http.ResponseWriter, r *http.Request) {
 		httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
-	redirect := h.redirectBase(r) + "/auth/sso/" + url.PathEscape(ws.Slug) + "/callback"
+	redirect := h.redirectBase() + "/auth/sso/" + url.PathEscape(ws.Slug) + "/callback"
 	raw, _ := json.Marshal(ssoFlowCookie{WS: ws.ID, Slug: ws.Slug, Issuer: cfg.Issuer, Redirect: redirect,
 		State: flow.State, Nonce: flow.Nonce, Verifier: flow.Verifier, Exp: ssoNow().Add(ssoFlowTTL).Unix()})
 	payload := base64.RawURLEncoding.EncodeToString(raw)

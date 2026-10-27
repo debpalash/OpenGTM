@@ -160,6 +160,10 @@ func (h ssoRoutes) putSSO(w http.ResponseWriter, r *http.Request) {
 		httpx.ValidationError(w, errs...)
 		return
 	}
+	if in.Enabled && h.d.Flags.Governance.SSORedirectBaseURL == "" { // R-redirect: login would refuse
+		httpx.Detail(w, http.StatusUnprocessableEntity, ssoRedirectBaseRequired)
+		return
+	}
 	res := h.resolver()
 	if res == nil {
 		httpx.Detail(w, http.StatusServiceUnavailable, ssoSecretsOff)

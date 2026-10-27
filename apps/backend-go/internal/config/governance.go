@@ -20,7 +20,8 @@ type GovernanceSettings struct {
 	SSOAllowedIssuerHosts     string // SSO_ALLOWED_ISSUER_HOSTS (deprecated comma list, parsed by the OIDC code)
 	SSOAllowedIssuers         string // SSO_ALLOWED_ISSUERS (comma list of full issuer URLs, parsed by the OIDC code)
 	// SSORedirectBaseURL (SSO_REDIRECT_BASE_URL) is the public origin the /auth/sso callback URL is built on,
-	// e.g. https://app.example.com (no trailing slash). Empty: derived from the request (Host, X-Forwarded-Proto).
+	// e.g. https://app.example.com (no trailing slash). Required for SSO (R-redirect): empty refuses enabling
+	// SSO and every SSO login; it is never derived from the request (Host, X-Forwarded-Proto).
 	SSORedirectBaseURL string
 	// SSOEgressAllowHosts (SSO_EGRESS_ALLOW_HOSTS) is a comma list of IdP hosts ("host" or "host:port")
 	// the SSO OIDC client may reach although they resolve to a private address (self-hosted IdP).
