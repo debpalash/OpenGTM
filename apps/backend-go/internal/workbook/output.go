@@ -107,6 +107,11 @@ func crash(format string, a ...any) error {
 func (rs *runState) outputCell(ctx context.Context, lead map[string]any, col column, rowID, leadID int64) (cellOutcome, error) {
 	provider := outputProvider(col)
 	out, err := rs.executeOutputJournaled(ctx, lead, col, rowID, leadID)
+	var refused *outputRefusal
+	if errors.As(err, &refused) {
+		// Another delivery owns the cell: answer the code, write nothing (the owner's cell stays).
+		return cellOutcome{Err: refused.code}, nil
+	}
 	if err != nil {
 		return cellOutcome{}, err
 	}
@@ -204,7 +209,7 @@ func canonValue(v any) any {
 // cell run (no lease) sends directly, like Python's direct callers.
 func (rs *runState) executeOutputJournaled(ctx context.Context, lead map[string]any, col column, rowID, leadID int64) (outResult, error) {
 	if rs.claim == nil {
-		return rs.executeOutput(ctx, lead, col, leadID)
+		return rs.executeOutputSingle(ctx, lead, col, rowID, leadID)
 	}
 	key := outputCellKey(lead, col, leadID)
 	digest, err := contractHash(rs.outputContract(lead, col, leadID))
@@ -345,7 +350,7 @@ func (rs *runState) withJobPayload(ctx context.Context, fn func(attempts map[str
 		if err != nil {
 			return err
 		}
-		return q.SetRunWorkbookJobPayload(ctx, gen.SetRunWorkbookJobPayloadParams{Payload: b, ID: int32(c.ID)})
+		return q.SetRunWorkbookJobPayload(ctx, gen.SetRunWorkbookJobPayloadParams{Payload: b, ID: int32(c.ID), WorkspaceID: c.WorkspaceID})
 	})
 }
 

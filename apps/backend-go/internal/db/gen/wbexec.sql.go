@@ -11,6 +11,39 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const getOutputCellClaim = `-- name: GetOutputCellClaim :one
+SELECT status, COALESCE(cell_metadata::text, '')::text AS cell_metadata FROM workbook_enrichments
+WHERE workbook_id = $1::text AND workspace_id = $2::text
+  AND lead_id = $3::int AND column_id = $4::text
+ORDER BY id LIMIT 1
+FOR UPDATE
+`
+
+type GetOutputCellClaimParams struct {
+	WorkbookID  string
+	WorkspaceID string
+	LeadID      int32
+	ColumnID    string
+}
+
+type GetOutputCellClaimRow struct {
+	Status       pgtype.Text
+	CellMetadata string
+}
+
+// The overlay row an in-request output run claims (status running + cell_metadata.output_claim).
+func (q *Queries) GetOutputCellClaim(ctx context.Context, arg GetOutputCellClaimParams) (GetOutputCellClaimRow, error) {
+	row := q.db.QueryRow(ctx, getOutputCellClaim,
+		arg.WorkbookID,
+		arg.WorkspaceID,
+		arg.LeadID,
+		arg.ColumnID,
+	)
+	var i GetOutputCellClaimRow
+	err := row.Scan(&i.Status, &i.CellMetadata)
+	return i, err
+}
+
 const lockLeadFieldProvenance = `-- name: LockLeadFieldProvenance :one
 SELECT field_provenance FROM leads
 WHERE workspace_id = current_setting('app.workspace_id', true) AND id = $1::int
@@ -25,21 +58,43 @@ func (q *Queries) LockLeadFieldProvenance(ctx context.Context, id int32) (pgtype
 	return field_provenance, err
 }
 
+const processingRunWorkbookJobID = `-- name: ProcessingRunWorkbookJobID :one
+SELECT id FROM jobs
+WHERE type = 'run_workbook' AND workspace_id = $1::text AND status = 'processing'
+  AND CASE WHEN json_typeof(payload) = 'object' THEN payload ->> 'workbook_id' END = $2::text
+LIMIT 1
+`
+
+type ProcessingRunWorkbookJobIDParams struct {
+	WorkspaceID string
+	WorkbookID  string
+}
+
+// A run_workbook job of the workbook that a worker is processing right now (M2: a single-cell
+// output run is refused while it delivers the same cells under its own journal).
+func (q *Queries) ProcessingRunWorkbookJobID(ctx context.Context, arg ProcessingRunWorkbookJobIDParams) (int32, error) {
+	row := q.db.QueryRow(ctx, processingRunWorkbookJobID, arg.WorkspaceID, arg.WorkbookID)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
 const setRunWorkbookJobPayload = `-- name: SetRunWorkbookJobPayload :exec
 
 UPDATE jobs SET payload = $1::json
-WHERE id = $2::int AND type = 'run_workbook'
+WHERE id = $2::int AND type = 'run_workbook' AND workspace_id = $3::text
 `
 
 type SetRunWorkbookJobPayloadParams struct {
-	Payload []byte
-	ID      int32
+	Payload     []byte
+	ID          int32
+	WorkspaceID string
 }
 
 // Plan 15 WP-WBEXEC: run_workbook residual parity (output journal, provenance write-back).
 // output_attempts journal write (output_attempts.claim_output_attempt / record_output_result).
 // The caller has locked the row with LockOwnedRunWorkbookJob in the same transaction.
 func (q *Queries) SetRunWorkbookJobPayload(ctx context.Context, arg SetRunWorkbookJobPayloadParams) error {
-	_, err := q.db.Exec(ctx, setRunWorkbookJobPayload, arg.Payload, arg.ID)
+	_, err := q.db.Exec(ctx, setRunWorkbookJobPayload, arg.Payload, arg.ID, arg.WorkspaceID)
 	return err
 }

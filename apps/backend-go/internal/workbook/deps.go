@@ -154,6 +154,8 @@ type runState struct {
 	cols           []column         // every configured column (name aliases for {column} references)
 	legacy         bool             // no Deps.Runner: only the payload's manifests exist
 	allCols        []colgraph.Col
+	// forceOutput is the in-request run's force flag (re-sends a claim left without a receipt).
+	forceOutput bool
 	// outputExec replaces executeOutput (journal tests only).
 	outputExec   func(ctx context.Context, lead map[string]any, col column, leadID int64) (outResult, error)
 	cycleBlocked map[string]bool

@@ -223,6 +223,7 @@ func EnrichCell(ctx context.Context, deps Deps, req CellRequest) (CellResult, er
 	if rs.legacy {
 		rs.runner = manifestRunner{rs}
 	}
+	rs.forceOutput = req.Force
 	rs.cols = lc.columns
 	rs.allCols = make([]colgraph.Col, len(lc.columns))
 	for i, c := range lc.columns {
