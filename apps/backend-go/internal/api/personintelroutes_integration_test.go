@@ -392,8 +392,15 @@ func TestPersonHistoryPagingAndOrder(t *testing.T) {
 	if g := ids("?skip=1000"); len(g) != 0 {
 		t.Errorf("skip past end %v", g)
 	}
-	if g := ids("?limit=99999999999"); len(g) != 35 {
-		t.Errorf("huge limit %v", g)
+	// limit has an upper bound of 1000 (422 less_than_equal above it); 1000 itself is accepted
+	if rec := e.call("alice", "GET", "/api/person/history?limit=99999999999", ""); rec.Code != 422 || !strings.Contains(rec.Body.String(), `"type":"less_than_equal"`) {
+		t.Errorf("huge limit: %d %s", rec.Code, rec.Body.String())
+	}
+	if rec := e.call("alice", "GET", "/api/person/history?limit=1001", ""); rec.Code != 422 {
+		t.Errorf("limit 1001: %d", rec.Code)
+	}
+	if g := ids("?limit=1000"); len(g) != 35 {
+		t.Errorf("limit 1000 %v", g)
 	}
 	// Python hands a negative offset or limit to Postgres (500); Go answers 422 (deviation).
 	for _, q := range []string{"?skip=-1", "?limit=-1"} {

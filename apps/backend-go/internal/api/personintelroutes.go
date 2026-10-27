@@ -225,7 +225,7 @@ func (p *personRoutes) enrichFailed(w http.ResponseWriter, err error) {
 func (p *personRoutes) history(w http.ResponseWriter, r *http.Request) {
 	v := &queryValidator{q: r.URL.Query()}
 	skip := v.integer("skip", 0, i64(0), nil)
-	limit := v.integer("limit", 30, i64(0), nil)
+	limit := v.integer("limit", 30, i64(0), i64(1000))
 	if v.fail(w) {
 		return
 	}

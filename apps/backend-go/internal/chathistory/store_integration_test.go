@@ -431,3 +431,26 @@ func TestApprovalReturnedIDIsApprovalID(t *testing.T) {
 		t.Fatalf("args %v", call["args"])
 	}
 }
+
+// Messages written in one transaction share created_at (now()); the read order must still be defined: by id.
+func TestMessagesSharingCreatedAtComeBackInIDOrder(t *testing.T) {
+	pool := testpg.NewAppPool(t, 2)
+	w := ws()
+	c := mustCreate(t, pool, w, uid(1), "tie")
+	in(t, pool, w, func(tx pgx.Tx) {
+		for i := 0; i < 12; i++ {
+			if err := chathistory.AddMessage(context.Background(), tx, c.ID, "user", "m", nil, w, uid(1)); err != nil {
+				t.Fatal(err)
+			}
+		}
+		ms, err := chathistory.Messages(context.Background(), tx, c.ID, w, uid(1))
+		if err != nil || len(ms) != 12 {
+			t.Fatalf("%v %d", err, len(ms))
+		}
+		for i := 1; i < len(ms); i++ {
+			if ms[i-1].CreatedAt != ms[i].CreatedAt || ms[i-1].ID >= ms[i].ID {
+				t.Fatalf("order at %d: %+v %+v", i, ms[i-1], ms[i])
+			}
+		}
+	})
+}

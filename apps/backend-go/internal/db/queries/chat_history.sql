@@ -29,7 +29,7 @@ SELECT m.id, m.conversation_id, m.role, m.content, m.tool_data,
 FROM chat_messages m
 JOIN chat_conversations c ON c.id = m.conversation_id
 WHERE m.conversation_id = @conversation_id AND c.workspace_id = @workspace_id AND c.user_id = @user_id
-ORDER BY m.created_at ASC;
+ORDER BY m.created_at ASC, m.id ASC;
 
 -- Inserts the message only while the conversation exists for (workspace, user)
 -- and bumps the conversation's updated_at in the same statement. No row back

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5"
 
@@ -125,9 +127,17 @@ func (c *copilotRoutes) list(w http.ResponseWriter, r *http.Request) {
 	writeCopilotJSON(w, http.StatusOK, map[string]any{"conversations": convs})
 }
 
+// badConvID reports a path id that can never name a conversation (NUL bytes or invalid UTF-8 would
+// make Postgres fail); the route answers 404 before any query.
+func badConvID(id string) bool { return strings.ContainsRune(id, 0) || !utf8.ValidString(id) }
+
 func (c *copilotRoutes) get(w http.ResponseWriter, r *http.Request) {
 	res, ok := c.resolve(w, r)
 	if !ok {
+		return
+	}
+	if badConvID(r.PathValue("conv_id")) {
+		writeCopilotRaw(w, http.StatusNotFound, []byte(`{"error":"Not found"}`))
 		return
 	}
 	var (
@@ -161,6 +171,10 @@ func (c *copilotRoutes) get(w http.ResponseWriter, r *http.Request) {
 func (c *copilotRoutes) remove(w http.ResponseWriter, r *http.Request) {
 	res, ok := c.resolve(w, r)
 	if !ok {
+		return
+	}
+	if badConvID(r.PathValue("conv_id")) {
+		writeCopilotRaw(w, http.StatusNotFound, []byte(`{"error":"Not found"}`))
 		return
 	}
 	err := tenancy.InWorkspace(r.Context(), c.d.Pool, res.WorkspaceID, func(tx pgx.Tx) error {

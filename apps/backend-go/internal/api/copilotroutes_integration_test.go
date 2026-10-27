@@ -512,3 +512,16 @@ func TestMemoryMetadataKeepsJSONBKeyOrder(t *testing.T) {
 		t.Fatalf("got %q\nwant prefix %q", body, want)
 	}
 }
+
+// A NUL or invalid-UTF-8 conversation id can never exist: 404 before any query (was 500).
+func TestConversationBadPathIDsAnswer404(t *testing.T) {
+	e := newCKEnv(t, true)
+	for _, id := range []string{"%00", "a%00b", "%ff", "x%c3"} {
+		for _, m := range []string{"GET", "DELETE"} {
+			rec := e.req(m, "/api/copilotkit/conversations/"+id, e.as("erin", "ws-alpha"))
+			if rec.Code != 404 {
+				t.Errorf("%s %s: %d %s", m, id, rec.Code, rec.Body.String())
+			}
+		}
+	}
+}

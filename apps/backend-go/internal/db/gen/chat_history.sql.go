@@ -190,7 +190,7 @@ SELECT m.id, m.conversation_id, m.role, m.content, m.tool_data,
 FROM chat_messages m
 JOIN chat_conversations c ON c.id = m.conversation_id
 WHERE m.conversation_id = $1 AND c.workspace_id = $2 AND c.user_id = $3
-ORDER BY m.created_at ASC
+ORDER BY m.created_at ASC, m.id ASC
 `
 
 type ChatGetMessagesParams struct {
