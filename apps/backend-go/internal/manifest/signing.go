@@ -341,15 +341,19 @@ func CanonicalManifest(m Manifest) ([]byte, error) {
 		}
 		return s
 	}
+	authTree := map[string]any{
+		"type": m.Auth.Type, "param": nullable(m.Auth.Param),
+		"value": nullable(m.Auth.Value), "env_var": nullable(m.Auth.EnvVar),
+	}
+	if len(m.Auth.ExtraEnv) > 0 { // signed only when declared, so existing signatures stay valid
+		authTree["extra_env"] = strs(m.Auth.ExtraEnv)
+	}
 	tree := map[string]any{
 		"manifest_version": m.ManifestVersion, "name": m.Name, "display_name": m.DisplayName,
 		"author": m.Author, "homepage": m.Homepage, "license": m.License, "tags": strs(m.Tags),
 		"capability": m.Capability, "capabilities": strs(m.Capabilities), "description": m.Description,
 		"default_confidence": m.DefaultConfidence, "cost_per_lookup": m.CostPerLookup,
-		"auth": map[string]any{
-			"type": m.Auth.Type, "param": nullable(m.Auth.Param),
-			"value": nullable(m.Auth.Value), "env_var": nullable(m.Auth.EnvVar),
-		},
+		"auth": authTree,
 		"request": map[string]any{
 			"method": m.Request.Method, "url": m.Request.URL, "headers": dyn(m.Request.Headers),
 			"query": dyn(m.Request.Query), "body_template": m.Request.BodyTemplate, "timeout": m.Request.Timeout,

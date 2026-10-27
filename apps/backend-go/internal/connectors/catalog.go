@@ -94,7 +94,7 @@ func Catalog(ctx context.Context, d Deps, ws string) (CatalogResponse, error) {
 		m := l.Entry.Manifest
 		item := newEntry("", l.Entry, l.Sig)
 		configured := m.Auth.Type == "none"
-		if !configured && m.Auth.EnvVar != "" {
+		if !configured && m.Auth.EnvVar != "" && !manifest.EnvDenied(m.Auth.EnvVar) {
 			v, _, err := d.Secrets.Get(ctx, ws, m.Auth.EnvVar)
 			if err != nil {
 				return CatalogResponse{}, fmt.Errorf("connectors: secret lookup: %w", err)

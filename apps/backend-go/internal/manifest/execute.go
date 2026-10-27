@@ -115,7 +115,7 @@ type Prepared struct {
 // "literal_auth_value") or "". Mirrors Python manifest_security_problem.
 func SecurityProblem(m Manifest) string {
 	a := m.Auth
-	secret := (a.Type != "none" && a.Type != "") || len(allowedEnvNames(m)) > 0
+	secret := (a.Type != "none" && a.Type != "") || len(allowedEnvNames(m)) > 0 || len(templateEnvRefs(m)) > 0
 	u := m.Request.URL
 	if secret && strings.Contains(u[:authorityEnd(u)], "{{") {
 		return "templated_authority"
@@ -286,13 +286,26 @@ func failure(err error) string {
 }
 
 // allowedEnvNames is the set of variables a manifest may read: its auth.env_var
-// plus names literally written as ${env:NAME} in its own templates. Everything
-// else resolves to "".
+// plus its explicit auth.extra_env list, minus the platform deny-list. Names
+// merely written as ${env:NAME} in templates are not granted; everything not
+// allowed resolves to "".
 func allowedEnvNames(m Manifest) map[string]struct{} {
 	names := map[string]struct{}{}
-	if m.Auth.EnvVar != "" {
+	if m.Auth.EnvVar != "" && !EnvDenied(m.Auth.EnvVar) {
 		names[m.Auth.EnvVar] = struct{}{}
 	}
+	for _, n := range m.Auth.ExtraEnv {
+		if n != "" && !EnvDenied(n) {
+			names[n] = struct{}{}
+		}
+	}
+	return names
+}
+
+// templateEnvRefs lists the names written as ${env:NAME} in the manifest's templates. They are
+// not readable (see allowedEnvNames) but still mark the request as secret-bearing.
+func templateEnvRefs(m Manifest) map[string]struct{} {
+	names := map[string]struct{}{}
 	var walk func(v any)
 	walk = func(v any) {
 		switch x := v.(type) {
@@ -316,6 +329,24 @@ func allowedEnvNames(m Manifest) map[string]struct{} {
 	walk(m.Request.BodyTemplate)
 	walk(m.Auth.Value)
 	return names
+}
+
+// EnvDenied reports whether name is a platform secret a manifest may never read.
+func EnvDenied(name string) bool {
+	u := strings.ToUpper(name)
+	for _, p := range []string{"DATABASE_URL", "STRIPE_"} {
+		if strings.HasPrefix(u, p) {
+			return true
+		}
+	}
+	if strings.HasSuffix(u, "_MASTER_KEY") {
+		return true
+	}
+	switch u {
+	case "SECRET_KEY", "SECRETS_MASTER_KEY", "INTERNAL_SERVICE_TOKEN", "REDIS_URL", "SMTP_PASSWORD", "IMAP_PASSWORD":
+		return true
+	}
+	return false
 }
 
 // blockedReason returns the egress guard's reason text, which is byte-identical

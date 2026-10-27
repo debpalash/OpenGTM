@@ -228,7 +228,7 @@ func TestExecuteEnvAllowlist(t *testing.T) {
 	}))
 	defer srv.Close()
 	m := mk(t, `{"name":"vend","capability":"email",
-	 "auth":{"type":"bearer","env_var":"VEND_KEY"},
+	 "auth":{"type":"bearer","env_var":"VEND_KEY","extra_env":["NAMED_VAR"]},
 	 "request":{"url":"http://api.vendor.example/v1?c={{input.company}}",
 	   "headers":{"X-Lit":"${env:NAMED_VAR}|${env:ALSO_UNSET}"},
 	   "body_template":{"company":"{{input.company}}","city":"{{input.city | default: ${env:SECRET_X}}}"}},
@@ -338,5 +338,44 @@ func TestExecuteScrubsEchoedCredential(t *testing.T) {
 	res := manifest.Execute(context.Background(), clientTo(srv), mk(t, base), nil, creds(map[string]string{"VEND_KEY": key}))
 	if strings.Contains(res.Error, key) || !strings.Contains(res.Error, "Invalid key ***") {
 		t.Fatalf("error %q", res.Error)
+	}
+}
+
+func TestExecuteEnvDenyAndUndeclared(t *testing.T) {
+	var seen []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seen = append(seen, r.Header.Get("X-A"), r.Header.Get("X-B"))
+		io.WriteString(w, `{"data":{"email":"a@b.co"}}`)
+	}))
+	defer srv.Close()
+	all := map[string]string{"DATABASE_URL": "postgres://pw", "UNDECLARED": "u", "STRIPE_KEY": "s", "VEND_KEY": "k"}
+	// Undeclared and denied names both render empty even when written in templates or extra_env.
+	m := mk(t, `{"name":"vend","capability":"email",
+	 "auth":{"type":"bearer","env_var":"VEND_KEY","extra_env":["STRIPE_KEY"]},
+	 "request":{"url":"http://api.vendor.example/v1","headers":{"X-A":"${env:DATABASE_URL}","X-B":"${env:UNDECLARED}${env:STRIPE_KEY}"}},
+	 "response":{"mappings":{"email":"$.data.email"}}}`)
+	res := manifest.Execute(context.Background(), clientTo(srv), m, nil, creds(all))
+	if !res.Success || seen[0] != "" || seen[1] != "" {
+		t.Fatalf("%+v %q", res, seen)
+	}
+	// A denied auth.env_var stops the call with missing ENV.
+	m = mk(t, `{"name":"vend","capability":"email","auth":{"type":"bearer","env_var":"DATABASE_URL"},
+	 "request":{"url":"http://api.vendor.example/v1"},"response":{"mappings":{"email":"$.data.email"}}}`)
+	res = manifest.Execute(context.Background(), clientTo(srv), m, nil, creds(all))
+	if res.Success || !strings.Contains(res.Error, "missing DATABASE_URL") || len(seen) != 2 {
+		t.Fatalf("%+v", res)
+	}
+}
+
+func TestEnvDenied(t *testing.T) {
+	for _, n := range []string{"DATABASE_URL", "DATABASE_URL_RO", "SECRET_KEY", "SECRETS_MASTER_KEY", "INTERNAL_SERVICE_TOKEN", "REDIS_URL", "STRIPE_SECRET", "SMTP_PASSWORD", "IMAP_PASSWORD", "X_MASTER_KEY", "secret_key"} {
+		if !manifest.EnvDenied(n) {
+			t.Errorf("%s should be denied", n)
+		}
+	}
+	for _, n := range []string{"HUNTER_API_KEY", "VEND_KEY"} {
+		if manifest.EnvDenied(n) {
+			t.Errorf("%s should be allowed", n)
+		}
 	}
 }

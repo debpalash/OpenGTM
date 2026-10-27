@@ -64,7 +64,8 @@
    "auth": {
     "type": "header",
     "param": "X-Key",
-    "env_var": "KEY_M_EXTRA_ENV"
+    "env_var": "KEY_M_EXTRA_ENV",
+    "extra_env": ["OTHER_KEY"]
    },
    "request": {
     "method": "GET",

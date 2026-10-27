@@ -13,6 +13,8 @@ type AuthSpec struct {
 	Param  string `json:"param"`
 	Value  string `json:"value"`
 	EnvVar string `json:"env_var"`
+	// ExtraEnv lists additional ${env:NAME} variables the manifest may template.
+	ExtraEnv []string `json:"extra_env"`
 }
 
 // RequestSpec mirrors RequestSpec. Header/query values and the body template
