@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -364,13 +365,12 @@ func legacyLeadsWorkbook(sourceType pgtype.Text, sourceConfig []byte) bool {
 
 // needsPython names the reason a column cannot run in this process ("" = it can).
 func (rs *runState) needsPython(col column) string {
-	if col.Type == "output" {
+	full := rs.deps.FullRun
+	if col.Type == "output" && !(full && rs.deps.Output != nil) {
 		return "output column"
 	}
-	if (col.Type == "enrichment" || col.Type == "waterfall") && col.firstTruthy("target_field", "lead_field") == "email" {
-		if v, ok := col.cfg["verify"]; !ok || manifest.PyTruthy(v) {
-			return "email verification"
-		}
+	if col.needsVerify() && !(full && rs.deps.Verify != nil) {
+		return "email verification"
 	}
 	if err := rs.checkPyColumn(col); err != nil {
 		reason, _ := refusalReason(err)
@@ -432,7 +432,14 @@ func (rs *runState) runOneCell(ctx context.Context, lc loadedCell, force bool) (
 		}
 	}
 	if reason := rs.needsPython(col); reason != "" {
-		return CellResult{}, &needsPythonError{reason: reason}
+		if !rs.deps.FullRun {
+			return CellResult{}, &needsPythonError{reason: reason}
+		}
+		// GO_EXECUTOR_FULL_RUN: there is no Python API to proxy to; the cell fails with the
+		// reason's code (e.g. python_worker_unavailable) instead.
+		code, _, _ := strings.Cut(reason, ":")
+		code = strings.ReplaceAll(strings.TrimSpace(code), " ", "_")
+		return res(rs.failDependent(ctx, lead, col, code))
 	}
 	return res(rs.enrichCell(ctx, lead, col))
 }

@@ -19,7 +19,7 @@ import (
 func TestCellRunFullRunNeverNeedsPython(t *testing.T) {
 	e := setup(t, wsA)
 	cols := `[{"id":"o","type":"output","name":"O","destination":"sequencer","destination_config":{"sequence_id":"s1"}},
-	  {"id":"em","type":"waterfall","name":"Em","target_field":"email","waterfall":["free1"]},
+	  {"id":"em","type":"waterfall","name":"Em","target_field":"email","waterfall":["hunter_io"]},
 	  {"id":"ai","type":"ai_formula","name":"AI","prompt":"hi {company}"}]`
 	ids := e.seed(wsA, "wb-full", cols, 1, 0)
 	d := e.deps(newSim(t, nil), nil)
@@ -44,7 +44,7 @@ func TestCellRunFullRunNeverNeedsPython(t *testing.T) {
 	d.FullRun = true
 	r, err := workbook.EnrichCell(e.ctx, d, req("em"))
 	if err != nil || r.Status() != "complete" || r.Value != "a@acme0.example.com" {
-		t.Fatalf("email cell: %+v %v", r, err)
+		t.Fatalf("email cell: %+v %v %v", r, err, deref(r.Error))
 	}
 	if got := e.str(wsA, `SELECT enrichments::jsonb #>> '{em,verify_status}' FROM workbook_rows WHERE id = $1`, ids[0]); got != "valid" {
 		t.Fatalf("verify_status %q", got)
@@ -61,4 +61,11 @@ func TestCellRunFullRunNeverNeedsPython(t *testing.T) {
 	if got := e.str(wsA, `SELECT enrichments::jsonb #>> '{ai,error}' FROM workbook_rows WHERE id = $1`, ids[0]); got != "python_worker_unavailable" {
 		t.Fatalf("ai error cell %q", got)
 	}
+}
+
+func deref(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }
