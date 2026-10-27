@@ -311,6 +311,22 @@ func (t *Turn) callToolRaw(ctx context.Context, c parsedCall) (string, error) {
 			return res, nil
 		}
 	}
+	if t.Engine != nil && isEngineTool(c.Name) {
+		nctx, cancel := context.WithTimeout(ctx, t.toolTimeout())
+		res, handled, err := t.engineTool(nctx, c)
+		cancel()
+		switch {
+		case ctx.Err() != nil:
+			return "", ctx.Err()
+		case errors.Is(err, context.DeadlineExceeded):
+			return toolErr(c.Name, "timed out"), nil
+		case err != nil:
+			t.logger().Warn("copilot engine tool failed", "tool", c.Name)
+			return toolErr(c.Name, "internal error"), nil
+		case handled:
+			return res, nil
+		}
+	}
 	return t.pythonTool(ctx, c)
 }
 

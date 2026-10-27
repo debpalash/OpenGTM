@@ -3,6 +3,7 @@ package copilot
 import (
 	"context"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadprogress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 )
 
@@ -17,6 +18,23 @@ type Engine struct {
 	// IntentPollerEnabled and PGLeadStore are settings.INTENT_POLLER_ENABLED / PG_LEAD_STORE (the signal
 	// tracking pre-route and track_account_signals refuse without them).
 	IntentPollerEnabled, PGLeadStore bool
-	// NewID overrides uuid4().hex for approval tool-call ids (tests).
+	// NewID overrides uuid4().hex for approval tool-call ids and collection job ids (tests).
 	NewID func() string
+
+	// Tool collaborators. A nil one sends its tools to the worker.
+	Ambition AmbitionClient
+	// AmbitionImportExecutor picks the ambitionbox_import job executor (ambitionimport.ExecutorFor).
+	AmbitionImportExecutor func(workspaceID string) string
+	// RefreshExecutor picks the executor of the refresh_workbook chain the refresh tools may start; nil means
+	// "python", as without the Go executor cohort flags.
+	RefreshExecutor func(workspaceID string) string
+	// CollectionLedgerPG is __collection_ledger_backend == "postgres"; start_collection needs it in Go.
+	CollectionLedgerPG bool
+	// Progress receives start_collection's job_created event (nil: none).
+	Progress ProgressEmitter
+}
+
+// ProgressEmitter is the leadgen progress bus (*leadprogress.Bus).
+type ProgressEmitter interface {
+	EmitOrdered(ctx context.Context, workspaceID, eventType string, data leadprogress.Obj) map[string]any
 }

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
 // The Format* functions are formatting.py: deterministic, evidence-honest Chat renderers over a tool
@@ -38,6 +39,8 @@ func pyTruthy(v any) bool {
 		return len(x) > 0
 	case map[string]any:
 		return len(x) > 0
+	case *wbcrud.Obj:
+		return x != nil && x.Len() > 0
 	}
 	return true
 }
