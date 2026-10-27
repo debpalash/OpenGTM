@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leaddedup"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
@@ -105,8 +104,8 @@ func emailMatchesCompany(email, canonicalDomain string) bool {
 	if !emailRe.MatchString(email) {
 		return false
 	}
-	ed := leaddedup.NormalizeDomain(email[strings.LastIndexByte(email, '@')+1:])
-	target := leaddedup.NormalizeDomain(canonicalDomain)
+	ed := NormalizeDomain(email[strings.LastIndexByte(email, '@')+1:])
+	target := NormalizeDomain(canonicalDomain)
 	return ed != "" && target != "" && (ed == target || strings.HasSuffix(ed, "."+target))
 }
 
@@ -322,7 +321,7 @@ func (s *Service) EnrichPeopleContacts(ctx context.Context, company, function st
 	company = trunc(clean(company), 120)
 	function = trunc(clean(function), 100)
 	resolution := cloneMap(o.CompanyResolution)
-	canonicalDomain := leaddedup.NormalizeDomain(providers.PyStrip(getStr(resolution, "canonical_domain")))
+	canonicalDomain := NormalizeDomain(providers.PyStrip(getStr(resolution, "canonical_domain")))
 	var candidates []map[string]any
 	byID := map[string]map[string]any{}
 	for _, raw := range people {
@@ -333,7 +332,7 @@ func (s *Service) EnrichPeopleContacts(ctx context.Context, company, function st
 		id := PersonEntityID(company, person)
 		person["person_id"] = id
 		if canonicalDomain == "" {
-			canonicalDomain = leaddedup.NormalizeDomain(providers.PyStrip(getStr(person, "canonical_company_domain")))
+			canonicalDomain = NormalizeDomain(providers.PyStrip(getStr(person, "canonical_company_domain")))
 		}
 		if _, dup := byID[id]; !dup {
 			candidates = append(candidates, person)

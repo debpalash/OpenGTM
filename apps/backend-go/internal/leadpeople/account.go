@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leaddedup"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 )
 
@@ -266,7 +265,7 @@ func srcFields(f ...string) []any {
 func EvaluateAccountFit(lead map[string]any, brief map[string]any, now time.Time) map[string]any {
 	company := clean(valStr(lead["company"]))
 	website := clean(valStr(lead["website"]))
-	canonicalDomain := leaddedup.NormalizeDomain(website)
+	canonicalDomain := NormalizeDomain(website)
 	sourceURL := httpURL(lead["source_url"])
 	websiteURL := ""
 	if website != "" {

@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leaddedup"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 )
@@ -164,7 +163,7 @@ func (s *Service) ResolveCompanyIdentity(ctx context.Context, company string) ma
 	if res == nil {
 		return map[string]any{"status": "invalid_response", "company": company, "canonical_domain": ""}
 	}
-	canonical := leaddedup.NormalizeDomain(providers.PyStrip(getStr(res, "canonical_domain")))
+	canonical := NormalizeDomain(providers.PyStrip(getStr(res, "canonical_domain")))
 	out := make(map[string]any, len(res)+2)
 	for k, v := range res {
 		out[k] = v

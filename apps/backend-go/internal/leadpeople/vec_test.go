@@ -19,8 +19,8 @@ func loadVec(t testing.TB, name string, v any) {
 	}
 }
 
-// norm renders v through JSON so Go structs/maps and recorded vectors compare as data.
-func norm(t testing.TB, v any) any {
+// jsonNorm renders v through JSON so Go structs/maps and recorded vectors compare as data.
+func jsonNorm(t testing.TB, v any) any {
 	t.Helper()
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -35,7 +35,7 @@ func norm(t testing.TB, v any) any {
 
 func sameJSON(t testing.TB, what string, got, want any) {
 	t.Helper()
-	g, w := norm(t, got), norm(t, want)
+	g, w := jsonNorm(t, got), jsonNorm(t, want)
 	if !reflect.DeepEqual(g, w) {
 		gb, _ := json.MarshalIndent(g, "", " ")
 		wb, _ := json.MarshalIndent(w, "", " ")
