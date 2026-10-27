@@ -122,10 +122,14 @@ func TestEveryEnrichmentRouteIsPortedOrRetained(t *testing.T) {
 	for p := range llmRoutePatterns(t) {
 		ported[normRoute(p)] = true
 	}
-	// Plan 06 scope: 14 routes registered by the enrichment groups + 1 retained here (the source preview).
+	// The source preview is registered behind GO_SOURCE_PREVIEW_ENABLED (plan 15 WP-SOURCEWB).
+	for p := range sourcePreviewPatterns(t) {
+		ported[normRoute(p)] = true
+	}
+	// Plan 06 scope: 14 routes registered by the enrichment groups; nothing retained any more.
 	enrich := readRouteList(t, retainedEnrichmentFile)
-	if len(enrich) != 1 {
-		t.Errorf("retained_enrichment_routes.txt has %d routes, want 1", len(enrich))
+	if len(enrich) != 0 {
+		t.Errorf("retained_enrichment_routes.txt has %d routes, want 0", len(enrich))
 	}
 	if len(enrichPatterns) != 14 {
 		t.Errorf("enrichPatterns has %d routes, want 14", len(enrichPatterns))
@@ -251,4 +255,35 @@ func TestEveryJobTypeHandledOrPython(t *testing.T) {
 			t.Errorf("job type %s must stay on the Python worker", ty)
 		}
 	}
+}
+
+// sourcePreviewPatterns are the routes registerWorkbookSources adds with GO_SOURCE_PREVIEW_ENABLED on
+// (beyond the always-on add and run routes).
+func sourcePreviewPatterns(t *testing.T) map[string]bool {
+	t.Helper()
+	base, on := httpx.NewRouter(), httpx.NewRouter()
+	d := enrichDepsWithPool(t)
+	d.Getenv = func(string) string { return "" }
+	registerWorkbookSources(base, d)
+	d.Getenv = func(k string) string {
+		if k == "GO_SOURCE_PREVIEW_ENABLED" {
+			return "true"
+		}
+		return ""
+	}
+	registerWorkbookSources(on, d)
+	had := map[string]bool{}
+	for _, p := range base.Patterns() {
+		had[p] = true
+	}
+	out := map[string]bool{}
+	for _, p := range on.Patterns() {
+		if !had[p] {
+			out[p] = true
+		}
+	}
+	if len(out) != 1 || !out["GET /api/workbooks/{workbook_id}/sources/{col_id}/preview"] {
+		t.Errorf("preview flag adds %v, want only the source preview", out)
+	}
+	return out
 }

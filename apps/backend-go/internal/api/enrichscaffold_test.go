@@ -33,9 +33,8 @@ var enrichPatterns = map[string]bool{
 }
 
 // retainedEnrichRoutes stay on FastAPI and must never register here.
-var retainedEnrichRoutes = []string{
-	"GET /api/workbooks/{workbook_id}/sources/{col_id}/preview",
-}
+// The source preview moved to Go in plan 15 (GO_SOURCE_PREVIEW_ENABLED); none remain.
+var retainedEnrichRoutes = []string{}
 
 func enrichDeps(pg, run bool) Deps {
 	return Deps{Log: slog.New(slog.NewTextHandler(io.Discard, nil)),
