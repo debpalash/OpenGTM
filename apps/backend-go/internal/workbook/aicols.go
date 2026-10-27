@@ -44,7 +44,18 @@ type aiState struct {
 // column RPC: status ok/error/timeout and the decoded fields.
 func (rs *runState) nativeColumn(ctx context.Context, lead map[string]any, col column, rowID, leadID int64) (status string, out pyOutput, err error) {
 	if col.Type == rpcAgent {
-		out, err := rs.agentCell(ctx, lead, col, rowID, leadID)
+		// The overall deadline of the RPC path (review wave 3b L9): per-tool timeouts and an
+		// unbounded policy.max_steps alone do not bound the cell. A paid call cut by it is
+		// left uncertain by reservedCall.
+		actx, cancel := context.WithTimeout(ctx, agentTimeout)
+		defer cancel()
+		out, err := rs.agentCell(actx, lead, col, rowID, leadID)
+		if ctx.Err() != nil {
+			return "", pyOutput{}, context.Cause(ctx)
+		}
+		if errors.Is(actx.Err(), context.DeadlineExceeded) {
+			return "timeout", pyOutput{}, nil
+		}
 		if err != nil {
 			if a := abortErr(ctx, err); a != nil {
 				return "", pyOutput{}, a
