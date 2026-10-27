@@ -170,14 +170,8 @@ func TestRecentMatchesPythonVectors(t *testing.T) {
 			}
 			// Events served from the in-process deque carry the rewritten per-test workspace;
 			// events served from the Redis list are returned verbatim (their recorded workspace_id stays).
-			// An undecodable Redis entry makes Recent fall back to the deque (Python's behaviour).
+			// An undecodable Redis entry is skipped (Python falls back to the deque; audit F10).
 			fromLocal := v.RedisDown || len(v.List) == 0
-			for _, s := range v.List {
-				var probe map[string]any
-				if json.Unmarshal([]byte(s), &probe) != nil {
-					fromLocal = true
-				}
-			}
 			for _, ev := range v.Local {
 				m := map[string]any{}
 				for k, x := range ev {
@@ -193,7 +187,13 @@ func TestRecentMatchesPythonVectors(t *testing.T) {
 				t.Fatal(err)
 			}
 			var want []any
-			for _, r := range v.Result {
+			result := v.Result
+			if v.Name == "one_invalid_entry_falls_back" { // Python returns the local deque; Go the two good entries
+				result = []json.RawMessage{json.RawMessage(v.List[2]), json.RawMessage(v.List[0])}
+			} else if v.Name == "invalid_entry_no_local" {
+				result = nil
+			}
+			for _, r := range result {
 				var x any
 				d := json.NewDecoder(bytes.NewReader(r))
 				d.UseNumber()
@@ -216,28 +216,23 @@ func TestRecentMatchesPythonVectors(t *testing.T) {
 	}
 }
 
-func TestRecentInvalidEntryFallsBackAndBacksOff(t *testing.T) {
+func TestRecentInvalidEntrySkipped(t *testing.T) {
 	c := redisClient(t)
 	ctx := context.Background()
 	ws := uniq(t, "a")
 	cleanup(t, c, ws)
-	now := time.Unix(1_788_000_000, 0)
 	b := NewBus(c)
-	b.now = func() time.Time { return now }
 	b.local = append(b.local, map[string]any{"type": "local", "workspace_id": ws})
-	c.RPush(ctx, RecentKey(ws), `{"type":"ok","workspace_id":"`+ws+`"}`, "not json")
+	c.RPush(ctx, RecentKey(ws), `{"type":"ok1","workspace_id":"`+ws+`"}`, "not json", `{"type":"ok2","workspace_id":"`+ws+`"}`)
 	rows, _ := b.Recent(ctx, ws, 10)
-	if len(rows) != 1 || rows[0]["type"] != "local" {
-		t.Fatalf("invalid entry must fall back to local like Python: %v", rows)
+	if len(rows) != 2 {
+		t.Fatalf("bad entry is skipped, the good ones stay: %v", rows)
 	}
+	// Bad data does not back Redis off: a fresh good entry is read immediately.
 	c.Del(ctx, RecentKey(ws))
 	c.RPush(ctx, RecentKey(ws), `{"type":"ok","workspace_id":"`+ws+`"}`)
-	if rows, _ = b.Recent(ctx, ws, 10); rows[0]["type"] != "local" {
-		t.Fatalf("within 1s backoff Redis is skipped: %v", rows)
-	}
-	now = now.Add(1100 * time.Millisecond)
-	if rows, _ = b.Recent(ctx, ws, 10); rows[0]["type"] != "ok" {
-		t.Fatalf("after backoff Redis is read: %v", rows)
+	if rows, _ = b.Recent(ctx, ws, 10); len(rows) != 1 || rows[0]["type"] != "ok" {
+		t.Fatalf("Redis still read right after bad data: %v", rows)
 	}
 }
 

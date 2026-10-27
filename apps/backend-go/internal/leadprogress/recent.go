@@ -65,24 +65,21 @@ func (b *Bus) recent(ctx context.Context, workspaceID string, limit int) []recen
 			b.forgetRedis()
 		} else if len(raw) > 0 {
 			rows := make([]recentEntry, 0, len(raw))
-			ok := true
 			for _, item := range raw {
+				// An invalid entry is skipped (Python falls back to the local deque for the whole call); bad data
+				// is no reason to back Redis off (audit F10).
 				v, derr := decode(item)
 				if derr != nil {
-					ok = false
-					break
+					continue
 				}
 				if m, isObj := v.(map[string]any); isObj {
 					rows = append(rows, recentEntry{raw: item, m: m})
 				}
 			}
-			if ok {
-				for i, j := 0, len(rows)-1; i < j; i, j = i+1, j-1 {
-					rows[i], rows[j] = rows[j], rows[i]
-				}
-				return rows
+			for i, j := 0, len(rows)-1; i < j; i, j = i+1, j-1 {
+				rows[i], rows[j] = rows[j], rows[i]
 			}
-			b.forgetRedis()
+			return rows
 		}
 	}
 	return b.localRecent(workspaceID, limit)
