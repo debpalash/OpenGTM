@@ -1,0 +1,78 @@
+[
+ {
+  "name": "indiamart",
+  "yield": 8
+ },
+ {
+  "name": "yellowpages_in",
+  "yield": 5
+ },
+ {
+  "name": "ambitionbox",
+  "yield": 7
+ },
+ {
+  "name": "zaubacorp",
+  "yield": 8
+ },
+ {
+  "name": "g2",
+  "yield": 8
+ },
+ {
+  "name": "bbb",
+  "yield": 8
+ },
+ {
+  "name": "hotfrog",
+  "yield": 8
+ },
+ {
+  "name": "angellist",
+  "yield": 8
+ },
+ {
+  "name": "cbinsights",
+  "yield": 8
+ },
+ {
+  "name": "reddit_companies",
+  "yield": 8
+ },
+ {
+  "name": "kompass",
+  "yield": 8
+ },
+ {
+  "name": "producthunt",
+  "yield": 3
+ },
+ {
+  "name": "appsumo",
+  "yield": 6
+ },
+ {
+  "name": "upwork",
+  "yield": 8
+ },
+ {
+  "name": "github_orgs",
+  "yield": 7
+ },
+ {
+  "name": "economic_times",
+  "yield": 6
+ },
+ {
+  "name": "amazon_sellers",
+  "yield": 8
+ },
+ {
+  "name": "generic_awards",
+  "yield": 8
+ },
+ {
+  "name": "generic_hiring_surge",
+  "yield": 8
+ }
+]
