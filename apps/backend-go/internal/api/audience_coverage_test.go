@@ -38,7 +38,7 @@ const (
 	retainedAudienceFile = "../../testdata/contract/retained_audience_routes.txt"
 	audienceReadme       = "../../testdata/contract/README.md"
 	audienceRunbook      = "../../../../docs/go-port/runbooks/audiences-destinations-cutover.md"
-	audienceNginxConf    = "../../../../infra/nginx/go-routes.conf"
+	audienceNginxConf    = "../../../../infra/nginx/default.conf"
 	// inboundRoutePattern is the public CRM callback. It overlaps two literal routes, so it is a router override
 	// (httpx.Router.Override, destsinbound.go) rather than a mux pattern, but it is still listed in Router.Patterns().
 	inboundRoutePattern = "POST /api/audience-destinations/inbound/{destination_id}"
@@ -82,8 +82,8 @@ func audienceGoPatterns(t *testing.T) map[string]bool {
 	return out
 }
 
-// capabilityRoutesNginxPinned are ported in Go (flag-gated) but still pinned to api_backend by nginx until
-// WP-RETIRE-INFRA edits infra/nginx.
+// capabilityRoutesNginxPinned are the capability catalogs, recorded under testdata/contract/capabilities rather than
+// the audience fixtures (the name is historical: nginx pinned them to Python until plan 15).
 var capabilityRoutesNginxPinned = map[string]bool{
 	"GET /api/audiences/capabilities": true, "GET /api/audience-destinations/types": true,
 }
@@ -404,49 +404,66 @@ type nginxLoc struct {
 	mod, pat, block string
 }
 
-// audienceNginxSection returns the locations of the audiences-destinations section of go-routes.conf.
-func audienceNginxSection(t *testing.T) []nginxLoc {
+// nginxLocations returns the location blocks of the server in infra/nginx/default.conf (one level of nesting).
+func nginxLocations(t *testing.T) (server string, locs []nginxLoc) {
 	t.Helper()
 	b, err := os.ReadFile(audienceNginxConf)
 	if err != nil {
 		t.Fatal(err)
 	}
 	s := string(b)
-	i := strings.Index(s, "# BEGIN audiences-destinations")
-	j := strings.Index(s, "# END audiences-destinations")
-	if i < 0 || j < i {
-		t.Fatal("go-routes.conf has no BEGIN/END audiences-destinations section")
+	re := regexp.MustCompile(`(?m)^\s*location\s+(?:(=|~|~\*|\^~)\s+)?(\S+)\s+\{`)
+	for _, m := range re.FindAllStringSubmatchIndex(s, -1) {
+		end := strings.Index(s[m[1]:], "\n    }")
+		if end < 0 {
+			t.Fatalf("unterminated location at offset %d", m[0])
+		}
+		mod := ""
+		if m[2] >= 0 {
+			mod = s[m[2]:m[3]]
+		}
+		locs = append(locs, nginxLoc{mod: mod, pat: s[m[4]:m[5]], block: s[m[1] : m[1]+end]})
 	}
-	var locs []nginxLoc
-	re := regexp.MustCompile(`(?m)^location\s+(=|~|\^~)\s+(\S+)\s+\{`)
-	sec := s[i:j]
-	for _, m := range re.FindAllStringSubmatchIndex(sec, -1) {
-		end := strings.Index(sec[m[1]:], "\n}")
-		locs = append(locs, nginxLoc{mod: sec[m[2]:m[3]], pat: sec[m[4]:m[5]], block: sec[m[1] : m[1]+end]})
-	}
-	return locs
+	return s, locs
 }
 
-// nginxPick is nginx's selection inside the section: exact first, then the first matching regex.
+// nginxPick is nginx's location selection: an exact match, else the longest prefix when it is ^~, else the first
+// matching regex, else the longest prefix.
 func nginxPick(locs []nginxLoc, path string) *nginxLoc {
+	var prefix *nginxLoc
 	for i, l := range locs {
-		if l.mod == "=" && l.pat == path {
+		switch l.mod {
+		case "=":
+			if l.pat == path {
+				return &locs[i]
+			}
+		case "", "^~":
+			if strings.HasPrefix(path, l.pat) && (prefix == nil || len(l.pat) > len(prefix.pat)) {
+				prefix = &locs[i]
+			}
+		}
+	}
+	if prefix != nil && prefix.mod == "^~" {
+		return prefix
+	}
+	for i, l := range locs {
+		if (l.mod == "~" || l.mod == "~*") && regexp.MustCompile(l.pat).MatchString(path) {
 			return &locs[i]
 		}
 	}
-	for i, l := range locs {
-		if l.mod == "~" && regexp.MustCompile(l.pat).MatchString(path) {
-			return &locs[i]
-		}
-	}
-	return nil
+	return prefix
 }
 
-// Every Python route reaches the right upstream rule: retained paths are pinned to api_backend, ported paths follow a
-// bucket, the sticky mutations use the workspace bucket, and every block forwards the client address.
+// Every Python audience/destination route reaches the Go API through the single gateway (plan 15: the Python
+// upstream is gone), and the server forwards the client address to every location.
 func TestAudienceNginxSectionCoversRoutes(t *testing.T) {
-	locs := audienceNginxSection(t)
-	retained := readRetainedAudiences(t)
+	server, locs := nginxLocations(t)
+	if strings.Contains(server, "api_backend") {
+		t.Fatal("default.conf still names the Python upstream api_backend")
+	}
+	if !strings.Contains(server, "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;") {
+		t.Error("default.conf does not forward X-Forwarded-For at server level")
+	}
 	param := regexp.MustCompile(`\{[^}]+\}`)
 	for _, r := range pythonAudienceRoutes(t) {
 		_, path, _ := strings.Cut(r, " ")
@@ -455,29 +472,11 @@ func TestAudienceNginxSectionCoversRoutes(t *testing.T) {
 			t.Errorf("no nginx location for %s", r)
 			continue
 		}
-		if retained[r] || capabilityRoutesNginxPinned[r] {
-			if !strings.Contains(l.block, "proxy_pass http://api_backend;") {
-				t.Errorf("retained %s is not pinned to api_backend", r)
-			}
-			continue
+		if !strings.Contains(l.block, "proxy_pass http://api_go;") {
+			t.Errorf("%s is not proxied to api_go (location %s %s)", r, l.mod, l.pat)
 		}
-		if !strings.Contains(l.block, "$auth_upstream") && !strings.Contains(l.block, "$aud_up") {
-			t.Errorf("ported %s does not follow a bucket: %s", r, l.pat)
-		}
-		sticky := r == "POST /api/audiences" || r == "PATCH /api/audiences/{audience_id}" || r == "POST /api/audiences/{audience_id}/refresh"
-		if sticky && !strings.Contains(l.block, "$ws_upstream") {
-			t.Errorf("%s must be sticky per workspace ($ws_upstream)", r)
-		}
-		if !strings.Contains(l.block, "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;") {
-			t.Errorf("%s does not forward X-Forwarded-For", r)
-		}
-	}
-	// Nothing newly exposed: siblings, trailing slashes and lookalikes match no location in the section.
-	for _, p := range []string{"/api/audiences/", "/api/audiences/a/other", "/api/audiences/a/members/", "/api/audiencesx",
-		"/api/audience-destinations/", "/api/audience-destinations/a/other", "/api/audience-destinations/runs/r/other",
-		"/api/audience-destinations/a/inbound/b", "/api/audience-destination"} {
-		if l := nginxPick(locs, p); l != nil {
-			t.Errorf("%s unexpectedly matches nginx location %s %s", p, l.mod, l.pat)
+		if strings.Contains(l.block, "proxy_set_header") {
+			t.Errorf("%s: location %s sets proxy headers, dropping the server-level X-Forwarded-For", r, l.pat)
 		}
 	}
 }
