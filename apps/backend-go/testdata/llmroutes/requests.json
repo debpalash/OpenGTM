@@ -1,0 +1,798 @@
+{
+ "generate_column": [
+  {
+   "body": "{\"instruction\":\"extract the domain\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "instruction": "extract the domain"
+   }
+  },
+  {
+   "body": "{\"instruction\":\"ab\"}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "string_too_short",
+      "loc": [
+       "body",
+       "instruction"
+      ],
+      "msg": "String should have at least 3 characters",
+      "input": "ab",
+      "ctx": {
+       "min_length": 3
+      }
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"instruction\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "string_too_long",
+      "loc": [
+       "body",
+       "instruction"
+      ],
+      "msg": "String should have at most 2000 characters",
+      "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "ctx": {
+       "max_length": 2000
+      }
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"instruction\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "instruction": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   }
+  },
+  {
+   "body": "{}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "instruction"
+      ],
+      "msg": "Field required",
+      "input": {}
+     }
+    ]
+   }
+  },
+  {
+   "body": "[]",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "model_attributes_type",
+      "loc": [
+       "body"
+      ],
+      "msg": "Input should be a valid dictionary or object to extract fields from",
+      "input": []
+     }
+    ]
+   }
+  },
+  {
+   "body": "\"s\"",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "model_attributes_type",
+      "loc": [
+       "body"
+      ],
+      "msg": "Input should be a valid dictionary or object to extract fields from",
+      "input": "s"
+     }
+    ]
+   }
+  },
+  {
+   "body": "null",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body"
+      ],
+      "msg": "Field required",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "body": "",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body"
+      ],
+      "msg": "Field required",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "body": "{bad",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "json_invalid",
+      "loc": [
+       "body",
+       1
+      ],
+      "msg": "JSON decode error",
+      "input": {},
+      "ctx": {
+       "error": "Expecting property name enclosed in double quotes"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"instruction\":5}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "instruction"
+      ],
+      "msg": "Input should be a valid string",
+      "input": 5
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"instruction\":null}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "instruction"
+      ],
+      "msg": "Input should be a valid string",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"instruction\":[\"a\"]}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "instruction"
+      ],
+      "msg": "Input should be a valid string",
+      "input": [
+       "a"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"instruction\":\"abc\",\"extra\":1}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "instruction": "abc"
+   }
+  },
+  {
+   "body": "{\"instruction\":\"  ab  \"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "instruction": "  ab  "
+   }
+  },
+  {
+   "body": "{\"instruction\":\"😀😀😀\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "instruction": "😀😀😀"
+   }
+  }
+ ],
+ "campaigns": [
+  {
+   "body": "{\"lead_ids\":[1,2],\"value_proposition\":\"vp\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [
+      1,
+      2
+     ],
+     "value_proposition": "vp",
+     "tone": "professional",
+     "extra_context": ""
+    }
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[1],\"value_proposition\":\"vp\",\"tone\":\"friendly\",\"extra_context\":\"ctx\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [
+      1
+     ],
+     "value_proposition": "vp",
+     "tone": "friendly",
+     "extra_context": "ctx"
+    }
+   }
+  },
+  {
+   "body": "{}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "lead_ids"
+      ],
+      "msg": "Field required",
+      "input": {}
+     },
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "value_proposition"
+      ],
+      "msg": "Field required",
+      "input": {}
+     }
+    ]
+   }
+  },
+  {
+   "body": "[]",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "model_attributes_type",
+      "loc": [
+       "body"
+      ],
+      "msg": "Input should be a valid dictionary or object to extract fields from",
+      "input": []
+     }
+    ]
+   }
+  },
+  {
+   "body": "null",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body"
+      ],
+      "msg": "Field required",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "body": "",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body"
+      ],
+      "msg": "Field required",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "body": "{bad",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "json_invalid",
+      "loc": [
+       "body",
+       1
+      ],
+      "msg": "JSON decode error",
+      "input": {},
+      "ctx": {
+       "error": "Expecting property name enclosed in double quotes"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"lead_ids\":\"1\",\"value_proposition\":\"vp\"}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "list_type",
+      "loc": [
+       "body",
+       "lead_ids"
+      ],
+      "msg": "Input should be a valid list",
+      "input": "1"
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[],\"value_proposition\":\"vp\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [],
+     "value_proposition": "vp",
+     "tone": "professional",
+     "extra_context": ""
+    }
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[\"5\"],\"value_proposition\":\"vp\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [
+      5
+     ],
+     "value_proposition": "vp",
+     "tone": "professional",
+     "extra_context": ""
+    }
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[5.0],\"value_proposition\":\"vp\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [
+      5
+     ],
+     "value_proposition": "vp",
+     "tone": "professional",
+     "extra_context": ""
+    }
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[5.5],\"value_proposition\":\"vp\"}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "int_from_float",
+      "loc": [
+       "body",
+       "lead_ids",
+       0
+      ],
+      "msg": "Input should be a valid integer, got a number with a fractional part",
+      "input": 5.5
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[true],\"value_proposition\":\"vp\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [
+      1
+     ],
+     "value_proposition": "vp",
+     "tone": "professional",
+     "extra_context": ""
+    }
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[null],\"value_proposition\":\"vp\"}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "int_type",
+      "loc": [
+       "body",
+       "lead_ids",
+       0
+      ],
+      "msg": "Input should be a valid integer",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[\"x\"],\"value_proposition\":\"vp\"}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "int_parsing",
+      "loc": [
+       "body",
+       "lead_ids",
+       0
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": "x"
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[1,\"y\",2.5],\"value_proposition\":\"vp\"}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "int_parsing",
+      "loc": [
+       "body",
+       "lead_ids",
+       1
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": "y"
+     },
+     {
+      "type": "int_from_float",
+      "loc": [
+       "body",
+       "lead_ids",
+       2
+      ],
+      "msg": "Input should be a valid integer, got a number with a fractional part",
+      "input": 2.5
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[99999999999999999999],\"value_proposition\":\"vp\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [
+      99999999999999999999
+     ],
+     "value_proposition": "vp",
+     "tone": "professional",
+     "extra_context": ""
+    }
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[-3,0],\"value_proposition\":\"vp\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [
+      -3,
+      0
+     ],
+     "value_proposition": "vp",
+     "tone": "professional",
+     "extra_context": ""
+    }
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[1]}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "value_proposition"
+      ],
+      "msg": "Field required",
+      "input": {
+       "lead_ids": [
+        1
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"value_proposition\":\"vp\"}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "lead_ids"
+      ],
+      "msg": "Field required",
+      "input": {
+       "value_proposition": "vp"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[1],\"value_proposition\":5}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "value_proposition"
+      ],
+      "msg": "Input should be a valid string",
+      "input": 5
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[1],\"value_proposition\":null}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "value_proposition"
+      ],
+      "msg": "Input should be a valid string",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[1],\"value_proposition\":\"vp\",\"tone\":5}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "tone"
+      ],
+      "msg": "Input should be a valid string",
+      "input": 5
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[1],\"value_proposition\":\"vp\",\"tone\":null}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "tone"
+      ],
+      "msg": "Input should be a valid string",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[1],\"value_proposition\":\"vp\",\"extra_context\":null}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "extra_context"
+      ],
+      "msg": "Input should be a valid string",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[1],\"value_proposition\":\"\",\"tone\":\"\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [
+      1
+     ],
+     "value_proposition": "",
+     "tone": "",
+     "extra_context": ""
+    }
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[1,2,3,4,5,6,7,8,9,10,11,12],\"value_proposition\":\"vp\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+     ],
+     "value_proposition": "vp",
+     "tone": "professional",
+     "extra_context": ""
+    }
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[1],\"value_proposition\":\"vp\",\"unknown\":true}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [
+      1
+     ],
+     "value_proposition": "vp",
+     "tone": "professional",
+     "extra_context": ""
+    }
+   }
+  },
+  {
+   "body": "{\"lead_ids\":{\"a\":1},\"value_proposition\":\"vp\"}",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "list_type",
+      "loc": [
+       "body",
+       "lead_ids"
+      ],
+      "msg": "Input should be a valid list",
+      "input": {
+       "a": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[\"1.0\"],\"value_proposition\":\"vp\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [
+      1
+     ],
+     "value_proposition": "vp",
+     "tone": "professional",
+     "extra_context": ""
+    }
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[\" 7 \"],\"value_proposition\":\"vp\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [
+      7
+     ],
+     "value_proposition": "vp",
+     "tone": "professional",
+     "extra_context": ""
+    }
+   }
+  },
+  {
+   "body": "{\"lead_ids\":[1e2],\"value_proposition\":\"vp\"}",
+   "status": 200,
+   "json": {
+    "ok": true,
+    "body": {
+     "lead_ids": [
+      100
+     ],
+     "value_proposition": "vp",
+     "tone": "professional",
+     "extra_context": ""
+    }
+   }
+  }
+ ]
+}

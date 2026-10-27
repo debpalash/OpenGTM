@@ -1,0 +1,876 @@
+{
+ "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+ "leads": {
+  "1": {
+   "id": 1,
+   "company": "Acme Corp",
+   "email": "a@acme.test",
+   "city": "Pune",
+   "company_size": "51-200",
+   "specialization": "IT Staffing",
+   "description": "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+   "contact_person": "Jane",
+   "glassdoor_rating": "4.2"
+  },
+  "2": {
+   "id": 2,
+   "company": "NoEmail",
+   "email": ""
+  },
+  "3": {
+   "id": 3,
+   "company": "Bare",
+   "email": "b@bare.test"
+  },
+  "4": {
+   "id": 4,
+   "company": "Unicode Müller",
+   "email": "u@u.test",
+   "city": "Zürich",
+   "description": "héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo ",
+   "glassdoor_rating": "0"
+  },
+  "5": {
+   "id": 5,
+   "company": "Five",
+   "email": "f@f.test",
+   "contact_person": "Bob",
+   "company_size": "1-50"
+  },
+  "6": {
+   "id": 6,
+   "company": "Six",
+   "email": "s@six.test"
+  },
+  "99": {
+   "__raise__": "db boom"
+  },
+  "7": {
+   "id": 7,
+   "company": "Co7",
+   "email": "e7@co.test"
+  },
+  "8": {
+   "id": 8,
+   "company": "Co8",
+   "email": "e8@co.test"
+  },
+  "9": {
+   "id": 9,
+   "company": "Co9",
+   "email": "e9@co.test"
+  },
+  "10": {
+   "id": 10,
+   "company": "Co10",
+   "email": "e10@co.test"
+  },
+  "11": {
+   "id": 11,
+   "company": "Co11",
+   "email": "e11@co.test"
+  },
+  "12": {
+   "id": 12,
+   "company": "Co12",
+   "email": "e12@co.test"
+  },
+  "13": {
+   "id": 13,
+   "company": "Co13",
+   "email": "e13@co.test"
+  },
+  "14": {
+   "id": 14,
+   "company": "Co14",
+   "email": "e14@co.test"
+  },
+  "15": {
+   "id": 15,
+   "company": "Co15",
+   "email": "e15@co.test"
+  },
+  "16": {
+   "id": 16,
+   "company": "Co16",
+   "email": "e16@co.test"
+  },
+  "17": {
+   "id": 17,
+   "company": "Co17",
+   "email": "e17@co.test"
+  },
+  "18": {
+   "id": 18,
+   "company": "Co18",
+   "email": "e18@co.test"
+  },
+  "19": {
+   "id": 19,
+   "company": "Co19",
+   "email": "e19@co.test"
+  }
+ },
+ "cases": [
+  {
+   "name": "single_ok",
+   "request": {
+    "lead_ids": [
+     1
+    ],
+    "value_proposition": "We help",
+    "tone": "friendly",
+    "extra_context": "met at event"
+   },
+   "llm": [
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Acme Corp\nLocation: Pune\nSize: 51-200 employees\nIndustry: IT Staffing\nAbout: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\nContact: Jane\nGlassdoor: 4.2/5\n\nMy value proposition: We help\n\nTone: Warm, conversational, and approachable\n\nAdditional context: met at event\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    1
+   ],
+   "closed": true,
+   "response": {
+    "emails": [
+     {
+      "company": "Acme Corp",
+      "subject": "Hi there",
+      "body": "Hello body"
+     }
+    ]
+   }
+  },
+  {
+   "name": "tone_unknown_passthrough",
+   "request": {
+    "lead_ids": [
+     1
+    ],
+    "value_proposition": "We help",
+    "tone": "sassy"
+   },
+   "llm": [
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Acme Corp\nLocation: Pune\nSize: 51-200 employees\nIndustry: IT Staffing\nAbout: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\nContact: Jane\nGlassdoor: 4.2/5\n\nMy value proposition: We help\n\nTone: sassy\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    1
+   ],
+   "closed": true,
+   "response": {
+    "emails": [
+     {
+      "company": "Acme Corp",
+      "subject": "Hi there",
+      "body": "Hello body"
+     }
+    ]
+   }
+  },
+  {
+   "name": "tone_default",
+   "request": {
+    "lead_ids": [
+     3
+    ],
+    "value_proposition": "vp"
+   },
+   "llm": [
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Bare\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    3
+   ],
+   "closed": true,
+   "response": {
+    "emails": [
+     {
+      "company": "Bare",
+      "subject": "Hi there",
+      "body": "Hello body"
+     }
+    ]
+   }
+  },
+  {
+   "name": "tone_direct_consultative",
+   "request": {
+    "lead_ids": [
+     5,
+     6
+    ],
+    "value_proposition": "vp",
+    "tone": "direct"
+   },
+   "llm": [
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Five\nSize: 1-50 employees\nContact: Bob\n\nMy value proposition: vp\n\nTone: Direct, bold, and to the point\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Six\n\nMy value proposition: vp\n\nTone: Direct, bold, and to the point\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    5,
+    6
+   ],
+   "closed": true,
+   "response": {
+    "emails": [
+     {
+      "company": "Five",
+      "subject": "Hi there",
+      "body": "Hello body"
+     },
+     {
+      "company": "Six",
+      "subject": "Hi there",
+      "body": "Hello body"
+     }
+    ]
+   }
+  },
+  {
+   "name": "skip_missing_and_no_email",
+   "request": {
+    "lead_ids": [
+     2,
+     404,
+     1
+    ],
+    "value_proposition": "vp"
+   },
+   "llm": [
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Acme Corp\nLocation: Pune\nSize: 51-200 employees\nIndustry: IT Staffing\nAbout: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\nContact: Jane\nGlassdoor: 4.2/5\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    2,
+    404,
+    1
+   ],
+   "closed": true,
+   "response": {
+    "emails": [
+     {
+      "company": "Acme Corp",
+      "subject": "Hi there",
+      "body": "Hello body"
+     }
+    ]
+   }
+  },
+  {
+   "name": "llm_empty_skipped",
+   "request": {
+    "lead_ids": [
+     1,
+     3
+    ],
+    "value_proposition": "vp"
+   },
+   "llm": [
+    {},
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Acme Corp\nLocation: Pune\nSize: 51-200 employees\nIndustry: IT Staffing\nAbout: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\nContact: Jane\nGlassdoor: 4.2/5\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Bare\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    1,
+    3
+   ],
+   "closed": true,
+   "response": {
+    "emails": [
+     {
+      "company": "Bare",
+      "subject": "Hi there",
+      "body": "Hello body"
+     }
+    ]
+   }
+  },
+  {
+   "name": "llm_missing_body_skipped",
+   "request": {
+    "lead_ids": [
+     1,
+     3
+    ],
+    "value_proposition": "vp"
+   },
+   "llm": [
+    {
+     "subject": "s"
+    },
+    {
+     "body": "b"
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Acme Corp\nLocation: Pune\nSize: 51-200 employees\nIndustry: IT Staffing\nAbout: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\nContact: Jane\nGlassdoor: 4.2/5\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Bare\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    1,
+    3
+   ],
+   "closed": true,
+   "response": {
+    "emails": []
+   }
+  },
+  {
+   "name": "llm_empty_strings_skipped",
+   "request": {
+    "lead_ids": [
+     1
+    ],
+    "value_proposition": "vp"
+   },
+   "llm": [
+    {
+     "subject": "",
+     "body": "x"
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Acme Corp\nLocation: Pune\nSize: 51-200 employees\nIndustry: IT Staffing\nAbout: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\nContact: Jane\nGlassdoor: 4.2/5\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    1
+   ],
+   "closed": true,
+   "response": {
+    "emails": []
+   }
+  },
+  {
+   "name": "llm_non_string_values",
+   "request": {
+    "lead_ids": [
+     1
+    ],
+    "value_proposition": "vp"
+   },
+   "llm": [
+    {
+     "subject": 5,
+     "body": [
+      "x"
+     ]
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Acme Corp\nLocation: Pune\nSize: 51-200 employees\nIndustry: IT Staffing\nAbout: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\nContact: Jane\nGlassdoor: 4.2/5\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    1
+   ],
+   "closed": true,
+   "response": {
+    "emails": []
+   }
+  },
+  {
+   "name": "llm_raises_continues",
+   "request": {
+    "lead_ids": [
+     1,
+     3
+    ],
+    "value_proposition": "vp"
+   },
+   "llm": [
+    {
+     "__raise__": "x"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Acme Corp\nLocation: Pune\nSize: 51-200 employees\nIndustry: IT Staffing\nAbout: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\nContact: Jane\nGlassdoor: 4.2/5\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Bare\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    1,
+    3
+   ],
+   "closed": true,
+   "response": {
+    "emails": [
+     {
+      "company": "Bare",
+      "subject": "Hi there",
+      "body": "Hello body"
+     }
+    ]
+   }
+  },
+  {
+   "name": "db_raises_continues",
+   "request": {
+    "lead_ids": [
+     99,
+     3
+    ],
+    "value_proposition": "vp"
+   },
+   "llm": [
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Bare\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    99,
+    3
+   ],
+   "closed": true,
+   "response": {
+    "emails": [
+     {
+      "company": "Bare",
+      "subject": "Hi there",
+      "body": "Hello body"
+     }
+    ]
+   }
+  },
+  {
+   "name": "capped_at_10",
+   "request": {
+    "lead_ids": [
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19
+    ],
+    "value_proposition": "vp"
+   },
+   "llm": [
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Co7\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Co8\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Co9\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Co10\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Co11\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Co12\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Co13\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Co14\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Co15\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Co16\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
+   ],
+   "closed": true,
+   "response": {
+    "emails": [
+     {
+      "company": "Co7",
+      "subject": "Hi there",
+      "body": "Hello body"
+     },
+     {
+      "company": "Co8",
+      "subject": "Hi there",
+      "body": "Hello body"
+     },
+     {
+      "company": "Co9",
+      "subject": "Hi there",
+      "body": "Hello body"
+     },
+     {
+      "company": "Co10",
+      "subject": "Hi there",
+      "body": "Hello body"
+     },
+     {
+      "company": "Co11",
+      "subject": "Hi there",
+      "body": "Hello body"
+     },
+     {
+      "company": "Co12",
+      "subject": "Hi there",
+      "body": "Hello body"
+     },
+     {
+      "company": "Co13",
+      "subject": "Hi there",
+      "body": "Hello body"
+     },
+     {
+      "company": "Co14",
+      "subject": "Hi there",
+      "body": "Hello body"
+     },
+     {
+      "company": "Co15",
+      "subject": "Hi there",
+      "body": "Hello body"
+     },
+     {
+      "company": "Co16",
+      "subject": "Hi there",
+      "body": "Hello body"
+     }
+    ]
+   }
+  },
+  {
+   "name": "cap_counts_skipped",
+   "request": {
+    "lead_ids": [
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     1
+    ],
+    "value_proposition": "vp"
+   },
+   "llm": [
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    }
+   ],
+   "calls": [],
+   "asked": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "closed": true,
+   "response": {
+    "emails": []
+   }
+  },
+  {
+   "name": "duplicates_processed_twice",
+   "request": {
+    "lead_ids": [
+     1,
+     1
+    ],
+    "value_proposition": "vp"
+   },
+   "llm": [
+    {
+     "subject": "Hi there",
+     "body": "Hello body"
+    },
+    {
+     "subject": "S2",
+     "body": "B2"
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Acme Corp\nLocation: Pune\nSize: 51-200 employees\nIndustry: IT Staffing\nAbout: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\nContact: Jane\nGlassdoor: 4.2/5\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    },
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Acme Corp\nLocation: Pune\nSize: 51-200 employees\nIndustry: IT Staffing\nAbout: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\nContact: Jane\nGlassdoor: 4.2/5\n\nMy value proposition: vp\n\nTone: Professional and polished\n\n\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    1,
+    1
+   ],
+   "closed": true,
+   "response": {
+    "emails": [
+     {
+      "company": "Acme Corp",
+      "subject": "Hi there",
+      "body": "Hello body"
+     },
+     {
+      "company": "Acme Corp",
+      "subject": "S2",
+      "body": "B2"
+     }
+    ]
+   }
+  },
+  {
+   "name": "unicode",
+   "request": {
+    "lead_ids": [
+     4
+    ],
+    "value_proposition": "Wir helfen",
+    "tone": "professional",
+    "extra_context": "Grüße"
+   },
+   "llm": [
+    {
+     "subject": "Grüß dich",
+     "body": "Hallo Müller"
+    }
+   ],
+   "calls": [
+    {
+     "prompt": "Generate a personalized cold outreach email for:\n\nCompany: Unicode Müller\nLocation: Zürich\nAbout: héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo héllo hé\nGlassdoor: 0/5\n\nMy value proposition: Wir helfen\n\nTone: Professional and polished\n\nAdditional context: Grüße\n\nReturn a JSON object with \"subject\" and \"body\" fields.",
+     "system": "You are an expert B2B sales copywriter. Generate personalized cold outreach emails.\n\nRules:\n- Keep subject lines under 50 chars, curiosity-driven\n- Keep body under 150 words\n- Reference specific company details (name, size, industry)\n- Include a clear CTA (call/meeting)\n- No generic templates — each email must feel personally crafted\n- Be respectful and professional\n- Return JSON: {\"subject\": \"...\", \"body\": \"...\"}",
+     "max_tokens": 2048
+    }
+   ],
+   "asked": [
+    4
+   ],
+   "closed": true,
+   "response": {
+    "emails": [
+     {
+      "company": "Unicode Müller",
+      "subject": "Grüß dich",
+      "body": "Hallo Müller"
+     }
+    ]
+   }
+  },
+  {
+   "name": "no_leads",
+   "request": {
+    "lead_ids": [],
+    "value_proposition": "vp"
+   },
+   "llm": [],
+   "calls": [],
+   "asked": [],
+   "closed": true,
+   "response": {
+    "emails": []
+   }
+  }
+ ]
+}

@@ -1,0 +1,1446 @@
+{
+ "normalize": [
+  {
+   "field": "website",
+   "value": null,
+   "norm": ""
+  },
+  {
+   "field": "website",
+   "value": "",
+   "norm": ""
+  },
+  {
+   "field": "website",
+   "value": "  ",
+   "norm": ""
+  },
+  {
+   "field": "website",
+   "value": "HTTPS://WWW.Acme.COM/About/",
+   "norm": "acme.com"
+  },
+  {
+   "field": "website",
+   "value": "www.acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "website",
+   "value": "acme.com/",
+   "norm": "acme.com"
+  },
+  {
+   "field": "website",
+   "value": "https://acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "website",
+   "value": 2020,
+   "norm": "2020"
+  },
+  {
+   "field": "website",
+   "value": "Founded in 1999 (est)",
+   "norm": "founded in 1999 (est)"
+  },
+  {
+   "field": "website",
+   "value": "abc",
+   "norm": "abc"
+  },
+  {
+   "field": "website",
+   "value": "AeroSpace",
+   "norm": "aerospace"
+  },
+  {
+   "field": "website",
+   "value": "aerospace & defense",
+   "norm": "aerospace & defense"
+  },
+  {
+   "field": "website",
+   "value": "http://x.y/z/",
+   "norm": "x.y"
+  },
+  {
+   "field": "website",
+   "value": "linkedin.com/company/a/",
+   "norm": "linkedin.com"
+  },
+  {
+   "field": "website",
+   "value": 0,
+   "norm": "0"
+  },
+  {
+   "field": "website",
+   "value": "ÄÖÜ",
+   "norm": "äöü"
+  },
+  {
+   "field": "website",
+   "value": "12",
+   "norm": "12"
+  },
+  {
+   "field": "website",
+   "value": [
+    "a"
+   ],
+   "norm": "['a']"
+  },
+  {
+   "field": "website",
+   "value": true,
+   "norm": "true"
+  },
+  {
+   "field": "domain",
+   "value": null,
+   "norm": ""
+  },
+  {
+   "field": "domain",
+   "value": "",
+   "norm": ""
+  },
+  {
+   "field": "domain",
+   "value": "  ",
+   "norm": ""
+  },
+  {
+   "field": "domain",
+   "value": "HTTPS://WWW.Acme.COM/About/",
+   "norm": "acme.com"
+  },
+  {
+   "field": "domain",
+   "value": "www.acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "domain",
+   "value": "acme.com/",
+   "norm": "acme.com"
+  },
+  {
+   "field": "domain",
+   "value": "https://acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "domain",
+   "value": 2020,
+   "norm": "2020"
+  },
+  {
+   "field": "domain",
+   "value": "Founded in 1999 (est)",
+   "norm": "founded in 1999 (est)"
+  },
+  {
+   "field": "domain",
+   "value": "abc",
+   "norm": "abc"
+  },
+  {
+   "field": "domain",
+   "value": "AeroSpace",
+   "norm": "aerospace"
+  },
+  {
+   "field": "domain",
+   "value": "aerospace & defense",
+   "norm": "aerospace & defense"
+  },
+  {
+   "field": "domain",
+   "value": "http://x.y/z/",
+   "norm": "x.y"
+  },
+  {
+   "field": "domain",
+   "value": "linkedin.com/company/a/",
+   "norm": "linkedin.com"
+  },
+  {
+   "field": "domain",
+   "value": 0,
+   "norm": "0"
+  },
+  {
+   "field": "domain",
+   "value": "ÄÖÜ",
+   "norm": "äöü"
+  },
+  {
+   "field": "domain",
+   "value": "12",
+   "norm": "12"
+  },
+  {
+   "field": "domain",
+   "value": [
+    "a"
+   ],
+   "norm": "['a']"
+  },
+  {
+   "field": "domain",
+   "value": true,
+   "norm": "true"
+  },
+  {
+   "field": "founding_year",
+   "value": null,
+   "norm": ""
+  },
+  {
+   "field": "founding_year",
+   "value": "",
+   "norm": ""
+  },
+  {
+   "field": "founding_year",
+   "value": "  ",
+   "norm": ""
+  },
+  {
+   "field": "founding_year",
+   "value": "HTTPS://WWW.Acme.COM/About/",
+   "norm": "acme.com/about"
+  },
+  {
+   "field": "founding_year",
+   "value": "www.acme.com",
+   "norm": "www.acme.com"
+  },
+  {
+   "field": "founding_year",
+   "value": "acme.com/",
+   "norm": "acme.com/"
+  },
+  {
+   "field": "founding_year",
+   "value": "https://acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "founding_year",
+   "value": 2020,
+   "norm": "2020"
+  },
+  {
+   "field": "founding_year",
+   "value": "Founded in 1999 (est)",
+   "norm": "1999"
+  },
+  {
+   "field": "founding_year",
+   "value": "abc",
+   "norm": "abc"
+  },
+  {
+   "field": "founding_year",
+   "value": "AeroSpace",
+   "norm": "aerospace"
+  },
+  {
+   "field": "founding_year",
+   "value": "aerospace & defense",
+   "norm": "aerospace & defense"
+  },
+  {
+   "field": "founding_year",
+   "value": "http://x.y/z/",
+   "norm": "x.y/z"
+  },
+  {
+   "field": "founding_year",
+   "value": "linkedin.com/company/a/",
+   "norm": "linkedin.com/company/a/"
+  },
+  {
+   "field": "founding_year",
+   "value": 0,
+   "norm": "0"
+  },
+  {
+   "field": "founding_year",
+   "value": "ÄÖÜ",
+   "norm": "äöü"
+  },
+  {
+   "field": "founding_year",
+   "value": "12",
+   "norm": "12"
+  },
+  {
+   "field": "founding_year",
+   "value": [
+    "a"
+   ],
+   "norm": "['a']"
+  },
+  {
+   "field": "founding_year",
+   "value": true,
+   "norm": "true"
+  },
+  {
+   "field": "founded_year",
+   "value": null,
+   "norm": ""
+  },
+  {
+   "field": "founded_year",
+   "value": "",
+   "norm": ""
+  },
+  {
+   "field": "founded_year",
+   "value": "  ",
+   "norm": ""
+  },
+  {
+   "field": "founded_year",
+   "value": "HTTPS://WWW.Acme.COM/About/",
+   "norm": "acme.com/about"
+  },
+  {
+   "field": "founded_year",
+   "value": "www.acme.com",
+   "norm": "www.acme.com"
+  },
+  {
+   "field": "founded_year",
+   "value": "acme.com/",
+   "norm": "acme.com/"
+  },
+  {
+   "field": "founded_year",
+   "value": "https://acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "founded_year",
+   "value": 2020,
+   "norm": "2020"
+  },
+  {
+   "field": "founded_year",
+   "value": "Founded in 1999 (est)",
+   "norm": "1999"
+  },
+  {
+   "field": "founded_year",
+   "value": "abc",
+   "norm": "abc"
+  },
+  {
+   "field": "founded_year",
+   "value": "AeroSpace",
+   "norm": "aerospace"
+  },
+  {
+   "field": "founded_year",
+   "value": "aerospace & defense",
+   "norm": "aerospace & defense"
+  },
+  {
+   "field": "founded_year",
+   "value": "http://x.y/z/",
+   "norm": "x.y/z"
+  },
+  {
+   "field": "founded_year",
+   "value": "linkedin.com/company/a/",
+   "norm": "linkedin.com/company/a/"
+  },
+  {
+   "field": "founded_year",
+   "value": 0,
+   "norm": "0"
+  },
+  {
+   "field": "founded_year",
+   "value": "ÄÖÜ",
+   "norm": "äöü"
+  },
+  {
+   "field": "founded_year",
+   "value": "12",
+   "norm": "12"
+  },
+  {
+   "field": "founded_year",
+   "value": [
+    "a"
+   ],
+   "norm": "['a']"
+  },
+  {
+   "field": "founded_year",
+   "value": true,
+   "norm": "true"
+  },
+  {
+   "field": "linkedin_url",
+   "value": null,
+   "norm": ""
+  },
+  {
+   "field": "linkedin_url",
+   "value": "",
+   "norm": ""
+  },
+  {
+   "field": "linkedin_url",
+   "value": "  ",
+   "norm": ""
+  },
+  {
+   "field": "linkedin_url",
+   "value": "HTTPS://WWW.Acme.COM/About/",
+   "norm": "acme.com/about"
+  },
+  {
+   "field": "linkedin_url",
+   "value": "www.acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "linkedin_url",
+   "value": "acme.com/",
+   "norm": "acme.com"
+  },
+  {
+   "field": "linkedin_url",
+   "value": "https://acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "linkedin_url",
+   "value": 2020,
+   "norm": "2020"
+  },
+  {
+   "field": "linkedin_url",
+   "value": "Founded in 1999 (est)",
+   "norm": "founded in 1999 (est)"
+  },
+  {
+   "field": "linkedin_url",
+   "value": "abc",
+   "norm": "abc"
+  },
+  {
+   "field": "linkedin_url",
+   "value": "AeroSpace",
+   "norm": "aerospace"
+  },
+  {
+   "field": "linkedin_url",
+   "value": "aerospace & defense",
+   "norm": "aerospace & defense"
+  },
+  {
+   "field": "linkedin_url",
+   "value": "http://x.y/z/",
+   "norm": "x.y/z"
+  },
+  {
+   "field": "linkedin_url",
+   "value": "linkedin.com/company/a/",
+   "norm": "linkedin.com/company/a"
+  },
+  {
+   "field": "linkedin_url",
+   "value": 0,
+   "norm": "0"
+  },
+  {
+   "field": "linkedin_url",
+   "value": "ÄÖÜ",
+   "norm": "äöü"
+  },
+  {
+   "field": "linkedin_url",
+   "value": "12",
+   "norm": "12"
+  },
+  {
+   "field": "linkedin_url",
+   "value": [
+    "a"
+   ],
+   "norm": "['a']"
+  },
+  {
+   "field": "linkedin_url",
+   "value": true,
+   "norm": "true"
+  },
+  {
+   "field": "twitter_url",
+   "value": null,
+   "norm": ""
+  },
+  {
+   "field": "twitter_url",
+   "value": "",
+   "norm": ""
+  },
+  {
+   "field": "twitter_url",
+   "value": "  ",
+   "norm": ""
+  },
+  {
+   "field": "twitter_url",
+   "value": "HTTPS://WWW.Acme.COM/About/",
+   "norm": "acme.com/about"
+  },
+  {
+   "field": "twitter_url",
+   "value": "www.acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "twitter_url",
+   "value": "acme.com/",
+   "norm": "acme.com"
+  },
+  {
+   "field": "twitter_url",
+   "value": "https://acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "twitter_url",
+   "value": 2020,
+   "norm": "2020"
+  },
+  {
+   "field": "twitter_url",
+   "value": "Founded in 1999 (est)",
+   "norm": "founded in 1999 (est)"
+  },
+  {
+   "field": "twitter_url",
+   "value": "abc",
+   "norm": "abc"
+  },
+  {
+   "field": "twitter_url",
+   "value": "AeroSpace",
+   "norm": "aerospace"
+  },
+  {
+   "field": "twitter_url",
+   "value": "aerospace & defense",
+   "norm": "aerospace & defense"
+  },
+  {
+   "field": "twitter_url",
+   "value": "http://x.y/z/",
+   "norm": "x.y/z"
+  },
+  {
+   "field": "twitter_url",
+   "value": "linkedin.com/company/a/",
+   "norm": "linkedin.com/company/a"
+  },
+  {
+   "field": "twitter_url",
+   "value": 0,
+   "norm": "0"
+  },
+  {
+   "field": "twitter_url",
+   "value": "ÄÖÜ",
+   "norm": "äöü"
+  },
+  {
+   "field": "twitter_url",
+   "value": "12",
+   "norm": "12"
+  },
+  {
+   "field": "twitter_url",
+   "value": [
+    "a"
+   ],
+   "norm": "['a']"
+  },
+  {
+   "field": "twitter_url",
+   "value": true,
+   "norm": "true"
+  },
+  {
+   "field": "industry_tags",
+   "value": null,
+   "norm": ""
+  },
+  {
+   "field": "industry_tags",
+   "value": "",
+   "norm": ""
+  },
+  {
+   "field": "industry_tags",
+   "value": "  ",
+   "norm": ""
+  },
+  {
+   "field": "industry_tags",
+   "value": "HTTPS://WWW.Acme.COM/About/",
+   "norm": "acme.com/about"
+  },
+  {
+   "field": "industry_tags",
+   "value": "www.acme.com",
+   "norm": "www.acme.com"
+  },
+  {
+   "field": "industry_tags",
+   "value": "acme.com/",
+   "norm": "acme.com/"
+  },
+  {
+   "field": "industry_tags",
+   "value": "https://acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "industry_tags",
+   "value": 2020,
+   "norm": "2020"
+  },
+  {
+   "field": "industry_tags",
+   "value": "Founded in 1999 (est)",
+   "norm": "founded in 1999 (est)"
+  },
+  {
+   "field": "industry_tags",
+   "value": "abc",
+   "norm": "abc"
+  },
+  {
+   "field": "industry_tags",
+   "value": "AeroSpace",
+   "norm": "aerospace"
+  },
+  {
+   "field": "industry_tags",
+   "value": "aerospace & defense",
+   "norm": "aerospace & defense"
+  },
+  {
+   "field": "industry_tags",
+   "value": "http://x.y/z/",
+   "norm": "x.y/z"
+  },
+  {
+   "field": "industry_tags",
+   "value": "linkedin.com/company/a/",
+   "norm": "linkedin.com/company/a/"
+  },
+  {
+   "field": "industry_tags",
+   "value": 0,
+   "norm": "0"
+  },
+  {
+   "field": "industry_tags",
+   "value": "ÄÖÜ",
+   "norm": "äöü"
+  },
+  {
+   "field": "industry_tags",
+   "value": "12",
+   "norm": "12"
+  },
+  {
+   "field": "industry_tags",
+   "value": [
+    "a"
+   ],
+   "norm": "['a']"
+  },
+  {
+   "field": "industry_tags",
+   "value": true,
+   "norm": "true"
+  },
+  {
+   "field": "description",
+   "value": null,
+   "norm": ""
+  },
+  {
+   "field": "description",
+   "value": "",
+   "norm": ""
+  },
+  {
+   "field": "description",
+   "value": "  ",
+   "norm": ""
+  },
+  {
+   "field": "description",
+   "value": "HTTPS://WWW.Acme.COM/About/",
+   "norm": "acme.com/about"
+  },
+  {
+   "field": "description",
+   "value": "www.acme.com",
+   "norm": "www.acme.com"
+  },
+  {
+   "field": "description",
+   "value": "acme.com/",
+   "norm": "acme.com/"
+  },
+  {
+   "field": "description",
+   "value": "https://acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "description",
+   "value": 2020,
+   "norm": "2020"
+  },
+  {
+   "field": "description",
+   "value": "Founded in 1999 (est)",
+   "norm": "founded in 1999 (est)"
+  },
+  {
+   "field": "description",
+   "value": "abc",
+   "norm": "abc"
+  },
+  {
+   "field": "description",
+   "value": "AeroSpace",
+   "norm": "aerospace"
+  },
+  {
+   "field": "description",
+   "value": "aerospace & defense",
+   "norm": "aerospace & defense"
+  },
+  {
+   "field": "description",
+   "value": "http://x.y/z/",
+   "norm": "x.y/z"
+  },
+  {
+   "field": "description",
+   "value": "linkedin.com/company/a/",
+   "norm": "linkedin.com/company/a/"
+  },
+  {
+   "field": "description",
+   "value": 0,
+   "norm": "0"
+  },
+  {
+   "field": "description",
+   "value": "ÄÖÜ",
+   "norm": "äöü"
+  },
+  {
+   "field": "description",
+   "value": "12",
+   "norm": "12"
+  },
+  {
+   "field": "description",
+   "value": [
+    "a"
+   ],
+   "norm": "['a']"
+  },
+  {
+   "field": "description",
+   "value": true,
+   "norm": "true"
+  },
+  {
+   "field": "company",
+   "value": null,
+   "norm": ""
+  },
+  {
+   "field": "company",
+   "value": "",
+   "norm": ""
+  },
+  {
+   "field": "company",
+   "value": "  ",
+   "norm": ""
+  },
+  {
+   "field": "company",
+   "value": "HTTPS://WWW.Acme.COM/About/",
+   "norm": "acme.com/about"
+  },
+  {
+   "field": "company",
+   "value": "www.acme.com",
+   "norm": "www.acme.com"
+  },
+  {
+   "field": "company",
+   "value": "acme.com/",
+   "norm": "acme.com/"
+  },
+  {
+   "field": "company",
+   "value": "https://acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "company",
+   "value": 2020,
+   "norm": "2020"
+  },
+  {
+   "field": "company",
+   "value": "Founded in 1999 (est)",
+   "norm": "founded in 1999 (est)"
+  },
+  {
+   "field": "company",
+   "value": "abc",
+   "norm": "abc"
+  },
+  {
+   "field": "company",
+   "value": "AeroSpace",
+   "norm": "aerospace"
+  },
+  {
+   "field": "company",
+   "value": "aerospace & defense",
+   "norm": "aerospace & defense"
+  },
+  {
+   "field": "company",
+   "value": "http://x.y/z/",
+   "norm": "x.y/z"
+  },
+  {
+   "field": "company",
+   "value": "linkedin.com/company/a/",
+   "norm": "linkedin.com/company/a/"
+  },
+  {
+   "field": "company",
+   "value": 0,
+   "norm": "0"
+  },
+  {
+   "field": "company",
+   "value": "ÄÖÜ",
+   "norm": "äöü"
+  },
+  {
+   "field": "company",
+   "value": "12",
+   "norm": "12"
+  },
+  {
+   "field": "company",
+   "value": [
+    "a"
+   ],
+   "norm": "['a']"
+  },
+  {
+   "field": "company",
+   "value": true,
+   "norm": "true"
+  },
+  {
+   "field": "email",
+   "value": null,
+   "norm": ""
+  },
+  {
+   "field": "email",
+   "value": "",
+   "norm": ""
+  },
+  {
+   "field": "email",
+   "value": "  ",
+   "norm": ""
+  },
+  {
+   "field": "email",
+   "value": "HTTPS://WWW.Acme.COM/About/",
+   "norm": "acme.com/about"
+  },
+  {
+   "field": "email",
+   "value": "www.acme.com",
+   "norm": "www.acme.com"
+  },
+  {
+   "field": "email",
+   "value": "acme.com/",
+   "norm": "acme.com/"
+  },
+  {
+   "field": "email",
+   "value": "https://acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "email",
+   "value": 2020,
+   "norm": "2020"
+  },
+  {
+   "field": "email",
+   "value": "Founded in 1999 (est)",
+   "norm": "founded in 1999 (est)"
+  },
+  {
+   "field": "email",
+   "value": "abc",
+   "norm": "abc"
+  },
+  {
+   "field": "email",
+   "value": "AeroSpace",
+   "norm": "aerospace"
+  },
+  {
+   "field": "email",
+   "value": "aerospace & defense",
+   "norm": "aerospace & defense"
+  },
+  {
+   "field": "email",
+   "value": "http://x.y/z/",
+   "norm": "x.y/z"
+  },
+  {
+   "field": "email",
+   "value": "linkedin.com/company/a/",
+   "norm": "linkedin.com/company/a/"
+  },
+  {
+   "field": "email",
+   "value": 0,
+   "norm": "0"
+  },
+  {
+   "field": "email",
+   "value": "ÄÖÜ",
+   "norm": "äöü"
+  },
+  {
+   "field": "email",
+   "value": "12",
+   "norm": "12"
+  },
+  {
+   "field": "email",
+   "value": [
+    "a"
+   ],
+   "norm": "['a']"
+  },
+  {
+   "field": "email",
+   "value": true,
+   "norm": "true"
+  },
+  {
+   "field": "x_url",
+   "value": null,
+   "norm": ""
+  },
+  {
+   "field": "x_url",
+   "value": "",
+   "norm": ""
+  },
+  {
+   "field": "x_url",
+   "value": "  ",
+   "norm": ""
+  },
+  {
+   "field": "x_url",
+   "value": "HTTPS://WWW.Acme.COM/About/",
+   "norm": "acme.com/about"
+  },
+  {
+   "field": "x_url",
+   "value": "www.acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "x_url",
+   "value": "acme.com/",
+   "norm": "acme.com"
+  },
+  {
+   "field": "x_url",
+   "value": "https://acme.com",
+   "norm": "acme.com"
+  },
+  {
+   "field": "x_url",
+   "value": 2020,
+   "norm": "2020"
+  },
+  {
+   "field": "x_url",
+   "value": "Founded in 1999 (est)",
+   "norm": "founded in 1999 (est)"
+  },
+  {
+   "field": "x_url",
+   "value": "abc",
+   "norm": "abc"
+  },
+  {
+   "field": "x_url",
+   "value": "AeroSpace",
+   "norm": "aerospace"
+  },
+  {
+   "field": "x_url",
+   "value": "aerospace & defense",
+   "norm": "aerospace & defense"
+  },
+  {
+   "field": "x_url",
+   "value": "http://x.y/z/",
+   "norm": "x.y/z"
+  },
+  {
+   "field": "x_url",
+   "value": "linkedin.com/company/a/",
+   "norm": "linkedin.com/company/a"
+  },
+  {
+   "field": "x_url",
+   "value": 0,
+   "norm": "0"
+  },
+  {
+   "field": "x_url",
+   "value": "ÄÖÜ",
+   "norm": "äöü"
+  },
+  {
+   "field": "x_url",
+   "value": "12",
+   "norm": "12"
+  },
+  {
+   "field": "x_url",
+   "value": [
+    "a"
+   ],
+   "norm": "['a']"
+  },
+  {
+   "field": "x_url",
+   "value": true,
+   "norm": "true"
+  }
+ ],
+ "values_match": [
+  {
+   "field": "website",
+   "got": "https://www.a.com/x",
+   "expected": "a.com",
+   "match": true
+  },
+  {
+   "field": "domain",
+   "got": "A.com",
+   "expected": "a.com/q",
+   "match": true
+  },
+  {
+   "field": "industry_tags",
+   "got": "aerospace & defense",
+   "expected": "aerospace",
+   "match": true
+  },
+  {
+   "field": "industry_tags",
+   "got": "aero",
+   "expected": "defense",
+   "match": false
+  },
+  {
+   "field": "description",
+   "got": "Makes widgets",
+   "expected": "widgets",
+   "match": true
+  },
+  {
+   "field": "founding_year",
+   "got": "Est. 1999",
+   "expected": 1999,
+   "match": true
+  },
+  {
+   "field": "company",
+   "got": "Acme",
+   "expected": "acme",
+   "match": true
+  },
+  {
+   "field": "company",
+   "got": "Acme Inc",
+   "expected": "acme",
+   "match": false
+  },
+  {
+   "field": "email",
+   "got": "",
+   "expected": "a",
+   "match": false
+  },
+  {
+   "field": "email",
+   "got": "a",
+   "expected": null,
+   "match": false
+  },
+  {
+   "field": "linkedin_url",
+   "got": "https://www.linkedin.com/in/x/",
+   "expected": "linkedin.com/in/x",
+   "match": true
+  }
+ ],
+ "freshness": [
+  {
+   "asof": null,
+   "fresh": 1.0
+  },
+  {
+   "asof": "",
+   "fresh": 1.0
+  },
+  {
+   "asof": "2026-10-28",
+   "fresh": 1.0
+  },
+  {
+   "asof": "2026-10-29",
+   "fresh": 1.0
+  },
+  {
+   "asof": "2025-10-28",
+   "fresh": 0.8501026694045175
+  },
+  {
+   "asof": "2020-01-01",
+   "fresh": 0.0
+  },
+  {
+   "asof": "1990-01-01",
+   "fresh": 0.0
+  },
+  {
+   "asof": "bad",
+   "fresh": 1.0
+  },
+  {
+   "asof": "2024-02-29",
+   "fresh": 0.6008213552361397
+  },
+  {
+   "asof": "2026-1-1",
+   "fresh": 0.8767967145790554
+  },
+  {
+   "asof": "2026-10-28T10:00:00",
+   "fresh": 1.0
+  }
+ ],
+ "synthetic": {
+  "golden": [
+   {
+    "id": "g1",
+    "expected": {
+     "website": "acme.com",
+     "founding_year": "1999",
+     "description": "widgets"
+    }
+   },
+   {
+    "id": "g2",
+    "expected": {
+     "website": "b.io",
+     "industry_tags": "aerospace"
+    }
+   },
+   {
+    "id": "g3",
+    "expected": {}
+   }
+  ],
+  "outputs": {
+   "g1": {
+    "p1": {
+     "fields": {
+      "website": "https://www.acme.com/",
+      "founding_year": "Est 1999",
+      "description": "wrong"
+     },
+     "asof": "2025-10-28"
+    },
+    "p2": {
+     "fields": {
+      "website": "x.com"
+     }
+    },
+    "p3": {
+     "fields": {}
+    }
+   },
+   "g2": {
+    "p1": {
+     "fields": {
+      "website": "B.io",
+      "industry_tags": "aerospace & defense"
+     },
+     "asof": "2020-01-01"
+    },
+    "p2": {
+     "fields": {
+      "website": null,
+      "industry_tags": ""
+     }
+    },
+    "p4": null
+   },
+   "gX": {
+    "p1": {
+     "fields": {
+      "website": "a"
+     }
+    }
+   },
+   "g3": {
+    "p1": {
+     "fields": {
+      "website": "a"
+     }
+    }
+   }
+  },
+  "today": "2026-10-28",
+  "ranking": [
+   {
+    "provider": "p1",
+    "accuracy": 0.8,
+    "coverage": 1.0,
+    "freshness": 0.425,
+    "score": 0.685,
+    "asserted": 5,
+    "correct": 4,
+    "golden_slots": 5
+   },
+   {
+    "provider": "p2",
+    "accuracy": 0.0,
+    "coverage": 0.2,
+    "freshness": 0.0,
+    "score": 0.0,
+    "asserted": 1,
+    "correct": 0,
+    "golden_slots": 5
+   },
+   {
+    "provider": "p3",
+    "accuracy": 0.0,
+    "coverage": 0.0,
+    "freshness": 0.0,
+    "score": 0.0,
+    "asserted": 0,
+    "correct": 0,
+    "golden_slots": 5
+   },
+   {
+    "provider": "p4",
+    "accuracy": 0.0,
+    "coverage": 0.0,
+    "freshness": 0.0,
+    "score": 0.0,
+    "asserted": 0,
+    "correct": 0,
+    "golden_slots": 5
+   }
+  ],
+  "verdicts": {
+   "p1": [
+    {
+     "case": "g1",
+     "field": "website",
+     "correct": true,
+     "fresh": 0.8501026694045175
+    },
+    {
+     "case": "g1",
+     "field": "founding_year",
+     "correct": true,
+     "fresh": 0.8501026694045175
+    },
+    {
+     "case": "g1",
+     "field": "description",
+     "correct": false,
+     "fresh": 0.0
+    },
+    {
+     "case": "g2",
+     "field": "website",
+     "correct": true,
+     "fresh": 0.0
+    },
+    {
+     "case": "g2",
+     "field": "industry_tags",
+     "correct": true,
+     "fresh": 0.0
+    }
+   ],
+   "p2": [
+    {
+     "case": "g1",
+     "field": "website",
+     "correct": false,
+     "fresh": 0.0
+    }
+   ],
+   "p3": [],
+   "p4": []
+  }
+ },
+ "empty": [],
+ "real": {
+  "2026-10-28": [
+   {
+    "provider": "wikidata",
+    "accuracy": 1.0,
+    "coverage": 0.882,
+    "freshness": 0.714,
+    "score": 0.929,
+    "asserted": 15,
+    "correct": 15,
+    "golden_slots": 17
+   },
+   {
+    "provider": "jsonld_firmographics",
+    "accuracy": 1.0,
+    "coverage": 0.412,
+    "freshness": 0.639,
+    "score": 0.91,
+    "asserted": 7,
+    "correct": 7,
+    "golden_slots": 17
+   },
+   {
+    "provider": "company_intel",
+    "accuracy": 0.0,
+    "coverage": 0.353,
+    "freshness": 0.0,
+    "score": 0.0,
+    "asserted": 6,
+    "correct": 0,
+    "golden_slots": 17
+   }
+  ],
+  "2024-01-01": [
+   {
+    "provider": "wikidata",
+    "accuracy": 1.0,
+    "coverage": 0.882,
+    "freshness": 1.0,
+    "score": 1.0,
+    "asserted": 15,
+    "correct": 15,
+    "golden_slots": 17
+   },
+   {
+    "provider": "jsonld_firmographics",
+    "accuracy": 1.0,
+    "coverage": 0.412,
+    "freshness": 1.0,
+    "score": 1.0,
+    "asserted": 7,
+    "correct": 7,
+    "golden_slots": 17
+   },
+   {
+    "provider": "company_intel",
+    "accuracy": 0.0,
+    "coverage": 0.353,
+    "freshness": 0.0,
+    "score": 0.0,
+    "asserted": 6,
+    "correct": 0,
+    "golden_slots": 17
+   }
+  ],
+  "2030-06-15": [
+   {
+    "provider": "wikidata",
+    "accuracy": 1.0,
+    "coverage": 0.882,
+    "freshness": 0.17,
+    "score": 0.792,
+    "asserted": 15,
+    "correct": 15,
+    "golden_slots": 17
+   },
+   {
+    "provider": "jsonld_firmographics",
+    "accuracy": 1.0,
+    "coverage": 0.412,
+    "freshness": 0.094,
+    "score": 0.774,
+    "asserted": 7,
+    "correct": 7,
+    "golden_slots": 17
+   },
+   {
+    "provider": "company_intel",
+    "accuracy": 0.0,
+    "coverage": 0.353,
+    "freshness": 0.0,
+    "score": 0.0,
+    "asserted": 6,
+    "correct": 0,
+    "golden_slots": 17
+   }
+  ]
+ },
+ "decay": 0.15,
+ "weight": 0.25
+}
