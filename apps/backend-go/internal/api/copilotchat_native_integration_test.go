@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -181,5 +182,43 @@ func TestNativeChatPreRouteClarificationWithoutWorker(t *testing.T) {
 	}
 	if *calls != 0 || len(prov.bodies) != 0 {
 		t.Fatalf("worker calls %d, provider rounds %d", *calls, len(prov.bodies))
+	}
+}
+
+// TestNativeChatAutopilotPlanApprovedOnceWithoutWorker: draft_plan runs in Go, execute_plan is gated with the
+// stored plan's text, runs once after approval (Go tools, no worker) and a resubmitted approval cannot run it again.
+func TestNativeChatAutopilotPlanApprovedOnceWithoutWorker(t *testing.T) {
+	prov := &nativeProvider{rounds: [][]string{
+		{toolCallChunk("call_p", "draft_plan", `{"goal": "IT staffing firms in Pune with founder emails", "target_count": 5}`), finishToolCalls},
+		{`data: {"choices":[{"delta":{"content":"Plan drafted."}}]}`, "data: [DONE]"},
+	}}
+	e, calls := newNativeChatEnv(t, prov)
+	body := e.post("alice", "ws-alpha", `{"messages":[{"role":"user","content":"plan it"}]}`).Body.String()
+	m := regexp.MustCompile(`"plan_id": "([0-9a-f]{32})", "nonce": "([0-9a-f]{32})"`).FindStringSubmatch(body)
+	if m == nil {
+		t.Fatalf("no plan in\n%s", body)
+	}
+	prov.mu.Lock()
+	prov.rounds = [][]string{{toolCallChunk("call_x", "execute_plan", `{"plan_id": "`+m[1]+`", "nonce": "`+m[2]+`"}`), finishToolCalls}}
+	prov.mu.Unlock()
+	body = e.post("alice", "ws-alpha", `{"messages":[{"role":"user","content":"run it"}]}`).Body.String()
+	card := regexp.MustCompile(`"confirmation_id": "([^"]+)"`).FindStringSubmatch(body)
+	if card == nil || !strings.Contains(body, `Autopilot \u2014 IT staffing firms in Pune with founder emails\n1. Create a live-sourcing workbook`) {
+		t.Fatalf("gate:\n%s", body)
+	}
+	approve := `{"messages":[{"role":"user","content":"run it"}],"approved_tool_calls":[{"tool_call":{"id":"` + card[1] + `"},"decision":"approve"}]}`
+	prov.mu.Lock()
+	prov.rounds = [][]string{{`data: {"choices":[{"delta":{"content":"Done."}}]}`, "data: [DONE]"}}
+	prov.mu.Unlock()
+	body = e.post("alice", "ws-alpha", approve).Body.String()
+	if !strings.Contains(body, `{"tool_result": {"name": "execute_plan", "result": {"ok": true, "workbook_id": "`) {
+		t.Fatalf("execute:\n%s", body)
+	}
+	body = e.post("alice", "ws-alpha", approve).Body.String()
+	if strings.Contains(body, `"name": "execute_plan", "result": {"ok": true`) || !strings.Contains(body, "tool_denied") {
+		t.Fatalf("resubmitted approval ran again:\n%s", body)
+	}
+	if *calls != 0 {
+		t.Fatalf("worker calls: %d", *calls)
 	}
 }
