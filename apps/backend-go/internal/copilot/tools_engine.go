@@ -18,13 +18,14 @@ import (
 )
 
 // engineTools are the catalog tools GO_COPILOT_NATIVE executes in Go (plan 15 WP-COPILOT-CORE). The
-// remaining tools (enrich_lead, track_account_signals and the WP-COPILOT-TOOLS set) still go to
+// remaining tools (enrich_lead and the WP-COPILOT-TOOLS set) still go to
 // /internal/copilot/tool. Arguments Go cannot answer exactly like Python (a type Python would coerce or
 // raise on in a way not mirrored here) also fall through to the worker.
 var engineTools = []string{
 	"start_collection", "find_similar_leads", "get_enrichment_gaps", "compare_leads",
 	"ambitionbox_search", "ambitionbox_jobs", "import_ambitionbox_to_workbook",
 	"create_source_workbook", "set_workbook_refresh", "add_agent_column", "add_signal_trigger",
+	"track_account_signals",
 }
 
 // EngineToolNames lists the tools the native engine implements.
@@ -86,6 +87,8 @@ func (t *Turn) engineTool(ctx context.Context, c parsedCall) (string, bool, erro
 		return t.ambitionboxJobs(ctx, a)
 	case "import_ambitionbox_to_workbook":
 		return t.importAmbitionbox(ctx, a)
+	case "track_account_signals":
+		return t.trackAccountSignals(ctx, a)
 	}
 	return "", false, nil
 }

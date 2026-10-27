@@ -28,6 +28,9 @@ type Engine struct {
 	// RefreshExecutor picks the executor of the refresh_workbook chain the refresh tools may start; nil means
 	// "python", as without the Go executor cohort flags.
 	RefreshExecutor func(workspaceID string) string
+	// WatchExecutor picks the executor of the first watch_poll job track_account_signals schedules
+	// (go_executor.watch_poll_executor); nil means "python".
+	WatchExecutor func(workspaceID string) string
 	// CollectionLedgerPG is __collection_ledger_backend == "postgres"; start_collection needs it in Go.
 	CollectionLedgerPG bool
 	// Progress receives start_collection's job_created event (nil: none).
