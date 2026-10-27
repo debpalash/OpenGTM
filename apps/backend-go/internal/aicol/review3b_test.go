@@ -167,3 +167,173 @@ func TestLegacyFetchOnlySearchResultURLs(t *testing.T) {
 }
 
 func ptr(f float64) *float64 { return &f }
+
+// fakeSpend records the ledger traffic of a cell.
+type fakeSpend struct {
+	mu        sync.Mutex
+	refuse    string
+	begun     []string
+	exposures []int64
+	settled   []int64
+	uncertain int
+}
+
+type fakeHold struct{ s *fakeSpend }
+
+func (s *fakeSpend) Begin(_ context.Context, call string, exposure int64) (SpendHold, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.refuse != "" {
+		return nil, &SpendRefused{Reason: s.refuse}
+	}
+	s.begun, s.exposures = append(s.begun, call), append(s.exposures, exposure)
+	return fakeHold{s}, nil
+}
+
+func (h fakeHold) Settle(_ context.Context, charged int64, _ map[string]any) {
+	h.s.mu.Lock()
+	h.s.settled = append(h.s.settled, charged)
+	h.s.mu.Unlock()
+}
+
+func (h fakeHold) Uncertain(context.Context) {
+	h.s.mu.Lock()
+	h.s.uncertain++
+	h.s.mu.Unlock()
+}
+
+// usageLLM reports usage through the client's recorder like llm.Client does.
+type usageLLM struct {
+	scripted
+	tap UsageTap
+}
+
+func (u *usageLLM) Complete(ctx context.Context, r llm.CompleteRequest) (string, error) {
+	_ = u.tap.Record(ctx, "ws", llm.UsageRecord{Provider: "anthropic", Model: "claude-haiku-4-5", PromptTokens: 1000, CompletionTokens: 100})
+	return u.scripted.Complete(ctx, r)
+}
+
+// M1: an ai_formula call is reserved before and settled after with the observed usage.
+func TestAIFormulaLLMSpendSettledFromUsage(t *testing.T) {
+	sp := &fakeSpend{}
+	u := &usageLLM{scripted: scripted{complete: "ok"}}
+	d := Deps{LLM: u, Settings: mapSettings(nil), Spend: sp}
+	res, err := AIFormula(context.Background(), d, "Describe it", map[string]any{}, nil)
+	if err != nil || res.Value != "ok" {
+		t.Fatalf("%+v %v", res, err)
+	}
+	// haiku: 1000*1 + 100*5 micro-USD
+	if len(sp.begun) != 1 || sp.exposures[0] <= 1500 || len(sp.settled) != 1 || sp.settled[0] != 1500 {
+		t.Fatalf("spend %+v", sp)
+	}
+}
+
+// M1: a refused reservation means no LLM call; the cell reports the refusal.
+func TestAIFormulaLLMSpendRefused(t *testing.T) {
+	s := &scripted{complete: "ok"}
+	d := Deps{LLM: s, Settings: mapSettings(nil), Spend: &fakeSpend{refuse: "workbook_budget"}}
+	res, err := AIFormula(context.Background(), d, "Describe it", map[string]any{}, nil)
+	if err != nil || res.Error != "llm_spend_refused: workbook_budget" || s.llmCalls != 0 {
+		t.Fatalf("%+v %v calls=%d", res, err, s.llmCalls)
+	}
+}
+
+// M1: a failed call with no observed usage leaves its attempt uncertain.
+func TestAIFormulaLLMFailureUncertain(t *testing.T) {
+	sp := &fakeSpend{}
+	d := Deps{LLM: &scripted{}, Settings: mapSettings(nil), Spend: sp}
+	if _, err := AIFormula(context.Background(), d, "Describe it", map[string]any{}, nil); err != nil {
+		t.Fatal(err)
+	}
+	if sp.uncertain != 1 || len(sp.settled) != 0 {
+		t.Fatalf("spend %+v", sp)
+	}
+}
+
+func expensiveTurn() *llm.AnthropicResponse {
+	r := toolTurn(map[string]any{"name": "search", "input": map[string]any{"query": "q"}})
+	r.Usage = llm.AnthropicUsage{InputTokens: 10000, OutputTokens: 0} // $0.03 on sonnet
+	return r
+}
+
+// M1: the research budget is checked before every LLM call, synthesis included: once the
+// turns spent the budget no synthesis call is made.
+func TestResearchSynthesisRespectsBudget(t *testing.T) {
+	s := &scripted{turns: []*llm.AnthropicResponse{expensiveTurn(), expensiveTurn(), textTurn(`{"answer":"x","citations":[]}`)}}
+	sp := &fakeSpend{}
+	d := s.deps(map[string]string{"RESEARCH_NATIVE_TOOLS": "1"})
+	d.Spend = sp
+	res, err := Research(context.Background(), d, ResearchInput{Template: "Q?", Row: map[string]any{}, MaxSteps: 4, Budget: ptr(0.02)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// One turn ($0.03) exceeds the $0.02 budget: no second turn, no synthesis.
+	if s.llmCalls != 1 || res.Error != "no_answer" {
+		t.Fatalf("calls %d res %+v", s.llmCalls, res)
+	}
+	meta := res.Metadata.ToMap()["research"].(map[string]any)
+	if meta["stopped_reason"] != "budget" {
+		t.Fatalf("meta %v", meta)
+	}
+	if len(sp.settled) != 1 || sp.settled[0] != 30000 {
+		t.Fatalf("spend %+v", sp)
+	}
+}
+
+// M1: a budget <= 0 is the configured default cap, never unlimited.
+func TestResearchZeroBudgetIsDefaultCap(t *testing.T) {
+	turns := []*llm.AnthropicResponse{}
+	for i := 0; i < 10; i++ {
+		turns = append(turns, expensiveTurn())
+	}
+	s := &scripted{turns: turns}
+	d := s.deps(map[string]string{"RESEARCH_NATIVE_TOOLS": "1", "RESEARCH_MAX_STEPS_CAP": "10", "RESEARCH_CELL_BUDGET_USD": "0.05"})
+	res, err := Research(context.Background(), d, ResearchInput{Template: "Q?", Row: map[string]any{}, MaxSteps: 10, Budget: ptr(0)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// $0.03 per turn, $0.02 synthesis reserve of $0.05: one turn, then the synthesis.
+	if s.llmCalls != 2 {
+		t.Fatalf("calls %d res %+v", s.llmCalls, res)
+	}
+	// A non-positive RESEARCH_CELL_BUDGET_USD falls back to $0.05 as well.
+	s2 := &scripted{turns: append([]*llm.AnthropicResponse(nil), turns...)}
+	d2 := s2.deps(map[string]string{"RESEARCH_NATIVE_TOOLS": "1", "RESEARCH_MAX_STEPS_CAP": "10", "RESEARCH_CELL_BUDGET_USD": "0"})
+	if _, err := Research(context.Background(), d2, ResearchInput{Template: "Q?", Row: map[string]any{}, MaxSteps: 10}); err != nil {
+		t.Fatal(err)
+	}
+	if s2.llmCalls != 2 {
+		t.Fatalf("calls %d", s2.llmCalls)
+	}
+}
+
+// M1: the legacy loop is accounted and bounded by the budget too.
+func TestLegacyResearchAccountedAndBounded(t *testing.T) {
+	var ds []map[string]any
+	for i := 0; i < 6; i++ {
+		ds = append(ds, map[string]any{"action": "search", "query": "q"})
+	}
+	s := &scripted{decisions: ds, complete: "answer"}
+	sp := &fakeSpend{}
+	d := s.deps(nil)
+	d.Spend = sp
+	res, err := Research(context.Background(), d, ResearchInput{Template: "Q?", Row: map[string]any{}, MaxSteps: 6, Budget: ptr(0.000001)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The first step is within budget before it runs; its (estimated) charge exhausts the
+	// budget, so no further step and no synthesis call is made.
+	if s.llmCalls != 1 || len(sp.begun) != 1 || len(sp.settled) != 1 || res.Error != "no_answer" {
+		t.Fatalf("calls %d begun %v res %+v", s.llmCalls, sp.begun, res)
+	}
+	s2 := &scripted{decisions: ds, complete: "answer"}
+	sp2 := &fakeSpend{}
+	d2 := s2.deps(nil)
+	d2.Spend = sp2
+	if res, err := Research(context.Background(), d2, ResearchInput{Template: "Q?", Row: map[string]any{}, MaxSteps: 6, Budget: ptr(1)}); err != nil || res.Value != "answer" {
+		t.Fatalf("%+v %v", res, err)
+	}
+	if len(sp2.begun) != len(sp2.settled) || len(sp2.begun) == 0 || sp2.begun[len(sp2.begun)-1] != "research_synthesis" {
+		t.Fatalf("spend %+v", sp2)
+	}
+}
