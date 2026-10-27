@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
@@ -104,14 +105,29 @@ var goColumnTypes = map[string]bool{"enrichment": true, "waterfall": true, "form
 
 // validateGoColumn refuses columns Python eligibility would never have routed
 // here (the workbook may have been edited after enqueue).
-func validateGoColumn(c column) error {
-	if !goColumnTypes[c.Type] {
+func validateGoColumn(c column) error { return validateGoColumnFor(c, Deps{}) }
+
+// validateGoColumnFor is validateGoColumn under the executor's switches: with FullRun,
+// conditions run here, output columns are delivered through Deps.Output and email cells are
+// verified through Deps.Verify (a missing client still hands the job back).
+func validateGoColumnFor(c column, d Deps) error {
+	if c.Type == "output" && d.FullRun {
+		if d.Output == nil {
+			return refuse("output_unavailable: column %q is an output column and this worker has no destination clients", c.ID)
+		}
+	} else if !goColumnTypes[c.Type] {
 		return refuse("column %q type %q is not supported by the go executor", c.ID, c.Type)
 	}
-	if manifest.PyTruthy(c.cfg["condition"]) {
+	if manifest.PyTruthy(c.cfg["condition"]) && !d.FullRun {
 		return refuse("column %q has a condition", c.ID)
 	}
 	if c.Type != "enrichment" && c.Type != "waterfall" {
+		return nil
+	}
+	if d.FullRun {
+		if c.needsVerify() && d.Verify == nil {
+			return refuse("email_verifier_unavailable: column %q needs email verification", c.ID)
+		}
 		return nil
 	}
 	t := c.target()
@@ -121,6 +137,33 @@ func validateGoColumn(c column) error {
 		}
 	}
 	return nil
+}
+
+// needsVerify is enrich_cell's auto-verify gate (minus the produced value): an
+// enrichment/waterfall column whose target_field or lead_field (never the id fallback) is
+// email, unless verify is falsy.
+func (c column) needsVerify() bool {
+	if c.Type != "enrichment" && c.Type != "waterfall" {
+		return false
+	}
+	if c.firstTruthy("target_field", "lead_field") != "email" {
+		return false
+	}
+	v, ok := c.cfg["verify"]
+	return !ok || manifest.PyTruthy(v)
+}
+
+// allowsAutomaticRetry is cell_scope.allows_automatic_retry: side-effecting cells (output,
+// non-idempotent http) are never re-run by a retry pass.
+func (c column) allowsAutomaticRetry() bool {
+	switch c.Type {
+	case "output":
+		return false
+	case "http":
+		m := strings.ToUpper(manifest.PyStr(orDefault(c.cfg["http_method"], "GET")))
+		return m == "GET" || m == "HEAD" || m == "OPTIONS"
+	}
+	return true
 }
 
 // checkProviders refuses a column whose provider chain names a provider the

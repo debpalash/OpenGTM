@@ -16,6 +16,8 @@ func (rs *runState) runCell(ctx context.Context, lead map[string]any, col column
 		return rs.computedCell(ctx, lead, col, rowID, leadID)
 	case rpcAIFormula, rpcResearch, rpcAgent:
 		return rs.pyCell(ctx, lead, col, rowID, leadID)
+	case "output":
+		return rs.outputCell(ctx, lead, col, rowID, leadID)
 	}
 	return rs.waterfall(ctx, lead, col, rowID, leadID)
 }

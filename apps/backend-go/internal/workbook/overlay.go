@@ -11,6 +11,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
 )
 
 // cellWrite is the argument list of enrichment._set_enrichment for the
@@ -30,6 +31,8 @@ type cellWrite struct {
 	Raw    any
 	HasRaw bool
 	Meta   map[string]any
+	// Provenance is the per-fact provenance of a produced value (cell_metadata mirror and overlay).
+	Provenance *Provenance
 }
 
 func textOf(s *string) pgtype.Text {
@@ -63,6 +66,12 @@ func (w cellWrite) overlayCell() map[string]any {
 	}
 	if w.HasRaw {
 		cell["value"] = w.Raw
+	}
+	if v, ok := w.Meta["verify"].(map[string]any); ok && manifest.PyTruthy(v["status"]) {
+		cell["verify_status"] = v["status"]
+	}
+	if w.Provenance != nil {
+		cell["provenance"] = *w.Provenance
 	}
 	if r, ok := w.Meta["research"].(map[string]any); ok {
 		cell["research"] = r
@@ -132,10 +141,13 @@ func setEnrichmentChange(ctx context.Context, tx pgx.Tx, w cellWrite) (*rowChang
 		}
 	}
 	var meta []byte
-	if len(w.Skipped) > 0 || len(w.Meta) > 0 {
-		m := make(map[string]any, len(w.Meta)+1)
+	if len(w.Skipped) > 0 || len(w.Meta) > 0 || w.Provenance != nil {
+		m := make(map[string]any, len(w.Meta)+2)
 		for k, v := range w.Meta {
 			m[k] = v
+		}
+		if w.Provenance != nil {
+			m["provenance"] = *w.Provenance
 		}
 		if len(w.Skipped) > 0 {
 			m["skipped_providers"] = w.skippedJSON()

@@ -3,11 +3,13 @@ package workbook
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 	"sync"
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadswrite"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
@@ -89,7 +91,27 @@ func (rs *runState) writeBackFields(ctx context.Context, lead map[string]any, fi
 			if err := fence(ctx, tx, rs.claim, rs.p.WorkbookID); err != nil {
 				return err
 			}
-			_, err := leadswrite.UpdateFields(ctx, tx, leadID, w.upd)
+			upd := w.upd
+			if rs.provenanceOn() {
+				// Per-fact provenance of the written field, merged read-modify-write under the
+				// row lock so concurrent cells never clobber each other's fields.
+				cur, err := gen.New(tx).LockLeadFieldProvenance(ctx, int32(leadID))
+				if errors.Is(err, pgx.ErrNoRows) {
+					return nil // no such lead in this workspace: nothing to write back to
+				}
+				if err != nil {
+					return err
+				}
+				now := rs.now()
+				upd = make(map[string]any, len(w.upd)+2)
+				for k, v := range w.upd {
+					upd[k] = v
+				}
+				upd["field_provenance"] = MergeFieldProvenance(cur.String,
+					map[string]any{w.field: ProvenanceFor(provider, ProvenanceOpts{}, now)})
+				upd["last_enriched_at"] = pyIsoformatUTC(now)
+			}
+			_, err := leadswrite.UpdateFields(ctx, tx, leadID, upd)
 			return err
 		})
 		if err != nil {

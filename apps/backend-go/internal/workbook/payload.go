@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
 )
 
@@ -73,6 +74,7 @@ type rawPayload struct {
 	Concurrency     *float64        `json:"concurrency"`
 	RetryPasses     *float64        `json:"retry_passes"`
 	FillMissing     bool            `json:"fill_missing"`
+	Force           json.RawMessage `json:"force"`
 	MaxProviders    *float64        `json:"max_providers"`
 	ProviderTimeout *float64        `json:"provider_timeout"`
 	Go              *goBlock        `json:"go"`
@@ -89,6 +91,7 @@ type runPayload struct {
 	Concurrency             int
 	RetryPasses             int
 	FillMissing             bool
+	Force                   bool // bool(payload.get("force")): re-push complete output cells
 	MaxProviders            int
 	ProviderTimeout         float64
 	Manifests               map[string]manifest.Manifest
@@ -116,7 +119,7 @@ func parsePayload(raw []byte) (*runPayload, error) {
 	}
 	p := &runPayload{
 		WorkspaceID: rp.WorkspaceID, WorkbookID: rp.WorkbookID,
-		FillMissing: rp.FillMissing,
+		FillMissing: rp.FillMissing, Force: rawTruthy(rp.Force),
 		Costs:       rp.Go.Costs, ManifestSHA256: rp.Go.ManifestSHA256, Manifests: make(map[string]manifest.Manifest, len(rp.Go.Manifests)),
 		Concurrency: rp.Go.DefaultConcurrency, RetryPasses: 1, ProviderTimeout: defaultProviderTimeout,
 	}
@@ -218,4 +221,13 @@ func isCanonicalPositiveInt(s string) bool {
 		}
 	}
 	return len(s) <= 18
+}
+
+// rawTruthy is bool(value) of a raw JSON value (absent or null is False).
+func rawTruthy(raw json.RawMessage) bool {
+	if len(raw) == 0 {
+		return false
+	}
+	v, err := canonjson.Decode(raw)
+	return err == nil && manifest.PyTruthy(v)
 }

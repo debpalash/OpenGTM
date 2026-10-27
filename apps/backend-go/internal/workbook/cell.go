@@ -38,6 +38,8 @@ type cellOutcome struct {
 	Provider string
 	Err      string
 	Research any
+	// Skipped is an unmet column condition (status `skipped`): neither completed nor an error.
+	Skipped bool
 }
 
 type callKind int
@@ -412,6 +414,17 @@ func (rs *runState) enrichCell(ctx context.Context, lead map[string]any, col col
 	if derr := rs.dependencyError(lead, col); derr != "" {
 		return rs.failDependent(ctx, lead, col, derr)
 	}
+	if out, done, err := rs.preRunGates(ctx, lead, col, rowID, leadID); done || err != nil {
+		if err != nil {
+			if a := abortErr(ctx, err); a != nil {
+				return cellOutcome{}, a
+			}
+			rs.log.Error("cell gate failed", "col", col.ID, "row", rowID, "err", err)
+			rs.persistCellFailure(ctx, col, rowID, leadID)
+			return cellOutcome{Err: "cell_execution_failed"}, nil
+		}
+		return out, nil
+	}
 	// "running" is broadcast only: Python writes it in the same uncommitted
 	// session that the result then overwrites.
 	rs.publish(ctx, map[string]any{"type": "cell_update", "leadId": leadID, "rowId": rowID,
@@ -471,6 +484,7 @@ func (rs *runState) waterfall(ctx context.Context, lead map[string]any, col colu
 	}
 
 	var resultValue, resultProvider, resultError string
+	var resultConfidence float64
 
 	// ── cost-aware ordering + budget ceiling ──
 	var budgetRemaining *float64
@@ -623,6 +637,7 @@ loop:
 						failed(truncRunes(perr.Error(), maxErrorRunes))
 					} else {
 						resultValue, resultProvider = val, name
+						resultConfidence = rs.confidenceOf(name, call.resp)
 					}
 				}
 			}
@@ -664,8 +679,15 @@ loop:
 			return cellOutcome{Success: true, Value: v}, nil
 		}
 	}
-	return rs.commitCell(ctx, col, rowID, leadID, cellResult{Has: resultValue != "", Value: resultValue,
-		Provider: resultProvider, Err: resultError, Skipped: skipped})
+	r := cellResult{Has: resultValue != "", Value: resultValue,
+		Provider: resultProvider, Err: resultError, Skipped: skipped}
+	if resultConfidence != 0 {
+		r.Confidence = &resultConfidence
+	}
+	if v := rs.verifyEmailCell(ctx, col, resultValue); v != nil {
+		r.Meta = map[string]any{"verify": v}
+	}
+	return rs.commitCell(ctx, col, rowID, leadID, r)
 }
 
 // completeCellValue returns the stored value of a complete overlay cell.
@@ -759,7 +781,12 @@ type cellResult struct {
 	Provider string
 	Err      string
 	Skipped  []skippedProvider
-	Meta     map[string]any // cell metadata (research)
+	Meta     map[string]any // cell metadata (research, verify)
+	// Confidence is the winning provider's confidence (waterfall only; nil = None).
+	Confidence *float64
+	// BroadcastProvider is the provider of the cell_update broadcast when no value was
+	// produced (Python broadcasts result_provider either way); "" = the stored provider.
+	BroadcastProvider string
 }
 
 // commitCell is the "Write results" tail of enrich_cell: one lease-fenced
@@ -769,6 +796,13 @@ func (rs *runState) commitCell(ctx context.Context, col column, rowID, leadID in
 	ws, wb := rs.p.WorkspaceID, rs.p.WorkbookID
 	w := cellWrite{WorkspaceID: ws, WorkbookID: wb, LeadID: int32(leadID), RowID: int32(rowID),
 		ColumnID: col.ID, Skipped: r.Skipped, Meta: r.Meta}
+	// Per-fact provenance (PROVENANCE_TRACKING_ENABLED): a produced, truthy value of a named provider.
+	var prov *Provenance
+	if rs.provenanceOn() && r.Has && r.Provider != "" && r.truthy() {
+		p := ProvenanceFor(r.Provider, ProvenanceOpts{Confidence: r.Confidence}, rs.now())
+		prov = &p
+		w.Provenance = prov
+	}
 	var bErr any
 	var bValue any
 	if r.Has {
@@ -806,6 +840,15 @@ func (rs *runState) commitCell(ctx context.Context, col column, rowID, leadID in
 	status := "error"
 	if r.Has {
 		bProvider, status = r.Provider, "complete"
+	} else if r.BroadcastProvider != "" {
+		bProvider = r.BroadcastProvider
+	}
+	var bProv, bVerify any
+	if prov != nil {
+		bProv = *prov
+	}
+	if v, ok := r.Meta["verify"].(map[string]any); ok {
+		bVerify = v["status"]
 	}
 	var research any
 	if m, ok := r.Meta["research"].(map[string]any); ok {
@@ -813,7 +856,7 @@ func (rs *runState) commitCell(ctx context.Context, col column, rowID, leadID in
 	}
 	rs.publish(ctx, map[string]any{"type": "cell_update", "leadId": leadID, "rowId": rowID, "colId": col.ID,
 		"value": bValue, "status": status, "provider": bProvider, "error": bErr,
-		"research": research, "provenance": nil, "verify_status": nil})
+		"research": research, "provenance": bProv, "verify_status": bVerify})
 	out := cellOutcome{Success: r.Has, Value: r.Value, Provider: r.Provider, Err: r.Err, Research: research}
 	if r.HasRaw {
 		out.Raw, out.HasRaw = r.Raw, true
@@ -867,4 +910,23 @@ func (rs *runState) failDependent(ctx context.Context, lead map[string]any, col 
 		return cellOutcome{}, err
 	}
 	return cellOutcome{Err: msg}, nil
+}
+
+// truthy is `if result_value` over the produced value.
+func (r cellResult) truthy() bool {
+	if r.HasRaw {
+		return manifest.PyTruthy(r.Raw)
+	}
+	return r.Value != ""
+}
+
+// confidenceOf is `result.confidence or provider.default_confidence` of the winning provider.
+func (rs *runState) confidenceOf(name string, resp map[string]any) float64 {
+	if c := asFloat(resp["confidence"]); c != 0 {
+		return c
+	}
+	if m, ok := rs.p.Manifests[name]; ok {
+		return m.DefaultConfidence
+	}
+	return 0
 }

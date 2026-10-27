@@ -14,6 +14,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
@@ -58,7 +59,43 @@ type Deps struct {
 	Emitter RowChangeEmitter
 	// StopCheckInterval throttles the pause/cancel probe (Python: ~2s).
 	StopCheckInterval time.Duration
+
+	// FullRun is GO_EXECUTOR_FULL_RUN (plan 15 WP-WBEXEC, default off): conditions, email
+	// verification (Verify) and output columns (Output) run here instead of being refused.
+	FullRun bool
+	// Provenance is PROVENANCE_TRACKING_ENABLED: per-fact provenance on produced cells and lead
+	// write-backs. It only takes effect with FullRun (Python refuses provenance runs otherwise).
+	Provenance bool
+	// Now is the provenance clock (nil: time.Now).
+	Now func() time.Time
+	// Verify is the email verify cascade (emailverify.Cascade with its live deps). nil refuses
+	// columns that need it, even with FullRun.
+	Verify EmailVerifier
+	// Output are the output-column destination clients. nil refuses output columns, even with FullRun.
+	Output *OutputPorts
 }
+
+// EmailVerifier runs the email verify cascade (email_verify_cascade.verify_email).
+type EmailVerifier interface {
+	Verify(ctx context.Context, workspaceID, email string) (emailverify.Result, error)
+}
+
+// VerifyFunc adapts a function to EmailVerifier.
+type VerifyFunc func(ctx context.Context, workspaceID, email string) (emailverify.Result, error)
+
+func (f VerifyFunc) Verify(ctx context.Context, workspaceID, email string) (emailverify.Result, error) {
+	return f(ctx, workspaceID, email)
+}
+
+func (rs *runState) now() time.Time {
+	if rs.deps.Now != nil {
+		return rs.deps.Now()
+	}
+	return time.Now()
+}
+
+// provenanceOn is PROVENANCE_TRACKING_ENABLED for a run this executor may carry out.
+func (rs *runState) provenanceOn() bool { return rs.deps.FullRun && rs.deps.Provenance }
 
 // RowChangeEmitter is the on_row_changed slice of automationhook.Emitter.
 type RowChangeEmitter interface {

@@ -146,7 +146,7 @@ func (rs *runState) runBody(ctx context.Context, started *bool) (Result, error) 
 	var enrichCols []column
 	for _, col := range columns {
 		if enrichmentColTypes[col.Type] && (p.ColumnIDs == nil || p.ColumnIDs[col.ID]) {
-			if err := validateGoColumn(col); err != nil {
+			if err := validateGoColumnFor(col, rs.deps); err != nil {
 				return Result{}, err
 			}
 			if err := rs.checkPyColumn(col); err != nil {
@@ -300,6 +300,18 @@ func (rs *runState) runOneRow(ctx context.Context, w workItem) rowResult {
 		if err != nil {
 			r.err = err
 			return r
+		}
+		if out.Skipped {
+			// A condition skip is not an error (Python counted it as one, so every run with an
+			// unmet condition ended `failed`), but like a failed cell it is no input for a
+			// dependent column.
+			failed = append(failed, col)
+			for _, key := range []string{col.ID, col.Name} {
+				if _, isIdentity := identities[key]; !isIdentity {
+					delete(row, key)
+				}
+			}
+			continue
 		}
 		if out.Success {
 			r.completed++
@@ -544,7 +556,7 @@ func (rs *runState) execute(ctx context.Context, ordered []column, leads []map[s
 		for _, id := range rowIDs {
 			var cols []column
 			for _, c := range ordered {
-				if errByRow[id][c.ID] { // allows_automatic_retry: all go column types
+				if errByRow[id][c.ID] && c.allowsAutomaticRetry() {
 					cols = append(cols, c)
 				}
 			}
