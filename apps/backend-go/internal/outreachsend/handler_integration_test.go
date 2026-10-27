@@ -957,6 +957,13 @@ func TestTenantIsolation(t *testing.T) {
 	if s := b.send(t, b.idem(1, 0)); s == nil || s.SkipReason != "lead_not_found" || a.mail.n() != 0 {
 		t.Fatalf("cross-tenant enrollment visible: %+v calls=%d", s, a.mail.n())
 	}
+	// the tenant comes from the claim only (plan 15 cutover): a claim without a workspace is permanent, even
+	// when the payload names one, and sends nothing
+	noWS := a.payload(nil)
+	noWS.WorkspaceID = ""
+	if err := a.h.Handle(context.Background(), noWS); !queue.IsPermanent(err) || a.mail.n() != 0 {
+		t.Fatalf("empty job workspace must be permanent, got %v (calls %d)", err, a.mail.n())
+	}
 	// payload and claim workspace must agree
 	bad := a.payload(nil)
 	bad.WorkspaceID = "someone-else"

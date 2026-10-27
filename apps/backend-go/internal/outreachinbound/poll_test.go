@@ -84,8 +84,19 @@ func TestFeatureFlagOff(t *testing.T) {
 func TestMissingWorkspaceIDReturnsWithoutEffect(t *testing.T) {
 	h := &Handler{Automations: true, Outreach: config.OutreachSettings{InboundPollEnabled: true}, NewClient: panicClient}
 	for _, p := range []string{`{}`, `{"workspace_id":""}`, `not json`} {
-		if err := h.Handle(context.Background(), &queue.Claim{Payload: json.RawMessage(p)}); err != nil {
+		if err := h.Handle(context.Background(), &queue.Claim{WorkspaceID: "ws", Payload: json.RawMessage(p)}); err != nil {
 			t.Fatalf("%s: %v", p, err)
+		}
+	}
+}
+
+// Plan 15 cutover: the tenant comes from the claim only. A job without jobs.workspace_id is refused permanently,
+// whatever the payload names, and polls nothing.
+func TestEmptyJobWorkspaceIsRefused(t *testing.T) {
+	h := &Handler{Automations: true, Outreach: config.OutreachSettings{InboundPollEnabled: true}, NewClient: panicClient}
+	for _, p := range []string{`{"workspace_id":"ws"}`, `{}`} {
+		if err := h.Handle(context.Background(), &queue.Claim{Payload: json.RawMessage(p)}); !queue.IsPermanent(err) {
+			t.Fatalf("%s: want a permanent refusal, got %v", p, err)
 		}
 	}
 }

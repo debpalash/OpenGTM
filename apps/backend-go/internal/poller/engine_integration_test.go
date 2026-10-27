@@ -1141,6 +1141,22 @@ func TestCancelBeforeFirstSource(t *testing.T) {
 	}
 }
 
+// Plan 15 cutover: the tenant comes from the claim only; a job without jobs.workspace_id is refused permanently
+// and polls nothing, whatever the payload names.
+func TestHandleRefusesEmptyJobWorkspace(t *testing.T) {
+	pool, ctx := eSetup(t)
+	eWatch{Kind: "funding"}.insert(t, ctx, pool)
+	stub := &eStub{}
+	d := eDeps(pool, stub, nil)
+	c := eClaim(t, ctx, pool, "", ePayload(eWS, eW))
+	if err := poller.Handle(ctx, d, c); !queue.IsPermanent(err) {
+		t.Fatalf("want a permanent refusal, got %v", err)
+	}
+	if len(stub.calls) != 0 {
+		t.Errorf("polled without a job workspace: %v", stub.called())
+	}
+}
+
 // Final review (security low): a job queued under workspace A whose payload names
 // workspace B must not run inside B's tenant (B's secrets, B's watch).
 func TestHandleRefusesPayloadWorkspaceMismatch(t *testing.T) {
