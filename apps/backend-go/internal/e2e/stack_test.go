@@ -117,6 +117,7 @@ func startStack(t *testing.T, extra map[string]string) *stack {
 		"BROWSER_SERVICE_URL="+s.browser.srv.URL, "BROWSER_SERVICE_TOKEN="+s.browser.token,
 		"AUTOMATIONS_ENABLED=true",
 		"SETUP_TOKEN="+setupToken, "GO_WORKER_CONCURRENCY=4", "PG_RLS_REQUIRE_SAFE_ROLE=true",
+		"GO_WORKER_DEBUG_ADDR=127.0.0.1:0", // a fixed :6060 collides with any other worker on the host
 	)
 	for k, v := range extra {
 		env = append(env, k+"="+v)
