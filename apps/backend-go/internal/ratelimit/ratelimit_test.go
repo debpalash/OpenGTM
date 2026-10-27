@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -51,8 +52,14 @@ func TestKeyIPIgnoresForwardedFor(t *testing.T) {
 		t.Fatal("XFF trusted:", k)
 	}
 	// behind a trusted proxy (loopback / docker bridge) the client is X-Real-IP; XFF is still ignored
-	if k := l.key(req(map[string]string{"X-Real-IP": "203.0.113.7", "X-Forwarded-For": "9.9.9.9"}, "172.18.0.5:5")); k != "ip:203.0.113.7" {
+	if k := l.key(req(map[string]string{"X-Real-IP": "203.0.113.7", "X-Forwarded-For": "9.9.9.9"}, "127.0.0.1:5")); k != "ip:203.0.113.7" {
 		t.Fatal(k)
+	}
+	// S-L18: LAN and bridge peers are not trusted by default; 10/8 neither
+	for _, peer := range []string{"192.168.1.9:5", "172.18.0.5:5", "10.1.2.3:5", "[fd00::5]:5"} {
+		if k := l.key(req(map[string]string{"X-Real-IP": "203.0.113.7"}, peer)); strings.Contains(k, "203.0.113.7") {
+			t.Fatalf("peer %s trusted by default: %s", peer, k)
+		}
 	}
 	// an untrusted peer cannot choose its bucket with X-Real-IP
 	if k := l.key(req(map[string]string{"X-Real-IP": "203.0.113.7"}, "8.8.4.4:5")); k != "ip:8.8.4.4" {
@@ -215,5 +222,47 @@ func TestExpiredWindowRestarts(t *testing.T) {
 	now = now.Add(time.Minute)
 	if !l.hit("k", 2, time.Minute) {
 		t.Fatal("a new window must allow the next hit")
+	}
+}
+
+// S-L19: a flood of unauthenticated keys on one spec must not reset another spec's window, nor an authenticated one.
+func TestKeyFloodDoesNotEvictOtherSpecs(t *testing.T) {
+	l := New(func() time.Time { return time.Unix(1_700_000_000, 0) })
+	l.SetMaxKeys(1000)
+	flooded := l.Limit("5/minute")(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}))
+	other := l.Limit("2/minute")(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}))
+	do := func(h http.Handler, ctx func(*http.Request) *http.Request) int {
+		rec := httptest.NewRecorder()
+		r := httptest.NewRequest("GET", "/", nil)
+		r.RemoteAddr = "198.51.100.1:1"
+		if ctx != nil {
+			r = ctx(r)
+		}
+		h.ServeHTTP(rec, r)
+		return rec.Code
+	}
+	for i := 0; i < 2; i++ {
+		do(other, nil)
+	}
+	if do(other, nil) != 429 {
+		t.Fatal("other spec should be exhausted")
+	}
+	authed := func(r *http.Request) *http.Request {
+		return r.WithContext(identity.WithPrincipal(r.Context(), identity.Principal{User: identity.User{ID: 7}}))
+	}
+	do(flooded, authed)
+	for i := 0; i < 100_000; i++ {
+		r := httptest.NewRequest("GET", "/", nil)
+		r.RemoteAddr = "[2001:db8:" + strconv.FormatInt(int64(i>>16), 16) + ":" + strconv.FormatInt(int64(i&0xffff), 16) + "::1]:1"
+		flooded.ServeHTTP(httptest.NewRecorder(), r)
+	}
+	if do(other, nil) != 429 {
+		t.Fatal("flood on another spec reset this spec's window")
+	}
+	for i := 0; i < 4; i++ {
+		do(flooded, authed)
+	}
+	if do(flooded, authed) != 429 {
+		t.Fatal("anonymous flood evicted the authenticated window")
 	}
 }

@@ -34,18 +34,26 @@ func WithKey(ctx context.Context, key string) context.Context {
 //   - the authenticated workspace (identity.Workspace has already checked membership),
 //   - the authenticated user,
 //   - else the client IP: X-Real-IP only from a trusted proxy peer, never X-Forwarded-For.
-func (l *Limiter) key(r *http.Request) string {
+//
+// authed is true only for the two authenticated identities; an explicit key and a client IP come from
+// unauthenticated callers and use the unauthenticated pool (S-L19).
+func (l *Limiter) classify(r *http.Request) (key string, authed bool) {
 	ctx := r.Context()
 	if k, ok := ctx.Value(keyOverride{}).(string); ok && k != "" {
-		return k
+		return k, false
 	}
 	if wc, ok := identity.WorkspaceFrom(ctx); ok && wc.WorkspaceID != "" {
-		return "ws:" + wc.WorkspaceID
+		return "ws:" + wc.WorkspaceID, true
 	}
 	if p, ok := identity.PrincipalFrom(ctx); ok && p.User.ID != 0 {
-		return "user:" + strconv.Itoa(int(p.User.ID))
+		return "user:" + strconv.Itoa(int(p.User.ID)), true
 	}
-	return "ip:" + ClientIP(r, l.trusted)
+	return "ip:" + ClientIP(r, l.trusted), false
+}
+
+func (l *Limiter) key(r *http.Request) string {
+	k, _ := l.classify(r)
+	return k
 }
 
 type window struct {
@@ -83,12 +91,15 @@ type Limiter struct {
 	hits map[string]*window
 	exp  expiryHeap
 	max  int // key cap (maxKeys unless a test lowers it)
-	seq  int
-	// trusted are the proxy networks whose X-Real-IP is believed (TRUST_PROXY_CIDRS, default: loopback and private ranges).
+	// parent is set on the per-Limit pools: their key cap follows the parent's.
+	parent *Limiter
+	// trusted are the proxy networks whose X-Real-IP is believed (TRUST_PROXY_CIDRS, default: loopback only).
 	trusted []netip.Prefix
 }
 
-// SetMaxKeys lowers or raises the number of live windows kept (default 100k). Call before use.
+// SetMaxKeys lowers or raises the number of live windows kept per pool (default 100k). Every Limit spec has its own
+// authenticated and unauthenticated pool, so a key flood on one spec or by anonymous callers cannot evict another
+// pool's windows (S-L19). Call before use.
 func (l *Limiter) SetMaxKeys(n int) {
 	l.mu.Lock()
 	l.max = n
@@ -136,20 +147,28 @@ func (l *Limiter) Limit(spec string) httpx.Middleware {
 	if err != nil {
 		panic(err)
 	}
-	l.mu.Lock()
-	l.seq++
-	ns := strconv.Itoa(l.seq) + "|"
-	l.mu.Unlock()
+	// Separate pools per call and per caller class: a flood of unauthenticated keys fills only the unauthenticated
+	// pool of this spec.
+	authPool, anonPool := l.newPool(), l.newPool()
 	body := map[string]string{"error": fmt.Sprintf("Rate limit exceeded: %d per 1 %s", n, unit)}
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if !l.hit(ns+l.key(r), n, period) {
+			k, authed := l.classify(r)
+			pool := anonPool
+			if authed {
+				pool = authPool
+			}
+			if !pool.hit(k, n, period) {
 				httpx.WriteJSON(w, http.StatusTooManyRequests, body)
 				return
 			}
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+func (l *Limiter) newPool() *Limiter {
+	return &Limiter{now: l.now, hits: map[string]*window{}, parent: l}
 }
 
 func (l *Limiter) hit(key string, limit int, period time.Duration) bool {
@@ -159,7 +178,11 @@ func (l *Limiter) hit(key string, limit int, period time.Duration) bool {
 	l.sweep(now)
 	win := l.hits[key]
 	if win == nil {
-		if len(l.hits) >= l.max {
+		limit := l.max
+		if l.parent != nil {
+			limit = l.parent.max
+		}
+		if len(l.hits) >= limit {
 			l.evictOne()
 		}
 		win = &window{key: key, expires: now.Add(period)}

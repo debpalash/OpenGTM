@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-// DefaultTrustedProxies: loopback and the ranges a docker bridge network draws from (docker-compose.yml's lead_net has no
-// fixed subnet). nginx reaches the API from one of these; any other peer is the client itself.
-const DefaultTrustedProxies = "127.0.0.0/8,::1/128,172.16.0.0/12,192.168.0.0/16,fc00::/7"
+// DefaultTrustedProxies is loopback only (S-L18): a LAN or bridge peer is not believed unless the deployment names its
+// proxy network in TRUST_PROXY_CIDRS (docker bridge subnet, pod CIDR). Any other peer is the client itself.
+const DefaultTrustedProxies = "127.0.0.0/8,::1/128"
 
 // ParseTrustedProxies parses TRUST_PROXY_CIDRS (comma-separated CIDRs or bare addresses); unset or blank means the defaults.
 // Unparseable entries are skipped with a warning when log is set (never fail open to "trust everything").
