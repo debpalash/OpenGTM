@@ -320,7 +320,7 @@ func TestWebhookTranscripts(t *testing.T) {
 				t.Fatalf("skip_reason %q want %q", got.SkipReason, wantSkip)
 			}
 			if tr.Result.Error != nil {
-				want := *tr.Result.Error
+				want := goBlockedText(*tr.Result.Error)
 				if strings.HasPrefix(want, "blocked url: cannot resolve host: ") {
 					if !strings.HasPrefix(got.Error, "blocked url: cannot resolve host: ") {
 						t.Fatalf("error %q", got.Error)
@@ -510,7 +510,7 @@ func TestWebhookVectors(t *testing.T) {
 			}
 			wantErr := ""
 			if want.Error != nil {
-				wantErr = *want.Error
+				wantErr = goBlockedText(*want.Error)
 			}
 			if strings.HasPrefix(wantErr, "blocked url: cannot resolve host: ") {
 				if !strings.HasPrefix(got.Error, "blocked url: cannot resolve host: ") {
@@ -593,7 +593,7 @@ func TestBlockedURLReasonsMatchPython(t *testing.T) {
 	h := newHarness(t, nil)
 	h.res.answers = map[string][]string{"hooks.example.com": {"93.184.216.34", "10.0.0.5"}}
 	got := h.run(map[string]any{"url": "https://hooks.example.com/x"})
-	if got.Error != "blocked url: host resolves to private ip 10.0.0.5" || got.SkipReason != "blocked_url" || len(h.dials) != 0 {
+	if got.Error != fixedPrivate || got.SkipReason != "blocked_url" || len(h.dials) != 0 {
 		t.Errorf("private dns: %+v dials=%v", got, h.dials)
 	}
 	if got := h.run(map[string]any{}); got.Status != "failed" || got.Error != "webhook url not configured" {
@@ -628,7 +628,7 @@ func TestCGNATBlockedAtDialForResolvedHost(t *testing.T) {
 	h := newHarness(t, nil)
 	h.res.answers = map[string][]string{"hooks.example.com": {"100.64.1.1"}}
 	got := h.run(map[string]any{"url": "https://hooks.example.com/x"})
-	if got.Status != "failed" || got.SkipReason != "blocked_url" || got.Error != "blocked url: host resolves to private ip 100.64.1.1" || len(h.dials) != 0 {
+	if got.Status != "failed" || got.SkipReason != "blocked_url" || got.Error != fixedPrivate || len(h.dials) != 0 {
 		t.Fatalf("%+v dials=%v", got, h.dials)
 	}
 	h2 := newHarness(t, nil)
@@ -687,7 +687,7 @@ func TestDNSRebindingBlockedAtDial(t *testing.T) {
 	h2.res.answers = map[string][]string{"hooks.example.com": {"127.0.0.1"}}
 	h2.deps.Client.CloseIdleConnections()
 	got2 := h2.run(map[string]any{"url": "https://hooks.example.com/x"})
-	if got2.Status != "failed" || got2.SkipReason != "blocked_url" || got2.Error != "blocked url: host resolves to private ip 127.0.0.1" {
+	if got2.Status != "failed" || got2.SkipReason != "blocked_url" || got2.Error != fixedPrivate {
 		t.Fatalf("flip after check: %+v", got2)
 	}
 }
@@ -1097,4 +1097,13 @@ func TestBuildBodyLiteral(t *testing.T) {
 	if _, _, err := buildBody(map[string]any{"x": "{unknown}"}, lead, nil, false); err == nil {
 		t.Fatal("templated body must still reject an unknown reference")
 	}
+}
+
+// goBlockedText is the Go text for a Python-recorded error: an address the host resolved to is
+// never stored (final review L8), so Python's "host resolves to private ip <ip>" is a fixed text.
+func goBlockedText(py string) string {
+	if strings.HasPrefix(py, "blocked url: host resolves to private ip ") {
+		return fixedPrivate
+	}
+	return py
 }
