@@ -48,14 +48,11 @@ IPNetwork = ipaddress.IPv4Network | ipaddress.IPv6Network
 # that the proxy answered can be told apart from a real 403 from the site.
 EGRESS_HEADER = "x-opengtm-egress"
 
-_METADATA_IPS = frozenset(
-    ipaddress.ip_address(a) for a in ("169.254.169.254", "fd00:ec2::254", "100.100.100.200")
-)
+_METADATA_IPS = frozenset(ipaddress.ip_address(a) for a in ("169.254.169.254", "fd00:ec2::254", "100.100.100.200"))
 # Ranges blocked on top of ``not is_global`` (some are "global" per IANA but can
 # be translated by a gateway into an internal address).
 _EXTRA_BLOCKED = tuple(
-    ipaddress.ip_network(n)
-    for n in ("100.64.0.0/10", "64:ff9b::/96", "64:ff9b:1::/48", "2002::/16", "2001::/32")
+    ipaddress.ip_network(n) for n in ("100.64.0.0/10", "64:ff9b::/96", "64:ff9b:1::/48", "2002::/16", "2001::/32")
 )
 _BLOCKED_HOSTNAMES = frozenset(
     {"localhost", "ip6-localhost", "ip6-loopback", "metadata", "metadata.google.internal", "metadata.goog"}
@@ -332,8 +329,9 @@ class EgressProxy:
                 headers.append((name.strip(), value.strip()))
             session = self._authenticate(headers)
             if session is None:
-                await _reply(writer, 407, "Proxy Authentication Required",
-                             extra=[("Proxy-Authenticate", 'Basic realm="egress"')])
+                await _reply(
+                    writer, 407, "Proxy Authentication Required", extra=[("Proxy-Authenticate", 'Basic realm="egress"')]
+                )
                 return
             if task is not None:
                 session._tasks.add(task)
@@ -452,5 +450,5 @@ async def _reply(writer: asyncio.StreamWriter, code: int, reason: str, extra: li
 def _close(writer: asyncio.StreamWriter) -> None:
     try:
         writer.close()
-    except Exception:  # pragma: no cover
+    except Exception:  # noqa: S110  # pragma: no cover - already closed
         pass
