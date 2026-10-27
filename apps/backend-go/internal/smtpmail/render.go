@@ -24,14 +24,34 @@ func Render(template string, vars map[string]any) string {
 	return pyStrip(out)
 }
 
+// urlAttrRe matches the end of a template prefix that sits inside an href or src attribute value; group 1 is the
+// part of the value written so far including its opening quote.
+var urlAttrRe = regexp.MustCompile(`(?is)<[^<>]*\s(?:href|src)\s*=\s*("[^"<>]*|'[^'<>]*|[^\s"'<>]*)$`)
+
 // RenderHTML is Render for the HTML part: each substituted value is HTML-escaped (the template itself
-// is trusted markup), so scraped lead fields cannot inject tags or attributes. Deliberate deviation:
-// Python substitutes raw (plan 09 final security M3). The text part is rendered with Render.
+// is trusted markup), so scraped lead fields cannot inject tags or attributes. A value that starts an href or src
+// attribute is dropped unless it is an http(s) or mailto URL, so a scraped "javascript:" or "data:" value cannot
+// become a link. Deliberate deviation: Python substitutes raw (plan 09 final security M3). The text part is
+// rendered with Render.
 func RenderHTML(template string, vars map[string]any) string {
-	out := placeholderRe.ReplaceAllStringFunc(template, func(m string) string {
-		return html.EscapeString(pyStr(vars[m[2:len(m)-2]]))
-	})
-	return pyStrip(out)
+	var b strings.Builder
+	last := 0
+	for _, loc := range placeholderRe.FindAllStringSubmatchIndex(template, -1) {
+		b.WriteString(template[last:loc[0]])
+		last = loc[1]
+		val := pyStr(vars[template[loc[2]:loc[3]]])
+		if m := urlAttrRe.FindStringSubmatch(template[:loc[0]]); m != nil && len(m[1]) <= 1 && !safeURLValue(val) {
+			continue // the placeholder starts the attribute value: its scheme is the lead's, so it must be allowed
+		}
+		b.WriteString(html.EscapeString(val))
+	}
+	b.WriteString(template[last:])
+	return pyStrip(b.String())
+}
+
+func safeURLValue(v string) bool {
+	l := strings.ToLower(v)
+	return strings.HasPrefix(l, "http://") || strings.HasPrefix(l, "https://") || strings.HasPrefix(l, "mailto:")
 }
 
 // LeadVariables mirrors build_lead_variables. Nil columns stay nil (Python
