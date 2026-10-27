@@ -110,7 +110,7 @@ func (t *Turn) prePeopleResearch(p *preWriter, req *collectintent.CompanyTeamReq
 	args.Set("limit", int64(8))
 	return t.runPeopleTool(p, "find_people_at_company", args,
 		func(ctx context.Context) (map[string]any, error) {
-			return t.Engine.People.Research(ctx, req.Entity, req.Function, leadpeople.ResearchOptions{Limit: 8})
+			return t.Engine.People.Research(ctx, req.Entity, req.Function, leadpeople.ResearchOptions{Limit: 8, Workspace: t.WS})
 		},
 		func(err error) map[string]any {
 			return map[string]any{"ok": false, "error": "people_research_unavailable", "detail": detail(err),

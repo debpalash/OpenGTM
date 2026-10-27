@@ -362,7 +362,7 @@ func (t *Turn) findPeople(ctx context.Context, a map[string]any) (string, bool, 
 	}
 	limit = max(1, min(limit, 15))
 	res, err := people.Research(ctx, stripOr(a["company"], ""), stripOr(a["function"], ""), leadpeople.ResearchOptions{
-		Titles: titleList(a["titles"]), Location: stripOr(a["location"], ""), Limit: int(limit)})
+		Titles: titleList(a["titles"]), Location: stripOr(a["location"], ""), Limit: int(limit), Workspace: t.WS})
 	if err != nil {
 		return "", false, err
 	}

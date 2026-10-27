@@ -62,6 +62,11 @@ type Service struct {
 	Search      Searcher
 	Discover    EmailDiscoverer
 	Verify      EmailVerifier
+	// Spend ledgers every paid discovery and verification (review wave 3b M4); nil makes
+	// no paid contact lookup at all (fail closed).
+	Spend ContactSpend
+	// MaxPeople caps the people of one contacts call; 0 = PEOPLE_CONTACTS_MAX_SELECTED, else 25.
+	MaxPeople int
 
 	// CrossLinkedName is the registry name looked up when CrossLinked is nil; "" = "crosslinked".
 	CrossLinkedName string
@@ -113,7 +118,8 @@ func (s *Service) crossLinked() (CrossLinked, error) {
 	if name == "" {
 		name = "crosslinked"
 	}
-	if p, ok := providers.Get(name); ok {
+	// A gated registry finder (providers/scrape) runs in process only when GO_LOCAL_PROVIDERS lists it.
+	if p, ok := providers.Get(name); ok && providers.InProcess(p) {
 		if cl, ok := p.(CrossLinked); ok {
 			return cl, nil
 		}
@@ -228,6 +234,9 @@ func (s *Service) ResearchPeopleAtCompany(ctx context.Context, company, function
 	}
 	maxPeople := max(limit*3, 15)
 	fctx, fcancel := context.WithTimeout(ctx, dur(s.ResearchTimeout, 45*time.Second))
+	if o.Workspace != "" {
+		fctx = providers.WithWorkspace(fctx, o.Workspace) // the search cache salt
+	}
 	found, err := cl.FindPeopleByTitles(fctx, PeopleQuery{
 		Company: company, Titles: qTitles, Geo: trunc(providers.PyStrip(o.Location), 80),
 		MaxPeople: maxPeople, MaxSearches: 5, ResultsPerSearch: 12, Delay: 200 * time.Millisecond,

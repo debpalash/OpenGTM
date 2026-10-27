@@ -418,7 +418,8 @@ func (e *enrichRun) provider(names ...string) (providers.Provider, bool) {
 		return nil, false
 	}
 	for _, n := range names {
-		if p, ok := lk.Get(n); ok {
+		// A gated provider (providers/scrape) runs in process only when GO_LOCAL_PROVIDERS lists it.
+		if p, ok := lk.Get(n); ok && providers.InProcess(p) {
 			return p, true
 		}
 	}
@@ -432,7 +433,7 @@ func (e *enrichRun) findEmails() {
 		e.out.event("step", "error", "message", "Email finder is not available")
 		return
 	}
-	out, err := p.Enrich(e.ctx, e.h.userHTTP, noKey, providers.Input{Lead: e.leadMap(), Field: "email"})
+	out, err := p.Enrich(providers.WithWorkspace(e.ctx, e.ws), e.h.userHTTP, noKey, providers.Input{Lead: e.leadMap(), Field: "email"})
 	if err != nil {
 		if e.ctx.Err() == nil {
 			e.fail("the email search", err)
@@ -470,7 +471,7 @@ func (e *enrichRun) scrapeWebsite() {
 		e.out.event("step", "error", "message", "Website scraper is not available")
 		return
 	}
-	out, err := p.Enrich(e.ctx, e.h.userHTTP, noKey, providers.Input{Lead: e.leadMap(), Field: "email"})
+	out, err := p.Enrich(providers.WithWorkspace(e.ctx, e.ws), e.h.userHTTP, noKey, providers.Input{Lead: e.leadMap(), Field: "email"})
 	if err != nil {
 		if e.ctx.Err() == nil {
 			e.fail("the website scrape", err)
