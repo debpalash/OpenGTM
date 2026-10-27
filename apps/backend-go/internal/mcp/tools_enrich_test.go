@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log/slog"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -13,7 +14,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadscore"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 )
 
 // enrichRig wires fakes and the audit/cap seams so no database is needed.
@@ -142,7 +144,7 @@ func TestVerifyEmailFailureIsGeneric(t *testing.T) {
 
 func TestEnrichCompanyMissesCrossTenantLeadBeforeSpending(t *testing.T) {
 	r := newEnrichRig(t, Config{MaxEnrichPerDay: 5})
-	r.pyOut("mcp.enrich_company", `{"enriched_fields":{}}`)
+	r.pyOut("ddg_email", `{}`)
 	for _, id := range []float64{7, 999} {
 		got, err := r.call(t, "enrich_company", Args{"lead_id": id})
 		if err != nil || got != `{"error": "Lead not found"}` {
@@ -154,30 +156,50 @@ func TestEnrichCompanyMissesCrossTenantLeadBeforeSpending(t *testing.T) {
 	}
 }
 
+// enrich_company runs the field waterfall in Go over the in-process providers (plan 15): website_scraper fills
+// email, phone and LinkedIn from the lead's site, ddg_email searches an email the site did not give. Python built
+// a WaterfallEnricher with no chains, so it always answered empty (bug fixed, not mirrored).
 func TestEnrichCompanyResultShape(t *testing.T) {
 	r := newEnrichRig(t, Config{})
-	r.pyOut("mcp.enrich_company", `{"enriched_fields":{"email":"found@acme.example.com","linkedin_url":"https://linkedin.com/company/acme"},"provider":"stub-provider"}`)
+	site := "acme.example.com"
+	r.leads.Rows[1].Website = &site
+	r.pyOut("website_scraper", `{"email":"found@acme.example.com","phone":"+1 555 0100","linkedin_url":"https://linkedin.com/company/acme","description":"x"}`)
+	r.pyOut("ddg_email", `{"email":"other@acme.example.com"}`)
 	got, err := r.call(t, "enrich_company", Args{"lead_id": 1.0})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got != fixtureText(t, "read__enrich_company.json") {
-		t.Fatalf("got %q", got)
+	want := "{\n  \"enriched_fields\": {\n    \"email\": \"found@acme.example.com\",\n    \"phone\": \"+1 555 0100\",\n" +
+		"    \"linkedin_url\": \"https://linkedin.com/company/acme\"\n  },\n  \"provider\": \"website_scraper\"\n}"
+	if got != want {
+		t.Fatalf("got %q\nwant %q", got, want)
 	}
-	if strings.Join(r.enrich.Calls, ",") != "py:mcp.enrich_company" {
+	if strings.Join(r.enrich.Calls, ",") != "py:website_scraper" {
 		t.Fatal(r.enrich.Calls)
 	}
-	// no chains registered: empty enriched_fields and provider "" is a success
-	r.pyOut("mcp.enrich_company", `{"enriched_fields":{},"provider":""}`)
+	// the site has no email: ddg_email searches one
+	r.enrich.Calls = nil
+	r.pyOut("website_scraper", `{"phone":"+1 555 0100"}`)
+	got, _ = r.call(t, "enrich_company", Args{"lead_id": 1.0})
+	want = "{\n  \"enriched_fields\": {\n    \"email\": \"other@acme.example.com\",\n    \"phone\": \"+1 555 0100\"\n  },\n" +
+		"  \"provider\": \"ddg_email,website_scraper\"\n}"
+	if got != want || strings.Join(r.enrich.Calls, ",") != "py:website_scraper,py:ddg_email" {
+		t.Fatalf("fallback: %q calls %v", got, r.enrich.Calls)
+	}
+	// nothing found anywhere: empty enriched_fields and provider "" is a success
+	r.pyOut("website_scraper", `{}`)
+	r.pyOut("ddg_email", `{"email":"not an email"}`)
 	got, _ = r.call(t, "enrich_company", Args{"lead_id": 1.0})
 	if got != "{\n  \"enriched_fields\": {},\n  \"provider\": \"\"\n}" {
 		t.Fatalf("empty: %q", got)
 	}
-	// Python-side miss
-	r.pyOut("mcp.enrich_company", `{"not_found":true}`)
+	// a lead without a website and with an email spends nothing
+	r.enrich.Calls = nil
+	mail := "known@acme.example.com"
+	r.leads.Rows[1].Website, r.leads.Rows[1].Email = nil, &mail
 	got, _ = r.call(t, "enrich_company", Args{"lead_id": 1.0})
-	if got != `{"error": "Lead not found"}` {
-		t.Fatalf("not_found: %q", got)
+	if got != "{\n  \"enriched_fields\": {},\n  \"provider\": \"\"\n}" || len(r.enrich.Calls) != 0 {
+		t.Fatalf("nothing to do: %q calls %v", got, r.enrich.Calls)
 	}
 	for _, a := range []Args{{}, {"lead_id": "x"}} {
 		if got, err := r.call(t, "enrich_company", a); err != nil || !strings.HasPrefix(got, `{"error": "lead_id `) {
@@ -212,22 +234,25 @@ func TestHiringSignalsShape(t *testing.T) {
 	}
 }
 
+// score_lead is scoring.score_lead in Go (internal/leadscore) over the workspace's lead: no provider call.
 func TestScoreLeadShape(t *testing.T) {
 	r := newEnrichRig(t, Config{})
-	r.pyOut("mcp.score_lead", `{"value":60}`)
+	site, mail, phone := "https://acme.example.com", "ceo@acme.example.com", "+1 555 0100"
+	r.leads.Rows[1].Website, r.leads.Rows[1].Email, r.leads.Rows[1].Phone = &site, &mail, &phone
+	want := leadscore.Score(*r.leads.Rows[1], nil)
+	if want <= 0 {
+		t.Fatalf("fixture lead scores %d", want)
+	}
 	got, err := r.call(t, "score_lead", Args{"lead_id": 1.0})
-	if err != nil || got != "60" {
-		t.Fatalf("%q %v", got, err)
+	if err != nil || got != strconv.Itoa(want) {
+		t.Fatalf("%q %v, want %d", got, err, want)
 	}
-	r.pyOut("mcp.score_lead", `{"total":35,"parts":{"a":1}}`)
-	got, _ = r.call(t, "score_lead", Args{"lead_id": 1.0})
-	if got != "{\n  \"total\": 35,\n  \"parts\": {\n    \"a\": 1\n  }\n}" {
-		t.Fatalf("dict: %q", got)
-	}
-	r.pyOut("mcp.score_lead", `{"not_found":true}`)
 	got, _ = r.call(t, "score_lead", Args{"lead_id": 999.0})
 	if got != `{"error": "Lead not found"}` {
 		t.Fatalf("miss: %q", got)
+	}
+	if len(r.enrich.Calls) != 0 {
+		t.Fatalf("score_lead reached a provider: %v", r.enrich.Calls)
 	}
 	// score_lead spends nothing: no cap, no audit row requirement beyond the cost tools
 }
@@ -235,7 +260,7 @@ func TestScoreLeadShape(t *testing.T) {
 func TestCostToolsAreAudited(t *testing.T) {
 	r := newEnrichRig(t, Config{MaxEnrichPerDay: 9})
 	r.enrich.Verify = VerifyResult{Status: "valid", Deliverable: true}
-	r.pyOut("mcp.enrich_company", `{"enriched_fields":{},"provider":""}`)
+	r.pyOut("ddg_email", `{}`)
 	r.pyOut("mcp.get_hiring_signals", `{"hiring":false,"data":{}}`)
 	_, _ = r.call(t, "verify_email", Args{"email": "a@b.co"})
 	_, _ = r.call(t, "enrich_company", Args{"lead_id": 1.0})
@@ -263,7 +288,7 @@ func TestCostToolsAreAudited(t *testing.T) {
 func TestEnrichCapExceededIsAuditedCapped(t *testing.T) {
 	r := newEnrichRig(t, Config{MaxEnrichPerDay: 1})
 	r.capHit = true
-	r.pyOut("mcp.enrich_company", `{"enriched_fields":{}}`)
+	r.pyOut("ddg_email", `{}`)
 	r.pyOut("mcp.get_hiring_signals", `{"hiring":false,"data":{}}`)
 	got, _ := r.call(t, "verify_email", Args{"email": "a@b.co"})
 	if got != `{"email": "a@b.co", "error": "mcp enrich cap exceeded"}` {
@@ -318,7 +343,7 @@ func TestEnrichCapSettlesOnSuccess(t *testing.T) {
 
 func TestEnrichUnavailableBackend(t *testing.T) {
 	r := newEnrichRig(t, Config{MaxEnrichPerDay: 3})
-	r.enrich.Err = pyworker.ErrUnavailable
+	r.enrich.Err = provcall.ErrUnavailable
 	got, _ := r.call(t, "enrich_company", Args{"lead_id": 1.0})
 	if got != `{"error": "enrichment backend unavailable"}` {
 		t.Fatal(got)
@@ -331,17 +356,16 @@ func TestEnrichUnavailableBackend(t *testing.T) {
 	if got != `{"email": "a@b.co", "error": "enrichment backend unavailable"}` {
 		t.Fatal(got)
 	}
-	got, _ = r.call(t, "score_lead", Args{"lead_id": 1.0})
-	if got != `{"error": "enrichment backend unavailable"}` {
-		t.Fatal(got)
-	}
 	if r.released != 3 {
 		t.Fatalf("released=%d", r.released)
 	}
-	// no port at all behaves the same
+	// no port at all behaves the same; score_lead needs none
 	r.d.Enrich = nil
-	got, _ = r.call(t, "score_lead", Args{"lead_id": 1.0})
+	got, _ = r.call(t, "enrich_company", Args{"lead_id": 1.0})
 	if got != `{"error": "enrichment backend unavailable"}` {
+		t.Fatal(got)
+	}
+	if got, _ = r.call(t, "score_lead", Args{"lead_id": 1.0}); got != strconv.Itoa(leadscore.Score(*r.leads.Rows[1], nil)) {
 		t.Fatal(got)
 	}
 }
@@ -350,12 +374,12 @@ func TestEnrichErrorTextNeverLeaksPythonException(t *testing.T) {
 	r := newEnrichRig(t, Config{})
 	for _, e := range []error{
 		errors.New("Traceback (most recent call last): KeyError 'lead_id'"),
-		pyworker.ErrUnauthorized, pyworker.ErrUnknownProvider,
+		provcall.ErrUnauthorized, provcall.ErrUnknownProvider,
 	} {
 		r.enrich.Err = e
 		for name, args := range map[string]Args{
 			"verify_email": {"email": "a@b.co"}, "enrich_company": {"lead_id": 1.0},
-			"get_hiring_signals": {"company": "A"}, "score_lead": {"lead_id": 1.0},
+			"get_hiring_signals": {"company": "A"},
 		} {
 			got, err := r.call(t, name, args)
 			if err != nil || !strings.Contains(got, "enrichment failed") || strings.Contains(got, "Traceback") || strings.Contains(got, "pyworker") {
@@ -363,10 +387,10 @@ func TestEnrichErrorTextNeverLeaksPythonException(t *testing.T) {
 			}
 		}
 	}
-	// a Python-reported failure payload is masked too
+	// a malformed provider payload is masked too
 	r.enrich.Err = nil
-	r.enrich.PyOut["mcp.score_lead"] = json.RawMessage(`not json`)
-	got, _ := r.call(t, "score_lead", Args{"lead_id": 1.0})
+	r.enrich.PyOut["ddg_email"] = json.RawMessage(`not json`)
+	got, _ := r.call(t, "enrich_company", Args{"lead_id": 1.0})
 	if got != `{"error": "enrichment failed"}` {
 		t.Fatal(got)
 	}
@@ -397,46 +421,6 @@ func TestEnrichToolTimeout(t *testing.T) {
 	if r.released != 1 || len(r.audits) != 1 || r.audits[0].Status != "error" {
 		t.Fatalf("released=%d audits=%+v", r.released, r.audits)
 	}
-}
-
-// TestEnrichAgainstPythonRPC runs the tools through the real pyworker client
-// against a live Python API; skipped unless TEST_PY_WORKER_URL is set.
-func TestEnrichAgainstPythonRPC(t *testing.T) {
-	url := os.Getenv("TEST_PY_WORKER_URL")
-	if url == "" {
-		t.Skip("TEST_PY_WORKER_URL not set")
-	}
-	cl := pyworker.New(url, os.Getenv("TEST_PY_WORKER_TOKEN"), nil)
-	r := newEnrichRig(t, Config{})
-	r.d.Enrich = rpcEnrich{cl}
-	got, err := r.call(t, "get_hiring_signals", Args{"company": "Nobody Inc"})
-	if err != nil || !strings.Contains(got, `"company": "Nobody Inc"`) {
-		t.Fatalf("%q %v", got, err)
-	}
-	got, _ = r.call(t, "score_lead", Args{"lead_id": 999999999.0})
-	if got != `{"error": "Lead not found"}` {
-		t.Fatalf("%q", got)
-	}
-}
-
-type rpcEnrich struct{ c *pyworker.Client }
-
-func (rpcEnrich) VerifyEmail(context.Context, string, string) (VerifyResult, error) {
-	return VerifyResult{}, ErrUnavailable
-}
-func (p rpcEnrich) Py(ctx context.Context, ws, provider string, in any) (json.RawMessage, error) {
-	b, _ := json.Marshal(in)
-	res, err := p.c.Call(ctx, pyworker.ProviderCall{CallID: "it-" + time.Now().Format("150405.000000"), Provider: provider, WorkspaceID: ws, Input: b, Timeout: 30 * time.Second})
-	if err != nil {
-		return nil, err
-	}
-	if res.Err != nil {
-		return nil, res.Err
-	}
-	if res.Status != "ok" {
-		return nil, errors.New("python call " + res.Status)
-	}
-	return res.Output, nil
 }
 
 // fixtureText returns the recorded tool text payload of a testdata/mcp/tools fixture.
