@@ -21,7 +21,7 @@ func TestEngineToolsFallThroughOnUnmirroredArgs(t *testing.T) {
 		{"create_source_workbook", map[string]any{"icp_description": "x", "target_rows": "ten"}},
 		{"ambitionbox_search", map[string]any{}}, // no client configured
 		{"import_ambitionbox_to_workbook", map[string]any{"limit": []any{}}},
-		{"enrich_lead", map[string]any{"lead_id": int64(1)}}, // not an engine tool
+		{"enrich_lead", map[string]any{"lead_id": int64(1)}}, // no Providers configured
 	}
 	for _, c := range cases {
 		res, handled, err := tn.engineTool(context.Background(), parsedCall{Name: c.name, Args: c.args})
@@ -29,7 +29,7 @@ func TestEngineToolsFallThroughOnUnmirroredArgs(t *testing.T) {
 			t.Errorf("%s %v: handled=%v err=%v res=%s", c.name, c.args, handled, err, res)
 		}
 	}
-	if isEngineTool("enrich_lead") || !isEngineTool("track_account_signals") || !isEngineTool("create_source_workbook") {
+	if !isEngineTool("enrich_lead") || !isEngineTool("track_account_signals") || !isEngineTool("create_source_workbook") {
 		t.Error("engine tool set")
 	}
 	// KeyError texts are answered in Go like execute()'s generic failure.

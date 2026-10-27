@@ -11,12 +11,10 @@ import (
 	"unicode/utf8"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 )
 
-// This file replaces POST /internal/copilot/llm (routers/internal_copilot.py _llm_stream) under
-// GO_COPILOT_NATIVE: one provider round through the Go LLM client, translated into the same frames the
-// worker sent, so Turn.round handles both sources identically.
+// This file ports routers/internal_copilot.py _llm_stream: one provider round through the Go LLM client,
+// translated into Frames for Turn.round.
 
 // Stream caps of one round (internal_copilot MAX_STREAM_*): beyond them the round ends with an error frame.
 const (
@@ -33,21 +31,18 @@ var (
 	maxRoundSeconds = 300 * time.Second
 )
 
-// frameSource is one round's frames: *pyworker.Stream or the native round.
-type frameSource interface {
-	Next() (pyworker.Frame, error)
-	Close()
-}
+// errNoEngine fails a round when the turn has neither an engine with an LLM client nor a Rounds override.
+var errNoEngine = errors.New("copilot: no LLM engine configured")
 
-// openRound starts one llm round on the native engine when configured, else on the Python worker.
-func (t *Turn) openRound(ctx context.Context, rq roundRequest) (frameSource, error) {
+// openRound starts one llm round on the native engine (or the Rounds override).
+func (t *Turn) openRound(ctx context.Context, rq RoundRequest) (FrameSource, error) {
+	if t.Rounds != nil {
+		return t.Rounds(ctx, rq)
+	}
 	if t.Engine != nil && t.Engine.LLM != nil {
 		return t.nativeRound(ctx, rq), nil
 	}
-	return t.PY.Stream(ctx, "/internal/copilot/llm", map[string]any{
-		"workspace_id": t.WS, "messages": rq.messages, "tools_enabled": rq.toolsEnabled,
-		"provider_cursor": rq.cursor, "round_budget_hit": rq.budgetHit,
-	})
+	return nil, errNoEngine
 }
 
 // chatChain is _provider_chain(): the configured chain, or the keyless default provider.
@@ -127,7 +122,7 @@ func indexOf(chain []llm.ChatProvider, id string) int {
 	return 0
 }
 
-// nativeSrc translates llm frames into worker frames with _llm_stream's held-terminal rules.
+// nativeSrc translates llm frames into round frames with _llm_stream's held-terminal rules.
 type nativeSrc struct {
 	ctx     context.Context
 	cancel  context.CancelFunc
@@ -136,8 +131,8 @@ type nativeSrc struct {
 	idx     int
 	secrets []string
 
-	pending  []pyworker.Frame
-	held     *pyworker.Frame
+	pending  []Frame
+	held     *Frame
 	errored  bool
 	terminal bool
 	finished bool
@@ -148,15 +143,15 @@ type nativeSrc struct {
 
 func (s *nativeSrc) Close() { s.cancel() }
 
-func textFrame(kind, text string) pyworker.Frame {
+func textFrame(kind, text string) Frame {
 	d, _ := json.Marshal(text)
-	return pyworker.Frame{T: kind, D: d}
+	return Frame{T: kind, D: d}
 }
 
-func (s *nativeSrc) Next() (pyworker.Frame, error) {
+func (s *nativeSrc) Next() (Frame, error) {
 	for len(s.pending) == 0 {
 		if s.finished {
-			return pyworker.Frame{}, io.EOF
+			return Frame{}, io.EOF
 		}
 		var f llm.Frame
 		var ok bool
@@ -171,11 +166,11 @@ func (s *nativeSrc) Next() (pyworker.Frame, error) {
 			continue
 		case <-s.ctx.Done():
 			wall.Stop()
-			return pyworker.Frame{}, s.ctx.Err()
+			return Frame{}, s.ctx.Err()
 		}
 		if !ok {
 			if err := s.ctx.Err(); err != nil {
-				return pyworker.Frame{}, err
+				return Frame{}, err
 			}
 			s.finish()
 			continue
@@ -220,9 +215,9 @@ func (s *nativeSrc) handle(f llm.Frame) {
 			calls[i] = c
 		}
 		d, _ := json.Marshal(calls)
-		s.held = &pyworker.Frame{T: "tool_calls", D: d}
+		s.held = &Frame{T: "tool_calls", D: d}
 	case llm.FrameDone:
-		s.held = &pyworker.Frame{T: "done"}
+		s.held = &Frame{T: "done"}
 	case llm.FrameCursor:
 		n := 0
 		if f.Cursor != nil {
@@ -235,7 +230,7 @@ func (s *nativeSrc) handle(f llm.Frame) {
 			s.terminal = true
 		case !s.errored:
 			no := false
-			s.pending = append(s.pending, pyworker.Frame{T: "done", Cursor: &n, ProviderDone: &no})
+			s.pending = append(s.pending, Frame{T: "done", Cursor: &n, ProviderDone: &no})
 			s.terminal = true
 		}
 		s.held = nil
@@ -258,7 +253,7 @@ func (s *nativeSrc) finish() {
 }
 
 // nativeRound is _llm_stream on the Go LLM client.
-func (t *Turn) nativeRound(ctx context.Context, rq roundRequest) frameSource {
+func (t *Turn) nativeRound(ctx context.Context, rq RoundRequest) FrameSource {
 	rctx, cancel := context.WithCancel(ctx)
 	e := t.Engine
 	chain := e.chatChain(rctx)
@@ -268,11 +263,11 @@ func (t *Turn) nativeRound(ctx context.Context, rq roundRequest) frameSource {
 			secrets = append(secrets, p.APIKey)
 		}
 	}
-	idx := min(max(rq.cursor, 0), len(chain)-1)
+	idx := min(max(rq.Cursor, 0), len(chain)-1)
 	cur := llm.Cursor{Provider: chain[idx], Fallbacks: append([]llm.ChatProvider(nil), chain[idx+1:]...)}
-	msgs := sanitizeMessages(rq.messages, chain[0])
+	msgs := sanitizeMessages(rq.Messages, chain[0])
 	var tools []json.RawMessage
-	if rq.toolsEnabled && !rq.budgetHit {
+	if rq.ToolsEnabled && !rq.BudgetHit {
 		tools = Schemas()
 	} else {
 		tools = []json.RawMessage{}

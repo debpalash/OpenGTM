@@ -34,7 +34,7 @@ const (
 
 // ExecNative runs one of the four native lead tools inside the caller's tenancy.InWorkspace transaction
 // and returns the exact string Python's execute() returns. handled=false means "not mine or arguments I
-// cannot answer identically": the caller falls through to the Python worker. A non-nil error is an
+// cannot answer identically": the caller answers a tool error. A non-nil error is an
 // infrastructure failure (the caller reports a generic tool failure; the database error text is not
 // echoed into model-visible output here).
 //

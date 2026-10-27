@@ -106,30 +106,14 @@ func displayCall(c parsedCall, approvalID string) ([]byte, error) {
 	return renderPairs(ps), nil
 }
 
-// describe is the confirmation card text: the worker's describe_action, or Python's own fallback
-// "label\nreason" when the worker cannot answer (a card must still be shown; the gate never depends on it).
+// describe is the confirmation card text: describe_action in Go, or Python's own fallback "label\nreason"
+// when no description can be rendered (a card must still be shown; the gate never depends on it).
 func (t *Turn) describe(ctx context.Context, c parsedCall) string {
-	if t.Engine != nil && c.Name == "execute_plan" {
+	if c.Name == "execute_plan" {
 		return t.describePlan(ctx, c.Args)
 	}
-	if t.Engine != nil {
-		if d, ok := DescribeAction(c.Name, c.Args); ok {
-			return d
-		}
-	}
-	var out struct {
-		Description *string `json:"description"`
-	}
-	if t.PY == nil {
-		return t.describeFallback(c.Name)
-	}
-	err := t.PY.Unary(ctx, "/internal/copilot/describe",
-		map[string]any{"name": c.Name, "args": c.Args, "workspace_id": t.WS}, &out, describeTimeout)
-	if err == nil && out.Description != nil {
-		return *out.Description
-	}
-	if ctx.Err() == nil {
-		t.logger().Warn("copilot describe failed", "tool", c.Name)
+	if d, ok := DescribeAction(c.Name, c.Args); ok {
+		return d
 	}
 	return t.describeFallback(c.Name)
 }

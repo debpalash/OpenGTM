@@ -62,7 +62,7 @@ func TestNativeRoundAnthropicHeadTextAnswer(t *testing.T) {
 	defer srv.Close()
 	tn := anthropicTurnFor(srv.URL)
 	msgs := []map[string]any{{"role": "system", "content": "SYS"}, {"role": "user", "content": "hi"}}
-	got := collect(t, tn.nativeRound(context.Background(), roundRequest{messages: msgs, toolsEnabled: true}))
+	got := collect(t, tn.nativeRound(context.Background(), RoundRequest{Messages: msgs, ToolsEnabled: true}))
 	want := `[{"d":"Hello there","t":"content"},{"cursor":0,"t":"done"}]`
 	if b, _ := json.Marshal(got); string(b) != want {
 		t.Fatalf("frames %s, want %s", b, want)
@@ -93,7 +93,7 @@ func TestNativeRoundAnthropicToolUseReplaysRawContent(t *testing.T) {
 	defer srv.Close()
 	tn := anthropicTurnFor(srv.URL)
 	msgs := []map[string]any{{"role": "system", "content": "SYS"}, {"role": "user", "content": "stats?"}}
-	got := collect(t, tn.nativeRound(context.Background(), roundRequest{messages: msgs, toolsEnabled: true}))
+	got := collect(t, tn.nativeRound(context.Background(), RoundRequest{Messages: msgs, ToolsEnabled: true}))
 	b, _ := json.Marshal(got)
 	if string(b) != `[{"d":"Checking.","t":"content"},{"cursor":0,"d":[{"function":{"arguments":"{}","name":"get_lead_stats"},"id":"toolu_1","type":"function"}],"t":"tool_calls"}]` {
 		t.Fatalf("frames %s", b)
@@ -106,7 +106,7 @@ func TestNativeRoundAnthropicToolUseReplaysRawContent(t *testing.T) {
 	msgs = append(msgs, map[string]any{"role": "assistant", "content": "", "tool_calls": callsAny(calls)},
 		map[string]any{"role": "tool", "tool_call_id": "toolu_1", "name": "get_lead_stats", "content": `{"total": 1}`},
 		map[string]any{"role": "system", "content": "You have reached the maximum"})
-	got = collect(t, tn.nativeRound(context.Background(), roundRequest{messages: msgs, budgetHit: true}))
+	got = collect(t, tn.nativeRound(context.Background(), RoundRequest{Messages: msgs, BudgetHit: true}))
 	if b, _ := json.Marshal(got); string(b) != `[{"d":"Done.","t":"content"},{"cursor":0,"t":"done"}]` {
 		t.Fatalf("round 2 frames %s", b)
 	}
@@ -134,18 +134,18 @@ func TestNativeRoundAnthropicFailoverAndErrors(t *testing.T) {
 	defer osrv.Close()
 	groq := llm.ChatProvider{ID: "groq", Name: "Groq", APIKey: "sk-groq-123456", BaseURL: osrv.URL + "/p2", Model: "m", OpenAICompatible: true}
 
-	got := collect(t, anthropicTurnFor(srv.URL, groq).nativeRound(context.Background(), roundRequest{messages: []map[string]any{{"role": "user", "content": "x"}}}))
+	got := collect(t, anthropicTurnFor(srv.URL, groq).nativeRound(context.Background(), RoundRequest{Messages: []map[string]any{{"role": "user", "content": "x"}}}))
 	if b, _ := json.Marshal(got); string(b) != `[{"d":"⚡ Anthropic rate limited — switching to Groq...","t":"warning"},{"d":"ok","t":"content"},{"cursor":1,"t":"done"}]` {
 		t.Fatalf("failover frames %s", b)
 	}
-	got = collect(t, anthropicTurnFor(srv.URL).nativeRound(context.Background(), roundRequest{messages: []map[string]any{{"role": "user", "content": "x"}}}))
+	got = collect(t, anthropicTurnFor(srv.URL).nativeRound(context.Background(), RoundRequest{Messages: []map[string]any{{"role": "user", "content": "x"}}}))
 	if b, _ := json.Marshal(got); !strings.HasPrefix(string(b), `[{"d":"Rate limited by Anthropic and no fallback providers available.`) || len(got) != 1 {
 		t.Fatalf("no-fallback frames %s", b)
 	}
 	fa400 := (&fakeAnthropic{}).reply(400, `{"error":{"message":"bad"}}`)
 	srv400 := httptest.NewServer(fa400)
 	defer srv400.Close()
-	got = collect(t, anthropicTurnFor(srv400.URL, groq).nativeRound(context.Background(), roundRequest{messages: []map[string]any{{"role": "user", "content": "x"}}}))
+	got = collect(t, anthropicTurnFor(srv400.URL, groq).nativeRound(context.Background(), RoundRequest{Messages: []map[string]any{{"role": "user", "content": "x"}}}))
 	if len(got) != 1 || got[0]["t"] != "error" || !strings.HasPrefix(got[0]["d"].(string), "Provider error 400: ") {
 		t.Fatalf("400 frames %v", got)
 	}
@@ -159,7 +159,7 @@ func TestNativeRoundSkipsOtherNonCompatibleHead(t *testing.T) {
 	groq := llm.ChatProvider{ID: "groq", Name: "Groq", APIKey: "sk-groq-123456", BaseURL: osrv.URL + "/p2", Model: "m", OpenAICompatible: true}
 	run := func(chain ...llm.ChatProvider) string {
 		tn := &Turn{Deps: Deps{Engine: &Engine{LLM: newTestLLM(), Chain: func(context.Context) []llm.ChatProvider { return chain }}}}
-		b, _ := json.Marshal(collect(t, tn.nativeRound(context.Background(), roundRequest{messages: []map[string]any{{"role": "user", "content": "x"}}})))
+		b, _ := json.Marshal(collect(t, tn.nativeRound(context.Background(), RoundRequest{Messages: []map[string]any{{"role": "user", "content": "x"}}})))
 		return string(b)
 	}
 	if got := run(cohere, groq); got != `[{"d":"⚡ Cohere does not support streamed chat — switching to Groq...","t":"warning"},{"cursor":1,"t":"done"}]` {

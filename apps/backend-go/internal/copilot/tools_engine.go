@@ -17,10 +17,10 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
-// engineTools are the catalog tools GO_COPILOT_NATIVE executes in Go (plan 15 WP-COPILOT-CORE and
-// WP-COPILOT-TOOLS). enrich_lead still goes to /internal/copilot/tool, and so do the people tools while the
-// engine has no People (create_people_workbook: no ResolvePerson). Arguments Go cannot answer exactly like Python (a type Python would coerce or
-// raise on in a way not mirrored here) also fall through to the worker.
+// engineTools are the catalog tools the engine executes (plan 15 WP-COPILOT-CORE, WP-COPILOT-TOOLS, WP-CUTOVER).
+// The people tools need People (create_people_workbook: ResolvePerson) and enrich_lead needs Providers; without
+// them, and for arguments Go cannot answer exactly like Python (a type Python would coerce or raise on in a way
+// not mirrored here), the call answers a tool error.
 var engineTools = []string{
 	"start_collection", "find_similar_leads", "get_enrichment_gaps", "compare_leads",
 	"ambitionbox_search", "ambitionbox_jobs", "import_ambitionbox_to_workbook",
@@ -28,6 +28,7 @@ var engineTools = []string{
 	"track_account_signals",
 	"find_people_at_company", "verify_people_at_company", "enrich_people_contacts", "create_people_workbook",
 	"suggest_outreach", "draft_grounded_outreach", "draft_plan", "execute_plan",
+	"enrich_lead",
 }
 
 // EngineToolNames lists the tools the native engine implements.
@@ -38,7 +39,7 @@ func isEngineTool(name string) bool { return slices.Contains(engineTools, name) 
 // keyErr is Python's KeyError text inside execute()'s generic failure result.
 func keyErr(name, key string) string { return toolErr(name, "'"+key+"'") }
 
-// engineTool runs one engine tool. handled=false sends the call to the worker; err is an infrastructure
+// engineTool runs one engine tool. handled=false means the call cannot be answered (a tool error); err is an infrastructure
 // failure (reported to the model as a generic tool failure by the caller).
 func (t *Turn) engineTool(ctx context.Context, c parsedCall) (string, bool, error) {
 	if IsDangerous(c.Name) && t.UID != nil {
@@ -115,6 +116,8 @@ func (t *Turn) engineTool(ctx context.Context, c parsedCall) (string, bool, erro
 		return t.draftPlan(ctx, a)
 	case "execute_plan":
 		return t.executePlan(ctx, a)
+	case "enrich_lead":
+		return t.enrichLead(ctx, a)
 	}
 	return "", false, nil
 }
@@ -145,8 +148,8 @@ func leadScore(l leadsread.Lead) int64 {
 	return *l.Score
 }
 
-// argInt is an integer argument: absent -> dflt; a JSON integer -> itself; anything else -> ok=false (the
-// worker answers it).
+// argInt is an integer argument: absent -> dflt; a JSON integer -> itself; anything else -> ok=false (not
+// answered: a tool error).
 func argInt(a map[string]any, key string, dflt int64) (int64, bool) {
 	v, present := a[key]
 	if !present {

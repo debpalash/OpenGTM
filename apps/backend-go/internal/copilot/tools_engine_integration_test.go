@@ -341,6 +341,12 @@ func TestEngineToolsMatchPython(t *testing.T) {
 		}
 		gotAfter := toolSnapshot(t, owner, ws, before)
 		wantAfter := semantic(c.After).(map[string]any)
+		for _, j := range wantAfter["jobs"].([]any) {
+			// recorded under Python: every job the tools enqueue now runs on the go executor (plan 15 cutover)
+			if jm := j.(map[string]any); jm["executor"] == "python" {
+				jm["executor"] = "go"
+			}
+		}
 		for _, snap := range []map[string]any{gotAfter, wantAfter} {
 			for _, j := range snap["jobs"].([]any) {
 				goRefreshJob(j.(map[string]any))

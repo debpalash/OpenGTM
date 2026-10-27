@@ -6,12 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
-	"time"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
 )
 
@@ -24,11 +22,13 @@ func jstr(s string) string {
 	return string(b)
 }
 
-type roundRequest struct {
-	messages     []map[string]any
-	cursor       int
-	toolsEnabled bool
-	budgetHit    bool
+// RoundRequest is one llm round: the messages, the provider-chain cursor to start from, whether the tools are
+// offered and whether the per-turn round budget ended them.
+type RoundRequest struct {
+	Messages     []map[string]any
+	Cursor       int
+	ToolsEnabled bool
+	BudgetHit    bool
 }
 
 type roundResult struct {
@@ -40,7 +40,7 @@ type roundResult struct {
 // round performs one llm RPC: content, warning and error frames are relayed as they arrive; a tool_calls
 // frame ends the round with the calls and the provider cursor. A stream that ends without a terminal
 // frame, or any protocol fault, becomes a turnErr (one fixed error frame and [DONE]).
-func (t *Turn) round(ctx context.Context, w *ssestream.Writer, rq roundRequest) (roundResult, error) {
+func (t *Turn) round(ctx context.Context, w *ssestream.Writer, rq RoundRequest) (roundResult, error) {
 	st, err := t.openRound(ctx, rq)
 	if err != nil {
 		return roundResult{}, t.streamErr(ctx, err)
@@ -71,7 +71,7 @@ func (t *Turn) round(ctx context.Context, w *ssestream.Writer, rq roundRequest) 
 			}
 			return roundResult{}, nil
 		case "tool_calls":
-			c := rq.cursor
+			c := rq.Cursor
 			if f.Cursor != nil {
 				c = *f.Cursor
 			}
@@ -80,7 +80,7 @@ func (t *Turn) round(ctx context.Context, w *ssestream.Writer, rq roundRequest) 
 	}
 }
 
-// streamErr classifies a pyworker failure: a cancelled context is not a provider fault.
+// streamErr classifies a round failure: a cancelled context is not a provider fault.
 func (t *Turn) streamErr(ctx context.Context, err error) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
@@ -88,7 +88,7 @@ func (t *Turn) streamErr(ctx context.Context, err error) error {
 	return &turnErr{errTextInterrupted, err}
 }
 
-// relayErr is a failure to write a relayed worker frame: a frame that is not valid JSON is a protocol
+// relayErr is a failure to write a relayed round frame: a frame that is not valid JSON is a protocol
 // fault; anything else is the client's connection.
 func (t *Turn) relayErr(ctx context.Context, err error) error {
 	if ctx.Err() != nil {
@@ -306,25 +306,30 @@ func (t *Turn) callTool(ctx context.Context, c parsedCall) (string, error) {
 }
 
 func (t *Turn) callToolRaw(ctx context.Context, c parsedCall) (string, error) {
-	if isNativeTool(c.Name) {
-		nctx, cancel := context.WithTimeout(ctx, t.toolTimeout())
-		res, handled, err := t.native(nctx, c)
-		cancel()
-		switch {
-		case ctx.Err() != nil:
-			return "", ctx.Err()
-		case errors.Is(err, context.DeadlineExceeded):
-			return toolErr(c.Name, "timed out"), nil
-		case err != nil:
-			t.logger().Warn("copilot native tool failed", "tool", c.Name)
-			return toolErr(c.Name, "internal error"), nil
-		case handled:
-			return res, nil
+	// The role checks below skip a nil UID (self-host): a turn whose Resolved cannot name a tool user, or that
+	// belongs to another workspace, fails closed before any tool runs.
+	if _, err := t.Auth.ToolUserID(); err != nil || t.Auth.WorkspaceID != t.WS {
+		if err == nil {
+			err = errors.New("copilot: auth workspace differs from the turn workspace")
 		}
+		return "", &turnErr{errTextTools, err}
+	}
+	type impl func(context.Context, parsedCall) (string, bool, error)
+	var impls []impl
+	if t.Native != nil {
+		impls = append(impls, func(ctx context.Context, c parsedCall) (string, bool, error) {
+			return t.Native(ctx, c.Name, c.Args, t.WS, t.UID)
+		})
+	}
+	if isNativeTool(c.Name) {
+		impls = append(impls, t.execNative)
 	}
 	if t.Engine != nil && isEngineTool(c.Name) {
+		impls = append(impls, t.engineTool)
+	}
+	for _, run := range impls {
 		nctx, cancel := context.WithTimeout(ctx, t.toolTimeout())
-		res, handled, err := t.engineTool(nctx, c)
+		res, handled, err := run(nctx, c)
 		cancel()
 		switch {
 		case ctx.Err() != nil:
@@ -332,19 +337,17 @@ func (t *Turn) callToolRaw(ctx context.Context, c parsedCall) (string, error) {
 		case errors.Is(err, context.DeadlineExceeded):
 			return toolErr(c.Name, "timed out"), nil
 		case err != nil:
-			t.logger().Warn("copilot engine tool failed", "tool", c.Name)
+			t.logger().Warn("copilot tool failed", "tool", c.Name)
 			return toolErr(c.Name, "internal error"), nil
 		case handled:
 			return res, nil
 		}
 	}
-	return t.pythonTool(ctx, c)
+	return t.unavailableTool(c), nil
 }
 
-func (t *Turn) native(ctx context.Context, c parsedCall) (string, bool, error) {
-	if t.Native != nil {
-		return t.Native(ctx, c.Name, c.Args, t.WS, t.UID)
-	}
+// execNative runs one of the native lead tools inside tenancy.InWorkspace(Pool).
+func (t *Turn) execNative(ctx context.Context, c parsedCall) (string, bool, error) {
 	var res string
 	var handled bool
 	err := t.inTx(ctx, func(tx pgx.Tx) error {
@@ -355,42 +358,17 @@ func (t *Turn) native(ctx context.Context, c parsedCall) (string, bool, error) {
 	return res, handled, err
 }
 
-func (t *Turn) pythonTool(ctx context.Context, c parsedCall) (string, error) {
-	if t.PY == nil {
-		return toolErr(c.Name, "worker error"), nil // the engine runs without a worker; this tool has no Go port
-	}
-	uid, err := t.Auth.ToolUserID()
-	if err != nil || t.Auth.WorkspaceID != t.WS {
-		if err == nil {
-			err = errors.New("copilot: auth workspace differs from the turn workspace")
+// unavailableTool answers a call no Go implementation handled: an unknown name gets Python's "Unknown tool"
+// result; a catalog tool whose arguments the Go port does not accept, or whose collaborator the engine was
+// built without, gets a tool error. Nothing is executed.
+func (t *Turn) unavailableTool(c parsedCall) string {
+	for _, tool := range Catalog() {
+		if tool.Name == c.Name {
+			t.logger().Warn("copilot tool not available", "tool", c.Name)
+			return toolErr(c.Name, "not available")
 		}
-		return "", &turnErr{errTextTools, err}
 	}
-	timeout := t.toolTimeout()
-	body := map[string]any{"name": c.Name, "args": c.Args, "workspace_id": t.WS, "user_id": uid, "slug": t.Slug,
-		"timeout_s": min(timeout, 120*time.Second).Seconds()}
-	var out struct {
-		Result *string `json:"result"`
-	}
-	call := t.PY.Unary
-	if IsDangerous(c.Name) {
-		call = t.PY.UnaryOnce // never re-send an approval-gated tool: a retry on a fresh worker could run it twice
-	}
-	err = call(ctx, "/internal/copilot/tool", body, &out, timeout+unarySlack)
-	switch {
-	case ctx.Err() != nil:
-		return "", ctx.Err()
-	case errors.Is(err, pyworker.ErrTimeout):
-		return toolErr(c.Name, "timed out"), nil
-	case errors.Is(err, pyworker.ErrUnknownProvider):
-		return `{"error": ` + jstr("Unknown tool: "+c.Name) + `}`, nil
-	case err != nil:
-		t.logger().Warn("copilot python tool failed", "tool", c.Name, "reason", err.Error())
-		return toolErr(c.Name, "worker error"), nil
-	case out.Result == nil:
-		return toolErr(c.Name, "worker error"), nil
-	}
-	return *out.Result, nil
+	return `{"error": ` + jstr("Unknown tool: "+c.Name) + `}`
 }
 
 // pairs is an object's members in source order with raw values.

@@ -24,7 +24,7 @@ import (
 // This file ports services/copilot/preroute.py under GO_COPILOT_NATIVE. The branches are evaluated in
 // Python's order and all answer in Go (preroute_people.go has the people and grounded-draft branches). Only
 // when the engine has no People (internal/leadpeople) are the explicit people research and verification
-// branches delegated to the worker, which re-evaluates the same order and answers them.
+// branches unavailable (PreRoute ends the stream with an error frame).
 
 // preDecision names the first matching branch.
 type preDecision int
@@ -245,7 +245,7 @@ func sha16(s string) string {
 	return hex.EncodeToString(sum[:])[:16]
 }
 
-// nativePreRoute answers the Go branches. delegate=true means "ask the worker" (nothing was written).
+// nativePreRoute answers the Go branches. delegate=true means a branch needs People (nothing was written).
 func (t *Turn) nativePreRoute(ctx context.Context, w *ssestream.Writer, msg string, approved bool) (handled, delegate bool, err error) {
 	dec, st, err := t.decidePreRoute(ctx, msg, approved)
 	if err != nil {

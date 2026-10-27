@@ -3,6 +3,7 @@ package copilot
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -35,7 +36,7 @@ func (t *Turn) FinishFault(ctx context.Context, w *ssestream.Writer, err error) 
 	if errors.As(err, &te) {
 		text = te.text
 	}
-	t.logger().Warn("copilot approval resume ended with an error frame", "conversation", t.ConvID, "reason", err.Error())
+	t.logger().Warn("copilot approval resume ended with an error frame", "conversation", t.ConvID, "reason", fmt.Sprintf("%T", err))
 	if t.emitKey(w, "error", []byte(jstr(text))) == nil {
 		_ = w.Done()
 	}

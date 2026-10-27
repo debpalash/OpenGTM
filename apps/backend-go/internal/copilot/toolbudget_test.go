@@ -16,7 +16,7 @@ func TestRunSafeCapsTotalToolResultBytes(t *testing.T) {
 	maxTurnToolBytes = 3000
 	defer func() { maxTurnToolBytes = old }()
 	big := `{"rows": "` + strings.Repeat("a", 1000) + `"}`
-	tn := newTurn(newFakePy(t), func(context.Context, string, map[string]any, string, *int32) (string, bool, error) {
+	tn := newTurn(newFakeLLM(t), func(context.Context, string, map[string]any, string, *int32) (string, bool, error) {
 		return big, true, nil
 	})
 	tn.Seen = map[string]string{}

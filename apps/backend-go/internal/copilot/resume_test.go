@@ -23,18 +23,18 @@ import (
 
 type resumeEnv struct {
 	*nativeEnv
-	py *fakePy
+	py *fakeLLM
 }
 
 func resumeSetup(t *testing.T) *resumeEnv {
 	t.Helper()
-	e := &resumeEnv{nativeEnv: nativeSetup(t), py: newFakePy(t)}
+	e := &resumeEnv{nativeEnv: nativeSetup(t), py: newFakeLLM(t)}
 	e.py.toolFn = func(toolReq) (int, any) { return 200, map[string]any{"result": `{"ok": true}`} }
 	return e
 }
 
 func (e *resumeEnv) turn(uid int32) *Turn {
-	d := Deps{Pool: e.pool, PY: e.py.client(), Settings: settingsStub{}, ToolTimeout: 5 * time.Second}
+	d := Deps{Pool: e.pool, Rounds: e.py.round, Native: e.py.native, Settings: settingsStub{}, ToolTimeout: 5 * time.Second}
 	return &Turn{Deps: d, WS: e.ws, Slug: "alpha", UID: i32(uid), ConvID: "c1",
 		Auth: copilotauth.Resolved{WorkspaceID: e.ws, Slug: "alpha", UserID: i32(uid)}}
 }

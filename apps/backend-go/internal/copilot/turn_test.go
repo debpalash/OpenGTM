@@ -6,10 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"log/slog"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -22,7 +19,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/copilotauth"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
 )
 
@@ -46,99 +42,6 @@ func (r *syncRec) Write(b []byte) (int, error) {
 }
 func (r *syncRec) String() string { r.mu.Lock(); defer r.mu.Unlock(); return r.buf.String() }
 
-type toolReq struct {
-	Header http.Header
-	Body   map[string]any
-}
-
-// fakePy is the Python worker: scripted llm rounds, tool and describe endpoints.
-type fakePy struct {
-	t        *testing.T
-	srv      *httptest.Server
-	mu       sync.Mutex
-	rounds   [][]string // NDJSON lines per llm call
-	llmReqs  []map[string]any
-	tools    []toolReq
-	describe []map[string]any
-	// optional behaviours
-	llmHold  func(w http.ResponseWriter, r *http.Request, n int) bool // return true when handled
-	toolFn   func(req toolReq) (int, any)
-	descFn   func(body map[string]any) (int, any)
-	llmDone  chan struct{} // closed when an llm request's context ends
-	llmStart chan struct{}
-}
-
-func newFakePy(t *testing.T, rounds ...[]string) *fakePy {
-	f := &fakePy{t: t, rounds: rounds, llmDone: make(chan struct{}, 8), llmStart: make(chan struct{}, 8)}
-	mux := http.NewServeMux()
-	mux.HandleFunc("/internal/copilot/llm", func(w http.ResponseWriter, r *http.Request) {
-		var body map[string]any
-		_ = json.NewDecoder(r.Body).Decode(&body)
-		f.mu.Lock()
-		n := len(f.llmReqs)
-		f.llmReqs = append(f.llmReqs, body)
-		f.mu.Unlock()
-		f.llmStart <- struct{}{}
-		if f.llmHold != nil && f.llmHold(w, r, n) {
-			<-r.Context().Done()
-			f.llmDone <- struct{}{}
-			return
-		}
-		if n >= len(f.rounds) {
-			http.Error(w, "no script", 500)
-			return
-		}
-		w.Header().Set("Content-Type", "application/x-ndjson")
-		for _, l := range f.rounds[n] {
-			var cb bytes.Buffer
-			if json.Compact(&cb, []byte(l)) == nil {
-				l = cb.String()
-			}
-			_, _ = io.WriteString(w, l+"\n")
-			w.(http.Flusher).Flush()
-		}
-	})
-	mux.HandleFunc("/internal/copilot/tool", func(w http.ResponseWriter, r *http.Request) {
-		var body map[string]any
-		_ = json.NewDecoder(r.Body).Decode(&body)
-		req := toolReq{Header: r.Header.Clone(), Body: body}
-		f.mu.Lock()
-		f.tools = append(f.tools, req)
-		f.mu.Unlock()
-		st, out := 200, any(map[string]any{"result": `{"ok": true}`})
-		if f.toolFn != nil {
-			st, out = f.toolFn(req)
-		}
-		w.WriteHeader(st)
-		_ = json.NewEncoder(w).Encode(out)
-	})
-	mux.HandleFunc("/internal/copilot/describe", func(w http.ResponseWriter, r *http.Request) {
-		var body map[string]any
-		_ = json.NewDecoder(r.Body).Decode(&body)
-		f.mu.Lock()
-		f.describe = append(f.describe, body)
-		f.mu.Unlock()
-		st, out := 200, any(map[string]any{"description": "DESC " + fmt.Sprint(body["name"])})
-		if f.descFn != nil {
-			st, out = f.descFn(body)
-		}
-		w.WriteHeader(st)
-		_ = json.NewEncoder(w).Encode(out)
-	})
-	f.srv = httptest.NewServer(mux)
-	t.Cleanup(f.srv.Close)
-	return f
-}
-
-func (f *fakePy) client() *pyworker.Client { return pyworker.New(f.srv.URL, "tok-secret-9f3", nil) }
-func (f *fakePy) llmCount() int            { f.mu.Lock(); defer f.mu.Unlock(); return len(f.llmReqs) }
-func (f *fakePy) toolCount() int           { f.mu.Lock(); defer f.mu.Unlock(); return len(f.tools) }
-func (f *fakePy) llmReq(i int) map[string]any {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	return f.llmReqs[i]
-}
-
 type settingsStub map[string]string
 
 func (s settingsStub) Get(_ context.Context, key, def string) (string, error) {
@@ -150,8 +53,12 @@ func (s settingsStub) Get(_ context.Context, key, def string) (string, error) {
 
 func uidp(n int32) *int32 { return &n }
 
-func newTurn(f *fakePy, native NativeFunc) *Turn {
-	d := Deps{PY: f.client(), Native: native, Settings: settingsStub{}, ToolTimeout: 5 * time.Second, TurnTimeout: 30 * time.Second}
+// newTurn builds a turn on the scripted rounds; a nil native records every tool call on f (f.native).
+func newTurn(f *fakeLLM, native NativeFunc) *Turn {
+	if native == nil {
+		native = f.native
+	}
+	d := Deps{Rounds: f.round, Native: native, Settings: settingsStub{}, ToolTimeout: 5 * time.Second, TurnTimeout: 30 * time.Second}
 	return &Turn{Deps: d, WS: "ws-t13", Slug: "alpha", UID: uidp(7), ConvID: "c1",
 		Auth: copilotauth.Resolved{WorkspaceID: "ws-t13", Slug: "alpha", UserID: uidp(7)}}
 }
@@ -184,7 +91,7 @@ func nativeConst(res string) NativeFunc {
 // ---- tests ----
 
 func TestPlainAnswerStreamsContent(t *testing.T) {
-	f := newFakePy(t, []string{`{"t":"content","d":"Hi"}`, `{"t":"content","d":" thére"}`, `{"t":"done","cursor":0}`})
+	f := newFakeLLM(t, []string{`{"t":"content","d":"Hi"}`, `{"t":"content","d":" thére"}`, `{"t":"done","cursor":0}`})
 	body, err := runTurn(t, newTurn(f, nil), userMsgs())
 	if err != nil {
 		t.Fatal(err)
@@ -194,7 +101,7 @@ func TestPlainAnswerStreamsContent(t *testing.T) {
 		t.Fatalf("got %q want %q", body, want)
 	}
 	req := f.llmReq(0)
-	if req["workspace_id"] != "ws-t13" || req["tools_enabled"] != true || req["round_budget_hit"] != false || req["provider_cursor"] != float64(0) {
+	if req["tools_enabled"] != true || req["round_budget_hit"] != false || req["provider_cursor"] != float64(0) {
 		t.Fatalf("request %v", req)
 	}
 	if m := req["messages"].([]any); len(m) != 2 {
@@ -203,7 +110,7 @@ func TestPlainAnswerStreamsContent(t *testing.T) {
 }
 
 func TestFailoverWarningPassesThrough(t *testing.T) {
-	f := newFakePy(t, []string{`{"t":"warning","d":"Provider A rate limited"}`, `{"t":"content","d":"\n\n> switching"}`, `{"t":"done","cursor":1}`})
+	f := newFakeLLM(t, []string{`{"t":"warning","d":"Provider A rate limited"}`, `{"t":"content","d":"\n\n> switching"}`, `{"t":"done","cursor":1}`})
 	body, _ := runTurn(t, newTurn(f, nil), userMsgs())
 	want := frame(`{"warning": "Provider A rate limited"}`) + frame(`{"content": "\n\n> switching"}`) + done
 	if body != want {
@@ -212,7 +119,7 @@ func TestFailoverWarningPassesThrough(t *testing.T) {
 }
 
 func TestWorkerErrorFrameIsTerminalWithoutDone(t *testing.T) {
-	f := newFakePy(t, []string{`{"t":"warning","d":"w"}`, `{"t":"error","d":"Cannot reach AI provider."}`})
+	f := newFakeLLM(t, []string{`{"t":"warning","d":"w"}`, `{"t":"error","d":"Cannot reach AI provider."}`})
 	body, err := runTurn(t, newTurn(f, nil), userMsgs())
 	if err != nil {
 		t.Fatal(err)
@@ -223,7 +130,7 @@ func TestWorkerErrorFrameIsTerminalWithoutDone(t *testing.T) {
 }
 
 func TestProviderDoneFalseSendsNoDone(t *testing.T) {
-	f := newFakePy(t, []string{`{"t":"content","d":"x"}`, `{"t":"done","cursor":0,"provider_done":false}`})
+	f := newFakeLLM(t, []string{`{"t":"content","d":"x"}`, `{"t":"done","cursor":0,"provider_done":false}`})
 	body, _ := runTurn(t, newTurn(f, nil), userMsgs())
 	if want := frame(`{"content": "x"}`); body != want {
 		t.Fatalf("got %q", body)
@@ -232,7 +139,7 @@ func TestProviderDoneFalseSendsNoDone(t *testing.T) {
 
 func TestSafeToolCallRoundTrip(t *testing.T) {
 	calls := `[{"id":"c1","type":"function","function":{"name":"search_leads","arguments":"{\"query\": \"acme\", \"limit\": 3}"}}]`
-	f := newFakePy(t,
+	f := newFakeLLM(t,
 		[]string{`{"t":"tool_calls","d":` + calls + `,"cursor":2}`},
 		[]string{`{"t":"content","d":"Found."}`, `{"t":"done","cursor":2}`})
 	var gotArgs map[string]any
@@ -277,7 +184,7 @@ func TestSafeToolCallRoundTrip(t *testing.T) {
 func TestDuplicateSafeCallReusesResult(t *testing.T) {
 	calls := `[{"id":"a","type":"function","function":{"name":"search_leads","arguments":"{\"a\": 1, \"b\": 2}"}},
 	 {"id":"b","type":"function","function":{"name":"search_leads","arguments":"{\"b\": 2, \"a\": 1}"}}]`
-	f := newFakePy(t, []string{`{"t":"tool_calls","d":` + calls + `,"cursor":0}`}, []string{`{"t":"done","cursor":0}`})
+	f := newFakeLLM(t, []string{`{"t":"tool_calls","d":` + calls + `,"cursor":0}`}, []string{`{"t":"done","cursor":0}`})
 	var n atomic.Int32
 	tn := newTurn(f, func(context.Context, string, map[string]any, string, *int32) (string, bool, error) {
 		n.Add(1)
@@ -302,7 +209,7 @@ func TestParallelSafeCallsOrder(t *testing.T) {
 	calls := `[{"id":"a","type":"function","function":{"name":"get_lead_stats","arguments":""}},
 	 {"id":"b","type":"function","function":{"name":"search_leads","arguments":"not json"}},
 	 {"id":"c","type":"function","function":{"name":"get_lead_detail","arguments":"{\"lead_id\": 5}"}}]`
-	f := newFakePy(t, []string{`{"t":"tool_calls","d":` + calls + `,"cursor":0}`}, []string{`{"t":"done","cursor":0}`})
+	f := newFakeLLM(t, []string{`{"t":"tool_calls","d":` + calls + `,"cursor":0}`}, []string{`{"t":"done","cursor":0}`})
 	var order []string
 	tn := newTurn(f, func(_ context.Context, name string, _ map[string]any, _ string, _ *int32) (string, bool, error) {
 		order = append(order, name)
@@ -330,7 +237,7 @@ func toolRound(name string, i int) string {
 }
 
 func TestRoundBudgetDisablesTools(t *testing.T) {
-	f := newFakePy(t, []string{toolRound("search_leads", 0)}, []string{toolRound("search_leads", 1)}, []string{`{"t":"content","d":"summary"}`, `{"t":"done","cursor":0}`})
+	f := newFakeLLM(t, []string{toolRound("search_leads", 0)}, []string{toolRound("search_leads", 1)}, []string{`{"t":"content","d":"summary"}`, `{"t":"done","cursor":0}`})
 	tn := newTurn(f, nativeConst(`{"count": 0}`))
 	tn.Settings = settingsStub{"CHAT_MAX_TOOL_ROUNDS": "2"}
 	body, _ := runTurn(t, tn, userMsgs())
@@ -356,7 +263,7 @@ func TestRoundBudgetDisablesTools(t *testing.T) {
 
 func TestMaxRoundsFloorAndInvalid(t *testing.T) {
 	for _, tc := range []struct{ val, want string }{{"0", "1"}, {"-4", "1"}, {"abc", "8"}} {
-		f := newFakePy(t, []string{toolRound("search_leads", 0)}, []string{`{"t":"done","cursor":0}`})
+		f := newFakeLLM(t, []string{toolRound("search_leads", 0)}, []string{`{"t":"done","cursor":0}`})
 		tn := newTurn(f, nativeConst(`{}`))
 		tn.Settings = settingsStub{"CHAT_MAX_TOOL_ROUNDS": tc.val}
 		if _, err := runTurn(t, tn, userMsgs()); err != nil {
@@ -372,33 +279,9 @@ func TestMaxRoundsFloorAndInvalid(t *testing.T) {
 	}
 }
 
-func TestPythonToolUsesToolUserAndCallID(t *testing.T) {
-	calls := `[{"id":"p1","type":"function","function":{"name":"find_similar_leads","arguments":"{\"lead_id\": 3}"}}]`
-	f := newFakePy(t, []string{`{"t":"tool_calls","d":` + calls + `,"cursor":0}`}, []string{`{"t":"done","cursor":0}`})
-	f.toolFn = func(toolReq) (int, any) { return 200, map[string]any{"result": `{"similar": []}`} }
-	body, err := runTurn(t, newTurn(f, nil), userMsgs())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if f.toolCount() != 1 {
-		t.Fatalf("tool calls %d", f.toolCount())
-	}
-	req := f.tools[0]
-	b := req.Body
-	if b["name"] != "find_similar_leads" || b["workspace_id"] != "ws-t13" || b["user_id"] != float64(7) || b["slug"] != "alpha" || b["timeout_s"] != float64(5) {
-		t.Fatalf("tool body %v", b)
-	}
-	if req.Header.Get("X-Call-Id") == "" || !strings.HasPrefix(req.Header.Get("Authorization"), "Bearer ") {
-		t.Fatalf("headers %v", req.Header)
-	}
-	if !strings.Contains(body, `{"tool_result": {"name": "find_similar_leads", "result": {"similar": []}}}`) {
-		t.Fatalf("body %q", body)
-	}
-}
-
-func TestPythonToolWithoutToolUserFailsTurn(t *testing.T) {
+func TestToolWithoutToolUserFailsTurn(t *testing.T) {
 	calls := `[{"id":"p1","type":"function","function":{"name":"find_similar_leads","arguments":"{}"}}]`
-	f := newFakePy(t, []string{`{"t":"tool_calls","d":` + calls + `,"cursor":0}`}, []string{`{"t":"done","cursor":0}`})
+	f := newFakeLLM(t, []string{`{"t":"tool_calls","d":` + calls + `,"cursor":0}`}, []string{`{"t":"done","cursor":0}`})
 	tn := newTurn(f, nil)
 	tn.Auth = copilotauth.Resolved{WorkspaceID: "ws-t13"} // no user, not self-host: fails closed
 	body, err := runTurn(t, tn, userMsgs())
@@ -415,17 +298,23 @@ func TestPythonToolWithoutToolUserFailsTurn(t *testing.T) {
 
 func TestToolTimeoutBecomesToolErrorResult(t *testing.T) {
 	calls := `[{"id":"p1","type":"function","function":{"name":"find_similar_leads","arguments":"{}"}}]`
-	f := newFakePy(t, []string{`{"t":"tool_calls","d":` + calls + `,"cursor":0}`}, []string{`{"t":"content","d":"sorry"}`, `{"t":"done","cursor":0}`})
-	f.toolFn = func(toolReq) (int, any) { return 408, map[string]any{"detail": "timeout"} }
-	body, err := runTurn(t, newTurn(f, nil), userMsgs())
+	f := newFakeLLM(t, []string{`{"t":"tool_calls","d":` + calls + `,"cursor":0}`}, []string{`{"t":"content","d":"sorry"}`, `{"t":"done","cursor":0}`})
+	var n atomic.Int32
+	tn := newTurn(f, func(ctx context.Context, _ string, _ map[string]any, _ string, _ *int32) (string, bool, error) {
+		n.Add(1)
+		<-ctx.Done()
+		return "", false, ctx.Err()
+	})
+	tn.ToolTimeout = 50 * time.Millisecond
+	body, err := runTurn(t, tn, userMsgs())
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !strings.Contains(body, frame(`{"tool_result": {"name": "find_similar_leads", "result": {"error": "Tool 'find_similar_leads' failed: timed out"}}}`)) {
 		t.Fatalf("body %q", body)
 	}
-	if f.toolCount() != 1 {
-		t.Fatalf("a timed-out tool must not be retried: %d", f.toolCount())
+	if n.Load() != 1 {
+		t.Fatalf("a timed-out tool must not be retried: %d", n.Load())
 	}
 	m := f.llmReq(1)["messages"].([]any)
 	if c := m[3].(map[string]any)["content"]; c != `{"error": "Tool 'find_similar_leads' failed: timed out"}` {
@@ -434,7 +323,7 @@ func TestToolTimeoutBecomesToolErrorResult(t *testing.T) {
 }
 
 func TestNativeDatabaseErrorMapsToToolFailed(t *testing.T) {
-	f := newFakePy(t, []string{toolRound("search_leads", 0)}, []string{`{"t":"done","cursor":0}`})
+	f := newFakeLLM(t, []string{toolRound("search_leads", 0)}, []string{`{"t":"done","cursor":0}`})
 	tn := newTurn(f, func(context.Context, string, map[string]any, string, *int32) (string, bool, error) {
 		return "", false, errors.New(`ERROR: relation "secret_table" does not exist (SQLSTATE 42P01)`)
 	})
@@ -444,18 +333,28 @@ func TestNativeDatabaseErrorMapsToToolFailed(t *testing.T) {
 	}
 }
 
-func TestUnknownPythonToolAnswers404AsUnknownTool(t *testing.T) {
-	calls := `[{"id":"p1","type":"function","function":{"name":"find_similar_leads","arguments":"{}"}}]`
-	f := newFakePy(t, []string{`{"t":"tool_calls","d":` + calls + `,"cursor":0}`}, []string{`{"t":"done","cursor":0}`})
-	f.toolFn = func(toolReq) (int, any) { return 404, map[string]any{"detail": "unknown tool"} }
-	body, _ := runTurn(t, newTurn(f, nil), userMsgs())
-	if !strings.Contains(body, `"result": {"error": "Unknown tool: find_similar_leads"}`) {
+// With the Python worker gone, a catalog tool without a Go implementation for this turn (no engine) answers a
+// tool error and the turn goes on; a name outside the catalog answers Python's "Unknown tool" result.
+func TestToolWithoutImplementationAnswersToolError(t *testing.T) {
+	calls := `[{"id":"p2","type":"function","function":{"name":"find_similar_leads","arguments":"{\"lead_id\": 3}"}}]`
+	f := newFakeLLM(t, []string{`{"t":"tool_calls","d":` + calls + `,"cursor":0}`}, []string{`{"t":"done","cursor":0}`})
+	tn := newTurn(f, nil)
+	tn.Native = nil
+	body, err := runTurn(t, tn, userMsgs())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(body, `"result": {"error": "Tool 'find_similar_leads' failed: not available"}`) || !strings.HasSuffix(body, done) {
 		t.Fatalf("body %q", body)
+	}
+	res, err := tn.callTool(context.Background(), parsedCall{Name: "no_such_tool", Args: map[string]any{}})
+	if err != nil || res != `{"error": "Unknown tool: no_such_tool"}` {
+		t.Fatalf("unknown tool: %q %v", res, err)
 	}
 }
 
 func TestNonJSONToolOutputBecomesRaw(t *testing.T) {
-	f := newFakePy(t, []string{toolRound("search_leads", 0)}, []string{`{"t":"done","cursor":0}`})
+	f := newFakeLLM(t, []string{toolRound("search_leads", 0)}, []string{`{"t":"done","cursor":0}`})
 	body, _ := runTurn(t, newTurn(f, nativeConst("plain text é")), userMsgs())
 	if !strings.Contains(body, `{"tool_result": {"name": "search_leads", "result": {"raw": "plain text \u00e9"}}}`) {
 		t.Fatalf("body %q", body)
@@ -466,7 +365,7 @@ func TestNonJSONToolOutputBecomesRaw(t *testing.T) {
 }
 
 func TestOversizedToolResultIsReplaced(t *testing.T) {
-	f := newFakePy(t, []string{toolRound("search_leads", 0)}, []string{`{"t":"done","cursor":0}`})
+	f := newFakeLLM(t, []string{toolRound("search_leads", 0)}, []string{`{"t":"done","cursor":0}`})
 	big := `"` + strings.Repeat("a", 1<<20+10) + `"`
 	body, _ := runTurn(t, newTurn(f, nativeConst(big)), userMsgs())
 	if !strings.Contains(body, `"result": {"error": "tool result too large"}`) {
@@ -474,9 +373,9 @@ func TestOversizedToolResultIsReplaced(t *testing.T) {
 	}
 }
 
-func TestPythonCrashMidStreamEmitsErrorThenDone(t *testing.T) {
+func TestRoundWithoutTerminalFrameEmitsErrorThenDone(t *testing.T) {
 	// content, then the connection ends with no terminal frame
-	f := newFakePy(t, []string{`{"t":"content","d":"par"}`})
+	f := newFakeLLM(t, []string{`{"t":"content","d":"par"}`})
 	body, _ := runTurn(t, newTurn(f, nil), userMsgs())
 	want := frame(`{"content": "par"}`) + frame(`{"error": "AI provider stream interrupted"}`) + done
 	if body != want {
@@ -485,47 +384,16 @@ func TestPythonCrashMidStreamEmitsErrorThenDone(t *testing.T) {
 }
 
 func TestProtocolErrorEmitsErrorThenDone(t *testing.T) {
-	f := newFakePy(t, []string{`not json at all`})
+	f := newFakeLLM(t, []string{`not json at all`})
 	body, _ := runTurn(t, newTurn(f, nil), userMsgs())
 	if want := frame(`{"error": "AI provider stream interrupted"}`) + done; body != want {
 		t.Fatalf("got %q", body)
 	}
 }
 
-func TestWorkerHTTPFailureNeverLeaksSecrets(t *testing.T) {
-	var logs bytes.Buffer
-	old := slog.Default()
-	slog.SetDefault(slog.New(slog.NewTextHandler(&logs, &slog.HandlerOptions{Level: slog.LevelDebug})))
-	defer slog.SetDefault(old)
-	f := newFakePy(t)
-	f.llmHold = nil
-	f.rounds = nil // 500 "no script"
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.Error(w, "sk-live-SECRETKEY "+r.Header.Get("Authorization"), 500)
-	}))
-	defer srv.Close()
-	tn := newTurn(f, nil)
-	tn.PY = pyworker.New(srv.URL, "tok-secret-9f3", nil)
-	body, err := runTurn(t, tn, userMsgs())
-	all := body + fmt.Sprint(err) + logs.String()
-	for _, s := range []string{"SECRETKEY", "tok-secret-9f3"} {
-		if strings.Contains(all, s) {
-			t.Fatalf("secret %q leaked in %q", s, all)
-		}
-	}
-	if want := frame(`{"error": "AI provider stream interrupted"}`) + done; body != want {
-		t.Fatalf("got %q", body)
-	}
-}
-
-func TestClientDisconnectCancelsRPC(t *testing.T) {
-	f := newFakePy(t)
-	f.llmHold = func(w http.ResponseWriter, r *http.Request, n int) bool {
-		w.Header().Set("Content-Type", "application/x-ndjson")
-		_, _ = io.WriteString(w, `{"t":"content","d":"x"}`+"\n")
-		w.(http.Flusher).Flush()
-		return true
-	}
+func TestClientDisconnectCancelsRound(t *testing.T) {
+	f := newFakeLLM(t)
+	f.llmHold = func(int) ([]string, bool) { return []string{`{"t":"content","d":"x"}`}, true }
 	rec := newRec()
 	w, _ := ssestream.New(rec, nil)
 	ctx, cancel := context.WithCancel(context.Background())
@@ -545,7 +413,7 @@ func TestClientDisconnectCancelsRPC(t *testing.T) {
 	select {
 	case <-f.llmDone:
 	case <-time.After(3 * time.Second):
-		t.Fatal("python side was not cancelled")
+		t.Fatal("the round was not cancelled")
 	}
 	if strings.Contains(rec.String(), "[DONE]") {
 		t.Fatalf("no terminal frame for a disconnected client: %q", rec.String())
@@ -553,8 +421,8 @@ func TestClientDisconnectCancelsRPC(t *testing.T) {
 }
 
 func TestTurnDeadline(t *testing.T) {
-	f := newFakePy(t)
-	f.llmHold = func(w http.ResponseWriter, r *http.Request, n int) bool { return true }
+	f := newFakeLLM(t)
+	f.llmHold = func(int) ([]string, bool) { return nil, true }
 	tn := newTurn(f, nil)
 	tn.TurnTimeout = 150 * time.Millisecond
 	start := time.Now()
@@ -568,12 +436,12 @@ func TestTurnDeadline(t *testing.T) {
 	select {
 	case <-f.llmDone:
 	case <-time.After(3 * time.Second):
-		t.Fatal("python side was not cancelled at the deadline")
+		t.Fatal("the round was not cancelled at the deadline")
 	}
 }
 
 func TestKeepaliveDuringSlowTool(t *testing.T) {
-	f := newFakePy(t, []string{toolRound("search_leads", 0)}, []string{`{"t":"done","cursor":0}`})
+	f := newFakeLLM(t, []string{toolRound("search_leads", 0)}, []string{`{"t":"done","cursor":0}`})
 	release := make(chan struct{})
 	started := make(chan struct{})
 	tick := make(chan time.Time)
@@ -616,7 +484,7 @@ func TestSlotReleasedAfterPanicAndCancel(t *testing.T) {
 			t.Fatal(err)
 		}
 		defer rel()
-		fp := newFakePy(t, []string{`{"t":"content","d":"x"}`, `{"t":"done","cursor":0}`})
+		fp := newFakeLLM(t, []string{`{"t":"content","d":"x"}`, `{"t":"done","cursor":0}`})
 		tn := newTurn(fp, nil)
 		f(tn)
 		rec := newRec()
@@ -638,7 +506,7 @@ func TestSlotReleasedAfterPanicAndCancel(t *testing.T) {
 }
 
 func TestOnEventSeesEveryDataFrame(t *testing.T) {
-	f := newFakePy(t, []string{`{"t":"content","d":"a"}`, `{"t":"done","cursor":0}`})
+	f := newFakeLLM(t, []string{`{"t":"content","d":"a"}`, `{"t":"done","cursor":0}`})
 	tn := newTurn(f, nil)
 	var got []string
 	tn.OnEvent = func(raw []byte) { got = append(got, string(raw)) }
@@ -730,9 +598,9 @@ func replayScenario(t *testing.T, name string, pool *pgxpool.Pool) (actual, expe
 	expected = body[i+2:]
 	dangerous = strings.Contains(expected, "confirmation_required")
 
-	// tool results and descriptions come from the expected body (the recorder ran the real tools)
+	// tool results come from the expected body (the recorder ran the real tools); confirmation cards are
+	// rendered in Go (describe_action) and compared as part of the bytes
 	results := map[string]string{}
-	descs := map[string]string{}
 	var lastSig string
 	for _, ev := range strings.Split(strings.TrimSpace(expected), "\n\n") {
 		if !strings.HasPrefix(ev, "data: {") {
@@ -756,20 +624,10 @@ func replayScenario(t *testing.T, name string, pool *pgxpool.Pool) (actual, expe
 			if _, ok := results[lastSig]; !ok {
 				results[lastSig] = string(tr.Result)
 			}
-		case m["confirmation_required"] != nil:
-			var cr struct {
-				Name        string `json:"name"`
-				Description string `json:"description"`
-			}
-			_ = json.Unmarshal(m["confirmation_required"], &cr)
-			descs[cr.Name] = cr.Description
 		}
 	}
-	f := newFakePy(t)
+	f := newFakeLLM(t)
 	f.rounds = rounds
-	f.descFn = func(b map[string]any) (int, any) {
-		return 200, map[string]any{"description": descs[fmt.Sprint(b["name"])]}
-	}
 	tn := newTurn(f, func(_ context.Context, name string, args map[string]any, _ string, _ *int32) (string, bool, error) {
 		r, ok := results[name+"|"+sortedJSON(args)]
 		if !ok {
@@ -785,9 +643,6 @@ func replayScenario(t *testing.T, name string, pool *pgxpool.Pool) (actual, expe
 	w, _ := ssestream.New(rec, nil)
 	if err := tn.Run(context.Background(), w, first); err != nil {
 		t.Fatalf("%s: %v", name, err)
-	}
-	if f.toolCount() != 0 && dangerous {
-		t.Fatalf("%s: a dangerous call reached the python tool endpoint", name)
 	}
 	return rec.String(), expected, dangerous
 }
@@ -819,36 +674,14 @@ func replayScenarioNoDB(t *testing.T, name string) (string, string, bool) {
 	return replayScenario(t, name, nil)
 }
 
-// An approved dangerous tool must never be re-sent after the request may have reached Python (the
-// worker's X-Call-Id dedupe is per process, so a retry on a fresh process would run it twice).
-func TestDangerousToolRPCIsNotRetried(t *testing.T) {
-	var n atomic.Int32
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		n.Add(1)
-		hj, _ := w.(http.Hijacker)
-		conn, _, _ := hj.Hijack()
-		conn.Close() // connection drops after the request arrived
-	}))
-	defer srv.Close()
-	tn := newTurn(newFakePy(t), nil)
-	tn.PY = pyworker.New(srv.URL, "tok", nil)
-	res, err := tn.pythonTool(context.Background(), parsedCall{Name: "create_people_workbook", Args: map[string]any{}})
-	if err != nil || !strings.Contains(res, "worker error") {
-		t.Fatalf("res %q err %v", res, err)
-	}
-	if n.Load() != 1 {
-		t.Fatalf("dangerous tool RPC sent %d times", n.Load())
-	}
-}
-
 // A model-steered flood of dangerous calls in one frame ends the turn with a fixed error before any
-// describe RPC or approval row (Python has no cap; Go caps at MaxApproved per round).
+// description or approval row (Python has no cap; Go caps at MaxApproved per round).
 func TestTooManyDangerousCallsEndsTurn(t *testing.T) {
 	var cs []string
 	for i := 0; i <= MaxApproved; i++ {
 		cs = append(cs, fmt.Sprintf(`{"id":"d%d","type":"function","function":{"name":"create_people_workbook","arguments":"{}"}}`, i))
 	}
-	f := newFakePy(t, []string{`{"t":"tool_calls","d":[` + strings.Join(cs, ",") + `],"cursor":0}`})
+	f := newFakeLLM(t, []string{`{"t":"tool_calls","d":[` + strings.Join(cs, ",") + `],"cursor":0}`})
 	body, err := runTurn(t, newTurn(f, nil), userMsgs())
 	if err == nil {
 		t.Fatal("want an error")

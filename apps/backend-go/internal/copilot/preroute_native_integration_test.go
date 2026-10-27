@@ -5,6 +5,7 @@ package copilot
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
 
@@ -199,17 +200,22 @@ func normalizeJSON(t *testing.T, v any) any {
 	return out
 }
 
-func TestNativePreRouteDelegatesAndAnswersWithoutWorker(t *testing.T) {
+func TestNativePreRouteWithoutPeopleAndGoBranches(t *testing.T) {
 	e := persistSetup(t)
-	// A delegated branch (explicit people research) reaches the worker relay.
-	f := newPreFake(t, `{"t":"sse","seq":1,"d":{"conversation_id":"c"}}`, `{"t":"done"}`)
-	tn := e.preTurn(f)
+	// Without People the explicit people research branch cannot be answered: one fixed error frame and [DONE].
+	tn := e.turn()
 	tn.Engine = &Engine{}
 	handled, out, err := runPre(t, tn, "Find named people currently working on Stripe's partnerships team.", false)
-	if err != nil || !handled || out != "data: {\"conversation_id\": \"c\"}\n\ndata: [DONE]\n\n" || len(f.bodies) != 1 {
-		t.Fatalf("delegation: handled=%v err=%v out=%q bodies=%d", handled, err, out, len(f.bodies))
+	if err == nil || !handled || out != "data: {\"error\": \"AI provider stream interrupted\"}\n\ndata: [DONE]\n\n" {
+		t.Fatalf("people branch without People: handled=%v err=%v out=%q", handled, err, out)
 	}
-	// A Go branch and "no branch" never call the worker.
+	// Before the response started, the same fault is reported as ErrPreRouteOpen with nothing written.
+	tn.OpenFault = func() bool { return true }
+	handled, out, err = runPre(t, tn, "Find named people currently working on Stripe's partnerships team.", false)
+	if !errors.Is(err, ErrPreRouteOpen) || handled || out != "" {
+		t.Fatalf("open fault: handled=%v err=%v out=%q", handled, err, out)
+	}
+	// A Go branch and "no branch".
 	tn = e.turn()
 	tn.Engine = &Engine{}
 	handled, out, err = runPre(t, tn, "Stripe partnerships team", false)
@@ -219,5 +225,10 @@ func TestNativePreRouteDelegatesAndAnswersWithoutWorker(t *testing.T) {
 	handled, out, err = runPre(t, tn, "hello", false)
 	if err != nil || handled || out != "" {
 		t.Fatalf("none: handled=%v err=%v out=%q", handled, err, out)
+	}
+	// A turn without an engine has no pre-route.
+	handled, out, err = runPre(t, e.turn(), "Stripe partnerships team", false)
+	if err != nil || handled || out != "" {
+		t.Fatalf("no engine: handled=%v err=%v out=%q", handled, err, out)
 	}
 }

@@ -78,7 +78,7 @@ func newTestLLM() *llm.Client {
 }
 
 // collect drains a native round into worker-frame JSON objects ({"t", "d", "cursor", "provider_done"}).
-func collect(t *testing.T, src frameSource) []map[string]any {
+func collect(t *testing.T, src FrameSource) []map[string]any {
 	t.Helper()
 	defer src.Close()
 	var out []map[string]any
@@ -154,7 +154,7 @@ func TestNativeRoundMatchesPythonLLMRPC(t *testing.T) {
 			}
 			tools := c.Body.ToolsEnabled == nil || *c.Body.ToolsEnabled
 			tn := &Turn{Deps: Deps{Engine: &Engine{LLM: newTestLLM(), Chain: func(context.Context) []llm.ChatProvider { return chain }}}}
-			got := collect(t, tn.nativeRound(context.Background(), roundRequest{messages: msgs, cursor: c.Body.Cursor, toolsEnabled: tools, budgetHit: c.Body.BudgetHit}))
+			got := collect(t, tn.nativeRound(context.Background(), RoundRequest{Messages: msgs, Cursor: c.Body.Cursor, ToolsEnabled: tools, BudgetHit: c.Body.BudgetHit}))
 			if !reflect.DeepEqual(got, c.Frames) && !(len(got) == 0 && len(c.Frames) == 0) {
 				t.Errorf("frames:\n got %v\nwant %v", got, c.Frames)
 			}

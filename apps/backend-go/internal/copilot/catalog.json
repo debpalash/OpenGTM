@@ -332,7 +332,7 @@
     },
     {
       "name": "enrich_lead",
-      "executor": "python",
+      "executor": "go",
       "dangerous": true,
       "safe": false,
       "schema": {

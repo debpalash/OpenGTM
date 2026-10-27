@@ -142,8 +142,8 @@ func TestCatalogDriftGuard(t *testing.T) {
 
 func TestCatalogMatchesGeneratorCheck(t *testing.T) {
 	py := legacyDir(t)
-	// The generator's own executor column only knows the four native lead tools; the plan 15 engine tools are Go
-	// too (GO_COPILOT_NATIVE), so the generated catalog is compared with those executors overridden.
+	// The generator's own executor column only knows the four native lead tools; every other tool is Go too
+	// (plan 15 engine tools), so the generated catalog is compared with those executors overridden.
 	goTools := strings.Join(append(NativeToolNames(), EngineToolNames()...), ",")
 	cmd := exec.Command("uv", "run", "python", "-c",
 		"import json,os,sys;sys.path.insert(0,'scripts');import gen_copilot_catalog as g\n"+
@@ -177,9 +177,7 @@ func TestCatalogEveryToolHasExecutor(t *testing.T) {
 				t.Errorf("%s is executor=go with no Go implementation", tl.Name)
 			}
 		case "python":
-			if native[tl.Name] {
-				t.Errorf("%s is executor=python but has a Go implementation", tl.Name)
-			}
+			t.Errorf("%s is executor=python: the Python worker is gone (plan 15)", tl.Name)
 		default:
 			t.Errorf("%s has executor %q", tl.Name, tl.Executor)
 		}
@@ -193,8 +191,8 @@ func TestCatalogEveryToolHasExecutor(t *testing.T) {
 			t.Errorf("native tool %s is not in the catalog", n)
 		}
 	}
-	if len(native) != 24 {
-		t.Errorf("Go tools = %d, want 24 (4 always native + 20 behind GO_COPILOT_NATIVE)", len(native))
+	if len(native) != 25 {
+		t.Errorf("Go tools = %d, want 25 (4 native lead tools + 21 engine tools)", len(native))
 	}
 }
 

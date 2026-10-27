@@ -5,12 +5,9 @@ package copilot
 import (
 	"bytes"
 	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
 	"log/slog"
-	"net/http"
-	"net/http/httptest"
 	"runtime"
 	"strings"
 	"sync"
@@ -18,98 +15,112 @@ import (
 	"testing"
 	"time"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
 )
 
-// Chaos tests (plan 12 Task 21): the Python worker dies or stalls at every frame, the client leaves at every
+// Chaos tests (plan 12 Task 21): the llm round dies or stalls at every frame, the client leaves at every
 // frame, a tool outlives the keepalive, an approval is resubmitted concurrently, or a callback panics. In
 // every case: one terminal [DONE] (or none after a disconnect), no double execution, the stream-cap slot is
 // released, no goroutine of this package outlives the turn, and nothing is stored after a cancel.
 
-const chaosSecret = "tok-secret-chaos-77"
-
-// chaosPy is a scripted worker whose llm endpoint can cut the connection after a given frame of a given
-// round, or stall (hang) after it until the request is cancelled.
-type chaosPy struct {
-	srv    *httptest.Server
+// chaosLLM scripts the llm rounds; a round can fail after a given frame of a given round (the provider stream
+// breaks), or stall (hang) after it until the turn cancels it. Its native tool can be slowed down.
+type chaosLLM struct {
 	rounds [][]string
 
 	mu        sync.Mutex
 	cutRound  int // -1: never
-	cutAfter  int // frames sent before the connection is dropped
-	hangRound int // -1: never; after hangAfter frames the handler blocks until cancelled
+	cutAfter  int // frames delivered before the stream breaks
+	hangRound int // -1: never; after hangAfter frames the round blocks until cancelled
 	hangAfter int
+	openErr   error // every round fails to open
 	llmCalls  int
 	toolCalls int
 	toolDelay time.Duration
-	cancelled atomic.Int32 // llm or tool requests whose context ended before the handler finished
+	cancelled atomic.Int32 // rounds or tools whose context ended before they finished
 }
 
-func newChaosPy(t *testing.T, rounds ...[]string) *chaosPy {
-	c := &chaosPy{rounds: rounds, cutRound: -1, hangRound: -1}
-	mux := http.NewServeMux()
-	mux.HandleFunc("/internal/copilot/llm", func(w http.ResponseWriter, r *http.Request) {
-		_, _ = io.Copy(io.Discard, r.Body)
-		c.mu.Lock()
-		n := c.llmCalls
-		c.llmCalls++
-		cutR, cutA, hangR, hangA := c.cutRound, c.cutAfter, c.hangRound, c.hangAfter
-		c.mu.Unlock()
-		if n >= len(c.rounds) {
-			http.Error(w, "no script", 500)
-			return
+func newChaosLLM(rounds ...[]string) *chaosLLM {
+	return &chaosLLM{rounds: rounds, cutRound: -1, hangRound: -1}
+}
+
+var errChaosCut = errors.New("chaos: provider stream broke")
+
+type chaosSrc struct {
+	c      *chaosLLM
+	ctx    context.Context
+	lines  []string
+	sent   int
+	cut    int // -1: never
+	hang   int // -1: never
+	closed chan struct{}
+	once   sync.Once
+}
+
+func (s *chaosSrc) Close() { s.once.Do(func() { close(s.closed) }) }
+
+func (s *chaosSrc) Next() (Frame, error) {
+	if s.sent == s.cut {
+		return Frame{}, errChaosCut
+	}
+	if s.sent == s.hang {
+		select {
+		case <-s.ctx.Done():
+			s.c.cancelled.Add(1)
+			return Frame{}, s.ctx.Err()
+		case <-s.closed:
+			s.c.cancelled.Add(1)
+			return Frame{}, errScriptEnded
 		}
-		w.Header().Set("Content-Type", "application/x-ndjson")
-		for i, l := range c.rounds[n] {
-			if n == cutR && i == cutA {
-				if hj, ok := w.(http.Hijacker); ok {
-					conn, _, err := hj.Hijack()
-					if err == nil {
-						_ = conn.Close()
-					}
-				}
-				return
-			}
-			if n == hangR && i == hangA {
-				<-r.Context().Done()
-				c.cancelled.Add(1)
-				return
-			}
-			_, _ = io.WriteString(w, l+"\n")
-			w.(http.Flusher).Flush()
-		}
-		if n == hangR && hangA >= len(c.rounds[n]) {
-			<-r.Context().Done()
+	}
+	if s.sent >= len(s.lines) {
+		return Frame{}, errScriptEnded
+	}
+	l := s.lines[s.sent]
+	s.sent++
+	return decodeFrame(l)
+}
+
+func (c *chaosLLM) round(ctx context.Context, _ RoundRequest) (FrameSource, error) {
+	c.mu.Lock()
+	n := c.llmCalls
+	c.llmCalls++
+	src := &chaosSrc{c: c, ctx: ctx, cut: -1, hang: -1, closed: make(chan struct{})}
+	if n == c.cutRound {
+		src.cut = c.cutAfter
+	}
+	if n == c.hangRound {
+		src.hang = c.hangAfter
+	}
+	openErr := c.openErr
+	c.mu.Unlock()
+	if openErr != nil {
+		return nil, openErr
+	}
+	if n >= len(c.rounds) {
+		return nil, errors.New("chaos: no script")
+	}
+	src.lines = c.rounds[n]
+	return src, nil
+}
+
+func (c *chaosLLM) native(ctx context.Context, _ string, _ map[string]any, _ string, _ *int32) (string, bool, error) {
+	c.mu.Lock()
+	c.toolCalls++
+	d := c.toolDelay
+	c.mu.Unlock()
+	if d > 0 {
+		select {
+		case <-time.After(d):
+		case <-ctx.Done():
 			c.cancelled.Add(1)
+			return "", false, ctx.Err()
 		}
-	})
-	mux.HandleFunc("/internal/copilot/tool", func(w http.ResponseWriter, r *http.Request) {
-		_, _ = io.Copy(io.Discard, r.Body)
-		c.mu.Lock()
-		c.toolCalls++
-		d := c.toolDelay
-		c.mu.Unlock()
-		if d > 0 {
-			select {
-			case <-time.After(d):
-			case <-r.Context().Done():
-				c.cancelled.Add(1)
-				return
-			}
-		}
-		_ = json.NewEncoder(w).Encode(map[string]any{"result": `{"ok": true}`})
-	})
-	mux.HandleFunc("/internal/copilot/describe", func(w http.ResponseWriter, _ *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{"description": "chaos"})
-	})
-	c.srv = httptest.NewServer(mux)
-	t.Cleanup(c.srv.Close)
-	return c
+	}
+	return `{"ok": true}`, true, nil
 }
 
-func (c *chaosPy) client() *pyworker.Client { return pyworker.New(c.srv.URL, chaosSecret, nil) }
-func (c *chaosPy) tools() int               { c.mu.Lock(); defer c.mu.Unlock(); return c.toolCalls }
+func (c *chaosLLM) tools() int { c.mu.Lock(); defer c.mu.Unlock(); return c.toolCalls }
 
 // two rounds: a safe native tool call, then the answer.
 func chaosRounds() [][]string {
@@ -120,8 +131,8 @@ func chaosRounds() [][]string {
 	}
 }
 
-// leakedGoroutines lists goroutines running this module's turn, stream or SSE code (the chaos worker's
-// handlers and the test goroutine itself are excluded), polling until none is left or the wait ends.
+// leakedGoroutines lists goroutines running this module's turn, stream or SSE code (the test goroutine itself is
+// excluded), polling until none is left or the wait ends.
 func leakedGoroutines(wait time.Duration) []string {
 	deadline := time.Now().Add(wait)
 	for {
@@ -129,10 +140,10 @@ func leakedGoroutines(wait time.Duration) []string {
 		buf = buf[:runtime.Stack(buf, true)]
 		var leaked []string
 		for _, g := range strings.Split(string(buf), "\n\n") {
-			if strings.Contains(g, "testing.tRunner") || strings.Contains(g, "chaosPy") || strings.Contains(g, "net/http/httptest") {
+			if strings.Contains(g, "testing.tRunner") {
 				continue
 			}
-			if strings.Contains(g, "(*Turn)") || strings.Contains(g, "internal/pyworker.") || strings.Contains(g, "internal/ssestream.") {
+			if strings.Contains(g, "(*Turn)") || strings.Contains(g, "(*chaosSrc)") || strings.Contains(g, "internal/ssestream.") {
 				leaked = append(leaked, g)
 			}
 		}
@@ -153,13 +164,13 @@ type chaosRun struct {
 // run drives one turn the way the chat route does: slot first (released by defer), then the turn under
 // CaptureAndStore so persistence is exercised. cancelAtWrite > 0 cancels the client context when that many
 // data frames have been written.
-func chaosTurn(t *testing.T, e *persistEnv, py *chaosPy, caps *ssestream.Caps, cancelAtWrite int) chaosRun {
+func chaosTurn(t *testing.T, e *persistEnv, py *chaosLLM, caps *ssestream.Caps, cancelAtWrite int) chaosRun {
 	t.Helper()
 	var out chaosRun
 	var logBuf syncBuf
 	var execs atomic.Int32
 	tn := e.turn()
-	tn.PY = py.client()
+	tn.Rounds = py.round
 	tn.ToolTimeout, tn.TurnTimeout = 5*time.Second, 20*time.Second
 	tn.Log = slog.New(slog.NewTextHandler(&logBuf, nil))
 	tn.Native = func(context.Context, string, map[string]any, string, *int32) (string, bool, error) {
@@ -242,16 +253,16 @@ func (e *persistEnv) reset(t *testing.T) {
 	_, _ = e.owner.Exec(context.Background(), `DELETE FROM chat_memories WHERE user_id LIKE $1`, e.ws+":%")
 }
 
-func TestChaosWorkerCutAtEveryFrame(t *testing.T) {
+func TestChaosRoundCutAtEveryFrame(t *testing.T) {
 	e := persistSetup(t)
 	caps := ssestream.NewCaps(4, 2)
 	var allOutput strings.Builder
 	cases := 0
 	for round := 0; round < 2; round++ {
 		frames := len(chaosRounds()[round])
-		for cut := 0; cut <= frames; cut++ { // cut == frames: the connection ends after the terminal frame
+		for cut := 0; cut <= frames; cut++ { // cut == frames: the stream breaks after the terminal frame
 			e.reset(t)
-			py := newChaosPy(t, chaosRounds()...)
+			py := newChaosLLM(chaosRounds()...)
 			py.cutRound, py.cutAfter = round, cut
 			r := chaosTurn(t, e, py, caps, 0)
 			allOutput.WriteString(r.body + r.logs)
@@ -294,33 +305,21 @@ func TestChaosWorkerCutAtEveryFrame(t *testing.T) {
 	if cases != 4+4 {
 		t.Fatalf("cases %d", cases)
 	}
-	if strings.Contains(allOutput.String(), chaosSecret) {
-		t.Fatal("worker bearer token leaked into a frame or log")
+	if strings.Contains(allOutput.String(), errChaosCut.Error()) {
+		t.Fatal("the provider failure text leaked into a frame")
 	}
 }
 
-func TestChaosWorkerUnavailable(t *testing.T) {
+func TestChaosRoundUnavailable(t *testing.T) {
 	e := persistSetup(t)
 	caps := ssestream.NewCaps(4, 2)
-	var all strings.Builder
-
-	// connection refused
-	dead := httptest.NewServer(http.NotFoundHandler())
-	url := dead.URL
-	dead.Close()
-	// 500 and 503 from the worker
-	for _, status := range []int{0, 500, 503} {
+	for i, py := range []*chaosLLM{
+		{openErr: errors.New("chaos: provider unreachable"), cutRound: -1, hangRound: -1}, // the round cannot open
+		{rounds: [][]string{{}}, cutRound: 0, cutAfter: 0, hangRound: -1},                 // it breaks before any frame
+	} {
 		e.reset(t)
-		var srv *httptest.Server
-		cl := pyworker.New(url, chaosSecret, nil)
-		if status != 0 {
-			srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-				http.Error(w, "worker says "+chaosSecret, status)
-			}))
-			cl = pyworker.New(srv.URL, chaosSecret, nil)
-		}
 		tn := e.turn()
-		tn.PY, tn.ToolTimeout, tn.TurnTimeout = cl, 5*time.Second, 20*time.Second
+		tn.Rounds, tn.ToolTimeout, tn.TurnTimeout = py.round, 5*time.Second, 20*time.Second
 		var logs syncBuf
 		tn.Log = slog.New(slog.NewTextHandler(&logs, nil))
 		rel, err := caps.Acquire(context.Background(), e.ws, 7)
@@ -331,26 +330,19 @@ func TestChaosWorkerUnavailable(t *testing.T) {
 		w, _ := ssestream.New(rec, nil)
 		runErr := tn.CaptureAndStore(context.Background(), "hi", func(ctx context.Context) error { return tn.Run(ctx, w, userMsgs()) })
 		rel()
-		if srv != nil {
-			srv.Close()
-		}
 		body := rec.String()
-		all.WriteString(body + logs.String())
-		if countDone(body) != 1 || countErrs(body) != 1 {
-			t.Errorf("status %d: want one error frame and one [DONE]: err=%v body=%q", status, runErr, body)
+		if countDone(body) != 1 || countErrs(body) != 1 || strings.Contains(body, "chaos:") {
+			t.Errorf("case %d: want one fixed error frame and one [DONE]: err=%v body=%q", i, runErr, body)
 		}
 		if caps.Active() != 0 {
-			t.Errorf("status %d: slot leaked", status)
+			t.Errorf("case %d: slot leaked", i)
 		}
 		if g := leakedGoroutines(3 * time.Second); len(g) != 0 {
-			t.Fatalf("status %d: goroutine leak:\n%s", status, strings.Join(g, "\n\n"))
+			t.Fatalf("case %d: goroutine leak:\n%s", i, strings.Join(g, "\n\n"))
 		}
 		if n := e.roleCount(t, "assistant"); n != 0 {
-			t.Errorf("status %d: assistant rows %d", status, n)
+			t.Errorf("case %d: assistant rows %d", i, n)
 		}
-	}
-	if strings.Contains(all.String(), chaosSecret) {
-		t.Fatal("secret leaked into frame or log")
 	}
 }
 
@@ -359,17 +351,17 @@ func TestChaosClientDisconnectAtEveryFrame(t *testing.T) {
 	caps := ssestream.NewCaps(4, 2)
 	// total data frames of a clean run: warning, content, tool_call, tool_result, content, content, [DONE]
 	e.reset(t)
-	clean := chaosTurn(t, e, newChaosPy(t, chaosRounds()...), caps, 0)
+	clean := chaosTurn(t, e, newChaosLLM(chaosRounds()...), caps, 0)
 	total := strings.Count(clean.body, "data: ")
 	if total < 7 || countDone(clean.body) != 1 {
 		t.Fatalf("baseline run: %q", clean.body)
 	}
 	for k := 1; k <= total; k++ {
 		e.reset(t)
-		py := newChaosPy(t, chaosRounds()...)
+		py := newChaosLLM(chaosRounds()...)
 		r := chaosTurn(t, e, py, caps, k)
 		name := fmt.Sprintf("disconnect at frame %d/%d", k, total)
-		// Frames the worker had already delivered may still be written to the dead connection (Python
+		// Frames the round had already delivered may still be written to the dead connection (Python
 		// cancels at the next yield; Go drains what the stream buffered), but never a second [DONE], and
 		// nothing is stored (checked below).
 		if countDone(r.body) > 1 {
@@ -405,12 +397,12 @@ func TestChaosClientDisconnectAtEveryFrame(t *testing.T) {
 	}
 }
 
-// The client leaves while the worker is mid-stream: the llm request must be cancelled (no orphaned
-// provider spend), not left to run to its own deadline.
-func TestChaosDisconnectCancelsWorkerRPC(t *testing.T) {
+// The client leaves while the provider is mid-stream: the round must be cancelled (no orphaned provider
+// spend), not left to run to its own deadline.
+func TestChaosDisconnectCancelsRound(t *testing.T) {
 	e := persistSetup(t)
 	caps := ssestream.NewCaps(4, 2)
-	py := newChaosPy(t, chaosRounds()...)
+	py := newChaosLLM(chaosRounds()...)
 	py.hangRound, py.hangAfter = 0, 2 // after warning+content the provider stalls
 	// cancel when the 2nd data frame is written
 	r := chaosTurn(t, e, py, caps, 2)
@@ -422,7 +414,7 @@ func TestChaosDisconnectCancelsWorkerRPC(t *testing.T) {
 		time.Sleep(10 * time.Millisecond)
 	}
 	if py.cancelled.Load() != 1 {
-		t.Fatalf("worker llm request was not cancelled")
+		t.Fatalf("the llm round was not cancelled")
 	}
 	if caps.Active() != 0 {
 		t.Fatal("slot leaked")
@@ -433,12 +425,12 @@ func TestChaosSlowToolOutlivesKeepalive(t *testing.T) {
 	e := persistSetup(t)
 	caps := ssestream.NewCaps(4, 2)
 	calls := `[{"id":"c1","type":"function","function":{"name":"find_similar_leads","arguments":"{}"}}]`
-	py := newChaosPy(t,
+	py := newChaosLLM(
 		[]string{`{"t":"tool_calls","d":` + calls + `,"cursor":0}`},
 		[]string{`{"t":"content","d":"done"}`, `{"t":"done","cursor":0}`})
 	py.toolDelay = 400 * time.Millisecond
 	tn := e.turn()
-	tn.PY, tn.Keepalive, tn.ToolTimeout, tn.TurnTimeout = py.client(), 50*time.Millisecond, 5*time.Second, 20*time.Second
+	tn.Rounds, tn.Native, tn.Keepalive, tn.ToolTimeout, tn.TurnTimeout = py.round, py.native, 50*time.Millisecond, 5*time.Second, 20*time.Second
 	rel, err := caps.Acquire(context.Background(), e.ws, 7)
 	if err != nil {
 		t.Fatal(err)
@@ -461,13 +453,13 @@ func TestChaosSlowToolOutlivesKeepalive(t *testing.T) {
 	}
 }
 
-func TestChaosTurnDeadlineEndsStalledWorker(t *testing.T) {
+func TestChaosTurnDeadlineEndsStalledRound(t *testing.T) {
 	e := persistSetup(t)
 	caps := ssestream.NewCaps(4, 2)
-	py := newChaosPy(t, chaosRounds()...)
+	py := newChaosLLM(chaosRounds()...)
 	py.hangRound, py.hangAfter = 0, 1
 	tn := e.turn()
-	tn.PY, tn.ToolTimeout, tn.TurnTimeout = py.client(), 5*time.Second, 300*time.Millisecond
+	tn.Rounds, tn.ToolTimeout, tn.TurnTimeout = py.round, 5*time.Second, 300*time.Millisecond
 	rel, _ := caps.Acquire(context.Background(), e.ws, 7)
 	rec := newRec()
 	w, _ := ssestream.New(rec, nil)
@@ -478,7 +470,7 @@ func TestChaosTurnDeadlineEndsStalledWorker(t *testing.T) {
 		t.Fatalf("deadline must end with one error frame and [DONE]: %q", body)
 	}
 	if py.cancelled.Load() != 1 || caps.Active() != 0 {
-		t.Fatalf("worker request cancelled=%d active=%d", py.cancelled.Load(), caps.Active())
+		t.Fatalf("round cancelled=%d active=%d", py.cancelled.Load(), caps.Active())
 	}
 	if g := leakedGoroutines(3 * time.Second); len(g) != 0 {
 		t.Fatalf("goroutine leak:\n%s", strings.Join(g, "\n\n"))
@@ -488,7 +480,7 @@ func TestChaosTurnDeadlineEndsStalledWorker(t *testing.T) {
 func TestChaosPanicReleasesSlotAndGoroutines(t *testing.T) {
 	e := persistSetup(t)
 	caps := ssestream.NewCaps(4, 2)
-	py := newChaosPy(t, chaosRounds()...)
+	py := newChaosLLM(chaosRounds()...)
 	func() {
 		defer func() { _ = recover() }() // the route's recover middleware
 		rel, err := caps.Acquire(context.Background(), e.ws, 7)
@@ -497,7 +489,7 @@ func TestChaosPanicReleasesSlotAndGoroutines(t *testing.T) {
 		}
 		defer rel()
 		tn := e.turn()
-		tn.PY = py.client()
+		tn.Rounds = py.round
 		tn.OnEvent = func(raw []byte) {
 			if bytes.Contains(raw, []byte("Let me look")) {
 				panic("boom")
@@ -513,9 +505,9 @@ func TestChaosPanicReleasesSlotAndGoroutines(t *testing.T) {
 		t.Fatalf("goroutine leak after panic:\n%s", strings.Join(g, "\n\n"))
 	}
 	// a panicking native tool is contained inside the turn (await recovers) and reported as a tool error
-	py2 := newChaosPy(t, chaosRounds()...)
+	py2 := newChaosLLM(chaosRounds()...)
 	tn := e.turn()
-	tn.PY = py2.client()
+	tn.Rounds = py2.round
 	tn.Native = func(context.Context, string, map[string]any, string, *int32) (string, bool, error) {
 		panic("tool boom")
 	}
@@ -575,7 +567,7 @@ func TestChaosConcurrentApprovalResubmit(t *testing.T) {
 	}
 }
 
-// The client leaves while an approved tool runs: the worker request is cancelled, the approval stays
+// The client leaves while an approved tool runs: the tool is cancelled, the approval stays
 // consumed (documented deviation) and a resubmit never runs the tool a second time.
 func TestChaosCancelDuringApprovedToolThenResubmit(t *testing.T) {
 	e := resumeSetup(t)
@@ -620,26 +612,26 @@ func TestChaosCancelDuringApprovedToolThenResubmit(t *testing.T) {
 	}
 }
 
-// The worker dies while an approved tool runs (connection refused): the turn reports a tool failure, the
-// approval is consumed, nothing is retried.
-func TestChaosWorkerDownDuringApprovedTool(t *testing.T) {
+// The approved tool fails (its backend is down): the turn reports a tool failure, the approval is consumed,
+// nothing is retried.
+func TestChaosToolFailsDuringApprovedTool(t *testing.T) {
 	e := resumeSetup(t)
 	id := e.propose(t, e.ws, 1, "create_people_workbook", `{"name": "x"}`)
-	e.py.srv.Close()
+	e.py.toolFn = func(toolReq) (int, any) { return 503, map[string]any{"detail": "backend down tok-secret-9f3"} }
 	msgs := []map[string]any{}
 	body, err := resolve(t, e.turn(1), &msgs, []Approved{approve(id)})
 	if err != nil {
 		t.Logf("resolve error (acceptable, fatal for the turn): %v", err)
 	}
-	if strings.Contains(body, `"ok": true`) {
-		t.Fatalf("tool cannot have succeeded: %q", body)
-	}
-	if strings.Contains(body, chaosSecret) || strings.Contains(body, "tok-secret-9f3") {
-		t.Fatal("secret in frames")
+	if strings.Contains(body, `"ok": true`) || strings.Contains(body, "tok-secret-9f3") {
+		t.Fatalf("tool cannot have succeeded or leaked: %q", body)
 	}
 	msgs = nil
 	again, _ := resolve(t, e.turn(1), &msgs, []Approved{approve(id)})
 	if !strings.Contains(again, `{"tool_denied": {"name": "invalid_approval"}}`) {
 		t.Fatalf("second resubmit must be denied: %q", again)
+	}
+	if e.py.toolCount() != 1 {
+		t.Fatalf("tool ran %d times", e.py.toolCount())
 	}
 }

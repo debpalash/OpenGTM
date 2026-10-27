@@ -28,7 +28,7 @@ func argOr(args map[string]any, key, dflt string) string {
 
 // DescribeAction ports services/copilot/tools.py describe_action: the confirmation-card text. ok=false means
 // Go cannot answer identically (execute_plan renders the server-stored autopilot plan, owned by
-// WP-COPILOT-TOOLS; a value Python would raise on) and the caller asks the worker / falls back.
+// WP-COPILOT-TOOLS; a value Python would raise on) and the caller falls back.
 func DescribeAction(name string, args map[string]any) (string, bool) {
 	if name == "execute_plan" {
 		return "", false

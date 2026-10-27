@@ -35,12 +35,9 @@ func hex8() string {
 	return hex.EncodeToString(b[:])
 }
 
-func (e *Engine) refreshExecutor(ws string) string {
-	if e.RefreshExecutor != nil {
-		return e.RefreshExecutor(ws)
-	}
-	return "python" // go_executor.refresh_executor without the cohort flags
-}
+// jobExecutor is the executor of every job the copilot tools enqueue: "go", the only executor since the plan 15
+// cutover (the queue refuses any other).
+const jobExecutor = "go"
 
 // workbookInWS reports whether the workbook exists in ws (and locks it for the update that follows).
 func workbookInWS(ctx context.Context, tx pgx.Tx, ws, id string) (bool, error) {
@@ -128,7 +125,7 @@ func (t *Turn) setWorkbookRefresh(ctx context.Context, a map[string]any) (string
 		policy := wbcrud.NewObj()
 		policy.Set("enabled", true)
 		policy.Set("interval", interval)
-		res, err := refresh.SetPolicyExecutor(ctx, tx, wbID, objToMap(policy), t.Engine.refreshExecutor(t.WS))
+		res, err := refresh.SetPolicyExecutor(ctx, tx, wbID, objToMap(policy), jobExecutor)
 		if err != nil {
 			return err
 		}
@@ -310,7 +307,7 @@ func (t *Turn) addSignalTrigger(ctx context.Context, a map[string]any) (string, 
 		}
 		policy.Set("enabled", true)
 		policy.Set("on_signal", signals)
-		res, err := refresh.SetPolicyExecutor(ctx, tx, wbID, objToMap(policy), t.Engine.refreshExecutor(t.WS))
+		res, err := refresh.SetPolicyExecutor(ctx, tx, wbID, objToMap(policy), jobExecutor)
 		if err != nil {
 			return err
 		}
@@ -383,11 +380,7 @@ func (t *Turn) startCollection(ctx context.Context, a map[string]any) (string, b
 		if err := collectledger.Create(ctx, tx, t.WS, jobID, query, d.Intent, details, time.Now().UTC()); err != nil {
 			return err
 		}
-		executor := "python"
-		if e.CollectExecutor != nil {
-			executor = e.CollectExecutor(t.WS)
-		}
-		id, err := collectq.Enqueue(ctx, tx, "collect", t.WS, executor, collectPayload{jobID, query, d.Intent, t.WS, t.Slug}, "collect:"+t.WS+":"+jobID)
+		id, err := collectq.Enqueue(ctx, tx, "collect", t.WS, jobExecutor, collectPayload{jobID, query, d.Intent, t.WS, t.Slug}, "collect:"+t.WS+":"+jobID)
 		if err != nil {
 			enqueueFailed = true
 			return err

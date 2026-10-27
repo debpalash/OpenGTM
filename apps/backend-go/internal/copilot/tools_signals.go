@@ -426,11 +426,7 @@ func (t *Turn) upsertSignalSchedule(ctx context.Context, tx pgx.Tx, wbID string,
 			at = anchor.Add(time.Microsecond)
 		}
 		next := poller.NextPollFor(pw, at, poller.Config{DefaultInterval: "daily"})
-		executor := "python"
-		if t.Engine.WatchExecutor != nil {
-			executor = t.Engine.WatchExecutor(t.WS)
-		}
-		if _, err := poller.EnqueuePollIfAbsent(ctx, tx, poller.ScheduledFireKey(w.id, next), t.WS, w.id, next, false, executor); err != nil {
+		if _, err := poller.EnqueuePollIfAbsent(ctx, tx, poller.ScheduledFireKey(w.id, next), t.WS, w.id, next, false, jobExecutor); err != nil {
 			return "", err
 		}
 		if err := poller.MirrorSet(ctx, tx, w.id, t.WS, &next, true); err != nil {

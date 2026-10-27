@@ -14,7 +14,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/copilotauth"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
@@ -34,8 +33,6 @@ const (
 	defaultToolTimeout = 120 * time.Second
 	defaultMaxRounds   = 8
 	maxToolResultBytes = 1 << 20
-	describeTimeout    = 10 * time.Second
-	unarySlack         = 5 * time.Second // the worker's own 408 must arrive before the client deadline
 )
 
 // maxTurnToolBytes is the aggregate size of the tool results one turn may feed back to the model (variable so
@@ -47,18 +44,20 @@ type Settings interface {
 	Get(ctx context.Context, key, def string) (string, error)
 }
 
-// NativeFunc executes a Go-native tool. handled=false falls through to the Python worker.
+// NativeFunc executes a tool. handled=false means "not answered here".
 type NativeFunc func(ctx context.Context, name string, args map[string]any, ws string, uid *int32) (result string, handled bool, err error)
 
 // Deps are the turn's collaborators.
 type Deps struct {
 	Pool     *pgxpool.Pool
-	PY       *pyworker.Client
 	Settings Settings // nil: defaults
-	// Engine, when set, runs the llm rounds, pre-routes, descriptions and the tools ported to Go in-process
-	// (GO_COPILOT_NATIVE); nil keeps them on the Python worker.
+	// Engine runs the llm rounds, pre-routes, action descriptions and the engine tools. A turn without one
+	// runs no pre-route, describes actions from the catalog and fails its llm round (unless Rounds is set).
 	Engine *Engine
-	// Native overrides how native tools run (tests); nil runs ExecNative inside tenancy.InWorkspace(Pool).
+	// Rounds overrides how llm rounds run (tests); nil runs them on Engine.LLM.
+	Rounds RoundFunc
+	// Native, when set, is consulted first for every tool (tests); handled=false continues with the Go
+	// implementations (ExecNative, then the engine tools).
 	Native NativeFunc
 	// NewTicker overrides the keepalive clock (tests); nil uses time.NewTicker.
 	NewTicker func(time.Duration) (<-chan time.Time, func())
@@ -76,7 +75,7 @@ type Turn struct {
 	WS, Slug string
 	UID      *int32
 	ConvID   string
-	// Auth is the resolved tenant; its ToolUserID is sent on every Python tool call and a Resolved that
+	// Auth is the resolved tenant; its ToolUserID owns the turn's approvals and a Resolved that
 	// cannot name a tool user fails the turn closed.
 	Auth copilotauth.Resolved
 	// Seen is the per-turn dedup cache (name|sorted-args -> result). Created on first use.
@@ -188,7 +187,7 @@ func (t *Turn) Run(ctx context.Context, w *ssestream.Writer, messages []map[stri
 	var te *turnErr
 	switch {
 	case errors.As(err, &te):
-		t.logger().Warn("copilot turn ended with an error frame", "conversation", t.ConvID, "reason", te.err.Error())
+		t.logger().Warn("copilot turn ended with an error frame", "conversation", t.ConvID, "reason", fmt.Sprintf("%T", te.err))
 		_ = t.emitKey(w, "error", []byte(jstr(te.text)))
 		_ = w.Done()
 	case outer.Err() != nil && !errors.Is(outer.Err(), context.DeadlineExceeded):
@@ -202,7 +201,7 @@ func (t *Turn) Run(ctx context.Context, w *ssestream.Writer, messages []map[stri
 
 func (t *Turn) loop(ctx context.Context, w *ssestream.Writer, msgs []map[string]any) error {
 	maxRounds := t.maxRounds(ctx)
-	req := roundRequest{messages: msgs, toolsEnabled: true}
+	req := RoundRequest{Messages: msgs, ToolsEnabled: true}
 	for roundIdx := 0; ; {
 		res, err := t.round(ctx, w, req)
 		if err != nil {
@@ -211,7 +210,7 @@ func (t *Turn) loop(ctx context.Context, w *ssestream.Writer, msgs []map[string]
 		if !res.hasCalls {
 			return nil
 		}
-		req.cursor = res.cursor
+		req.Cursor = res.cursor
 		calls, err := parseToolCalls(res.calls)
 		if err != nil {
 			return &turnErr{errTextInterrupted, err}
@@ -229,16 +228,16 @@ func (t *Turn) loop(ctx context.Context, w *ssestream.Writer, msgs []map[string]
 		if len(dangerous) > 0 {
 			return t.gate(ctx, w, dangerous)
 		}
-		follow := append(append([]map[string]any(nil), req.messages...),
+		follow := append(append([]map[string]any(nil), req.Messages...),
 			map[string]any{"role": "assistant", "content": "", "tool_calls": callsAny(calls)})
 		follow = append(follow, toolMsgs...)
 		roundIdx++
 		if roundIdx >= maxRounds {
 			follow = append(follow, map[string]any{"role": "system", "content": "You have reached the maximum of " +
 				strconv.Itoa(maxRounds) + " tool-use rounds. Do NOT call any more tools. Summarize what you found and the next step the user can take."})
-			req.toolsEnabled, req.budgetHit = false, true
+			req.ToolsEnabled, req.BudgetHit = false, true
 		}
-		req.messages = follow
+		req.Messages = follow
 	}
 }
 
