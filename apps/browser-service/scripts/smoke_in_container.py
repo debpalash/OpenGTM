@@ -12,7 +12,10 @@ import threading
 import urllib.error
 import urllib.request
 
-PAGE = b"<html><head><title>smoke</title></head><body><script>document.body.innerHTML='<p>js-ok</p>'</script></body></html>"
+PAGE = (
+    b"<html><head><title>smoke</title></head>"
+    b"<body><script>document.body.innerHTML='<p>js-ok</p>'</script></body></html>"
+)
 
 
 class H(http.server.BaseHTTPRequestHandler):
@@ -45,7 +48,7 @@ def call(url):
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
     )
     try:
-        with urllib.request.urlopen(req, timeout=60) as r:
+        with urllib.request.urlopen(req, timeout=60) as r:  # noqa: S310 - fixed local URL
             return r.status, json.loads(r.read())
     except urllib.error.HTTPError as e:
         return e.code, json.loads(e.read())
