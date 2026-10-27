@@ -343,3 +343,61 @@ func TestProxyURLIsRedactedButSentOnTheWire(t *testing.T) {
 		t.Fatalf("out %+v", out)
 	}
 }
+
+// review L8: no environment proxy, and URLs are pre-checked with the Go egress guard.
+
+func TestClientTransportIgnoresEnvironmentProxy(t *testing.T) {
+	for _, hc := range []*http.Client{nil, {Transport: &http.Transport{Proxy: http.ProxyFromEnvironment}}} {
+		c := New("http://svc", testToken, hc)
+		tr, ok := c.hc.Transport.(*http.Transport)
+		if !ok || tr.Proxy != nil {
+			t.Fatalf("transport %T proxy set", c.hc.Transport)
+		}
+	}
+	if tr := http.DefaultTransport.(*http.Transport); tr.Proxy == nil {
+		t.Fatal("the shared default transport must not be modified")
+	}
+}
+
+func TestClientRefusesBadURLsBeforeCallingTheService(t *testing.T) {
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls.Add(1)
+		w.WriteHeader(500)
+	}))
+	defer srv.Close()
+	c := New(srv.URL, testToken, nil)
+	ctx := context.Background()
+	bad := []string{
+		"file:///etc/passwd", "ftp://e.com/", "http://127.0.0.1/", "http://10.0.0.1/", "http://[::1]/",
+		"http://0x7f000001/", "http://169.254.169.254/latest", "http://localhost/", "https://user:pw@e.com/",
+		"https://e.com:22/", "http://e.com:6379/", "", "https://",
+	}
+	for _, u := range bad {
+		errs := []error{}
+		_, err := c.Render(ctx, RenderRequest{URL: u})
+		errs = append(errs, err)
+		_, err = c.Screenshot(ctx, ScreenshotRequest{URL: u})
+		errs = append(errs, err)
+		_, err = c.JustDialPage(ctx, JustDialPageRequest{URL: u})
+		errs = append(errs, err)
+		_, err = c.Extract(ctx, ExtractRequest{URL: u})
+		errs = append(errs, err)
+		for i, err := range errs {
+			if !errors.Is(err, ErrBlocked) {
+				t.Errorf("%q call %d: err %v, want ErrBlocked", u, i, err)
+			}
+		}
+	}
+	if n := calls.Load(); n != 0 {
+		t.Fatalf("service called %d times for refused URLs", n)
+	}
+	// HTML given: the URL is only metadata and is not fetched, so it is not vetted
+	if _, err := c.Extract(ctx, ExtractRequest{HTML: "<p>x</p>", URL: "http://10.0.0.1/"}); errors.Is(err, ErrBlocked) {
+		t.Fatal("extract with html must not vet the metadata URL")
+	}
+	c.AllowedPorts = []int{80, 443, 8443}
+	if _, err := c.Render(ctx, RenderRequest{URL: "https://e.com:8443/"}); errors.Is(err, ErrBlocked) {
+		t.Fatal("configured port refused")
+	}
+}
