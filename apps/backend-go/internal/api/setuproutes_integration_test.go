@@ -379,8 +379,9 @@ func TestResolveSetupToken(t *testing.T) {
 		t.Fatalf("disabled = %q", got)
 	}
 	for _, appEnv := range []string{"dev", "development", "test"} {
-		if got, _ := ResolveSetupToken(ctx, e.pool, env(nil), appEnv, log); got != "" {
-			t.Fatalf("APP_ENV=%s => %q", appEnv, got)
+		// APP_ENV no longer disables the token; only SETUP_TOKEN_DISABLED does.
+		if got, _ := ResolveSetupToken(ctx, e.pool, env(nil), appEnv, log); len(got) < 32 {
+			t.Fatalf("APP_ENV=%s must still require a token, got %q", appEnv, got)
 		}
 	}
 	// Once setup is done nothing is generated or logged.

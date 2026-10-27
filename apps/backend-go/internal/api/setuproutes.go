@@ -245,8 +245,8 @@ func (s setupRoutes) create(ctx context.Context, req setupRequest, hash string) 
 	return u, false, err
 }
 
-// ResolveSetupToken decides the first-admin setup token once at API start. SETUP_TOKEN wins; dev/test
-// APP_ENV or SETUP_TOKEN_DISABLED=1 means no token; otherwise, only while setup is still required, a
+// ResolveSetupToken decides the first-admin setup token once at API start. SETUP_TOKEN wins;
+// SETUP_TOKEN_DISABLED=1 means no token (APP_ENV never disables it); otherwise, only while setup is still required, a
 // random token is generated and logged once. Empty result: no token needed. A configured token is
 // never logged.
 func ResolveSetupToken(ctx context.Context, pool *pgxpool.Pool, getenv func(string) string, appEnv string, log *slog.Logger) (string, error) {
@@ -254,10 +254,6 @@ func ResolveSetupToken(ctx context.Context, pool *pgxpool.Pool, getenv func(stri
 		return t, nil
 	}
 	if v := strings.TrimSpace(getenv("SETUP_TOKEN_DISABLED")); v == "1" || strings.EqualFold(v, "true") {
-		return "", nil
-	}
-	switch strings.ToLower(strings.TrimSpace(appEnv)) {
-	case "dev", "development", "test", "local":
 		return "", nil
 	}
 	need, err := setupRequired(ctx, gen.New(pool))
