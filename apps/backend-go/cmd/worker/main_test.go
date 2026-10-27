@@ -67,7 +67,7 @@ func TestPoolConfigCarriesSessionTimeouts(t *testing.T) {
 		t.Fatal(err)
 	}
 	rp := pc.ConnConfig.RuntimeParams
-	if rp["lock_timeout"] != "30s" || rp["statement_timeout"] != "60s" || pc.MaxConns != 3 {
+	if rp["lock_timeout"] != "30s" || rp["statement_timeout"] != "60s" || rp["TimeZone"] != "UTC" || pc.MaxConns != 3 {
 		t.Fatalf("%v max=%d", rp, pc.MaxConns)
 	}
 }
