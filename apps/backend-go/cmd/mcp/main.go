@@ -22,6 +22,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/mcp"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
@@ -111,7 +112,7 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 			pool.Close()
 		}
 	}()
-	if err := queue.CheckSchema(ctx, pool, config.RequiredGoSchemaRevision); err != nil {
+	if err := migrate.CheckSchema(ctx, pool, config.RequiredGoSchemaVersion); err != nil {
 		return nil, err
 	}
 	// RLS is inert for a superuser/BYPASSRLS role: always refuse (the API only

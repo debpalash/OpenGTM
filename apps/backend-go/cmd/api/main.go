@@ -24,6 +24,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
@@ -86,8 +87,8 @@ func run() error {
 		return err
 	}
 	defer pool.Close()
-	// Schema gate: refuse to start below the Alembic revision Go requires.
-	if err := queue.CheckSchema(ctx, pool, config.RequiredGoSchemaRevision); err != nil {
+	// Schema gate: refuse to start below the Go migration version required (opengtm-migrate).
+	if err := migrate.CheckSchema(ctx, pool, config.RequiredGoSchemaVersion); err != nil {
 		return err
 	}
 	// RLS is silently inert for superuser/BYPASSRLS roles: refuse to start

@@ -25,6 +25,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/credentials"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachinbound"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachsend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
@@ -82,7 +83,7 @@ func run() error {
 		return err
 	}
 	defer pool.Close()
-	if err := queue.CheckSchema(rootCtx, pool, config.RequiredGoSchemaRevision); err != nil {
+	if err := migrate.CheckSchema(rootCtx, pool, config.RequiredGoSchemaVersion); err != nil {
 		return err
 	}
 	if _, err := telemetry.StartDebugServer(rootCtx, cfg.DebugAddr); err != nil {
