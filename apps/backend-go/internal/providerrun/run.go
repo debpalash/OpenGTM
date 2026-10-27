@@ -142,6 +142,8 @@ func (r *Runner) Run(ctx context.Context, workspaceID, provider string, in provi
 		timeout = maxTimeout
 	}
 	p, native := providers.Get(provider)
+	// A gated provider (providers/scrape) runs in Go only when GO_LOCAL_PROVIDERS lists it.
+	native = native && providers.InProcess(p)
 
 	if out, ok := r.cacheGet(ctx, workspaceID, provider, in); ok {
 		return out, nil
@@ -199,7 +201,7 @@ func (r *Runner) runGo(ctx context.Context, ws string, p providers.Provider, in 
 		client = r.operator
 	}
 
-	cctx, cancel := context.WithTimeout(ctx, timeout)
+	cctx, cancel := context.WithTimeout(providers.WithWorkspace(ctx, ws), timeout)
 	defer cancel()
 	select {
 	case r.sem <- struct{}{}:
@@ -574,7 +576,7 @@ func (r *Runner) cachePut(ctx context.Context, ws, provider string, in providers
 // downgraded to "configured".
 func (r *Runner) Configured(ctx context.Context, workspaceID, provider string) (bool, error) {
 	p, native := providers.Get(provider)
-	if !native {
+	if !native || !providers.InProcess(p) {
 		return true, nil
 	}
 	k, ok := p.(providers.Keyed)
