@@ -290,6 +290,7 @@ func cellDeps(d Deps, log *slog.Logger) workbook.Deps {
 	if d.PyWorker != nil {
 		deps.Py = d.PyWorker
 	}
+	deps.AICols = aiColumns(d, log)
 	wx := config.LoadWbExec(d.getenv())
 	for _, p := range wx.Problems {
 		log.Error("cell run: " + p)
