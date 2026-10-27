@@ -1,0 +1,263 @@
+{
+ "capabilities": [
+  {
+   "body_raw": "[{\"id\":\"dynamic_materialization\",\"features\":[\"serialized_refresh\",\"exact_membership_diff\",\"stable_traversal\"],\"required_checks\":[\"exact_membership_diff\",\"failure_recovery\",\"live_materialization\",\"observability\",\"serialized_refresh\",\"stable_traversal\",\"tenant_isolation\"],\"maturity\":\"supported\",\"certification\":{\"validated_at\":\"2026-08-20T00:00:00Z\",\"expires_at\":\"2026-11-01T00:00:00Z\",\"build_sha\":\"routes-a-build-0001\",\"validation_run_id\":\"run-1\",\"evidence_url\":\"https://evidence.example.com/dynamic_materialization\",\"evidence_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"mode\":\"controlled_live\"}},{\"id\":\"scheduled_refresh\",\"features\":[\"single_flight\",\"restart_safe\",\"crash_recovery\"],\"required_checks\":[\"due_only_bootstrap\",\"failure_recovery\",\"live_materialization\",\"observability\",\"restart_recovery\",\"single_flight\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null},{\"id\":\"membership_events\",\"features\":[\"entry_exit\",\"refresh_correlation\",\"automation_delivery\"],\"required_checks\":[\"automation_delivery\",\"entry_exit\",\"failure_recovery\",\"live_materialization\",\"observability\",\"refresh_correlation\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null},{\"id\":\"destination_runs\",\"features\":[\"bounded_delivery\",\"durable_ledger\",\"idempotent_retry\"],\"required_checks\":[\"bounded_delivery\",\"durable_ledger\",\"failure_recovery\",\"idempotent_retry\",\"live_materialization\",\"observability\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null}]",
+   "content_type": "application/json",
+   "method": "GET",
+   "path": "/api/audiences/capabilities",
+   "status": 200
+  },
+  {
+   "body_raw": "{\"types\":[{\"id\":\"webhook\",\"category\":\"activation\",\"capabilities\":[\"outbound\"],\"required_checks\":[\"authentication\",\"external_write\",\"idempotency\",\"retry_recovery\",\"tenant_isolation\"],\"maturity\":\"supported\",\"certification\":{\"validated_at\":\"2026-08-20T00:00:00Z\",\"expires_at\":\"2026-11-01T00:00:00Z\",\"build_sha\":\"routes-a-build-0001\",\"validation_run_id\":\"run-1\",\"evidence_url\":\"https://evidence.example.com/webhook\",\"evidence_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"mode\":\"controlled_live\"}},{\"id\":\"hubspot\",\"category\":\"crm\",\"capabilities\":[\"outbound\",\"inbound\"],\"required_checks\":[\"authentication\",\"conflict_policy\",\"external_write\",\"idempotency\",\"inbound_reconciliation\",\"retry_recovery\",\"tenant_isolation\"],\"maturity\":\"supported\",\"certification\":{\"validated_at\":\"2026-08-20T00:00:00Z\",\"expires_at\":\"2026-11-01T00:00:00Z\",\"build_sha\":\"routes-a-build-0001\",\"validation_run_id\":\"run-1\",\"evidence_url\":\"https://evidence.example.com/hubspot\",\"evidence_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"mode\":\"controlled_live\"}},{\"id\":\"salesforce\",\"category\":\"crm\",\"capabilities\":[\"outbound\",\"inbound\"],\"required_checks\":[\"authentication\",\"conflict_policy\",\"external_write\",\"idempotency\",\"inbound_reconciliation\",\"retry_recovery\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null},{\"id\":\"warehouse_http\",\"category\":\"warehouse\",\"capabilities\":[\"outbound\"],\"required_checks\":[\"authentication\",\"bounded_memory\",\"external_write\",\"idempotency\",\"manifest_checksum\",\"retry_recovery\",\"streaming_upload\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null},{\"id\":\"meta_ads\",\"category\":\"ads\",\"capabilities\":[\"audience_sync\"],\"required_checks\":[\"add_reconciliation\",\"authentication\",\"consent_enforcement\",\"external_write\",\"idempotency\",\"identifier_hashing\",\"partial_failure_accounting\",\"remove_reconciliation\",\"retry_recovery\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null},{\"id\":\"google_ads\",\"category\":\"ads\",\"capabilities\":[\"audience_sync\"],\"required_checks\":[\"add_reconciliation\",\"authentication\",\"consent_enforcement\",\"external_write\",\"idempotency\",\"identifier_hashing\",\"partial_failure_accounting\",\"remove_reconciliation\",\"retry_recovery\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null},{\"id\":\"linkedin_ads\",\"category\":\"ads\",\"capabilities\":[\"audience_sync\"],\"required_checks\":[\"add_reconciliation\",\"authentication\",\"consent_enforcement\",\"external_write\",\"idempotency\",\"identifier_hashing\",\"partial_failure_accounting\",\"remove_reconciliation\",\"retry_recovery\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null},{\"id\":\"instantly\",\"category\":\"sequencer\",\"capabilities\":[\"campaign_enroll\"],\"required_checks\":[\"authentication\",\"campaign_enrollment\",\"external_write\",\"idempotency\",\"retry_recovery\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null},{\"id\":\"smartlead\",\"category\":\"sequencer\",\"capabilities\":[\"campaign_enroll\"],\"required_checks\":[\"authentication\",\"campaign_enrollment\",\"external_write\",\"idempotency\",\"retry_recovery\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null},{\"id\":\"google_sheets\",\"category\":\"warehouse\",\"capabilities\":[\"outbound\"],\"required_checks\":[\"authentication\",\"external_write\",\"idempotency\",\"idempotent_upsert\",\"retry_recovery\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null},{\"id\":\"airtable\",\"category\":\"warehouse\",\"capabilities\":[\"outbound\"],\"required_checks\":[\"atomic_upsert\",\"authentication\",\"external_write\",\"idempotency\",\"retry_recovery\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null},{\"id\":\"slack\",\"category\":\"activation\",\"capabilities\":[\"notification\"],\"required_checks\":[\"authentication\",\"external_write\",\"idempotency\",\"notification_delivery\",\"retry_recovery\",\"tenant_isolation\"],\"maturity\":\"supported\",\"certification\":{\"validated_at\":\"2026-08-20T00:00:00Z\",\"expires_at\":\"2026-11-01T00:00:00Z\",\"build_sha\":\"routes-a-build-0001\",\"validation_run_id\":\"run-1\",\"evidence_url\":\"https://evidence.example.com/slack\",\"evidence_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"mode\":\"controlled_live\"}}]}",
+   "content_type": "application/json",
+   "method": "GET",
+   "path": "/api/audience-destinations/types",
+   "status": 200
+  },
+  {
+   "body_raw": "{\"capabilities\":[{\"id\":\"oidc_sso\",\"features\":[\"issuer_validation\",\"identity_binding\",\"jit_provisioning\",\"access_enforcement\"],\"required_checks\":[\"access_enforcement\",\"external_authentication\",\"failure_recovery\",\"identity_binding\",\"jit_provisioning\",\"tenant_isolation\"],\"maturity\":\"supported\",\"certification\":{\"validated_at\":\"2026-08-20T00:00:00Z\",\"expires_at\":\"2026-11-01T00:00:00Z\",\"build_sha\":\"routes-a-build-0001\",\"validation_run_id\":\"run-1\",\"evidence_url\":\"https://evidence.example.com/oidc_sso\",\"evidence_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"mode\":\"controlled_live\"}},{\"id\":\"scim_directory\",\"features\":[\"user_lifecycle\",\"group_sync\",\"token_revocation\",\"paged_directory\"],\"required_checks\":[\"external_provisioning\",\"group_sync\",\"paged_directory\",\"tenant_isolation\",\"token_revocation\",\"user_lifecycle\"],\"maturity\":\"beta\",\"certification\":null}]}",
+   "content_type": "application/json",
+   "method": "GET",
+   "path": "/api/governance/capabilities",
+   "status": 200
+  },
+  {
+   "body_raw": "{\"capabilities\":[{\"id\":\"grounded_research\",\"features\":[\"citations\",\"budget_caps\",\"provenance\"],\"required_checks\":[\"budget_enforcement\",\"citation_validation\",\"external_execution\",\"failure_recovery\",\"grounding\",\"provenance\",\"tenant_isolation\"],\"maturity\":\"supported\",\"certification\":{\"validated_at\":\"2026-08-20T00:00:00Z\",\"expires_at\":\"2026-11-01T00:00:00Z\",\"build_sha\":\"routes-a-build-0001\",\"validation_run_id\":\"run-1\",\"evidence_url\":\"https://evidence.example.com/grounded_research\",\"evidence_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"mode\":\"controlled_live\"}},{\"id\":\"chained_playbooks\",\"features\":[\"prior_step_context\",\"versioned_prompts\"],\"required_checks\":[\"budget_enforcement\",\"external_execution\",\"failure_recovery\",\"grounding\",\"prior_step_context\",\"prompt_versioning\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null},{\"id\":\"audience_runs\",\"features\":[\"bounded_profiles\",\"durable_results\"],\"required_checks\":[\"bounded_traversal\",\"budget_enforcement\",\"durable_results\",\"external_execution\",\"failure_recovery\",\"grounding\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null},{\"id\":\"run_recovery\",\"features\":[\"cooperative_cancellation\",\"in_place_retry\",\"completed_work_preservation\"],\"required_checks\":[\"budget_enforcement\",\"completed_work_preservation\",\"cooperative_cancellation\",\"external_execution\",\"failure_recovery\",\"grounding\",\"in_place_retry\",\"tenant_isolation\"],\"maturity\":\"supported\",\"certification\":{\"validated_at\":\"2026-08-20T00:00:00Z\",\"expires_at\":\"2026-11-01T00:00:00Z\",\"build_sha\":\"routes-a-build-0001\",\"validation_run_id\":\"run-1\",\"evidence_url\":\"https://evidence.example.com/run_recovery\",\"evidence_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"mode\":\"controlled_live\"}},{\"id\":\"recurring_schedules\",\"features\":[\"single_flight\",\"restart_safe\"],\"required_checks\":[\"budget_enforcement\",\"external_execution\",\"failure_recovery\",\"grounding\",\"restart_recovery\",\"single_flight\",\"tenant_isolation\"],\"maturity\":\"beta\",\"certification\":null}]}",
+   "content_type": "application/json",
+   "method": "GET",
+   "path": "/api/research-playbooks/capabilities",
+   "status": 200
+  }
+ ],
+ "root": [
+  {
+   "body_raw": "{\"status\":\"healthy\",\"engine\":\"OpenGTM\",\"version\":\"3.0.0\"}",
+   "content_type": "application/json",
+   "method": "GET",
+   "path": "/health",
+   "status": 200
+  },
+  {
+   "allow": "GET",
+   "content_type": "application/json",
+   "method": "HEAD",
+   "path": "/health",
+   "status": 405
+  },
+  {
+   "allow": "GET",
+   "body_raw": "{\"detail\":\"Method Not Allowed\"}",
+   "content_type": "application/json",
+   "method": "POST",
+   "path": "/health",
+   "status": 405
+  },
+  {
+   "body_raw": "{\"status\":\"ok\",\"engine\":\"OpenGTM\",\"version\":\"3.0.0\"}",
+   "content_type": "application/json",
+   "method": "GET",
+   "path": "/api",
+   "status": 200
+  },
+  {
+   "allow": "GET",
+   "content_type": "application/json",
+   "method": "HEAD",
+   "path": "/api",
+   "status": 405
+  },
+  {
+   "allow": "GET",
+   "body_raw": "{\"detail\":\"Method Not Allowed\"}",
+   "content_type": "application/json",
+   "method": "POST",
+   "path": "/api",
+   "status": 405
+  }
+ ],
+ "trailing_slash": [
+  {
+   "location": "http://api.test/api/workbooks/abc/run",
+   "method": "POST",
+   "path": "/api/workbooks/abc/run/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/abc/run",
+   "method": "GET",
+   "path": "/api/workbooks/abc/run/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/abc/stop",
+   "method": "POST",
+   "path": "/api/workbooks/abc/stop/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/abc/sources",
+   "method": "POST",
+   "path": "/api/workbooks/abc/sources/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/abc/sources/c1/run",
+   "method": "POST",
+   "path": "/api/workbooks/abc/sources/c1/run/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/abc/sources/c1/preview",
+   "method": "GET",
+   "path": "/api/workbooks/abc/sources/c1/preview/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/abc/refresh",
+   "method": "POST",
+   "path": "/api/workbooks/abc/refresh/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/abc/refresh-policy",
+   "method": "PUT",
+   "path": "/api/workbooks/abc/refresh-policy/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/abc/run/estimate",
+   "method": "GET",
+   "path": "/api/workbooks/abc/run/estimate/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/abc/migrate",
+   "method": "POST",
+   "path": "/api/workbooks/abc/migrate/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/abc/rows/r1/cells/c1/run",
+   "method": "POST",
+   "path": "/api/workbooks/abc/rows/r1/cells/c1/run/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/meta/provider-stats",
+   "method": "GET",
+   "path": "/api/workbooks/meta/provider-stats/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/meta/provider-accuracy",
+   "method": "GET",
+   "path": "/api/workbooks/meta/provider-accuracy/",
+   "status": 307
+  },
+  {
+   "body_raw": "{\"detail\":\"Not Found\"}",
+   "content_type": "application/json",
+   "method": "GET",
+   "path": "/api/workbooks/abc/ws/",
+   "status": 404
+  },
+  {
+   "location": "http://api.test/api/v2/workbooks/abc/generate-column",
+   "method": "POST",
+   "path": "/api/v2/workbooks/abc/generate-column/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/v2/workbooks/abc/ingest-token",
+   "method": "POST",
+   "path": "/api/v2/workbooks/abc/ingest-token/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/v2/workbooks/abc/rows/ingest",
+   "method": "POST",
+   "path": "/api/v2/workbooks/abc/rows/ingest/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/health",
+   "method": "GET",
+   "path": "/health/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api",
+   "method": "GET",
+   "path": "/api/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/audiences/capabilities",
+   "method": "GET",
+   "path": "/api/audiences/capabilities/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/governance/capabilities",
+   "method": "GET",
+   "path": "/api/governance/capabilities/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/audience-destinations/types",
+   "method": "GET",
+   "path": "/api/audience-destinations/types/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/research-playbooks/capabilities",
+   "method": "GET",
+   "path": "/api/research-playbooks/capabilities/",
+   "status": 307
+  },
+  {
+   "body_raw": "{\"detail\":\"Not Found\"}",
+   "content_type": "application/json",
+   "method": "GET",
+   "path": "/api/nope/",
+   "status": 404
+  },
+  {
+   "body_raw": "{\"detail\":\"Not Found\"}",
+   "content_type": "application/json",
+   "method": "GET",
+   "path": "/api/workbooks/abc/run/extra/",
+   "status": 404
+  },
+  {
+   "location": "http://api.test/api/workbooks/abc/run",
+   "method": "DELETE",
+   "path": "/api/workbooks/abc/run/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/abc/run",
+   "method": "POST",
+   "path": "/api/workbooks/abc/run//",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/governance/capabilities",
+   "method": "GET",
+   "path": "/api/governance/capabilities//",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/workbooks/abc/run?a=1&b=x+y",
+   "method": "POST",
+   "path": "/api/workbooks/abc/run/",
+   "status": 307
+  },
+  {
+   "location": "http://api.test/api/governance/capabilities?q=1",
+   "method": "GET",
+   "path": "/api/governance/capabilities/",
+   "status": 307
+  }
+ ]
+}

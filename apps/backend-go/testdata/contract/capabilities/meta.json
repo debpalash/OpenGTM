@@ -1,0 +1,6 @@
+{
+ "key": "ctk_capability_routes_test_key_0001",
+ "build_sha": "routes-a-build-0001",
+ "now": "2026-09-01T12:00:00+00:00",
+ "note": "TEST-ONLY key; the routes ran with the clock frozen at now"
+}

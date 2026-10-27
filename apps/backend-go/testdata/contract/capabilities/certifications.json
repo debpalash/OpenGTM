@@ -1,0 +1,409 @@
+[
+ {
+  "attestation": {
+   "algorithm": "hmac-sha256",
+   "key_id": "9a21bf6b56fbeb55",
+   "signature": "8d62103ce9b5c2fe01afeead7d490a76cafeffd853ddc54234b4109fa1a8f02a"
+  },
+  "build_sha": "routes-a-build-0001",
+  "checks": {
+   "exact_membership_diff": {
+    "evidence": "ok exact_membership_diff",
+    "passed": true
+   },
+   "failure_recovery": {
+    "evidence": "ok failure_recovery",
+    "passed": true
+   },
+   "live_materialization": {
+    "evidence": "ok live_materialization",
+    "passed": true
+   },
+   "observability": {
+    "evidence": "ok observability",
+    "passed": true
+   },
+   "serialized_refresh": {
+    "evidence": "ok serialized_refresh",
+    "passed": true
+   },
+   "stable_traversal": {
+    "evidence": "ok stable_traversal",
+    "passed": true
+   },
+   "tenant_isolation": {
+    "evidence": "ok tenant_isolation",
+    "passed": true
+   }
+  },
+  "evidence_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evidence_url": "https://evidence.example.com/dynamic_materialization",
+  "expires_at": "2026-11-01T00:00:00Z",
+  "external_system_id_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "mode": "controlled_live",
+  "status": "supported",
+  "subject_id": "dynamic_materialization",
+  "validated_at": "2026-08-20T00:00:00Z",
+  "validation_run_id": "run-1"
+ },
+ {
+  "attestation": {
+   "algorithm": "hmac-sha256",
+   "key_id": "9a21bf6b56fbeb55",
+   "signature": "edbf7ed8cc01490a62732b6f18955b521f3cb50503937bc8046a6900fc3d65e9"
+  },
+  "build_sha": "routes-a-build-0001",
+  "checks": {
+   "due_only_bootstrap": {
+    "evidence": "ok due_only_bootstrap",
+    "passed": true
+   },
+   "failure_recovery": {
+    "evidence": "ok failure_recovery",
+    "passed": true
+   },
+   "live_materialization": {
+    "evidence": "ok live_materialization",
+    "passed": true
+   },
+   "observability": {
+    "evidence": "ok observability",
+    "passed": true
+   },
+   "restart_recovery": {
+    "evidence": "ok restart_recovery",
+    "passed": true
+   },
+   "single_flight": {
+    "evidence": "ok single_flight",
+    "passed": true
+   },
+   "tenant_isolation": {
+    "evidence": "ok tenant_isolation",
+    "passed": true
+   }
+  },
+  "evidence_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evidence_url": "https://evidence.example.com/scheduled_refresh",
+  "expires_at": "2026-08-30T00:00:00Z",
+  "external_system_id_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "mode": "controlled_live",
+  "status": "supported",
+  "subject_id": "scheduled_refresh",
+  "validated_at": "2026-08-20T00:00:00Z",
+  "validation_run_id": "run-1"
+ },
+ {
+  "attestation": {
+   "algorithm": "hmac-sha256",
+   "key_id": "9a21bf6b56fbeb55",
+   "signature": "70d0294e8ffbdf3b885d93ed5237386d9965b0fea3eafb8bda373ad489d804df"
+  },
+  "build_sha": "routes-a-build-0001",
+  "checks": {
+   "access_enforcement": {
+    "evidence": "ok access_enforcement",
+    "passed": true
+   },
+   "external_authentication": {
+    "evidence": "ok external_authentication",
+    "passed": true
+   },
+   "failure_recovery": {
+    "evidence": "ok failure_recovery",
+    "passed": true
+   },
+   "identity_binding": {
+    "evidence": "ok identity_binding",
+    "passed": true
+   },
+   "jit_provisioning": {
+    "evidence": "ok jit_provisioning",
+    "passed": true
+   },
+   "tenant_isolation": {
+    "evidence": "ok tenant_isolation",
+    "passed": true
+   }
+  },
+  "evidence_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evidence_url": "https://evidence.example.com/oidc_sso",
+  "expires_at": "2026-11-01T00:00:00Z",
+  "external_system_id_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "mode": "controlled_live",
+  "status": "supported",
+  "subject_id": "oidc_sso",
+  "validated_at": "2026-08-20T00:00:00Z",
+  "validation_run_id": "run-1"
+ },
+ {
+  "attestation": {
+   "algorithm": "hmac-sha256",
+   "key_id": "9a21bf6b56fbeb55",
+   "signature": "2eae11a2f3c6d1f75a67540ae31d35c523155d137b33c486733003b4a3ed2ab0"
+  },
+  "build_sha": "routes-a-build-0001",
+  "checks": {
+   "budget_enforcement": {
+    "evidence": "ok budget_enforcement",
+    "passed": true
+   },
+   "citation_validation": {
+    "evidence": "ok citation_validation",
+    "passed": true
+   },
+   "external_execution": {
+    "evidence": "ok external_execution",
+    "passed": true
+   },
+   "failure_recovery": {
+    "evidence": "ok failure_recovery",
+    "passed": true
+   },
+   "grounding": {
+    "evidence": "ok grounding",
+    "passed": true
+   },
+   "provenance": {
+    "evidence": "ok provenance",
+    "passed": true
+   },
+   "tenant_isolation": {
+    "evidence": "ok tenant_isolation",
+    "passed": true
+   }
+  },
+  "evidence_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evidence_url": "https://evidence.example.com/grounded_research",
+  "expires_at": "2026-11-01T00:00:00Z",
+  "external_system_id_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "mode": "controlled_live",
+  "status": "supported",
+  "subject_id": "grounded_research",
+  "validated_at": "2026-08-20T00:00:00Z",
+  "validation_run_id": "run-1"
+ },
+ {
+  "attestation": {
+   "algorithm": "hmac-sha256",
+   "key_id": "9a21bf6b56fbeb55",
+   "signature": "10f555c1d27ee6679d4258b92ff63a4c9387a2e7c19e6dd1bdeeafe8ab67c402"
+  },
+  "build_sha": "routes-a-build-0001",
+  "checks": {
+   "budget_enforcement": {
+    "evidence": "ok budget_enforcement",
+    "passed": true
+   },
+   "completed_work_preservation": {
+    "evidence": "ok completed_work_preservation",
+    "passed": true
+   },
+   "cooperative_cancellation": {
+    "evidence": "ok cooperative_cancellation",
+    "passed": true
+   },
+   "external_execution": {
+    "evidence": "ok external_execution",
+    "passed": true
+   },
+   "failure_recovery": {
+    "evidence": "ok failure_recovery",
+    "passed": true
+   },
+   "grounding": {
+    "evidence": "ok grounding",
+    "passed": true
+   },
+   "in_place_retry": {
+    "evidence": "ok in_place_retry",
+    "passed": true
+   },
+   "tenant_isolation": {
+    "evidence": "ok tenant_isolation",
+    "passed": true
+   }
+  },
+  "evidence_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evidence_url": "https://evidence.example.com/run_recovery",
+  "expires_at": "2026-11-01T00:00:00Z",
+  "external_system_id_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "mode": "controlled_live",
+  "status": "supported",
+  "subject_id": "run_recovery",
+  "validated_at": "2026-08-20T00:00:00Z",
+  "validation_run_id": "run-1"
+ },
+ {
+  "attestation": {
+   "algorithm": "hmac-sha256",
+   "key_id": "9a21bf6b56fbeb55",
+   "signature": "313e3b2b8776a726ec31811f332827e5472812cc42a503c345542a21e1a0a316"
+  },
+  "build_sha": "routes-a-build-0001",
+  "checks": {
+   "authentication": {
+    "evidence": "ok authentication",
+    "passed": true
+   },
+   "external_write": {
+    "evidence": "ok external_write",
+    "passed": true
+   },
+   "idempotency": {
+    "evidence": "ok idempotency",
+    "passed": true
+   },
+   "retry_recovery": {
+    "evidence": "ok retry_recovery",
+    "passed": true
+   },
+   "tenant_isolation": {
+    "evidence": "ok tenant_isolation",
+    "passed": true
+   }
+  },
+  "evidence_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evidence_url": "https://evidence.example.com/webhook",
+  "expires_at": "2026-11-01T00:00:00Z",
+  "external_system_id_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "mode": "controlled_live",
+  "status": "supported",
+  "subject_id": "webhook",
+  "validated_at": "2026-08-20T00:00:00Z",
+  "validation_run_id": "run-1"
+ },
+ {
+  "attestation": {
+   "algorithm": "hmac-sha256",
+   "key_id": "9a21bf6b56fbeb55",
+   "signature": "560b7dd93bc037ada487ab8a902c9a6f0afcc2b1016675a5ead4fd346fbf0e3e"
+  },
+  "build_sha": "routes-a-build-0001",
+  "checks": {
+   "authentication": {
+    "evidence": "ok authentication",
+    "passed": true
+   },
+   "conflict_policy": {
+    "evidence": "ok conflict_policy",
+    "passed": true
+   },
+   "external_write": {
+    "evidence": "ok external_write",
+    "passed": true
+   },
+   "idempotency": {
+    "evidence": "ok idempotency",
+    "passed": true
+   },
+   "inbound_reconciliation": {
+    "evidence": "ok inbound_reconciliation",
+    "passed": true
+   },
+   "retry_recovery": {
+    "evidence": "ok retry_recovery",
+    "passed": true
+   },
+   "tenant_isolation": {
+    "evidence": "ok tenant_isolation",
+    "passed": true
+   }
+  },
+  "evidence_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evidence_url": "https://evidence.example.com/hubspot",
+  "expires_at": "2026-11-01T00:00:00Z",
+  "external_system_id_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "mode": "controlled_live",
+  "status": "supported",
+  "subject_id": "hubspot",
+  "validated_at": "2026-08-20T00:00:00Z",
+  "validation_run_id": "run-1"
+ },
+ {
+  "attestation": {
+   "algorithm": "hmac-sha256",
+   "key_id": "9a21bf6b56fbeb55",
+   "signature": "22dd447cb342c0c10a2f370d5a255b64ffe2310cf525235075a3509ff9bce780"
+  },
+  "build_sha": "routes-a-build-0001",
+  "checks": {
+   "authentication": {
+    "evidence": "ok authentication",
+    "passed": true
+   },
+   "external_write": {
+    "evidence": "ok external_write",
+    "passed": true
+   },
+   "idempotency": {
+    "evidence": "ok idempotency",
+    "passed": true
+   },
+   "notification_delivery": {
+    "evidence": "ok notification_delivery",
+    "passed": true
+   },
+   "retry_recovery": {
+    "evidence": "ok retry_recovery",
+    "passed": true
+   },
+   "tenant_isolation": {
+    "evidence": "ok tenant_isolation",
+    "passed": true
+   }
+  },
+  "evidence_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evidence_url": "https://evidence.example.com/slack",
+  "expires_at": "2026-11-01T00:00:00Z",
+  "external_system_id_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "mode": "controlled_live",
+  "status": "supported",
+  "subject_id": "slack",
+  "validated_at": "2026-08-20T00:00:00Z",
+  "validation_run_id": "run-1"
+ },
+ {
+  "attestation": {
+   "algorithm": "hmac-sha256",
+   "key_id": "9a21bf6b56fbeb55",
+   "signature": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "build_sha": "routes-a-build-0001",
+  "checks": {
+   "external_provisioning": {
+    "evidence": "ok external_provisioning",
+    "passed": true
+   },
+   "group_sync": {
+    "evidence": "ok group_sync",
+    "passed": true
+   },
+   "paged_directory": {
+    "evidence": "ok paged_directory",
+    "passed": true
+   },
+   "tenant_isolation": {
+    "evidence": "ok tenant_isolation",
+    "passed": true
+   },
+   "token_revocation": {
+    "evidence": "ok token_revocation",
+    "passed": true
+   },
+   "user_lifecycle": {
+    "evidence": "ok user_lifecycle",
+    "passed": true
+   }
+  },
+  "evidence_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evidence_url": "https://evidence.example.com/scim_directory",
+  "expires_at": "2026-11-01T00:00:00Z",
+  "external_system_id_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "mode": "controlled_live",
+  "status": "supported",
+  "subject_id": "scim_directory",
+  "validated_at": "2026-08-20T00:00:00Z",
+  "validation_run_id": "run-1"
+ }
+]
