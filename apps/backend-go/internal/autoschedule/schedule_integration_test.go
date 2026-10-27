@@ -3,6 +3,7 @@
 package autoschedule_test
 
 import (
+	"fmt"
 	"context"
 	"encoding/json"
 	"sync"
@@ -401,29 +402,45 @@ func TestBootstrapForTriggerAnchorDefaultsToNow(t *testing.T) {
 	}
 }
 
-func TestFireKeyFollowsSessionTimeZone(t *testing.T) {
+// R-tz: fire keys render in UTC whatever the Postgres session TimeZone (a UTC session is a
+// documented canary precondition), and a zone name Go cannot load no longer refuses to
+// schedule: nothing reads the session zone any more.
+func TestFireKeyIsUTCWhateverSessionTimeZone(t *testing.T) {
 	pool, ctx := setup(t)
-	mkTrigger(t, ctx, pool, wsA, "trg-tz", "on_schedule", true, "hourly", &anchor)
-	next := anchor.Add(time.Hour) // 09:00Z
-	err := tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
-		if _, err := tx.Exec(ctx, `SET LOCAL TimeZone = 'Asia/Kolkata'`); err != nil {
+	for i, zone := range []string{"Asia/Kolkata", "<+0330>-03:30"} {
+		id := fmt.Sprintf("trg-tz%d", i)
+		mkTrigger(t, ctx, pool, wsA, id, "on_schedule", true, "hourly", &anchor)
+		next := anchor.Add(time.Hour) // 09:00Z
+		err := tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+			if _, err := tx.Exec(ctx, `SET LOCAL TimeZone = '`+zone+`'`); err != nil {
+				return err
+			}
+			ok, err := autoschedule.EnqueueScheduleIfAbsent(ctx, tx, trig(wsA, id), next, "go")
+			if err == nil && !ok {
+				t.Errorf("%s: not created", zone)
+			}
+			if err != nil {
+				return err
+			}
+			_, err = autoschedule.BootstrapForTrigger(ctx, tx, trig(wsA, id), anchor, "go")
 			return err
+		})
+		if err != nil {
+			t.Fatalf("%s: %v", zone, err)
 		}
-		ok, err := autoschedule.EnqueueScheduleIfAbsent(ctx, tx, trig(wsA, "trg-tz"), next, "go")
-		if err == nil && !ok {
-			t.Error("not created")
+	}
+	keys := map[string]bool{}
+	for _, j := range jobsFor(t, ctx, pool, wsA) {
+		keys[j.FireKey] = true
+		// jobs.next_run_at is naive UTC (the claim compares it with now() AT TIME ZONE 'UTC'):
+		// it must be the key's instant, not the session-local wall time.
+		if !j.NextRunAt.Equal(time.Date(2026, 8, 29, 9, 0, 0, 0, time.UTC)) {
+			t.Errorf("%s: next_run_at %v", j.FireKey, j.NextRunAt)
 		}
-		return err
-	})
-	if err != nil {
-		t.Fatal(err)
 	}
-	js := jobsFor(t, ctx, pool, wsA)
-	if len(js) != 1 || js[0].FireKey != "sched:trg-tz:2026-08-29T14:30:00+05:30" {
-		t.Fatalf("jobs %+v", js)
-	}
-	// naive next_run_at is the session-local wall time, as a Python aware bind.
-	if !js[0].NextRunAt.Equal(time.Date(2026, 8, 29, 14, 30, 0, 0, time.UTC)) {
-		t.Errorf("next_run_at %v", js[0].NextRunAt)
+	for i := range 2 {
+		if k := fmt.Sprintf("sched:trg-tz%d:2026-08-29T09:00:00+00:00", i); !keys[k] {
+			t.Fatalf("missing %s in %v", k, keys)
+		}
 	}
 }

@@ -819,38 +819,32 @@ func TestReconcileTenantScoped(t *testing.T) {
 	}
 }
 
-func TestFireKeyFollowsSessionTimeZone(t *testing.T) {
+// R-tz: the poll fire key and the naive-UTC jobs.next_run_at are the same instant in UTC whatever
+// the Postgres session TimeZone (a UTC session is a documented canary precondition).
+func TestFireKeyIsUTCWhateverSessionTimeZone(t *testing.T) {
 	pool, ctx := setup(t)
-	seed{ID: wID, WS: wsA, Interval: sp("hourly"), Anchor: &vAnchor, Enabled: true}.insert(t, ctx, pool)
-	inTx(t, ctx, pool, wsA, func(tx pgx.Tx) error {
-		if _, err := tx.Exec(ctx, `SET LOCAL TimeZone = 'Asia/Kolkata'`); err != nil {
+	want := "watch:" + wID + ":2026-08-29T11:00:00+00:00"
+	for _, zone := range []string{"Asia/Kolkata", "<+0330>-03:30", "UTC"} {
+		cleanAll(t, ctx, pool)
+		seed{ID: wID, WS: wsA, Interval: sp("hourly"), Anchor: &vAnchor, Enabled: true}.insert(t, ctx, pool)
+		inTx(t, ctx, pool, wsA, func(tx pgx.Tx) error {
+			if _, err := tx.Exec(ctx, `SET LOCAL TimeZone = '`+zone+`'`); err != nil {
+				return err
+			}
+			_, err := poller.RescheduleWatch(ctx, tx, loadWatch(t, ctx, tx, wsA), false, vNow, cfg, "go")
 			return err
+		})
+		js := jobs(t, ctx, pool, "watch:"+wID+":%")
+		if len(js) != 1 || js[0].FireKey != want {
+			t.Fatalf("%s: jobs %+v, want key %s", zone, js, want)
 		}
-		_, err := poller.RescheduleWatch(ctx, tx, loadWatch(t, ctx, tx, wsA), false, vNow, cfg, "go")
-		return err
-	})
-	js := jobs(t, ctx, pool, "watch:"+wID+":%")
-	want := "watch:" + wID + ":2026-08-29T16:30:00+05:30"
-	if len(js) != 1 || js[0].FireKey != want {
-		t.Fatalf("jobs %+v, want key %s", js, want)
-	}
-	var p map[string]any
-	_ = json.Unmarshal([]byte(js[0].Payload), &p)
-	if p["fire_key"] != want {
-		t.Errorf("payload fire_key = %v", p["fire_key"])
-	}
-	// naive next_run_at is the session-local wall time, as Python's aware bind.
-	if !js[0].NextRunAt.Equal(time.Date(2026, 8, 29, 16, 30, 0, 0, time.UTC)) {
-		t.Errorf("next_run_at %v", js[0].NextRunAt)
-	}
-	// the same instant from a UTC session must give the UTC key
-	cleanAll(t, ctx, pool)
-	seed{ID: wID, WS: wsA, Interval: sp("hourly"), Anchor: &vAnchor, Enabled: true}.insert(t, ctx, pool)
-	inTx(t, ctx, pool, wsA, func(tx pgx.Tx) error {
-		_, err := poller.RescheduleWatch(ctx, tx, loadWatch(t, ctx, tx, wsA), false, vNow, cfg, "go")
-		return err
-	})
-	if js := jobs(t, ctx, pool, "watch:"+wID+":%"); len(js) != 1 || js[0].FireKey != "watch:"+wID+":2026-08-29T11:00:00+00:00" {
-		t.Fatalf("utc jobs %+v", js)
+		var p map[string]any
+		_ = json.Unmarshal([]byte(js[0].Payload), &p)
+		if p["fire_key"] != want {
+			t.Errorf("%s: payload fire_key = %v", zone, p["fire_key"])
+		}
+		if !js[0].NextRunAt.Equal(time.Date(2026, 8, 29, 11, 0, 0, 0, time.UTC)) {
+			t.Errorf("%s: next_run_at %v", zone, js[0].NextRunAt)
+		}
 	}
 }
