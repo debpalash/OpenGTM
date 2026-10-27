@@ -311,16 +311,3 @@ func (q *Queries) WorkbookRowsAfter(ctx context.Context, arg WorkbookRowsAfterPa
 	}
 	return items, nil
 }
-
-const workbookWorkspaceByID = `-- name: WorkbookWorkspaceByID :one
-SELECT COALESCE(workbook_workspace_by_id($1::text), '')::text AS workspace_id
-`
-
-// Owning workspace of a workbook across tenants (SECURITY DEFINER, migration 00002). Only for the fallback that
-// serves Python-enqueued refresh jobs whose jobs.workspace_id is NULL; removed at cutover.
-func (q *Queries) WorkbookWorkspaceByID(ctx context.Context, workbookID string) (string, error) {
-	row := q.db.QueryRow(ctx, workbookWorkspaceByID, workbookID)
-	var workspace_id string
-	err := row.Scan(&workspace_id)
-	return workspace_id, err
-}

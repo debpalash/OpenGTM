@@ -56,17 +56,6 @@ BEGIN
 END
 $$;
 
---
--- Name: workbook_workspace_by_id(text); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.workbook_workspace_by_id(p_workbook_id text) RETURNS text
-    LANGUAGE sql STABLE SECURITY DEFINER
-    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
-    AS $$
-        SELECT w.workspace_id::text FROM public.workbooks w WHERE w.id = p_workbook_id
-    $$;
-
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;

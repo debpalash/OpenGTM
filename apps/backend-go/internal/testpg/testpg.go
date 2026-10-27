@@ -65,10 +65,6 @@ func NewAppPool(t testing.TB, maxConns int32) *pgxpool.Pool {
 		   IF to_regprocedure('public.outreach_send_by_message_id(text)') IS NOT NULL THEN
 		     GRANT EXECUTE ON FUNCTION public.outreach_send_by_message_id(text) TO yupcha_app; END IF;
 		 END $$`,
-		`DO $$ BEGIN
-		   IF to_regprocedure('public.workbook_workspace_by_id(text)') IS NOT NULL THEN
-		     GRANT EXECUTE ON FUNCTION public.workbook_workspace_by_id(text) TO yupcha_app; END IF;
-		 END $$`,
 	}
 	for _, s := range stmts {
 		if err := execRetrying(ctx, owner, s); err != nil {
