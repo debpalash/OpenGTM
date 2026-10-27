@@ -1,6 +1,6 @@
 # OpenGTM build. `make build` produces one self-contained Go API (UI embedded) in ./bin.
 #
-#   make build   clean, build the web UI, build bin/opengtm-{api,worker,mcp,scheduler,migrate} + bin/suppressnorm
+#   make build   clean, build the web UI, build bin/opengtm-{api,worker,mcp,scheduler,seed,migrate} + bin/suppressnorm
 #   make migrate build bin/opengtm-migrate and apply pending schema migrations (DATABASE_URL = owner)
 #   make run     build, then start api + worker in the background (pids/logs in .run/)
 #   make dev     vite dev server for apps/web (pid in .run/web.pid; proxies to VITE_API_TARGET)
@@ -27,9 +27,10 @@ build: clean web
 	cd $(GO_DIR) && go build $(GOFLAGS_BUILD) -o $(BIN)/opengtm-worker ./cmd/worker
 	cd $(GO_DIR) && go build $(GOFLAGS_BUILD) -o $(BIN)/opengtm-mcp ./cmd/mcp
 	cd $(GO_DIR) && go build $(GOFLAGS_BUILD) -o $(BIN)/opengtm-scheduler ./cmd/scheduler
+	cd $(GO_DIR) && go build $(GOFLAGS_BUILD) -o $(BIN)/opengtm-seed ./cmd/seed
 	cd $(GO_DIR) && go build $(GOFLAGS_BUILD) -o $(BIN)/suppressnorm ./cmd/suppressnorm
 	@$(MAKE) --no-print-directory migrate-bin
-	@echo "built $(BIN)/{opengtm-api,opengtm-worker,opengtm-mcp,opengtm-scheduler,opengtm-migrate,suppressnorm}"
+	@echo "built $(BIN)/{opengtm-api,opengtm-worker,opengtm-mcp,opengtm-scheduler,opengtm-seed,opengtm-migrate,suppressnorm}"
 
 # Schema migrations (internal/migrate, goose): safe to run concurrently; see docs/go-port/runbooks/migrations.md.
 migrate-bin:
