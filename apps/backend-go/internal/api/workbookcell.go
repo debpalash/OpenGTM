@@ -14,6 +14,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
@@ -75,11 +78,8 @@ func registerWorkbookCell(r *httpx.Router, d Deps) {
 	if log == nil {
 		log = slog.Default()
 	}
-	h := &cellRoutes{d: d, log: log, deps: workbook.Deps{Pool: d.Pool, Runner: newCellRunner(d), Log: log},
+	h := &cellRoutes{d: d, log: log, deps: cellDeps(d, log),
 		http: &http.Client{Timeout: cellProxyTimeout, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}
-	if d.PyWorker != nil {
-		h.deps.Py = d.PyWorker
-	}
 	h.py = validPythonURL(d.getenv()("PYTHON_API_URL"), log)
 	// slowapi wraps the endpoint, so authentication, role and path validation answer first
 	// and only a request that reaches the endpoint spends the 120/min budget.
@@ -276,4 +276,36 @@ func (h *cellRoutes) proxy(w http.ResponseWriter, r *http.Request, body []byte, 
 	}
 	w.WriteHeader(resp.StatusCode)
 	_, _ = w.Write(reply)
+}
+
+// cellDeps is the executor wiring of the single-cell route. With GO_EXECUTOR_FULL_RUN
+// (plan 15) output columns and email verification run in process (the Python API proxy is
+// never used): output clients and the verify cascade resolve workspace credentials, the
+// webhook goes through the SSRF-guarded egress client.
+func cellDeps(d Deps, log *slog.Logger) workbook.Deps {
+	if log == nil {
+		log = slog.Default()
+	}
+	deps := workbook.Deps{Pool: d.Pool, Runner: newCellRunner(d), Log: log}
+	if d.PyWorker != nil {
+		deps.Py = d.PyWorker
+	}
+	wx, err := config.LoadWbExec(d.getenv())
+	if err != nil {
+		log.Error("cell run: GO_EXECUTOR_FULL_RUN / PROVENANCE_TRACKING_ENABLED unreadable; full run stays off", "err", err)
+		return deps
+	}
+	if !wx.FullRun {
+		return deps
+	}
+	lu := &leadUtils{d: d}
+	allow := lu.allowHosts()
+	deps.FullRun, deps.Provenance = true, wx.ProvenanceTracking
+	deps.Client = egress.NewClientForEnv(d.Config.AppEnv, allow)
+	deps.URLCheck = func(raw string) error { return egress.CheckURLFor(d.Config.AppEnv, allow, raw, true) }
+	deps.Output = workbook.NewLiveOutputPorts(d.Pool, lu.resolver(), deps.Client, log)
+	deps.Verify = workbook.VerifyFunc(func(ctx context.Context, ws, email string) (emailverify.Result, error) {
+		return emailverify.Cascade(ctx, lu.verifyDeps(), ws, email)
+	})
+	return deps
 }
