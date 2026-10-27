@@ -14,19 +14,42 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest/builtin"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
-// Environment names for the manifest directory and trust store. The defaults are the
-// Python locations relative to the repository root (MANIFESTS_DIR, TRUST_STORE).
+// Environment names for the manifest directory and trust store. When unset (or empty)
+// the manifests and trust store embedded in the binary (internal/manifest/builtin, byte
+// copies of the Python MANIFESTS_DIR and TRUST_STORE) are used; an override is read from disk.
 const (
 	connectorManifestsEnv  = "OPENGTM_CONNECTOR_MANIFESTS_DIR"
 	connectorTrustStoreEnv = "OPENGTM_CONNECTOR_TRUST_STORE"
 	connectorPolicyEnv     = "CONNECTOR_SIGNATURE_POLICY"
-
-	defaultConnectorManifests = "legacy/python/apps/api/services/leadgen/enrichment/declarative/manifests"
-	defaultConnectorTrust     = "docs/connectors/trusted-publishers.json"
 )
+
+// connectorSources resolves the manifest directory and trust store file: the env overrides
+// win, otherwise the embedded built-ins (materialised once to a private temp directory so the
+// loaders see ordinary files). A materialisation failure is logged and yields a missing
+// path, i.e. an empty catalog, never a crash.
+func connectorSources(lookup func(string) (string, bool)) (dir, trust string) {
+	dir, _ = lookup(connectorManifestsEnv)
+	trust, _ = lookup(connectorTrustStoreEnv)
+	if dir != "" && trust != "" {
+		return dir, trust
+	}
+	bd, bt, err := builtin.Paths()
+	if err != nil {
+		slog.Default().Error("connector built-ins unavailable", "err", err)
+		bd, bt = "builtin-unavailable/manifests", "builtin-unavailable/trusted-publishers.json"
+	}
+	if dir == "" {
+		dir = bd
+	}
+	if trust == "" {
+		trust = bt
+	}
+	return dir, trust
+}
 
 // connectorsNow is the clock for certification expiry (tests pin it; nil = time.Now).
 var connectorsNow func() time.Time
@@ -57,14 +80,7 @@ func registerConnectors(r *httpx.Router, d Deps) {
 		return
 	}
 	getenv := d.getenv()
-	dir, _ := connectorsLookupEnv(connectorManifestsEnv)
-	trust, _ := connectorsLookupEnv(connectorTrustStoreEnv)
-	if dir == "" {
-		dir = defaultConnectorManifests
-	}
-	if trust == "" {
-		trust = defaultConnectorTrust
-	}
+	dir, trust := connectorSources(connectorsLookupEnv)
 	raw, policySet := connectorsLookupEnv(connectorPolicyEnv)
 	log := d.Log
 	if log == nil {
@@ -79,7 +95,7 @@ func registerConnectors(r *httpx.Router, d Deps) {
 			BuildSHA: d.Flags.BuildSHA, Now: connectorsNow,
 		},
 	}}
-	// Paths only: a wrong cwd-relative default would otherwise yield a silently empty catalog.
+	// Paths only: an override pointing nowhere would otherwise yield a silently empty catalog.
 	log.Info("connector catalog sources", "manifests_dir", dir, "trust_store", trust, "signature_policy", h.deps.Policy)
 	authn := identity.Authenticate(d.Signer, d.Identity)
 	workspace := identity.Workspace(d.Identity)

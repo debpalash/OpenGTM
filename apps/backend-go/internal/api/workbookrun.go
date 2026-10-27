@@ -293,14 +293,7 @@ func newManifestIndexer(getenv func(string) string) *manifestIndexer {
 
 func (m *manifestIndexer) get() map[string]manifest.Entry {
 	m.once.Do(func() {
-		dir, _ := connectorsLookupEnv(connectorManifestsEnv)
-		trust, _ := connectorsLookupEnv(connectorTrustStoreEnv)
-		if dir == "" {
-			dir = defaultConnectorManifests
-		}
-		if trust == "" {
-			trust = defaultConnectorTrust
-		}
+		dir, trust := connectorSources(connectorsLookupEnv)
 		policy, set := connectorsLookupEnv(connectorPolicyEnv)
 		if !set {
 			policy = "optional"
