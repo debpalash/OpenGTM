@@ -8,9 +8,13 @@
 * flaresolverr — the FlareSolverr sidecar for Cloudflare/DDoS-Guard walls
                  (legacy scrapers/flaresolverr_client.py, tier 3.5).
 
-browser and impersonate traffic goes through the egress proxy. FlareSolverr
-fetches with its own browser, so the target and the final URL are vetted
-here (resolve + check) and the sidecar must run on an egress-only network.
+All three fetch only through the egress proxy. FlareSolverr runs its own
+browser in another container, so it is handed the proxy's network address
+(BROWSER_EGRESS_PROXY_URL) plus this request's session credentials: every
+connection it opens is resolved and pinned by the same policy, and the session
+is revoked when the call returns. The target and final URL are additionally
+DNS-vetted here (defence in depth). The service refuses to start with
+FLARESOLVERR_URL but no reachable proxy address.
 """
 
 from __future__ import annotations
@@ -303,7 +307,14 @@ async def render_flaresolverr(deps: Deps, req: RenderRequest, deadline: Deadline
     await _vet_resolved(deps, req.url)
     max_bytes = _cap(deps, req.max_bytes)
     budget = deadline.left()
-    payload = {"cmd": "request.get", "url": req.url, "maxTimeout": int(max(1.0, budget - 2) * 1000)}
+    session = deps.proxy.open_session(deps.settings.max_download_bytes)
+    proxy_base = deps.settings.egress_proxy_url or deps.proxy.server_url
+    payload = {
+        "cmd": "request.get",
+        "url": req.url,
+        "maxTimeout": int(max(1.0, budget - 2) * 1000),
+        "proxy": {"url": proxy_base, "username": session.sid, "password": session.secret},
+    }
     try:
         async with httpx.AsyncClient(timeout=budget, trust_env=False, follow_redirects=False) as client:
             async with client.stream("POST", f"{base}/v1", json=payload) as resp:
@@ -320,13 +331,18 @@ async def render_flaresolverr(deps: Deps, req: RenderRequest, deadline: Deadline
     except Exception as e:
         logger.info("flaresolverr call failed: %s", type(e).__name__)
         raise ServiceError("upstream_error") from e
+    finally:
+        deps.proxy.close_session(session)
     if not isinstance(data, dict) or data.get("status") != "ok":
-        raise ServiceError("upstream_error")
+        raise ServiceError("egress_blocked" if session.blocked else "upstream_error")
     sol = data.get("solution") or {}
     final_url = str(sol.get("url") or req.url)
     if urlsplit(final_url).scheme not in ("http", "https"):
         raise ServiceError("upstream_error")
     await _vet_resolved(deps, final_url)
     html = str(sol.get("response") or "")
-    status = int(sol.get("status") or 0)
-    return await _build_result(req, "flaresolverr", final_url, status, html, 0, deadline, max_bytes)
+    try:
+        status = int(sol.get("status") or 0)
+    except (TypeError, ValueError):
+        status = 0
+    return await _build_result(req, "flaresolverr", final_url, status, html, len(session.blocked), deadline, max_bytes)

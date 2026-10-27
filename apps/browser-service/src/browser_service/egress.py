@@ -270,10 +270,19 @@ class EgressProxy:
 
     @property
     def server_url(self) -> str:
-        return f"http://{self.host}:{self.port}"
+        """Loopback URL without credentials (Chromium in this process)."""
+        return f"http://{self._local_host()}:{self.port}"
+
+    def _local_host(self) -> str:
+        if self.host in ("0.0.0.0", "127.0.0.1", ""):  # noqa: S104
+            return "127.0.0.1"
+        if self.host in ("::", "::1"):
+            return "[::1]"
+        return f"[{self.host}]" if ":" in self.host else self.host
 
     def proxy_url(self, session: EgressSession) -> str:
-        return f"http://{session.sid}:{session.secret}@{self.host}:{self.port}"
+        """Loopback URL with the session's credentials (in-process clients)."""
+        return f"http://{session.sid}:{session.secret}@{self._local_host()}:{self.port}"
 
     def open_session(self, max_bytes: int) -> EgressSession:
         s = EgressSession(sid="s" + secrets.token_hex(8), secret=secrets.token_urlsafe(24), max_bytes=max_bytes)

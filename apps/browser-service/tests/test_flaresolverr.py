@@ -43,8 +43,12 @@ class FakeFlareSolverr:
                     with socket.create_connection((u.hostname, u.port), timeout=5) as s:
                         s.sendall(b"CONNECT evil.test:443 HTTP/1.1\r\nProxy-Authorization: Basic " + cred + b"\r\n\r\n")
                         outer.tunnel_status.append(s.recv(64).split(b"\r\n")[0].decode())
-                out = json.dumps({"status": "ok", "solution": {"url": body["url"], "status": 200,
-                                                               "response": "<html><title>ok</title></html>"}}).encode()
+                out = json.dumps(
+                    {
+                        "status": "ok",
+                        "solution": {"url": body["url"], "status": 200, "response": "<html><title>ok</title></html>"},
+                    }
+                ).encode()
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.send_header("Content-Length", str(len(out)))
@@ -108,7 +112,8 @@ def test_flaresolverr_requires_a_reachable_proxy_address():
     env = {"BROWSER_SERVICE_TOKEN": "t" * 40, "FLARESOLVERR_URL": "http://flaresolverr:8191"}
     with pytest.raises(ConfigError):
         Settings.from_env(env)
-    s = Settings.from_env({**env, "BROWSER_EGRESS_PROXY_LISTEN": "0.0.0.0:8091",
-                           "BROWSER_EGRESS_PROXY_URL": "http://browser:8091"})
+    s = Settings.from_env(
+        {**env, "BROWSER_EGRESS_PROXY_LISTEN": "0.0.0.0:8091", "BROWSER_EGRESS_PROXY_URL": "http://browser:8091"}
+    )
     assert s.egress_proxy_host == "0.0.0.0" and s.egress_proxy_port == 8091
     assert s.egress_proxy_url == "http://browser:8091"

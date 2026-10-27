@@ -132,7 +132,7 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
-        await proxy.start()
+        await proxy.start(settings.egress_proxy_host, settings.egress_proxy_port)
         if settings.launch_browser:
             await pool.start()
         try:
