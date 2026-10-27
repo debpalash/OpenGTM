@@ -191,9 +191,13 @@ func TestAnalyzeTranscripts(t *testing.T) {
 			a := testAnalyzer(&http.Client{Transport: rp}, now)
 			res, err := a.analyze(context.Background(), c.Domain)
 			if c.Error != nil {
-				// Python raises (route answers 500); Go returns an error instead of crashing.
-				if err == nil || res != nil {
-					t.Fatalf("want an error for Python %s, got %v / %v", *c.Error, res, err)
+				// Python raises (route answers 500); Go skips the non-object row and keeps the rest (audit F9).
+				if err != nil || res == nil {
+					t.Fatalf("want a partial result for Python %s, got %v / %v", *c.Error, res, err)
+				}
+				b, _ := res.MarshalJSON()
+				if c.Name == "crt_non_dict_row_crashes" && !strings.Contains(string(b), "a.example.com") {
+					t.Fatalf("object row lost: %s", b)
 				}
 				return
 			}

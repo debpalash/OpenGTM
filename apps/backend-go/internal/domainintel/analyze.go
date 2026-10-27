@@ -72,8 +72,7 @@ func NewClient(appEnv string, allowHosts []string) *http.Client {
 }
 
 // Analyze is analyze_domain for a cleaned domain (see Clean). Upstream failures and timeouts yield empty sections
-// like Python; an error is returned only for an invalid domain, a cancelled ctx, or a non-object crt.sh row (a
-// Python bug that raises there; Go returns the error instead of crashing). The whole analysis is bounded by 15 s.
+// like Python; an error is returned only for an invalid domain or a cancelled ctx (a non-object crt.sh row is skipped). The whole analysis is bounded by 15 s.
 func Analyze(ctx context.Context, c *http.Client, domain string) (*Obj, error) {
 	return newAnalyzer(c).analyze(ctx, domain)
 }

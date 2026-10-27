@@ -189,13 +189,13 @@ func TestDomainIntelPartialResultOnDNSFailure(t *testing.T) {
 	}
 }
 
-// TestDomainIntelNonObjectCRTRow500: a crt.sh row that is not an object makes Python's analyze_domain raise (an
-// AttributeError outside its try block), which FastAPI answers 500; Go keeps the status and does not panic.
-func TestDomainIntelNonObjectCRTRow500(t *testing.T) {
+// TestDomainIntelNonObjectCRTRowSkipped: a crt.sh row that is not an object makes Python's analyze_domain raise
+// (500); Go skips the row and answers 200 with the subdomain from the object row (audit F9).
+func TestDomainIntelNonObjectCRTRowSkipped(t *testing.T) {
 	tr := &intelTransport{handlers: map[string]func(*http.Request) (*http.Response, error){"crt.sh": intelReply(200, `[1, {"name_value": "a.example.com"}]`)}}
 	e := newIntelEnv(t, tr)
 	rec := e.post("alice", "", "/api/leads/domain-intel", `{"domain": "example.com"}`)
-	if rec.Code != 500 || strings.Contains(rec.Body.String(), "crt.sh") {
+	if rec.Code != 200 || !strings.Contains(rec.Body.String(), "a.example.com") {
 		t.Errorf("%d %s", rec.Code, rec.Body)
 	}
 }

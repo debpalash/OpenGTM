@@ -2,7 +2,6 @@ package domainintel
 
 import (
 	"context"
-	"errors"
 	"sort"
 	"strings"
 	"time"
@@ -14,10 +13,6 @@ const (
 )
 
 var interestingSubdomains = map[string]bool{"mail": true, "careers": true, "jobs": true, "hr": true, "recruit": true, "apply": true, "portal": true, "app": true, "shop": true, "store": true}
-
-// errCRTRow replaces Python's AttributeError: a non-object crt.sh row makes get_crtsh_subdomains (and so
-// analyze_domain) raise, because the row parsing sits outside its try block. Go reports an error, never panics.
-var errCRTRow = errors.New("domainintel: crt.sh returned a non-object row")
 
 type crtInfo struct {
 	Subdomains  []string
@@ -64,7 +59,7 @@ func (a *analyzer) crt(ctx context.Context, domain string) (crtInfo, error) {
 	for _, r := range list {
 		row, ok := asObj(r)
 		if !ok {
-			return crtInfo{}, errCRTRow
+			continue // Python raises (500) on a non-object row; Go skips it and keeps the partial result (audit F9)
 		}
 		nv, _ := getOr(row, "name_value", "").(string) // str() of any other type can never end with the domain
 		for _, line := range pySplitLines(nv) {

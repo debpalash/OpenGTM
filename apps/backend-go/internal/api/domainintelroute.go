@@ -100,10 +100,8 @@ func (h *domainIntelRoute) http() *http.Client {
 }
 
 // analyze answers the analysis verbatim (key order of analyze_domain). Upstream failures are already folded into
-// empty sections by domainintel.Analyze (the recorded partial result). The one error it can return for a live
-// request is a crt.sh row that is not an object: Python's analyze_domain raises there (AttributeError outside its
-// try block) and FastAPI answers 500, so Go answers the same bare 500 (no upstream text) instead of a partial
-// result.
+// empty sections by domainintel.Analyze (the recorded partial result); a non-object crt.sh row is skipped. An
+// error is a cancelled request, answered with a bare 500 (no upstream text).
 func (h *domainIntelRoute) analyze(w http.ResponseWriter, r *http.Request) {
 	select {
 	case domainIntelSlots <- struct{}{}:
