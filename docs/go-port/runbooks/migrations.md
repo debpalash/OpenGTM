@@ -2,14 +2,14 @@
 
 The PostgreSQL schema is owned by `opengtm-migrate` (`apps/backend-go/cmd/migrate`, package
 `internal/migrate`, [goose v3](https://github.com/pressly/goose) with the migrations embedded in the
-binary). Deploys no longer need `legacy/python` or Alembic, except to upgrade a database that is
+binary). Deploys need neither `legacy/python` nor Alembic, except to upgrade a database that is
 older than Alembic revision `e7b2c4d6f8a0` (see "Old Alembic databases").
 
 ## Where it runs
 
 | Context | Command |
 |---|---|
-| docker compose | the one-shot `migrate` service (image `opengtm-api-go:local`, entrypoint `/opengtm-migrate`); every app service waits for it (`service_completed_successfully`) |
+| docker compose | the one-shot `migrate` service (Dockerfile target `migrate`, image `opengtm-migrate-go:local`; the api image also carries `/opengtm-migrate`); every app service waits for it (`service_completed_successfully`) |
 | bare metal | `make migrate` (builds `bin/opengtm-migrate`, runs `up`); `make build` also builds it |
 | container | `docker run --rm -e DATABASE_URL=... opengtm-api-go:local` with `--entrypoint /opengtm-migrate` |
 | CI (Go job) | `go run ./cmd/migrate up` against the service database |

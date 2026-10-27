@@ -1,5 +1,10 @@
 # OpenGTM Python backend: Go porting inventory
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 Source: `legacy/python/` (Python LOC via `find *.py`, excl. `__pycache__`; blank/comment lines included).
 Generated 2026-10-26. Recommendation document only; nothing here is committed scope.
 

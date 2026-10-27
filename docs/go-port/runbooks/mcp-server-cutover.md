@@ -1,5 +1,10 @@
 # Runbook: MCP server cutover to Go (plan 13)
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 `cmd/mcp` (binary `opengtm-mcp`) replaces `python -m apps.mcp.server`: the same JSON-RPC surface and the same
 15 tools over stdio and over a loopback SSE/HTTP endpoint. Wire parity with Python is the release bar; every
 deliberate difference is a numbered deviation in `apps/backend-go/testdata/contract/README.md` ("MCP (plan 13)").

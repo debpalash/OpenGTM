@@ -1,5 +1,10 @@
 # Runbook: leadgen collection cutover to Go (plan 14)
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 Go serves 19 routes next to FastAPI: `POST /api/collect`, the 8 `/api/jobs*` routes, `GET /api/system-stats`, `POST /api/leads/{score,verify-email,tech-stack,domain-intel}` and the 5
 `/api/settings/sources*` routes. **Three routes stay on FastAPI** (`apps/backend-go/testdata/contract/retained_leadgen_routes.txt`, D4): `POST /api/lead/{id}/enrich`,
 `GET /api/v2/search/unified`, `POST /api/v2/scraper/scrape` (plus plan 06's `GET /api/workbooks/{id}/sources/{col}/preview`). **The scrapers never move**: `collect`, `bulk_enrich` and

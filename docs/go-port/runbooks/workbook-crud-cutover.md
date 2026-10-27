@@ -1,5 +1,10 @@
 # Runbook: workbook CRUD cutover to Go (plan 04)
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 Go serves workbook CRUD, columns, rows, import/export, saved views, telemetry, templates, functions,
 entities, analytics, `me/context`, `flags` and the files/system routes next to FastAPI, using the same
 canary split as plans 02/03 (`$auth_upstream`, `infra/nginx/go-split.conf`). The 14 enrichment/LLM/Redis

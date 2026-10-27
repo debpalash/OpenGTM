@@ -38,8 +38,8 @@ Capabilities:
 ## Configure a client
 
 For a Compose install, Claude Desktop/Code, Codex, OpenCode, Pi (with an MCP
-extension), Cursor, Windsurf, or any stdio MCP client can run the bridge inside
-the existing API container:
+extension), Cursor, Windsurf, or any stdio MCP client can run the Go MCP server over stdio in a one-off
+container:
 
 The same configuration is available as a copyable repository example at
 [`docs/examples/mcp-config.json`](https://github.com/debpalash/opengtm/blob/main/docs/examples/mcp-config.json).
@@ -51,8 +51,8 @@ The same configuration is available as a copyable repository example at
       "command": "docker",
       "args": [
         "compose", "-f", "/absolute/path/to/opengtm/docker-compose.yml",
-        "exec", "-T", "-e", "OPENGTM_MCP_TOKEN",
-        "api", "python", "-m", "apps.mcp.server"
+        "--profile", "mcp", "run", "--rm", "-T", "--no-deps", "-e", "OPENGTM_MCP_TOKEN",
+        "mcp", "stdio"
       ],
       "env": { "OPENGTM_MCP_TOKEN": "ycp_..." }
     }
@@ -60,11 +60,12 @@ The same configuration is available as a copyable repository example at
 }
 ```
 
-For a native checkout, replace the command with `uv`, use args
-`["--directory", "/absolute/path/to/opengtm", "run", "python", "-m",
-"apps.mcp.server"]`, and ensure its database URL is reachable from the host.
+For a native checkout, use `bin/opengtm-mcp` (from `make build`) as the
+command with no args, and make sure its `DATABASE_URL` is reachable from the
+host.
 
-For HTTP clients, run `python -m apps.mcp.server --sse 3100`. It binds
+For HTTP clients, run `opengtm-mcp --sse 3100` (Compose: `--profile mcp`
+starts it on `mcp:3100`, internal only). It binds
 `127.0.0.1` only (override with `OPENGTM_MCP_SSE_HOST`), serves `GET /sse`
 and `POST /message`, and authenticates **every** request with
 `Authorization: Bearer`. Put it behind your own TLS proxy before exposing it.

@@ -1,5 +1,10 @@
 # Runbook: governance and research playbooks cutover to Go (plan 11)
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 Go serves 26 routes next to FastAPI: 17 under `/api/governance` (audit list and `export.csv`, retention policy/preview/enforce/runs, RBAC overrides, members, SSO, SCIM token) and 9 under
 `/api/research-playbooks` (CRUD, start/list runs, results, retry, cancel). **Two routes are retained on Python** (`apps/backend-go/testdata/contract/retained_governance_routes.txt`, D1):
 `GET /api/governance/capabilities` and `GET /api/research-playbooks/capabilities` (signed certification catalog). Three job types move to Go behind flags:

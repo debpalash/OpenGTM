@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-The installer generates unique secrets and prepares a writable data directory.
+The installer generates unique secrets (database, signing key, service tokens).
 You can explore the zero-key demo before adding any provider keys.
 
 ## Requirements
@@ -53,10 +53,8 @@ cat >> .env <<EOF
 APP_ENV=production
 PORT=127.0.0.1:3000
 CORS_ORIGINS=https://$DOMAIN
-YUPCHA_IMAGE=ghcr.io/debpalash/opengtm:3.0.0
 EOF
-docker compose pull
-docker compose up -d --no-build
+docker compose up -d --build
 ```
 
 For Caddy, point the domain to the server and allow ports 80 and 443:
@@ -69,10 +67,9 @@ gtm.example.com {
 
 Replace the sample domain in both places. The generated secrets satisfy
 production startup checks; the HTTP service listens on loopback so only your
-TLS proxy is exposed. Keep `.env`, `data/`, and Docker volumes on upgrades.
-For a newer release, fetch and check out its tag, change `YUPCHA_IMAGE` in
-`.env` to the same version, then run `docker compose pull` and
-`docker compose up -d --no-build`. Back up both storage planes and complete the
+TLS proxy is exposed. Keep `.env` and the Docker volumes on upgrades.
+For a newer release, fetch and check out its tag, then run
+`docker compose up -d --build` (the `migrate` service applies schema changes first). Back up both storage planes and complete the
 [production checklist](/self-hosting/production/) before inviting a team.
 
 ## Start a chat from the sidebar
@@ -99,25 +96,25 @@ or mobile sidebar.
 |---|---|
 | `postgres` | Primary data plane: users, workbooks, jobs, cells. RLS-protected. |
 | `redis` | Live progress channels for the UI and bounded reconnect history. |
-| `migrate` | One-shot Alembic `upgrade head` with the schema-owner role. |
-| `api` | FastAPI: enqueue and query only; it never runs user work inline. |
-| `worker` | Claims jobs from the durable PostgreSQL queue and runs enrichment, imports, refreshes. |
-| `scheduler` | Recovers stale jobs and enqueues recurring work. Run exactly one. |
-| `nginx` | Serves the React bundle and proxies `/api` on port 3000. |
+| `migrate` | One-shot Go schema runner with the schema-owner role. |
+| `api-go` | Go API and the embedded web UI: enqueue and query only; it never runs user work inline. |
+| `worker-go` | Claims jobs from the durable PostgreSQL queue and runs enrichment, imports, refreshes. |
+| `scheduler-go` | Enqueues recurring work. Extra replicas idle (advisory lock). |
+| `browser` | Internal browser/scraper service, reachable only from the Go services. |
+| `nginx` | Public entrypoint on port 3000; proxies everything to `api-go`. |
 
 Scale enrichment throughput with more workers:
 
 ```bash
-docker compose up --scale worker=4
+docker compose up -d --scale worker-go=4
 ```
 
 ## Using an existing database
 
-Set `DATABASE_URL` in `.env` to point at your own PostgreSQL (the URL must use
-the `postgresql+psycopg://` scheme). Compose also supports a separate,
-non-superuser `APP_DATABASE_URL` for API and worker traffic so forced
-row-level security is effective. SQLite is supported for local development
-only; it has no concurrent writers.
+Set `DATABASE_URL` in `.env` to the owner URL of your own PostgreSQL (used by
+`migrate`) and `GO_DATABASE_URL` to a non-superuser runtime login for the Go
+services, so forced row-level security is effective. Both are plain
+`postgresql://` URLs. PostgreSQL is required.
 
 ## Next
 

@@ -56,16 +56,10 @@ For managed custody, set `SECRETS_PROVIDER=vault_transit`, an HTTPS
 `VAULT_ADDR`, and `VAULT_TRANSIT_KEY`. Supply a least-privilege token through
 `VAULT_TOKEN_FILE` when using Vault Agent (preferred) or `VAULT_TOKEN`.
 Vault-backed ciphertext uses `enc:v2:vault:` and legacy local envelopes remain
-readable. After taking and verifying a backup, migrate all managed workspace
-values transactionally:
-
-```bash
-uv run python cli.py secrets-rotate --confirm "ROTATE OPENGTM SECRETS"
-```
-
-If any decrypt or encrypt operation fails, the metadata transaction rolls back.
-Retain the previous local master key until a post-rotation credential test and
-backup complete. Vault policy should allow only `encrypt` and `decrypt` on the
+readable, so existing values keep working after the switch. The Go release has
+no bulk re-encryption command yet (the Python `secrets-rotate` was retired);
+values are written under the new provider as they are saved again. Retain the
+previous local master key while any `enc:v1` value remains. Vault policy should allow only `encrypt` and `decrypt` on the
 configured Transit key; OpenGTM never requests key export.
 
 ## Prompt injection

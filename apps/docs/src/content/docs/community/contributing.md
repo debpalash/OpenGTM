@@ -31,10 +31,13 @@ in the repository; this page summarises it.
 
 ## Before you open a pull request
 
-- `uv run pytest` and `bun run build` pass.
-- `uv run alembic check` passes if you touched models.
-- `uv run python scripts/export_openapi.py` was re-run if you touched a router,
-  so the [API reference](/api/) stays current.
+- `make test` passes (Go vet and tests, web lint and build); run the Go
+  integration tests (`go test -tags integration ./...` in `apps/backend-go`)
+  if you touched SQL, and `uv run pytest` in `apps/browser-service` if you
+  touched the browser service.
+- New schema changes are a migration under
+  `apps/backend-go/internal/migrate/migrations/` (see
+  [migrations](/self-hosting/migrations/)).
 - Keep pull requests focused: one provider, one fix, one feature.
 - Call out **security-sensitive paths** (auth, tenancy/RLS, the SSRF URL guard,
   secrets, outbound fetches, LLM prompt handling) in the description so a
@@ -44,8 +47,8 @@ in the repository; this page summarises it.
 ## Adding an enrichment provider
 
 The fastest way to add data coverage is a **declarative YAML manifest** under
-`apps/api/services/leadgen/enrichment/declarative/`. Most REST providers need no
-Python at all. A provider that hits a real endpoint should ship with a golden
+`apps/backend-go/internal/manifest/builtin/manifests/`. Most REST providers need
+no code at all. A provider that hits a real endpoint should ship with a golden
 fixture so it can be ranked for accuracy, not just presence.
 
 New sources must respect the target's terms of service and must not scrape

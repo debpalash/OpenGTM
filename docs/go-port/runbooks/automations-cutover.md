@@ -1,5 +1,10 @@
 # Runbook: automations and watches cutover to Go (plan 08)
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 Go serves 18 routes next to FastAPI on the shared sticky canary bucket (`$auth_upstream`, `infra/nginx/go-split.conf`): 11 under
 `/api/automations/` (triggers CRUD, pause, resume, preview, run, runs, `runs/{id}`) and 7 under `/api/watches` (CRUD, `poll`, `signals`).
 **No route is retained on Python** (`apps/backend-go/testdata/contract/retained_automation_routes.txt`). Retained at job level: legacy

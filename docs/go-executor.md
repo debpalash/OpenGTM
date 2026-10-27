@@ -1,5 +1,10 @@
 # Go workbook executor: rollout and rollback runbook
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 The Go worker (`apps/backend-go/cmd/worker`) executes `run_workbook` jobs for an
 eligible subset of workbooks. Python remains the default and the fallback. Jobs
 carry an `executor` column (`python` | `go`); each worker claims only its own.

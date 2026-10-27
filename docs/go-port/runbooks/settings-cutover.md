@@ -1,5 +1,10 @@
 # Runbook: settings, secrets and billing cutover to Go (plan 03)
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 Go serves `/api/settings/*` (except `sources*`) and `/api/billing/*` next to FastAPI, using the same
 percentage split as plan 02 (`$auth_upstream`, `infra/nginx/go-split.conf`). Ramp and rollback are config
 edits plus `nginx -s reload`. Global secret keys (`app_settings`) are stored as envelope ciphertext, so

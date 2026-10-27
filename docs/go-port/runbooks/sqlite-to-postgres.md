@@ -1,5 +1,10 @@
 # Runbook: SQLite stores to PostgreSQL (cutover and rollback)
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 Moves the identity-plane, settings, chat, function and memory SQLite stores into PostgreSQL so
 the Go API can serve them. Schema is owned by Alembic (head `e1f5a9b3d7c2`); Go never runs DDL.
 Every Python command below is run from `legacy/python/` via `uv run` (`uv run python -m ...`) with

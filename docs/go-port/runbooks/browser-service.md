@@ -142,26 +142,31 @@ Go can mark the proxy bad. The credentials live only in that request's session.
 - `scripts/smoke_container.sh` runs both modes with the compose hardening and the security options above. It checks
   that Chromium has no `--no-sandbox` flag, runs as the expected uid, and that the service's environment cannot be
   read from another process.
-- **Still open, for RETIRE-INFRA:** the egress proxy runs inside the browser container, so a Chromium that escapes its
-  sandbox has a direct route on `browser_egress` and can reach api-go and worker-go on `browser_net`. The fix is to
-  move the proxy into its own container on a separate network, and to give the browser container only an internal
-  network that reaches that proxy and the Go services.
+- **Known limit (not split, plan 15 WP-RETIRE-INFRA):** the egress proxy runs inside the browser container, so a
+  Chromium that escapes its sandbox has a direct route on `browser_egress` and can reach api-go and worker-go on
+  `browser_net` (their ports only; postgres and redis are not on that network). Moving the proxy into its own
+  container is not a compose-only change: the proxy authenticates each request with per-request session credentials
+  and enforces that session's byte cap and upstream proxy, all held in the service's memory (`EgressProxy.open_session`
+  / `close_session` in `egress.py`). A separate proxy container needs a small session-registration protocol between
+  the two processes (or signed, self-describing credentials). Then the browser container would join only an internal
+  network to the proxy and the Go services, and the proxy alone would join `browser_egress`. Until then the sandbox,
+  split-mode uids, the dropped capabilities and the read-only root are the boundary.
 
 **Network.** Compose attaches `browser` to two networks:
 
-- `browser_net` is `internal: true`, so it has no route out. Only api-go and worker-go share it.
+- `browser_net` is `internal: true`, so it has no route out. Only the Go services (api-go, worker-go, mcp) share it.
 - `browser_egress` is the service's own internet path, and nothing else joins it.
 
-No port is published. postgres, redis and the Python api are not on either network, and the proxy refuses
+No port is published. postgres and redis are not on either network, and the proxy refuses
 private addresses anyway.
 
 ## Operate
 
 ```bash
 # token: openssl rand -hex 32  ->  BROWSER_SERVICE_TOKEN in .env (same value for api-go/worker-go)
-# Chromium sandbox: the browser service needs the security_opt shown under "Chromium sandbox" above
-docker compose --profile browser up -d browser
-docker compose --profile browser ps browser          # healthy = /healthz answers
+# part of the default stack; compose sets the security_opt shown under "Chromium sandbox" above
+docker compose up -d browser
+docker compose ps browser                             # healthy = /healthz answers
 docker compose exec api-go /api -healthcheck          # (Go side unaffected)
 ```
 
@@ -195,5 +200,6 @@ docker compose exec api-go /api -healthcheck          # (Go side unaffected)
 
 ## Rollback
 
-Nothing calls the service yet; the callers are switched over by later packages behind their own flags. To roll
-back, stop the profile (`docker compose stop browser`). The legacy Python scrapers are unchanged.
+The Go services are the only callers. Without the service (`docker compose stop browser`), browser-backed work
+(rendering, Google Maps, scrape routes, search through `/v1/search`) fails with `browser service is not available`;
+keyed search engines called from Go keep working.

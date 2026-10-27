@@ -1,5 +1,10 @@
 # Runbook: enrichment jobs cutover to Go (plan 06)
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 Go serves the workbook run family (estimate, run, stop, cell run, sources, refresh, refresh-policy, migrate,
 provider-stats), the workbook WebSocket and the two ingest routes next to FastAPI, and a Go worker can execute
 `run_workbook`, `refresh_workbook` and `signal_scan` jobs. Python keeps the scrapers (`source_workbook`, `collect`,

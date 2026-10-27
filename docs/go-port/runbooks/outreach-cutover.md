@@ -1,5 +1,10 @@
 # Runbook: outreach cutover to Go (plan 09)
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 Go serves the 22 `/api/outreach` routes next to FastAPI (grounded drafts, sequences and their actions, SMTP config, suppressions, public unsubscribe, bounce webhook) and claims two job types behind flags:
 `send` (SMTP) and `outreach_inbound_poll` (IMAP bounce/complaint intake). **`POST /api/campaigns/generate` is retained on Python** (D1: it calls the LLM per lead; `apps/backend-go/testdata/contract/retained_outreach_routes.txt`).
 Deviations: `apps/backend-go/testdata/contract/README.md`, section "Plan 09 (outreach ...)".

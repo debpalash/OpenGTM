@@ -1,5 +1,10 @@
 # Runbook: audiences and destinations cutover to Go (plan 10)
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 Go serves 23 routes next to FastAPI: 8 under `/api/audiences` (list, create, patch, delete, refresh, `members`, `accounts`, `events`) and 15 under `/api/audience-destinations` (list, create, patch, delete, `sync`, `runs`, `health`, run `deliveries`/`retry`/`cancel`, the three `inbound-token` routes, `inbound-receipts`, and the public CRM callback `inbound/{id}`).
 **Two routes are retained on Python** (D1, `apps/backend-go/testdata/contract/retained_audience_routes.txt`): `GET /api/audiences/capabilities` and `GET /api/audience-destinations/types` (the signed-certification catalogs shared with integrations and governance). Go also claims two job types behind flags: `audience_refresh` and `audience_destination_sync`.
 Deviations: `apps/backend-go/testdata/contract/README.md`, section "Plan 10 (audiences and destinations ...)".

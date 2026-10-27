@@ -39,12 +39,9 @@ a bug report, or a whole feature.
 ## Development setup
 
 ```bash
-# Backend (Python 3.11+, uv)
-uv sync
-uv run uvicorn apps.api.main:app --reload --port 8000
-
 # Go API + worker, with the web UI embedded (needs Go and Bun)
-make build          # bin/opengtm-api (UI embedded), opengtm-worker, opengtm-mcp
+make build          # bin/opengtm-api (UI embedded), worker, mcp, scheduler, seed, migrate
+make migrate        # apply the schema (DATABASE_URL = owner credentials)
 make run            # start api + worker in the background; make kill stops them
 
 # Frontend with hot reload (each app has its own bun.lock; there is no root workspace)
@@ -52,17 +49,18 @@ make dev            # Vite in apps/web, proxying to VITE_API_TARGET (default ngi
 make kill
 # or: cd apps/web && bun install && bun run dev:app
 
-# Background enrichment worker
-python -m apps.api.worker
+# Internal browser service (the only Python; Python 3.13 + uv)
+cd apps/browser-service && uv sync && uv run pytest
 ```
 
-The whole stack also runs with `make up` / `docker compose up` (API + worker +
-Postgres + Redis + nginx; `make down` stops it). See the [README](./README.md) for details.
+The whole stack also runs with `make up` / `docker compose up` (Go API, worker and
+scheduler, browser service, Postgres, Redis, nginx; `make down` stops it). See the [README](./README.md) for details.
 
 ## Before you open a PR
 
-- **Tests:** `make test` (go vet, go test, web lint and build); `uv run pytest`
-  for the Python backend.
+- **Tests:** `make test` (go vet, go test, web lint and build);
+  `go test -tags integration ./...` in `apps/backend-go` for SQL changes;
+  `uv run pytest` in `apps/browser-service` for the browser service.
 - **Scope:** keep PRs focused. One provider, one fix, one feature.
 - **Security-sensitive paths** (auth, tenancy/RLS, SSRF url guard, secrets,
   outbound fetches, LLM prompt handling): call it out in the PR description so a
@@ -72,9 +70,9 @@ Postgres + Redis + nginx; `make down` stops it). See the [README](./README.md) f
 ## Adding an enrichment provider
 
 The fastest way to contribute high-value data coverage is a **declarative YAML
-manifest** — no Python required for most REST providers. Look at the existing
-manifests under `apps/api/services/leadgen/enrichment/declarative/` and the
-manifest compiler for the schema. A provider that hits a real endpoint should
+manifest** — no code required for most REST providers. Look at the existing
+manifests under `apps/backend-go/internal/manifest/builtin/manifests/` and
+`internal/manifest` for the schema. A provider that hits a real endpoint should
 ship with a golden fixture test so we can rank it for accuracy, not just
 presence.
 

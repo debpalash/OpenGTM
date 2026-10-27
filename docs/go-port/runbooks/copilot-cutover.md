@@ -1,5 +1,10 @@
 # Runbook: copilot chat and person intel cutover to Go (plan 12)
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 Go serves 12 routes next to FastAPI: 7 under `/api/copilotkit` (chat SSE `POST /api/copilotkit`, `GET|POST /info`, conversations list/get/delete,
 `GET /memories`) and 5 person intel routes (`POST /api/person/enrich`, `GET /api/person/history`, `GET|DELETE /api/person/{id}`,
 `GET /ws/person/enrich`). **No route is retained on Python** (`apps/backend-go/testdata/contract/retained_copilot_routes.txt`). What stays on Python

@@ -21,8 +21,7 @@ third-party calls use keys you choose. A zero-key demo is included.
 
 We're looking for a co-maintainer to help shape OpenGTM, review pull requests,
 ship releases, and build a faster enrichment backend. Experience with **Go,
-Python, PostgreSQL, or provider integrations** is especially welcome as we
-prepare the backend migration below.
+PostgreSQL, browser automation, or provider integrations** is especially welcome.
 
 Interested? [Join the rewrite issue](https://github.com/debpalash/OpenGTM/issues/33)
 with a short introduction and the areas you'd like to own. Focused contributions
@@ -56,12 +55,12 @@ admin account there. The setup form asks for a one-time setup token, which the
 API prints once at startup (`docker compose logs api-go | grep -i 'setup token'`),
 or set `SETUP_TOKEN` in `.env` before the first start. No default admin account
 exists, and setup closes for good once an admin is created. The installer
-generates database, runtime-role, and signing secrets, creates a writable data
-directory, then starts the stack. It leaves an existing `.env` untouched.
+generates database, runtime-role, signing and service-token secrets, then starts
+the stack. It leaves an existing `.env` untouched.
 
 ### On a server
 
-Use a versioned checkout and image. Point a domain at the host and provide a
+Use a versioned checkout. Point a domain at the host and provide a
 TLS reverse proxy such as Caddy; the app itself stays on loopback. On a Linux
 host with Git and Docker Compose:
 
@@ -74,10 +73,8 @@ cat >> .env <<EOF
 APP_ENV=production
 PORT=127.0.0.1:3000
 CORS_ORIGINS=https://$DOMAIN
-YUPCHA_IMAGE=ghcr.io/debpalash/opengtm:3.0.0
 EOF
-docker compose pull
-docker compose up -d --no-build
+docker compose up -d --build
 ```
 
 For Caddy, a site block is enough once DNS points at the server and ports 80/443
@@ -97,18 +94,17 @@ or the internal Compose network. Set up backups and review the
 [production checklist](https://opengtm.palash.dev/self-hosting/production/)
 before inviting a team. Never expose port 3000 directly over the internet.
 
-For a new release, fetch its tag, check it out, update `YUPCHA_IMAGE` in `.env`
-to the same version, then run `docker compose pull && docker compose up -d
---no-build`. Keep the existing `.env`, `data/`, and Docker volumes when
-upgrading. The [Docker guide](https://opengtm.palash.dev/self-hosting/docker/)
+For a new release, fetch its tag, check it out and run `docker compose up -d --build`
+(the `migrate` service applies schema changes before the API starts). Keep the existing
+`.env` and Docker volumes when upgrading. The [Docker guide](https://opengtm.palash.dev/self-hosting/docker/)
 explains the services and scaling.
 
 ### Operate it
 
 ```bash
 docker compose ps                         # service health
-docker compose logs -f api worker         # follow jobs
-docker compose up -d --scale worker=4     # add capacity
+docker compose logs -f api-go worker-go   # follow requests and jobs
+docker compose up -d --scale worker-go=4  # add capacity
 docker compose down                       # stop without deleting data
 ```
 
@@ -118,7 +114,7 @@ Needs Go, [Bun](https://bun.sh) and a Postgres/Redis (`make up` starts the compo
 The web UI is embedded in the Go API binary, so one build gives one server:
 
 ```bash
-make build   # web UI + bin/opengtm-{api,worker,mcp} + bin/suppressnorm
+make build   # web UI + bin/opengtm-{api,worker,mcp,scheduler,seed,migrate} + bin/suppressnorm
 make run     # build, then start api + worker in the background (.run/*.pid, .run/*.log)
 make dev     # Vite dev server for apps/web (VITE_API_TARGET, default http://127.0.0.1:3000)
 make kill    # stop whatever make run / make dev started
@@ -147,7 +143,7 @@ when you're ready to use paid or authenticated providers.
 ## Connect an AI agent
 
 Create a workspace token from an admin session, then give your MCP client a
-read-only token first. The server runs inside the existing API container:
+read-only token first. The Go MCP server runs over stdio in a one-off container:
 
 ```json
 {
@@ -156,8 +152,8 @@ read-only token first. The server runs inside the existing API container:
       "command": "docker",
       "args": [
         "compose", "-f", "/absolute/path/to/OpenGTM/docker-compose.yml",
-        "exec", "-T", "-e", "OPENGTM_MCP_TOKEN",
-        "api", "python", "-m", "apps.mcp.server"
+        "--profile", "mcp", "run", "--rm", "-T", "--no-deps", "-e", "OPENGTM_MCP_TOKEN",
+        "mcp", "stdio"
       ],
       "env": { "OPENGTM_MCP_TOKEN": "YOUR_WORKSPACE_TOKEN" }
     }
@@ -174,43 +170,30 @@ creation, Codex/Claude/Pi/OpenCode setup, HTTP transport, and safe write scopes.
 browser / REST / MCP
          │
          ▼
-FastAPI ──► PostgreSQL + forced workspace RLS
-   │                    │
-   ├──► Redis progress  └──► durable job queue
-   │                              │
-   └──────────────────────────────▼
-                         workers + scheduler
-                              │
-           providers / web / CRM / warehouse / ads
+nginx ──► Go API (api-go, embedded web UI) ──► PostgreSQL + forced workspace RLS
+              │                                     │
+              ├──► Redis progress                   └──► durable job queue
+              │                                              │
+              │                    Go worker + Go scheduler ◄┘
+              │                              │
+              └──────────► browser service (internal: Playwright, scrapers; no DB, no secrets)
+                                             │
+                           providers / web / CRM / warehouse / ads
 ```
 
-`apps/api` owns the backend, `apps/web` the React UI, `apps/mcp` the agent
-bridge, and `apps/docs` the documentation. Read the
-[architecture guide](docs/architecture.md) for tenancy and failure behavior.
+`apps/backend-go` owns the backend (API, worker, scheduler, MCP server, migrations), `apps/web` the React
+UI, `apps/browser-service` the internal browser/scraper service (the only Python, called only by Go), and
+`apps/docs` the documentation. Read the [architecture guide](docs/architecture.md) for tenancy and failure
+behavior.
 
-## Go backend migration
+## Backend
 
-An incremental migration to a **Go backend with Python specialist workers** is
-on the roadmap, with **optional Rust acceleration** where benchmarks justify it.
-The current backend is Python/FastAPI; the migration has not shipped yet.
-
-- **Go:** the primary backend language for APIs, enrichment orchestration,
-  durable job workers, and scheduling. Priorities include pooled HTTP clients,
-  bounded concurrency, provider rate limits, cancellation, and batched writes.
-- **Python:** AI research, browser automation, and specialized integrations.
-- **Rust, optional:** performance-critical parsing, normalization, and
-  deduplication where profiling and end-to-end benchmarks show a benefit.
-- **Supporting stack:** PostgreSQL for durable data and workspace isolation,
-  Redis for progress updates, and TypeScript/React for the UI.
-
-The goal is hundreds of completed enrichments per second, subject to provider
-limits and workload. We'll validate throughput, latency, memory use, and retry
-correctness with benchmarks before making performance claims. Small modules,
-generated API/database contracts, and existing behavior tests will support fast
-AI-assisted development while preserving tenant isolation and billing correctness.
-See the [backend rewrite proposal](docs/plans/go-python-backend-rewrite.md) and
-[tracking issue](https://github.com/debpalash/OpenGTM/issues/33) for milestones,
-correctness requirements, benchmark gates, and rollback.
+The backend is Go: APIs, enrichment orchestration, durable job workers and scheduling, with pooled HTTP
+clients, bounded concurrency, provider rate limits, cancellation and batched writes. Python remains only
+inside the internal browser service (Playwright Chromium and scraper libraries), which has no database
+access and no secrets. Optional Rust acceleration may follow where profiling and end-to-end benchmarks
+show a benefit. See the [port notes](docs/go-port/) and
+[tracking issue](https://github.com/debpalash/OpenGTM/issues/33).
 
 ## Scope and contribution
 

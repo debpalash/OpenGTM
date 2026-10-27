@@ -7,35 +7,43 @@ sidebar:
 
 ## Prerequisites
 
-- Python 3.11+ and [uv](https://docs.astral.sh/uv/)
+- Go (the version in `apps/backend-go/go.mod`)
 - [Bun](https://bun.sh) 1.x (each app under `apps/` is installed on its own; there is no root workspace)
-- PostgreSQL 15+ recommended; SQLite works for single-process development
+- PostgreSQL 16+ and Redis (`make up` starts them with the rest of the Compose stack)
+- Optional: Python 3.13 and [uv](https://docs.astral.sh/uv/) for the browser service
 
 ## Backend
 
 ```bash
-uv sync                                                 # install Python deps from uv.lock
-cp .env.example .env
-uv run uvicorn apps.api.main:app --reload --port 8000  # API on :8000
+cp .env.example .env              # set SECRET_KEY, INTERNAL_SERVICE_TOKEN, DATABASE_URL, ...
+make migrate                      # apply the schema (DATABASE_URL = owner credentials)
+make run                          # build web UI + Go binaries, start api + worker (.run/*.log)
 ```
 
-Background enrichment and source imports run on the durable SQL-queue worker.
-Start one in a second terminal:
+`make run` uses the shell's environment. The API listens on `API_ADDR`
+(default `:8000`) and serves the embedded UI; set `SERVE_UI=false` to serve the
+API only. Recurring jobs need the scheduler:
 
 ```bash
-uv run python -m apps.api.worker
+GO_SCHEDULER_ENABLED=true bin/opengtm-scheduler
 ```
 
-Optional extras:
+Set `GO_ALL_NATIVE=true` to turn on every Go route and executor flag, as
+Compose does. `make kill` stops what `make run` and `make dev` started.
+
+## Browser service
+
+Browser-backed work (rendering, Google Maps, scraping) calls the internal
+browser service:
 
 ```bash
-uv run python -m apps.api.scheduler   # stale-job recovery + recurring refreshes
-uv sync --extra browser               # patchright + stealth-requests for browser-tier fetches
-uv run patchright install chromium
+cd apps/browser-service
+uv sync && uv run playwright install --only-shell chromium
+BROWSER_SERVICE_TOKEN=$(openssl rand -hex 32) uv run python -m browser_service
 ```
 
-Redis is optional for single-process development; without it live progress
-falls back to in-process queues.
+Point the Go processes at it with `BROWSER_SERVICE_URL` and the same
+`BROWSER_SERVICE_TOKEN`.
 
 ## Frontend
 
@@ -48,14 +56,10 @@ bun run --cwd apps/web dev:app   # plain Vite on http://localhost:4099 (or `make
 ## Tests
 
 ```bash
-uv run pytest                        # hermetic backend suite (SQLite)
-uv run pytest -m postgres            # RLS integration tests; needs a disposable Postgres
-uv run alembic check                 # model ↔ migration drift
-bun run lint && bun run build        # every TypeScript package, including this docs site
-uv run python scripts/export_openapi.py --check   # API reference is current
+make test                                              # go vet + go test, web lint + build
+cd apps/backend-go && go test -tags integration ./...  # needs TEST_DATABASE_URL / TEST_REDIS_URL
+cd apps/browser-service && uv run pytest               # browser service
 ```
-
-Tests marked `live` need real network services or credentials and are opt-in.
 
 ## Docs site
 

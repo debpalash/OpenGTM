@@ -1,5 +1,10 @@
 # Runbook: connectors, HubSpot, /api/data and AmbitionBox cutover to Go (plan 07)
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 Go serves 19 routes next to FastAPI with the same percentage split as plans 02-06 (`$auth_upstream`,
 `infra/nginx/go-split.conf`): `GET /api/connectors/catalog|compatibility` (2), `/api/crm/hubspot/status|connect|sync|contacts` (4),
 the 7 `/api/data` routes (list, export, stats/timeline, stats/domains, mark-used, PATCH and DELETE `{id}`) and the 6 `/api/ambitionbox`

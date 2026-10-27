@@ -1,5 +1,10 @@
 # Runbook: leads, signals and SSE events cutover to Go (plan 05)
 
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
 Go serves the lead CRUD/read/export/dedup routes, the signal routes and the `GET /api/events` SSE stream
 next to FastAPI, using the same percentage split as plans 02-04 (`$auth_upstream`, `infra/nginx/go-split.conf`).
 Ramp and rollback are config edits plus `nginx -s reload`. 41 route decorators exist in
