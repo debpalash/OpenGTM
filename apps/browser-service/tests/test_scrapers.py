@@ -20,7 +20,7 @@ class Recorder:
         )
         self.error = error
 
-    async def __call__(self, deps, method, search, max_results, deadline):
+    async def __call__(self, deps, method, search, max_results, deadline, **opts):
         self.calls.append((method, search, max_results))
         if self.error is not None:
             raise self.error

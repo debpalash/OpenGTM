@@ -70,6 +70,7 @@ class FakePool:
         self.goto_delay = 0.0
         self.image = b"\xff\xd8jpeg"
         self.page_kwargs = []
+        self.sessions = []
 
     async def start(self):
         pass
@@ -80,6 +81,7 @@ class FakePool:
     @asynccontextmanager
     async def page(self, session, **kw):
         self.page_kwargs.append(kw)
+        self.sessions.append(session)
         yield FakePage(self, session)
 
 
@@ -99,8 +101,8 @@ async def make_client(pool):
     """Factory: an httpx client on the ASGI app with its lifespan running."""
     stack = []
 
-    async def factory(search_fn=None, **settings_kw):
-        app = create_app(make_settings(**settings_kw), pool=pool, search_fn=search_fn)
+    async def factory(search_fn=None, deps_kw=None, **settings_kw):
+        app = create_app(make_settings(**settings_kw), pool=pool, search_fn=search_fn, **(deps_kw or {}))
         cm = app.router.lifespan_context(app)
         await cm.__aenter__()
         client = httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://svc")
