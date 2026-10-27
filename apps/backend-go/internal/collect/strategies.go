@@ -165,20 +165,10 @@ func (j *job) searchAndScrape(ctx context.Context) []*Lead {
 				if data == nil || !pyTruthyDefault(data, "is_real_company", true) {
 					break
 				}
-				aiName, _ := data["company_name"].(string)
-				if aiName == "" || runeLen(aiName) < 3 {
-					aiName = name
-				}
-				if aiName == "" || runeLen(aiName) < 3 {
+				l := aiLead(data, name, r.Href, r.Body, city, j.query)
+				if l == nil {
 					break
 				}
-				l := NewLead(Lead{Company: aiName, Website: r.Href, Email: orStr(data["email"], ""),
-					Phone: orStr(data["phone"], ""), City: orStr(data["city"], city), State: orStr(data["state"], ""),
-					Address: orStr(data["address"], ""), Description: orStr(data["description"], truncRunes(r.Body, 300)),
-					Specialization: orStr(data["specialization"], j.query), IndustryTags: orStr(data["industry_tags"], ""),
-					CompanySize: orStr(data["employee_count"], ""), EmployeeCountExact: orInt(data["employee_count_exact"]),
-					FoundedYear: orStr(data["founded_year"], ""), Technologies: orStr(data["technologies"], ""),
-					ContactPerson: orStr(data["contact_person"], ""), Source: "web_search"})
 				leads = append(leads, l)
 				j.discovered("web", "company", l.Company, "email", l.Email)
 			case name != "" && runeLen(name) >= 3:

@@ -10,7 +10,7 @@ import (
 func TestAIExtractedFieldsCapped(t *testing.T) {
 	data := map[string]any{
 		"is_real_company": true,
-		"company_name":    strings.Repeat("Acme ", 100) + "\x00‮",
+		"company_name":    strings.Repeat("Acme ", 100) + "\x00\u202e",
 		"description":     strings.Repeat("d", 5000),
 		"contact_person":  map[string]any{"name": "x"},
 		"address":         []any{"a", "b"},
@@ -19,7 +19,7 @@ func TestAIExtractedFieldsCapped(t *testing.T) {
 		"technologies":    strings.Repeat("go,", 400),
 	}
 	l := aiLead(data, "Fallback Co", "https://acme.example", "body text", "Mumbai", "it services")
-	if n := runeLen(l.Company); n > 200 || n < 3 || strings.ContainsAny(l.Company, "\x00‮") {
+	if n := runeLen(l.Company); n > 200 || n < 3 || strings.ContainsAny(l.Company, "\x00\u202e") {
 		t.Errorf("company %d runes %q", n, l.Company)
 	}
 	if runeLen(l.Description) > 500 {
