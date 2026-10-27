@@ -220,6 +220,41 @@ func (c *Client) GoogleSearch(ctx context.Context, req GoogleSearchRequest) (Sea
 	return c.search(ctx, "google_search", req, req.Timeout)
 }
 
+// Search runs one keyless ddgs query (POST /v1/search).
+func (c *Client) Search(ctx context.Context, req SearchRequest) (SearchOut, error) {
+	req.Timeout = clamp(req.Timeout, 30*time.Second)
+	var out SearchOut
+	return out, c.post(ctx, "/v1/search", req, req.Timeout, &out)
+}
+
+// Extract returns main text, metadata and markdown for HTML or a URL.
+func (c *Client) Extract(ctx context.Context, req ExtractRequest) (ExtractResult, error) {
+	req.Timeout = clamp(req.Timeout, 30*time.Second)
+	var out ExtractResult
+	return out, c.post(ctx, "/v1/extract", req, req.Timeout, &out)
+}
+
+// Holehe checks which sites an email is registered on.
+func (c *Client) Holehe(ctx context.Context, req HoleheRequest) (HoleheResult, error) {
+	req.Timeout = clamp(req.Timeout, 60*time.Second)
+	var out HoleheResult
+	return out, c.post(ctx, "/v1/holehe", req, req.Timeout, &out)
+}
+
+// StaffSpy scrapes a company's LinkedIn roster.
+func (c *Client) StaffSpy(ctx context.Context, req StaffSpyRequest) (StaffSpyResult, error) {
+	req.Timeout = clamp(req.Timeout, 180*time.Second)
+	var out StaffSpyResult
+	return out, c.post(ctx, "/v1/staffspy", req, req.Timeout, &out)
+}
+
+// Stats returns the service process counters (GET /v1/stats).
+func (c *Client) Stats(ctx context.Context) (Stats, error) {
+	var out Stats
+	err := c.do(ctx, http.MethodGet, "/v1/stats", nil, healthTimeout, &out)
+	return out, err
+}
+
 func (c *Client) post(ctx context.Context, path string, body any, timeout time.Duration, out any) error {
 	data, err := json.Marshal(body)
 	if err != nil {

@@ -315,3 +315,31 @@ func TestRedirectsAreNotFollowed(t *testing.T) {
 		t.Fatal("redirect followed (token would be forwarded)")
 	}
 }
+
+func TestProxyURLIsRedactedButSentOnTheWire(t *testing.T) {
+	p := ProxyURL("http://user:hunter2@1.2.3.4:8080")
+	req := SearchRequest{Query: "q", UpstreamProxy: p}
+	for _, s := range []string{fmt.Sprint(p), fmt.Sprintf("%v %+v %#v %s %q", p, req, req, p, p)} {
+		if strings.Contains(s, "hunter2") {
+			t.Fatalf("proxy credentials formatted: %s", s)
+		}
+	}
+	var got map[string]any
+	var gotPath string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotPath = r.URL.Path
+		_ = json.NewDecoder(r.Body).Decode(&got)
+		_, _ = w.Write([]byte(`{"query":"q","method":"text","hits":[],"error":"rate_limited","elapsed_ms":3}`))
+	}))
+	defer srv.Close()
+	out, err := New(srv.URL, testToken, nil).Search(context.Background(), req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotPath != "/v1/search" || got["upstream_proxy"] != string(p) || got["backends"] != nil || got["timeout_s"] != 30.0 {
+		t.Fatalf("wire body %v path %s", got, gotPath)
+	}
+	if out.Error != "rate_limited" {
+		t.Fatalf("out %+v", out)
+	}
+}

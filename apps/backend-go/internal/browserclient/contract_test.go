@@ -98,6 +98,10 @@ func validate(t *testing.T, doc schema, s schema, v any, at string) {
 		for k, val := range obj {
 			ps, ok := props[k].(schema)
 			if !ok {
+				if ap, isMap := s["additionalProperties"].(schema); isMap {
+					validate(t, doc, ap, val, at+"."+k)
+					continue
+				}
 				if s["additionalProperties"] == false {
 					t.Errorf("%s: field %q not in schema", at, k)
 				}
@@ -214,6 +218,10 @@ func sample(t *testing.T, doc schema, s schema) any {
 	switch s["type"] {
 	case "object":
 		out := map[string]any{}
+		if ap, ok := s["additionalProperties"].(schema); ok && s["properties"] == nil {
+			out["k"] = sample(t, doc, ap) // a map (dict[str, X])
+			return out
+		}
 		for k, ps := range s["properties"].(schema) {
 			out[k] = sample(t, doc, ps.(schema))
 		}
@@ -244,6 +252,16 @@ func zeroFields(v reflect.Value, at string, out *[]string) {
 			}
 			zeroFields(v.Field(i), at+"."+f.Name, out)
 		}
+	case reflect.Map:
+		if v.Len() == 0 {
+			*out = append(*out, at)
+			return
+		}
+		it := v.MapRange()
+		it.Next()
+		if it.Value().Kind() == reflect.Struct {
+			zeroFields(it.Value(), at+"[k]", out)
+		}
 	case reflect.Slice:
 		if v.Len() == 0 {
 			*out = append(*out, at)
@@ -270,19 +288,22 @@ type endpoint struct {
 func f64(v float64) *float64 { return &v }
 
 func endpoints() []endpoint {
-	so := SearchOptions{MaxResults: 5, DelayS: f64(1.5), Timeout: 20 * time.Second}
+	so := SearchOptions{MaxResults: 5, DelayS: f64(1.5), UpstreamProxy: "socks5://u:p@9.9.9.9:1080", Timeout: 20 * time.Second}
+	li := []Cookie{{Name: "li_at", Value: "v", Domain: ".linkedin.com", Path: "/", Secure: true, HTTPOnly: true}}
 	return []endpoint{
 		{"get", "/v1/health", nil, "", &Health{}, "Health"},
 		{"post", "/v1/render", RenderRequest{URL: "https://e.com", Engine: "impersonate", WaitUntil: "load", WaitMS: 100,
 			Scroll: true, MaxScrolls: 3, IncludeHTML: true, IncludeText: true, MaxBytes: 4096, UserAgent: "ua",
 			Locale: "en-GB", Cookies: []Cookie{{Name: "n", Value: "v", Domain: ".e.com", Path: "/", Secure: true, HTTPOnly: true}},
-			Timeout: 30 * time.Second}, "RenderRequest", &RenderResult{}, "RenderResult"},
+			UpstreamProxy: "http://u:p@1.2.3.4:8080", Timeout: 30 * time.Second}, "RenderRequest", &RenderResult{}, "RenderResult"},
 		{"post", "/v1/screenshot", ScreenshotRequest{URL: "https://e.com", WaitUntil: "load", WaitMS: 1, FullPage: true,
 			Format: "png", Quality: 50, ViewportWidth: 800, ViewportHeight: 600, Timeout: time.Second},
 			"ScreenshotRequest", &ScreenshotResult{}, "ScreenshotResult"},
-		{"post", "/v1/scrape/google_maps", GoogleMapsRequest{Query: "q", City: "c", MaxResults: 5, Timeout: 60 * time.Second},
+		{"post", "/v1/scrape/google_maps", GoogleMapsRequest{Query: "q", City: "c", MaxResults: 5,
+			UpstreamProxy: "http://1.2.3.4:8080", Timeout: 60 * time.Second},
 			"GoogleMapsRequest", &GoogleMapsResult{}, "GoogleMapsResult"},
-		{"post", "/v1/scrape/justdial_page", JustDialPageRequest{URL: "https://www.justdial.com/x", Timeout: 30 * time.Second},
+		{"post", "/v1/scrape/justdial_page", JustDialPageRequest{URL: "https://www.justdial.com/x",
+			UpstreamProxy: "http://1.2.3.4:8080", Timeout: 30 * time.Second},
 			"JustDialPageRequest", &JustDialPageResult{}, "JustDialPageResult"},
 		{"post", "/v1/scrape/linkedin", LinkedInRequest{Mode: "people", Queries: []string{"q"}, Cities: []string{"c"},
 			CompanyName: "Acme", Titles: []string{"CEO"}, SearchOptions: so}, "LinkedInRequest", &SearchResult{}, "SearchResult"},
@@ -296,6 +317,18 @@ func endpoints() []endpoint {
 			Sites: []string{"sulekha"}, SearchOptions: so}, "WebDirectoriesRequest", &SearchResult{}, "SearchResult"},
 		{"post", "/v1/scrape/google_search", GoogleSearchRequest{Mode: "web", Queries: []string{"q"}, Cities: []string{"c"},
 			SearchOptions: so}, "GoogleSearchRequest", &SearchResult{}, "SearchResult"},
+		{"post", "/v1/search", SearchRequest{Query: "q", Method: "news", MaxResults: 5, Backends: []string{"bing"},
+			Region: "in-en", SafeSearch: "off", TimeLimit: "w", UpstreamProxy: "http://1.2.3.4:8080", Timeout: 20 * time.Second},
+			"SearchRequest", &SearchOut{}, "SearchOut"},
+		{"post", "/v1/extract", ExtractRequest{HTML: "<p>x</p>", URL: "https://e.com/a", Engine: "browser",
+			IncludeMarkdown: true, MaxBytes: 4096, UpstreamProxy: "http://1.2.3.4:8080", Timeout: 20 * time.Second},
+			"ExtractRequest", &ExtractResult{}, "ExtractResult"},
+		{"post", "/v1/holehe", HoleheRequest{Email: "a@b.example", MaxModules: 10, UpstreamProxy: "http://1.2.3.4:8080",
+			Timeout: 30 * time.Second}, "HoleheRequest", &HoleheResult{}, "HoleheResult"},
+		{"post", "/v1/staffspy", StaffSpyRequest{CompanyName: "Acme", SearchTerm: "ceo", Location: "Pune", MaxResults: 5,
+			Cookies: li, UpstreamProxy: "http://1.2.3.4:8080", Timeout: 60 * time.Second},
+			"StaffSpyRequest", &StaffSpyResult{}, "StaffSpyResult"},
+		{"get", "/v1/stats", nil, "", &Stats{}, "Stats"},
 	}
 }
 

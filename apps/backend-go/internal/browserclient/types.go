@@ -10,10 +10,27 @@ package browserclient
 
 import (
 	"encoding/json"
+	"fmt"
+	"log/slog"
 	"time"
 )
 
 func secs(d time.Duration) float64 { return d.Seconds() }
+
+// ProxyURL is an upstream proxy the caller picked for one request
+// (http/socks5/socks4 URL, possibly with credentials, from PROXY_LIST or the
+// proxy manager). It renders as [redacted] under fmt and slog; only the wire
+// JSON carries the value. The service chains its own egress guard in front of
+// it and never logs or stores it.
+type ProxyURL string
+
+func (ProxyURL) String() string             { return "[redacted]" }
+func (ProxyURL) GoString() string           { return `"[redacted]"` }
+func (ProxyURL) Format(f fmt.State, _ rune) { _, _ = f.Write([]byte("[redacted]")) }
+func (ProxyURL) LogValue() slog.Value       { return slog.StringValue("[redacted]") }
+
+// MarshalJSON writes the real value: it is only used for the request body.
+func (p ProxyURL) MarshalJSON() ([]byte, error) { return json.Marshal(string(p)) }
 
 // ── health ──────────────────────────────────────────────────────────
 
@@ -44,19 +61,20 @@ type Cookie struct {
 // (a zero request asks for neither). Zero MaxScrolls/MaxBytes/WaitUntil/Engine
 // mean the service default; Timeout zero means 30 s.
 type RenderRequest struct {
-	URL         string        `json:"url"`
-	Engine      string        `json:"engine,omitempty"`     // "browser" (default) | "impersonate" | "flaresolverr"
-	WaitUntil   string        `json:"wait_until,omitempty"` // "commit" | "domcontentloaded" (default) | "load" | "networkidle"
-	WaitMS      int           `json:"wait_ms,omitempty"`
-	Scroll      bool          `json:"scroll,omitempty"`
-	MaxScrolls  int           `json:"max_scrolls,omitempty"`
-	IncludeHTML bool          `json:"include_html"`
-	IncludeText bool          `json:"include_text"`
-	MaxBytes    int           `json:"max_bytes,omitempty"` // cap for html and for text, each
-	UserAgent   string        `json:"user_agent,omitempty"`
-	Locale      string        `json:"locale,omitempty"`
-	Cookies     []Cookie      `json:"cookies,omitempty"`
-	Timeout     time.Duration `json:"-"`
+	URL           string        `json:"url"`
+	Engine        string        `json:"engine,omitempty"`     // "browser" (default) | "impersonate" | "flaresolverr"
+	WaitUntil     string        `json:"wait_until,omitempty"` // "commit" | "domcontentloaded" (default) | "load" | "networkidle"
+	WaitMS        int           `json:"wait_ms,omitempty"`
+	Scroll        bool          `json:"scroll,omitempty"`
+	MaxScrolls    int           `json:"max_scrolls,omitempty"`
+	IncludeHTML   bool          `json:"include_html"`
+	IncludeText   bool          `json:"include_text"`
+	MaxBytes      int           `json:"max_bytes,omitempty"` // cap for html and for text, each
+	UserAgent     string        `json:"user_agent,omitempty"`
+	Locale        string        `json:"locale,omitempty"`
+	Cookies       []Cookie      `json:"cookies,omitempty"`
+	UpstreamProxy ProxyURL      `json:"upstream_proxy,omitempty"`
+	Timeout       time.Duration `json:"-"`
 }
 
 func (r RenderRequest) MarshalJSON() ([]byte, error) {
@@ -120,10 +138,11 @@ type ScreenshotResult struct {
 
 // GoogleMapsRequest is POST /v1/scrape/google_maps. Timeout zero means 120 s.
 type GoogleMapsRequest struct {
-	Query      string        `json:"query"`
-	City       string        `json:"city"`
-	MaxResults int           `json:"max_results,omitempty"`
-	Timeout    time.Duration `json:"-"`
+	Query         string        `json:"query"`
+	City          string        `json:"city"`
+	MaxResults    int           `json:"max_results,omitempty"`
+	UpstreamProxy ProxyURL      `json:"upstream_proxy,omitempty"`
+	Timeout       time.Duration `json:"-"`
 }
 
 func (r GoogleMapsRequest) MarshalJSON() ([]byte, error) {
@@ -156,8 +175,9 @@ type GoogleMapsResult struct {
 // JustDialPageRequest is POST /v1/scrape/justdial_page (justdial.com URLs only).
 // Timeout zero means 45 s.
 type JustDialPageRequest struct {
-	URL     string        `json:"url"`
-	Timeout time.Duration `json:"-"`
+	URL           string        `json:"url"`
+	UpstreamProxy ProxyURL      `json:"upstream_proxy,omitempty"`
+	Timeout       time.Duration `json:"-"`
 }
 
 func (r JustDialPageRequest) MarshalJSON() ([]byte, error) {
@@ -187,9 +207,10 @@ type JustDialPageResult struct {
 // SearchOptions are shared by the search sources. MaxResults zero and DelayS
 // nil select the legacy per-source defaults; Timeout zero means 120 s.
 type SearchOptions struct {
-	MaxResults int           `json:"max_results,omitempty"`
-	DelayS     *float64      `json:"delay_s,omitempty"`
-	Timeout    time.Duration `json:"-"`
+	MaxResults    int           `json:"max_results,omitempty"`
+	DelayS        *float64      `json:"delay_s,omitempty"`
+	UpstreamProxy ProxyURL      `json:"upstream_proxy,omitempty"`
+	Timeout       time.Duration `json:"-"`
 }
 
 // LinkedInRequest: Mode "companies" (Queries x Cities) or "people"
@@ -317,4 +338,190 @@ type SearchResult struct {
 	Runs      []SearchRun `json:"runs"`
 	Partial   bool        `json:"partial"`
 	ElapsedMS int         `json:"elapsed_ms"`
+}
+
+// ── generic search (ddgs) ───────────────────────────────────────────
+
+// SearchRequest is POST /v1/search: one keyless ddgs query. Backends nil uses
+// the service default (BROWSER_SEARCH_BACKENDS); an empty non-nil slice uses
+// the ddgs default. Zero MaxResults/Region/SafeSearch/Method mean the service
+// defaults (10, "us-en", "moderate", "text"); Timeout zero means 30 s.
+type SearchRequest struct {
+	Query         string        `json:"query"`
+	Method        string        `json:"method,omitempty"` // "text" | "news"
+	MaxResults    int           `json:"max_results,omitempty"`
+	Backends      []string      `json:"backends"`
+	Region        string        `json:"region,omitempty"`
+	SafeSearch    string        `json:"safesearch,omitempty"` // "on" | "moderate" | "off"
+	TimeLimit     string        `json:"timelimit,omitempty"`  // "d" | "w" | "m" | "y"
+	UpstreamProxy ProxyURL      `json:"upstream_proxy,omitempty"`
+	Timeout       time.Duration `json:"-"`
+}
+
+func (r SearchRequest) MarshalJSON() ([]byte, error) {
+	type alias SearchRequest
+	return json.Marshal(struct {
+		alias
+		TimeoutS float64 `json:"timeout_s,omitempty"`
+	}{alias(r), secs(r.Timeout)})
+}
+
+// SearchOut is the /v1/search answer. Error is "" on success, or
+// "no_results" | "rate_limited" | "timeout" | "failed" (rate_limited and
+// timeout are the legacy block signals that grow the per-host backoff).
+type SearchOut struct {
+	Query     string      `json:"query"`
+	Method    string      `json:"method"`
+	Hits      []SearchHit `json:"hits"`
+	Error     string      `json:"error"`
+	ElapsedMS int         `json:"elapsed_ms"`
+}
+
+// ── extract ─────────────────────────────────────────────────────────
+
+// ExtractRequest is POST /v1/extract: HTML given (URL is then only the page
+// address for metadata), or URL fetched with Engine ("impersonate" default |
+// "browser"). IncludeMarkdown is sent as given. Timeout zero means 30 s.
+type ExtractRequest struct {
+	HTML            string        `json:"html,omitempty"`
+	URL             string        `json:"url,omitempty"`
+	Engine          string        `json:"engine,omitempty"`
+	IncludeMarkdown bool          `json:"include_markdown"`
+	MaxBytes        int           `json:"max_bytes,omitempty"`
+	UpstreamProxy   ProxyURL      `json:"upstream_proxy,omitempty"`
+	Timeout         time.Duration `json:"-"`
+}
+
+func (r ExtractRequest) MarshalJSON() ([]byte, error) {
+	type alias ExtractRequest
+	return json.Marshal(struct {
+		alias
+		TimeoutS float64 `json:"timeout_s,omitempty"`
+	}{alias(r), secs(r.Timeout)})
+}
+
+// ExtractResult: Text and metadata from trafilatura (legacy content_extract),
+// Markdown from markdownify. Found is false when neither text nor any metadata
+// field was found (legacy returned None or an all-empty dict).
+type ExtractResult struct {
+	Found             bool   `json:"found"`
+	Text              string `json:"text"`
+	Markdown          string `json:"markdown"`
+	WordCount         int    `json:"word_count"`
+	Title             string `json:"title"`
+	Author            string `json:"author"`
+	Date              string `json:"date"`
+	Sitename          string `json:"sitename"`
+	Description       string `json:"description"`
+	FinalURL          string `json:"final_url"`
+	Status            int    `json:"status"`
+	TextTruncated     bool   `json:"text_truncated"`
+	MarkdownTruncated bool   `json:"markdown_truncated"`
+	ElapsedMS         int    `json:"elapsed_ms"`
+}
+
+// ── holehe ──────────────────────────────────────────────────────────
+
+// HoleheRequest is POST /v1/holehe. MaxModules zero means 50 (legacy).
+// Timeout zero means 60 s.
+type HoleheRequest struct {
+	Email         string        `json:"email"`
+	MaxModules    int           `json:"max_modules,omitempty"`
+	UpstreamProxy ProxyURL      `json:"upstream_proxy,omitempty"`
+	Timeout       time.Duration `json:"-"`
+}
+
+func (r HoleheRequest) MarshalJSON() ([]byte, error) {
+	type alias HoleheRequest
+	return json.Marshal(struct {
+		alias
+		TimeoutS float64 `json:"timeout_s,omitempty"`
+	}{alias(r), secs(r.Timeout)})
+}
+
+type HoleheSite struct {
+	Name        string `json:"name"`
+	Domain      string `json:"domain"`
+	Method      string `json:"method"`
+	Exists      bool   `json:"exists"`
+	RateLimited bool   `json:"rate_limited"`
+}
+
+// HoleheResult: raw per-site results in module order. The verdict mapping
+// (legacy is_real = len(ExistsOn) >= 2, email_verify, confidence) is Go's.
+type HoleheResult struct {
+	Email        string       `json:"email"`
+	Sites        []HoleheSite `json:"sites"`
+	ExistsOn     []string     `json:"exists_on"`
+	TotalChecked int          `json:"total_checked"`
+	Errors       int          `json:"errors"`
+	Partial      bool         `json:"partial"`
+	ElapsedMS    int          `json:"elapsed_ms"`
+}
+
+// ── staffspy ────────────────────────────────────────────────────────
+
+// StaffSpyRequest is POST /v1/staffspy (503 engine_unavailable unless the
+// service runs with BROWSER_STAFFSPY_ENABLED). Cookies carry the LinkedIn
+// session (li_at required, JSESSIONID for the csrf token), resolved by the
+// caller from its own secret store. MaxResults zero means 25; Timeout zero
+// means 180 s.
+type StaffSpyRequest struct {
+	CompanyName   string        `json:"company_name"`
+	SearchTerm    string        `json:"search_term,omitempty"`
+	Location      string        `json:"location,omitempty"`
+	MaxResults    int           `json:"max_results,omitempty"`
+	Cookies       []Cookie      `json:"cookies"`
+	UpstreamProxy ProxyURL      `json:"upstream_proxy,omitempty"`
+	Timeout       time.Duration `json:"-"`
+}
+
+func (r StaffSpyRequest) MarshalJSON() ([]byte, error) {
+	type alias StaffSpyRequest
+	return json.Marshal(struct {
+		alias
+		TimeoutS float64 `json:"timeout_s,omitempty"`
+	}{alias(r), secs(r.Timeout)})
+}
+
+type StaffRow struct {
+	Name     string `json:"name"`
+	Title    string `json:"title"`
+	LinkedIn string `json:"linkedin"`
+	Location string `json:"location"`
+}
+
+// StaffSpyResult: Error is "" or "login_failed" | "rate_limited" |
+// "no_staff_found" | "failed". Seniority ranking is Go's.
+type StaffSpyResult struct {
+	CompanyName string     `json:"company_name"`
+	Staff       []StaffRow `json:"staff"`
+	Error       string     `json:"error"`
+	ElapsedMS   int        `json:"elapsed_ms"`
+}
+
+// ── stats ───────────────────────────────────────────────────────────
+
+type OpStats struct {
+	Calls  int            `json:"calls"`
+	OK     int            `json:"ok"`
+	Errors map[string]int `json:"errors"`
+}
+
+type EgressStats struct {
+	Sessions       int `json:"sessions"`
+	Blocked        int `json:"blocked"`
+	UpstreamFailed int `json:"upstream_failed"`
+}
+
+// Stats is GET /v1/stats: this service process's counters since start (per
+// replica; not aggregated).
+type Stats struct {
+	Version  string             `json:"version"`
+	UptimeS  int                `json:"uptime_s"`
+	Active   int                `json:"active"`
+	Capacity int                `json:"capacity"`
+	Ops      map[string]OpStats `json:"ops"`
+	Searches map[string]int     `json:"searches"`
+	Egress   EgressStats        `json:"egress"`
 }
