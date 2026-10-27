@@ -34,7 +34,10 @@ func (p PgLedger) tx(ctx context.Context, fn func(q *gen.Queries, tx pgx.Tx) err
 
 func (p PgLedger) MarkRunning(ctx context.Context, id string) error {
 	return p.tx(ctx, func(q *gen.Queries, _ pgx.Tx) error {
-		_, err := q.CollectMarkRunning(ctx, gen.CollectMarkRunningParams{ID: id, StartedAt: nowISO()})
+		n, err := q.CollectMarkRunning(ctx, gen.CollectMarkRunningParams{ID: id, StartedAt: nowISO()})
+		if err == nil && n == 0 {
+			return ErrNotPending
+		}
 		return err
 	})
 }

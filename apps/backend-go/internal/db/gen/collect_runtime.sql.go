@@ -167,7 +167,7 @@ const collectMarkRunning = `-- name: CollectMarkRunning :execrows
 
 UPDATE collection_jobs
 SET status = 'running', started_at = $1::text, attempts = attempts + 1
-WHERE id = $2::text AND workspace_id = current_setting('app.workspace_id', true)
+WHERE id = $2::text AND workspace_id = current_setting('app.workspace_id', true) AND status = 'pending'
 `
 
 type CollectMarkRunningParams struct {
@@ -179,6 +179,9 @@ type CollectMarkRunningParams struct {
 // calls, PgLeadStore.get_leads / upsert_lead / update_lead_fields and source_stats). The
 // collection tables and leads are FORCE RLS: run inside tenancy.InWorkspace; every statement
 // also filters workspace_id from the transaction-local GUC. source_stats and jobs are global.
+// Guarded on status = 'pending' (fix: legacy flipped a done, failed or cancelled job back to
+// running on redelivery, and overwrote a cancel that landed before the run started). A retry is
+// pending again (CJRequeueWithError / CJRetry). 0 rows = do not run.
 func (q *Queries) CollectMarkRunning(ctx context.Context, arg CollectMarkRunningParams) (int64, error) {
 	result, err := q.db.Exec(ctx, collectMarkRunning, arg.StartedAt, arg.ID)
 	if err != nil {

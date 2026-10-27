@@ -104,7 +104,8 @@ var ErrNotPending = errors.New("collect: job is not pending")
 
 // Process is JobRunner._process_job. It returns nil when the run ended in a terminal ledger state
 // it set itself (done, intent-blocked failure), ErrCancelled when the ledger says the job was
-// cancelled, ctx's error when ctx ended, and otherwise the pipeline error after fail_job. Ledger
+// cancelled (also before the run started), ErrNotPending when the row was not pending (nothing
+// ran), ctx's error when ctx ended, and otherwise the pipeline error after fail_job. Ledger
 // write errors abort the run without fail_job.
 func (r *Runner) Process(ctx context.Context, jb Job) error {
 	j := &job{r: r, id: jb.ID, ws: jb.WorkspaceID, query: jb.Query, ledger: jb.Ledger, store: jb.Store, em: jb.Emit}
@@ -127,6 +128,12 @@ func (r *Runner) Process(ctx context.Context, jb Job) error {
 	}
 	if errors.Is(err, ErrCancelled) {
 		return ErrCancelled
+	}
+	if errors.Is(err, ErrNotPending) { // redelivered terminal job, or a cancel that won the race
+		if st, serr := j.ledger.Status(ctx, j.id); serr == nil && st == "cancelled" {
+			return ErrCancelled
+		}
+		return ErrNotPending
 	}
 	var lerr *ledgerError
 	if errors.As(err, &lerr) {
@@ -185,7 +192,9 @@ type strategy struct {
 }
 
 func (j *job) run(ctx context.Context) error {
-	if err := j.ledger.MarkRunning(ctx, j.id); err != nil {
+	if err := j.ledger.MarkRunning(ctx, j.id); errors.Is(err, ErrNotPending) {
+		return err
+	} else if err != nil {
 		return &ledgerError{err}
 	}
 	j.emit("job_started", "job_id", j.id, "query", j.query, "message", "🚀 Starting collection: '"+j.query+"'")

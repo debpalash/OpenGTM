@@ -4,9 +4,12 @@
 -- also filters workspace_id from the transaction-local GUC. source_stats and jobs are global.
 
 -- name: CollectMarkRunning :execrows
+-- Guarded on status = 'pending' (fix: legacy flipped a done, failed or cancelled job back to
+-- running on redelivery, and overwrote a cancel that landed before the run started). A retry is
+-- pending again (CJRequeueWithError / CJRetry). 0 rows = do not run.
 UPDATE collection_jobs
 SET status = 'running', started_at = sqlc.arg(started_at)::text, attempts = attempts + 1
-WHERE id = sqlc.arg(id)::text AND workspace_id = current_setting('app.workspace_id', true);
+WHERE id = sqlc.arg(id)::text AND workspace_id = current_setting('app.workspace_id', true) AND status = 'pending';
 
 -- name: CollectCreateStage :one
 INSERT INTO collection_job_stages (workspace_id, job_id, stage, status, started_at)

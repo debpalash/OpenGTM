@@ -65,8 +65,9 @@ func claimTenant(c *queue.Claim, dst any, ws, slug *string) (string, error) {
 	return c.WorkspaceID, nil
 }
 
-// HandleCollect is handle_collect: the ledger row must exist (its intent wins), a cancelled job is
-// a no-op, the pipeline runs, and any outcome but done / cancelled / intent-blocked is an error
+// HandleCollect is handle_collect: the ledger row must exist (its intent wins), a job that is not
+// pending (cancelled, done, failed, running) is a no-op — the pipeline starts only through the
+// guarded pending -> running transition, the pipeline runs, and any outcome but done / cancelled / intent-blocked is an error
 // so the durable queue retries (it is the retry authority; the failure hook mirrors its decision
 // into the ledger).
 func HandleCollect(ctx context.Context, d Deps, c *queue.Claim) error {
@@ -87,7 +88,11 @@ func HandleCollect(ctx context.Context, d Deps, c *queue.Claim) error {
 	if intent != "" {
 		p.Intent = intent
 	}
-	if status == "cancelled" {
+	switch status {
+	case "cancelled", "done", "failed", "running":
+		// Redelivery (lease lost after the run finished, a duplicate delivery) or a cancelled job:
+		// never re-run — no second LLM bill, provider calls or events. A failed row is final here
+		// (a queue retry requeues it to pending first); a running row belongs to a live run.
 		return nil
 	}
 	r := d.For(ws)
@@ -96,7 +101,7 @@ func HandleCollect(ctx context.Context, d Deps, c *queue.Claim) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
-	if errors.Is(err, ErrCancelled) {
+	if errors.Is(err, ErrCancelled) || errors.Is(err, ErrNotPending) {
 		return nil
 	}
 	st, msg, _, _, rerr := led.Detail(context.WithoutCancel(ctx), p.JobID)
