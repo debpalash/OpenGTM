@@ -1,13 +1,6 @@
 {
   "name": "heuristic_reply_mentions_does_not_exist",
   "python_error": null,
-  "records": [
-    {
-      "diagnostic": "heuristic plain-text bounce",
-      "kind": "hard",
-      "original_message_id": "",
-      "recipient": "pat@example.org"
-    }
-  ],
+  "records": [],
   "source_message_id": "<plain-0001@mx.example.net>"
 }

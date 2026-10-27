@@ -5,10 +5,50 @@ import (
 	"strings"
 )
 
-var hardTokens = []string{
+// hardPhrases are rejection phrases; they count only on a diagnostic line (see diagnosticLines).
+var hardPhrases = []string{
 	"mailbox unavailable", "user unknown", "no such user", "recipient rejected",
 	"does not exist", "mailbox not found", "address rejected", "unknown user",
-	"550", "551", "553", "554", "5.1.1", "5.1.2", "5.1.10", "5.4.1",
+}
+
+var (
+	// smtpReplyRE is a permanent-failure reply code at a token boundary followed by a space, a hyphen or the end.
+	smtpReplyRE = regexp.MustCompile(`(?:^|[^0-9.])(?:550|551|553|554)(?:[ \-]|$)`)
+	// enhancedStatusRE is an enhanced status code for "no such mailbox" style failures at a token boundary.
+	enhancedStatusRE = regexp.MustCompile(`(?:^|[^0-9.])5\.(?:1\.1|1\.2|1\.10|4\.1)(?:[^0-9.]|$)`)
+	// diagLineRE selects the lines that carry an SMTP verdict: Diagnostic-Code and Status fields, and lines that
+	// begin with a reply code or an enhanced status (optionally after "<addr>:" or "host x said:").
+	diagLineRE = regexp.MustCompile(`(?i)^(?:diagnostic-code|status)[ \t]*:|^(?:<[^>]*>:?[ \t]*)?(?:host [^ ]+ said:[ \t]*)?(?:[45][0-9]{2}[ \-]|[45]\.[0-9]{1,3}\.[0-9]{1,3}[ \t])`)
+)
+
+// htmlTagRE strips tags so an HTML-only bounce is read as its text.
+var htmlTagRE = regexp.MustCompile(`<[^<>@]*>`)
+
+// phraseLedRE is a line that begins with a rejection phrase ("Mailbox unavailable", "<a@b>: user unknown").
+var phraseLedRE = regexp.MustCompile(`(?i)^(?:<[^>]*>:?[ \t]*|(?:delivery (?:has )?failed|delivery failure|failed|error|reason|undeliverable|permanent (?:failure|error))[ \t]*[:\-][ \t]*)?(?:mailbox unavailable|user unknown|no such user|recipient rejected|mailbox not found|address rejected|unknown user)`)
+
+// diagnosticLines are the lines of the first text part that can state a delivery verdict: the Diagnostic-Code
+// and Status fields, lines that start with an SMTP reply or an enhanced status, and lines that start with a
+// rejection phrase. A number or phrase inside running text ("order #5501", "save up to $550", "that product does
+// not exist") is not one.
+func diagnosticLines(body string) []string {
+	var out []string
+	for _, l := range strings.Split(body, "\n") {
+		l = strings.TrimSpace(htmlTagRE.ReplaceAllString(l, ""))
+		if l != "" && (diagLineRE.MatchString(l) || phraseLedRE.MatchString(l)) {
+			out = append(out, pyLower(l))
+		}
+	}
+	return out
+}
+
+func hardDiagnostic(lines []string) bool {
+	for _, l := range lines {
+		if smtpReplyRE.MatchString(l) || enhancedStatusRE.MatchString(l) || containsAny(l, hardPhrases) {
+			return true
+		}
+	}
+	return false
 }
 
 var bounceMarkers = []string{
@@ -31,7 +71,8 @@ func pyLower(s string) string {
 }
 
 // parseHeuristic is _parse_heuristic: conservative token match over subject and
-// the first text part. "550" or "does not exist" anywhere counts as hard (kept).
+// the first text part. Hard needs a reply code, enhanced status or phrase on one of the part's diagnostic lines
+// (diagnosticLines), not anywhere in the text.
 func parseHeuristic(root *part) ([]Record, error) {
 	subject := ""
 	if v, ok := root.getRaw("subject"); ok {
@@ -39,7 +80,7 @@ func parseHeuristic(root *part) ([]Record, error) {
 	}
 	body := firstText(root)
 	blob := pyLower(subject + "\n" + body)
-	hasHard := containsAny(blob, hardTokens)
+	hasHard := hardDiagnostic(diagnosticLines(body))
 	looksBounce := containsAny(blob, bounceMarkers)
 	if !hasHard && !looksBounce {
 		return nil, nil

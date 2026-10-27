@@ -314,13 +314,11 @@
     },
     {
       "go_bounded": false,
-      "kinds": [
-        "hard"
-      ],
+      "kinds": [],
       "name": "heuristic_marketing_550_false_positive",
-      "note": "Quirk: '550' in ordinary text counts as a hard token",
+      "note": "F24: '550' inside ordinary text is not a hard bounce (was a recorded Python quirk)",
       "python_error": null,
-      "records": 1,
+      "records": 0,
       "sha256": "cfdb2bb6f90e382772c19ee204d1d4141aa163ed3ab8c14c7c09e1c2137936cb",
       "size": 279
     },
@@ -374,13 +372,11 @@
     },
     {
       "go_bounded": false,
-      "kinds": [
-        "hard"
-      ],
+      "kinds": [],
       "name": "heuristic_reply_mentions_does_not_exist",
-      "note": "Quirk: a human reply containing 'does not exist' is classified hard",
+      "note": "F24: a human reply containing 'does not exist' is not a bounce (was a recorded Python quirk)",
       "python_error": null,
-      "records": 1,
+      "records": 0,
       "sha256": "ede013bc670af811432e170f154eb4484a9ea8db98504a5d8d22a618564ab57e",
       "size": 280
     },
