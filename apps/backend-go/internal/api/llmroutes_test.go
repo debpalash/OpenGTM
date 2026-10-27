@@ -505,14 +505,17 @@ func TestLeadEnrichVectors(t *testing.T) {
 			for id, m := range enrichLeads {
 				store.leads[id] = leadFrom(t, m)
 			}
+			var mu sync.Mutex // the fake servers' handlers run on their own goroutines
 			var llmReqs []map[string]any
 			var llmHdr []string
 			chat := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				b, _ := io.ReadAll(r.Body)
 				var m map[string]any
 				_ = json.Unmarshal(b, &m)
+				mu.Lock()
 				llmReqs = append(llmReqs, m)
 				llmHdr = append(llmHdr, r.URL.Path+"|"+r.Header.Get("Authorization")+"|"+r.Header.Get("Content-Type"))
+				mu.Unlock()
 				sc := c.Inputs.Script
 				if sc == nil {
 					return
@@ -535,7 +538,9 @@ func TestLeadEnrichVectors(t *testing.T) {
 				for k, vs := range r.URL.Query() {
 					p[k] = vs[0]
 				}
+				mu.Lock()
 				osmParams = append(osmParams, p)
+				mu.Unlock()
 				if r.Header.Get("User-Agent") != "LeadEngine/1.0" {
 					t.Errorf("User-Agent = %q", r.Header.Get("User-Agent"))
 				}
@@ -626,6 +631,10 @@ func TestLeadEnrichVectors(t *testing.T) {
 					t.Errorf("update %d\n got %v\nwant %v", j, g.Fields, w.Fields)
 				}
 			}
+			chat.Close() // waits for in-flight handlers before the recorded requests are read
+			osm.Close()
+			mu.Lock()
+			defer mu.Unlock()
 			if len(llmReqs) != len(c.LLMRequests) {
 				t.Fatalf("%d chat requests, want %d", len(llmReqs), len(c.LLMRequests))
 			}
