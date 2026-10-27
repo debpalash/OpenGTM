@@ -26,6 +26,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rpclocal"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
@@ -208,6 +209,15 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool, str
 			return nil, err
 		}
 		deps.Registry, deps.Envelope, deps.Egress = sd.Registry, sd.Envelope, sd.Egress
+	}
+	// In-process providers (plan 15 WP-PROVIDERS): GO_LOCAL_PROVIDERS gate and the providers/scrape seams
+	// (providerrun runs listed providers here; people research finds crosslinked in the registry).
+	var provSecrets rpclocal.Secrets
+	if pool != nil {
+		provSecrets = secrets.NewResolver(deps.Envelope, secrets.NewPgStore(pool), os.Getenv)
+	}
+	if _, err := rpclocal.Configure(rpclocal.Setup{AppEnv: cfg.AppEnv, EgressAllow: cfg.EgressAllowHosts, Secrets: provSecrets, Log: log}); err != nil {
+		return nil, err
 	}
 	// Leadgen routes (plan 14) register only when the ledger cutover marker is "postgres". Fail closed: a
 	// missing marker or a failed read leaves it empty, so the routes stay unregistered (Go answers 404 for these paths; nothing falls
