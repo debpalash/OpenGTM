@@ -15,8 +15,9 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destdeliver"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/deststore"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destvalidate"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -236,8 +237,19 @@ func destSecretField(typ string) string {
 		return "header_secret_ref"
 	case "slack":
 		return "webhook_secret_ref"
+	case "webhook":
+		return "header_secret_ref" // optional: only checked when set
 	}
 	return ""
+}
+
+// outboundPolicy is the R2 policy for references a destination sends to its configured URL.
+func (h destCrud) outboundPolicy() secrets.OutboundPolicy {
+	p := secrets.OutboundPolicy{Prefixes: config.OutboundSecretRefPrefixes(h.d.getenv())}
+	if h.d.Registry != nil {
+		p.Registered = h.d.Registry.SecretSet()
+	}
+	return p
 }
 
 // destCheckConfig is _validate_config plus, for the types with a secret reference, the get_secret lookup. A refusal is the
@@ -250,20 +262,52 @@ func (h destCrud) checkConfig(ctx context.Context, ws, typ string, cfg map[strin
 	if field == "" {
 		return "", nil
 	}
+	notFound := typ + " " + field + " was not found"
+	if typ == "webhook" && !pyDestTruthy(cfg[field]) { // the header secret is optional on a webhook
+		return "", nil
+	}
+	// R2: the reference must be in the outbound namespace (and not a provider/CRM credential). A refused name and a
+	// missing one share one text, so the response is no oracle for which secrets exist.
+	ref, isStr := cfg[field].(string)
+	if !isStr || destdeliver.CheckRef(typ, ref, h.outboundPolicy(), nil) != nil {
+		return notFound, nil
+	}
 	if h.d.Envelope == nil { // no master key: stored secrets cannot be decrypted
 		return "", errSecretsOff
 	}
 	res := secrets.NewResolver(h.d.Envelope, secrets.NewPgStore(h.d.Pool), h.d.getenv())
-	v, src, gerr := res.Get(ctx, ws, colgraph.PyStr(cfg[field]))
+	v, src, gerr := res.Get(ctx, ws, ref)
 	if gerr != nil {
 		return "", gerr
 	}
 	// Workspace secrets only (deviation from Python's get_secret fallback, logged for #114): the value is sent to a
 	// destination-configured URL, so a global or env key must not be reachable by name.
 	if v == "" || src != secrets.SourceWorkspace {
-		return typ + " " + field + " was not found", nil
+		return notFound, nil
 	}
 	return "", nil
+}
+
+// pyDestTruthy is Python truthiness for a decoded JSON config value.
+func pyDestTruthy(v any) bool {
+	switch x := v.(type) {
+	case nil:
+		return false
+	case string:
+		return x != ""
+	case bool:
+		return x
+	case float64:
+		return x != 0
+	case json.Number:
+		f, _ := x.Float64()
+		return f != 0
+	case []any:
+		return len(x) > 0
+	case map[string]any:
+		return len(x) > 0
+	}
+	return true
 }
 
 var errSecretsOff = errors.New("destinations: secrets are not configured")

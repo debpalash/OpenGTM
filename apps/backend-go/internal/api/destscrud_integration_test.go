@@ -28,6 +28,15 @@ import (
 
 type destEnv struct{ audEnv }
 
+// destTestGetenv widens the outbound namespace (R2) to the bare names the recorded fixtures use; the default
+// namespace is exercised by TestOutboundRefPolicy.
+func destTestGetenv(k string) string {
+	if k == "OUTBOUND_SECRET_REF_PREFIXES" {
+		return "WAREHOUSE_AUTH,SLACK_,T18_,MISSING,DEST_,WEBHOOK_"
+	}
+	return ""
+}
+
 const destPrefix = "/api/audience-destinations"
 
 func newDestEnv(t *testing.T) destEnv {
@@ -41,7 +50,7 @@ func newDestEnv(t *testing.T) destEnv {
 		t.Fatal(err)
 	}
 	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Envelope: env,
-		Getenv:         func(string) string { return "" },
+		Getenv:         destTestGetenv,
 		Flags:          config.Flags{PGLeadStore: true, Audiences: config.AudienceSettings{GoAudienceRoutesEnabled: true, GoDestRoutesEnabled: true, RefreshPageSize: 500}},
 		AudienceEvents: nopEmitter{}}
 	RegisterAudiences(r, d)
@@ -60,7 +69,13 @@ func newDestEnv(t *testing.T) destEnv {
 	destPurge(t)
 	t.Cleanup(func() { destPurge(t) })
 	audLoadSeed(t)
-	destSeedSecrets(t, secrets.NewResolver(env, secrets.NewPgStore(pool), func(string) string { return "" }))
+	res := secrets.NewResolver(env, secrets.NewPgStore(pool), func(string) string { return "" })
+	destSeedSecrets(t, res)
+	// The recorded webhook fixture names a ref (MISSING) the Python recording accepted without a lookup; a workspace
+	// secret of that name keeps the replayed create valid under the S-M3 check.
+	if err := res.Set(context.Background(), "ws-alpha", "MISSING", "t18-missing-value"); err != nil {
+		t.Fatal(err)
+	}
 	return destEnv{e}
 }
 
@@ -710,5 +725,60 @@ func TestForeignAudienceAndDestination404(t *testing.T) {
 	}
 	if rec, _ := e.call("alice", "ws-alpha", "DELETE", destPrefix+"/a%ffb", ""); rec.Code != 404 {
 		t.Errorf("invalid utf8 id: %d", rec.Code)
+	}
+}
+
+// S-M2 / S-M3: a destination secret reference must be in the outbound namespace, must not be a provider or CRM
+// credential, and resolves to the workspace only. A refused name answers the same 422 as a missing one.
+func TestOutboundRefPolicy(t *testing.T) {
+	e := newDestEnv(t)
+	ctx := context.Background()
+	c := audOwner(t)
+	for _, k := range []string{"HUBSPOT_API_KEY", "DEST_OK_TOKEN", "WEBHOOK_GLOBAL_ONLY"} {
+		if k == "WEBHOOK_GLOBAL_ONLY" {
+			_, err := c.Exec(ctx, `INSERT INTO app_settings (key, value) VALUES ($1, 'g') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`, k)
+			if err != nil {
+				t.Fatal(err)
+			}
+			continue
+		}
+		_, err := c.Exec(ctx, `INSERT INTO workspace_settings (workspace_id, key, value) VALUES ('ws-alpha', $1, 'v') ON CONFLICT (workspace_id, key) DO UPDATE SET value = 'v'`, k)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	post := func(typ, cfg string) (int, string) {
+		code, m, _ := e.post("alice", "ws-alpha", fmt.Sprintf(`{"audience_id":"aud-act-1","name":"p %s %d","destination_type":"%s","config":%s}`, typ, time.Now().UnixNano(), typ, cfg))
+		return code, destDetail(m)
+	}
+	for _, tc := range []struct{ typ, cfg, want string }{
+		{"webhook", `{"url":"https://h.example.test","header_secret_ref":"NO_SUCH"}`, "webhook header_secret_ref was not found"},
+		{"webhook", `{"url":"https://h.example.test","header_secret_ref":"WEBHOOK_GLOBAL_ONLY"}`, "webhook header_secret_ref was not found"},
+		{"webhook", `{"url":"https://h.example.test","header_secret_ref":"BETA_ONLY_SECRET"}`, "webhook header_secret_ref was not found"},
+		{"warehouse_http", `{"url":"https://w.example.test","header_secret_ref":"HUBSPOT_API_KEY"}`, "warehouse_http header_secret_ref was not found"},
+		{"slack", `{"webhook_secret_ref":"HUBSPOT_API_KEY"}`, "slack webhook_secret_ref was not found"},
+	} {
+		if code, d := post(tc.typ, tc.cfg); code != 422 || d != tc.want {
+			t.Errorf("%s %s: %d %q", tc.typ, tc.cfg, code, d)
+		}
+	}
+	// An existing in-namespace workspace secret, and a webhook without any header ref, are accepted.
+	for _, tc := range []struct{ typ, cfg string }{
+		{"webhook", `{"url":"https://h.example.test","header_secret_ref":"DEST_OK_TOKEN"}`},
+		{"webhook", `{"url":"https://h.example.test"}`},
+		{"warehouse_http", `{"url":"https://w.example.test","header_secret_ref":"DEST_OK_TOKEN"}`},
+	} {
+		if code, d := post(tc.typ, tc.cfg); code != 201 {
+			t.Errorf("%s %s: %d %q", tc.typ, tc.cfg, code, d)
+		}
+	}
+	// PATCH re-checks a webhook reference.
+	code, m, _ := e.post("alice", "ws-alpha", `{"audience_id":"aud-act-1","name":"patchme","destination_type":"webhook","config":{"url":"https://h.example.test"}}`)
+	if code != 201 {
+		t.Fatalf("create: %d", code)
+	}
+	id, _ := m["id"].(string)
+	if code, m, _ := e.patchDest("alice", "ws-alpha", id, `{"config":{"url":"https://h.example.test","header_secret_ref":"NO_SUCH"}}`); code != 422 || destDetail(m) != "webhook header_secret_ref was not found" {
+		t.Errorf("patch: %d %v", code, m)
 	}
 }
