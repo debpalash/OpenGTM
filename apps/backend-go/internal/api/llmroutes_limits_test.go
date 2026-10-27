@@ -55,18 +55,18 @@ func TestLLMRoutesAreRateLimitedPerWorkspace(t *testing.T) {
 
 func TestGenerateColumnDroppedResponse(t *testing.T) {
 	resp := columnResponse(nlcolumn.Result{Kind: "http", Explanation: "e", Dropped: true, Warnings: []string{"w"}})
-	b := mustJSON(t, resp)
+	b := llmRespJSON(t, resp)
 	if b != `{"column":null,"kind":"http","explanation":"e","warnings":["w"]}` {
 		t.Errorf("got %s", b)
 	}
 	kept := columnResponse(nlcolumn.Result{Column: wbcrud.MakeColumn("id", "a", "type", "formula"), Kind: "formula", Explanation: "e"})
-	b = mustJSON(t, kept)
+	b = llmRespJSON(t, kept)
 	if strings.Contains(b, "warnings") || strings.Contains(b, `"column":null`) {
 		t.Errorf("kept response: %s", b)
 	}
 }
 
-func mustJSON(t *testing.T, v any) string {
+func llmRespJSON(t *testing.T, v any) string {
 	t.Helper()
 	rec := httptest.NewRecorder()
 	writePy(rec, v)
