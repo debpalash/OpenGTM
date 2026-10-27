@@ -16,12 +16,14 @@ const maxAuthBody = 1 << 20
 
 var wwwBearer = httpx.Header{Key: "WWW-Authenticate", Value: "Bearer"}
 
-// RegisterAuth registers /auth/token, /auth/refresh, /auth/me and the first-admin /auth/setup routes.
+// RegisterAuth registers /auth/token, /auth/refresh, /auth/me, the workspace SSO login routes
+// (/auth/sso/*, authsso.go) and the first-admin /auth/setup routes.
 func RegisterAuth(r *httpx.Router, d Deps) {
 	a := authRoutes{d}
 	r.Handle("POST /auth/token", http.HandlerFunc(a.token))
 	r.Handle("POST /auth/refresh", http.HandlerFunc(a.refresh))
 	r.Handle("GET /auth/me", http.HandlerFunc(a.me), identity.Authenticate(d.Signer, d.Identity))
+	registerSSOLogin(r, d)
 	registerSetup(r, d)
 }
 

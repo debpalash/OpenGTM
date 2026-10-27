@@ -1,5 +1,11 @@
 package config
 
+import (
+	"fmt"
+	"net/url"
+	"strings"
+)
+
 // GovernanceSettings are the plan 11 (governance and research playbooks) settings. The Go*
 // flags are Go-only rollout switches, all default false. SSO_ALLOWED_ISSUERS (S-M5) lists the
 // approved full issuer URLs; SSO_ALLOWED_ISSUER_HOSTS keeps Python's name and default but is
@@ -13,6 +19,9 @@ type GovernanceSettings struct {
 	GoExecutorPlaybooks       bool   // GO_EXECUTOR_PLAYBOOKS (research_playbook_run / _schedule jobs claimed by Go)
 	SSOAllowedIssuerHosts     string // SSO_ALLOWED_ISSUER_HOSTS (deprecated comma list, parsed by the OIDC code)
 	SSOAllowedIssuers         string // SSO_ALLOWED_ISSUERS (comma list of full issuer URLs, parsed by the OIDC code)
+	// SSORedirectBaseURL (SSO_REDIRECT_BASE_URL) is the public origin the /auth/sso callback URL is built on,
+	// e.g. https://app.example.com (no trailing slash). Empty: derived from the request (Host, X-Forwarded-Proto).
+	SSORedirectBaseURL string
 }
 
 func loadGovernance(get func(string) string) (GovernanceSettings, error) {
@@ -33,5 +42,12 @@ func loadGovernance(get func(string) string) (GovernanceSettings, error) {
 	}
 	g.SSOAllowedIssuerHosts = get("SSO_ALLOWED_ISSUER_HOSTS")
 	g.SSOAllowedIssuers = get("SSO_ALLOWED_ISSUERS")
+	g.SSORedirectBaseURL = strings.TrimRight(strings.TrimSpace(get("SSO_REDIRECT_BASE_URL")), "/")
+	if b := g.SSORedirectBaseURL; b != "" {
+		if u, err := url.Parse(b); err != nil || (u.Scheme != "https" && u.Scheme != "http") || u.Host == "" || u.User != nil ||
+			(u.Path != "" && u.Path != "/") || u.RawQuery != "" || u.Fragment != "" {
+			return g, fmt.Errorf("config: SSO_REDIRECT_BASE_URL must be an http(s) origin such as https://app.example.com")
+		}
+	}
 	return g, nil
 }

@@ -23,7 +23,7 @@ func TestGovernanceSettingsParseAndReject(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := GovernanceSettings{true, true, true, true, " a.com,B.com ", "https://a.com/t1"}
+	want := GovernanceSettings{true, true, true, true, " a.com,B.com ", "https://a.com/t1", ""}
 	if g != want {
 		t.Fatalf("got %#v want %#v", g, want)
 	}
@@ -35,6 +35,20 @@ func TestGovernanceSettingsParseAndReject(t *testing.T) {
 			return ""
 		}); err == nil {
 			t.Errorf("%s=maybe accepted", k)
+		}
+	}
+}
+
+func TestGovernanceSSORedirectBaseURL(t *testing.T) {
+	for in, want := range map[string]string{"": "", " https://app.example.com/ ": "https://app.example.com", "http://localhost:5173": "http://localhost:5173"} {
+		g, err := loadGovernance(func(k string) string { return map[string]string{"SSO_REDIRECT_BASE_URL": in}[k] })
+		if err != nil || g.SSORedirectBaseURL != want {
+			t.Errorf("%q: %q %v", in, g.SSORedirectBaseURL, err)
+		}
+	}
+	for _, bad := range []string{"app.example.com", "ftp://x.com", "https://u@x.com", "https://x.com/app", "https://x.com?a=1"} {
+		if _, err := loadGovernance(func(k string) string { return map[string]string{"SSO_REDIRECT_BASE_URL": bad}[k] }); err == nil {
+			t.Errorf("%q accepted", bad)
 		}
 	}
 }
