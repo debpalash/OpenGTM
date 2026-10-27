@@ -3,8 +3,19 @@ package unisearch
 import (
 	"bytes"
 	"encoding/xml"
+	"errors"
 	"io"
 )
+
+// Caps on what a redirect-controlled upstream can make the parser build (review 3b L16). Real arXiv/PubMed/DOAJ
+// feeds sit far below all three.
+const (
+	maxXMLDepth = 100
+	maxXMLNodes = 200000
+	maxXMLBytes = 4 << 20
+)
+
+var errXMLTooLarge = errors.New("unisearch: xml document exceeds the size, depth or node cap")
 
 // node is the slice of xml.etree.ElementTree the sources use: Text is Element.text (the character data before the
 // first child element, or all of it for a leaf) and HasText tells None from "".
@@ -18,6 +29,10 @@ type node struct {
 
 // parseXML parses a document like ET.fromstring (a malformed document is an error).
 func parseXML(b []byte) (*node, error) {
+	if len(b) > maxXMLBytes {
+		return nil, errXMLTooLarge
+	}
+	nodes := 0
 	dec := xml.NewDecoder(bytes.NewReader(b))
 	dec.Strict = true
 	var root *node
@@ -32,6 +47,9 @@ func parseXML(b []byte) (*node, error) {
 		}
 		switch t := tok.(type) {
 		case xml.StartElement:
+			if nodes++; nodes > maxXMLNodes || len(stack) >= maxXMLDepth {
+				return nil, errXMLTooLarge
+			}
 			n := &node{Space: t.Name.Space, Local: t.Name.Local, Attr: map[string]string{}}
 			for _, a := range t.Attr {
 				n.Attr[a.Name.Local] = a.Value
