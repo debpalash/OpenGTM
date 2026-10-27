@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"math"
 	"sync"
 
 	"github.com/jackc/pgx/v5"
@@ -16,6 +17,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/spend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
 
@@ -66,6 +68,7 @@ func (rs *runState) nativeColumn(ctx context.Context, lead map[string]any, col c
 		return "ok", out, nil
 	}
 	d := rs.aiDeps(ctx)
+	d.Spend = rs.cellSpend(col, rowID, leadID)
 	limit := aiTimeout
 	if col.Type == rpcResearch {
 		limit = researchTimeout
@@ -98,6 +101,9 @@ func (rs *runState) nativeColumn(ctx context.Context, lead map[string]any, col c
 		return "timeout", pyOutput{}, nil
 	}
 	if err != nil {
+		if errors.Is(err, ErrLeaseLost) || errors.Is(err, ErrClientGone) {
+			return "", pyOutput{}, err
+		}
 		return "error", pyOutput{}, nil
 	}
 	out = pyOutput{Value: res.Value, HasValue: true, Error: res.Error}
@@ -221,14 +227,21 @@ func (rs *runState) nativeBatch(ctx context.Context, cells []aicol.BatchCell, in
 	}
 	opts := llm.BatchOptions{Provider: &prov, ShouldStop: rs.stop.shouldStop}
 	var cached map[string]string
-	var hash string
 	var ackErr error
-	if rs.claim != nil {
-		if hash, err = batchContractHash(reqs, prov); err != nil {
-			return nil, err
+	hash, err := batchContractHash(reqs, prov)
+	if err != nil {
+		return nil, err
+	}
+	// The batch is one spend-ledger attempt of the job (review wave 3b M1), keyed by its
+	// contract so a retried job reuses it; the claim is written between reserve and
+	// dispatch, so a refused reservation leaves no claim behind.
+	exposure := aicol.EstimateBatchMicroUSD(reqs, prov.Model)
+	action := "dispatch"
+	claim := func() error {
+		if rs.claim == nil {
+			return nil
 		}
-		action := "dispatch"
-		err = rs.batchAttempt(ctx, func(p map[string]any) (bool, error) {
+		err := rs.batchAttempt(ctx, func(p map[string]any) (bool, error) {
 			if v, ok := p[batchAttemptKey]; ok && v != nil {
 				m, _ := v.(map[string]any)
 				if h, _ := m["contract_hash"].(string); m == nil || h != hash {
@@ -245,12 +258,45 @@ func (rs *runState) nativeBatch(ctx context.Context, cells []aicol.BatchCell, in
 				"requests": storeBatchRequests(reqs, index)}
 			return true, nil
 		})
-		if err != nil {
+		if err == nil && action == "reconcile" {
+			err = batchRecovery("batch submission outcome unknown; reconcile before retrying")
+		}
+		return err
+	}
+	hold, adm, err := rs.llmReserve(ctx, func() spend.Reservation {
+		return rs.llmReservation("ai_batch", "ai_batch", "llm:batch:"+hash[:32], exposure,
+			map[string]any{"llm_call": "ai_batch", "contract_hash": hash, "requests": int64(len(reqs))}, "ai_batch")
+	}, claim)
+	if err != nil {
+		var ref *aicol.SpendRefused
+		if errors.As(err, &ref) && prior == nil && action == "dispatch" {
+			rs.log.Warn("ai batch refused by the spend ledger, continuing synchronously", "reason", ref.Reason)
+			return nil, nil
+		}
+		if a := abortErr(ctx, err); a != nil || errors.Is(err, ErrLeaseLost) || errors.Is(err, ErrBatchRecovery) {
 			return nil, err
 		}
-		if action == "reconcile" {
-			return nil, batchRecovery("batch submission outcome unknown; reconcile before retrying")
+		if rs.claim == nil {
+			rs.log.Warn("ai batch spend reservation failed, continuing synchronously", "err", err)
+			return nil, nil
 		}
+		return nil, batchRecovery("batch spend reservation failed: " + err.Error())
+	}
+	settle := func(got bool, micro float64, calls int) {
+		if adm.Status != "dispatched" {
+			return // settled (or uncertain) by an earlier attempt of this job
+		}
+		switch {
+		case ctx.Err() != nil || !got:
+			hold.Uncertain(ctx)
+		case calls > 0:
+			c := int64(math.Ceil(micro))
+			hold.Settle(ctx, c, map[string]any{"call": "ai_batch", "basis": "observed_usage", "charged_microusd": c})
+		default:
+			hold.Settle(ctx, exposure, map[string]any{"call": "ai_batch", "basis": "reserved_estimate", "charged_microusd": exposure})
+		}
+	}
+	if rs.claim != nil {
 		if r, ok := prior["results"].(map[string]any); ok {
 			cached = map[string]string{}
 			for k, v := range r {
@@ -286,8 +332,18 @@ func (rs *runState) nativeBatch(ctx context.Context, cells []aicol.BatchCell, in
 		}
 	}
 	results := cached
-	if !complete {
-		got, err := d.LLM.BatchComplete(ctx, reqs, opts)
+	if complete {
+		if adm.Reused {
+			settle(true, 0, 0) // an earlier attempt paid and crashed before settling: the hold
+		} else if adm.Status == "dispatched" {
+			// Nothing reached the vendor in this attempt (every result was checkpointed).
+			hold.Settle(ctx, 0, map[string]any{"call": "ai_batch", "basis": "checkpointed_results", "charged_microusd": int64(0)})
+		}
+	} else {
+		octx, observed := aicol.ObserveUsage(ctx)
+		got, err := d.LLM.BatchComplete(octx, reqs, opts)
+		micro, calls := observed()
+		settle(err == nil && ackErr == nil, micro, calls)
 		if ctx.Err() != nil {
 			return nil, context.Cause(ctx)
 		}

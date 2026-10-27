@@ -151,3 +151,24 @@ func spendText(err error) string {
 	}
 	return "llm_spend_unavailable"
 }
+
+// ObserveUsage returns a ctx under which the usage the column LLM client reports (via
+// UsageTap) is collected, and a reader of the collected micro-USD and call count. The
+// workbook's batch pre-pass uses it to settle its batch attempt.
+func ObserveUsage(ctx context.Context) (context.Context, func() (microUSD float64, calls int)) {
+	s := &usageSink{}
+	return context.WithValue(ctx, usageSinkKey{}, s), func() (float64, int) {
+		s.mu.Lock()
+		defer s.mu.Unlock()
+		return s.micro, s.n
+	}
+}
+
+// EstimateBatchMicroUSD is the hold of a batch: every request's estimate at the model price.
+func EstimateBatchMicroUSD(reqs []llm.BatchRequest, model string) int64 {
+	var total int64
+	for _, r := range reqs {
+		total += estimateMicroUSD(model, len(r.Prompt)+len(r.System), r.MaxTokens, 1)
+	}
+	return total
+}
