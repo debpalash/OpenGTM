@@ -14,4 +14,9 @@ type Engine struct {
 	LLM *llm.Client
 	// Chain overrides the chat provider chain (tests); nil uses LLM.ChatChain, or the keyless default.
 	Chain func(ctx context.Context) []llm.ChatProvider
+	// IntentPollerEnabled and PGLeadStore are settings.INTENT_POLLER_ENABLED / PG_LEAD_STORE (the signal
+	// tracking pre-route and track_account_signals refuse without them).
+	IntentPollerEnabled, PGLeadStore bool
+	// NewID overrides uuid4().hex for approval tool-call ids (tests).
+	NewID func() string
 }

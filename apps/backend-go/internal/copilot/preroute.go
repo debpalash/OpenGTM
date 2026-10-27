@@ -39,6 +39,12 @@ func (t *Turn) PreRoute(ctx context.Context, w *ssestream.Writer, lastUserMsg st
 	if err != nil {
 		return true, t.preFail(w, &turnErr{errTextTools, err})
 	}
+	if t.Engine != nil {
+		handled, delegate, err := t.nativePreRoute(ctx, w, lastUserMsg, hasApproved)
+		if !delegate {
+			return handled, err
+		}
+	}
 	seen := false // a frame reached us: the stream is no longer a clean open failure
 	fail := func(te *turnErr) error {
 		if !seen && t.OpenFault != nil && t.OpenFault() {

@@ -109,8 +109,16 @@ func displayCall(c parsedCall, approvalID string) ([]byte, error) {
 // describe is the confirmation card text: the worker's describe_action, or Python's own fallback
 // "label\nreason" when the worker cannot answer (a card must still be shown; the gate never depends on it).
 func (t *Turn) describe(ctx context.Context, c parsedCall) string {
+	if t.Engine != nil {
+		if d, ok := DescribeAction(c.Name, c.Args); ok {
+			return d
+		}
+	}
 	var out struct {
 		Description *string `json:"description"`
+	}
+	if t.PY == nil {
+		return t.describeFallback(c.Name)
 	}
 	err := t.PY.Unary(ctx, "/internal/copilot/describe",
 		map[string]any{"name": c.Name, "args": c.Args, "workspace_id": t.WS}, &out, describeTimeout)
@@ -120,9 +128,14 @@ func (t *Turn) describe(ctx context.Context, c parsedCall) string {
 	if ctx.Err() == nil {
 		t.logger().Warn("copilot describe failed", "tool", c.Name)
 	}
-	label, reason := c.Name, "This action modifies data."
+	return t.describeFallback(c.Name)
+}
+
+// describeFallback is Python's own "label\nreason" card text, used when no description can be rendered.
+func (t *Turn) describeFallback(name string) string {
+	label, reason := name, "This action modifies data."
 	for _, tool := range Catalog() {
-		if tool.Name == c.Name && tool.Label != "" {
+		if tool.Name == name && tool.Label != "" {
 			label = tool.Label
 			if tool.Reason != "" {
 				reason = tool.Reason
