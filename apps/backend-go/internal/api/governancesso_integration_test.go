@@ -40,6 +40,7 @@ type ssoEnv struct {
 func newSSOEnv(t *testing.T) ssoEnv {
 	t.Helper()
 	t.Setenv("SSO_ALLOWED_ISSUER_HOSTS", "login.example.test")
+	t.Setenv("SSO_ALLOWED_ISSUERS", "https://login.example.test,https://login.example.test/realm") // S-M5 exact list
 	pool := testpg.NewAppPool(t, 6)
 	owner, err := pgxpool.New(context.Background(), os.Getenv("TEST_DATABASE_URL"))
 	if err != nil {

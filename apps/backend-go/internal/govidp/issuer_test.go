@@ -57,6 +57,7 @@ var issuerDeviations = map[string]bool{
 func TestIssuerHostAllowList(t *testing.T) {
 	v := loadVectors(t)
 	t.Setenv("SSO_ALLOWED_ISSUER_HOSTS", v.AllowedHosts)
+	t.Setenv("SSO_ALLOWED_ISSUERS", vectorIssuers(v)) // S-M5: the exact list is required on top of the hosts
 	for _, c := range v.Issuers {
 		got, err := ValidateIssuer(c.In)
 		if issuerDeviations[c.In] {
@@ -75,6 +76,22 @@ func TestIssuerHostAllowList(t *testing.T) {
 			t.Errorf("%q: want %q, got %q %v", c.In, c.Out, got, err)
 		}
 	}
+}
+
+// vectorIssuers lists every issuer the Python vectors approve, as SSO_ALLOWED_ISSUERS.
+func vectorIssuers(v vectors) string {
+	var out []string
+	for _, c := range v.Issuers {
+		if c.Out != "" {
+			out = append(out, c.Out)
+		}
+	}
+	for _, c := range v.Saves {
+		if c.Config != nil && c.Config.Issuer != "" {
+			out = append(out, c.Config.Issuer)
+		}
+	}
+	return strings.Join(out, ",")
 }
 
 func TestIssuerEmptyAllowListRejectsEverything(t *testing.T) {
@@ -98,6 +115,7 @@ func TestIssuerErrorIsValueError(t *testing.T) {
 // strings.ToLower would map U+0130 to ASCII i and approve it.
 func TestIssuerHostLoweringIsASCIIOnly(t *testing.T) {
 	t.Setenv("SSO_ALLOWED_ISSUER_HOSTS", "github.com")
+	t.Setenv("SSO_ALLOWED_ISSUERS", "https://github.com")
 	if got, err := ValidateIssuer("https://gİthub.com"); err == nil {
 		t.Fatalf("non-ASCII look-alike host approved: %q", got)
 	}

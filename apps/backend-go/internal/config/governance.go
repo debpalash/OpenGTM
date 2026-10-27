@@ -1,15 +1,18 @@
 package config
 
 // GovernanceSettings are the plan 11 (governance and research playbooks) settings. The Go*
-// flags are Go-only rollout switches, all default false. SSO_ALLOWED_ISSUER_HOSTS keeps
-// Python's name and default (empty: no OIDC issuer host approved). The SCIM token TTL is
+// flags are Go-only rollout switches, all default false. SSO_ALLOWED_ISSUERS (S-M5) lists the
+// approved full issuer URLs; SSO_ALLOWED_ISSUER_HOSTS keeps Python's name and default but is
+// deprecated: when set it only narrows, it never approves an issuer alone. Both are read per
+// call by internal/govidp (empty: nothing approved). The SCIM token TTL is
 // APIConfig.ScimTokenTTLDays (OPENGTM_SCIM_TOKEN_TTL_DAYS, plan 02), not repeated here.
 type GovernanceSettings struct {
 	GoGovernanceRoutesEnabled bool   // GO_GOVERNANCE_ROUTES_ENABLED
 	GoPlaybookRoutesEnabled   bool   // GO_PLAYBOOK_ROUTES_ENABLED
 	GoExecutorRetention       bool   // GO_EXECUTOR_RETENTION (retention_enforce jobs claimed by Go)
 	GoExecutorPlaybooks       bool   // GO_EXECUTOR_PLAYBOOKS (research_playbook_run / _schedule jobs claimed by Go)
-	SSOAllowedIssuerHosts     string // SSO_ALLOWED_ISSUER_HOSTS (comma list, parsed by the OIDC code)
+	SSOAllowedIssuerHosts     string // SSO_ALLOWED_ISSUER_HOSTS (deprecated comma list, parsed by the OIDC code)
+	SSOAllowedIssuers         string // SSO_ALLOWED_ISSUERS (comma list of full issuer URLs, parsed by the OIDC code)
 }
 
 func loadGovernance(get func(string) string) (GovernanceSettings, error) {
@@ -29,5 +32,6 @@ func loadGovernance(get func(string) string) (GovernanceSettings, error) {
 		}
 	}
 	g.SSOAllowedIssuerHosts = get("SSO_ALLOWED_ISSUER_HOSTS")
+	g.SSOAllowedIssuers = get("SSO_ALLOWED_ISSUERS")
 	return g, nil
 }

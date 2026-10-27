@@ -17,12 +17,13 @@ func TestGovernanceConfigDefaultsMatchPython(t *testing.T) {
 
 func TestGovernanceSettingsParseAndReject(t *testing.T) {
 	env := map[string]string{"GO_GOVERNANCE_ROUTES_ENABLED": "true", "GO_PLAYBOOK_ROUTES_ENABLED": "1",
-		"GO_EXECUTOR_RETENTION": "yes", "GO_EXECUTOR_PLAYBOOKS": "on", "SSO_ALLOWED_ISSUER_HOSTS": " a.com,B.com "}
+		"GO_EXECUTOR_RETENTION": "yes", "GO_EXECUTOR_PLAYBOOKS": "on", "SSO_ALLOWED_ISSUER_HOSTS": " a.com,B.com ",
+		"SSO_ALLOWED_ISSUERS": "https://a.com/t1"}
 	g, err := loadGovernance(func(k string) string { return env[k] })
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := GovernanceSettings{true, true, true, true, " a.com,B.com "}
+	want := GovernanceSettings{true, true, true, true, " a.com,B.com ", "https://a.com/t1"}
 	if g != want {
 		t.Fatalf("got %#v want %#v", g, want)
 	}

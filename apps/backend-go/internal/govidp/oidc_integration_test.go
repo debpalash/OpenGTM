@@ -52,6 +52,7 @@ func setup(t *testing.T) *env {
 	}
 	e.res = secrets.NewResolver(envl, secrets.NewPgStore(p), func(string) string { return "" })
 	t.Setenv("SSO_ALLOWED_ISSUER_HOSTS", "login.example.com,idp.corp.io")
+	t.Setenv("SSO_ALLOWED_ISSUERS", "https://login.example.com,https://idp.corp.io")
 	t.Cleanup(func() {
 		for _, w := range []string{e.ws, e.ws2} {
 			_ = tenancy.InWorkspace(ctx, p, w, func(tx pgx.Tx) error {
@@ -107,6 +108,7 @@ func TestSaveConfigVectorsMatchPython(t *testing.T) {
 		t.Run(c.Name, func(t *testing.T) {
 			e := setup(t)
 			t.Setenv("SSO_ALLOWED_ISSUER_HOSTS", v.AllowedHosts)
+			t.Setenv("SSO_ALLOWED_ISSUERS", vectorIssuers(v))
 			if c.ExistingSecret {
 				if err := e.res.Set(ctx, e.ws, "OIDC_CLIENT_SECRET", "pre-existing-placeholder"); err != nil {
 					t.Fatal(err)
@@ -328,4 +330,16 @@ func loadVectors(t testing.TB) vectors {
 		t.Fatal(err)
 	}
 	return v
+}
+
+// vectorIssuers lists every issuer the save vectors approve, as SSO_ALLOWED_ISSUERS (S-M5: the
+// exact list is required on top of the hosts).
+func vectorIssuers(v vectors) string {
+	var out []string
+	for _, c := range v.Saves {
+		if c.Config != nil && c.Config.Issuer != "" {
+			out = append(out, c.Config.Issuer)
+		}
+	}
+	return strings.Join(out, ",")
 }
