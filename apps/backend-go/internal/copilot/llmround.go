@@ -20,11 +20,17 @@ import (
 
 // Stream caps of one round (internal_copilot MAX_STREAM_*): beyond them the round ends with an error frame.
 const (
+	minSecretLen    = 6
+	anthropicTokens = 16000 // adaptive thinking shares max_tokens with the answer; 4096 (the OpenAI path) is too tight
+)
+
+// The caps are variables so tests can lower them. llm.Stream enforces the same limits on the provider's raw
+// lines, bytes and tool-call argument deltas; these are the backstop on the frames the round delivers, and the
+// wall clock also covers a provider call that never produces a frame (the Anthropic turn, a stalled dial).
+var (
 	maxRoundFrames  = 20000
 	maxRoundBytes   = 8 << 20
 	maxRoundSeconds = 300 * time.Second
-	minSecretLen    = 6
-	anthropicTokens = 16000 // adaptive thinking shares max_tokens with the answer; 4096 (the OpenAI path) is too tight
 )
 
 // frameSource is one round's frames: *pyworker.Stream or the native round.
@@ -154,9 +160,17 @@ func (s *nativeSrc) Next() (pyworker.Frame, error) {
 		}
 		var f llm.Frame
 		var ok bool
+		wall := time.NewTimer(max(maxRoundSeconds-time.Since(s.started), 0))
 		select {
 		case f, ok = <-s.in:
+			wall.Stop()
+		case <-wall.C:
+			s.pending = append(s.pending, textFrame("error", "stream limit exceeded"))
+			s.terminal, s.finished = true, true
+			s.cancel()
+			continue
 		case <-s.ctx.Done():
+			wall.Stop()
 			return pyworker.Frame{}, s.ctx.Err()
 		}
 		if !ok {
@@ -184,7 +198,11 @@ func (s *nativeSrc) handle(f llm.Frame) {
 	if s.terminal {
 		return
 	}
-	if s.overBudget(len(f.Text) + 64*len(f.ToolCalls)) {
+	size := len(f.Text)
+	for _, c := range f.ToolCalls {
+		size += len(c.ID) + len(c.Function.Name) + len(c.Function.Arguments)
+	}
+	if s.overBudget(size) {
 		s.pending = append(s.pending, textFrame("error", "stream limit exceeded"))
 		s.terminal, s.finished = true, true
 		s.cancel()
