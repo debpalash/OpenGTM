@@ -14,15 +14,14 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
-// DefaultExecutor runs the recurring refresh chain Go enqueues: a Go worker
-// handled this job, so its workspace is in the Go cohort.
+// DefaultExecutor is the executor of every job the refresh chain enqueues (the only executor since the plan 15
+// cutover).
 const DefaultExecutor = "go"
 
 // Deps are the handler dependencies.
@@ -30,32 +29,13 @@ type Deps struct {
 	Pool *pgxpool.Pool
 	// Now overrides Clock (tests).
 	Now func() time.Time
-	// NextExecutor is the executor of the next refresh_workbook; default "go".
-	NextExecutor string
 	// SourceWait makes one cycle wait for the source_workbook jobs it enqueued
 	// (up to this long) and enrich the rows they added in the same run job
 	// (Python refresh.py semantics). Zero: do not wait; new rows are then picked
 	// up as stale by the next cycle.
 	SourceWait time.Duration
-	// NextExecutorFor resolves the executor of a re-seeded chain by workspace (failure hook);
-	// nil falls back to NextExecutor / "go".
-	NextExecutorFor func(workspaceID string) string
 	// SourcePoll is the poll interval while waiting (default 2s).
 	SourcePoll time.Duration
-	// SourceExecutorFor picks the executor of the source_workbook jobs a cycle enqueues;
-	// nil: config.SourceWorkbookExecutor over config.Getenv (GO_ALL_NATIVE applies) ("python" unless
-	// the GO_EXECUTOR_SOURCE_WORKBOOK cohort covers the workspace).
-	SourceExecutorFor func(workspaceID string) string
-}
-
-func (d Deps) sourceExecutor(ws string) string {
-	if d.SourceExecutorFor != nil {
-		if e := d.SourceExecutorFor(ws); e == "go" || e == "python" {
-			return e
-		}
-		return "python"
-	}
-	return config.SourceWorkbookExecutor(config.Getenv, ws)
 }
 
 func (d Deps) now() time.Time {
@@ -65,12 +45,6 @@ func (d Deps) now() time.Time {
 	return Clock().UTC()
 }
 
-func (d Deps) executor() string {
-	if d.NextExecutor != "" {
-		return d.NextExecutor
-	}
-	return DefaultExecutor
-}
 
 // enrichmentTypes are the column types the stale scan covers
 // (enrichment_cols in refresh.py); runnable types are ENRICHMENT_COL_TYPES.
@@ -173,12 +147,14 @@ func SetPolicy(ctx context.Context, tx pgx.Tx, wbID string, policy map[string]an
 }
 
 // SetPolicyExecutor is SetPolicy with the executor of the chain job it may
-// start: Python uses refresh_executor(workspace_id), so the API passes the
-// cohort resolution (config.ExecutorSettings.RefreshExecutor). An empty
-// executor is DefaultExecutor.
+// start. Since the plan 15 cutover that is always "go": an empty executor is
+// DefaultExecutor and anything else is refused.
 func SetPolicyExecutor(ctx context.Context, tx pgx.Tx, wbID string, policy map[string]any, executor string) (map[string]any, error) {
 	if executor == "" {
 		executor = DefaultExecutor
+	}
+	if executor != DefaultExecutor {
+		return nil, fmt.Errorf("refresh: executor %q must be go (the only executor since the plan 15 cutover)", executor)
 	}
 	q := gen.New(tx)
 	wb, err := q.RefreshWorkbook(ctx, wbID)
@@ -230,34 +206,14 @@ type payload struct {
 	PreMaxID        int32 `json:"pre_max_id"`
 }
 
-// workbookTenant resolves the tenant of a refresh job whose jobs.workspace_id is empty from the database: the
-// workbook's own workspace_id (a narrow cross-tenant lookup, since workbooks is FORCE RLS), never the payload's.
-// A payload workspace_id that is present and differs, or a workbook that does not exist, is a PermanentError.
-//
-// This fallback exists ONLY for refresh jobs enqueued by Python (refresh.py _enqueue_next and _enqueue_next_now
-// put workspace_id in the payload but not in the jobs column) during the canary. It is removed at cutover, when
-// Handle and OnFailure take the tenant from the claim alone (progress.md, CUTOVER).
-func workbookTenant(ctx context.Context, d Deps, p payload) (string, error) {
-	ws, err := gen.New(d.Pool).WorkbookWorkspaceByID(ctx, p.WorkbookID)
-	if err != nil {
-		return "", fmt.Errorf("refresh: workbook tenant lookup: %w", err)
-	}
-	if ws == "" {
-		return "", &queue.PermanentError{Err: errors.New("refresh: job workspace missing and the workbook does not exist")}
-	}
-	if p.WorkspaceID != "" && p.WorkspaceID != ws {
-		return "", &queue.PermanentError{Err: errors.New("refresh: payload workspace_id does not match the workbook's workspace")}
-	}
-	return ws, nil
-}
-
 // Handle mirrors handle_refresh_workbook. It reads the workbook inside the
-// tenant, then in one transaction: queues one source_workbook (executor per
-// SourceExecutorFor, Python by default) per source column, queues one run_workbook (Python executor) for
-// the exact stale cells and their reactive dependants, logs a refresh activity
-// row, and, when the policy is enabled with an interval, enqueues the next
-// refresh_workbook once per fire key. A missing (or other-tenant) workbook
-// completes quietly; a missing workspace fails loudly like workspace_scope.
+// tenant, then in one transaction: queues one source_workbook per source column,
+// queues one run_workbook for the exact stale cells and their reactive dependants
+// (the worker plans its go block at claim), logs a refresh activity row, and, when
+// the policy is enabled with an interval, enqueues the next refresh_workbook once
+// per fire key. Every job is executor go. The tenant is the claim's workspace only
+// (plan 15 cutover): a claim without one is refused permanently. A missing (or
+// other-tenant) workbook completes quietly.
 func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 	var p payload
 	if err := json.Unmarshal(c.Payload, &p); err != nil {
@@ -266,15 +222,13 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 	if p.WorkbookID == "" {
 		return errors.New("refresh: payload has no workbook_id")
 	}
-	// The tenant is the job's workspace_id column; the payload is data the enqueuer controls, so a non-empty claim
-	// workspace is strict (a differing payload workspace is refused).
+	// The tenant is the job's workspace_id column only; the payload is data the enqueuer controls, so a differing
+	// payload workspace is refused, and so is a job without a workspace (Python-era rows; see the cutover runbook).
 	ws := c.WorkspaceID
 	if ws == "" {
-		var err error
-		if ws, err = workbookTenant(ctx, d, p); err != nil {
-			return err
-		}
-	} else if p.WorkspaceID != "" && p.WorkspaceID != ws {
+		return &queue.PermanentError{Err: errors.New("refresh: the job has no workspace_id; the tenant comes from the job row only")}
+	}
+	if p.WorkspaceID != "" && p.WorkspaceID != ws {
 		return &queue.PermanentError{Err: errors.New("refresh: payload workspace_id does not match the job's workspace")}
 	}
 	reason := p.Reason
@@ -314,7 +268,7 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 				if pre.done { // enqueued, and waited for, before this transaction
 					continue
 				}
-				if err := enqueueSource(ctx, tx, ws, p.WorkbookID, id, c.ID, d.sourceExecutor(ws)); err != nil {
+				if err := enqueueSource(ctx, tx, ws, p.WorkbookID, id, c.ID, "go"); err != nil {
 					return err
 				}
 			case staleScanTypes[t]:
@@ -381,7 +335,7 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 			_, _, err := queue.EnqueueOnce(ctx, tx, queue.JobTypeRunWorkbook, ws, map[string]any{
 				"workbook_id": p.WorkbookID, "workspace_id": ws,
 				"row_ids": rowIDs, "column_ids": columnIDs, "row_columns": rowColumns,
-			}, fmt.Sprintf("refresh_run:%s:%d", p.WorkbookID, c.ID), "python")
+			}, fmt.Sprintf("refresh_run:%s:%d", p.WorkbookID, c.ID), "go")
 			if err != nil {
 				return fmt.Errorf("refresh: enqueue run: %w", err)
 			}
@@ -407,7 +361,7 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 			})
 			if errors.Is(err, pgx.ErrNoRows) {
 				key := fmt.Sprintf("refresh_workbook:%s:after:%d", p.WorkbookID, c.ID)
-				if _, err := enqueueNext(ctx, tx, p.WorkbookID, ws, d.executor(), key, minutes, now); err != nil {
+				if _, err := enqueueNext(ctx, tx, p.WorkbookID, ws, DefaultExecutor, key, minutes, now); err != nil {
 					return err
 				}
 			} else if err != nil {
@@ -483,7 +437,7 @@ func (d Deps) sourceFirst(ctx context.Context, ws, wbID string, jobID int64, p p
 		}
 		for _, col := range cols {
 			if id := colID(col); colType(col) == "source" && id != "" {
-				if err := enqueueSource(ctx, tx, ws, wbID, id, jobID, d.sourceExecutor(ws)); err != nil {
+				if err := enqueueSource(ctx, tx, ws, wbID, id, jobID, "go"); err != nil {
 					return err
 				}
 			}
@@ -546,24 +500,10 @@ func OnFailure(ctx context.Context, d Deps, n queue.FailureNotice) error {
 		return nil
 	}
 	ws := n.WorkspaceID
-	if ws == "" {
-		var err error
-		if ws, err = workbookTenant(ctx, d, p); err != nil {
-			var perm *queue.PermanentError
-			if errors.As(err, &perm) {
-				return nil // unknown or inconsistent tenant: no re-seed
-			}
-			return err
-		}
-	} else if p.WorkspaceID != "" && p.WorkspaceID != ws {
-		return nil
+	if ws == "" || (p.WorkspaceID != "" && p.WorkspaceID != ws) {
+		return nil // no tenant on the job row, or an inconsistent one: no re-seed
 	}
-	exec := d.executor()
-	if d.NextExecutorFor != nil {
-		if e := d.NextExecutorFor(ws); e != "" {
-			exec = e
-		}
-	}
+	exec := DefaultExecutor
 	return tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {
 		wb, err := gen.New(tx).RefreshWorkbook(ctx, p.WorkbookID)
 		if errors.Is(err, pgx.ErrNoRows) {
