@@ -2,9 +2,11 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/jackc/pgx/v5"
 
@@ -31,18 +33,81 @@ type sourceSettingsRoutes struct {
 }
 
 // registerSourceSettings mounts the 5 /api/settings/sources* routes (routers/settings.py). Every route needs an
-// active user (reads are open to any authenticated user, as in Python); PUT and POST .../health/reset need a global
+// active user; the list and health reads need a member of some workspace or a global admin (audit S-L28; Python
+// leaves them open to any user), the registry catalog stays open; PUT and POST .../health/reset need a global
 // admin. source_health is a global table without workspace_id or RLS, so a plain transaction is correct. net/http
 // prefers the literal /health and /registry paths over {source_id}.
 func registerSourceSettings(r *httpx.Router, d Deps) {
 	s := &sourceSettingsRoutes{d: d, app: &settings.App{Store: secrets.NewPgStore(d.Pool), Env: d.Envelope, Getenv: d.getenv()}}
 	user := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity)}
 	admin := append(append([]httpx.Middleware{}, user...), identity.RequireGlobalAdmin())
-	r.Handle("GET /api/settings/sources", http.HandlerFunc(s.list), user...)
-	r.Handle("GET /api/settings/sources/health", http.HandlerFunc(s.health), user...)
+	member := append(append([]httpx.Middleware{}, user...), s.requireMemberOrAdmin)
+	r.Handle("GET /api/settings/sources", http.HandlerFunc(s.list), member...)
+	r.Handle("GET /api/settings/sources/health", http.HandlerFunc(s.health), member...)
 	r.Handle("GET /api/settings/sources/registry", http.HandlerFunc(s.registry), user...)
 	r.Handle("PUT /api/settings/sources/{source_id}", http.HandlerFunc(s.toggle), admin...)
 	r.Handle("POST /api/settings/sources/{source_id}/health/reset", http.HandlerFunc(s.reset), admin...)
+}
+
+var (
+	regNamesOnce sync.Once
+	regNames     map[string]bool
+)
+
+// inSourceRegistry reports whether id names a source of the registry summary.
+func inSourceRegistry(id string) bool {
+	regNamesOnce.Do(func() {
+		regNames = map[string]bool{}
+		raw, err := json.Marshal(sourcecatalog.Registry())
+		if err != nil {
+			return
+		}
+		var d struct {
+			Sources []struct {
+				Name string `json:"name"`
+			} `json:"sources"`
+		}
+		if json.Unmarshal(raw, &d) == nil {
+			for _, s := range d.Sources {
+				regNames[s.Name] = true
+			}
+		}
+	})
+	return regNames[id]
+}
+
+// sourceKnown reports whether id is a DATA_SOURCES id or a registry source.
+func sourceKnown(id string) bool {
+	for _, src := range sourcecatalog.Sources() {
+		if src.ID == id {
+			return true
+		}
+	}
+	return inSourceRegistry(id)
+}
+
+// requireMemberOrAdmin lets a global admin or a user who belongs to at least one workspace through (403 otherwise).
+// It must run after Authenticate.
+func (s *sourceSettingsRoutes) requireMemberOrAdmin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		p, ok := identity.PrincipalFrom(r.Context())
+		if !ok {
+			httpx.Detail(w, http.StatusForbidden, "Not authorized")
+			return
+		}
+		if !p.User.IsGlobalAdmin() {
+			ws, err := s.d.Identity.ActiveWorkspaceID(r.Context(), p.User.ID)
+			if err != nil {
+				s.fail(w, "membership lookup", err)
+				return
+			}
+			if ws == "" {
+				httpx.Detail(w, http.StatusForbidden, "Not authorized")
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // settingGetter reads SOURCE_*_ENABLED. Without an envelope (never in production) values are taken as plaintext:
@@ -211,7 +276,7 @@ func (s *sourceSettingsRoutes) toggle(w http.ResponseWriter, r *http.Request) {
 		s.fail(w, "set enabled", err)
 		return
 	}
-	if on {
+	if on && inSourceRegistry(id) { // no health row for a catalog id the registry does not know (audit F20)
 		// Operator intent is authoritative; the health layer is best-effort and its errors are swallowed.
 		_ = s.withTx(ctx, func(tx pgx.Tx) error {
 			f := srcManualEnable
@@ -231,6 +296,10 @@ func (s *sourceSettingsRoutes) toggle(w http.ResponseWriter, r *http.Request) {
 func (s *sourceSettingsRoutes) reset(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id := r.PathValue("source_id")
+	if !sourceKnown(id) {
+		httpx.Detail(w, http.StatusNotFound, "Unknown source")
+		return
+	}
 	var row *sourcehealth.Obj
 	if err := s.withTx(ctx, func(tx pgx.Tx) error {
 		f := srcHealthReset

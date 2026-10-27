@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strings"
 	"testing"
@@ -56,6 +57,19 @@ func newSSEnv(t *testing.T, mut ...func(*Deps)) ssEnv {
 	})
 	e.seed(t, "alice", pythonHash, true, "admin", true)
 	e.seed(t, "bob", pythonHash, true, "user", false)
+	e.seed(t, "carol", pythonHash, true, "user", false) // no workspace membership at all
+	bob, err := st.ByUsername(context.Background(), "bob")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ownerExec(t, `DELETE FROM workspace_members WHERE workspace_id = 'ss-ws'`)
+	ownerExec(t, `DELETE FROM workspaces WHERE id = 'ss-ws'`)
+	ownerExec(t, `INSERT INTO workspaces (id, name, slug) VALUES ('ss-ws', 'ss', 'ss-ws')`)
+	ownerExec(t, `INSERT INTO workspace_members (workspace_id, user_id, role) VALUES ('ss-ws', $1, 'viewer')`, bob.ID)
+	t.Cleanup(func() {
+		ownerExec(t, `DELETE FROM workspace_members WHERE workspace_id = 'ss-ws'`)
+		ownerExec(t, `DELETE FROM workspaces WHERE id = 'ss-ws'`)
+	})
 	return e
 }
 
@@ -201,6 +215,21 @@ func TestSourcesMatchFixtures(t *testing.T) {
 			who = "bob"
 		}
 		rec := e.ssCall(fx.Request.Method, fx.Request.Path, who)
+		if n == "reset_unknown_source" { // Python answers 200 "no health row"; Go answers 404 (audit F20)
+			if rec.Code != 404 || rec.Body.String() != `{"detail":"Unknown source"}` {
+				t.Errorf("reset unknown: %d %s", rec.Code, rec.Body)
+			}
+			continue
+		}
+		if u, err := url.Parse(fx.Request.Path); err == nil && fx.Request.Method == "PUT" && rec.Code == 200 {
+			// Python pinned a health row for a DATA_SOURCES id with no registry entry; Go does not (audit F20).
+			// Recreate it so the later state-dependent fixtures still replay.
+			id := strings.TrimPrefix(u.Path, "/api/settings/sources/")
+			if on := u.Query().Get("enabled"); !inSourceRegistry(id) && on != "false" && on != "0" {
+				ownerExec(t, `INSERT INTO source_health (name, state, consecutive_zero, consecutive_nonzero, probes, manual_override, updated_at)
+				 VALUES ($1,'healthy',0,0,0,true,$2::timestamp) ON CONFLICT (name) DO NOTHING`, id, srcSeedStamp)
+			}
+		}
 		got := contract.Resp{Status: rec.Code, Headers: map[string]string{}, Body: srcNormalise(t, rec.Body.Bytes())}
 		for _, k := range []string{"Content-Type", "WWW-Authenticate", "Allow"} {
 			if v := rec.Header().Get(k); v != "" {
@@ -314,12 +343,12 @@ func TestPutEnableClearsAutoDisabled(t *testing.T) {
 	if settingOf(t, "SOURCE_TRADEINDIA_ENABLED") != "1" {
 		t.Fatal("setting not stored as 1")
 	}
-	// No row yet: enabling creates a pinned one.
-	if rec := e.ssCall("PUT", "/api/settings/sources/duckduckgo?enabled=true", "alice"); rec.Code != 200 {
+	// No row yet: enabling a registry source creates a pinned one.
+	if rec := e.ssCall("PUT", "/api/settings/sources/zaubacorp?enabled=true", "alice"); rec.Code != 200 {
 		t.Fatal(rec.Body)
 	}
-	if !strings.Contains(healthRow(t, "duckduckgo"), `"manual_override": true`) {
-		t.Fatalf("no pinned row: %s", healthRow(t, "duckduckgo"))
+	if !strings.Contains(healthRow(t, "zaubacorp"), `"manual_override": true`) {
+		t.Fatalf("no pinned row: %s", healthRow(t, "zaubacorp"))
 	}
 }
 
@@ -380,6 +409,36 @@ func TestEnabledQueryParamDefaultTrue(t *testing.T) {
 	rec := e.ssCall("PUT", "/api/settings/sources/linkedin?enabled=", "alice")
 	if rec.Code != 422 || !strings.Contains(rec.Body.String(), `"type":"bool_parsing"`) {
 		t.Fatalf("empty: %d %s", rec.Code, rec.Body)
+	}
+}
+
+// S-L28: the list and health reads need a workspace member or a global admin; the registry catalog stays open.
+func TestSourceReadsNeedMembership(t *testing.T) {
+	e := newSSEnv(t)
+	for _, p := range []string{"/api/settings/sources", "/api/settings/sources/health"} {
+		if rec := e.ssCall("GET", p, "carol"); rec.Code != 403 {
+			t.Errorf("%s without membership: %d %s", p, rec.Code, rec.Body)
+		}
+		for _, who := range []string{"bob", "alice"} {
+			if rec := e.ssCall("GET", p, who); rec.Code != 200 {
+				t.Errorf("%s as %s: %d", p, who, rec.Code)
+			}
+		}
+	}
+	if rec := e.ssCall("GET", "/api/settings/sources/registry", "carol"); rec.Code != 200 {
+		t.Errorf("registry: %d", rec.Code)
+	}
+}
+
+// F20: PUT creates no health row for a catalog id the registry does not know; reset answers 404 for unknown ids.
+func TestUnknownSourceIDs(t *testing.T) {
+	e := newSSEnv(t)
+	if rec := e.ssCall("PUT", "/api/settings/sources/duckduckgo?enabled=true", "alice"); rec.Code != 200 || healthRow(t, "duckduckgo") != "" {
+		t.Errorf("duckduckgo: %d row=%q", rec.Code, healthRow(t, "duckduckgo"))
+	}
+	rec := e.ssCall("POST", "/api/settings/sources/not_a_source/health/reset", "alice")
+	if rec.Code != 404 || rec.Body.String() != `{"detail":"Unknown source"}` {
+		t.Errorf("reset unknown: %d %s", rec.Code, rec.Body)
 	}
 }
 
