@@ -392,3 +392,50 @@ func TestSSOInactiveMemberRefused(t *testing.T) {
 	}
 	wantSSOError(t, e.login(t, "sub-v2", "viewer2@"+e.tag+".test", nil), "This SSO identity is not an active workspace member")
 }
+
+// Implicit first-login linking never reaches an account that matters outside this workspace: a
+// member of any other workspace (above all an owner/admin there), a global admin, or the owner of
+// any workspace. The workspace's IdP could otherwise mint a session that works elsewhere.
+func TestSSONoImplicitLinkOfCrossWorkspaceAccounts(t *testing.T) {
+	e := newSSOLoginEnv(t, true)
+	ctx := context.Background()
+	other := e.tag + "-other"
+	third := e.tag + "-third"
+	mk := func(name string, admin bool) int32 {
+		var id int32
+		if err := e.pool.QueryRow(ctx, `INSERT INTO users (username, hashed_password, is_active, is_admin, role) VALUES ($1,'x',true,$2,'user') RETURNING id`,
+			name+"@"+e.tag+".test", admin).Scan(&id); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := e.pool.Exec(ctx, `INSERT INTO workspace_members (workspace_id,user_id,role,created_at) VALUES ($1,$2,'editor',1)`, e.ws, id); err != nil {
+			t.Fatal(err)
+		}
+		return id
+	}
+	adminElsewhere := mk("adminelsewhere", false)
+	memberElsewhere := mk("memberelsewhere", false)
+	mk("gadmin", true)
+	ownsThird := mk("ownsthird", false)
+	for _, m := range []struct {
+		uid  int32
+		role string
+	}{{adminElsewhere, "admin"}, {memberElsewhere, "viewer"}} {
+		if _, err := e.pool.Exec(ctx, `INSERT INTO workspace_members (workspace_id,user_id,role,created_at) VALUES ($1,$2,$3,1)`, other, m.uid, m.role); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := e.pool.Exec(ctx, `INSERT INTO workspaces (id,name,slug,description,icon,owner_id,created_at,updated_at) VALUES ($1::text,$1::text,$1::text,'','',$2,1,1)`,
+		third, ownsThird); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _, _ = e.pool.Exec(context.Background(), `DELETE FROM workspaces WHERE id=$1`, third) })
+	for _, who := range []string{"adminelsewhere", "memberelsewhere", "gadmin", "ownsthird"} {
+		frag := e.login(t, "sub-"+who, who+"@"+e.tag+".test", nil)
+		if frag.Get("sso_access_token") != "" || frag.Get("sso_error") == "" {
+			t.Errorf("%s: linked implicitly: %v", who, frag)
+		}
+	}
+	if n := e.bindings(t); n != 0 {
+		t.Fatalf("bindings %d", n)
+	}
+}
