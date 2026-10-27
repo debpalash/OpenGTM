@@ -16,6 +16,15 @@ Term = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max
 
 Str200 = Field(min_length=1, max_length=200)
 
+# Fields that end up in request headers (review L3): no CR/LF or other control
+# characters. Locale is a BCP 47-ish tag; the user agent is printable ASCII;
+# cookie names are RFC 6265 tokens and values cookie-octets (plus the quotes
+# and spaces browsers tolerate), never ';'.
+LOCALE_PATTERN = r"^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+USER_AGENT_PATTERN = r"^[\x20-\x7e]+$"
+COOKIE_NAME_PATTERN = r"^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$"
+COOKIE_VALUE_PATTERN = r"^[\x21\x23-\x2b\x2d-\x3a\x3c-\x5b\x5d-\x7e\x22 ]*$"
+
 
 class _Req(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -68,8 +77,8 @@ class Health(BaseModel):
 
 
 class Cookie(_Req):
-    name: str = Field(min_length=1, max_length=256)
-    value: str = Field(max_length=4096)
+    name: str = Field(min_length=1, max_length=256, pattern=COOKIE_NAME_PATTERN)
+    value: str = Field(max_length=4096, pattern=COOKIE_VALUE_PATTERN)
     domain: str = Field(min_length=1, max_length=253)
     path: str = Field(default="/", max_length=1024)
     secure: bool = True
@@ -90,8 +99,8 @@ class RenderRequest(_Upstream):
     include_text: bool = False
     max_bytes: int = Field(default=2 << 20, ge=1024, le=64 << 20, description="cap for html and for text, each")
     timeout_s: float = Field(default=30.0, ge=1.0, le=600.0)
-    user_agent: str | None = Field(default=None, max_length=512)
-    locale: str = Field(default="en-US", max_length=35)
+    user_agent: str | None = Field(default=None, min_length=1, max_length=512, pattern=USER_AGENT_PATTERN)
+    locale: str = Field(default="en-US", max_length=35, pattern=LOCALE_PATTERN)
     cookies: list[Cookie] = Field(default_factory=list, max_length=20)
 
 
