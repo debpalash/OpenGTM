@@ -165,7 +165,9 @@ func TestEveryCopilotAndPersonRouteHasFixtureOrIsRetained(t *testing.T) {
 
 func TestEveryCopilotCatalogToolHasExecutor(t *testing.T) {
 	native := map[string]bool{}
-	for _, n := range copilot.NativeToolNames() {
+	// Go executors are the four native lead tools plus the tools the native engine runs (round.go routes
+	// isEngineTool calls to engineTool).
+	for _, n := range append(copilot.NativeToolNames(), copilot.EngineToolNames()...) {
 		native[n] = true
 	}
 	for _, tl := range copilot.Catalog() {
