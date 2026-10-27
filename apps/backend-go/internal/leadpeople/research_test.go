@@ -3,8 +3,11 @@ package leadpeople
 import (
 	"context"
 	"errors"
+	"net/http"
 	"testing"
 	"time"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 )
 
 var fixedNow = time.Date(2026, 10, 28, 12, 0, 0, 0, time.UTC)
@@ -130,8 +133,26 @@ func TestResearchVectors(t *testing.T) {
 	}
 }
 
+// registered is a provider that also implements CrossLinked, as WP-PROVIDERS' crosslinked does.
+type registered struct{ fakeCL }
+
+func (*registered) Name() string { return "crosslinked-leadpeople-test" }
+func (*registered) Enrich(context.Context, *http.Client, func() (string, error), providers.Input) (providers.Output, error) {
+	return providers.Output{}, nil
+}
+
+func TestResearchUsesRegistryProvider(t *testing.T) {
+	r := &registered{fakeCL{found: PeopleFound{SearchesUsed: 1}}}
+	providers.Register(r)
+	s := &Service{CrossLinkedName: "crosslinked-leadpeople-test", Identity: &fakeID{res: map[string]any{"status": "not_found"}}}
+	got, err := s.ResearchPeopleAtCompany(context.Background(), "Stripe", "Sales", ResearchOptions{})
+	if err != nil || got["ok"] != true || len(r.calls) != 1 || r.calls[0].Company != "Stripe" {
+		t.Fatalf("got %v, %v, calls %v", got, err, r.calls)
+	}
+}
+
 func TestResearchNoFinder(t *testing.T) {
-	s := &Service{Identity: &fakeID{res: map[string]any{"status": "not_found"}}}
+	s := &Service{CrossLinkedName: "no-such-provider", Identity: &fakeID{res: map[string]any{"status": "not_found"}}}
 	if _, err := s.ResearchPeopleAtCompany(context.Background(), "Stripe", "Sales", ResearchOptions{}); !errors.Is(err, ErrCrossLinkedUnavailable) {
 		t.Fatalf("err = %v", err)
 	}

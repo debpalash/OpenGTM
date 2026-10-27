@@ -63,6 +63,9 @@ type Service struct {
 	Discover    EmailDiscoverer
 	Verify      EmailVerifier
 
+	// CrossLinkedName is the registry name looked up when CrossLinked is nil; "" = "crosslinked".
+	CrossLinkedName string
+
 	Workspace string // salts the search cache (tenant isolation); "" = none
 	Now       func() time.Time
 	Mono      func() time.Time // monotonic source for attempt durations (tests)
@@ -106,7 +109,11 @@ func (s *Service) crossLinked() (CrossLinked, error) {
 	if s.CrossLinked != nil {
 		return s.CrossLinked, nil
 	}
-	if p, ok := providers.Get("crosslinked"); ok {
+	name := s.CrossLinkedName
+	if name == "" {
+		name = "crosslinked"
+	}
+	if p, ok := providers.Get(name); ok {
 		if cl, ok := p.(CrossLinked); ok {
 			return cl, nil
 		}
@@ -314,3 +321,5 @@ func (s *Service) ResearchPeopleAtCompany(ctx context.Context, company, function
 			"and re-check the profile before outreach.",
 	}, nil
 }
+
+var _ Searcher = (*leadweb.Searcher)(nil)
