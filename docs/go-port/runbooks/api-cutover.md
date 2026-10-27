@@ -23,8 +23,9 @@ http-level only, so it lives in its own file. Responses on Go-eligible routes ca
 
 1. **Plan 01 cutover is done**: `docs/go-port/runbooks/sqlite-to-postgres.md`. Go reads workspaces and
    members from PostgreSQL; Go must not serve traffic before Python runs on Postgres.
-2. **Migrate before starting api-go.** The Go schema gate is an exact match on Alembic head
-   `e7b2c4d6f8a0` (down `d3f5a7b9c1e2`); api-go refuses to start on any other revision. Run the Python migration first.
+2. **Migrate before starting api-go.** Run `opengtm-migrate` (compose `migrate` service; `migrations.md`). The Go
+   schema gate requires `goose_db_version` >= `config.RequiredGoSchemaVersion`; api-go refuses to start otherwise.
+   An Alembic database at `e7b2c4d6f8a0` is adopted, an older one is refused until it is upgraded with the legacy tool.
 3. `SECRET_KEY` identical on `api` and `api-go` (tokens must cross over). api-go refuses to start when
    `SECRET_KEY` is empty, the insecure default, or shorter than 32 bytes, unless `APP_ENV=test`. `APP_ENV=dev`
    (the compose default) does NOT relax this; compose itself fails when `SECRET_KEY` is unset. The worker and
@@ -120,7 +121,7 @@ Verify: `SELECT count(*) FROM workspace_members WHERE user_id = <admin id>;` is 
 Operator-visible behaviour changes since the first Go cutover plans. Read before upgrading an environment that already runs Go, and before the first Go start of a new one.
 
 **Schema and migrations**
-- Alembic head is now `e7b2c4d6f8a0` (down `d3f5a7b9c1e2`): revokes PUBLIC `EXECUTE` on `outreach_send_by_message_id`, grants it to `yupcha_app`, and builds `ix_outreach_sends_message_id` with `CREATE INDEX CONCURRENTLY`. Run `alembic upgrade head` before starting the new Go binaries (`RequiredGoSchemaRevision` is exact). `scripts/go_schema_dump.sh` re-appends the REVOKE/GRANT to `schema.sql`.
+- The schema is owned by the Go runner `opengtm-migrate` (`migrations.md`); the compose `migrate` service runs it from the api-go image, and the Python migrate job is retired. Its baseline is Alembic `e7b2c4d6f8a0` (down `d3f5a7b9c1e2`: PUBLIC `EXECUTE` on `outreach_send_by_message_id` revoked, granted to `yupcha_app`, `ix_outreach_sends_message_id`). An Alembic database at `e7b2c4d6f8a0` is adopted; an older one must first be upgraded with `alembic upgrade e7b2c4d6f8a0` from `legacy/python`. `alembic_version` stays stamped `e7b2c4d6f8a0` for the Python services. Go binaries check `goose_db_version` (`RequiredGoSchemaVersion`), not `alembic_version`. `scripts/go_schema_dump.sh` regenerates `schema.sql` from the Go migrations and re-appends the REVOKE/GRANT.
 - Run the one-time `suppressnorm` after upgrade (`suppressnorm --dry-run`, then `suppressnorm`; shipped in the worker image as `/suppressnorm`; needs `DATABASE_URL`; see `outreach-cutover.md`).
 
 **Secrets and outbound references**
@@ -156,7 +157,7 @@ Operator-visible behaviour changes since the first Go cutover plans. Read before
 
 ## Final fix wave: deploy notes
 
-1. **Legacy Python prerequisite.** `legacy/python` commit `86f41c6` (Alembic schema `e7b2c4d6f8a0`) must be deployed and migrated before api-go starts; api-go refuses any other revision.
+1. **Schema: run `opengtm-migrate` before api-go starts** (compose `migrate` service, or `make migrate`; see `migrations.md`). api-go/worker/mcp refuse to start below `RequiredGoSchemaVersion`. `legacy/python` commit `86f41c6` is needed **only for upgrading pre-`e7b2c4d6f8a0` databases** (`alembic upgrade e7b2c4d6f8a0`, then `opengtm-migrate` adopts); fresh and `e7b2c4d6f8a0` databases need no Python.
 2. **Only Go-served traffic has the fixes.** The post-port security fixes (inactive-user login, bounce-webhook hardening, limiter pools, SSO scoping through Go `/auth/refresh`) are effective only for requests Go serves. At 0 % the edge still sends `/auth/token`, `/auth/refresh` and most `/api/*` to Python. Plan the ramp accordingly: `/auth/token` + `/auth/refresh` to 100 % first.
 3. **Canary key.** Client address only (see "Canary ramp"). Public outreach unsubscribe and bounce routes are pinned to Go: enable `GO_OUTREACH_ROUTES_ENABLED` / `PG_LEAD_STORE` first.
 4. **UTC session precondition (hard).** Go connections must run with Postgres `timezone = UTC`. Go no longer reads the session TimeZone; schedule/fire keys and naive timestamps are UTC. Set it on the runtime role or in `DATABASE_URL` before the first canary percentage. Go itself is session-zone independent: every naive timestamp it writes (`jobs.next_run_at`, audience, retention, destination and workbook columns) or compares with an aware instant is converted with `AT TIME ZONE 'UTC'`. Python still renders fire keys and `next_run_at` in the session zone, so the two stacks agree only on UTC. During a canary, check for duplicate pending scheduled jobs: more than one pending job per trigger or watch (same id in the payload, different `fire_key`) with `next_run_at` hours apart means a Python and a Go writer disagreed on the zone.
