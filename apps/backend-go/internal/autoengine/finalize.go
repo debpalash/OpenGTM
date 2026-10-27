@@ -116,7 +116,7 @@ func (e *engine) logActivity(ctx context.Context, run runInfo, status string, ma
 // unique active fire key in autoschedule make it single-flight across Go and
 // Python.
 func (e *engine) reschedule(ctx context.Context, ws, triggerID string) error {
-	executor := "python"
+	executor := "go"
 	if e.d.ExecFor != nil {
 		executor = e.d.ExecFor(ws)
 	}

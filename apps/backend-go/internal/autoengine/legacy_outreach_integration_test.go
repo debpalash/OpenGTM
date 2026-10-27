@@ -3,14 +3,12 @@
 package autoengine
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachstore"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
 func (e *env) legacySeq() string {
