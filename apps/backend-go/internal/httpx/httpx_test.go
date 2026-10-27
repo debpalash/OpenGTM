@@ -293,6 +293,7 @@ func TestGzipDoesNotWrapProtocolUpgrades(t *testing.T) {
 func TestOverrideWinsOverMuxAndIsRegistered(t *testing.T) {
 	r := NewRouter()
 	r.Handle("POST /x/{id}/sync", http.HandlerFunc(ok))
+	r.Handle("GET /x/{id}/health", http.HandlerFunc(ok))
 	hit := false
 	r.Override("POST /x/inbound/{id}", func(p string) bool {
 		rest, found := strings.CutPrefix(p, "/x/inbound/")
@@ -307,6 +308,9 @@ func TestOverrideWinsOverMuxAndIsRegistered(t *testing.T) {
 	}
 	if rec := do(h, "POST", "/x/inbound/sync", nil); rec.Code != 200 { // the literal belongs to the mux route
 		t.Fatalf("mux literal: %d", rec.Code)
+	}
+	if rec := do(h, "GET", "/x/inbound/health", nil); rec.Code != 200 { // sibling static route of destination "inbound"
+		t.Fatalf("GET health: %d", rec.Code)
 	}
 	for _, m := range []string{"GET", "PUT", "DELETE"} {
 		if rec := do(h, m, "/x/inbound/abc", nil); rec.Code != 405 || rec.Header().Get("Allow") != "POST" {

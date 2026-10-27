@@ -53,7 +53,7 @@ func (r *Router) Handle(pattern string, h http.Handler, mws ...Middleware) {
 // Overrides are consulted after the canonical-path guard and before the mux, inside the global middleware, so
 // they win over any overlapping mux pattern (FastAPI resolves such overlaps by declaration order, and ServeMux
 // refuses to register two patterns where neither is more specific). A request for an owned path with another
-// method answers 405 with Allow: METHOD; the mux is not consulted. mws wrap h; the first is outermost.
+// method goes to the mux when a mux route accepts that method (static sibling routes win), else answers 405 with Allow: METHOD. mws wrap h; the first is outermost.
 func (r *Router) Override(pattern string, pathMatch func(escapedPath string) bool, h http.Handler, mws ...Middleware) {
 	method, _, ok := strings.Cut(pattern, " ")
 	if !ok || method == "" || method != strings.ToUpper(method) {
@@ -127,6 +127,11 @@ func (r *Router) serve(w http.ResponseWriter, req *http.Request) {
 		if req.Method == o.method {
 			o.h.ServeHTTP(w, req)
 			return
+		}
+		// Another method on an owned path may be a real mux route (GET /inbound/health is the "health" of the
+		// destination "inbound"): the mux serves it; only a path no mux route accepts answers 405.
+		if r.matches(req.Method, req.URL.Path, req.Host) {
+			break
 		}
 		Detail(w, http.StatusMethodNotAllowed, "Method Not Allowed", Header{"Allow", o.method})
 		return
