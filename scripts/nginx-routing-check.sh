@@ -378,11 +378,14 @@ check_copilot_split50() {
   case "$seen" in *py*) ws_py=1;; esac
   if [ "$ws_go" = 1 ] && [ "$ws_py" = 1 ]; then echo "  ok   both upstreams appear across workspaces"; else echo "  FAIL workspaces all landed on one upstream:$seen"; FAIL=1; fi
   [ "$stick" = 1 ] || FAIL=1
-  # Person WS: 200 (stub) exactly when the client bucket is go, else 404; never the Python stub.
-  local i up st
+  # Person WS: 200 (stub) exactly when the client bucket is go, else 404; never the Python stub. The bucket is keyed on
+  # the client ADDRESS only: changing the Authorization header must never change it (R-split).
+  local i up st first=""
   for i in 1 2 3 4 5 6 7 8; do
     up="$(curl -s -D- -o /dev/null -H "Authorization: Bearer c$i" "http://127.0.0.1:$PORT/api/person/history" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}')"
     st="$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer c$i" "http://127.0.0.1:$PORT/ws/person/enrich")"
+    [ -n "$first" ] || first="$up"
+    expect "client c$i bucket independent of Authorization" "$up" "$first"
     if [ "$up" = go ]; then expect "client c$i ws (go bucket)" "$st" 200; else expect "client c$i ws (py bucket)" "$st" 404; fi
   done
 }
@@ -458,8 +461,7 @@ check_outreach_matrix() { # $1 = expected upstream for Go-eligible routes (py|go
            "POST /api/outreach/sequences/s-1/pause" "POST /api/outreach/sequences/s-1/enroll" "POST /api/outreach/sequences/s-1/execute" \
            "GET /api/outreach/sequences/s-1/stats" "GET /api/outreach/sequences/s-1/sends" \
            "GET /api/outreach/smtp/status" "PUT /api/outreach/smtp/config" "POST /api/outreach/smtp/test" \
-           "GET /api/outreach/suppressions" "POST /api/outreach/suppressions" "DELETE /api/outreach/suppressions/a%40example.com" \
-           "GET /api/outreach/unsubscribe?token=abc.def" "POST /api/outreach/unsubscribe?token=abc.def" "POST /api/outreach/webhooks/bounce"; do
+           "GET /api/outreach/suppressions" "POST /api/outreach/suppressions" "DELETE /api/outreach/suppressions/a%40example.com"; do
     set -- $r
     u="$(hdr "$1" "$2" X-Upstream)"; s="$(hdr "$1" "$2" X-Stub)"
     if [ "$want" = any ]; then
@@ -480,19 +482,15 @@ check_outreach_matrix() { # $1 = expected upstream for Go-eligible routes (py|go
     expect "unmatched $r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
     expect "unmatched $r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
   done
-  # Public routes are sticky per request source: ten requests from one address (no Authorization header, as in a mail
-  # client's one-click POST or a provider webhook) reach one stack, and unsubscribe and webhook agree.
-  local i seen="" w
-  for i in 1 2 3 4 5 6 7 8 9 10; do
-    seen="$seen $(hdr POST "/api/outreach/unsubscribe?token=t$i" X-Upstream) $(hdr POST /api/outreach/webhooks/bounce X-Upstream)"
+  # Public routes (unsubscribe landing + one-click, bounce webhook) are pinned to Go at EVERY percentage, whatever
+  # Authorization header the client sends (the bucket is never client-chosen); no X-Upstream header (not bucketed).
+  for r in "GET /api/outreach/unsubscribe?token=abc.def" "POST /api/outreach/unsubscribe?token=abc.def" "POST /api/outreach/webhooks/bounce"; do
+    set -- $r
+    expect "pinned $r X-Stub" "$(hdr "$1" "$2" X-Stub)" go
+    expect "pinned $r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
+    expect "pinned $r X-Seen-Uri" "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+    expect "pinned $r with Authorization X-Stub" "$(curl -s -D- -o /dev/null -X "$1" -H 'Authorization: Bearer x' "http://127.0.0.1:$PORT$2" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-stub"{print $2}')" go
   done
-  w="$(printf '%s\n' $seen | sort -u | tr '\n' ' ')"; w="${w% }"
-  case "$w" in
-    py|go) if [ "$want" = any ]; then echo "  ok   public routes sticky upstream = $w"; else expect "public routes sticky upstream" "$w" "$want"; fi;;
-    *) echo "  FAIL public routes not sticky/consistent: '$w'"; FAIL=1;;
-  esac
-  # Landing/one-click links keep resolving: the GET landing and the POST land on the same stack.
-  expect "unsubscribe GET and POST share a stack" "$(hdr GET '/api/outreach/unsubscribe?token=z' X-Upstream)" "$(hdr POST '/api/outreach/unsubscribe?token=z' X-Upstream)"
   # Location settings (not observable from a stub): compare blocks in `nginx -T`.
   local T; T="$(docker exec "$RUN-gw" nginx -T 2>/dev/null)"
   blk() { printf '%s\n' "$T" | awk -v pat="$1" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f' | grep -E 'proxy_(read_timeout|send_timeout|buffering|http_version)' | sed 's/^[[:space:]]*//' | sort; }
@@ -504,7 +502,7 @@ check_outreach_matrix() { # $1 = expected upstream for Go-eligible routes (py|go
   # The public locations forward the client address so the limiter sees the client, not nginx.
   for l in '= /api/outreach/unsubscribe' '= /api/outreach/webhooks/bounce'; do
     local B; B="$(printf '%s\n' "$T" | awk -v pat="$l" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f')"
-    for d in 'proxy_set_header X-Real-IP $remote_addr;' 'proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' 'add_header X-Upstream $go_bucket always;'; do
+    for d in 'proxy_set_header X-Real-IP $remote_addr;' 'proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' 'proxy_pass http://api_go;'; do
       case "$B" in *"$d"*) echo "  ok   '$l' has '$d'";; *) echo "  FAIL '$l' missing '$d'"; FAIL=1;; esac
     done
   done
