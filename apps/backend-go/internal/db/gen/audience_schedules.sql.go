@@ -81,28 +81,30 @@ func (q *Queries) AudSchedDue(ctx context.Context, now pgtype.Timestamptz) ([]Au
 }
 
 const audSchedInsertJob = `-- name: AudSchedInsertJob :one
-INSERT INTO jobs (executor, type, payload, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count)
+INSERT INTO jobs (executor, type, payload, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count, workspace_id)
 VALUES ($1::text, 'audience_refresh', $2::json, 1, $3::text, 'pending',
-        (now() AT TIME ZONE 'UTC'), ($4::timestamptz)::timestamp, 3, 0)
+        (now() AT TIME ZONE 'UTC'), ($4::timestamptz)::timestamp, 3, 0, $5::text)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id
 `
 
 type AudSchedInsertJobParams struct {
-	Executor  string
-	Payload   []byte
-	FireKey   string
-	NextRunAt pgtype.Timestamptz
+	Executor    string
+	Payload     []byte
+	FireKey     string
+	NextRunAt   pgtype.Timestamptz
+	WorkspaceID string
 }
 
-// Row enqueue_job_once writes: priority 1, max_retries 3, next_run_at = the occurrence,
-// workspace_id NULL as in Python.
+// Row enqueue_job_once writes: priority 1, max_retries 3, next_run_at = the occurrence. jobs.workspace_id
+// is set (Python wrote NULL) so the handler's payload-vs-row workspace check is not vacuous (S-L29).
 func (q *Queries) AudSchedInsertJob(ctx context.Context, arg AudSchedInsertJobParams) (int32, error) {
 	row := q.db.QueryRow(ctx, audSchedInsertJob,
 		arg.Executor,
 		arg.Payload,
 		arg.FireKey,
 		arg.NextRunAt,
+		arg.WorkspaceID,
 	)
 	var id int32
 	err := row.Scan(&id)

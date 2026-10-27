@@ -291,6 +291,16 @@ func seedJobs(t *testing.T, ctx context.Context, pool *pgxpool.Pool, list []any)
 	return ids
 }
 
+// jobWorkspaceOK: a job enqueued by Go carries its payload workspace in jobs.workspace_id (S-L29; Python wrote
+// NULL); a job the vector seeded itself stays NULL.
+func jobWorkspaceOK(g jobRow, payload any) bool {
+	if g.WorkspaceID == nil {
+		return true
+	}
+	m, _ := payload.(map[string]any)
+	return *g.WorkspaceID == m["workspace_id"]
+}
+
 func compareJobs(t *testing.T, got []jobRow, want []any) {
 	t.Helper()
 	if len(got) != len(want) {
@@ -305,7 +315,7 @@ func compareJobs(t *testing.T, got []jobRow, want []any) {
 		wnext := tsPtr(t, m["next_run_at"])
 		if g.FireKey != m["fire_key"] || g.Status != m["status"] || g.Executor != m["executor"] || g.Type != m["type"] ||
 			float64(g.Priority) != m["priority"] || float64(g.MaxRetries) != m["max_retries"] ||
-			!reflect.DeepEqual(gp, wp) || !eqTime(g.NextRunAt, wnext) || g.WorkspaceID != nil {
+			!reflect.DeepEqual(gp, wp) || !eqTime(g.NextRunAt, wnext) || !jobWorkspaceOK(g, gp) {
 			t.Fatalf("job %d: got %+v (next %s), want %+v", i, g, fmtT(g.NextRunAt), m)
 		}
 	}
@@ -821,5 +831,19 @@ func TestReconcileFailureOtherWorkspaceUntouched(t *testing.T) {
 	}
 	if a, _ := readAudience(t, ctx, pool, wsVec, id); a.Failures != 0 || a.Health != "unverified" {
 		t.Fatalf("foreign-workspace payload changed the audience: %+v", a)
+	}
+}
+
+// S-L29: the scheduled job row names its workspace so the handler can refuse a payload that disagrees.
+func TestScheduledJobCarriesWorkspace(t *testing.T) {
+	pool, ctx := setup(t)
+	id := idPfx + "wsrow"
+	mkAudience(t, ctx, pool, audRow{ID: id, WS: wsVec, Enabled: true, Interval: 60})
+	if _, err := runSchedule(t, ctx, pool, audiencesched.ScheduleInput{ID: id, WorkspaceID: wsVec, RefreshEnabled: true, IntervalMinutes: 60}, frozenNow, "go"); err != nil {
+		t.Fatal(err)
+	}
+	var n int
+	if err := pool.QueryRow(ctx, `SELECT count(*) FROM jobs WHERE payload::jsonb ->> 'audience_id' = $1 AND workspace_id = $2`, id, wsVec).Scan(&n); err != nil || n != 1 {
+		t.Fatalf("jobs with workspace %q: %d %v", wsVec, n, err)
 	}
 }

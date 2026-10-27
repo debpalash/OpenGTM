@@ -165,7 +165,7 @@ func enqueue(ctx context.Context, q *gen.Queries, a ScheduleInput, key string, n
 		return fmt.Errorf("audiencesched: encode payload: %w", err)
 	}
 	if _, err := q.AudSchedInsertJob(ctx, gen.AudSchedInsertJobParams{
-		Executor: executor, Payload: bytes.TrimSpace(buf.Bytes()), FireKey: key, NextRunAt: tstz(next),
+		Executor: executor, Payload: bytes.TrimSpace(buf.Bytes()), FireKey: key, NextRunAt: tstz(next), WorkspaceID: a.WorkspaceID,
 	}); err != nil && !errors.Is(err, pgx.ErrNoRows) { // ErrNoRows: lost the unique-index race
 		return fmt.Errorf("audiencesched: enqueue: %w", err)
 	}

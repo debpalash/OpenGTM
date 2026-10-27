@@ -22,12 +22,12 @@ WHERE type = 'audience_refresh' AND status = 'pending'
   AND (payload::jsonb ->> 'workspace_id' IS NULL
        OR payload::jsonb ->> 'workspace_id' = coalesce(current_setting('app.workspace_id', true), ''));
 
--- Row enqueue_job_once writes: priority 1, max_retries 3, next_run_at = the occurrence,
--- workspace_id NULL as in Python.
+-- Row enqueue_job_once writes: priority 1, max_retries 3, next_run_at = the occurrence. jobs.workspace_id
+-- is set (Python wrote NULL) so the handler's payload-vs-row workspace check is not vacuous (S-L29).
 -- name: AudSchedInsertJob :one
-INSERT INTO jobs (executor, type, payload, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count)
+INSERT INTO jobs (executor, type, payload, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count, workspace_id)
 VALUES (sqlc.arg(executor)::text, 'audience_refresh', sqlc.arg(payload)::json, 1, sqlc.arg(fire_key)::text, 'pending',
-        (now() AT TIME ZONE 'UTC'), (sqlc.arg(next_run_at)::timestamptz)::timestamp, 3, 0)
+        (now() AT TIME ZONE 'UTC'), (sqlc.arg(next_run_at)::timestamptz)::timestamp, 3, 0, sqlc.arg(workspace_id)::text)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id;
 

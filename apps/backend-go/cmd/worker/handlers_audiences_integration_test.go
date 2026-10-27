@@ -538,3 +538,17 @@ func TestWorkerWebhookDestinationHeaderRefWorkspaceOnly(t *testing.T) {
 		})
 	}
 }
+
+// S-L29: the scheduled refresh job carries jobs.workspace_id, so a payload naming another workspace is
+// refused permanently instead of running in that tenant.
+func TestRefreshJobWithMismatchedPayloadWorkspaceFailsPermanently(t *testing.T) {
+	g := setupAud(t)
+	g.audience(t, "aud1", true)
+	job := g.job(t, "audience_refresh", map[string]any{"workspace_id": g.ws + "-other", "audience_id": "aud1"}, "go", 3)
+	em := &nopEmitter{}
+	g.runAud(t, audConfig(g.ws), em, audienceOpts{})
+	st, _, retries := g.jobRow(t, job)
+	if st == "completed" || st == "pending" || retries != 0 || em.calls.Load() != 0 {
+		t.Fatalf("job %s retries %d emitter calls %d", st, retries, em.calls.Load())
+	}
+}
