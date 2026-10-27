@@ -268,11 +268,29 @@ func workerJobTypes(t *testing.T, file string, consts map[string]string) (allowe
 	for _, m := range regexp.MustCompile(`handlers\[([\w.]+)\]\s*=`).FindAllStringSubmatch(src, -1) {
 		resolve(handled, m[1])
 	}
-	// entries of a multi-line handlers literal (two tabs in) and the first key of a one-line literal
-	for _, re := range []string{`(?m)^\t\t([\w.]+):\s`, `map\[string\]runner\{([\w.]+):`} {
-		for _, m := range regexp.MustCompile(re).FindAllStringSubmatch(src, -1) {
-			resolve(handled, m[1])
+	// keys of every map[string]runner literal: the literal is cut out by brace matching, and a key is an
+	// identifier at nesting depth 0 followed by a colon (values may hold func literals with their own braces)
+	const open = "map[string]runner{"
+	for i := strings.Index(src, open); i >= 0; {
+		start, depth, j := i+len(open), 0, i+len(open)
+		for ; j < len(src) && depth >= 0; j++ {
+			switch src[j] {
+			case '{', '(', '[':
+				depth++
+			case '}', ')', ']':
+				depth--
+			}
+			if depth == 0 && (src[j] == ',' || src[j] == '\n') || j == start {
+				if m := regexp.MustCompile(`^[\s,]*([\w.]+):\s`).FindStringSubmatch(src[j:]); m != nil {
+					resolve(handled, m[1])
+				}
+			}
 		}
+		next := strings.Index(src[j:], open)
+		if next < 0 {
+			break
+		}
+		i = j + next
 	}
 	return allowed, handled
 }
