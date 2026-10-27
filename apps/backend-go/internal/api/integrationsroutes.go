@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"slices"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
@@ -14,11 +17,13 @@ import (
 // integrationRoutes serves /api/settings/integrations (global) and
 // /api/settings/workspace-integrations (per workspace). The workspace routes
 // take ?workspace_id= and replicate routers/settings.py's explicit checks, so
-// they do not use the X-Workspace-Id middleware.
+// they do not use the X-Workspace-Id middleware; resolveWorkspace applies the
+// same session scope and SSO enforcement that middleware does (final review M1).
 type integrationRoutes struct {
 	settingsRoutes
 	integ *settings.Integrations
 	st    *identity.Store
+	pool  *pgxpool.Pool
 }
 
 func (s integrationRoutes) list(w http.ResponseWriter, r *http.Request) {
@@ -114,7 +119,10 @@ func (s integrationRoutes) update(w http.ResponseWriter, r *http.Request) {
 }
 
 // resolveWorkspace is _resolve_active_workspace: the explicit ?workspace_id=
-// or the caller's active workspace, which the caller must belong to.
+// or the caller's active workspace, which the caller must belong to. Like
+// identity.Workspace, a workspace-scoped (SSO) session acts only in its own
+// workspace (it replaces the stored active one; any other is 403), and a
+// workspace with enforce_sso refuses non-SSO sessions of non-owners.
 func (s integrationRoutes) resolveWorkspace(w http.ResponseWriter, r *http.Request) (string, bool) {
 	p, ok := identity.PrincipalFrom(r.Context())
 	if !ok {
@@ -122,6 +130,9 @@ func (s integrationRoutes) resolveWorkspace(w http.ResponseWriter, r *http.Reque
 		return "", false
 	}
 	ws := r.URL.Query().Get("workspace_id")
+	if ws == "" {
+		ws = p.Claims.Workspace
+	}
 	if ws == "" {
 		var err error
 		if ws, err = s.st.ActiveWorkspaceID(r.Context(), p.User.ID); err != nil {
@@ -133,6 +144,10 @@ func (s integrationRoutes) resolveWorkspace(w http.ResponseWriter, r *http.Reque
 		httpx.Detail(w, http.StatusBadRequest, "No active workspace")
 		return "", false
 	}
+	if !p.Claims.AllowsWorkspace(ws) {
+		httpx.Detail(w, http.StatusForbidden, "Workspace access denied")
+		return "", false
+	}
 	member, err := s.st.IsMember(r.Context(), ws, p.User.ID)
 	if err != nil {
 		s.fail(w, "membership")
@@ -140,6 +155,20 @@ func (s integrationRoutes) resolveWorkspace(w http.ResponseWriter, r *http.Reque
 	}
 	if !member {
 		httpx.Detail(w, http.StatusForbidden, "Not a member of this workspace")
+		return "", false
+	}
+	role, err := s.st.MemberRole(r.Context(), ws, p.User.ID)
+	if err != nil {
+		s.fail(w, "member role")
+		return "", false
+	}
+	enforce, err := s.st.EnforceSSO(r.Context(), s.pool, ws)
+	if err != nil {
+		s.fail(w, "sso enforcement")
+		return "", false
+	}
+	if enforce && role != "owner" && !slices.Contains(p.Claims.AMR, "sso") {
+		httpx.Detail(w, http.StatusForbidden, ssoRequiredDetail)
 		return "", false
 	}
 	return ws, true

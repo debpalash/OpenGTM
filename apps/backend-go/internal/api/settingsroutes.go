@@ -39,7 +39,7 @@ func RegisterSettings(r *httpx.Router, d Deps) {
 		getenv: d.getenv(),
 		log:    d.Log,
 	}
-	integ := integrationRoutes{settingsRoutes: s, st: d.Identity, integ: &settings.Integrations{
+	integ := integrationRoutes{settingsRoutes: s, st: d.Identity, pool: d.Pool, integ: &settings.Integrations{
 		List: reg.Integrations, App: app, WS: secrets.NewResolver(d.Envelope, secrets.NewPgStore(d.Pool), d.getenv()),
 	}}
 	user := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity)}
