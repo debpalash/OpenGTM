@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -472,6 +473,8 @@ func TestEnforceJobExecutorFollowsFlag(t *testing.T) {
 	e.exec(t, `INSERT INTO retention_policies (workspace_id, enabled, legal_hold, retention_days, updated_by) VALUES ('ws-beta', true, false, '{}', NULL)`)
 	executorOf := func(ws, who string) string {
 		t.Helper()
+		// F19: an open run blocks the next enforce; finish the previous ones first.
+		e.exec(t, `UPDATE retention_runs SET status='completed' WHERE workspace_id=$1 AND status IN ('pending','running')`, ws)
 		code, raw := e.enforce(who, ws, "PURGE EXPIRED DATA")
 		var run struct{ ID string }
 		_ = json.Unmarshal([]byte(raw), &run)
@@ -623,5 +626,53 @@ func TestRetentionRoutesRequireAdmin(t *testing.T) {
 	}
 	if e.scalar(t, `SELECT count(*) FROM retention_policies WHERE workspace_id='ws-alpha' AND NOT enabled`) != 0 {
 		t.Error("a refused PUT changed the policy")
+	}
+}
+
+// F19: concurrent enforces of one workspace give one 202 and one 409; a pending or running run
+// (manual or scheduled) refuses a new one until it ends.
+func TestEnforceConcurrentOneRun(t *testing.T) {
+	e := newGREnv(t)
+	r0, j0 := e.runsAndJobs(t)
+	codes := make(chan int, 2)
+	bodies := make(chan string, 2)
+	var wg sync.WaitGroup
+	for i := 0; i < 2; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			code, raw := e.enforce("alice", "ws-alpha", "PURGE EXPIRED DATA")
+			codes <- code
+			bodies <- raw
+		}()
+	}
+	wg.Wait()
+	close(codes)
+	close(bodies)
+	got := map[int]int{}
+	for c := range codes {
+		got[c]++
+	}
+	if got[202] != 1 || got[409] != 1 {
+		t.Fatalf("codes %v", got)
+	}
+	found := false
+	for b := range bodies {
+		found = found || jsonEqual(b, `{"detail":"Retention enforcement already running"}`)
+	}
+	if !found {
+		t.Fatal("no 409 detail")
+	}
+	if r, j := e.runsAndJobs(t); r != r0+1 || j != j0+1 {
+		t.Errorf("created %d runs, %d jobs", r-r0, j-j0)
+	}
+	// a running scheduled run also blocks; a finished one does not.
+	e.exec(t, `UPDATE retention_runs SET status='running', requested_by='scheduler' WHERE workspace_id='ws-alpha' AND status='pending'`)
+	if code, raw := e.enforce("alice", "ws-alpha", "PURGE EXPIRED DATA"); code != 409 {
+		t.Fatalf("running scheduled run: %d %s", code, raw)
+	}
+	e.exec(t, `UPDATE retention_runs SET status='failed' WHERE workspace_id='ws-alpha' AND status='running'`)
+	if code, raw := e.enforce("alice", "ws-alpha", "PURGE EXPIRED DATA"); code != 202 {
+		t.Fatalf("after failed run: %d %s", code, raw)
 	}
 }
