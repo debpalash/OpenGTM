@@ -245,6 +245,35 @@ func (s setupRoutes) create(ctx context.Context, req setupRequest, hash string) 
 	return u, false, err
 }
 
+// CloseSetupIfUsersExist runs at API start (R-marker, final review L1): an install that already
+// has users but no setup_complete marker (a Python-era database) gets the marker, so setup stays
+// closed for good even if the users table is later emptied. With no users it writes nothing. It
+// takes the setup advisory lock, so it serializes with a concurrent POST /auth/setup.
+func CloseSetupIfUsersExist(ctx context.Context, pool *pgxpool.Pool) error {
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback(context.WithoutCancel(ctx)) }()
+	q := gen.New(tx)
+	if err := q.LockFirstAdminSetup(ctx); err != nil {
+		return err
+	}
+	hasUser, err := q.AnyUser(ctx)
+	if err != nil || !hasUser {
+		return err
+	}
+	if _, err := q.GetAppSetting(ctx, setupMarkerKey); err == nil {
+		return nil
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+		return err
+	}
+	if err := q.UpsertAppSetting(ctx, gen.UpsertAppSettingParams{Key: setupMarkerKey, Value: "1"}); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+
 // ResolveSetupToken decides the first-admin setup token once at API start. SETUP_TOKEN wins;
 // SETUP_TOKEN_DISABLED=1 means no token (APP_ENV never disables it); otherwise, only while setup is still required, a
 // random token is generated and logged once. Empty result: no token needed. A configured token is

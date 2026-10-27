@@ -234,6 +234,11 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool, str
 	// First-admin setup token (random + logged once while setup is open, unless configured or disabled).
 	if pool != nil {
 		sctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		// R-marker: a migrated install with users closes setup for good before the token is decided.
+		if err := api.CloseSetupIfUsersExist(sctx, pool); err != nil {
+			cancel()
+			return nil, fmt.Errorf("setup marker: %w", err)
+		}
 		tok, err := api.ResolveSetupToken(sctx, pool, os.Getenv, cfg.AppEnv, log)
 		cancel()
 		if err != nil {
