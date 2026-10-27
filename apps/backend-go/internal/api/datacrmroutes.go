@@ -334,6 +334,9 @@ func (f *dataFields) optStr(name string) emaildata.OptStr {
 
 // ---- handlers ----
 
+// maxDataLimit caps GET /api/data page size (S-L30).
+const maxDataLimit = 1000
+
 func (h dataRoutes) list(w http.ResponseWriter, r *http.Request) {
 	q := &dataQuery{r: r}
 	limit := q.intDef("limit", 50)
@@ -346,6 +349,11 @@ func (h dataRoutes) list(w http.ResponseWriter, r *http.Request) {
 	// Python answers 500 for negative paging; D4: 422, same shape as a ge=0 constraint.
 	if errs := emaildata.PagingErrors(limit, offset); errs != nil {
 		httpx.ValidationError(w, errs...)
+		return
+	}
+	if limit > maxDataLimit {
+		httpx.ValidationError(w, httpx.FieldError{Type: "less_than_equal", Loc: []any{"query", "limit"}, Input: limit,
+			Msg: "Input should be less than or equal to 1000", Ctx: map[string]any{"le": maxDataLimit}})
 		return
 	}
 	page, err := h.svc.List(r.Context(), f, clampInt(limit), clampInt(offset))

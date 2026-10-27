@@ -11,8 +11,8 @@ FROM email_data e
 LEFT JOIN links l ON e.source_link_id = l.id
 WHERE (sqlc.narg('source_link_id')::int IS NULL OR e.source_link_id = sqlc.narg('source_link_id')::int)
   AND (sqlc.narg('q')::text IS NULL
-       OR e.name ILIKE '%' || sqlc.narg('q')::text || '%'
-       OR e.email ILIKE '%' || sqlc.narg('q')::text || '%')
+       OR e.name ILIKE '%' || replace(replace(replace(sqlc.narg('q')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR e.email ILIKE '%' || replace(replace(replace(sqlc.narg('q')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
   AND (sqlc.narg('start_date')::text IS NULL OR e.created_at >= sqlc.narg('start_date')::text)
   AND (sqlc.narg('end_date')::text IS NULL OR e.created_at <= sqlc.narg('end_date')::text)
   AND (sqlc.narg('is_used')::bool IS NULL OR e.is_used = sqlc.narg('is_used')::bool)
@@ -40,8 +40,8 @@ LIMIT sqlc.arg('row_limit')::bigint OFFSET sqlc.arg('row_offset')::bigint;
 SELECT count(*) FROM email_data e
 WHERE (sqlc.narg('source_link_id')::int IS NULL OR e.source_link_id = sqlc.narg('source_link_id')::int)
   AND (sqlc.narg('q')::text IS NULL
-       OR e.name ILIKE '%' || sqlc.narg('q')::text || '%'
-       OR e.email ILIKE '%' || sqlc.narg('q')::text || '%')
+       OR e.name ILIKE '%' || replace(replace(replace(sqlc.narg('q')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR e.email ILIKE '%' || replace(replace(replace(sqlc.narg('q')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
   AND (sqlc.narg('start_date')::text IS NULL OR e.created_at >= sqlc.narg('start_date')::text)
   AND (sqlc.narg('end_date')::text IS NULL OR e.created_at <= sqlc.narg('end_date')::text)
   AND (sqlc.narg('is_used')::bool IS NULL OR e.is_used = sqlc.narg('is_used')::bool);
@@ -51,8 +51,8 @@ SELECT e.id, e.name, e.email, e.source_link_id, e.created_at, e.is_used, e.tags,
 FROM email_data e
 WHERE (sqlc.narg('source_link_id')::int IS NULL OR e.source_link_id = sqlc.narg('source_link_id')::int)
   AND (sqlc.narg('q')::text IS NULL
-       OR e.name ILIKE '%' || sqlc.narg('q')::text || '%'
-       OR e.email ILIKE '%' || sqlc.narg('q')::text || '%')
+       OR e.name ILIKE '%' || replace(replace(replace(sqlc.narg('q')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR e.email ILIKE '%' || replace(replace(replace(sqlc.narg('q')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
   AND (sqlc.narg('start_date')::text IS NULL OR e.created_at >= sqlc.narg('start_date')::text)
   AND (sqlc.narg('end_date')::text IS NULL OR e.created_at <= sqlc.narg('end_date')::text)
   AND (sqlc.narg('is_used')::bool IS NULL OR e.is_used = sqlc.narg('is_used')::bool)
@@ -84,8 +84,8 @@ WHERE id = ANY(sqlc.arg('ids')::int[]);
 UPDATE email_data e SET is_used = sqlc.arg('used')::bool
 WHERE (sqlc.narg('source_link_id')::int IS NULL OR e.source_link_id = sqlc.narg('source_link_id')::int)
   AND (sqlc.narg('q')::text IS NULL
-       OR e.name ILIKE '%' || sqlc.narg('q')::text || '%'
-       OR e.email ILIKE '%' || sqlc.narg('q')::text || '%')
+       OR e.name ILIKE '%' || replace(replace(replace(sqlc.narg('q')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR e.email ILIKE '%' || replace(replace(replace(sqlc.narg('q')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
   AND (sqlc.narg('start_date')::text IS NULL OR e.created_at >= sqlc.narg('start_date')::text)
   AND (sqlc.narg('end_date')::text IS NULL OR e.created_at <= sqlc.narg('end_date')::text)
   AND (sqlc.narg('is_used')::bool IS NULL OR e.is_used = sqlc.narg('is_used')::bool);

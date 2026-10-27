@@ -211,7 +211,8 @@ func (e dataEnv) replayAll(t *testing.T, want func(string) bool) {
 	t.Helper()
 	for _, name := range dataFixtureOrder {
 		rec, fx := e.play(t, name)
-		if fx.Response.Status == 500 || !want(name) {
+		// list_q_percent_wildcard pins Python's unescaped LIKE; Go matches literals (S-L30, TestLikeWildcardsAreLiteral).
+		if fx.Response.Status == 500 || !want(name) || name == "list_q_percent_wildcard" {
 			continue
 		}
 		t.Run(name, func(t *testing.T) {
@@ -284,6 +285,17 @@ func TestDataPythonCrashesAnswerClientErrors(t *testing.T) {
 	rec, _ = e.do("PATCH", "/api/data/1", "application/json", `{"name":"a\u0000b"}`, admin)
 	if rec.Code != 422 {
 		t.Errorf("NUL in patch: %d %s", rec.Code, rec.Body)
+	}
+}
+
+func TestDataListLimitCapped(t *testing.T) {
+	e := newDataEnv(t)
+	rec, _ := e.do("GET", "/api/data?limit=100000", "", "", bearer("alice"))
+	if rec.Code != 422 || !strings.Contains(rec.Body.String(), "less_than_equal") {
+		t.Fatalf("limit=100000: %d %s", rec.Code, rec.Body)
+	}
+	if rec, _ := e.do("GET", "/api/data?limit=1000", "", "", bearer("alice")); rec.Code != 200 {
+		t.Fatalf("limit=1000: %d", rec.Code)
 	}
 }
 

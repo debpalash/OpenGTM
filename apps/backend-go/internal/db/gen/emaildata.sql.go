@@ -15,8 +15,8 @@ const countEmailData = `-- name: CountEmailData :one
 SELECT count(*) FROM email_data e
 WHERE ($1::int IS NULL OR e.source_link_id = $1::int)
   AND ($2::text IS NULL
-       OR e.name ILIKE '%' || $2::text || '%'
-       OR e.email ILIKE '%' || $2::text || '%')
+       OR e.name ILIKE '%' || replace(replace(replace($2::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR e.email ILIKE '%' || replace(replace(replace($2::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
   AND ($3::text IS NULL OR e.created_at >= $3::text)
   AND ($4::text IS NULL OR e.created_at <= $4::text)
   AND ($5::bool IS NULL OR e.is_used = $5::bool)
@@ -118,8 +118,8 @@ SELECT e.id, e.name, e.email, e.source_link_id, e.created_at, e.is_used, e.tags,
 FROM email_data e
 WHERE ($1::int IS NULL OR e.source_link_id = $1::int)
   AND ($2::text IS NULL
-       OR e.name ILIKE '%' || $2::text || '%'
-       OR e.email ILIKE '%' || $2::text || '%')
+       OR e.name ILIKE '%' || replace(replace(replace($2::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR e.email ILIKE '%' || replace(replace(replace($2::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
   AND ($3::text IS NULL OR e.created_at >= $3::text)
   AND ($4::text IS NULL OR e.created_at <= $4::text)
   AND ($5::bool IS NULL OR e.is_used = $5::bool)
@@ -202,8 +202,8 @@ FROM email_data e
 LEFT JOIN links l ON e.source_link_id = l.id
 WHERE ($1::int IS NULL OR e.source_link_id = $1::int)
   AND ($2::text IS NULL
-       OR e.name ILIKE '%' || $2::text || '%'
-       OR e.email ILIKE '%' || $2::text || '%')
+       OR e.name ILIKE '%' || replace(replace(replace($2::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR e.email ILIKE '%' || replace(replace(replace($2::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
   AND ($3::text IS NULL OR e.created_at >= $3::text)
   AND ($4::text IS NULL OR e.created_at <= $4::text)
   AND ($5::bool IS NULL OR e.is_used = $5::bool)
@@ -302,8 +302,8 @@ const markEmailDataUsedByFilter = `-- name: MarkEmailDataUsedByFilter :execrows
 UPDATE email_data e SET is_used = $1::bool
 WHERE ($2::int IS NULL OR e.source_link_id = $2::int)
   AND ($3::text IS NULL
-       OR e.name ILIKE '%' || $3::text || '%'
-       OR e.email ILIKE '%' || $3::text || '%')
+       OR e.name ILIKE '%' || replace(replace(replace($3::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR e.email ILIKE '%' || replace(replace(replace($3::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
   AND ($4::text IS NULL OR e.created_at >= $4::text)
   AND ($5::text IS NULL OR e.created_at <= $5::text)
   AND ($6::bool IS NULL OR e.is_used = $6::bool)
