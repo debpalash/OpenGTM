@@ -75,7 +75,17 @@ func audienceGoPatterns(t *testing.T) map[string]bool {
 	for _, p := range r.Patterns() {
 		out[p] = true
 	}
+	// Plan 15 WP-ROUTES-A: the two capability catalogs moved from the retained list into Go.
+	for p := range capabilityPatterns(t, "/api/audiences/", "/api/audience-destinations/") {
+		out[p] = true
+	}
 	return out
+}
+
+// capabilityRoutesNginxPinned are ported in Go (flag-gated) but still pinned to api_backend by nginx until
+// WP-RETIRE-INFRA edits infra/nginx.
+var capabilityRoutesNginxPinned = map[string]bool{
+	"GET /api/audiences/capabilities": true, "GET /api/audience-destinations/types": true,
 }
 
 func readRetainedAudiences(t *testing.T) map[string]bool {
@@ -135,8 +145,8 @@ func TestEveryAudienceDestinationRouteIsPortedOrRetained(t *testing.T) {
 	for p := range patterns {
 		ported[p] = true
 	}
-	if len(patterns) != 23 || !patterns[inboundRoutePattern] || len(routes) != 25 || len(ported) != 23 || len(retained) != 2 {
-		t.Fatalf("want 25 Python routes = 23 ported (22 mux patterns + the inbound override) + 2 retained, got %d = %d (%d patterns) + %d",
+	if len(patterns) != 25 || !patterns[inboundRoutePattern] || len(routes) != 25 || len(ported) != 25 || len(retained) != 0 {
+		t.Fatalf("want 25 Python routes = 25 ported (22 mux patterns + the inbound override + 2 capability catalogs, plan 15) + 0 retained, got %d = %d (%d patterns) + %d",
 			len(routes), len(ported), len(patterns), len(retained))
 	}
 	seen := map[string]bool{}
@@ -164,10 +174,9 @@ func TestEveryAudienceDestinationRouteIsPortedOrRetained(t *testing.T) {
 func TestRetainedAudienceRoutesNotRegisteredInGo(t *testing.T) {
 	patterns := audienceGoPatterns(t)
 	retained := readRetainedAudiences(t)
-	for _, want := range []string{"GET /api/audiences/capabilities", "GET /api/audience-destinations/types"} {
-		if !retained[want] {
-			t.Errorf("%s must be retained on Python (D1)", want)
-		}
+	// Plan 15 WP-ROUTES-A ported the two capability catalogs (D1 retained them only for want of internal/certification).
+	if len(retained) != 0 {
+		t.Errorf("retained list must be empty after plan 15 WP-ROUTES-A: %v", retained)
 	}
 	for r := range retained {
 		if patterns[r] {
@@ -218,7 +227,8 @@ func TestEveryAudienceDestinationRouteHasFixtureOrIsRetained(t *testing.T) {
 	retained := readRetainedAudiences(t)
 	rest := map[string]bool{}
 	for p := range ported {
-		if !retained[p] {
+		// The capability catalogs are recorded under testdata/contract/capabilities (capabilityroutes_test.go).
+		if !retained[p] && !capabilityRoutesNginxPinned[p] {
 			rest[p] = true
 		}
 	}
@@ -445,7 +455,7 @@ func TestAudienceNginxSectionCoversRoutes(t *testing.T) {
 			t.Errorf("no nginx location for %s", r)
 			continue
 		}
-		if retained[r] {
+		if retained[r] || capabilityRoutesNginxPinned[r] {
 			if !strings.Contains(l.block, "proxy_pass http://api_backend;") {
 				t.Errorf("retained %s is not pinned to api_backend", r)
 			}

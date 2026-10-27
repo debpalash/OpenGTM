@@ -45,6 +45,10 @@ func governanceGoPatterns(t *testing.T) map[string]bool {
 			out[p] = true
 		}
 	}
+	// Plan 15 WP-ROUTES-A: the two capability catalogs moved from the retained list into Go.
+	for p := range capabilityPatterns(t, "/api/governance/", "/api/research-playbooks/") {
+		out[p] = true
+	}
 	return out
 }
 
@@ -106,8 +110,8 @@ func TestEveryGovernancePlaybookRouteIsPortedOrRetained(t *testing.T) {
 	}
 	ported := governanceGoPatterns(t)
 	retained := readRetainedGovernance(t)
-	if len(ported) != 26 || len(retained) != 2 {
-		t.Errorf("want 26 ported + 2 retained, got %d + %d", len(ported), len(retained))
+	if len(ported) != 28 || len(retained) != 0 {
+		t.Errorf("want 28 ported (26 + the two capability catalogs, plan 15) + 0 retained, got %d + %d", len(ported), len(retained))
 	}
 	seen := map[string]bool{}
 	for _, r := range append(append([]string{}, gov...), pb...) {
@@ -135,8 +139,8 @@ func TestRetainedGovernanceRoutesNotRegisteredInGo(t *testing.T) {
 	ported := governanceGoPatterns(t)
 	retained := readRetainedGovernance(t)
 	for _, want := range []string{"GET /api/governance/capabilities", "GET /api/research-playbooks/capabilities"} {
-		if !retained[want] {
-			t.Errorf("retained list lacks %s", want)
+		if retained[want] || !ported[want] {
+			t.Errorf("%s must be ported (plan 15 WP-ROUTES-A), not retained", want)
 		}
 	}
 	for r := range retained {
@@ -151,7 +155,8 @@ func TestEveryGovernancePlaybookRouteHasFixtureOrIsRetained(t *testing.T) {
 	retained := readRetainedGovernance(t)
 	rest := map[string]bool{}
 	for p := range ported {
-		if !retained[p] {
+		// The capability catalogs are recorded under testdata/contract/capabilities (capabilityroutes_test.go).
+		if !retained[p] && !strings.HasSuffix(p, "/capabilities") {
 			rest[p] = true
 		}
 	}

@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -210,4 +211,22 @@ func TestHealthAndRootMatchPython(t *testing.T) {
 				rec.Header().Get("Allow"), rec.Header().Get("Content-Type"), c.Status, c.BodyRaw, c.Allow, c.ContentType)
 		}
 	}
+}
+
+// capabilityPatterns registers the capability routes (flag on) and returns the patterns whose path starts with any
+// prefix, for the plan 10 and plan 11 coverage tests: the routes moved here from their retained lists.
+func capabilityPatterns(t *testing.T, prefixes ...string) map[string]bool {
+	t.Helper()
+	r, restore := capRouter(t, true)
+	defer restore()
+	out := map[string]bool{}
+	for _, p := range r.Patterns() {
+		_, path, _ := strings.Cut(p, " ")
+		for _, pre := range prefixes {
+			if strings.HasPrefix(path, pre) {
+				out[p] = true
+			}
+		}
+	}
+	return out
 }

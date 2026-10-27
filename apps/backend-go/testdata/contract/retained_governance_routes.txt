@@ -1,7 +1,6 @@
 # Governance and research-playbook routes that stay on FastAPI (plan 11, decision D1). One "METHOD /path/{param}" per line.
-# Both serve the signed certification catalog (integrations/certification.py: HMAC-verified evidence files and the
-# build SHA); they are ported with the integrations plan if wanted. nginx keeps them on api_backend at every percentage
-# (infra/nginx/go-routes.conf, section governance-playbooks). All other 26 routes (17 governance, 9 playbooks) are ported;
-# parity is pinned by internal/api/governance_coverage_test.go.
-GET /api/governance/capabilities
-GET /api/research-playbooks/capabilities
+# None after plan 15 WP-ROUTES-A: GET /api/governance/capabilities and GET /api/research-playbooks/capabilities (the
+# signed-certification catalogs) are served by internal/api/capabilityroutes.go behind GO_CAPABILITY_ROUTES_ENABLED
+# (byte-equal to FastAPI, see testdata/contract/capabilities). All 28 routes (18 governance, 10 playbooks) are ported;
+# parity is pinned by internal/api/governance_coverage_test.go. nginx still pins the two paths to api_backend
+# (infra/nginx/go-routes.conf, section governance-playbooks) until WP-RETIRE-INFRA.

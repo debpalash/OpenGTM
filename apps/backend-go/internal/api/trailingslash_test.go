@@ -106,7 +106,6 @@ func TestTrailingSlashMatchesRecordedFastAPI(t *testing.T) {
 	defer restore()
 	RegisterCapabilityRoutes(r, d)
 	registerEnrich(r, enrichDepsWithPool(t))
-	RegisterTrailingSlash(r)
 	ported := map[string]bool{}
 	for _, p := range r.Patterns() {
 		_, path, _ := strings.Cut(p, " ")
