@@ -122,6 +122,11 @@ def parse_ip_any_encoding(host: str) -> IPAddress | None:
     return None
 
 
+# Destination ports the proxy may open (review L2): web only unless configured
+# (BROWSER_EGRESS_PORTS). The caller's upstream proxy port is not limited.
+DEFAULT_PORTS = frozenset({80, 443})
+
+
 class EgressPolicy:
     """Decides which destinations are reachable.
 
@@ -133,8 +138,10 @@ class EgressPolicy:
         self,
         allow_cidrs: Iterable[IPNetwork] = (),
         resolver: Callable[[str, int], Awaitable[list[str]]] | None = None,
+        ports: frozenset[int] | None = DEFAULT_PORTS,
     ) -> None:
         self.allow_cidrs = tuple(allow_cidrs)
+        self.ports = ports  # None = any port (tests with loopback servers)
         self._resolver = resolver or _system_resolve
 
     def ip_blocked(self, ip: IPAddress) -> bool:
@@ -184,13 +191,22 @@ class EgressPolicy:
             raise BlockedError("credentials in url")
         host = parts.hostname or ""
         self.check_host(host)
-        return host, port or (443 if scheme == "https" else 80)
+        port = port or (443 if scheme == "https" else 80)
+        self.check_port(port)
+        return host, port
 
-    async def resolve(self, host: str, port: int) -> list[str]:
+    def check_port(self, port: int) -> None:
+        if self.ports is not None and port not in self.ports:
+            raise BlockedError("port not allowed")
+
+    async def resolve(self, host: str, port: int, *, any_port: bool = False) -> list[str]:
         """Resolve ``host`` once and return its addresses, all of them vetted.
-        Raises BlockedError when any address is blocked, ResolveError when none."""
+        Raises BlockedError when any address is blocked, ResolveError when none.
+        ``any_port`` skips the destination-port list (upstream proxies)."""
         if not 0 < port < 65536:
             raise BlockedError("invalid port")
+        if not any_port:
+            self.check_port(port)
         self.check_host(host)
         literal = parse_ip_any_encoding(host)
         if literal is not None:
@@ -482,7 +498,7 @@ class EgressProxy:
         metadata proxy address is refused) and is asked for the pinned IP, never
         the name, so DNS rebinding cannot happen on the far side either."""
         try:
-            up_ips = await self.policy.resolve(up.host, up.port)
+            up_ips = await self.policy.resolve(up.host, up.port, any_port=True)
         except (BlockedError, ResolveError) as e:
             session.upstream_failed = True
             logger.info("upstream proxy refused reason=%s", type(e).__name__)

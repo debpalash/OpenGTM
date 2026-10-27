@@ -159,7 +159,7 @@ def create_app(
     policy: EgressPolicy | None = None,
     stealth_pool: Any = None,
 ) -> FastAPI:
-    policy = policy or EgressPolicy(allow_cidrs=settings.egress_allow_cidrs)
+    policy = policy or EgressPolicy(allow_cidrs=settings.egress_allow_cidrs, ports=settings.egress_ports)
     proxy = EgressProxy(policy)
     pool = pool if pool is not None else BrowserPool(proxy)
     if settings.maps_stealth and stealth_pool is None:

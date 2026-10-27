@@ -49,6 +49,8 @@ class Settings:
     # the deployed legacy image had only vanilla Playwright (patchright was the
     # optional `browser` extra), so off matches what production ran.
     maps_stealth: bool = False
+    # destination ports the egress proxy may open (BROWSER_EGRESS_PORTS)
+    egress_ports: frozenset[int] = frozenset({80, 443})
 
     def __repr__(self) -> str:  # keep the token out of logs and tracebacks
         return (
@@ -94,6 +96,16 @@ class Settings:
             except ValueError as e:
                 raise ConfigError("BROWSER_EGRESS_ALLOW_CIDRS is not a list of CIDRs") from e
 
+        ports_raw = env.get("BROWSER_EGRESS_PORTS", "").strip()
+        egress_ports = frozenset({80, 443})
+        if ports_raw:
+            try:
+                egress_ports = frozenset(int(p) for p in ports_raw.split(",") if p.strip())
+            except ValueError as e:
+                raise ConfigError("BROWSER_EGRESS_PORTS must be a comma-separated port list") from e
+            if not egress_ports or not all(0 < p < 65536 for p in egress_ports):
+                raise ConfigError("BROWSER_EGRESS_PORTS must be a comma-separated port list")
+
         flaresolverr_url = env.get("FLARESOLVERR_URL", "").strip().rstrip("/")
         proxy_host, proxy_port = "127.0.0.1", 0
         listen = env.get("BROWSER_EGRESS_PROXY_LISTEN", "").strip()
@@ -132,4 +144,5 @@ class Settings:
             max_extract_bytes=num("BROWSER_MAX_EXTRACT_BYTES", 8 * MiB, 64 * 1024, 64 * MiB),
             staffspy_enabled=flag("BROWSER_STAFFSPY_ENABLED", False),
             maps_stealth=flag("BROWSER_MAPS_STEALTH", False),
+            egress_ports=egress_ports,
         )
