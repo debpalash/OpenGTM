@@ -22,7 +22,8 @@ import (
 // Credentials are per workspace and never shared across workspaces.
 type KeyFunc func(ctx context.Context, workspaceID, envVar string) (string, error)
 
-// ProviderCaller is the Python worker RPC (pyworker.Client).
+// ProviderCaller is the provider-call RPC: pyworker.Client, or the rpclocal
+// composite that serves GO_LOCAL_PROVIDERS names (website_scraper) in process.
 type ProviderCaller interface {
 	Call(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error)
 }
@@ -195,12 +196,13 @@ func (f *ProviderFinder) Find(ctx context.Context, workspaceID string, lead map[
 	return "", nil, nil
 }
 
-// WebsiteProvider is the Python provider that scrapes a company website. It
-// needs the Python StealthClient, so it runs behind pyworker.
+// WebsiteProvider is the provider that scrapes a company website: Go
+// (providers/scrape over the browser service) when GO_LOCAL_PROVIDERS lists
+// it, else the Python worker.
 const WebsiteProvider = "website_scraper"
 
 // WebsiteFinder is the free first step: scrape the lead's website for a
-// contact email through the Python worker. The provider reports at most three
+// contact email through the provider-call RPC. The provider reports at most three
 // addresses (email, secondary_emails); the first usable one wins.
 type WebsiteFinder struct {
 	Py      ProviderCaller
