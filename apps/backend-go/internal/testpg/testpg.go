@@ -60,6 +60,11 @@ func NewAppPool(t testing.TB, maxConns int32) *pgxpool.Pool {
 		`GRANT USAGE ON SCHEMA public TO ` + AppLoginRole,
 		`GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ` + AppLoginRole,
 		`GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ` + AppLoginRole,
+		// schema.sql grants this only when yupcha_app already exists (PUBLIC is revoked), so a fresh cluster needs it here
+		`DO $$ BEGIN
+		   IF to_regprocedure('public.outreach_send_by_message_id(text)') IS NOT NULL THEN
+		     GRANT EXECUTE ON FUNCTION public.outreach_send_by_message_id(text) TO yupcha_app; END IF;
+		 END $$`,
 	}
 	for _, s := range stmts {
 		if err := execRetrying(ctx, owner, s); err != nil {
