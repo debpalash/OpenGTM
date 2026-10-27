@@ -24,10 +24,6 @@ type Column struct {
 	Name string `json:"name"`
 }
 
-// localZone reads naive ISO timestamps (Python datetime.timestamp() uses the
-// process local zone); tests pin it to UTC.
-var localZone = time.Local
-
 // Evaluate is safe_evaluate_condition at the current time.
 func Evaluate(condition string, cells map[string]any, cols []Column) Result {
 	return EvaluateAt(condition, cells, cols, time.Now())

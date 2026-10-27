@@ -264,10 +264,9 @@ func parseISO(s string) (float64, bool) {
 	if hh > 23 || mm > 59 || ss > 59 {
 		return 0, false
 	}
-	loc := localZone
-	if aware {
-		loc = time.UTC
-	} else if y == 1 && m == 1 && d == 1 {
+	// Naive timestamps are UTC (audit F2); Python read them in the process zone.
+	loc := time.UTC
+	if !aware && y == 1 && m == 1 && d == 1 {
 		// Python: naive datetime.timestamp() of 0001-01-01 overflows (year 0).
 		return 0, false
 	}

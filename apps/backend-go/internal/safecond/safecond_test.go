@@ -10,12 +10,6 @@ import (
 	"time"
 )
 
-func TestMain(m *testing.M) {
-	// Vectors were generated with TZ=UTC; naive timestamps read in local time.
-	localZone = time.UTC
-	os.Exit(m.Run())
-}
-
 type vecFile[T any] struct {
 	Now     float64 `json:"now"`
 	Vectors []T     `json:"vectors"`
@@ -411,5 +405,28 @@ func TestISOTimestampParity(t *testing.T) {
 		if ok != c.ok || (ok && got != c.ts) {
 			t.Errorf("%q: got %v/%v want %v/%v", c.in, got, ok, c.ts, c.ok)
 		}
+	}
+}
+
+// Naive timestamps are UTC whatever the process zone (audit F2).
+func TestNaiveTimestampIgnoresProcessZone(t *testing.T) {
+	old := time.Local
+	defer func() { time.Local = old }()
+	ist, err := time.LoadLocation("Asia/Kolkata")
+	if err != nil {
+		t.Fatal(err)
+	}
+	now := time.Date(2026, 6, 1, 12, 0, 0, 0, time.UTC)
+	cells := map[string]any{"t": "2026-06-01T11:00:00"}
+	cols := []Column{{ID: "t"}}
+	time.Local = time.UTC
+	want := EvaluateAt("{t} older_than 3599s", cells, cols, now)
+	time.Local = ist
+	got := EvaluateAt("{t} older_than 3599s", cells, cols, now)
+	if got.Passed != want.Passed || !got.Passed {
+		t.Errorf("IST %+v vs UTC %+v: naive timestamp must read as UTC", got, want)
+	}
+	if r := EvaluateAt("{t} older_than 3601s", cells, cols, now); r.Passed {
+		t.Errorf("IST: 1h-old naive timestamp passed older_than 3601s: %+v", r)
 	}
 }
