@@ -183,7 +183,7 @@ func (c *Client) anthropicAttempt(ctx context.Context, p Provider, method, url s
 	var h retryHints
 	rctx, cancel := context.WithCancel(ctx)
 	var timedOut atomic.Bool
-	timer := time.AfterFunc(c.o.Config.HTTPTimeout, func() { timedOut.Store(true); cancel() })
+	timer := time.AfterFunc(turnTimeoutFrom(ctx, c.o.Config.HTTPTimeout), func() { timedOut.Store(true); cancel() })
 	stop := func() { timer.Stop(); cancel() }
 
 	var rdr io.Reader
@@ -308,6 +308,25 @@ type AnthropicRequest struct {
 	OutputFormat any // becomes output_config.format; incompatible with a forced tool_choice
 	MaxTokens    int // 0 means 1024
 	Provider     *Provider
+	// Timeout bounds one HTTP attempt of this turn. Zero derives it from MaxTokens (AnthropicTurnTimeout): a
+	// non-streaming turn with a large token budget and adaptive thinking legitimately takes minutes.
+	Timeout time.Duration
+}
+
+type turnTimeoutKey struct{}
+
+func turnTimeoutFrom(ctx context.Context, def time.Duration) time.Duration {
+	if d, ok := ctx.Value(turnTimeoutKey{}).(time.Duration); ok && d > 0 {
+		return d
+	}
+	return def
+}
+
+// AnthropicTurnTimeout is the per-attempt timeout of a non-streaming turn that may produce maxTokens tokens: the
+// configured LLM_HTTP_TIMEOUT floor, or 30s plus 13ms per token (about 77 tokens/s worst case), whichever is longer.
+// 16000 tokens give 238s.
+func AnthropicTurnTimeout(base time.Duration, maxTokens int) time.Duration {
+	return max(base, 30*time.Second+time.Duration(maxTokens)*13*time.Millisecond)
 }
 
 // AnthropicTurn performs one native Messages-API turn with tools, tool_choice
@@ -350,7 +369,11 @@ func (c *Client) AnthropicTurn(ctx context.Context, r AnthropicRequest) (*Anthro
 	if r.OutputFormat != nil {
 		body["output_config"] = map[string]any{"format": r.OutputFormat}
 	}
-	return c.anthropicMessages(ctx, p, body)
+	timeout := r.Timeout
+	if timeout <= 0 {
+		timeout = AnthropicTurnTimeout(c.o.Config.HTTPTimeout, r.MaxTokens)
+	}
+	return c.anthropicMessages(context.WithValue(ctx, turnTimeoutKey{}, timeout), p, body)
 }
 
 // Per-MTok prices (USD input, output). An unknown model is priced at the most
