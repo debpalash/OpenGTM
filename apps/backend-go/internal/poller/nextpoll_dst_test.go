@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-// Same Python-derived vectors as autoschedule: the watch poll time must follow
-// compute_next_run's wall-clock arithmetic under a non-UTC session TimeZone.
-func TestNextPollForInMatchesPythonAcrossDST(t *testing.T) {
+// Same vectors as autoschedule: the watch poll time is absolute-instant
+// arithmetic under a non-UTC session TimeZone (audit F1).
+func TestNextPollForInAbsoluteAcrossDST(t *testing.T) {
 	raw, err := os.ReadFile("../autoschedule/testdata/next_run_dst_vectors.json")
 	if err != nil {
 		t.Fatal(err)
@@ -51,5 +51,17 @@ func TestNextPollForNilAnchorWaitsOneInterval(t *testing.T) {
 	got := NextPollFor(Watch{Interval: "hourly"}, now, Config{DefaultInterval: "daily"})
 	if want := now.Add(time.Hour); !got.Equal(want) {
 		t.Fatalf("got %s want %s", got, want)
+	}
+}
+
+func TestScheduledFireKeyInRendersUTC(t *testing.T) {
+	loc, _ := time.LoadLocation("America/New_York")
+	next := time.Date(2026, 11, 2, 12, 0, 0, 0, time.UTC)
+	want := "watch:w1:2026-11-02T12:00:00+00:00"
+	if got := ScheduledFireKeyIn("w1", next, loc); got != want {
+		t.Errorf("In: got %q want %q", got, want)
+	}
+	if got := ScheduledFireKey("w1", next.In(loc)); got != want {
+		t.Errorf("plain: got %q want %q", got, want)
 	}
 }

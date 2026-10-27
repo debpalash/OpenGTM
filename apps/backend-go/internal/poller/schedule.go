@@ -179,43 +179,35 @@ func SourceSet(kind string, signalTypes []string, webTech bool) []string {
 	return []string{}
 }
 
-// isoformatIn renders t in loc like Python's isoformat() for an aware datetime
-// whose tzinfo is loc (psycopg reads timestamptz in the session TimeZone):
-// that zone's UTC offset, microseconds only when non-zero.
-func isoformatIn(t time.Time, loc *time.Location) string {
-	t = t.In(loc)
+// isoformat renders t like Python's isoformat() for a UTC-aware datetime:
+// microseconds only when non-zero, then "+00:00". Fire keys are always UTC
+// (audit F1), independent of the Postgres session TimeZone.
+func isoformat(t time.Time) string {
+	t = t.UTC()
 	s := t.Format("2006-01-02T15:04:05")
 	if us := t.Nanosecond() / 1000; us != 0 {
 		s += fmt.Sprintf(".%06d", us)
 	}
-	return s + t.Format("-07:00")
+	return s + "+00:00"
 }
 
-// ScheduledFireKey is scheduled_fire_key for an instant already carrying its
-// zone (a parsed time keeps its own offset): watch:<id>:<next.isoformat()>.
+// ScheduledFireKey is scheduled_fire_key with the instant rendered in UTC:
+// watch:<id>:<next.isoformat()>.
 func ScheduledFireKey(watchID string, next time.Time) string {
-	return "watch:" + watchID + ":" + isoformatIn(next, next.Location())
+	return "watch:" + watchID + ":" + isoformat(next)
 }
 
-// ScheduledFireKeyIn renders the key with the instant in loc, the Postgres
-// session TimeZone Python's driver reads timestamptz in.
-func ScheduledFireKeyIn(watchID string, next time.Time, loc *time.Location) string {
-	return "watch:" + watchID + ":" + isoformatIn(next, loc)
+// ScheduledFireKeyIn is ScheduledFireKey; the zone argument is ignored (UTC
+// keys under every session TimeZone, audit F1).
+func ScheduledFireKeyIn(watchID string, next time.Time, _ *time.Location) string {
+	return "watch:" + watchID + ":" + isoformat(next)
 }
 
-// SessionLocation runs SHOW TimeZone and loads it. A name Go cannot load (for
-// example an abbreviation) refuses to schedule rather than risk a key that
-// differs from Python's (duplicate watch_poll chains).
-func SessionLocation(ctx context.Context, tx pgx.Tx) (*time.Location, error) {
-	var name string
-	if err := tx.QueryRow(ctx, `SHOW TimeZone`).Scan(&name); err != nil {
-		return nil, fmt.Errorf("poller: session timezone: %w", err)
-	}
-	loc, err := time.LoadLocation(name)
-	if err != nil {
-		return nil, fmt.Errorf("poller: unsupported session TimeZone %q (refusing to schedule): %w", name, err)
-	}
-	return loc, nil
+// SessionLocation is retained for callers; scheduling no longer depends on the
+// Postgres session TimeZone (audit F1), so it always returns UTC and never
+// refuses a zone name Go cannot load.
+func SessionLocation(_ context.Context, _ pgx.Tx) (*time.Location, error) {
+	return time.UTC, nil
 }
 
 type pollPayload struct {
@@ -305,14 +297,13 @@ func NextPollFor(w Watch, now time.Time, c Config) time.Time {
 }
 
 // NextPollForIn is the aligned next poll instant for a watch:
-// compute_next_run(anchor, interval) with the anchor read in the Postgres
-// session zone loc (wall-clock arithmetic across DST). A NULL anchor means
+// anchor + n*interval on absolute instants; loc is ignored (audit F1). A NULL anchor means
 // "now" and Python re-reads the clock, so the result is one interval ahead.
-func NextPollForIn(w Watch, now time.Time, c Config, loc *time.Location) time.Time {
+func NextPollForIn(w Watch, now time.Time, c Config, _ *time.Location) time.Time {
 	if w.Anchor == nil {
 		return now.UTC().Add(autoschedule.IntervalDelta(c.interval(w)))
 	}
-	return autoschedule.NextRunIn(*w.Anchor, c.interval(w), now.UTC(), loc)
+	return autoschedule.NextRunIn(*w.Anchor, c.interval(w), now.UTC(), time.UTC)
 }
 
 // RescheduleWatch is _reschedule_watch and persists the result (health columns,

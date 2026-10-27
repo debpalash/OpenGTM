@@ -18,10 +18,9 @@ type dstFile struct {
 	} `json:"vectors"`
 }
 
-// Expected values come from legacy/python compute_next_run with ZoneInfo
-// anchors (what psycopg returns under a non-UTC session TimeZone): wall-clock
-// arithmetic in the anchor's zone, absolute elapsed time.
-func TestNextRunInMatchesPythonWallClockAcrossDST(t *testing.T) {
+// Vectors (audit F1): absolute-instant arithmetic, anchors written in New York
+// offsets around the 2026 transitions; the zone argument must not matter.
+func TestNextRunInAbsoluteInstantsAcrossDST(t *testing.T) {
 	raw, err := os.ReadFile("testdata/next_run_dst_vectors.json")
 	if err != nil {
 		t.Fatal(err)
@@ -54,6 +53,28 @@ func TestTriggerNextNilAnchorWaitsOneInterval(t *testing.T) {
 		got := Trigger{Interval: iv}.next(now, time.UTC)
 		if want := now.Add(d); !got.Equal(want) {
 			t.Errorf("%s: got %s want %s", iv, got, want)
+		}
+	}
+}
+
+// Daily intervals across both 2026 New York transitions stay exactly 24h apart
+// whatever loc is passed, and fire keys render in UTC.
+func TestNextRunInEqualIntervalsAcrossDST(t *testing.T) {
+	loc, _ := time.LoadLocation("America/New_York")
+	for _, c := range []struct{ anchor, now string }{
+		{"2026-03-07T07:00:00-05:00", "2026-03-07T13:00:00+00:00"},
+		{"2026-10-31T07:00:00-04:00", "2026-10-31T13:00:00+00:00"},
+	} {
+		a := parseISO(t, c.anchor)
+		now := parseISO(t, c.now)
+		n1 := NextRunIn(a, "daily", now, loc)
+		n2 := NextRunIn(a, "daily", n1, loc)
+		n3 := NextRunIn(a, "daily", n2, loc)
+		if n2.Sub(n1) != 24*time.Hour || n3.Sub(n2) != 24*time.Hour {
+			t.Errorf("anchor %s: intervals %s, %s want 24h", c.anchor, n2.Sub(n1), n3.Sub(n2))
+		}
+		if got, want := FireKeyIn("t1", n1, loc), FireKey("t1", n1); got != want {
+			t.Errorf("fire key %q want UTC %q", got, want)
 		}
 	}
 }
