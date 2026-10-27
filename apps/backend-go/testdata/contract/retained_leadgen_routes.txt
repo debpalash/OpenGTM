@@ -1,9 +1,8 @@
 # Leadgen routes that stay on FastAPI after plan 14. One "METHOD /path/{param}" per line.
 # Go must not register them; infra/nginx/go-routes.conf (plan 14 section) keeps them on api_backend at every
-# canary percentage. Reasons: lead enrich runs the OSM/DDG scrapers and streams SSE (D4), unified search fronts the
+# canary percentage. Reasons: unified search fronts the
 # academic source registry, which is not collection (D4), the scraper route drives UniversalScraper in the browser
 # tier (D4). Plan 06's GET /api/workbooks/{workbook_id}/sources/{col_id}/preview is retained in
 # retained_enrichment_routes.txt and is not repeated here.
-POST /api/lead/{lead_id}/enrich
 GET /api/v2/search/unified
 POST /api/v2/scraper/scrape

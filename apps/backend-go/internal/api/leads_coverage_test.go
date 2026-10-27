@@ -99,8 +99,14 @@ func pythonLeadSignalRoutes(t *testing.T) []string {
 func TestEveryPythonLeadSignalRouteIsPortedOrRetained(t *testing.T) {
 	routes := pythonLeadSignalRoutes(t)
 	ported, retained := leadsGoPatterns(t), readRetainedLeads(t)
-	if len(ported) != 20 || len(retained) != 7 {
-		t.Errorf("want 20 ported + 7 retained, got %d + %d", len(ported), len(retained))
+	if len(ported) != 20 || len(retained) != 6 {
+		t.Errorf("want 20 ported + 6 retained, got %d + %d", len(ported), len(retained))
+	}
+	// POST /api/lead/{lead_id}/enrich moved to llmroutes.go (WP-LLMROUTES, behind GO_LLM_ROUTES_ENABLED).
+	for p := range llmRoutePatterns(t) {
+		if strings.HasSuffix(p, "/enrich") {
+			ported[p] = true
+		}
 	}
 	// 14 routes of leads.py (collect, jobs*, system-stats, lead utilities) moved to Go in plan 14.
 	lg := map[string]bool{}

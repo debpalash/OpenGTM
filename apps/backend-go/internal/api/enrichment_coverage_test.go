@@ -118,10 +118,14 @@ func TestEveryEnrichmentRouteIsPortedOrRetained(t *testing.T) {
 			retained[normRoute(r)] = true
 		}
 	}
-	// Plan 06 scope: 14 routes registered by the enrichment groups + 3 retained here.
+	// generate-column and provider-accuracy moved to llmroutes.go (WP-LLMROUTES, behind GO_LLM_ROUTES_ENABLED).
+	for p := range llmRoutePatterns(t) {
+		ported[normRoute(p)] = true
+	}
+	// Plan 06 scope: 14 routes registered by the enrichment groups + 1 retained here (the source preview).
 	enrich := readRouteList(t, retainedEnrichmentFile)
-	if len(enrich) != 3 {
-		t.Errorf("retained_enrichment_routes.txt has %d routes, want 3", len(enrich))
+	if len(enrich) != 1 {
+		t.Errorf("retained_enrichment_routes.txt has %d routes, want 1", len(enrich))
 	}
 	if len(enrichPatterns) != 14 {
 		t.Errorf("enrichPatterns has %d routes, want 14", len(enrichPatterns))

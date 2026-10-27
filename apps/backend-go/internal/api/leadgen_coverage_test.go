@@ -90,8 +90,14 @@ func TestEveryLeadgenRouteIsPortedOrRetained(t *testing.T) {
 	for r := range retainedList {
 		retained[normRoute(r)] = true
 	}
-	if len(ported) != 19 || len(retainedList) != 3 {
-		t.Errorf("want 19 ported + 3 retained leadgen routes, got %d + %d", len(ported), len(retainedList))
+	// POST /api/lead/{lead_id}/enrich moved to llmroutes.go (WP-LLMROUTES, behind GO_LLM_ROUTES_ENABLED).
+	for p := range llmRoutePatterns(t) {
+		if strings.HasSuffix(p, "/enrich") {
+			ported[normRoute(p)] = true
+		}
+	}
+	if len(ported) != 20 || len(retainedList) != 2 {
+		t.Errorf("want 20 ported + 2 retained leadgen routes, got %d + %d", len(ported), len(retainedList))
 	}
 	if len(routes) != 22 {
 		t.Errorf("want 22 Python route decorators in scope, parsed %d: %v", len(routes), routes)

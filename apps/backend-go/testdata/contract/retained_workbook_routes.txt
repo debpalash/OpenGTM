@@ -1,6 +1,7 @@
 # Workbook routes that stay on FastAPI (plan 04). One "METHOD /path/{param}" per line.
 # Go must not register them; infra/nginx/go-routes.conf keeps them on api_backend at every
-# canary percentage. Enrichment/LLM/Redis routes move with plan 05, ingest routes with plan 06.
+# canary percentage. Enrichment/LLM/Redis routes move with plan 05, ingest routes with plan 06. generate-column and provider-accuracy
+# moved to internal/api/llmroutes.go in plan 15 WP-LLMROUTES.
 POST /api/workbooks/{workbook_id}/run
 POST /api/workbooks/{workbook_id}/stop
 POST /api/workbooks/{workbook_id}/rows/{row_id}/cells/{col_id}/run
@@ -12,8 +13,6 @@ PUT /api/workbooks/{workbook_id}/refresh-policy
 GET /api/workbooks/{workbook_id}/run/estimate
 POST /api/workbooks/{workbook_id}/migrate
 GET /api/workbooks/meta/provider-stats
-GET /api/workbooks/meta/provider-accuracy
-POST /api/v2/workbooks/{workbook_id}/generate-column
 WS /api/workbooks/{workbook_id}/ws
 POST /api/v2/workbooks/{workbook_id}/ingest-token
 POST /api/v2/workbooks/{workbook_id}/rows/ingest

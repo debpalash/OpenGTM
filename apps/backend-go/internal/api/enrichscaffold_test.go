@@ -34,8 +34,6 @@ var enrichPatterns = map[string]bool{
 
 // retainedEnrichRoutes stay on FastAPI and must never register here.
 var retainedEnrichRoutes = []string{
-	"POST /api/v2/workbooks/{workbook_id}/generate-column",
-	"GET /api/workbooks/meta/provider-accuracy",
 	"GET /api/workbooks/{workbook_id}/sources/{col_id}/preview",
 }
 

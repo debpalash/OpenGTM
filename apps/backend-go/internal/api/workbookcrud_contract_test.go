@@ -98,8 +98,8 @@ func retainedWorkbookRoutes(t *testing.T) []string {
 
 func TestRetainedWorkbookRoutesList(t *testing.T) {
 	got := retainedWorkbookRoutes(t)
-	if len(got) != 16 { // 14 workbook routes + 2 ingest routes
-		t.Fatalf("retained list has %d routes, want 16 (14 workbook + 2 ingest)", len(got))
+	if len(got) != 14 { // 12 workbook routes + 2 ingest routes (generate-column and provider-accuracy moved to llmroutes.go)
+		t.Fatalf("retained list has %d routes, want 14 (12 workbook + 2 ingest)", len(got))
 	}
 }
 

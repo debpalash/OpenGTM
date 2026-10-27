@@ -91,8 +91,14 @@ func TestEveryOutreachRouteIsPortedOrRetained(t *testing.T) {
 	routes := pythonOutreachRoutes(t)
 	ported := outreachGoPatterns(t)
 	retained := readRetainedOutreach(t)
-	if len(routes) != 23 || len(ported) != 22 || len(retained) != 1 {
-		t.Fatalf("want 23 Python routes = 22 ported + 1 retained, got %d = %d + %d", len(routes), len(ported), len(retained))
+	// POST /api/campaigns/generate moved to llmroutes.go (WP-LLMROUTES, behind GO_LLM_ROUTES_ENABLED).
+	for p := range llmRoutePatterns(t) {
+		if strings.HasPrefix(p, "POST /api/campaigns/") {
+			ported[p] = true
+		}
+	}
+	if len(routes) != 23 || len(ported) != 23 || len(retained) != 0 {
+		t.Fatalf("want 23 Python routes = 23 ported + 0 retained, got %d = %d + %d", len(routes), len(ported), len(retained))
 	}
 	seen := map[string]bool{}
 	for _, r := range routes {
@@ -119,8 +125,8 @@ func TestEveryOutreachRouteIsPortedOrRetained(t *testing.T) {
 func TestRetainedOutreachRoutesNotRegisteredInGo(t *testing.T) {
 	ported := outreachGoPatterns(t)
 	retained := readRetainedOutreach(t)
-	if !retained["POST /api/campaigns/generate"] {
-		t.Error("POST /api/campaigns/generate must be retained on Python (D1)")
+	if retained["POST /api/campaigns/generate"] {
+		t.Error("POST /api/campaigns/generate moved to llmroutes.go (WP-LLMROUTES); it must not stay in the retained list")
 	}
 	for r := range retained {
 		if ported[r] {
@@ -129,7 +135,7 @@ func TestRetainedOutreachRoutesNotRegisteredInGo(t *testing.T) {
 	}
 	for p := range ported {
 		if strings.Contains(p, "/api/campaigns") {
-			t.Errorf("Go registers a campaigns route: %s", p)
+			t.Errorf("RegisterOutreach registers a campaigns route (llmroutes.go owns it): %s", p)
 		}
 	}
 }

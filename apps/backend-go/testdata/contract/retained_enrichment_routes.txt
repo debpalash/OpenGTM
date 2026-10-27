@@ -1,7 +1,5 @@
 # Enrichment routes that stay on FastAPI after plan 06. One "METHOD /path/{param}" per line.
 # Go must not register them; infra/nginx/go-routes.conf (plan 06 section) keeps them on api_backend at every
-# canary percentage. Reasons: generate-column calls the LLM (D2, copilot plan), provider-accuracy runs the offline
-# eval harness over a Python-only golden set (D3), source preview runs a collection preview (D6).
-POST /api/v2/workbooks/{workbook_id}/generate-column
-GET /api/workbooks/meta/provider-accuracy
+# canary percentage. Reason: source preview runs a collection preview (D6). generate-column and provider-accuracy
+# moved to internal/api/{generatecolumn,provideraccuracy}.go in plan 15 WP-LLMROUTES (GO_LLM_ROUTES_ENABLED).
 GET /api/workbooks/{workbook_id}/sources/{col_id}/preview

@@ -18,11 +18,15 @@ import (
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadsread"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/nlcolumn"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func readLLMVec(t *testing.T, name string, v any) {
@@ -721,3 +725,57 @@ func TestExtractPhoneAndSSEEncoding(t *testing.T) {
 }
 
 func providersOutputValue(v any) providers.Output { return providers.Output{Value: v} }
+
+// llmRoutePatterns is the route table of the four LLM-backed routes (registered behind GO_LLM_ROUTES_ENABLED);
+// the coverage tests of the areas they belong to count them as ported.
+func llmRoutePatterns(t *testing.T) map[string]bool {
+	t.Helper()
+	pool, err := pgxpool.New(context.Background(), "postgres://coverage@127.0.0.1:1/coverage")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(pool.Close)
+	r := httpx.NewRouter()
+	newLLMRoutes(Deps{Pool: pool, Identity: identity.NewStore(pool)}).register(r)
+	out := map[string]bool{}
+	for _, p := range r.Patterns() {
+		out[p] = true
+	}
+	return out
+}
+
+func TestLLMRoutePatterns(t *testing.T) {
+	got := llmRoutePatterns(t)
+	for _, p := range []string{"POST /api/campaigns/generate", "POST /api/v2/workbooks/{workbook_id}/generate-column",
+		"GET /api/workbooks/meta/provider-accuracy", "POST /api/lead/{lead_id}/enrich"} {
+		if !got[p] {
+			t.Errorf("missing %s", p)
+		}
+	}
+	if len(got) != 4 {
+		t.Errorf("%d routes, want 4", len(got))
+	}
+}
+
+// With the flag off nothing registers (the Python path stays).
+func TestRegisterLLMRoutesFlagOff(t *testing.T) {
+	pool, _ := pgxpool.New(context.Background(), "postgres://coverage@127.0.0.1:1/coverage")
+	defer pool.Close()
+	r := httpx.NewRouter()
+	RegisterLLMRoutes(r, Deps{Pool: pool, Identity: identity.NewStore(pool), Registry: &settings.Registry{}, Envelope: &secrets.Envelope{},
+		Getenv: func(string) string { return "" }})
+	if n := len(r.Patterns()); n != 0 {
+		t.Errorf("%d routes registered with the flag off", n)
+	}
+	r = httpx.NewRouter()
+	RegisterLLMRoutes(r, Deps{Pool: pool, Identity: identity.NewStore(pool), Registry: &settings.Registry{}, Envelope: &secrets.Envelope{},
+		Getenv: func(k string) string {
+			if k == "GO_LLM_ROUTES_ENABLED" {
+				return "true"
+			}
+			return ""
+		}})
+	if n := len(r.Patterns()); n != 4 {
+		t.Errorf("%d routes registered with the flag on, want 4", n)
+	}
+}
