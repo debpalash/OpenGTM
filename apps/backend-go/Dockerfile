@@ -1,9 +1,12 @@
 # syntax=docker/dockerfile:1
 # OpenGTM Go backend: one multi-stage build, one target per binary.
 #
-#   docker build --target api    -t opengtm-api-go:local    apps/backend-go
+#   docker build --target api    -t opengtm-api-go:local    --build-context web=apps/web apps/backend-go
 #   docker build --target worker -t opengtm-worker-go:local apps/backend-go
 #   docker build --target mcp    -t opengtm-mcp-go:local    apps/backend-go
+#
+# The api image embeds the web UI: the `web` named build context (compose: additional_contexts,
+# ./apps/web) is built with Bun and baked in via the `webui` build tag. worker/mcp need no `web`.
 #
 # The toolchain tag must match `toolchain` in go.mod (go1.27.3). Binaries are
 # static (CGO off), stripped, and run as the distroless non-root user.
@@ -16,13 +19,28 @@ RUN --mount=type=cache,target=/go/pkg/mod go mod download
 COPY . .
 ENV CGO_ENABLED=0 GOFLAGS=-trimpath
 RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
-    go build -ldflags="-s -w" -o /out/api ./cmd/api \
- && go build -ldflags="-s -w" -o /out/worker ./cmd/worker \
+    go build -ldflags="-s -w" -o /out/worker ./cmd/worker \
  && go build -ldflags="-s -w" -o /out/suppressnorm ./cmd/suppressnorm \
  && go build -ldflags="-s -w" -o /out/opengtm-mcp ./cmd/mcp
 
+# Stage: build apps/web (the `web` named context) into static files.
+FROM oven/bun:1 AS web-build
+WORKDIR /web
+COPY --from=web package.json bun.lock ./
+COPY --from=web vendor/ ./vendor/
+RUN bun install --frozen-lockfile --ignore-scripts
+COPY --from=web . .
+RUN bun run build
+
+# API binary with the fresh UI embedded (-tags webui).
+FROM build AS build-api
+RUN rm -rf internal/webui/dist
+COPY --from=web-build /web/dist ./internal/webui/dist
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    go build -ldflags="-s -w" -tags webui -o /out/api ./cmd/api
+
 FROM gcr.io/distroless/static-debian12:nonroot AS api
-COPY --from=build /out/api /api
+COPY --from=build-api /out/api /api
 USER nonroot:nonroot
 ENV API_ADDR=:8000
 EXPOSE 8000

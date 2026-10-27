@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────────────────────────
 # OpenGTM — Production Dockerfile
-# Multi-stage build: Frontend (Bun workspace) → Backend (Python 3.13)
+# Python 3.13 backend image. The web UI is built into the Go API image (apps/backend-go/Dockerfile).
 # ──────────────────────────────────────────────────────────────────
 
 # NOTE: the Python backend lives in legacy/python/, which is gitignored
@@ -23,28 +23,12 @@ RUN test -f /legacy/pyproject.toml && test -f /legacy/alembic.ini \
       echo "ERROR: legacy/python is missing from the build context." >&2; \
       echo "  The Python backend lives in legacy/python, which is its own git repo and is" >&2; \
       echo "  gitignored by this repo. Clone it to ./legacy/python before building the" >&2; \
-      echo "  Python images (api, worker, scheduler, migrate, seed, frontend_assets)." >&2; \
+      echo "  Python images (api, worker, scheduler, migrate, seed)." >&2; \
       echo "  See docs/go-port/runbooks/docker-compose.md." >&2; \
       echo "" >&2; \
       exit 1; }
 
-# Stage 1: Build Frontend
-# The repo is a Bun workspace with a single root bun.lock, so the install has
-# to run from the root with every workspace manifest present for
-# --frozen-lockfile to resolve. Only apps/web is built here.
-FROM oven/bun:1 AS frontend-builder
-WORKDIR /app
-COPY package.json bun.lock ./
-COPY apps/web/package.json ./apps/web/
-COPY apps/web/vendor/ ./apps/web/vendor/
-COPY apps/docs/package.json ./apps/docs/
-COPY packages/chrome-extension/package.json ./packages/chrome-extension/
-COPY packages/n8n-nodes-yupcha/package.json ./packages/n8n-nodes-yupcha/
-RUN bun install --frozen-lockfile --ignore-scripts
-COPY apps/web/ ./apps/web/
-RUN bun run --cwd apps/web build
-
-# Stage 2: Backend + serve static
+# Backend (the UI is served by api-go; nothing frontend is built here)
 FROM python:3.13-slim
 WORKDIR /app
 
@@ -72,9 +56,6 @@ COPY --from=legacy-src /legacy/apps/api/ ./apps/api/
 # cannot apply migrations or RLS policies.
 COPY --from=legacy-src /legacy/alembic.ini ./alembic.ini
 COPY --from=legacy-src /legacy/migrations/ ./migrations/
-
-# Copy built frontend from Stage 1
-COPY --from=frontend-builder /app/apps/web/dist ./apps/web/dist
 
 # Set environment
 ENV PYTHONPATH=/app

@@ -4,7 +4,7 @@
 #
 # PREREQUISITE: the Python backend lives in ./legacy/python, which is its own git
 # repo and is gitignored here. It must be cloned into ./legacy/python before the
-# Python images (migrate, api, seed [demo profile], worker, scheduler, frontend_assets) can build;
+# Python images (migrate, api, seed [demo profile], worker, scheduler) can build;
 # the root Dockerfile stops with an explicit message otherwise. The Go images build
 # from ./apps/backend-go and need nothing else. See docs/go-port/runbooks/docker-compose.md.
 #
@@ -230,22 +230,6 @@ services:
     networks:
       - lead_net
 
-  # ── Frontend asset publisher (refreshes the shared nginx volume) ──
-  # A named volume is only populated from an image on first creation, which
-  # otherwise leaves nginx serving an old UI after later image rebuilds. This
-  # one-shot publisher copies the newly built assets on every deployment.
-  frontend_assets:
-    image: ${YUPCHA_IMAGE:-lead-data-app:local}
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: sh -c "cp -a /app/apps/web/dist/. /frontend/"
-    volumes:
-      - frontend_dist:/frontend
-    restart: "no"
-    networks:
-      - lead_net
-
   # ── Reacher (OPTIONAL self-hosted email verification) ──────────
   # Strongest tier of the email cascade: unlimited, $0/email SMTP RCPT probing
   # (safe/risky/invalid/unknown + catch-all + disposable + role). DUAL-LICENSED
@@ -303,7 +287,7 @@ services:
     networks:
       - lead_net
 
-  # ── Nginx (reverse proxy + static files) ───────────────
+  # ── Nginx (reverse proxy; the UI is served by api-go) ───────────────
   nginx:
     image: nginx:alpine
     container_name: lead-data-web
@@ -313,14 +297,11 @@ services:
       - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - ./infra/nginx/go-split.conf:/etc/nginx/go-split.conf:ro
       - ./infra/nginx/go-routes.conf:/etc/nginx/go-routes.conf:ro
-      - frontend_dist:/usr/share/nginx/html:ro  # Serve built frontend from API build
     depends_on:
       api:
         condition: service_healthy
       api-go:
         condition: service_healthy
-      frontend_assets:
-        condition: service_completed_successfully
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
@@ -341,6 +322,9 @@ services:
       context: ./apps/backend-go
       dockerfile: Dockerfile
       target: api
+      # The api image embeds the web UI: its Dockerfile builds this context with Bun.
+      additional_contexts:
+        web: ./apps/web
     image: opengtm-api-go:local
     environment:
       - API_ADDR=:8000
@@ -502,7 +486,6 @@ services:
 volumes:
   pgdata:
   redisdata:
-  frontend_dist:
 
 networks:
   lead_net:
