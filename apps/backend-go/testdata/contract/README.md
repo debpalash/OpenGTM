@@ -694,7 +694,7 @@ Replayed against `testdata/transcripts/webhook` (fake secret `ctk_transcript_hoo
 
 ## Automation schedule (plan 08 Task 7): deviations (`internal/autoschedule`)
 
-- Session TimeZone: Python reads `timestamptz` through the driver in the Postgres session TimeZone, so its fire key is `sched:<id>:<isoformat>` with that offset (`+05:30` on an Asia/Kolkata session). Go runs `SHOW TimeZone` in the enqueue transaction and renders the key in that zone, and binds `next_run_at` as `timestamptz` so the naive `jobs.next_run_at` is the session-local wall time, exactly as Python. A TimeZone name Go cannot load (for example an abbreviation) refuses to schedule with an error rather than risk a key that differs from Python's (duplicate schedule jobs). On the default UTC server the key ends `+00:00`.
+- Session TimeZone (R-tz): Python reads `timestamptz` through the driver in the Postgres session TimeZone, so its fire key is `sched:<id>:<isoformat>` with that offset (`+05:30` on an Asia/Kolkata session). Go never reads the session TimeZone: it renders the key in UTC (`+00:00`) and writes the naive `jobs.next_run_at` as the same instant in UTC (`AT TIME ZONE 'UTC'`, which the claim compares with), under any session TimeZone, including a name Go cannot load. Python and Go agree only on a UTC session, so a UTC Postgres session TimeZone is a hard precondition of the canary (see the runbook).
 - Payload JSON is stored compact (`{"trigger_id":"x",...}`); Python's `json.dumps` stores `{"trigger_id": "x", ...}`. Key order is identical; readers parse JSON.
 - Bootstrap isolates errors per rule (joined and returned) where Python aborts the loop.
 - A non-string `trigger_config.interval` schedules as `daily` (Python: `daily` for int/None, TypeError for list/object); a D4 deviation.
@@ -707,7 +707,7 @@ Replayed against `testdata/transcripts/webhook` (fake secret `ctk_transcript_hoo
 - Insufficient credits is a source failure (`proceed=false`, `last_error="insufficient_credits"` set by the poll handler), never a healthy poll.
 - Billing buckets as Python: `funding`/`exec`/`funding_exec` bill `funding`; `feed` bills `feed`; `job_change` and `account_group` are free; every other source (jobspy `tech`, `web_tech`, `hiring`) bills `hiring`. Sources of one bucket share one run id per poll, so they charge once.
 - Failure reconcile is workspace-scoped: the watch and the failed job are matched by the payload workspace (a job row with a NULL `workspace_id`, as Python writes them, matches by its payload workspace). A foreign watch with the same id is never touched. A non-string `workspace_id`/`watch_id` in the payload is rejected with the Python error text (Python would `str()` it).
-- Session TimeZone: fire keys are rendered in the Postgres session TimeZone (`SHOW TimeZone`, as Python's driver reads timestamptz), and the naive `jobs.next_run_at` is the session-local wall time. An unloadable TimeZone name refuses to schedule.
+- Session TimeZone (R-tz): poll fire keys are rendered in UTC and the naive `jobs.next_run_at` is the same instant in UTC, whatever the Postgres session TimeZone (Go never runs `SHOW TimeZone`). Python renders its keys in the session zone, so a UTC session is a hard canary precondition.
 - Job payload JSON is compact; Python stores `", "` separators. Key order is identical (`watch_id`, `workspace_id`, `fire_key`, then `poll_now` for manual polls, set in the same insert).
 - `LoadWatch` row-locks the watch (`FOR UPDATE`) so reconcile and a running poll serialise on `consecutive_failures`.
 
