@@ -105,6 +105,20 @@
             "minimum": 5.0,
             "title": "Timeout S",
             "type": "number"
+          },
+          "upstream_proxy": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "upstream proxy (http/socks5/socks4 URL) the caller chose for this request; egress still goes through the service's guard first. Never logged or stored.",
+            "title": "Upstream Proxy"
           }
         },
         "required": [
@@ -135,6 +149,29 @@
           "address"
         ],
         "title": "DirectoryListing",
+        "type": "object"
+      },
+      "EgressStats": {
+        "properties": {
+          "blocked": {
+            "title": "Blocked",
+            "type": "integer"
+          },
+          "sessions": {
+            "title": "Sessions",
+            "type": "integer"
+          },
+          "upstream_failed": {
+            "title": "Upstream Failed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sessions",
+          "blocked",
+          "upstream_failed"
+        ],
+        "title": "EgressStats",
         "type": "object"
       },
       "ErrorBody": {
@@ -181,6 +218,172 @@
         "title": "ErrorEnvelope",
         "type": "object"
       },
+      "ExtractRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "engine": {
+            "default": "impersonate",
+            "description": "fetch engine for url",
+            "enum": [
+              "impersonate",
+              "browser"
+            ],
+            "title": "Engine",
+            "type": "string"
+          },
+          "html": {
+            "anyOf": [
+              {
+                "maxLength": 33554432,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "page HTML; or give url",
+            "title": "Html"
+          },
+          "include_markdown": {
+            "default": true,
+            "title": "Include Markdown",
+            "type": "boolean"
+          },
+          "max_bytes": {
+            "default": 1048576,
+            "description": "cap for text and for markdown, each",
+            "maximum": 16777216.0,
+            "minimum": 1024.0,
+            "title": "Max Bytes",
+            "type": "integer"
+          },
+          "timeout_s": {
+            "default": 30.0,
+            "maximum": 300.0,
+            "minimum": 1.0,
+            "title": "Timeout S",
+            "type": "number"
+          },
+          "upstream_proxy": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "upstream proxy (http/socks5/socks4 URL) the caller chose for this request; egress still goes through the service's guard first. Never logged or stored.",
+            "title": "Upstream Proxy"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "fetched when html is absent; the page URL otherwise",
+            "title": "Url"
+          }
+        },
+        "title": "ExtractRequest",
+        "type": "object"
+      },
+      "ExtractResult": {
+        "properties": {
+          "author": {
+            "title": "Author",
+            "type": "string"
+          },
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "elapsed_ms": {
+            "title": "Elapsed Ms",
+            "type": "integer"
+          },
+          "final_url": {
+            "title": "Final Url",
+            "type": "string"
+          },
+          "found": {
+            "description": "trafilatura found main content or metadata",
+            "title": "Found",
+            "type": "boolean"
+          },
+          "markdown": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Markdown"
+          },
+          "markdown_truncated": {
+            "title": "Markdown Truncated",
+            "type": "boolean"
+          },
+          "sitename": {
+            "title": "Sitename",
+            "type": "string"
+          },
+          "status": {
+            "description": "HTTP status when the service fetched the url; 0 for given html",
+            "title": "Status",
+            "type": "integer"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "text_truncated": {
+            "title": "Text Truncated",
+            "type": "boolean"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "word_count": {
+            "title": "Word Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "found",
+          "text",
+          "markdown",
+          "word_count",
+          "title",
+          "author",
+          "date",
+          "sitename",
+          "description",
+          "final_url",
+          "status",
+          "text_truncated",
+          "markdown_truncated",
+          "elapsed_ms"
+        ],
+        "title": "ExtractResult",
+        "type": "object"
+      },
       "GoogleMapsRequest": {
         "additionalProperties": false,
         "properties": {
@@ -209,6 +412,20 @@
             "minimum": 5.0,
             "title": "Timeout S",
             "type": "number"
+          },
+          "upstream_proxy": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "upstream proxy (http/socks5/socks4 URL) the caller chose for this request; egress still goes through the service's guard first. Never logged or stored.",
+            "title": "Upstream Proxy"
           }
         },
         "required": [
@@ -333,6 +550,20 @@
             "minimum": 5.0,
             "title": "Timeout S",
             "type": "number"
+          },
+          "upstream_proxy": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "upstream proxy (http/socks5/socks4 URL) the caller chose for this request; egress still goes through the service's guard first. Never logged or stored.",
+            "title": "Upstream Proxy"
           }
         },
         "required": [
@@ -389,6 +620,135 @@
           "engines"
         ],
         "title": "Health",
+        "type": "object"
+      },
+      "HoleheRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "maxLength": 254,
+            "minLength": 3,
+            "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+            "title": "Email",
+            "type": "string"
+          },
+          "max_modules": {
+            "default": 50,
+            "description": "legacy checked the first 50 modules",
+            "maximum": 200.0,
+            "minimum": 1.0,
+            "title": "Max Modules",
+            "type": "integer"
+          },
+          "timeout_s": {
+            "default": 60.0,
+            "maximum": 300.0,
+            "minimum": 5.0,
+            "title": "Timeout S",
+            "type": "number"
+          },
+          "upstream_proxy": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "upstream proxy (http/socks5/socks4 URL) the caller chose for this request; egress still goes through the service's guard first. Never logged or stored.",
+            "title": "Upstream Proxy"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "title": "HoleheRequest",
+        "type": "object"
+      },
+      "HoleheResult": {
+        "properties": {
+          "elapsed_ms": {
+            "title": "Elapsed Ms",
+            "type": "integer"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "errors": {
+            "description": "modules that raised",
+            "title": "Errors",
+            "type": "integer"
+          },
+          "exists_on": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Exists On",
+            "type": "array"
+          },
+          "partial": {
+            "title": "Partial",
+            "type": "boolean"
+          },
+          "sites": {
+            "items": {
+              "$ref": "#/components/schemas/HoleheSite"
+            },
+            "title": "Sites",
+            "type": "array"
+          },
+          "total_checked": {
+            "title": "Total Checked",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "email",
+          "sites",
+          "exists_on",
+          "total_checked",
+          "errors",
+          "partial",
+          "elapsed_ms"
+        ],
+        "title": "HoleheResult",
+        "type": "object"
+      },
+      "HoleheSite": {
+        "properties": {
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "exists": {
+            "title": "Exists",
+            "type": "boolean"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "rate_limited": {
+            "title": "Rate Limited",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "domain",
+          "method",
+          "exists",
+          "rate_limited"
+        ],
+        "title": "HoleheSite",
         "type": "object"
       },
       "JobBoardsRequest": {
@@ -459,6 +819,20 @@
             "minimum": 5.0,
             "title": "Timeout S",
             "type": "number"
+          },
+          "upstream_proxy": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "upstream proxy (http/socks5/socks4 URL) the caller chose for this request; egress still goes through the service's guard first. Never logged or stored.",
+            "title": "Upstream Proxy"
           }
         },
         "required": [
@@ -478,6 +852,20 @@
             "minimum": 5.0,
             "title": "Timeout S",
             "type": "number"
+          },
+          "upstream_proxy": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "upstream proxy (http/socks5/socks4 URL) the caller chose for this request; egress still goes through the service's guard first. Never logged or stored.",
+            "title": "Upstream Proxy"
           },
           "url": {
             "description": "a justdial.com listing page",
@@ -613,6 +1001,20 @@
             "maxItems": 10,
             "title": "Titles",
             "type": "array"
+          },
+          "upstream_proxy": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "upstream proxy (http/socks5/socks4 URL) the caller chose for this request; egress still goes through the service's guard first. Never logged or stored.",
+            "title": "Upstream Proxy"
           }
         },
         "title": "LinkedInRequest",
@@ -668,6 +1070,32 @@
           "category"
         ],
         "title": "MapPlace",
+        "type": "object"
+      },
+      "OpStats": {
+        "properties": {
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "errors": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Errors",
+            "type": "object"
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "calls",
+          "ok",
+          "errors"
+        ],
+        "title": "OpStats",
         "type": "object"
       },
       "RenderRequest": {
@@ -734,6 +1162,20 @@
             "minimum": 1.0,
             "title": "Timeout S",
             "type": "number"
+          },
+          "upstream_proxy": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "upstream proxy (http/socks5/socks4 URL) the caller chose for this request; egress still goes through the service's guard first. Never logged or stored.",
+            "title": "Upstream Proxy"
           },
           "url": {
             "maxLength": 4096,
@@ -937,6 +1379,20 @@
             "minimum": 5.0,
             "title": "Timeout S",
             "type": "number"
+          },
+          "upstream_proxy": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "upstream proxy (http/socks5/socks4 URL) the caller chose for this request; egress still goes through the service's guard first. Never logged or stored.",
+            "title": "Upstream Proxy"
           }
         },
         "required": [
@@ -1098,6 +1554,159 @@
         "title": "SearchHit",
         "type": "object"
       },
+      "SearchOut": {
+        "properties": {
+          "elapsed_ms": {
+            "title": "Elapsed Ms",
+            "type": "integer"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "enum": [
+                  "no_results",
+                  "rate_limited",
+                  "timeout",
+                  "failed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "no_results | rate_limited | timeout | failed",
+            "title": "Error"
+          },
+          "hits": {
+            "items": {
+              "$ref": "#/components/schemas/SearchHit"
+            },
+            "title": "Hits",
+            "type": "array"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query",
+          "method",
+          "hits",
+          "error",
+          "elapsed_ms"
+        ],
+        "title": "SearchOut",
+        "type": "object"
+      },
+      "SearchRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "backends": {
+            "anyOf": [
+              {
+                "items": {
+                  "pattern": "^[a-z][a-z0-9_]{0,31}$",
+                  "type": "string"
+                },
+                "maxItems": 12,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "ddgs engines in order; null = service default, [] = ddgs default",
+            "title": "Backends"
+          },
+          "max_results": {
+            "default": 10,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Max Results",
+            "type": "integer"
+          },
+          "method": {
+            "default": "text",
+            "enum": [
+              "text",
+              "news"
+            ],
+            "title": "Method",
+            "type": "string"
+          },
+          "query": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          },
+          "region": {
+            "default": "us-en",
+            "pattern": "^[a-z]{2}-[a-z]{2}$",
+            "title": "Region",
+            "type": "string"
+          },
+          "safesearch": {
+            "default": "moderate",
+            "enum": [
+              "on",
+              "moderate",
+              "off"
+            ],
+            "title": "Safesearch",
+            "type": "string"
+          },
+          "timelimit": {
+            "anyOf": [
+              {
+                "enum": [
+                  "d",
+                  "w",
+                  "m",
+                  "y"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timelimit"
+          },
+          "timeout_s": {
+            "default": 30.0,
+            "maximum": 120.0,
+            "minimum": 1.0,
+            "title": "Timeout S",
+            "type": "number"
+          },
+          "upstream_proxy": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "upstream proxy (http/socks5/socks4 URL) the caller chose for this request; egress still goes through the service's guard first. Never logged or stored.",
+            "title": "Upstream Proxy"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "SearchRequest",
+        "type": "object"
+      },
       "SearchResult": {
         "properties": {
           "elapsed_ms": {
@@ -1188,6 +1797,194 @@
         "title": "SearchRun",
         "type": "object"
       },
+      "StaffRow": {
+        "properties": {
+          "linkedin": {
+            "title": "Linkedin",
+            "type": "string"
+          },
+          "location": {
+            "title": "Location",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "title",
+          "linkedin",
+          "location"
+        ],
+        "title": "StaffRow",
+        "type": "object"
+      },
+      "StaffSpyRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "company_name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Company Name",
+            "type": "string"
+          },
+          "cookies": {
+            "description": "LinkedIn session (li_at, JSESSIONID)",
+            "items": {
+              "$ref": "#/components/schemas/Cookie"
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Cookies",
+            "type": "array"
+          },
+          "location": {
+            "default": "",
+            "maxLength": 100,
+            "title": "Location",
+            "type": "string"
+          },
+          "max_results": {
+            "default": 25,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Max Results",
+            "type": "integer"
+          },
+          "search_term": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Search Term",
+            "type": "string"
+          },
+          "timeout_s": {
+            "default": 180.0,
+            "maximum": 600.0,
+            "minimum": 10.0,
+            "title": "Timeout S",
+            "type": "number"
+          },
+          "upstream_proxy": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "upstream proxy (http/socks5/socks4 URL) the caller chose for this request; egress still goes through the service's guard first. Never logged or stored.",
+            "title": "Upstream Proxy"
+          }
+        },
+        "required": [
+          "company_name",
+          "cookies"
+        ],
+        "title": "StaffSpyRequest",
+        "type": "object"
+      },
+      "StaffSpyResult": {
+        "properties": {
+          "company_name": {
+            "title": "Company Name",
+            "type": "string"
+          },
+          "elapsed_ms": {
+            "title": "Elapsed Ms",
+            "type": "integer"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "enum": [
+                  "login_failed",
+                  "rate_limited",
+                  "no_staff_found",
+                  "failed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "staff": {
+            "items": {
+              "$ref": "#/components/schemas/StaffRow"
+            },
+            "title": "Staff",
+            "type": "array"
+          }
+        },
+        "required": [
+          "company_name",
+          "staff",
+          "error",
+          "elapsed_ms"
+        ],
+        "title": "StaffSpyResult",
+        "type": "object"
+      },
+      "Stats": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "integer"
+          },
+          "capacity": {
+            "title": "Capacity",
+            "type": "integer"
+          },
+          "egress": {
+            "$ref": "#/components/schemas/EgressStats"
+          },
+          "ops": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/OpStats"
+            },
+            "title": "Ops",
+            "type": "object"
+          },
+          "searches": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "description": "search failures by class",
+            "title": "Searches",
+            "type": "object"
+          },
+          "uptime_s": {
+            "title": "Uptime S",
+            "type": "integer"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "uptime_s",
+          "active",
+          "capacity",
+          "ops",
+          "searches",
+          "egress"
+        ],
+        "title": "Stats",
+        "type": "object"
+      },
       "WebDirectoriesRequest": {
         "additionalProperties": false,
         "properties": {
@@ -1261,6 +2058,20 @@
             "minimum": 5.0,
             "title": "Timeout S",
             "type": "number"
+          },
+          "upstream_proxy": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "upstream proxy (http/socks5/socks4 URL) the caller chose for this request; egress still goes through the service's guard first. Never logged or stored.",
+            "title": "Upstream Proxy"
           }
         },
         "required": [
@@ -1294,6 +2105,124 @@
           }
         },
         "summary": "Healthz"
+      }
+    },
+    "/v1/extract": {
+      "post": {
+        "operationId": "extract_content_v1_extract_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtractRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          }
+        },
+        "summary": "Extract Content"
       }
     },
     "/v1/health": {
@@ -1402,6 +2331,124 @@
           }
         },
         "summary": "Health"
+      }
+    },
+    "/v1/holehe": {
+      "post": {
+        "operationId": "holehe_v1_holehe_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HoleheRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HoleheResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          }
+        },
+        "summary": "Holehe"
       }
     },
     "/v1/render": {
@@ -2582,6 +3629,350 @@
           }
         },
         "summary": "Screenshot"
+      }
+    },
+    "/v1/search": {
+      "post": {
+        "operationId": "search_query_v1_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          }
+        },
+        "summary": "Search Query"
+      }
+    },
+    "/v1/staffspy": {
+      "post": {
+        "operationId": "staffspy_v1_staffspy_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffSpyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffSpyResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          }
+        },
+        "summary": "Staffspy"
+      }
+    },
+    "/v1/stats": {
+      "get": {
+        "operationId": "stats_v1_stats_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stats"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          }
+        },
+        "summary": "Stats"
       }
     }
   }

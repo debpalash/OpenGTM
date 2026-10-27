@@ -95,9 +95,10 @@ async def scrape(deps: Deps, req: GoogleMapsRequest, deadline: Deadline) -> Goog
     errors = 0
     partial = False
     found = 0
-    session = deps.proxy.open_session(deps.settings.max_download_bytes)
+    session = deps.proxy.open_session(deps.settings.max_download_bytes, upstream=req.upstream())
+    pool = deps.stealth_pool if deps.stealth_pool is not None else deps.pool
     try:
-        async with deps.pool.page(session, locale="en-US") as page:
+        async with pool.page(session, locale="en-US") as page:
             await _goto(page, session, url, "domcontentloaded", deadline)
             await page.wait_for_timeout(3000)
             try:

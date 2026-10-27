@@ -295,6 +295,10 @@ class EgressProxy:
         self.header_timeout = header_timeout
         self.idle_timeout = idle_timeout
         self._sessions: dict[str, EgressSession] = {}
+        # process counters for /v1/stats
+        self.sessions_opened = 0
+        self.blocked_total = 0
+        self.upstream_failed_total = 0
         self._server: asyncio.Server | None = None
         self.host = "127.0.0.1"
         self.port = 0
@@ -333,9 +337,13 @@ class EgressProxy:
             sid="s" + secrets.token_hex(8), secret=secrets.token_urlsafe(24), max_bytes=max_bytes, upstream=upstream
         )
         self._sessions[s.sid] = s
+        self.sessions_opened += 1
         return s
 
     def close_session(self, session: EgressSession) -> None:
+        if not session.closed:
+            self.blocked_total += len(session.blocked)
+            self.upstream_failed_total += int(session.upstream_failed)
         session.closed = True
         self._sessions.pop(session.sid, None)
         for t in list(session._tasks):

@@ -60,6 +60,8 @@ class Deps:
     proxy: EgressProxy
     pool: Any  # BrowserPool (or a fake in tests)
     search: Any = None  # ddgs search override (tests)
+    stealth_pool: Any = None  # patchright BrowserPool for Google Maps (BROWSER_MAPS_STEALTH)
+    stats: Any = None  # app.Counters
 
 
 def _check(deps: Deps, url: str) -> tuple[str, int]:
@@ -83,9 +85,14 @@ def _pw_cookies(cookies: list[Cookie]) -> list[dict]:
     ]
 
 
+UPSTREAM_MARKERS = ("upstream_failed", "upstream_blocked")
+
+
 def _nav_error(session: EgressSession, exc: BaseException) -> ServiceError:
     name = type(exc).__name__
     msg = str(exc)
+    if session.upstream_failed and not session.blocked:
+        return ServiceError("upstream_error")  # the caller's proxy failed, not the site
     if session.blocked and ("ERR_TUNNEL_CONNECTION_FAILED" in msg or "ERR_PROXY" in msg or "ERR_BLOCKED" in msg):
         return ServiceError("egress_blocked")
     if session.over_limit:
@@ -101,8 +108,11 @@ async def _goto(page: Any, session: EgressSession, url: str, wait_until: str, de
     except Exception as e:
         logger.info("navigation failed: %s", type(e).__name__)
         raise _nav_error(session, e) from e
-    if resp is not None and (resp.headers or {}).get(EGRESS_HEADER) == "blocked":
+    marker = (resp.headers or {}).get(EGRESS_HEADER) if resp is not None else None
+    if marker == "blocked":
         raise ServiceError("egress_blocked")
+    if marker in UPSTREAM_MARKERS:
+        raise ServiceError("upstream_error")
     return resp
 
 
@@ -175,7 +185,7 @@ async def render(deps: Deps, req: RenderRequest, deadline: Deadline) -> RenderRe
 async def render_browser(deps: Deps, req: RenderRequest, deadline: Deadline) -> RenderResult:
     _check(deps, req.url)
     max_bytes = _cap(deps, req.max_bytes)
-    session = deps.proxy.open_session(deps.settings.max_download_bytes)
+    session = deps.proxy.open_session(deps.settings.max_download_bytes, upstream=req.upstream())
     try:
         async with deps.pool.page(
             session, user_agent=req.user_agent, locale=req.locale, cookies=_pw_cookies(req.cookies)
@@ -243,7 +253,7 @@ async def render_impersonate(deps: Deps, req: RenderRequest, deadline: Deadline)
     host, _ = _check(deps, req.url)
     max_bytes = _cap(deps, req.max_bytes)
     raw_cap = max_bytes * 2
-    session = deps.proxy.open_session(deps.settings.max_download_bytes)
+    session = deps.proxy.open_session(deps.settings.max_download_bytes, upstream=req.upstream())
     headers = {"Accept-Language": f"{req.locale},en;q=0.8"}
     if req.user_agent:
         headers["User-Agent"] = req.user_agent
@@ -261,8 +271,11 @@ async def render_impersonate(deps: Deps, req: RenderRequest, deadline: Deadline)
                 max_redirects=6,
                 timeout=max(1.0, deadline.left()),
             ) as r:
-                if (r.headers.get(EGRESS_HEADER) or "") == "blocked":
+                marker = r.headers.get(EGRESS_HEADER) or ""
+                if marker == "blocked":
                     raise ServiceError("egress_blocked")
+                if marker in UPSTREAM_MARKERS:
+                    raise ServiceError("upstream_error")
                 buf = bytearray()
                 async for chunk in r.aiter_content():
                     buf += chunk
@@ -278,6 +291,8 @@ async def render_impersonate(deps: Deps, req: RenderRequest, deadline: Deadline)
         raise
     except Exception as e:
         logger.info("impersonate fetch failed: %s", type(e).__name__)
+        if session.upstream_failed and not session.blocked:
+            raise ServiceError("upstream_error") from e
         if session.blocked:
             raise ServiceError("egress_blocked") from e
         if "Timeout" in type(e).__name__ or deadline.left() <= 0:
@@ -307,7 +322,7 @@ async def render_flaresolverr(deps: Deps, req: RenderRequest, deadline: Deadline
     await _vet_resolved(deps, req.url)
     max_bytes = _cap(deps, req.max_bytes)
     budget = deadline.left()
-    session = deps.proxy.open_session(deps.settings.max_download_bytes)
+    session = deps.proxy.open_session(deps.settings.max_download_bytes, upstream=req.upstream())
     proxy_base = deps.settings.egress_proxy_url or deps.proxy.server_url
     payload = {
         "cmd": "request.get",

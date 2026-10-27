@@ -20,6 +20,14 @@ class FakeResponse:
         self.headers = headers or {}
 
 
+class EmptyLocator:
+    async def count(self):
+        return 0
+
+    async def all(self):
+        return []
+
+
 class FakePage:
     """Just enough of playwright's Page for the engines."""
 
@@ -45,6 +53,10 @@ class FakePage:
     async def evaluate(self, js):
         self.pool.calls.append(("evaluate", js))
         return 1000
+
+    def locator(self, selector):
+        self.pool.calls.append(("locator", selector))
+        return EmptyLocator()
 
     async def content(self):
         return self.pool.html

@@ -51,7 +51,7 @@ async def scrape(deps: Deps, req: JustDialPageRequest, deadline: Deadline) -> Ju
     _check(deps, req.url)
     if not _is_justdial(req.url):
         raise ServiceError("bad_request")
-    session = deps.proxy.open_session(deps.settings.max_download_bytes)
+    session = deps.proxy.open_session(deps.settings.max_download_bytes, upstream=req.upstream())
     try:
         async with deps.pool.page(session) as page:
             resp = await _goto(page, session, req.url, "domcontentloaded", deadline)

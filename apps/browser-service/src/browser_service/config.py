@@ -40,6 +40,15 @@ class Settings:
     egress_proxy_host: str = "127.0.0.1"
     egress_proxy_port: int = 0
     egress_proxy_url: str = ""
+    # /v1/extract takes page HTML in the body, so it gets its own body cap.
+    max_extract_bytes: int = 8 * MiB
+    # LinkedIn roster scraping (staffspy) runs against LinkedIn's ToS: off unless
+    # the operator opts in (legacy STAFFSPY_ENABLED; the cookies come from Go).
+    staffspy_enabled: bool = False
+    # Google Maps through patchright (stealth-patched Playwright). Off by default:
+    # the deployed legacy image had only vanilla Playwright (patchright was the
+    # optional `browser` extra), so off matches what production ran.
+    maps_stealth: bool = False
 
     def __repr__(self) -> str:  # keep the token out of logs and tracebacks
         return (
@@ -64,6 +73,16 @@ class Settings:
             if not lo <= v <= hi:
                 raise ConfigError(f"{name} must be between {lo} and {hi}")
             return v
+
+        def flag(name: str, default: bool) -> bool:
+            raw = env.get(name, "").strip().lower()
+            if not raw:
+                return default
+            if raw in ("1", "true", "yes", "on"):
+                return True
+            if raw in ("0", "false", "no", "off"):
+                return False
+            raise ConfigError(f"{name} must be a boolean")
 
         cidrs_raw = env.get("BROWSER_EGRESS_ALLOW_CIDRS", "").strip()
         cidrs: tuple = ()
@@ -110,4 +129,7 @@ class Settings:
             egress_proxy_url=proxy_url,
             search_backends=env.get("BROWSER_SEARCH_BACKENDS", cls.search_backends),
             search_timeout_s=num("BROWSER_SEARCH_TIMEOUT_S", 10, 1, 60),
+            max_extract_bytes=num("BROWSER_MAX_EXTRACT_BYTES", 8 * MiB, 64 * 1024, 64 * MiB),
+            staffspy_enabled=flag("BROWSER_STAFFSPY_ENABLED", False),
+            maps_stealth=flag("BROWSER_MAPS_STEALTH", False),
         )

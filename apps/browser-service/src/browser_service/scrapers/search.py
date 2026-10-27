@@ -15,6 +15,7 @@ import asyncio
 import logging
 from dataclasses import dataclass
 
+from ..egress import UpstreamProxy
 from ..engines import Deadline, Deps
 from ..errors import ServiceError
 from ..models import (
@@ -24,6 +25,8 @@ from ..models import (
     LinkedInRequest,
     ReviewDirectoriesRequest,
     SearchHit,
+    SearchOut,
+    SearchRequest,
     SearchResult,
     SearchRun,
     WebDirectoriesRequest,
@@ -168,12 +171,46 @@ def _classify(exc: BaseException) -> str:
     return "failed"
 
 
-async def ddgs_search(deps: Deps, method: str, search: str, max_results: int, deadline: Deadline) -> list[dict]:
-    """One ddgs query over the egress proxy. Raises on failure (see _classify)."""
-    session = deps.proxy.open_session(deps.settings.max_download_bytes)
+# legacy leadgen/search_cache._RL_PATTERNS: rate-limit / block signals
+_BLOCK_PATTERNS = ("ratelimit", "rate limit", "429", "403", "202", "too many", "blocked", "captcha")
+_TIMEOUT_PATTERNS = ("timeout", "timed out")
+_UNSET = object()
+
+
+def classify_search_error(exc: BaseException) -> str:
+    """Map a ddgs failure to a code. Block signals (legacy is_block_signal) are
+    rate_limited or timeout; the Go side grows its per-host backoff on them."""
+    if isinstance(exc, TimeoutError):
+        return "timeout"
+    text = f"{type(exc).__name__} {exc}".casefold()
+    if any(p in text for p in _TIMEOUT_PATTERNS):
+        return "timeout"
+    if any(p in text for p in _BLOCK_PATTERNS):
+        return "rate_limited"
+    if "no results" in text:
+        return "no_results"
+    return "failed"
+
+
+async def ddgs_search(
+    deps: Deps,
+    method: str,
+    search: str,
+    max_results: int,
+    deadline: Deadline,
+    *,
+    upstream: UpstreamProxy | None = None,
+    backend: object = _UNSET,
+    region: str | None = None,
+    safesearch: str | None = None,
+    timelimit: str | None = None,
+) -> list[dict]:
+    """One ddgs query over the egress proxy (chained to ``upstream`` when the
+    caller picked one). Raises on failure (see _classify)."""
+    session = deps.proxy.open_session(deps.settings.max_download_bytes, upstream=upstream)
     proxy_url = deps.proxy.proxy_url(session)
     timeout = max(1, min(deps.settings.search_timeout_s, int(deadline.left())))
-    backends = deps.settings.search_backends.strip()
+    backends = deps.settings.search_backends.strip() if backend is _UNSET else backend
 
     def run() -> list[dict]:
         from ddgs import DDGS
@@ -181,6 +218,12 @@ async def ddgs_search(deps: Deps, method: str, search: str, max_results: int, de
         kwargs: dict = {"max_results": max_results}
         if backends:
             kwargs["backend"] = backends
+        if region:
+            kwargs["region"] = region
+        if safesearch:
+            kwargs["safesearch"] = safesearch
+        if timelimit:
+            kwargs["timelimit"] = timelimit
         d = DDGS(proxy=proxy_url, timeout=timeout)
         return list(getattr(d, method)(search, **kwargs))
 
@@ -191,7 +234,14 @@ async def ddgs_search(deps: Deps, method: str, search: str, max_results: int, de
         deps.proxy.close_session(session)
 
 
-async def run_plan(deps: Deps, source: str, plan: list[Planned], delay_s: float, deadline: Deadline) -> SearchResult:
+async def run_plan(
+    deps: Deps,
+    source: str,
+    plan: list[Planned],
+    delay_s: float,
+    deadline: Deadline,
+    upstream: UpstreamProxy | None = None,
+) -> SearchResult:
     if len(plan) > MAX_SEARCHES:
         raise ServiceError("bad_request")
     search = deps.search or ddgs_search
@@ -209,7 +259,7 @@ async def run_plan(deps: Deps, source: str, plan: list[Planned], delay_s: float,
         hits: list[SearchHit] = []
         err: str | None = None
         try:
-            raw = await search(deps, p.method, p.search, p.max_results, deadline)
+            raw = await search(deps, p.method, p.search, p.max_results, deadline, upstream=upstream)
             hits = [_hit(h) for h in raw[: p.max_results] if isinstance(h, dict)]
             if not hits:
                 err = "no_results"
@@ -236,4 +286,39 @@ PLANNERS = {
 
 async def scrape(deps: Deps, source: str, req, deadline: Deadline) -> SearchResult:
     plan, delay = PLANNERS[source](req)
-    return await run_plan(deps, source, plan, delay, deadline)
+    return await run_plan(deps, source, plan, delay, deadline, upstream=req.upstream())
+
+
+async def query(deps: Deps, req: SearchRequest, deadline: Deadline) -> SearchOut:
+    """POST /v1/search: one ddgs query with the caller's options. Failures are
+    a code in ``error`` (never upstream text); the Go side owns caching,
+    backoff, keyed fallbacks and proxy rotation."""
+    search = deps.search or ddgs_search
+    if req.backends is None:
+        backend: str | None = deps.settings.search_backends.strip() or None
+    else:
+        backend = ", ".join(req.backends) or None
+    hits: list[SearchHit] = []
+    err: str | None = None
+    try:
+        raw = await search(
+            deps,
+            req.method,
+            req.query,
+            req.max_results,
+            deadline,
+            upstream=req.upstream(),
+            backend=backend,
+            region=req.region,
+            safesearch=req.safesearch,
+            timelimit=req.timelimit,
+        )
+        hits = [_hit(h) for h in raw[: req.max_results] if isinstance(h, dict)]
+        if not hits:
+            err = "no_results"
+    except Exception as e:
+        err = classify_search_error(e)
+        logger.info("search failed kind=%s", err)
+    if err and deps.stats is not None:
+        deps.stats.search_error(err)
+    return SearchOut(query=req.query, method=req.method, hits=hits, error=err, elapsed_ms=deadline.elapsed_ms())

@@ -5,6 +5,7 @@ routed through the egress proxy with that request's own credentials."""
 from __future__ import annotations
 
 import asyncio
+import importlib
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -38,14 +39,24 @@ CHROMIUM_ARGS = [
 ]
 
 
+# patchright patches the automation tells itself and asks for no extra
+# anti-detection flags; it keeps every flag that pins traffic to the proxy.
+STEALTH_ARGS = [a for a in CHROMIUM_ARGS if not a.startswith("--disable-blink-features")]
+
+DRIVERS = {"playwright": "playwright.async_api", "patchright": "patchright.async_api"}
+
+
 class BrowserUnavailable(Exception):
     pass
 
 
 class BrowserPool:
-    def __init__(self, proxy: EgressProxy, *, headless: bool = True) -> None:
+    def __init__(self, proxy: EgressProxy, *, headless: bool = True, driver: str = "playwright") -> None:
+        if driver not in DRIVERS:
+            raise ValueError("unknown browser driver")
         self.proxy = proxy
         self.headless = headless
+        self.driver = driver
         self._pw: Any = None
         self._browser: Any = None
         self._lock = asyncio.Lock()
@@ -80,13 +91,12 @@ class BrowserPool:
                 return self._browser
             try:
                 if self._pw is None:
-                    from playwright.async_api import async_playwright
-
-                    self._pw = await async_playwright().start()
+                    mod = importlib.import_module(DRIVERS[self.driver])
+                    self._pw = await mod.async_playwright().start()
                 self._browser = await self._pw.chromium.launch(
                     headless=self.headless,
                     proxy={"server": self.proxy.server_url},
-                    args=CHROMIUM_ARGS,
+                    args=STEALTH_ARGS if self.driver == "patchright" else CHROMIUM_ARGS,
                 )
             except Exception as e:
                 logger.error("chromium launch failed: %s", type(e).__name__)
@@ -107,7 +117,8 @@ class BrowserPool:
         try:
             ctx = await browser.new_context(
                 proxy={"server": self.proxy.server_url, "username": session.sid, "password": session.secret},
-                user_agent=user_agent or DEFAULT_UA,
+                # patchright's own fingerprint is consistent; overriding the UA would break it
+                user_agent=user_agent or (None if self.driver == "patchright" else DEFAULT_UA),
                 locale=locale,
                 viewport={"width": viewport[0], "height": viewport[1]},
                 service_workers="block",
