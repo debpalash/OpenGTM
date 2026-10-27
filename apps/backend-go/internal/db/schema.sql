@@ -4058,6 +4058,12 @@ CREATE INDEX ix_outreach_draft_ws_person ON public.outreach_drafts USING btree (
 CREATE INDEX ix_outreach_sched_due ON public.outreach_schedules USING btree (enabled, next_tick_at);
 
 --
+-- Name: ix_outreach_sends_message_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_outreach_sends_message_id ON public.outreach_sends USING btree (message_id);
+
+--
 -- Name: ix_outreach_seq_ws; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4254,12 +4260,6 @@ CREATE INDEX ix_scrape_history_url ON public.scrape_history USING btree (url);
 --
 
 CREATE INDEX ix_send_ws_msgid ON public.outreach_sends USING btree (workspace_id, message_id);
-
---
--- Name: ix_outreach_sends_message_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ix_outreach_sends_message_id ON public.outreach_sends USING btree (message_id);
 
 --
 -- Name: ix_send_ws_sent_at; Type: INDEX; Schema: public; Owner: -
