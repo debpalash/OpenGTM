@@ -160,3 +160,44 @@ func goRouteExists(ported map[string]bool, path string) bool {
 	}
 	return false
 }
+
+// The Location is built from the raw (escaped) path: an escaped character is not decoded on the way through.
+func TestTrailingSlashLocationKeepsEscaping(t *testing.T) {
+	h := slashRouter().Handler()
+	for _, c := range []struct{ path, want string }{
+		{"/api/workbooks/a%2Cb/run/", "/api/workbooks/a%2Cb/run"},
+		{"/api/workbooks/a%2Fb/run/", "/api/workbooks/a%2Fb/run"},
+		{"/api/workbooks/a%20b/run/?q=%2F", "/api/workbooks/a%20b/run?q=%2F"},
+	} {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest("POST", c.path, nil))
+		if rec.Code != 307 || rec.Header().Get("Location") != c.want {
+			t.Errorf("%s: %d %q, want 307 %q", c.path, rec.Code, rec.Header().Get("Location"), c.want)
+		}
+	}
+}
+
+// GO_TRAILING_SLASH_COMPAT, not GO_CAPABILITY_ROUTES_ENABLED, switches the redirect behaviour of every route.
+func TestTrailingSlashCompatHasItsOwnFlag(t *testing.T) {
+	for _, tc := range []struct {
+		env  map[string]string
+		want int
+	}{
+		{map[string]string{}, 404},
+		{map[string]string{"GO_CAPABILITY_ROUTES_ENABLED": "true"}, 404},
+		{map[string]string{"GO_TRAILING_SLASH_COMPAT": "true"}, 307},
+	} {
+		d, restore := capDeps(t, false)
+		d.Getenv = func(k string) string { return tc.env[k] }
+		r := httpx.NewRouter()
+		RegisterCapabilityRoutes(r, d)
+		r.Handle("GET /health", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(200) }))
+		RegisterTrailingSlashCompat(r, d)
+		rec := httptest.NewRecorder()
+		r.Handler().ServeHTTP(rec, httptest.NewRequest("POST", "/health/", nil))
+		restore()
+		if rec.Code != tc.want {
+			t.Errorf("env %v: POST /health/ = %d, want %d", tc.env, rec.Code, tc.want)
+		}
+	}
+}
