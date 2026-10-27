@@ -345,6 +345,9 @@ func (t *Turn) native(ctx context.Context, c parsedCall) (string, bool, error) {
 }
 
 func (t *Turn) pythonTool(ctx context.Context, c parsedCall) (string, error) {
+	if t.PY == nil {
+		return toolErr(c.Name, "worker error"), nil // the engine runs without a worker; this tool has no Go port
+	}
 	uid, err := t.Auth.ToolUserID()
 	if err != nil || t.Auth.WorkspaceID != t.WS {
 		if err == nil {

@@ -44,6 +44,9 @@ func (t *Turn) PreRoute(ctx context.Context, w *ssestream.Writer, lastUserMsg st
 		if !delegate {
 			return handled, err
 		}
+		if t.PY == nil {
+			return true, t.preFail(w, &turnErr{errTextInterrupted, errors.New("copilot: pre-route branch needs the worker")})
+		}
 	}
 	seen := false // a frame reached us: the stream is no longer a clean open failure
 	fail := func(te *turnErr) error {
