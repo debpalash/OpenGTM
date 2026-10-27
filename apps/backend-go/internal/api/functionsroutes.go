@@ -2,7 +2,6 @@ package api
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,13 +9,10 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbfunctions"
 )
@@ -271,15 +267,14 @@ func (f fnRoutes) apply(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ws, _ := identity.WorkspaceFrom(r.Context())
-	// F4: refuse a merge that introduces a dependency cycle (nothing is written).
-	if g, err := f.cycleGuard(r.Context(), ws.WorkspaceID, r.PathValue("func_id"), wbID); err != nil {
-		f.fail(w, "apply cycle check", err)
-		return
-	} else if g != nil {
-		httpx.Detail(w, g.Status, g.Detail)
+	// F4: refuse a merge that introduces a dependency cycle. The check runs on the exact merged array
+	// inside Apply's locked transaction (nothing is written, usage_count is not bumped).
+	res, err := f.store.ApplyChecked(r.Context(), ws.WorkspaceID, r.PathValue("func_id"), wbID, noNewCycles)
+	var guard *wbcrud.GuardError
+	if errors.As(err, &guard) {
+		httpx.Detail(w, guard.Status, guard.Detail)
 		return
 	}
-	res, err := f.store.Apply(r.Context(), ws.WorkspaceID, r.PathValue("func_id"), wbID)
 	switch {
 	case errors.Is(err, wbfunctions.ErrWorkbookNotFound):
 		httpx.Detail(w, http.StatusNotFound, "Workbook not found")
@@ -292,75 +287,19 @@ func (f fnRoutes) apply(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// cycleGuard merges the function's chain into the workbook's columns the way Store.Apply does
-// (by id, falling back to key) and reports columns that would newly sit in a dependency cycle.
-// Unknown workbook or function return nil so Apply answers the usual 404.
-func (f fnRoutes) cycleGuard(ctx context.Context, workspaceID, funcID, workbookID string) (*wbcrud.GuardError, error) {
-	fn, err := f.store.Get(ctx, funcID)
-	if errors.Is(err, wbfunctions.ErrFunctionNotFound) || errors.Is(err, pgx.ErrNoRows) {
-		return nil, nil
-	}
+// noNewCycles is the wbfunctions.Validator for apply: columns newly sitting in a dependency cycle
+// are refused. Unparseable stored or merged config is left to the usual path (no guard error).
+func noNewCycles(before, after []byte) error {
+	b, err := wbcrud.ParseColumns(before)
 	if err != nil {
-		return nil, err
+		return nil
 	}
-	var cfg []byte
-	found := false
-	err = tenancy.InWorkspace(ctx, f.d.Pool, workspaceID, func(tx pgx.Tx) error {
-		c, err := gen.New(tx).LockWorkbookColumnsConfig(ctx, gen.LockWorkbookColumnsConfigParams{WorkbookID: workbookID, WorkspaceID: workspaceID})
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil
-		}
-		cfg, found = c, err == nil
-		return err
-	})
-	if err != nil || !found {
-		return nil, err
-	}
-	var existing, chain []json.RawMessage
-	if t := bytes.TrimSpace(cfg); len(t) > 0 && string(t) != "null" {
-		if json.Unmarshal(t, &existing) != nil {
-			return nil, nil // malformed stored config: leave to Apply
-		}
-	}
-	if t := bytes.TrimSpace(fn.ColumnsChain); len(t) > 0 && string(t) != "null" {
-		if json.Unmarshal(t, &chain) != nil {
-			return nil, nil
-		}
-	}
-	key := func(raw json.RawMessage) string {
-		var m map[string]any
-		if json.Unmarshal(raw, &m) != nil {
-			return ""
-		}
-		for _, k := range []string{"id", "key"} {
-			if v, ok := m[k]; ok && v != nil && v != "" {
-				return fmt.Sprint(v)
-			}
-		}
-		return ""
-	}
-	seen := map[string]bool{}
-	for _, c := range existing {
-		seen[key(c)] = true
-	}
-	merged := append([]json.RawMessage{}, existing...)
-	for _, c := range chain {
-		if k := key(c); !seen[k] {
-			seen[k] = true
-			merged = append(merged, c)
-		}
-	}
-	before, err := wbcrud.ParseColumns(cfg)
+	a, err := wbcrud.ParseColumns(after)
 	if err != nil {
-		return nil, nil
+		return nil
 	}
-	joined, err := json.Marshal(merged)
-	if err != nil {
-		return nil, err
+	if g := wbcrud.ValidateNewCycles(b, a); g != nil {
+		return g
 	}
-	after, err := wbcrud.ParseColumns(joined)
-	if err != nil {
-		return nil, nil
-	}
-	return wbcrud.ValidateNewCycles(before, after), nil
+	return nil
 }

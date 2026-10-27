@@ -73,10 +73,22 @@ type ApplyResult struct {
 
 // Apply appends the chain's columns whose id (or legacy key) is not already in
 // the workbook's columns_config, then bumps usage_count. The workbook must
-// belong to workspaceID (else ErrWorkbookNotFound, checked first). Like Python
-// it does not validate cycles. columns_config is only rewritten (stamping
+// belong to workspaceID (else ErrWorkbookNotFound, checked first). Cycle validation is
+// the caller's, via ApplyChecked. columns_config is only rewritten (stamping
 // updated_at) when it changes, as SQLAlchemy skips an equal-value UPDATE.
 func (s *Store) Apply(ctx context.Context, workspaceID, funcID, workbookID string) (ApplyResult, error) {
+	return s.ApplyChecked(ctx, workspaceID, funcID, workbookID, nil)
+}
+
+// Validator inspects the columns_config Apply is about to write. before is the stored value (as read
+// under the row lock), after the exact merged array that will be written. A non-nil error aborts the
+// transaction untouched and is returned from ApplyChecked as is (usage_count is not bumped).
+type Validator func(before, after []byte) error
+
+// ApplyChecked is Apply with a validator run on the merged columns inside the same locked
+// transaction as the write, so no concurrent column edit can land between check and write (F4). The
+// validator only runs when the merge would change columns_config.
+func (s *Store) ApplyChecked(ctx context.Context, workspaceID, funcID, workbookID string, validate Validator) (ApplyResult, error) {
 	var res ApplyResult
 	err := tenancy.InWorkspace(ctx, s.Pool, workspaceID, func(tx pgx.Tx) error {
 		q := gen.New(tx)
@@ -127,8 +139,14 @@ func (s *Store) Apply(ctx context.Context, workspaceID, funcID, workbookID strin
 		if added == 0 && !wasNull {
 			return nil
 		}
+		out := joinArray(merged)
+		if validate != nil {
+			if err := validate(cfg, out); err != nil {
+				return err
+			}
+		}
 		return q.SetWorkbookColumnsConfig(ctx, gen.SetWorkbookColumnsConfigParams{
-			ColumnsConfig: joinArray(merged), WorkbookID: workbookID, WorkspaceID: workspaceID,
+			ColumnsConfig: out, WorkbookID: workbookID, WorkspaceID: workspaceID,
 		})
 	})
 	if err != nil {

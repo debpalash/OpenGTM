@@ -5,12 +5,14 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
@@ -19,6 +21,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbfunctions"
 )
 
 type fnEnv struct {
@@ -376,6 +379,38 @@ func TestApplyCycleCheckUsesApplyIdentity(t *testing.T) {
 	code, out := e.call("POST", "/api/functions/t15-f3b/apply", `{"workbook_id":"t15-wb4b"}`, h)
 	if code != 200 || out["columns_added"] != float64(0) {
 		t.Fatalf("duplicate by Apply identity must be a no-op, got %d %v", code, out)
+	}
+}
+
+// F4 (final wave): the validator runs on the exact merged array while Apply still holds the workbook
+// row lock, so a concurrent column write cannot land between the check and the write.
+func TestApplyValidatorRunsUnderRowLock(t *testing.T) {
+	e := newFnEnv(t)
+	e.user(t, "t15-ws10c", "t15-u10c", "editor", false)
+	e.workbookIn(t, "t15-ws10c", "t15-wb4c", `[{"id":"a","name":"A"}]`)
+	e.fn(t, "t15-f3c", "t15 f3c", "t15-f", 0, `[{"id":"b","name":"B"}]`)
+	ctx := context.Background()
+	called := false
+	_, err := wbfunctions.New(e.pool).ApplyChecked(ctx, "t15-ws10c", "t15-f3c", "t15-wb4c", func(before, after []byte) error {
+		called = true
+		if !strings.Contains(string(before), `"a"`) || strings.Contains(string(before), `"b"`) || !strings.Contains(string(after), `"b"`) {
+			t.Errorf("validator args: before=%s after=%s", before, after)
+		}
+		werr := tenancy.InWorkspace(ctx, e.pool, "t15-ws10c", func(tx pgx.Tx) error {
+			if _, err := tx.Exec(ctx, `SET LOCAL lock_timeout = '200ms'`); err != nil {
+				return err
+			}
+			_, err := tx.Exec(ctx, `UPDATE workbooks SET columns_config = '[]'::jsonb WHERE id = 't15-wb4c'`)
+			return err
+		})
+		var pe *pgconn.PgError
+		if !errors.As(werr, &pe) || pe.Code != "55P03" { // lock_not_available
+			t.Errorf("concurrent column write must hit the row lock (lock_not_available), got %v", werr)
+		}
+		return nil
+	})
+	if err != nil || !called {
+		t.Fatalf("called=%v err=%v", called, err)
 	}
 }
 
