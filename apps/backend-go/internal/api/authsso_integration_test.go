@@ -292,6 +292,9 @@ func TestSSOLinksWorkspaceMember(t *testing.T) {
 	if err != nil || c.Sub != "editor@"+e.tag+".test" || len(c.AMR) != 1 || c.AMR[0] != "sso" {
 		t.Fatalf("token %v %+v %v", frag, c, err)
 	}
+	if c.Workspace != e.ws { // the SSO session is scoped to the workspace that signed it in
+		t.Fatalf("token scope %q want %q", c.Workspace, e.ws)
+	}
 	if e.idp.gotPKCE == "" {
 		t.Fatal("no PKCE verifier sent")
 	}

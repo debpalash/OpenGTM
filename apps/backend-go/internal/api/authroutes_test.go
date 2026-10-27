@@ -218,6 +218,31 @@ func TestRefreshKeepsSSOAmr(t *testing.T) {
 	}
 }
 
+// Refresh keeps the workspace scope of an SSO session (sso_ws) on both new tokens; unscoped refresh
+// tokens stay unscoped.
+func TestRefreshKeepsSSOWorkspaceScope(t *testing.T) {
+	e := newEnv(t)
+	e.seedPW(t, "t9-ssows", "pw-1", true)
+	tok, _ := testSigner.RefreshFor("t9-ssows", []string{"sso"}, "ws-scope-1")
+	rec, _ := e.do("POST", "/auth/refresh", "application/json", `{"refresh_token":"`+tok+`"}`, nil)
+	var m map[string]string
+	_ = json.Unmarshal(rec.Body.Bytes(), &m)
+	for _, k := range []string{"access_token", "refresh_token"} {
+		c, err := testSigner.ParseAny(m[k])
+		if err != nil || c.Workspace != "ws-scope-1" || len(c.AMR) != 1 || c.AMR[0] != "sso" {
+			t.Fatalf("%s: %d %+v %v", k, rec.Code, c, err)
+		}
+	}
+	tok, _ = testSigner.Refresh("t9-ssows", []string{"pwd"})
+	rec, _ = e.do("POST", "/auth/refresh", "application/json", `{"refresh_token":"`+tok+`"}`, nil)
+	_ = json.Unmarshal(rec.Body.Bytes(), &m)
+	for _, k := range []string{"access_token", "refresh_token"} {
+		if c, err := testSigner.ParseAny(m[k]); err != nil || c.Workspace != "" {
+			t.Fatalf("unscoped %s: %+v %v", k, c, err)
+		}
+	}
+}
+
 func TestMeMatchesFixture(t *testing.T) {
 	e := newEnv(t)
 	e.seed(t, "alice", pythonHash, true, "admin", true)
