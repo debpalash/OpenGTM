@@ -92,6 +92,13 @@ func loadOutreach(get func(string) string) (OutreachSettings, error) {
 	if o.PublicBaseURL == "" {
 		o.PublicBaseURL = "http://localhost:8000"
 	}
+	// Unsubscribe links and the List-Unsubscribe header are built from this URL: a localhost or plain-http default would
+	// put dead or interceptable links in real mail. Fail closed outside development when sending is on.
+	if (o.GoRoutesEnabled || o.GoExecutorSend) && !IsDevEnv(get("APP_ENV")) {
+		if strings.TrimSpace(get("OUTREACH_PUBLIC_BASE_URL")) == "" || !strings.HasPrefix(strings.ToLower(o.PublicBaseURL), "https://") {
+			return o, fmt.Errorf("config: refusing to start: OUTREACH_PUBLIC_BASE_URL must be set to an https URL when GO_OUTREACH_ROUTES_ENABLED or GO_EXECUTOR_OUTREACH_SEND is on and APP_ENV is not a development value (dev, development, test, testing, local)")
+		}
+	}
 	o.BounceWebhookSecret = Secret(strings.TrimSpace(get("OUTREACH_BOUNCE_WEBHOOK_SECRET")))
 	return o, nil
 }

@@ -4,7 +4,7 @@ import "testing"
 
 func TestOutreachExecutorGates(t *testing.T) {
 	base := map[string]string{
-		"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-1, ws-2", "GO_EXECUTOR_OUTREACH_SEND": "1", "GO_EXECUTOR_OUTREACH_INBOUND": "1",
+		"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-1, ws-2", "GO_EXECUTOR_OUTREACH_SEND": "1", "GO_EXECUTOR_OUTREACH_INBOUND": "1", "APP_ENV": "dev",
 	}
 	with := func(k, v string) map[string]string {
 		m := map[string]string{}

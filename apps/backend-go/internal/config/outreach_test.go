@@ -92,3 +92,25 @@ func TestWorkerLoadCarriesOutreach(t *testing.T) {
 		t.Fatal("bad OUTREACH_* value accepted by the worker loader")
 	}
 }
+
+// S-L17: with outreach routes or sending on, a non-dev environment needs an https public base URL.
+func TestOutreachPublicBaseURLRequiredOutsideDev(t *testing.T) {
+	for _, c := range []struct {
+		name string
+		env  map[string]string
+		ok   bool
+	}{
+		{"routes on, prod, unset", map[string]string{"GO_OUTREACH_ROUTES_ENABLED": "1", "APP_ENV": "production"}, false},
+		{"routes on, APP_ENV unset, unset url", map[string]string{"GO_OUTREACH_ROUTES_ENABLED": "1"}, false},
+		{"send on, prod, http", map[string]string{"GO_EXECUTOR_OUTREACH_SEND": "1", "APP_ENV": "production", "OUTREACH_PUBLIC_BASE_URL": "http://app.example.com"}, false},
+		{"routes on, prod, https", map[string]string{"GO_OUTREACH_ROUTES_ENABLED": "1", "APP_ENV": "production", "OUTREACH_PUBLIC_BASE_URL": "https://app.example.com/"}, true},
+		{"routes on, dev, unset", map[string]string{"GO_OUTREACH_ROUTES_ENABLED": "1", "APP_ENV": "dev"}, true},
+		{"flags off, prod, unset", map[string]string{"APP_ENV": "production"}, true},
+		{"inbound only, prod, unset", map[string]string{"GO_EXECUTOR_OUTREACH_INBOUND": "1", "APP_ENV": "production"}, true},
+	} {
+		_, err := loadOutreach(func(k string) string { return c.env[k] })
+		if (err == nil) != c.ok {
+			t.Errorf("%s: err=%v, want ok=%v", c.name, err, c.ok)
+		}
+	}
+}
