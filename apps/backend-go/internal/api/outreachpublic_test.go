@@ -294,7 +294,7 @@ func TestRateLimiterBoundedMemory(t *testing.T) {
 
 // TestUnsubscribeUsesRealClientIP: behind nginx every request arrives from the proxy address; the client is X-Real-IP
 // (set by nginx, never forwarded from the client), honoured only when the socket peer is a trusted proxy (TRUST_PROXY_CIDRS;
-// default loopback and the docker bridge ranges). An untrusted peer's headers are ignored, so they cannot dodge the limit.
+// default loopback only, S-L18). An untrusted peer's headers are ignored, so they cannot dodge the limit.
 func TestUnsubscribeUsesRealClientIP(t *testing.T) {
 	run := func(env map[string]string, peer string, hdr func(i int) map[string]string) (limitedAt int) {
 		env["SECRETS_MASTER_KEY"] = pubMasterKey
@@ -311,15 +311,24 @@ func TestUnsubscribeUsesRealClientIP(t *testing.T) {
 	same := func(i int) map[string]string {
 		return map[string]string{"X-Real-IP": "198.51.100.77", "X-Forwarded-For": "1.1.1." + strconv.Itoa(i) + ", 198.51.100.77"}
 	}
-	// default trust: the docker bridge and loopback. Distinct real clients behind the proxy are not lumped together...
-	for _, peer := range []string{"172.18.0.5:5555", "127.0.0.1:5555", "192.168.16.2:1", "[::1]:5555"} {
+	// default trust: loopback only. Distinct real clients behind the proxy are not lumped together...
+	for _, peer := range []string{"127.0.0.1:5555", "[::1]:5555"} {
 		if at := run(map[string]string{}, peer, real); at != 0 {
 			t.Fatalf("%s: distinct real clients were limited at request %d", peer, at)
 		}
 	}
 	// ...one real client is limited on its 21st request and a spoofed X-Forwarded-For does not help it
-	if at := run(map[string]string{}, "172.18.0.5:5555", same); at != 21 {
+	if at := run(map[string]string{}, "127.0.0.1:5555", same); at != 21 {
 		t.Fatalf("one real client limited at %d, want 21", at)
+	}
+	// S-L18: bridge and LAN peers are untrusted unless named in TRUST_PROXY_CIDRS
+	for _, peer := range []string{"172.18.0.5:5555", "192.168.16.2:1", "10.0.0.2:5555"} {
+		if at := run(map[string]string{}, peer, real); at != 21 {
+			t.Fatalf("%s: default must not trust it, limited at %d", peer, at)
+		}
+		if at := run(map[string]string{"TRUST_PROXY_CIDRS": "172.16.0.0/12,192.168.0.0/16,10.0.0.0/8"}, peer, real); at != 0 {
+			t.Fatalf("%s: configured, limited at %d", peer, at)
+		}
 	}
 	// an untrusted peer (any public or unlisted address) is the client itself: its headers are ignored
 	for _, peer := range []string{"203.0.113.9:1", "10.0.0.2:5555"} {
@@ -339,7 +348,7 @@ func TestUnsubscribeUsesRealClientIP(t *testing.T) {
 		t.Fatalf("default ranges must not apply once configured: %d", at)
 	}
 	// malformed or empty X-Real-IP from a trusted peer falls back to the peer
-	nets := parseTrustedProxies("", nil)
+	nets := parseTrustedProxies("172.16.0.0/12", nil)
 	for _, v := range []string{"not an ip\r\nx", "", "999.1.1.1"} {
 		r := httptest.NewRequest("POST", "/", nil)
 		r.RemoteAddr = "172.18.0.5:5555"
