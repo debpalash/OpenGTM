@@ -31,7 +31,7 @@
    "providers": {
     "website_scraper": {
      "fields": {
-      "phone": "+33 1 23",
+      "phone": "+33123",
       "city": "Lyon",
       "company_size": "11-50"
      },
@@ -45,7 +45,7 @@
     },
     "overlay": {
      "ph": {
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null
@@ -63,7 +63,7 @@
      {
       "lead_id": 501,
       "column_id": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -84,7 +84,7 @@
       "leadId": 501,
       "rowId": 11,
       "colId": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -144,7 +144,7 @@
    "providers": {
     "website_scraper": {
      "fields": {
-      "phone": "+33 1 23",
+      "phone": "+33123",
       "city": "Lyon",
       "company_size": "11-50"
      },
@@ -161,7 +161,7 @@
     },
     "overlay": {
      "ph": {
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -185,7 +185,7 @@
      {
       "lead_id": 501,
       "column_id": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -213,7 +213,7 @@
       "leadId": 501,
       "rowId": 11,
       "colId": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -394,7 +394,7 @@
    "providers": {
     "website_scraper": {
      "fields": {
-      "phone": "+33 1 23",
+      "phone": "+33123",
       "city": "Lyon",
       "company_size": "11-50"
      },
@@ -408,7 +408,7 @@
     },
     "overlay": {
      "ph": {
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -428,7 +428,7 @@
      {
       "lead_id": 12,
       "column_id": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -456,7 +456,7 @@
       "leadId": 12,
       "rowId": 12,
       "colId": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -708,7 +708,7 @@
    "providers": {
     "website_scraper": {
      "fields": {
-      "phone": "+33 1 23",
+      "phone": "+33123",
       "city": "Lyon",
       "company_size": "11-50"
      },
@@ -725,7 +725,7 @@
     },
     "overlay": {
      "ph": {
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -749,7 +749,7 @@
      {
       "lead_id": 501,
       "column_id": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -777,7 +777,7 @@
       "leadId": 501,
       "rowId": 11,
       "colId": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -852,7 +852,7 @@
    "providers": {
     "website_scraper": {
      "fields": {
-      "phone": "+33 1 23",
+      "phone": "+33123",
       "city": "Lyon",
       "company_size": "11-50"
      },
@@ -866,7 +866,7 @@
     },
     "overlay": {
      "ph": {
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null
@@ -884,7 +884,7 @@
      {
       "lead_id": 501,
       "column_id": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -905,7 +905,7 @@
       "leadId": 501,
       "rowId": 11,
       "colId": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -942,8 +942,8 @@
         "row_id": "11",
         "field": "ph",
         "old": null,
-        "new": "+33 1 23",
-        "cell_version": 1793131898197
+        "new": "+33123",
+        "cell_version": 1793132684706
        }
       ]
      }
@@ -980,7 +980,7 @@
    "providers": {
     "website_scraper": {
      "fields": {
-      "phone": "+33 1 23",
+      "phone": "+33123",
       "city": "Lyon",
       "company_size": "11-50"
      },
@@ -994,7 +994,7 @@
     },
     "overlay": {
      "ph": {
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null
@@ -1012,7 +1012,7 @@
      {
       "lead_id": 501,
       "column_id": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -1033,7 +1033,7 @@
       "leadId": 501,
       "rowId": 11,
       "colId": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -1091,7 +1091,7 @@
     },
     "enrichments": {
      "ph": {
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete"
      }
     }
@@ -1099,7 +1099,7 @@
    "providers": {
     "website_scraper": {
      "fields": {
-      "phone": "+33 1 23",
+      "phone": "+33123",
       "city": "Lyon",
       "company_size": "11-50"
      },
@@ -1113,7 +1113,7 @@
     },
     "overlay": {
      "ph": {
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null
@@ -1131,7 +1131,7 @@
      {
       "lead_id": 501,
       "column_id": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -1152,7 +1152,7 @@
       "leadId": 501,
       "rowId": 11,
       "colId": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -1189,8 +1189,8 @@
         "row_id": "11",
         "field": "ph",
         "old": null,
-        "new": "+33 1 23",
-        "cell_version": 1793131898204
+        "new": "+33123",
+        "cell_version": 1793132684713
        }
       ]
      }
@@ -1226,7 +1226,7 @@
    "providers": {
     "website_scraper": {
      "fields": {
-      "phone": "+33 1 23",
+      "phone": "+33123",
       "city": "Lyon",
       "company_size": "11-50"
      },
@@ -1311,7 +1311,7 @@
    "providers": {
     "website_scraper": {
      "fields": {
-      "phone": "+33 1 23",
+      "phone": "+33123",
       "city": "Lyon",
       "company_size": "11-50"
      },
@@ -1325,7 +1325,7 @@
     },
     "overlay": {
      "ph": {
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null
@@ -1343,7 +1343,7 @@
      {
       "lead_id": 501,
       "column_id": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -1364,7 +1364,7 @@
       "leadId": 501,
       "rowId": 11,
       "colId": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -1430,7 +1430,7 @@
    "providers": {
     "website_scraper": {
      "fields": {
-      "phone": "+33 1 23",
+      "phone": "+33123",
       "city": "Lyon",
       "company_size": "11-50"
      },
@@ -1444,7 +1444,7 @@
     },
     "overlay": {
      "ph": {
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null
@@ -1462,7 +1462,7 @@
      {
       "lead_id": 501,
       "column_id": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -1483,7 +1483,7 @@
       "leadId": 501,
       "rowId": 11,
       "colId": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -1543,7 +1543,7 @@
    "providers": {
     "website_scraper": {
      "fields": {
-      "phone": "+33 1 23",
+      "phone": "+33123",
       "city": "Lyon",
       "company_size": "11-50"
      },
@@ -1634,7 +1634,7 @@
    "providers": {
     "website_scraper": {
      "fields": {
-      "phone": "+33 1 23",
+      "phone": "+33123",
       "city": "Lyon",
       "company_size": "11-50"
      },
@@ -5315,7 +5315,7 @@
    "providers": {
     "website_scraper": {
      "fields": {
-      "phone": "+33 1 23",
+      "phone": "+33123",
       "city": "Lyon",
       "company_size": "11-50"
      },
@@ -5334,7 +5334,7 @@
     },
     "overlay": {
      "ph": {
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -5386,7 +5386,7 @@
      {
       "lead_id": 501,
       "column_id": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -5414,7 +5414,7 @@
       "leadId": 501,
       "rowId": 11,
       "colId": "ph",
-      "value": "+33 1 23",
+      "value": "+33123",
       "status": "complete",
       "provider": "website_scraper",
       "error": null,
@@ -5484,7 +5484,7 @@
       "headers": {
        "content-type": "application/json"
       },
-      "body": "{\"p\":\"+33 1 23\"}"
+      "body": "{\"p\":\"+33123\"}"
      }
     ],
     "emitted": []

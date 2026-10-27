@@ -282,7 +282,7 @@ def out(cid, dest, cfg, **kw):
 ROW = {"id": 11, "lead_id": 501, "data": {"company": "Acme", "website": "acme.example.com", "email": "jo@acme.example.com",
                                           "first_name": "Jo", "last_name": "Doe", "city": "Paris"}}
 ROW_NOLEAD = {"id": 12, "lead_id": None, "data": {"company": "Beta", "website": "beta.example.com"}}
-PHONE = {"website_scraper": {"fields": {"phone": "+33 1 23", "city": "Lyon", "company_size": "11-50"}, "confidence": 0.8}}
+PHONE = {"website_scraper": {"fields": {"phone": "+33123", "city": "Lyon", "company_size": "11-50"}, "confidence": 0.8}}
 
 SCENARIOS = [
     # ── provenance_on ──
@@ -306,7 +306,7 @@ SCENARIOS = [
     {"name": "automations_gather_flush_python_loses_deltas", "automations": True, "flush": "gather",
      "columns": [wf("ph", "phone", ["website_scraper"])], "row": ROW, "providers": PHONE},
     {"name": "automations_unchanged_value_no_delta", "automations": True,
-     "columns": [wf("ph", "phone", ["website_scraper"])], "row": {**ROW, "enrichments": {"ph": {"value": "+33 1 23", "status": "complete"}}},
+     "columns": [wf("ph", "phone", ["website_scraper"])], "row": {**ROW, "enrichments": {"ph": {"value": "+33123", "status": "complete"}}},
      "providers": PHONE},
     # ── condition ──
     {"name": "condition_false_skips", "columns": [wf("ph", "phone", ["website_scraper"], condition='{email} == ""')], "row": ROW, "providers": PHONE},
