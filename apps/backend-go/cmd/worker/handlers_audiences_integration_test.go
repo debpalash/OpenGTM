@@ -27,7 +27,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
 type audEnv struct {
@@ -300,60 +299,40 @@ func TestWorkerIgnoresPythonRows(t *testing.T) {
 	}
 }
 
-// A destination type outside GO_DEST_TYPES, or listed but without a delivery port, is handed
-// back to Python untouched (no retry spent), never failed.
-func TestWorkerHandsBackIneligibleType(t *testing.T) {
-	for _, tc := range []struct {
-		name, typ string
-		goTypes   []string
-		ports     destdeliver.Ports
-	}{
-		{"not listed", "hubspot", []string{"webhook"}, destdeliver.Ports{Webhook: &fakeWebhook{}}},
-		{"listed without port", "hubspot", []string{"hubspot"}, destdeliver.Ports{}}, // webhook/slack always have the Go port (S-M3)
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			g := setupAud(t)
-			run, mk := g.destRun(t, tc.typ, 1)
-			job := mk(3, "go")
-			g.runAud(t, audConfig(g.ws, tc.goTypes...), &nopEmitter{}, audienceOpts{ports: tc.ports})
-			if st, ex, rt := g.jobRow(t, job); st != "pending" || ex != "python" || rt != 0 {
-				t.Fatalf("job %s/%s retries %d", st, ex, rt)
-			}
-			if s, _ := g.runState(t, run); s != "pending" {
-				t.Fatalf("run %s, want pending (as found)", s)
-			}
-		})
+// A destination type without a Go delivery port fails permanently (plan 15 cutover: no hand-back; GO_DEST_TYPES is
+// permanently every type), and the failure hook reconciles the run.
+func TestWorkerFailsTypeWithoutPort(t *testing.T) {
+	g := setupAud(t)
+	run, mk := g.destRun(t, "hubspot", 1)
+	job := mk(3, "go")
+	g.runAud(t, audConfig(g.ws, "webhook"), &nopEmitter{}, audienceOpts{ports: destdeliver.Ports{}})
+	if st, ex, _ := g.jobRow(t, job); st != "failed" || ex != "go" {
+		t.Fatalf("job %s/%s", st, ex)
+	}
+	if s, _ := g.runState(t, run); s == "pending" {
+		t.Fatalf("run %s, want reconciled", s)
 	}
 }
 
-// With no emitter (no AudienceEvents) or the flag off, audience_refresh rows are handed back.
-func TestWorkerNoEmitterNoRefreshHandler(t *testing.T) {
-	for _, tc := range []struct {
-		name string
-		em   audiencerefresh.Emitter
-		on   bool
-	}{{"no emitter", nil, true}, {"flag off", &nopEmitter{}, false}} {
-		t.Run(tc.name, func(t *testing.T) {
-			g := setupAud(t)
-			g.audience(t, "aud1", true)
-			cfg := audConfig(g.ws)
-			cfg.Flags.Audiences.GoExecutorAudienceRefresh = tc.on
-			job := g.job(t, "audience_refresh", map[string]any{"workspace_id": g.ws, "audience_id": "aud1"}, "go", 3)
-			rn := dispatch(audienceHandlers(cfg, g.pool, telemetry.NewLogger(io.Discard), noSecrets{}, tc.em, audienceOpts{}))
-			c, err := claimNext(context.Background(), g.pool, cfg, "w")
-			if err != nil || c == nil || c.Type != "audience_refresh" {
-				t.Fatalf("claim %v err %v", c, err)
-			}
-			if err := rn(context.Background(), c); !errors.Is(err, workbook.ErrHandedBack) {
-				t.Fatalf("err %v, want ErrHandedBack", err)
-			}
-			if st, ex, rt := g.jobRow(t, job); st != "pending" || ex != "python" || rt != 0 {
-				t.Fatalf("job %s/%s retries %d", st, ex, rt)
-			}
-			if h := audienceHealth(t, g); h != "unverified" {
-				t.Fatalf("audience touched: %s", h)
-			}
-		})
+// Without an emitter (no AudienceEvents) audience_refresh fails permanently and the audience is untouched.
+func TestWorkerNoEmitterFailsRefresh(t *testing.T) {
+	g := setupAud(t)
+	g.audience(t, "aud1", true)
+	cfg := audConfig(g.ws)
+	job := g.job(t, "audience_refresh", map[string]any{"workspace_id": g.ws, "audience_id": "aud1"}, "go", 3)
+	rn := dispatch(audienceHandlers(cfg, g.pool, telemetry.NewLogger(io.Discard), noSecrets{}, nil, audienceOpts{}))
+	c, err := claimNext(context.Background(), g.pool, cfg, "w")
+	if err != nil || c == nil || c.Type != "audience_refresh" {
+		t.Fatalf("claim %v err %v", c, err)
+	}
+	if err := rn(context.Background(), c); !queue.IsPermanent(err) {
+		t.Fatalf("err %v, want a permanent failure", err)
+	}
+	if _, ex, _ := g.jobRow(t, job); ex != "go" {
+		t.Fatalf("job executor %s", ex)
+	}
+	if h := audienceHealth(t, g); h != "unverified" {
+		t.Fatalf("audience touched: %s", h)
 	}
 }
 

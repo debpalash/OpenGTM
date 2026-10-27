@@ -5,7 +5,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -24,7 +23,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
 // With MaxActivePerWorkspace=1 and two slots, two jobs of one workspace must
@@ -141,7 +139,7 @@ func TestPanickingRunnerFailsJobAndSlotSurvives(t *testing.T) {
 func e2eConfig() config.Config {
 	return config.Config{
 		HeartbeatInterval: time.Hour, JobTimeout: time.Minute, AppEnv: "test", MaxActivePerWorkspace: 0,
-		InternalServiceToken: "t", CredentialsSource: config.CredentialsSourceHTTP,
+		InternalServiceToken: "t", CredentialsSource: config.CredentialsSourceLocal, SecretKey: "e2e-worker-secret-key-0123456789abcdef",
 		Executor: config.ExecutorSettings{Enabled: true, SignalScan: true, Workspaces: map[string]bool{"wsr": true},
 			SignalHotLeads: 50, SignalWarmLeads: 30, SignalPerWorkspace: 20, SignalGlobal: 500},
 	}
@@ -326,7 +324,7 @@ func (g *govEnv) runGov(t *testing.T, cfg config.Config, o governanceOpts) {
 	t.Helper()
 	ctx := context.Background()
 	log := telemetry.NewLogger(io.Discard)
-	rn := dispatch(governanceHandlers(cfg, g.pool, log, nil, o))
+	rn := dispatch(governanceHandlers(cfg, g.pool, log, o))
 	cctx, stop := context.WithTimeout(ctx, 20*time.Second)
 	defer stop()
 	done := make(chan struct{})
@@ -494,22 +492,22 @@ func TestWorkerRunsPlaybookScheduleJob(t *testing.T) {
 	}
 }
 
-// Without a Python worker the run job goes back to Python untouched, no retry spent.
-func TestWorkerHandsBackPlaybookRunWithoutPyWorker(t *testing.T) {
+// Without a research runner the run job fails permanently (no Python worker to hand it to since the cutover), no
+// retry spent, and the failure hook reconciles the run.
+func TestWorkerFailsPlaybookRunWithoutResearcher(t *testing.T) {
 	g := setupGov(t)
 	pb, aud := g.playbookFixture(t)
 	run, job := g.playbookRun(t, pb, aud)
 	g.runGov(t, govConfig(g.ws), governanceOpts{})
 	var status, executor string
-	var retries int
-	if err := g.owner.QueryRow(context.Background(), `SELECT status, executor, retry_count FROM jobs WHERE id=$1`, job).Scan(&status, &executor, &retries); err != nil {
+	if err := g.owner.QueryRow(context.Background(), `SELECT status, executor FROM jobs WHERE id=$1`, job).Scan(&status, &executor); err != nil {
 		t.Fatal(err)
 	}
-	if status != "pending" || executor != "python" || retries != 0 {
-		t.Fatalf("job %s/%s retries %d", status, executor, retries)
+	if status != "failed" || executor != "go" {
+		t.Fatalf("job %s/%s", status, executor)
 	}
-	if s, _ := g.pbRunStatus(t, run); s != "pending" {
-		t.Fatalf("run %s, want pending (as found)", s)
+	if s, _ := g.pbRunStatus(t, run); s != "failed" {
+		t.Fatalf("run %s, want failed", s)
 	}
 }
 
@@ -583,13 +581,12 @@ func TestLeaseLostStopsPurgeBeforeNextBatch(t *testing.T) {
 	}
 }
 
-// Go never claims executor='python' rows; with both flags off every governance type is
-// still handled (handed back), so no go row is ever failed as unsupported.
-func TestFlagsOffLeavePythonJobsUntouched(t *testing.T) {
+// Go never claims executor='python' rows (Python-era rows wait for the cutover runbook's reassignment).
+func TestPythonJobsAreNeverClaimed(t *testing.T) {
 	g := setupGov(t)
 	ctx := context.Background()
-	if h := governanceHandlers(govConfig(g.ws), g.pool, telemetry.NewLogger(io.Discard), nil, governanceOpts{}); len(h) != 3 {
-		t.Fatalf("flags on: %d handlers", len(h))
+	if h := governanceHandlers(govConfig(g.ws), g.pool, telemetry.NewLogger(io.Discard), governanceOpts{}); len(h) != 3 {
+		t.Fatalf("%d handlers", len(h))
 	}
 	var job int64
 	if err := g.owner.QueryRow(ctx, `INSERT INTO jobs (type,payload,status,priority,created_at,retry_count,max_retries,workspace_id,executor)
@@ -601,11 +598,6 @@ func TestFlagsOffLeavePythonJobsUntouched(t *testing.T) {
 	}
 	if s, _ := g.jobStatus(t, job); s != "pending" {
 		t.Fatalf("python job %s", s)
-	}
-	off := govConfig(g.ws)
-	off.Flags.Governance = config.GovernanceSettings{}
-	if h := governanceHandlers(off, g.pool, telemetry.NewLogger(io.Discard), nil, governanceOpts{}); len(h) != 3 {
-		t.Fatalf("flags off: %d handlers, want 3 hand-back handlers", len(h))
 	}
 }
 
@@ -631,41 +623,5 @@ func TestDeadGoLeaseReconciled(t *testing.T) {
 	}
 	if s, e := g.runStatus(t, run); s != "pending" || !strings.HasPrefix(e, "Queue retry scheduled: Heartbeat Timeout") {
 		t.Fatalf("run %s %q", s, e)
-	}
-}
-
-// With the per-type flag off, a go-executor governance row that reaches the worker is
-// handed back to Python (pending, executor python, no retry spent), never failed as an
-// unsupported type; like the outreach and automations hand-back.
-func TestGovernanceJobsHandBackWhenFlagsOff(t *testing.T) {
-	g := setupGov(t)
-	ctx := context.Background()
-	cfg := govConfig(g.ws)
-	cfg.Flags.Governance = config.GovernanceSettings{}
-	rn := dispatch(governanceHandlers(cfg, g.pool, telemetry.NewLogger(io.Discard), nil, governanceOpts{}))
-	for _, typ := range []string{"retention_enforce", "research_playbook_run", "research_playbook_schedule"} {
-		if _, err := g.owner.Exec(ctx, `DELETE FROM jobs`); err != nil {
-			t.Fatal(err)
-		}
-		var job int64
-		if err := g.owner.QueryRow(ctx, `INSERT INTO jobs (type,payload,status,priority,created_at,retry_count,max_retries,workspace_id,executor)
-			VALUES ($1,$2,'pending',0,now() AT TIME ZONE 'UTC',0,3,$3,'go') RETURNING id`, typ, `{"workspace_id":"`+g.ws+`","run_id":"r","playbook_id":"p"}`, g.ws).Scan(&job); err != nil {
-			t.Fatal(err)
-		}
-		c, err := claimNext(ctx, g.pool, cfg, "w")
-		if err != nil || c == nil || c.Type != typ {
-			t.Fatalf("%s: claim %v err %v", typ, c, err)
-		}
-		if err := rn(ctx, c); !errors.Is(err, workbook.ErrHandedBack) {
-			t.Fatalf("%s: err %v, want ErrHandedBack", typ, err)
-		}
-		var status, executor string
-		var retries int
-		if err := g.owner.QueryRow(ctx, `SELECT status, executor, retry_count FROM jobs WHERE id=$1`, job).Scan(&status, &executor, &retries); err != nil {
-			t.Fatal(err)
-		}
-		if status != "pending" || executor != "python" || retries != 0 {
-			t.Fatalf("%s: %s/%s retries %d", typ, status, executor, retries)
-		}
 	}
 }

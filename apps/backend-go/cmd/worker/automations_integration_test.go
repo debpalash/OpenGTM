@@ -4,7 +4,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"io"
 	"testing"
 	"time"
@@ -17,7 +16,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
 const wsAuto = "ws-p08t16"
@@ -77,7 +75,9 @@ func TestWorkerRegistersAutomationHandlers(t *testing.T) {
 	}
 }
 
-func TestHandlersHandBackWhenFlagOff(t *testing.T) {
+// With AUTOMATIONS_ENABLED and the poller off the handlers are still registered (the retired GO_EXECUTOR_* flags
+// are ignored): the jobs are no-ops on Go, never handed back.
+func TestHandlersRegisteredWithAutomationsOff(t *testing.T) {
 	pool, ctx := autoSetup(t)
 	cfg := autoCfg(false)
 	rn, closeFn, err := buildRunner(cfg, pool, telemetry.NewLogger(io.Discard))
@@ -91,11 +91,14 @@ func TestHandlersHandBackWhenFlagOff(t *testing.T) {
 		if err != nil || c == nil || c.Type != typ {
 			t.Fatalf("%s: claim %v err %v", typ, c, err)
 		}
-		if err := rn(ctx, c); !errors.Is(err, workbook.ErrHandedBack) {
-			t.Fatalf("%s: err %v, want ErrHandedBack", typ, err)
+		if err := rn(ctx, c); err != nil {
+			t.Fatalf("%s: err %v, want a no-op", typ, err)
 		}
-		if st, ex := jobState(t, ctx, pool, typ); st != "pending" || ex != "python" {
-			t.Fatalf("%s: status %s executor %s", typ, st, ex)
+		if _, ex := jobState(t, ctx, pool, typ); ex != "go" {
+			t.Fatalf("%s: executor %s", typ, ex)
+		}
+		if _, err := pool.Exec(ctx, `DELETE FROM jobs`); err != nil {
+			t.Fatal(err)
 		}
 	}
 }

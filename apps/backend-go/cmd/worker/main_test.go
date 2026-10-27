@@ -118,15 +118,3 @@ func TestPanicInHandlerFailsJobNotProcess(t *testing.T) {
 		t.Fatalf("got %v", err)
 	}
 }
-
-func TestAPISecretsGlobalFallsBackToEnv(t *testing.T) {
-	t.Setenv("REACHER_URL", "http://reacher.internal:8080")
-	got, src, err := apiSecrets{}.Get(context.Background(), "", "REACHER_URL")
-	if err != nil || got != "http://reacher.internal:8080" || src != "env" {
-		t.Fatalf("got %q %q %v", got, src, err)
-	}
-	got, src, err = apiSecrets{}.Get(context.Background(), "", "SEC_EDGAR_USER_AGENT_UNSET_XYZ")
-	if err != nil || got != "" || src != "" {
-		t.Fatalf("unset: got %q %q %v", got, src, err)
-	}
-}

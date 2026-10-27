@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"io"
 	"testing"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachsend"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 )
@@ -73,12 +75,15 @@ func TestProductionOutreachWiringHasNoTestKnobs(t *testing.T) {
 }
 
 func TestOutreachRegistersBothTypesEvenWithoutResolver(t *testing.T) {
-	// CREDENTIALS_SOURCE=http: no resolver; both types still get a (hand-back) handler.
+	// No resolver: both types still get a handler, which fails the job permanently (no Python to hand it to).
 	cfg := config.Config{AppEnv: "production", SecretKey: "a-strong-secret-key-of-32-bytes-or-more"}
 	h := buildOutreach(cfg, nil, telemetry.NewLogger(io.Discard), nil, outreachOpts{})
 	for _, typ := range []string{"send", "outreach_inbound_poll"} {
 		if h[typ] == nil {
-			t.Errorf("no handler for %s", typ)
+			t.Fatalf("no handler for %s", typ)
+		}
+		if err := h[typ](context.Background(), &queue.Claim{Type: typ, WorkspaceID: "ws"}); !queue.IsPermanent(err) {
+			t.Errorf("%s without a resolver: %v", typ, err)
 		}
 	}
 }

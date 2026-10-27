@@ -8,14 +8,11 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 )
 
-// source_health_check always has a handler (a hand-back while its flag is off).
+// source_health_check always has a handler (plan 15 cutover: GO_EXECUTOR_SOURCE_HEALTH is retired).
 func TestLeadgenHandlersAlwaysRegistered(t *testing.T) {
 	log := telemetry.NewLogger(io.Discard)
-	for _, on := range []bool{false, true} {
-		cfg := config.Config{Executor: config.ExecutorSettings{Enabled: on, SourceHealth: on}}
-		if got := leadgenHandlers(cfg, nil, log, nil, leadgenOpts{}); got["source_health_check"] == nil {
-			t.Errorf("flag %v: source_health_check not registered", on)
-		}
+	if got := leadgenHandlers(config.Config{}, nil, log, leadgenOpts{}); got["source_health_check"] == nil {
+		t.Error("source_health_check not registered")
 	}
 }
 

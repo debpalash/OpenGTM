@@ -110,25 +110,26 @@ func swJobs(t *testing.T, owner *pgxpool.Pool) map[string][2]string {
 	return out
 }
 
-func TestSourcewbFlagOffHandsBack(t *testing.T) {
+// GO_EXECUTOR_SOURCE_WORKBOOK is retired (plan 15 cutover): the jobs run on Go whatever it says; nothing is handed
+// back, and a collection query without the collect pipeline fails permanently.
+func TestSourcewbRunsWithTheRetiredFlagOff(t *testing.T) {
 	pool, owner := swSetup(t)
-	swDrain(t, pool, map[string]string{})
-	for col, j := range swJobs(t, owner) {
-		if j[0] != "python" || j[1] != "pending" {
-			t.Errorf("%s: %v, want handed back to python", col, j)
-		}
+	swDrain(t, pool, map[string]string{"GO_EXECUTOR_SOURCE_WORKBOOK": "false"})
+	jobs := swJobs(t, owner)
+	if jobs["src_p"][0] != "go" || jobs["src_p"][1] != "completed" || jobs["src_c"] != [2]string{"go", "failed"} {
+		t.Errorf("jobs %v", jobs)
 	}
 }
 
-func TestSourcewbRunsPeopleAndHandsBackCollection(t *testing.T) {
+func TestSourcewbRunsPeopleAndFailsCollectionWithoutPipeline(t *testing.T) {
 	pool, owner := swSetup(t)
 	swDrain(t, pool, map[string]string{"GO_EXECUTOR_SOURCE_WORKBOOK": "true", "PEOPLE_SEARCH_SOURCE_ENABLED": "true"})
 	jobs := swJobs(t, owner)
 	if jobs["src_p"] != [2]string{"go", "completed"} {
 		t.Errorf("people_search job: %v", jobs["src_p"])
 	}
-	// internal/collect is not wired: the collection query goes back to Python untouched.
-	if jobs["src_c"] != [2]string{"python", "pending"} {
+	// internal/collect is not wired: the collection query fails permanently (no Python to hand it to).
+	if jobs["src_c"] != [2]string{"go", "failed"} {
 		t.Errorf("collection job: %v", jobs["src_c"])
 	}
 	var n int

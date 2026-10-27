@@ -10,6 +10,7 @@ func TestRunRefusesWeakSecretKey(t *testing.T) {
 	for _, tc := range []struct{ env, key string }{{"production", ""}, {"dev", ""}, {"dev", "short"}, {"", ""}, {"local", "short"}} {
 		t.Setenv("DATABASE_URL", "postgres://u:pw@127.0.0.1:1/d")
 		t.Setenv("INTERNAL_SERVICE_TOKEN", strings.Repeat("t", 40))
+		t.Setenv("OUTREACH_PUBLIC_BASE_URL", "https://outreach.example.com") // required outside dev since the cutover
 		t.Setenv("APP_ENV", tc.env)
 		t.Setenv("SECRET_KEY", tc.key)
 		err := run()

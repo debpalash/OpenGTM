@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"strings"
 	"testing"
 	"time"
 
@@ -21,17 +22,20 @@ func (noWeb) Fetch(context.Context, string, int, time.Duration) (string, bool) {
 
 func envMap(m map[string]string) func(string) string { return func(k string) string { return m[k] } }
 
+var _ = envMap
+
 func TestCollectHandlersRegistration(t *testing.T) {
 	log := telemetry.NewLogger(io.Discard)
-	deps := &collect.Deps{}
-	// flags off: both types claimable (hand-back), no source_health override
-	got := collectHandlers(config.Config{}, nil, log, nil, nil, nil, collectOpts{getenv: envMap(nil), deps: deps})
-	if got[collect.JobTypeCollect] == nil || got[collect.JobTypeBulkEnrich] == nil || got["source_health_check"] != nil {
-		t.Fatalf("flags off: %v", keys(got))
+	// no pipeline (no browser service): both types are registered and fail permanently with the reason
+	got := collectHandlers(nil, log, collectOpts{why: "no browser"})
+	for _, typ := range []string{collect.JobTypeCollect, collect.JobTypeBulkEnrich} {
+		err := got[typ](context.Background(), &queue.Claim{Type: typ, WorkspaceID: "ws", Payload: []byte(`{"slug":"s"}`)})
+		if !queue.IsPermanent(err) || !strings.Contains(err.Error(), "no browser") {
+			t.Errorf("%s without a pipeline: %v", typ, err)
+		}
 	}
-	// collect on: the Go handler refuses a claim without a workspace permanently (no hand-back, no DB)
-	got = collectHandlers(config.Config{}, nil, log, nil, nil, nil, collectOpts{deps: deps,
-		getenv: envMap(map[string]string{"GO_EXECUTOR_COLLECT": "1", "GO_EXECUTOR_BULK_ENRICH": "1"})})
+	// with the pipeline the Go handler runs: it refuses a claim without a workspace permanently (no DB)
+	got = collectHandlers(nil, log, collectOpts{deps: &collect.Deps{}})
 	for _, typ := range []string{collect.JobTypeCollect, collect.JobTypeBulkEnrich} {
 		err := got[typ](context.Background(), &queue.Claim{Type: typ, Payload: []byte(`{"slug":"s"}`)})
 		var pe *queue.PermanentError
@@ -39,14 +43,20 @@ func TestCollectHandlersRegistration(t *testing.T) {
 			t.Errorf("%s: err = %v, want the Go handler's permanent refusal", typ, err)
 		}
 	}
-	// native probe replaces source_health_check only when its executor is go
-	env := envMap(map[string]string{"GO_NATIVE_SOURCE_PROBE": "1"})
-	if got = collectHandlers(config.Config{}, nil, log, nil, nil, nil, collectOpts{getenv: env, deps: deps, web: noWeb{}}); got["source_health_check"] != nil {
-		t.Error("probe override without the source health executor")
+}
+
+// source_health_check probes in process over the worker's leadweb; without one it fails permanently.
+func TestSourceHealthHandler(t *testing.T) {
+	log := telemetry.NewLogger(io.Discard)
+	if nativeProber(nil) != nil {
+		t.Fatal("a prober without a leadweb")
 	}
-	cfg := config.Config{Executor: config.ExecutorSettings{Enabled: true, SourceHealth: true}}
-	if got = collectHandlers(cfg, nil, log, nil, nil, nil, collectOpts{getenv: env, deps: deps, web: noWeb{}}); got["source_health_check"] == nil {
-		t.Error("GO_NATIVE_SOURCE_PROBE did not install the in-process probe handler")
+	got := leadgenHandlers(config.Config{}, nil, log, leadgenOpts{why: "no browser"})
+	if err := got["source_health_check"](context.Background(), &queue.Claim{Type: "source_health_check"}); !queue.IsPermanent(err) {
+		t.Fatalf("without a prober: %v", err)
+	}
+	if got := leadgenHandlers(config.Config{}, nil, log, leadgenOpts{prober: collect.NativeProber{Web: noWeb{}}}); got["source_health_check"] == nil {
+		t.Fatal("the in-process probe handler is not registered")
 	}
 }
 

@@ -5,8 +5,11 @@ import (
 	"io"
 	"testing"
 
+	"github.com/jackc/pgx/v5"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audiencerefresh"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destdeliver"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 )
 
@@ -26,39 +29,31 @@ func TestWorkerAudienceTimeoutsPerType(t *testing.T) {
 	}
 }
 
-// Both types always have a handler (a hand-back while off or unwired), whatever the flags and
-// whether or not an emitter exists, so a go row is never failed as an unsupported type.
+// Both types always have a handler (plan 15 cutover: no flags), and without an emitter audience_refresh fails
+// permanently instead of dropping membership events.
 func TestAudienceHandlersAlwaysRegistered(t *testing.T) {
 	log := telemetry.NewLogger(io.Discard)
-	for _, on := range []bool{false, true} {
-		cfg := config.Config{Flags: config.Flags{Audiences: config.AudienceSettings{GoExecutorAudienceRefresh: on}}}
-		got := audienceHandlers(cfg, nil, log, nil, nil, audienceOpts{})
-		for _, k := range []string{"audience_refresh", "audience_destination_sync"} {
-			if got[k] == nil {
-				t.Errorf("flag %v: %s not registered", on, k)
-			}
+	got := audienceHandlers(config.Config{}, nil, log, nil, nil, audienceOpts{})
+	for _, k := range []string{"audience_refresh", "audience_destination_sync"} {
+		if got[k] == nil {
+			t.Fatalf("%s not registered", k)
 		}
+	}
+	if err := got["audience_refresh"](context.Background(), &queue.Claim{Type: "audience_refresh", WorkspaceID: "ws"}); !queue.IsPermanent(err) {
+		t.Fatalf("audience_refresh without an emitter: %v", err)
 	}
 }
 
-// A resolver that cannot say where a secret came from (CREDENTIALS_SOURCE=http) cannot serve the
-// workspace-only types, so those rows go back to Python instead of failing every delivery.
-func TestProvenanceEligible(t *testing.T) {
-	cases := []struct {
-		sec  destdeliver.SecretResolver
-		typ  string
-		want bool
-	}{
-		{apiSecrets{}, "warehouse_http", false},
-		{apiSecrets{}, "slack", false},
-		{apiSecrets{}, "meta_ads", true},
-		{apiSecrets{}, "webhook", true},
-		{fakeResolver{}, "warehouse_http", true},
-		{nil, "warehouse_http", true},
-	}
-	for _, c := range cases {
-		if got := provenanceEligible(c.sec, c.typ); got != c.want {
-			t.Errorf("%T %s: got %v want %v", c.sec, c.typ, got, c.want)
+// The tenant comes from the claim only: an audience job without jobs.workspace_id fails permanently.
+func TestAudienceJobsRefuseEmptyJobWorkspace(t *testing.T) {
+	log := telemetry.NewLogger(io.Discard)
+	got := audienceHandlers(config.Config{}, nil, log, nil, fakeEmitter{}, audienceOpts{})
+	for typ, payload := range map[string]string{
+		"audience_refresh":          `{"workspace_id":"ws","audience_id":"a"}`,
+		"audience_destination_sync": `{"workspace_id":"ws","run_id":"r"}`,
+	} {
+		if err := got[typ](context.Background(), &queue.Claim{Type: typ, Payload: []byte(payload)}); !queue.IsPermanent(err) {
+			t.Errorf("%s: %v, want a permanent refusal", typ, err)
 		}
 	}
 }
@@ -74,7 +69,7 @@ func (s srcFake) Get(context.Context, string, string) (string, string, error) {
 }
 
 // S-L25: AD_TOKENS_WORKSPACE_ONLY off keeps the global/env fallback; on, a global-only token reads as unset
-// (delivery fails "missing workspace secret ..."), and an http-credentials resolver hands ad types back.
+// (delivery fails "missing workspace secret ...").
 func TestAdTokenGetterWorkspaceOnly(t *testing.T) {
 	ctx := context.Background()
 	for _, tc := range []struct {
@@ -87,8 +82,10 @@ func TestAdTokenGetterWorkspaceOnly(t *testing.T) {
 			t.Errorf("only=%v %s: %q %v", tc.only, tc.source, got, err)
 		}
 	}
-	t.Setenv("AD_TOKENS_WORKSPACE_ONLY", "true")
-	if provenanceEligible(apiSecrets{}, "meta_ads") || !provenanceEligible(fakeResolver{}, "meta_ads") {
-		t.Error("ad types need a provenance-aware resolver when tokens are workspace-only")
-	}
+}
+
+type fakeEmitter struct{}
+
+func (fakeEmitter) AudienceEvents(context.Context, pgx.Tx, string, []audiencerefresh.MembershipEvent) (int, error) {
+	return 0, nil
 }

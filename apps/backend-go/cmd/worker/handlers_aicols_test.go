@@ -9,30 +9,23 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
-// GO_NATIVE_AI_COLUMNS (plan 15 WP-AICOLS): off keeps the Python worker paths (no in-process
-// AI columns, no native researcher); on wires both, with web search and page fetch only when
-// the browser service is configured.
+// The in-process AI columns are always wired since the plan 15 cutover (GO_NATIVE_AI_COLUMNS is retired), with web
+// search and page fetch only when the browser service is configured; without shared settings nothing is wired.
 func TestWireAICols(t *testing.T) {
 	cfg := config.Config{SecretKey: "a-strong-secret-key-of-32-bytes-or-more", AppEnv: "development"}
-	var d workbook.Deps
-	if r := wireAICols(&d, cfg, nil, slog.Default()); r != nil || d.AICols != nil {
-		t.Fatalf("default must stay off: %v %+v", r, d.AICols)
+	sh, err := newWorkerShared(cfg, nil)
+	if err != nil {
+		t.Fatal(err)
 	}
-	t.Setenv("GO_NATIVE_AI_COLUMNS", "maybe")
-	if r := wireAICols(&d, cfg, nil, slog.Default()); r != nil || d.AICols != nil {
-		t.Fatal("a malformed switch reads as off")
+	var d0 workbook.Deps
+	if r := wireAICols(&d0, cfg, nil, slog.Default(), nil); r != nil || d0.AICols != nil {
+		t.Fatal("wired without shared settings")
 	}
-	t.Setenv("GO_NATIVE_AI_COLUMNS", "")
-	t.Setenv("GO_ALL_NATIVE", "yes")
-	var dn workbook.Deps
-	if r := wireAICols(&dn, cfg, nil, slog.Default()); r == nil || dn.AICols == nil {
-		t.Fatal("GO_ALL_NATIVE must turn native AI columns on")
-	}
-	t.Setenv("GO_ALL_NATIVE", "")
-	t.Setenv("GO_NATIVE_AI_COLUMNS", "1")
+	t.Setenv("GO_NATIVE_AI_COLUMNS", "false") // retired: ignored
 	t.Setenv("BROWSER_SERVICE_URL", "")
-	if r := wireAICols(&d, cfg, nil, slog.Default()); r == nil || d.AICols == nil {
-		t.Fatal("flag on must wire the native researcher and AI columns")
+	var d workbook.Deps
+	if r := wireAICols(&d, cfg, nil, slog.Default(), sh); r == nil || d.AICols == nil {
+		t.Fatal("the native researcher and AI columns must be wired")
 	}
 	ad := d.AICols.For(context.Background(), "ws-1")
 	if ad.LLM == nil || ad.Settings == nil || ad.URLCheck == nil || ad.Search != nil || ad.Pages != nil {
@@ -44,7 +37,7 @@ func TestWireAICols(t *testing.T) {
 	t.Setenv("BROWSER_SERVICE_URL", "http://browser:8080")
 	t.Setenv("BROWSER_SERVICE_TOKEN", "tok")
 	var d2 workbook.Deps
-	wireAICols(&d2, cfg, nil, slog.Default())
+	wireAICols(&d2, cfg, nil, slog.Default(), sh)
 	if ad := d2.AICols.For(context.Background(), "ws-1"); ad.Search == nil || ad.Pages == nil {
 		t.Fatalf("deps with browser service: %+v", ad)
 	}

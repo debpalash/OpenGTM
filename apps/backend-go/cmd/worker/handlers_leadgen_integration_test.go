@@ -45,7 +45,7 @@ func (e leadgenRun) drain(t *testing.T) {
 	t.Helper()
 	ctx := context.Background()
 	log := telemetry.NewLogger(io.Discard)
-	rn := dispatch(leadgenHandlers(e.cfg, e.pool, log, nil, leadgenOpts{prober: e.py, getenv: func(k string) string { return e.env[k] }}))
+	rn := dispatch(leadgenHandlers(e.cfg, e.pool, log, leadgenOpts{prober: e.py, getenv: func(k string) string { return e.env[k] }}))
 	cctx, stop := context.WithTimeout(ctx, 20*time.Second)
 	defer stop()
 	done := make(chan struct{})
@@ -93,20 +93,18 @@ func (e leadgenRun) row(t *testing.T, id int64) (status, executor string, retrie
 	return
 }
 
-// Flag off: a go-executor row is handed back to Python with no retry spent, never failed or run.
+// A python-executor row (Python-era, before the cutover runbook reassigns it) is never claimed; the go row runs
+// whatever the retired GO_EXECUTOR_SOURCE_HEALTH says.
 func TestGoAndPythonNeverBothClaim(t *testing.T) {
 	py := &probeFake{}
 	e := newLeadgenRun(t, false, py)
 	goJob, pyJob := e.job(t, "go"), e.job(t, "python")
 	e.drain(t)
-	if st, ex, rt := e.row(t, goJob); st != "pending" || ex != "python" || rt != 0 {
-		t.Fatalf("go row %s/%s retries %d, want handed back", st, ex, rt)
+	if st, ex, _ := e.row(t, goJob); st != "completed" || ex != "go" {
+		t.Fatalf("go row %s/%s, want completed on go", st, ex)
 	}
 	if st, ex, _ := e.row(t, pyJob); st != "pending" || ex != "python" {
 		t.Fatalf("python row touched: %s/%s", st, ex)
-	}
-	if py.calls != 0 {
-		t.Fatal("probe ran with the executor flag off")
 	}
 }
 
@@ -126,12 +124,12 @@ func TestWorkerRunsSourceHealthCheck(t *testing.T) {
 	}
 }
 
-// No Python worker configured: the row is handed back rather than probed with nothing.
-func TestSourceHealthWithoutPythonWorkerHandsBack(t *testing.T) {
+// No prober (no browser service): the row fails permanently rather than being probed with nothing.
+func TestSourceHealthWithoutProberFails(t *testing.T) {
 	e := newLeadgenRun(t, true, nil)
 	id := e.job(t, "go")
 	e.drain(t)
-	if st, ex, rt := e.row(t, id); st != "pending" || ex != "python" || rt != 0 {
-		t.Fatalf("%s/%s %d", st, ex, rt)
+	if st, ex, _ := e.row(t, id); st != "failed" || ex != "go" {
+		t.Fatalf("%s/%s", st, ex)
 	}
 }

@@ -17,11 +17,11 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/imapclient"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachcfg"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachsend"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
 const wsOut = "ws-p09t19"
@@ -216,7 +216,7 @@ func TestWorkerIgnoresPythonSendRows(t *testing.T) {
 	}
 }
 
-func TestWorkerHandsBackPaidSendWithoutCaps(t *testing.T) {
+func TestWorkerFailsPaidSendWithoutCaps(t *testing.T) {
 	cfg := outCfg()
 	cfg.Flags.Outreach.SendCostUSD = 0.02
 	e := newOutEnv(t, cfg, true)
@@ -226,11 +226,11 @@ func TestWorkerHandsBackPaidSendWithoutCaps(t *testing.T) {
 	if err != nil || c == nil {
 		t.Fatalf("claim %v %v", c, err)
 	}
-	if err := e.rn(e.ctx, c); !errors.Is(err, workbook.ErrHandedBack) {
-		t.Fatalf("err %v, want ErrHandedBack", err)
+	if err := e.rn(e.ctx, c); !queue.IsPermanent(err) {
+		t.Fatalf("err %v, want a permanent failure", err)
 	}
-	if st, ex, _, _ := e.job(t, "send"); st != "pending" || ex != "python" {
-		t.Fatalf("job %s/%s", st, ex)
+	if _, ex, _, _ := e.job(t, "send"); ex != "go" {
+		t.Fatalf("job executor %s", ex)
 	}
 	if e.mail.count() != 0 {
 		t.Fatal("paid send went out unmetered")
@@ -293,6 +293,7 @@ func TestWorkerLoadedConfigProcessesGoSendJob(t *testing.T) {
 	for k, v := range map[string]string{
 		"INTERNAL_SERVICE_TOKEN": "0123456789abcdef0123456789abcdef", "GO_EXECUTOR_OUTREACH_SEND": "true",
 		"GO_EXECUTOR_OUTREACH_INBOUND": "true", "OUTREACH_PUBLIC_BASE_URL": "https://app.example.com",
+		"DATABASE_URL": "postgres://u:pw@127.0.0.1:1/d", "SECRET_KEY": "a-strong-secret-key-of-32-bytes-or-more",
 	} {
 		t.Setenv(k, v)
 	}
