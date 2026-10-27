@@ -398,6 +398,9 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 	// rows and signal scan all enqueue trigger_eval for the executor the cohort names (F7).
 	emitter := automationEmitter(cfg, log)
 	deps.Emitter = emitter
+	if err := wireFullRun(&deps, cfg, pool, log, localSecrets); err != nil {
+		return nil, nil, err
+	}
 	handle := workbook.Handler(deps)
 	// ambitionbox_import: the client is built on the SSRF-guarded egress client;
 	// the failure hook reconciles run and workbook after a persisted failure.
