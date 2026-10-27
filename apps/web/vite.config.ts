@@ -2,7 +2,7 @@ import { fileURLToPath } from "node:url"
 import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
-import { twentyCss } from "./config/twenty-css"
+import { twentyCss } from "./config/twenty-css.ts"
 
 // Dev proxy target: nginx (docker compose, port 3000) so `make dev` routes like the deployed stack.
 // Point VITE_API_TARGET at a bare Go API (e.g. http://127.0.0.1:8000) to skip nginx.
