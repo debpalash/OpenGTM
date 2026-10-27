@@ -442,14 +442,15 @@ func TestExecutorGoOnlyInCohort(t *testing.T) {
 		if p.Executor != "go" || p.Reason != "ok" || !bytes.Contains(p.Payload, []byte(`"go":{"version":1,"manifests":{"prospeo_mobile":`)) {
 			t.Fatalf("eligible: %s %s %s", p.Executor, p.Reason, p.Payload)
 		}
+		// Plan 15 cutover: the routing flags are retired; every run is planned for Go with a go block.
 		off := base
 		off.GoExecutorEnabled = false
-		if p := run(off, "mob"); p.Executor != "python" || p.Reason != "flag_off" || bytes.Contains(p.Payload, []byte(`"go"`)) {
+		if p := run(off, "mob"); p.Executor != "go" || p.Reason != "ok" || !bytes.Contains(p.Payload, []byte(`"go":{"version":1`)) {
 			t.Fatalf("flag off: %s %s %s", p.Executor, p.Reason, p.Payload)
 		}
 		out := base
 		out.GoCohort = map[string]bool{"someone-else": true}
-		if p := run(out, "mob"); p.Executor != "python" || p.Reason != "not_in_cohort" || bytes.Contains(p.Payload, []byte(`"go"`)) {
+		if p := run(out, "mob"); p.Executor != "go" || p.Reason != "ok" || !bytes.Contains(p.Payload, []byte(`"go":{"version":1`)) {
 			t.Fatalf("not in cohort: %s %s", p.Executor, p.Reason)
 		}
 		// review M4: a full run that needs provenance records it in the go block; the default
@@ -462,8 +463,14 @@ func TestExecutorGoOnlyInCohort(t *testing.T) {
 		if p := run(prov, "mob"); p.Executor != "go" || !bytes.Contains(p.Payload, []byte(`"requires":["provenance"]`)) {
 			t.Fatalf("provenance requirement: %s %s", p.Executor, p.Payload)
 		}
-		if p := run(base, "mob", "cl"); p.Executor != "python" || p.Reason != "column_type" {
+		if p := run(base, "mob", "cl"); p.Executor != "go" || p.Reason != "ok" {
 			t.Fatalf("formula column: %s %s", p.Executor, p.Reason)
+		}
+		// A provider outside the manifest index is a native provider: it gets a cost entry, never Python.
+		native := base
+		native.Index = map[string]manifest.Entry{}
+		if p := run(native, "mob"); p.Executor != "go" || !bytes.Contains(p.Payload, []byte(`"costs":{"prospeo_mobile":`)) {
+			t.Fatalf("native provider: %s %s", p.Executor, p.Payload)
 		}
 	})
 }
