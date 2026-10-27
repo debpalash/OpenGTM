@@ -16,8 +16,14 @@ concurrency:
 jobs:
   backend:
     name: Backend tests (SQLite)
+    # legacy/python is local-only and not in this repo; hashFiles() is not
+    # available at job level, so opt in with a repository variable.
+    if: vars.LEGACY_PYTHON_CI == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: legacy/python
     steps:
       - uses: actions/checkout@v7
         with:
@@ -30,6 +36,9 @@ jobs:
 
   postgres:
     name: PostgreSQL integrity and tenancy
+    # legacy/python is local-only and not in this repo; hashFiles() is not
+    # available at job level, so opt in with a repository variable.
+    if: vars.LEGACY_PYTHON_CI == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     services:
@@ -46,6 +55,9 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+    defaults:
+      run:
+        working-directory: legacy/python
     env:
       TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/opengtm_test
     steps:
@@ -149,8 +161,14 @@ jobs:
 
   frontend-browser:
     name: Frontend browser regressions
+    # legacy/python is local-only and not in this repo; hashFiles() is not
+    # available at job level, so opt in with a repository variable.
+    if: vars.LEGACY_PYTHON_CI == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: legacy/python
     steps:
       - uses: actions/checkout@v7
         with:
@@ -163,7 +181,7 @@ jobs:
         with:
           bun-version: '1.4.2'
       - name: Install web dependencies
-        working-directory: apps/web
+        working-directory: legacy/python/apps/web
         run: bun install --frozen-lockfile
       - run: uv run --frozen playwright install --with-deps chromium
       - name: Run mounted React interaction regressions
