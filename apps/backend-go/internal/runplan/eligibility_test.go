@@ -141,3 +141,59 @@ func TestEligibilityNativeProviders(t *testing.T) {
 		t.Fatalf("manifest checks stay: %v %s", ok, why)
 	}
 }
+
+// GO_EXECUTOR_FULL_RUN (plan 15 WP-WBEXEC, default off): the Go executor writes provenance,
+// emits automations, evaluates conditions, verifies emails, delivers output columns and
+// writes structured targets back, so those refusals close. Every other answer is Python's.
+func TestEligibilityFullRun(t *testing.T) {
+	v := loadEligVectors(t)
+	idx := indexOf(t, v.Manifests)
+	closed := map[string]bool{"email_verify_default": true, "email_verify_true": true, "provenance_on": true,
+		"automations_on": true, "column_type_formula": true, "condition": true, "refs_prompt": true,
+		"refs_input_columns": true, "refs_formula_key": true, "structured_target": true}
+	for _, c := range v.Cases {
+		var all []colgraph.Col
+		for _, raw := range c.Columns {
+			col, err := colgraph.ParseCol(raw)
+			if err != nil {
+				t.Fatal(err)
+			}
+			all = append(all, col)
+		}
+		cfg := Config{WorkspaceID: c.WorkspaceID, FullRun: true,
+			GoExecutorEnabled: c.Flags.Enabled == nil || *c.Flags.Enabled,
+			GoCohort:          map[string]bool{"ws-1": c.Flags.Cohort == nil || *c.Flags.Cohort, "ws-2": true},
+			ProvenanceTracking: c.Flags.Provenance, AutomationsEnabled: c.Flags.Automation}
+		if c.Flags.Cohort != nil && !*c.Flags.Cohort {
+			cfg.GoCohort = map[string]bool{"ws-9": true}
+		}
+		wantOK, wantReason := c.OK, c.Reason
+		if closed[c.Name] {
+			wantOK, wantReason = true, ReasonOK
+		}
+		ok, reason := Eligible(colsByID(all, c.ColumnIDs), idx, cfg)
+		if ok != wantOK || reason != wantReason {
+			t.Errorf("%s: got (%v, %q) want (%v, %q)", c.Name, ok, reason, wantOK, wantReason)
+		}
+	}
+	cols, err := colgraph.ParseCols([]byte(`[{"id":"e","type":"enrichment","provider":"m_desc","target_field":"description","condition":"{company} != \"\""},
+	  {"id":"f","type":"formula","formula":"{e}"},{"id":"h","type":"http","http_url":"https://api.example.com/{e}"},
+	  {"id":"o","type":"output","destination":"webhook","destination_config":{"url":"https://h.example.com"}}]`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg := Config{WorkspaceID: "w", GoExecutorEnabled: true, GoCohort: map[string]bool{"w": true}, FullRun: true,
+		ProvenanceTracking: true, AutomationsEnabled: true}
+	if ok, why := Eligible(cols, idx, cfg); !ok {
+		t.Fatalf("full run must take output/formula/http/conditions: %s", why)
+	}
+	// Python-run AI columns stay governed by GO_EXECUTOR_COLUMN_TYPES.
+	ai, _ := colgraph.ParseCols([]byte(`[{"id":"a","type":"ai_formula","prompt":"x"}]`))
+	if ok, why := Eligible(ai, idx, cfg); ok || why != ReasonColumnType {
+		t.Fatalf("ai_formula without GO_EXECUTOR_COLUMN_TYPES: %v %s", ok, why)
+	}
+	cfg.FullRun = false
+	if ok, why := Eligible(cols, idx, cfg); ok || why != ReasonProvenanceOn {
+		t.Fatalf("flag off keeps python: %v %s", ok, why)
+	}
+}

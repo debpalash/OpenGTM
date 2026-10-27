@@ -50,6 +50,10 @@ type Config struct {
 	// with providers outside the manifest index (Go-native or pyworker) stay on Go instead of
 	// being handed back as non_declarative_provider.
 	NativeProviders bool
+	// FullRun is GO_EXECUTOR_FULL_RUN (Go-only, default off = Python parity): the Go executor
+	// writes provenance, emits automations, evaluates conditions, verifies emails, delivers
+	// output columns and runs formula/http columns and column references, so those refusals close.
+	FullRun bool
 	// Index is the manifest index (manifest.LoadIndex); nil means no declarative providers.
 	Index map[string]manifest.Entry
 
