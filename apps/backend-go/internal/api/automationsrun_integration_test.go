@@ -169,7 +169,9 @@ func (e arunEnv) replay(t *testing.T, name string, opts ...contract.Option) {
 var arunPython500 = map[string]bool{"preview_ids_nonnumeric": true, "preview_ids_mixed_nonnumeric": true,
 	"run_ids_nonnumeric": true, "runs_limit_negative": true,
 	// S-L4: Python previewed a row of a workbook outside the rule's scope; Go drops it.
-	"preview_ids_other_workbook": true}
+	"preview_ids_other_workbook": true,
+	// Final review M2: a member's preview masks the webhook URL path (TestPreviewMasksWebhookURLForNonManagers).
+	"preview_member_read_ok": true}
 
 func arunNames(t *testing.T, prefixes ...string) []string {
 	t.Helper()
