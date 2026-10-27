@@ -19,10 +19,29 @@ LOOPBACK = (ipaddress.ip_network("127.0.0.0/8"),)
 @pytest.mark.parametrize(
     "addr",
     [
-        "127.0.0.1", "10.1.2.3", "172.16.0.1", "192.168.1.1", "169.254.169.254", "169.254.1.1",
-        "100.64.0.1", "100.100.100.200", "0.0.0.0", "224.0.0.1", "255.255.255.255", "198.18.0.1",
-        "::1", "::", "fe80::1", "fc00::1", "fd00:ec2::254", "::ffff:127.0.0.1", "::ffff:10.0.0.1",
-        "64:ff9b::a9fe:a9fe", "2002:7f00:1::1", "2001:0:4136:e378::1", "ff02::1",
+        "127.0.0.1",
+        "10.1.2.3",
+        "172.16.0.1",
+        "192.168.1.1",
+        "169.254.169.254",
+        "169.254.1.1",
+        "100.64.0.1",
+        "100.100.100.200",
+        "0.0.0.0",
+        "224.0.0.1",
+        "255.255.255.255",
+        "198.18.0.1",
+        "::1",
+        "::",
+        "fe80::1",
+        "fc00::1",
+        "fd00:ec2::254",
+        "::ffff:127.0.0.1",
+        "::ffff:10.0.0.1",
+        "64:ff9b::a9fe:a9fe",
+        "2002:7f00:1::1",
+        "2001:0:4136:e378::1",
+        "ff02::1",
     ],
 )
 def test_blocked_addresses(addr):
@@ -43,9 +62,16 @@ def test_allow_cidrs_never_unblock_metadata():
 
 @pytest.mark.parametrize(
     "host,expected",
-    [("2130706433", "127.0.0.1"), ("0x7f000001", "127.0.0.1"), ("0177.0.0.1", "127.0.0.1"),
-     ("127.1", "127.0.0.1"), ("0x7f.1", "127.0.0.1"), ("10.1", "10.0.0.1"), ("[::1]", "::1"),
-     ("example.com", None)],
+    [
+        ("2130706433", "127.0.0.1"),
+        ("0x7f000001", "127.0.0.1"),
+        ("0177.0.0.1", "127.0.0.1"),
+        ("127.1", "127.0.0.1"),
+        ("0x7f.1", "127.0.0.1"),
+        ("10.1", "10.0.0.1"),
+        ("[::1]", "::1"),
+        ("example.com", None),
+    ],
 )
 def test_parse_ip_any_encoding(host, expected):
     got = parse_ip_any_encoding(host)
@@ -55,11 +81,23 @@ def test_parse_ip_any_encoding(host, expected):
 @pytest.mark.parametrize(
     "url",
     [
-        "file:///etc/passwd", "ftp://example.com/", "javascript:alert(1)", "http://localhost/",
-        "http://127.0.0.1:8000/", "http://2130706433/", "http://postgres:5432/", "http://redis/",
-        "http://metadata.google.internal/computeMetadata/v1/", "http://169.254.169.254/latest/",
-        "http://user:pw@example.com/", "http://foo.internal/", "http://printer.local/", "http://[::1]/",
-        "http://[fe80::1%25eth0]/", "", "http://exa mple.com/",
+        "file:///etc/passwd",
+        "ftp://example.com/",
+        "javascript:alert(1)",
+        "http://localhost/",
+        "http://127.0.0.1:8000/",
+        "http://2130706433/",
+        "http://postgres:5432/",
+        "http://redis/",
+        "http://metadata.google.internal/computeMetadata/v1/",
+        "http://169.254.169.254/latest/",
+        "http://user:pw@example.com/",
+        "http://foo.internal/",
+        "http://printer.local/",
+        "http://[::1]/",
+        "http://[fe80::1%25eth0]/",
+        "",
+        "http://exa mple.com/",
     ],
 )
 def test_check_url_rejects(url):
@@ -85,8 +123,15 @@ def _resolver(table, calls=None):
 
 
 async def test_resolve_blocks_when_any_address_private():
-    p = EgressPolicy(resolver=_resolver({"mixed.test": ["93.184.216.34", "10.0.0.5"], "ok.test": ["93.184.216.34"],
-                                          "gone.test": OSError("nxdomain")}))
+    p = EgressPolicy(
+        resolver=_resolver(
+            {
+                "mixed.test": ["93.184.216.34", "10.0.0.5"],
+                "ok.test": ["93.184.216.34"],
+                "gone.test": OSError("nxdomain"),
+            }
+        )
+    )
     with pytest.raises(BlockedError):
         await p.resolve("mixed.test", 443)
     assert await p.resolve("ok.test", 443) == ["93.184.216.34"]
@@ -132,8 +177,9 @@ def _auth(session):
 
 
 async def _proxy(table, calls=None):
-    p = EgressProxy(EgressPolicy(allow_cidrs=LOOPBACK, resolver=_resolver(table, calls)), header_timeout=2,
-                    idle_timeout=2)
+    p = EgressProxy(
+        EgressPolicy(allow_cidrs=LOOPBACK, resolver=_resolver(table, calls)), header_timeout=2, idle_timeout=2
+    )
     await p.start()
     return p
 
@@ -187,11 +233,15 @@ async def test_connect_tunnel_pins_the_single_resolution():
     proxy = await _proxy({"rebind.test": lambda: next(answers)}, calls)
     try:
         s = proxy.open_session(1 << 20)
-        out = await _send(proxy, f"CONNECT rebind.test:{up.port} HTTP/1.1\r\nProxy-Authorization: {_auth(s)}\r\n\r\nping".encode())
+        out = await _send(
+            proxy, f"CONNECT rebind.test:{up.port} HTTP/1.1\r\nProxy-Authorization: {_auth(s)}\r\n\r\nping".encode()
+        )
         assert out.startswith(b"HTTP/1.1 200 Connection Established\r\n\r\n")
         assert out.endswith(b"pong") and up.received == b"ping"
         assert calls == ["rebind.test"], "resolved exactly once per tunnel"
-        out = await _send(proxy, f"CONNECT rebind.test:{up.port} HTTP/1.1\r\nProxy-Authorization: {_auth(s)}\r\n\r\n".encode())
+        out = await _send(
+            proxy, f"CONNECT rebind.test:{up.port} HTTP/1.1\r\nProxy-Authorization: {_auth(s)}\r\n\r\n".encode()
+        )
         assert out.startswith(b"HTTP/1.1 403") and up.connections == 1
     finally:
         await proxy.close()
@@ -203,8 +253,10 @@ async def test_plain_http_is_rewritten_to_origin_form():
     proxy = await _proxy({"site.test": ["127.0.0.1"]})
     try:
         s = proxy.open_session(1 << 20)
-        req = (f"GET http://site.test:{up.port}/a/b?c=1 HTTP/1.1\r\nHost: site.test\r\n"
-               f"Proxy-Authorization: {_auth(s)}\r\nProxy-Connection: keep-alive\r\nConnection: keep-alive\r\n\r\n")
+        req = (
+            f"GET http://site.test:{up.port}/a/b?c=1 HTTP/1.1\r\nHost: site.test\r\n"
+            f"Proxy-Authorization: {_auth(s)}\r\nProxy-Connection: keep-alive\r\nConnection: keep-alive\r\n\r\n"
+        )
         out = await _send(proxy, req.encode())
         assert out.endswith(b"ok")
         sent = up.received.decode()
@@ -232,7 +284,9 @@ async def test_session_byte_cap_cuts_the_download():
     proxy = await _proxy({"big.test": ["127.0.0.1"]})
     try:
         s = proxy.open_session(1000)
-        out = await _send(proxy, f"CONNECT big.test:{up.port} HTTP/1.1\r\nProxy-Authorization: {_auth(s)}\r\n\r\nhi".encode())
+        out = await _send(
+            proxy, f"CONNECT big.test:{up.port} HTTP/1.1\r\nProxy-Authorization: {_auth(s)}\r\n\r\nhi".encode()
+        )
         assert len(out) < 200_000 and s.over_limit
     finally:
         await proxy.close()
