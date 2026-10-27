@@ -53,7 +53,9 @@ func leadsGoPatterns(t *testing.T) map[string]bool {
 	RegisterEvents(r, d)
 	out := map[string]bool{}
 	for _, p := range r.Patterns() {
-		out[p] = true
+		if !goOnlyEventsPatterns[p] {
+			out[p] = true
+		}
 	}
 	return out
 }

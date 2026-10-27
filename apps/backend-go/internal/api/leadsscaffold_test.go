@@ -23,6 +23,9 @@ var leadsSignalsPatterns = map[string]bool{
 	"GET /api/events": true,
 }
 
+// goOnlyEventsPatterns have no Python counterpart (S-L23: SSE tickets).
+var goOnlyEventsPatterns = map[string]bool{"POST /api/events/ticket": true}
+
 // retained stay on FastAPI (constraints.md); they must never be registered here.
 var retainedLeadsRoutes = []string{
 	"POST /api/lead/{lead_id}/enrich", "POST /api/collect", "GET /api/jobs", "GET /api/jobs/{job_id}",
@@ -51,7 +54,7 @@ func TestLeadsRegisteredPatterns(t *testing.T) {
 	RegisterSignals(r, d)
 	RegisterEvents(r, d)
 	for _, p := range r.Patterns() {
-		if !leadsSignalsPatterns[p] {
+		if !leadsSignalsPatterns[p] && !goOnlyEventsPatterns[p] {
 			t.Errorf("unexpected pattern %s", p)
 		}
 		for _, ret := range retainedLeadsRoutes {
