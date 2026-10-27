@@ -75,11 +75,18 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: '1.4.2'
-      - run: bun install --frozen-lockfile
-      - run: bun run lint
-      - run: bun test apps/web/tests
-      - run: bun test packages/chrome-extension
-      - run: bun run build
+      - name: Web (apps/web)
+        working-directory: apps/web
+        run: |
+          bun install --frozen-lockfile
+          bun run lint
+          bun test tests
+          bun run build
+      - name: Chrome extension (packages/chrome-extension)
+        working-directory: packages/chrome-extension
+        run: |
+          bun install --frozen-lockfile
+          bun test
 
   frontend-browser:
     name: Frontend browser regressions
@@ -96,7 +103,9 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: '1.4.2'
-      - run: bun install --frozen-lockfile
+      - name: Install web dependencies
+        working-directory: apps/web
+        run: bun install --frozen-lockfile
       - run: uv run --frozen playwright install --with-deps chromium
       - name: Run mounted React interaction regressions
         shell: bash

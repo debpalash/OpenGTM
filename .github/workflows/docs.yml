@@ -34,9 +34,12 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1"
-      - run: bun install --frozen-lockfile
+      - name: Install
+        working-directory: apps/docs
+        run: bun install --frozen-lockfile
       - name: Build
-        run: bun run --cwd apps/docs build
+        working-directory: apps/docs
+        run: bun run build
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v4
         with:
