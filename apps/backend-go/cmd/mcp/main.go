@@ -24,6 +24,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/mcp"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rpclocal"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
@@ -130,8 +131,15 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 	if err != nil {
 		return nil, fmt.Errorf("secrets envelope: %w", err)
 	}
-	verify := emailverify.NewLive(liveConfig(pool, get, py, secrets.NewResolver(envelope, secrets.NewPgStore(pool), get)))
-	deps := mcp.NewProductionDeps(cfg, pool, py, verify)
+	resolver := secrets.NewResolver(envelope, secrets.NewPgStore(pool), get)
+	// Provider calls: names GO_LOCAL_PROVIDERS lists run in process (plan 15 WP-PROVIDERS), the rest on the worker.
+	rpc, err := rpclocal.Configure(rpclocal.Setup{Getenv: config.AllNative(get), AppEnv: get("APP_ENV"),
+		EgressAllow: splitHosts(get("EGRESS_ALLOW_HOSTS")), Py: py, Secrets: resolver})
+	if err != nil {
+		return nil, err
+	}
+	verify := emailverify.NewLive(liveConfig(pool, get, rpc, resolver))
+	deps := mcp.NewProductionDeps(cfg, pool, rpc, verify)
 	var reg mcp.Registry
 	if err := func() (e error) {
 		defer func() {
@@ -147,6 +155,16 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 	return &runtime{deps: deps, srv: mcp.NewServer(deps, reg), close: pool.Close}, nil
 }
 
+func splitHosts(s string) []string {
+	var out []string
+	for _, h := range strings.Split(s, ",") {
+		if h = strings.TrimSpace(h); h != "" {
+			out = append(out, h)
+		}
+	}
+	return out
+}
+
 // secretGetter resolves one credential or setting (secrets.Resolver.Get):
 // workspace, then global (app_settings), then env. ws == "" skips the workspace level.
 type secretGetter interface {
@@ -160,13 +178,8 @@ type secretGetter interface {
 // is no fallback to the environment on failure. The HTTP client is the operator
 // egress client (EGRESS_ALLOW_HOSTS exact host[:port] entries skip the
 // private-IP block; everything else is vetted).
-func liveConfig(pool *pgxpool.Pool, get func(string) string, py *pyworker.Client, sec secretGetter) emailverify.LiveConfig {
-	var allow []string
-	for _, h := range strings.Split(get("EGRESS_ALLOW_HOSTS"), ",") {
-		if h = strings.TrimSpace(h); h != "" {
-			allow = append(allow, h)
-		}
-	}
+func liveConfig(pool *pgxpool.Pool, get func(string) string, py emailverify.ProviderCaller, sec secretGetter) emailverify.LiveConfig {
+	allow := splitHosts(get("EGRESS_ALLOW_HOSTS"))
 	return emailverify.LiveConfig{
 		Pool:        pool,
 		AppEnv:      get("APP_ENV"),
