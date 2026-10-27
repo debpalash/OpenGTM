@@ -51,11 +51,13 @@ Set-Location OpenGTM
 .\scripts\install.ps1
 ```
 
-Open **http://localhost:3000**. Sign in with the generated admin password in
-`.opengtm-initial-credentials` (ignored by Git; do not share it). The installer
+Open **http://localhost:3000**. The first visit redirects to `/setup`: create the
+admin account there. The setup form asks for a one-time setup token, which the
+API prints once at startup (`docker compose logs api-go | grep -i 'setup token'`),
+or set `SETUP_TOKEN` in `.env` before the first start. No default admin account
+exists, and setup closes for good once an admin is created. The installer
 generates database, runtime-role, and signing secrets, creates a writable data
-directory, then starts the stack. It leaves an existing `.env` untouched. Change
-the admin password after signing in and remove the credentials file.
+directory, then starts the stack. It leaves an existing `.env` untouched.
 
 ### On a server
 
@@ -87,7 +89,7 @@ gtm.example.com {
 }
 ```
 
-Open `https://gtm.example.com` and use the generated credentials file. Replace
+Open `https://gtm.example.com/setup` and create the admin account (setup token: `docker compose logs api-go | grep -i 'setup token'`). Replace
 the example domain in both commands and Caddy config. The installer-generated
 secrets satisfy production startup checks; `PORT=127.0.0.1:3000` keeps the
 bundled HTTP listener private. PostgreSQL, Redis, and the API bind to loopback

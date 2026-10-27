@@ -8,7 +8,7 @@ sidebar:
 ## Prerequisites
 
 - Python 3.11+ and [uv](https://docs.astral.sh/uv/)
-- [Bun](https://bun.sh) 1.x (the monorepo uses Bun workspaces + Turborepo)
+- [Bun](https://bun.sh) 1.x (each app under `apps/` is installed on its own; there is no root workspace)
 - PostgreSQL 15+ recommended; SQLite works for single-process development
 
 ## Backend
@@ -40,13 +40,10 @@ falls back to in-process queues.
 ## Frontend
 
 ```bash
-bun install                # once, at the repo root
-bun run --cwd apps/web dev # https://opengtm.localhost via Portless
-bun run --cwd apps/web dev:app   # plain Vite on http://localhost:5173
+bun install --cwd apps/web  # once
+bun run --cwd apps/web dev  # https://opengtm.localhost via Portless
+bun run --cwd apps/web dev:app   # plain Vite on http://localhost:4099 (or `make dev` from the repo root)
 ```
-
-`bun run dev` at the root starts every workspace app in parallel through
-Turborepo.
 
 ## Tests
 

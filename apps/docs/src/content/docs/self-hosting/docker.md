@@ -59,10 +59,13 @@ with `WORKER_CONCURRENCY`.
 docker build -t opengtm:local .
 ```
 
-The Dockerfile builds the frontend from the Bun workspace (root `bun.lock`),
-then installs the Python API on `python:3.13-slim` and copies `alembic.ini`
-and `migrations/` so the image can apply migrations and RLS policies. Tagged
-releases publish a multi-arch image to `ghcr.io/debpalash/opengtm`.
+The shipping backend is the Go api image, built from `apps/backend-go/Dockerfile`
+(`--target api`, with `--build-context web=apps/web` so the UI is built with Bun and
+embedded); `--target worker` and `--target mcp` build the other binaries. The root
+`Dockerfile` is the legacy Python image (canary fallback, no UI), which installs the
+Python API on `python:3.13-slim`. Tagged releases publish multi-arch images to
+`ghcr.io/debpalash/opengtm-api`, `-worker`, `-mcp` and the legacy
+`ghcr.io/debpalash/opengtm`.
 
 ## Upgrading
 

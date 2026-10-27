@@ -57,7 +57,8 @@ environment. Provider keys can also be set per workspace in
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `SEED_ADMIN_USERNAME`, `SEED_ADMIN_PASSWORD` | `admin` / `admin` | Created by the `seed` service; change the password |
+| `SETUP_TOKEN` | generated, logged once | Token required by first-run `/setup`; set it explicitly with more than one api-go replica |
+| `SEED_ADMIN_USERNAME`, `SEED_ADMIN_PASSWORD` | `admin` / `admin` | Only with `--profile demo`: created by the `seed` service. Demo hosts only |
 | `SEED_FORCE_RUN` | | Re-run the demo enrichment on next boot |
 
 ## LLM providers

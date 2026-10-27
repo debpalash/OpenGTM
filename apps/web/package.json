@@ -13,7 +13,7 @@
     "portless:domain": "portless proxy start --tld sh",
     "portless:local": "portless proxy start --no-tls --port 1355 --tld sh",
     "portless:lan": "portless proxy start --lan --no-tls --port 1355",
-    "portless:docker": "portless alias opengtm 3010 --force",
+    "portless:docker": "portless alias opengtm 3000 --force",
     "portless:list": "portless list",
     "portless:doctor": "portless doctor"
   },

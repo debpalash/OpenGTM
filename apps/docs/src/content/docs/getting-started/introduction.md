@@ -38,8 +38,8 @@ for the managed-service trade-offs.
 
 ## Start
 
-- [Install with Docker Compose](/getting-started/quickstart/) to create credentials
-  and open the seeded demo.
+- [Install with Docker Compose](/getting-started/quickstart/) to generate secrets,
+  then create the admin account at `/setup`.
 - [Build your first workbook](/getting-started/first-workbook/) with sources,
   enrichment, and an output.
 - [Use the REST API](/api/) from a script or integration.

@@ -58,7 +58,6 @@ if (-not (Test-Path -LiteralPath $envPath)) {
     Copy-Item -LiteralPath (Join-Path $installRoot ".env.example") -Destination $envPath
     $postgresPassword = New-RandomHex 24
     $runtimePassword = New-RandomHex 24
-    $adminPassword = New-RandomHex 12
     $secretKey = New-RandomHex 48
     @"
 
@@ -72,13 +71,8 @@ DATABASE_URL=postgresql+psycopg://yupcha:$postgresPassword@postgres:5432/yupcha
 YUPCHA_RUNTIME_DB_USER=yupcha_runtime
 YUPCHA_RUNTIME_DB_PASSWORD=$runtimePassword
 APP_DATABASE_URL=postgresql+psycopg://yupcha_runtime:$runtimePassword@postgres:5432/yupcha
-SEED_ADMIN_USERNAME=admin
-SEED_ADMIN_PASSWORD=$adminPassword
 "@ | Add-Content -LiteralPath $envPath -Encoding utf8
-    $credentialsPath = Join-Path $installRoot ".opengtm-initial-credentials"
-    "URL=http://localhost:3000`nUSERNAME=admin`nPASSWORD=$adminPassword" |
-        Set-Content -LiteralPath $credentialsPath -Encoding utf8
-    Write-Host "Created .env and one-time credentials at $credentialsPath"
+    Write-Host "Created $envPath (no default admin account is created)"
 } else {
     Write-Host "Keeping existing $envPath"
 }
@@ -91,6 +85,9 @@ if (-not $NoStart) {
         & docker compose ps
     } finally { Pop-Location }
     Write-Host "OpenGTM is starting at http://localhost:3000"
+    Write-Host "First run: open http://localhost:3000/setup and create the admin account."
+    Write-Host "The one-time setup token is in the API log: docker compose logs api-go | Select-String 'setup token'"
+    Write-Host "(or set SETUP_TOKEN in .env before starting)."
 } else {
     Write-Host "Configured $installRoot; run docker compose up -d --build there."
 }

@@ -65,7 +65,6 @@ if [[ ! -f .env ]]; then
   umask 077
   postgres_password="$(random_hex 24)"
   runtime_password="$(random_hex 24)"
-  admin_password="$(random_hex 12)"
   secret_key="$(random_hex 48)"
   app_uid="$(id -u)"
   app_gid="$(id -g)"
@@ -79,12 +78,9 @@ if [[ ! -f .env ]]; then
     printf 'DATABASE_URL=postgresql+psycopg://yupcha:%s@postgres:5432/yupcha\n' "$postgres_password"
     printf 'YUPCHA_RUNTIME_DB_USER=yupcha_runtime\nYUPCHA_RUNTIME_DB_PASSWORD=%s\n' "$runtime_password"
     printf 'APP_DATABASE_URL=postgresql+psycopg://yupcha_runtime:%s@postgres:5432/yupcha\n' "$runtime_password"
-    printf 'SEED_ADMIN_USERNAME=admin\nSEED_ADMIN_PASSWORD=%s\n' "$admin_password"
     printf 'APP_UID=%s\nAPP_GID=%s\n' "$app_uid" "$app_gid"
   } >> .env
-  credentials_file="$install_root/.opengtm-initial-credentials"
-  printf 'URL=http://localhost:3000\nUSERNAME=admin\nPASSWORD=%s\n' "$admin_password" > "$credentials_file"
-  echo "Created .env and one-time credentials at $credentials_file"
+  echo "Created $install_root/.env (no default admin account is created)"
 else
   echo "Keeping existing $install_root/.env"
 fi
@@ -93,6 +89,9 @@ if ((START_STACK)); then
   docker compose up -d --build
   docker compose ps
   echo "OpenGTM is starting at http://localhost:3000"
+  echo "First run: open http://localhost:3000/setup and create the admin account."
+  echo "The one-time setup token is in the API log: docker compose logs api-go | grep -i 'setup token'"
+  echo "(or set SETUP_TOKEN in .env before starting)."
 else
   echo "Configured $install_root; run: cd '$install_root' && docker compose up -d --build"
 fi

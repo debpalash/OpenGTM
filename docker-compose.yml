@@ -1,6 +1,7 @@
 # ──────────────────────────────────────────────────────────────────
-# OpenGTM stack. Copy .env.example to .env first (optional for a dev stack: every
-# variable has a development default).
+# OpenGTM stack. Copy .env.example to .env first (or run scripts/install.sh). SECRET_KEY (>= 32 bytes) is REQUIRED:
+# the Go api/worker/mcp refuse to start with an empty or short key unless APP_ENV=test, and compose fails fast
+# without it. Other variables have development defaults.
 #
 # PREREQUISITE: the Python backend lives in ./legacy/python, which is its own git
 # repo and is gitignored here. It must be cloned into ./legacy/python before the
@@ -8,8 +9,11 @@
 # the root Dockerfile stops with an explicit message otherwise. The Go images build
 # from ./apps/backend-go and need nothing else. See docs/go-port/runbooks/docker-compose.md.
 #
-# Default `docker compose up` = the Python stack (Go profile off, canary 0%).
-# Go services are opt-in:  docker compose --profile go up -d api-go worker-go
+# Default `docker compose up` = api-go (UI embedded) + the Python api/worker/scheduler behind nginx. nginx
+# go-split.conf at 0% sends the canary routes to Python; /auth/setup*, /auth/sso/* and the public outreach
+# unsubscribe/bounce routes are always Go. Opt-in profiles: `go` (worker-go), `mcp`, `demo` (seed: admin/admin,
+# demo hosts only), `reacher`, `bench`. First run: open /setup; the one-time setup
+# token is in `docker compose logs api-go`.
 # ──────────────────────────────────────────────────────────────────
 services:
   # ── Postgres (primary store — MVCC, real concurrent writers) ───
@@ -334,11 +338,12 @@ services:
       - REDIS_URL=redis://redis:6379
       - APP_ENV=${APP_ENV:-dev}
       # First-admin setup (POST /auth/setup). SETUP_TOKEN empty = a random token is logged once at
-      # start while no admin exists. SETUP_TOKEN_DISABLED=1 (or APP_ENV dev/test/local) = open setup.
+      # start while no admin exists. SETUP_TOKEN_DISABLED=1 = open setup (APP_ENV never opens it).
       - SETUP_TOKEN=${SETUP_TOKEN:-}
       - SETUP_TOKEN_DISABLED=${SETUP_TOKEN_DISABLED:-}
-      # Must equal the Python api's SECRET_KEY so tokens cross over.
-      - SECRET_KEY=${SECRET_KEY:-}
+      # Must equal the Python api's SECRET_KEY so tokens cross over. Required, >= 32 bytes: the Go process
+      # refuses to start otherwise (only APP_ENV=test relaxes this; APP_ENV=dev does not).
+      - SECRET_KEY=${SECRET_KEY:?set SECRET_KEY to at least 32 bytes (see .env.example)}
       - SECRETS_PROVIDER=${SECRETS_PROVIDER:-}
       - SECRETS_MASTER_KEY=${SECRETS_MASTER_KEY:-}
       - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
@@ -410,7 +415,7 @@ services:
       - PY_WORKER_URL=${PY_WORKER_URL:-http://api:8000}
       - PY_WORKER_TOKEN=${PY_WORKER_TOKEN:-}
       - APP_ENV=${APP_ENV:-dev}
-      - SECRET_KEY=${SECRET_KEY:-}
+      - SECRET_KEY=${SECRET_KEY:?set SECRET_KEY to at least 32 bytes (see .env.example)}
       - SECRETS_PROVIDER=${SECRETS_PROVIDER:-}
       - SECRETS_MASTER_KEY=${SECRETS_MASTER_KEY:-}
       - PG_LEAD_STORE=${PG_LEAD_STORE:-true}
@@ -453,7 +458,7 @@ services:
       - DATABASE_URL=${GO_DATABASE_URL:-postgresql://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
       - OPENGTM_MCP_SSE_HOST=0.0.0.0
       - APP_ENV=${APP_ENV:-dev}
-      - SECRET_KEY=${SECRET_KEY:-}
+      - SECRET_KEY=${SECRET_KEY:?set SECRET_KEY to at least 32 bytes (see .env.example)}
       - SECRETS_PROVIDER=${SECRETS_PROVIDER:-}
       - SECRETS_MASTER_KEY=${SECRETS_MASTER_KEY:-}
       - PY_WORKER_URL=${PY_WORKER_URL:-http://api:8000}

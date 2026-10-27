@@ -5,7 +5,7 @@ React 19 + TypeScript + Vite + Tailwind 4 + shadcn/ui frontend for OpenGTM.
 ```bash
 bun install
 bun run dev        # stable https://opengtm.localhost via Portless
-bun run dev:app    # plain Vite dev server on :5173
+bun run dev:app    # plain Vite dev server on :4099
 bun run build      # tsc -b && vite build → dist/
 bun run lint
 ```

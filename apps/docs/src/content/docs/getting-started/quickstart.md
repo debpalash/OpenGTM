@@ -1,6 +1,6 @@
 ---
 title: Quickstart (Docker)
-description: Install OpenGTM locally or on a server with Docker Compose. The installer creates credentials; server steps pin a GHCR image and add TLS.
+description: Install OpenGTM locally or on a server with Docker Compose. The installer creates secrets; server steps pin a GHCR image and add TLS.
 sidebar:
   order: 2
 ---
@@ -33,10 +33,11 @@ Set-Location OpenGTM
 .\scripts\install.ps1
 ```
 
-Open **http://localhost:3000** and sign in with the generated admin password
-from `.opengtm-initial-credentials`. The file is ignored by Git; don't share it.
-Change the password after signing in and delete the credentials file. The
-installer leaves an existing `.env` untouched.
+Open **http://localhost:3000**. The first visit goes to `/setup`, where you
+create the admin account. Enter the one-time setup token the API logs at start
+(`docker compose logs api-go | grep -i 'setup token'`), or set `SETUP_TOKEN` in
+`.env` first. There is no default admin account, and setup closes once an admin
+exists. The installer leaves an existing `.env` untouched.
 
 ## Server
 

@@ -21,8 +21,11 @@ install serves a team.
 - **Set `APP_ENV=production`.** This turns the safety checks above into hard
   failures and disables development fallbacks such as `create_all` schema
   initialisation.
-- **Change the seed admin password.** `SEED_ADMIN_PASSWORD` defaults to
-  `admin`. Set it before the first boot or reset it immediately afterwards.
+- **Create the admin through `/setup`.** The default stack has no seeded admin.
+  Open `/setup` right after the first start, using the setup token from
+  `docker compose logs api-go | grep -i 'setup token'` (or a `SETUP_TOKEN` you
+  set). Do not enable the `demo` profile on a reachable host: it seeds
+  `admin` / `admin`.
 - **Change the database passwords.** `POSTGRES_PASSWORD` and
   `YUPCHA_RUNTIME_DB_PASSWORD` default to well-known values. Keep the schema
   owner (`DATABASE_URL`) and the runtime role (`APP_DATABASE_URL`) separate so
