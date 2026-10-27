@@ -182,6 +182,13 @@ func GoBlock(cols []colgraph.Col, idx map[string]manifest.Entry, cost func(strin
 // GoBlockRequiring is GoBlock with the capabilities the run needs from its worker (Go-only key
 // "requires", omitted when empty so the block stays byte-equal to Python's).
 func GoBlockRequiring(cols []colgraph.Col, idx map[string]manifest.Entry, cost func(string) float64, defaultConcurrency int, requires []string) ([]byte, error) {
+	return GoBlockNative(cols, idx, cost, defaultConcurrency, requires, false)
+}
+
+// GoBlockNative is GoBlockRequiring that, with native true (GO_RUN_NATIVE_PROVIDERS), lets a
+// provider without a declarative manifest through: native registry providers run in process
+// and need only a cost entry.
+func GoBlockNative(cols []colgraph.Col, idx map[string]manifest.Entry, cost func(string) float64, defaultConcurrency int, requires []string, native bool) ([]byte, error) {
 	names, err := providerNames(cols)
 	if err != nil {
 		return nil, err
@@ -190,14 +197,20 @@ func GoBlockRequiring(cols []colgraph.Col, idx map[string]manifest.Entry, cost f
 	for _, n := range names {
 		e, ok := idx[n]
 		if !ok {
+			if native {
+				costs = append(costs, kv{n, cost(n)})
+				continue
+			}
 			return nil, fmt.Errorf("runplan: provider %q has no manifest", n)
 		}
 		manifests = append(manifests, kv{n, manifestDoc(e.Manifest)})
 		shas = append(shas, kv{n, e.SHA256})
 		costs = append(costs, kv{n, cost(n)})
 	}
-	if manifests == nil { // empty dicts, not null
-		manifests, shas, costs = ordered{}, ordered{}, ordered{}
+	for _, d := range []*ordered{&manifests, &shas, &costs} { // empty dicts, not null
+		if *d == nil {
+			*d = ordered{}
+		}
 	}
 	doc := ordered{
 		{"version", int64(PayloadVersion)},

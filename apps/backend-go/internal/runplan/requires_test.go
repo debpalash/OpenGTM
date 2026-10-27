@@ -66,3 +66,27 @@ func TestGoBlockRecordsRequirements(t *testing.T) {
 		t.Fatal("no requirements must render the historical block")
 	}
 }
+
+// A native (registry) provider has no declarative manifest: with native providers on, the go
+// block carries only its cost; a manifest-less provider is still an error otherwise.
+func TestGoBlockNativeProviders(t *testing.T) {
+	cols, err := colgraph.ParseCols([]byte(`[{"id":"e","type":"enrichment","provider":"hunter_io","target_field":"email"}]`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	cost := func(string) float64 { return 0.5 }
+	if _, err := GoBlockNative(cols, map[string]manifest.Entry{}, cost, 12, nil, false); err == nil {
+		t.Fatal("a provider without a manifest must fail when native providers are off")
+	}
+	b, err := GoBlockNative(cols, map[string]manifest.Entry{}, cost, 12, nil, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var m struct {
+		Manifests map[string]any     `json:"manifests"`
+		Costs     map[string]float64 `json:"costs"`
+	}
+	if err := json.Unmarshal(b, &m); err != nil || len(m.Manifests) != 0 || m.Costs["hunter_io"] != 0.5 {
+		t.Fatalf("%s %v", b, err)
+	}
+}

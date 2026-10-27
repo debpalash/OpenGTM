@@ -250,8 +250,8 @@ func Build(ctx context.Context, tx pgx.Tx, wb Workbook, req RunRequest, cfg Conf
 		if cost == nil {
 			cost = vendorcatalog.BaseCost
 		}
-		if goBlock, err = GoBlockRequiring(colsByID(all, colIDs), cfg.Index, cost, cfg.DefaultConcurrency,
-			RequiredCapabilities(colsByID(all, colIDs), cfg)); err != nil {
+		if goBlock, err = GoBlockNative(colsByID(all, colIDs), cfg.Index, cost, cfg.DefaultConcurrency,
+			RequiredCapabilities(colsByID(all, colIDs), cfg), cfg.NativeProviders); err != nil {
 			goBlock, plan.Reason = nil, ReasonEligibilityError // fail safe: Python executes
 		} else {
 			plan.Executor = "go"
