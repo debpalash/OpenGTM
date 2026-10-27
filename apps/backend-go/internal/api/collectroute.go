@@ -17,12 +17,13 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collect"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collectintent"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collectledger"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadprogress"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
@@ -37,11 +38,12 @@ var (
 	collectBus     func(d Deps) *leadprogress.Bus                                                              // progress bus
 )
 
-// collectEnqueueDefault enqueues the collect job on the Python queue (executor python, priority 1,
-// max_retries 3, fire key set), as queue_service.add_job does: handle_collect is Python-only, so the
-// cohort executor rule does not apply to this job type.
+// collectEnqueueDefault enqueues the collect job (priority 1, max_retries 3, fire key set), as
+// queue_service.add_job does, for the executor the cohort names: 'go' only for workspaces in the
+// GO_EXECUTOR_ENABLED + GO_EXECUTOR_WORKSPACES cohort with GO_EXECUTOR_COLLECT on (plan 15
+// WP-COLLECT), else 'python'.
 func collectEnqueueDefault(ctx context.Context, tx pgx.Tx, ws string, payload any, fireKey string) (int64, error) {
-	return queue.Enqueue(ctx, tx, "collect", ws, payload, fireKey)
+	return collect.Enqueue(ctx, tx, "collect", ws, config.CollectExecutor(config.Getenv, ws), payload, fireKey)
 }
 
 // collectPayload is the queue payload in Python's dict order.

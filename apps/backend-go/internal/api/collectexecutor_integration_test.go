@@ -9,6 +9,7 @@ import (
 // plan 15 WP-COLLECT: POST /api/collect enqueues executor 'go' only for the GO_EXECUTOR_COLLECT cohort,
 // always with the job's workspace on the queue row.
 func TestCollectEnqueueExecutorFollowsCohort(t *testing.T) {
+	e := newCollectEnv(t)
 	for _, c := range []struct {
 		env  map[string]string
 		want string
@@ -21,7 +22,6 @@ func TestCollectEnqueueExecutorFollowsCohort(t *testing.T) {
 		for _, k := range []string{"GO_EXECUTOR_ENABLED", "GO_EXECUTOR_WORKSPACES", "GO_EXECUTOR_COLLECT", "GO_ALL_NATIVE"} {
 			t.Setenv(k, c.env[k])
 		}
-		e := newCollectEnv(t)
 		rec := e.post("alice", "ws-alpha", `{"query":"IT staffing companies in Bangalore"}`)
 		if rec.Code != 200 {
 			t.Fatalf("%v: %d %s", c.env, rec.Code, rec.Body)

@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collectledger"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
@@ -213,7 +214,7 @@ func (h jobsWriteRoutes) retry(w http.ResponseWriter, r *http.Request) {
 			return nil, errJobsNotRetryable
 		}
 		enqueue := func(ctx context.Context, tx pgx.Tx, ws string, payload any, fireKey string) (int64, bool, error) {
-			return queue.EnqueueOnce(ctx, tx, "collect", ws, payload, fireKey, "python")
+			return queue.EnqueueOnce(ctx, tx, "collect", ws, payload, fireKey, config.CollectExecutor(h.d.getenv(), ws))
 		}
 		if jobsRetryEnqueue != nil {
 			enqueue = jobsRetryEnqueue

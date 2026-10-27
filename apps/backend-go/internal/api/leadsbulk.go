@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -11,6 +12,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collect"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
@@ -195,7 +199,13 @@ func (h bulkRoutes) enrich(w http.ResponseWriter, r *http.Request) {
 	jobID := hex.EncodeToString(b[:])
 
 	wc, _ := identity.WorkspaceFrom(r.Context())
-	_, err := enqueueJob(r.Context(), h.d.Pool, "bulk_enrich", wc.WorkspaceID, bulkEnrichPayload{
+	enqueue := enqueueJob
+	if config.BulkEnrichExecutor(h.d.getenv(), wc.WorkspaceID) == "go" { // plan 15 WP-COLLECT cohort
+		enqueue = func(ctx context.Context, q gen.DBTX, jobType, ws string, payload any, fireKey string) (int64, error) {
+			return collect.Enqueue(ctx, q, jobType, ws, "go", payload, fireKey)
+		}
+	}
+	_, err := enqueue(r.Context(), h.d.Pool, "bulk_enrich", wc.WorkspaceID, bulkEnrichPayload{
 		JobID: jobID, IDs: uniq, Action: action, WorkspaceID: wc.WorkspaceID, Slug: wc.Slug,
 	}, "")
 	if err != nil {
