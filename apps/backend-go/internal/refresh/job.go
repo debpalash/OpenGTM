@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"os"
 	"sort"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
@@ -41,6 +43,20 @@ type Deps struct {
 	NextExecutorFor func(workspaceID string) string
 	// SourcePoll is the poll interval while waiting (default 2s).
 	SourcePoll time.Duration
+	// SourceExecutorFor picks the executor of the source_workbook jobs a cycle enqueues;
+	// nil: config.SourceWorkbookExecutor over the process environment ("python" unless
+	// the GO_EXECUTOR_SOURCE_WORKBOOK cohort covers the workspace).
+	SourceExecutorFor func(workspaceID string) string
+}
+
+func (d Deps) sourceExecutor(ws string) string {
+	if d.SourceExecutorFor != nil {
+		if e := d.SourceExecutorFor(ws); e == "go" || e == "python" {
+			return e
+		}
+		return "python"
+	}
+	return config.SourceWorkbookExecutor(os.Getenv, ws)
 }
 
 func (d Deps) now() time.Time {
@@ -216,8 +232,8 @@ type payload struct {
 }
 
 // Handle mirrors handle_refresh_workbook. It reads the workbook inside the
-// tenant, then in one transaction: queues one source_workbook (Python
-// executor) per source column, queues one run_workbook (Python executor) for
+// tenant, then in one transaction: queues one source_workbook (executor per
+// SourceExecutorFor, Python by default) per source column, queues one run_workbook (Python executor) for
 // the exact stale cells and their reactive dependants, logs a refresh activity
 // row, and, when the policy is enabled with an interval, enqueues the next
 // refresh_workbook once per fire key. A missing (or other-tenant) workbook
@@ -277,7 +293,7 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 				if pre.done { // enqueued, and waited for, before this transaction
 					continue
 				}
-				if err := enqueueSource(ctx, tx, ws, p.WorkbookID, id, c.ID); err != nil {
+				if err := enqueueSource(ctx, tx, ws, p.WorkbookID, id, c.ID, d.sourceExecutor(ws)); err != nil {
 					return err
 				}
 			case staleScanTypes[t]:
@@ -381,10 +397,10 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 	})
 }
 
-func enqueueSource(ctx context.Context, tx pgx.Tx, ws, wb, colID string, jobID int64) error {
+func enqueueSource(ctx context.Context, tx pgx.Tx, ws, wb, colID string, jobID int64, executor string) error {
 	_, _, err := queue.EnqueueOnce(ctx, tx, "source_workbook", ws, map[string]any{
 		"workbook_id": wb, "column_id": colID, "workspace_id": ws,
-	}, sourceKey(wb, jobID, colID), "python")
+	}, sourceKey(wb, jobID, colID), executor)
 	if err != nil {
 		return fmt.Errorf("refresh: enqueue source: %w", err)
 	}
@@ -446,7 +462,7 @@ func (d Deps) sourceFirst(ctx context.Context, ws, wbID string, jobID int64, p p
 		}
 		for _, col := range cols {
 			if id := colID(col); colType(col) == "source" && id != "" {
-				if err := enqueueSource(ctx, tx, ws, wbID, id, jobID); err != nil {
+				if err := enqueueSource(ctx, tx, ws, wbID, id, jobID, d.sourceExecutor(ws)); err != nil {
 					return err
 				}
 			}
