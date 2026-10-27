@@ -186,7 +186,10 @@ func (rs *runState) priorBatchAttempt(ctx context.Context) (map[string]any, erro
 // acknowledged and every result checkpointed in jobs.payload before a cell is written, so a
 // retried job retrieves the batch instead of paying for a second one. nil results (no error)
 // means "run synchronously".
-func (rs *runState) nativeBatch(ctx context.Context, cells []aicol.BatchCell, index map[string]batchKey) (map[string]string, error) {
+//
+// stored, when set, is the request set a prior claim of this job persisted: it is used as
+// is (cells is then unused) so the contract hash matches the claim (review wave 3b M3).
+func (rs *runState) nativeBatch(ctx context.Context, cells []aicol.BatchCell, index map[string]batchKey, stored []llm.BatchRequest) (map[string]string, error) {
 	d := rs.aiDeps(ctx)
 	var prior map[string]any
 	if rs.claim != nil {
@@ -205,7 +208,10 @@ func (rs *runState) nativeBatch(ctx context.Context, cells []aicol.BatchCell, in
 		}
 		return nil, nil
 	}
-	reqs, err := aicol.BatchRequests(ctx, d, cells, rs.allCols)
+	reqs, err := stored, error(nil)
+	if reqs == nil {
+		reqs, err = aicol.BatchRequests(ctx, d, cells, rs.allCols)
+	}
 	if err != nil {
 		if prior != nil {
 			return nil, batchRecovery("existing batch failed recovery; synchronous fallback is disabled")
@@ -235,7 +241,8 @@ func (rs *runState) nativeBatch(ctx context.Context, cells []aicol.BatchCell, in
 				}
 				return false, nil
 			}
-			p[batchAttemptKey] = map[string]any{"contract_hash": hash, "state": "dispatch_claimed", "vendor_batch_id": nil}
+			p[batchAttemptKey] = map[string]any{"contract_hash": hash, "state": "dispatch_claimed", "vendor_batch_id": nil,
+				"requests": storeBatchRequests(reqs, index)}
 			return true, nil
 		})
 		if err != nil {
@@ -345,4 +352,61 @@ func (rs *runState) nativeBatch(ctx context.Context, cells []aicol.BatchCell, in
 		}
 	}
 	return results, nil
+}
+
+// storeBatchRequests is the request set persisted with the claim: each request's contract
+// fields plus the (row, column) cell it answers.
+func storeBatchRequests(reqs []llm.BatchRequest, index map[string]batchKey) []any {
+	out := make([]any, len(reqs))
+	for i, r := range reqs {
+		k := index[r.CustomID]
+		out[i] = map[string]any{"custom_id": r.CustomID, "prompt": r.Prompt, "system": r.System,
+			"max_tokens": int64(r.MaxTokens), "row_id": k.row, "column_id": k.col}
+	}
+	return out
+}
+
+// storedBatch decodes the request set of a prior claim. ok=false is a claim without one
+// (none, or written before the set was stored); a malformed set is ErrBatchRecovery.
+func storedBatch(prior map[string]any) (reqs []llm.BatchRequest, index map[string]batchKey, ok bool, err error) {
+	raw, has := prior["requests"]
+	if prior == nil || !has || raw == nil {
+		return nil, nil, false, nil
+	}
+	list, isList := raw.([]any)
+	if !isList || len(list) == 0 {
+		return nil, nil, false, batchRecovery("malformed stored batch request set")
+	}
+	index = make(map[string]batchKey, len(list))
+	for _, e := range list {
+		m, _ := e.(map[string]any)
+		cid, _ := m["custom_id"].(string)
+		prompt, okP := m["prompt"].(string)
+		system, okS := m["system"].(string)
+		col, _ := m["column_id"].(string)
+		mt, okM := storedInt(m["max_tokens"])
+		row, okR := storedInt(m["row_id"])
+		if cid == "" || col == "" || !okP || !okS || !okM || !okR {
+			return nil, nil, false, batchRecovery("malformed stored batch request set")
+		}
+		if _, dup := index[cid]; dup {
+			return nil, nil, false, batchRecovery("duplicate request in stored batch set")
+		}
+		index[cid] = batchKey{row, col}
+		reqs = append(reqs, llm.BatchRequest{CustomID: cid, Prompt: prompt, System: system, MaxTokens: int(mt)})
+	}
+	return reqs, index, true, nil
+}
+
+// storedInt reads an integer of a decoded payload (jsonObject numbers).
+func storedInt(v any) (int64, bool) {
+	switch t := canonify(v).(type) {
+	case int64:
+		return t, true
+	case float64:
+		if t == float64(int64(t)) {
+			return int64(t), true
+		}
+	}
+	return 0, false
 }

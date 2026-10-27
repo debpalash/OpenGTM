@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/aicol"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colcompute"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
@@ -286,6 +287,23 @@ func (rs *runState) aiBatchPrepass(ctx context.Context, items []workItem) (map[b
 	if minRows <= 0 {
 		minRows = 20
 	}
+	if native && rs.claim != nil {
+		// A claim that stored its request set is resumed with exactly that set (review wave
+		// 3b M3): a retry after a crash part-way through writing the results must apply
+		// the paid results to the cells still pending, whatever the current eligibility.
+		prior, err := rs.priorBatchAttempt(ctx)
+		if err != nil {
+			if a := abortErr(ctx, err); a != nil || errors.Is(err, ErrLeaseLost) || errors.Is(err, ErrBatchRecovery) {
+				return nil, 0, err
+			}
+			return nil, 0, batchRecovery("cannot verify prior batch ownership; no fallback permitted")
+		}
+		if stored, index, ok, err := storedBatch(prior); err != nil {
+			return nil, 0, err
+		} else if ok {
+			return rs.resumeBatch(ctx, items, stored, index)
+		}
+	}
 	eligible := rs.batchEligible()
 	var reqs []map[string]any
 	var cells []aicol.BatchCell
@@ -318,7 +336,7 @@ func (rs *runState) aiBatchPrepass(ctx context.Context, items []workItem) (map[b
 	}
 	var results map[string]string
 	if native {
-		r, err := rs.nativeBatch(ctx, cells, index)
+		r, err := rs.nativeBatch(ctx, cells, index, nil)
 		if err != nil || r == nil {
 			return nil, 0, err
 		}
@@ -331,6 +349,36 @@ func (rs *runState) aiBatchPrepass(ctx context.Context, items []workItem) (map[b
 		results = r
 	}
 	return rs.writeBatchResults(ctx, results, index, leads)
+}
+
+// resumeBatch finishes a claimed batch from its stored request set: the vendor batch is
+// retrieved (or the checkpointed results reused) and only the cells that are still pending
+// in this run are written; cells that completed before the crash are left as they are, and
+// pending cells outside the stored set run synchronously.
+func (rs *runState) resumeBatch(ctx context.Context, items []workItem, stored []llm.BatchRequest, index map[string]batchKey) (map[batchKey]bool, int, error) {
+	results, err := rs.nativeBatch(ctx, nil, index, stored)
+	if err != nil {
+		return nil, 0, err
+	}
+	if results == nil {
+		return nil, 0, batchRecovery("existing batch could not be resumed; synchronous fallback is disabled")
+	}
+	pending := map[batchKey]map[string]any{}
+	for _, it := range items {
+		for _, c := range it.cols {
+			pending[batchKey{it.rowID(), c.ID}] = it.lead
+		}
+	}
+	apply := map[string]string{}
+	leads := map[int64]map[string]any{}
+	for cid, text := range results {
+		k := index[cid]
+		if lead, ok := pending[k]; ok {
+			apply[cid] = text
+			leads[k.row] = lead
+		}
+	}
+	return rs.writeBatchResults(ctx, apply, index, leads)
 }
 
 // pyBatch is the ai_batch RPC; ok=false means "run synchronously".
