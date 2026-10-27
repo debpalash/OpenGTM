@@ -16,7 +16,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { authQuery } from "@/lib/auth"
+import { openEventStream } from "@/lib/events"
 import { cn } from "@/lib/utils"
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { toast } from "sonner"
@@ -342,10 +342,9 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
   // Real-time SSE updates for running jobs
   useEffect(() => {
     if (!job || job.status !== "running") return
-    let es: EventSource | null = null
-    try {
-      es = new EventSource(`/api/events${authQuery()}`)
-      es.onmessage = (e) => {
+    // No reconnect: the stream closes on error, as before (lib/events fetches a fresh ticket per open).
+    return openEventStream({
+      onMessage: (e) => {
         try {
           const data = JSON.parse(e.data)
           if (data.type === "heartbeat") return
@@ -366,12 +365,8 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
             fetchData()
           }
         } catch { /* ignore */ }
-      }
-      es.onerror = () => {
-        es?.close()
-      }
-    } catch { /* SSE not supported */ }
-    return () => es?.close()
+      },
+    })
   }, [job?.status, jobId])
 
   if (loading) {

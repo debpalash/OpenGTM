@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef, useCallback, useState } from "react"
 import { queryKeys } from "./query-client"
-import { authQuery } from "./auth"
+import { openEventStream } from "./events"
 import {
   fetchLeads, fetchStats, fetchFilters, fetchJobs,
   fetchSystemStats, fetchWorkspaces, submitCollect,
@@ -339,52 +339,45 @@ export function useSSE(url = "/api/events") {
   const qc = useQueryClient()
   const [events, setEvents] = useState<SSEEvent[]>([])
   const [connected, setConnected] = useState(false)
-  const esRef = useRef<EventSource | null>(null)
+  const closeRef = useRef<(() => void) | null>(null)
 
   const connect = useCallback(() => {
-    if (esRef.current) {
-      esRef.current.close()
-    }
+    closeRef.current?.()
+    // Reconnects after 3s with a fresh single-use ticket (lib/events).
+    closeRef.current = openEventStream({
+      onOpen: () => setConnected(true),
+      onError: () => setConnected(false),
+      reconnectMs: 3000,
+      onMessage: (event) => {
+        try {
+          const parsed = JSON.parse(event.data) as SSEEvent
+          setEvents(prev => [parsed, ...prev].slice(0, 100))
 
-    const es = new EventSource(`${url}${authQuery()}`)
-    esRef.current = es
-
-    es.onopen = () => setConnected(true)
-    es.onerror = () => {
-      setConnected(false)
-      // Reconnect after 3s
-      setTimeout(() => connect(), 3000)
-    }
-
-    es.onmessage = (event) => {
-      try {
-        const parsed = JSON.parse(event.data) as SSEEvent
-        setEvents(prev => [parsed, ...prev].slice(0, 100))
-
-        // Invalidate relevant queries based on event type
-        const type = parsed.type
-        if (type === "lead_stored" || type === "lead_discovered") {
-          qc.invalidateQueries({ queryKey: queryKeys.leads.all })
-          qc.invalidateQueries({ queryKey: queryKeys.stats.all })
+          // Invalidate relevant queries based on event type
+          const type = parsed.type
+          if (type === "lead_stored" || type === "lead_discovered") {
+            qc.invalidateQueries({ queryKey: queryKeys.leads.all })
+            qc.invalidateQueries({ queryKey: queryKeys.stats.all })
+          }
+          if (type === "job_completed" || type === "job_failed" || type === "job_started") {
+            qc.invalidateQueries({ queryKey: queryKeys.jobs.all })
+            qc.invalidateQueries({ queryKey: queryKeys.leads.all })
+            qc.invalidateQueries({ queryKey: queryKeys.stats.all })
+          }
+          if (type === "job_progress") {
+            qc.invalidateQueries({ queryKey: queryKeys.jobs.all })
+          }
+        } catch {
+          // Ignore parse errors
         }
-        if (type === "job_completed" || type === "job_failed" || type === "job_started") {
-          qc.invalidateQueries({ queryKey: queryKeys.jobs.all })
-          qc.invalidateQueries({ queryKey: queryKeys.leads.all })
-          qc.invalidateQueries({ queryKey: queryKeys.stats.all })
-        }
-        if (type === "job_progress") {
-          qc.invalidateQueries({ queryKey: queryKeys.jobs.all })
-        }
-      } catch {
-        // Ignore parse errors
-      }
-    }
+      },
+    }, url)
   }, [url, qc])
 
   useEffect(() => {
     connect()
     return () => {
-      esRef.current?.close()
+      closeRef.current?.()
     }
   }, [connect])
 
