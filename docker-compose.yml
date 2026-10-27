@@ -4,7 +4,7 @@
 #
 # PREREQUISITE: the Python backend lives in ./legacy/python, which is its own git
 # repo and is gitignored here. It must be cloned into ./legacy/python before the
-# Python images (migrate, api, seed, worker, scheduler, frontend_assets) can build;
+# Python images (migrate, api, seed [demo profile], worker, scheduler, frontend_assets) can build;
 # the root Dockerfile stops with an explicit message otherwise. The Go images build
 # from ./apps/backend-go and need nothing else. See docs/go-port/runbooks/docker-compose.md.
 #
@@ -116,10 +116,14 @@ services:
     networks:
       - lead_net
 
-  # ── Seed (first-run demo: admin + populated zero-key workbook) ──
+  # ── Seed (OPT-IN demo: admin + populated zero-key workbook) ──
+  # Profile `demo`: NOT started by a default `docker compose up`. The first real admin is
+  # created by the user in the UI (/setup, served by api-go). Only run this for a throwaway
+  # demo (`docker compose --profile demo up`); it creates SEED_ADMIN_* (default admin/admin).
   # Runs once after Postgres is healthy, creates the demo workspace/workbook
   # and enqueues the first enrichment run. Idempotent — safe on every restart.
   seed:
+    profiles: ["demo"]
     image: ${YUPCHA_IMAGE:-lead-data-app:local}
     build:
       context: .
@@ -344,6 +348,10 @@ services:
       - DATABASE_URL=${GO_DATABASE_URL:-postgresql://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
       - REDIS_URL=redis://redis:6379
       - APP_ENV=${APP_ENV:-dev}
+      # First-admin setup (POST /auth/setup). SETUP_TOKEN empty = a random token is logged once at
+      # start while no admin exists. SETUP_TOKEN_DISABLED=1 (or APP_ENV dev/test/local) = open setup.
+      - SETUP_TOKEN=${SETUP_TOKEN:-}
+      - SETUP_TOKEN_DISABLED=${SETUP_TOKEN_DISABLED:-}
       # Must equal the Python api's SECRET_KEY so tokens cross over.
       - SECRET_KEY=${SECRET_KEY:-}
       - SECRETS_PROVIDER=${SECRETS_PROVIDER:-}

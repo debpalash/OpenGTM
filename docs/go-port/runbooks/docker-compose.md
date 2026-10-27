@@ -26,7 +26,8 @@ workspace before `docker compose build`). The Go images need nothing from `legac
 | --- | --- | --- | --- |
 | `postgres`, `redis` | upstream images | default | healthchecked; host ports bound to 127.0.0.1 |
 | `migrate` | root `Dockerfile` (Python) | default | one-shot Alembic + runtime role; everything else waits on it |
-| `api`, `seed`, `worker`, `scheduler`, `frontend_assets` | root `Dockerfile` (Python) | default | built from `legacy/python`; web UI built from `apps/web` |
+| `seed` | root `Dockerfile` (Python) | `demo` | opt-in demo data + `admin`/`admin`; not started by default |
+| `api`, `worker`, `scheduler`, `frontend_assets` | root `Dockerfile` (Python) | default | built from `legacy/python`; web UI built from `apps/web` |
 | `nginx` | `nginx:alpine` + `infra/nginx/*.conf` | default | public entrypoint (`PORT`, default 3000); canary split |
 | `api-go` | `apps/backend-go/Dockerfile` target `api` | `go` | static binary, distroless nonroot, `/api -healthcheck` |
 | `worker-go` | same Dockerfile, target `worker` | `go` | idle until `GO_EXECUTOR_*` flags are on; needs `INTERNAL_SERVICE_TOKEN` |
@@ -47,6 +48,25 @@ docker compose --profile go up -d api-go worker-go   # Go side, canary still 0%
 ```
 
 Go-only build check (no Python needed): `docker compose --profile go --profile mcp build api-go worker-go mcp`.
+
+## First run
+
+A default `docker compose up` creates no user. The first admin is created by you in the UI:
+
+1. Start the stack with the Go API (it serves the setup endpoints; the Python API has none):
+   `docker compose --profile go up -d`.
+2. Open the UI (`http://localhost:${PORT:-3000}`). With no users it redirects to `/setup`.
+3. Enter the setup token. Either set `SETUP_TOKEN` in `.env` beforehand, or read the one `api-go` generated:
+   `docker compose logs api-go | grep -i "setup token"` (printed once per start while no admin exists).
+4. Choose username and password (12+ characters) and an optional workspace name. You are signed in directly.
+
+Token rules: `SETUP_TOKEN` wins; `SETUP_TOKEN_DISABLED=1` or `APP_ENV=dev|test|local` opens setup without a
+token (compose defaults `APP_ENV` to `dev`, so set `APP_ENV=production` on any reachable host). After setup
+`POST /auth/setup` returns 409 permanently. nginx routes `/auth/setup` and `/auth/setup/status` to `api-go`
+at every canary percentage, so `api-go` must be running for first run.
+
+The old `seed` service (admin/admin plus a demo workbook) is behind the `demo` profile:
+`docker compose --profile demo up`. Do not use it on a reachable host.
 
 ## Go env wiring and safe defaults
 
