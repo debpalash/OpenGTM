@@ -45,8 +45,9 @@ func (e *engine) handBackReason(ctx context.Context, ws string, actions []map[st
 	if len(reIDs) == 0 {
 		return "", nil
 	}
-	// The workbooks the eval touches: the targets' (an explicit target may lie
-	// outside the rule's scope) or the scoped sweep.
+	// The workbooks the eval touches: the targets' or the scoped sweep. Go drops an
+	// explicit target outside the rule's scope (S-L4) when it runs the eval; a
+	// handed-back eval is run by Python, which does not.
 	var wbIDs []string
 	if refs, ok := payloadTargets(targets, maxRows); ok {
 		seen := map[string]bool{}

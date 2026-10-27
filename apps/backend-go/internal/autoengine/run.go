@@ -163,13 +163,17 @@ func (e *engine) handle(ctx context.Context, c *queue.Claim) error {
 	if trig != nil {
 		actions = parseActions(trig.Actions)
 		scope = parseScope(trig.ScopeWorkbookIds)
-		// Eligibility guard: decided before any write (D2, D8).
-		reason, err := e.handBackReason(ctx, ws, actions, scope, pl["targets"], maxRows)
-		if err != nil {
-			return err
-		}
-		if reason != "" {
-			return e.handBack(ctx, c, reason)
+		// Eligibility guard: decided before any write (D2, D8). A dry run never hands back
+		// (C2 / R-dry): the Python worker executes the actions of a dry run, while Go only
+		// records skipped/dry_run rows, so it previews legacy actions too.
+		if !dry {
+			reason, err := e.handBackReason(ctx, ws, actions, scope, pl["targets"], maxRows)
+			if err != nil {
+				return err
+			}
+			if reason != "" {
+				return e.handBack(ctx, c, reason)
+			}
 		}
 	}
 
