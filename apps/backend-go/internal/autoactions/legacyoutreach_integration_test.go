@@ -322,3 +322,62 @@ func TestLegacySendEmailAtMostOnce(t *testing.T) {
 		t.Fatalf("concurrent calls: %d reported enqueued, %d jobs, executor %q (want 1, 1, go)", enq, jobs, exec)
 	}
 }
+
+func loCount(t *testing.T, ctx context.Context, d Deps) (jobs, enr int) {
+	t.Helper()
+	loIn(t, ctx, d, func(tx pgx.Tx) error {
+		if err := tx.QueryRow(ctx, `SELECT count(*) FROM jobs WHERE type='send' AND workspace_id=$1`, loWS).Scan(&jobs); err != nil {
+			return err
+		}
+		return tx.QueryRow(ctx, `SELECT count(*) FROM outreach_enrollments`).Scan(&enr)
+	})
+	return jobs, enr
+}
+
+// M4: a trigger row without a lead id is never enrolled (it would share enrollment lead_id=0 and send one
+// recipient's data to another).
+func TestLegacyOutreachRefusesEnrollmentWithoutLeadID(t *testing.T) {
+	ctx := context.Background()
+	d := Deps{Pool: testpg.NewAppPool(t, 8), LegacyOutreach: true}
+	loClean(t, ctx, d)
+	seq := loSeq(t, ctx, d)
+	for _, typ := range []string{"sequencer", "send_email"} {
+		for _, e := range []string{"a@x.com", "b@x.com"} {
+			act := map[string]any{"type": typ, "config": map[string]any{"sequence_id": seq}}
+			r := Execute(ctx, d, loWS, act, "wb", "1", nil, map[string]any{"email": e, "name": e}, nil, "")
+			if r.Status != "failed" || !strings.Contains(r.Error, "lead") {
+				t.Fatalf("%s %s: %+v, want failed naming the missing lead id", typ, e, r)
+			}
+		}
+	}
+	if jobs, enr := loCount(t, ctx, d); jobs != 0 || enr != 0 {
+		t.Fatalf("refused rows left %d jobs, %d enrollments", jobs, enr)
+	}
+}
+
+// M4: an existing enrollment is reused only when the stored email matches the lead's current email.
+func TestLegacyOutreachNeverReusesEnrollmentOfAnotherEmail(t *testing.T) {
+	ctx := context.Background()
+	d := Deps{Pool: testpg.NewAppPool(t, 8), LegacyOutreach: true}
+	loClean(t, ctx, d)
+	seq := loSeq(t, ctx, d)
+	loIn(t, ctx, d, func(tx pgx.Tx) error {
+		_, _, err := outreachstore.Enroll(ctx, tx, loWS, seq, 7, "a@x.com", "x", time.Time{})
+		return err
+	})
+	for _, typ := range []string{"sequencer", "send_email"} {
+		act := map[string]any{"type": typ, "config": map[string]any{"sequence_id": seq}}
+		r := Execute(ctx, d, loWS, act, "wb", "1", ptr(7), map[string]any{"email": "b@x.com"}, nil, "")
+		if r.Status != "failed" || !strings.Contains(r.Error, "email") {
+			t.Fatalf("%s: %+v, want failed (stored email differs)", typ, r)
+		}
+	}
+	if jobs, _ := loCount(t, ctx, d); jobs != 0 {
+		t.Fatalf("a mismatched enrollment queued %d sends", jobs)
+	}
+	// same email (any case) still reuses it
+	act := map[string]any{"type": "send_email", "config": map[string]any{"sequence_id": seq}}
+	if r := Execute(ctx, d, loWS, act, "wb", "1", ptr(7), map[string]any{"email": "A@X.com"}, nil, ""); r.Status != "success" {
+		t.Fatalf("matching email: %+v", r)
+	}
+}
