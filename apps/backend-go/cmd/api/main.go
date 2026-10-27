@@ -192,19 +192,8 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool, str
 	if pool != nil {
 		st = identity.NewStore(pool)
 	}
-	deps := api.Deps{
-		Pool: pool,
-		Signer: auth.Signer{
-			Secret:     []byte(cfg.SecretKey),
-			AccessTTL:  cfg.AccessTTL,
-			RefreshTTL: cfg.RefreshTTL,
-		},
-		Identity: st,
-		Config:   cfg,
-		Flags:    cfg.Flags,
-		DataDir:  cfg.DataDir,
-		Log:      log,
-	}
+	deps := newAPIDeps(cfg, log, pool)
+	deps.Identity = st
 	// Python provider RPC (plan 06 D8): nil when PY_WORKER_URL is unset, so
 	// callers hand jobs back to Python.
 	if cfg.PyWorkerURL != "" {
@@ -306,4 +295,24 @@ func newSettingsDeps(cfg config.APIConfig, load func() (*settings.Registry, erro
 		return api.Deps{}, fmt.Errorf("secrets envelope: %w", err)
 	}
 	return api.Deps{Registry: reg, Envelope: env, Egress: egress.NewClientForEnv(cfg.AppEnv, nil)}, nil
+}
+
+// newAPIDeps builds the config-derived part of api.Deps (everything that needs no I/O). AudienceEvents is the
+// same automation hook the worker uses; without it the audience routes do not register.
+func newAPIDeps(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool) api.Deps {
+	deps := api.Deps{
+		Pool: pool,
+		Signer: auth.Signer{
+			Secret:     []byte(cfg.SecretKey),
+			AccessTTL:  cfg.AccessTTL,
+			RefreshTTL: cfg.RefreshTTL,
+		},
+		Config:           cfg,
+		Flags:            cfg.Flags,
+		DataDir:          cfg.DataDir,
+		Log:              log,
+		EgressAllowHosts: cfg.EgressAllowHosts, // EGRESS_ALLOW_HOSTS, as on the worker
+	}
+	deps.AudienceEvents = deps.AutomationHook()
+	return deps
 }

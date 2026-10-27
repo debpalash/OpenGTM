@@ -226,3 +226,18 @@ func TestExecutorSettings(t *testing.T) {
 		t.Fatal("bad int accepted")
 	}
 }
+
+func TestAPIConfigEgressAllowHosts(t *testing.T) {
+	c, err := loadAPI(func(k string) string {
+		switch k {
+		case "EGRESS_ALLOW_HOSTS":
+			return " 127.0.0.1:11434, ollama.internal ,,"
+		case "DATABASE_URL":
+			return "postgres://x"
+		}
+		return ""
+	})
+	if err != nil || len(c.EgressAllowHosts) != 2 || c.EgressAllowHosts[0] != "127.0.0.1:11434" || c.EgressAllowHosts[1] != "ollama.internal" {
+		t.Fatalf("got %+v, %v", c.EgressAllowHosts, err)
+	}
+}

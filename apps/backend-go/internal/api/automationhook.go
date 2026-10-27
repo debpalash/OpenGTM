@@ -20,3 +20,7 @@ func (d Deps) automationExecutor() func(ws string) string {
 func (d Deps) automationHook() automationhook.Emitter {
 	return automationhook.NewWithOptions(d.Flags.AutomationsEnabled, d.automationExecutor(), d.Log, d.Flags.Automations.PollerMaxFiresPerSignal)
 }
+
+// AutomationHook exposes the shared emitter to cmd/api, which assigns it to Deps.AudienceEvents
+// (the same emitter the worker's audience refresh uses) so the audience routes register.
+func (d Deps) AutomationHook() automationhook.Emitter { return d.automationHook() }

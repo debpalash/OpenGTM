@@ -141,11 +141,7 @@ func load(get func(string) string) (Config, error) {
 		c.DebugAddr = "127.0.0.1:6060"
 	}
 
-	for _, h := range strings.Split(get("EGRESS_ALLOW_HOSTS"), ",") {
-		if h = strings.TrimSpace(h); h != "" {
-			c.EgressAllowHosts = append(c.EgressAllowHosts, h)
-		}
-	}
+	c.EgressAllowHosts = parseHostList(get("EGRESS_ALLOW_HOSTS"))
 	if c.Flags.AutomationsEnabled, err = boolVar(get, "AUTOMATIONS_ENABLED", false); err != nil {
 		return Config{}, err
 	}
@@ -376,6 +372,20 @@ type APIConfig struct {
 	SSEMaxPerUser      int           // SSE_MAX_STREAMS_PER_USER (default 10)
 	SSEMaxPerWorkspace int           // SSE_MAX_STREAMS_PER_WORKSPACE (default 200)
 	SSEMaxLifetime     time.Duration // SSE_MAX_LIFETIME_SECONDS (default 1800, 30..86400)
+	// EgressAllowHosts is EGRESS_ALLOW_HOSTS: exact host[:port] operator entries that skip the private-address
+	// block on API-side outbound clients (copilot LLM, person intel, scrape stats), as on the worker.
+	EgressAllowHosts []string
+}
+
+// parseHostList splits a comma list, trimming blanks.
+func parseHostList(v string) []string {
+	var out []string
+	for _, h := range strings.Split(v, ",") {
+		if h = strings.TrimSpace(h); h != "" {
+			out = append(out, h)
+		}
+	}
+	return out
 }
 
 // FilesAPIModeHardened is the only files-API mode: auth + global admin and a safe path
@@ -435,6 +445,7 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 		CORSOrigins: get("CORS_ORIGINS"),
 		AppEnv:      get("APP_ENV"),
 	}
+	c.EgressAllowHosts = parseHostList(get("EGRESS_ALLOW_HOSTS"))
 	if c.Addr == "" {
 		c.Addr = ":8000"
 	}

@@ -155,3 +155,25 @@ func TestApplySSEChatSharesEventsPool(t *testing.T) {
 		t.Fatalf("defaults: %v cap=%d", err, cap(def.SSEStreamSem))
 	}
 }
+
+func TestBuildRouterWiresAudienceEmitterAndEgress(t *testing.T) {
+	cfg := config.APIConfig{SecretKey: "k", CORSOrigins: "*", AppEnv: "test", EgressAllowHosts: []string{"127.0.0.1:1"}}
+	cfg.Flags.PGLeadStore = true
+	cfg.Flags.Audiences.GoAudienceRoutesEnabled = true
+	cfg.Flags.Audiences.GoDestRoutesEnabled = true
+	h := mustRouter(t, cfg)
+	for _, path := range []string{"/api/audiences", "/api/audience-destinations"} {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest("GET", path, nil))
+		if rec.Code == http.StatusNotFound {
+			t.Errorf("%s not registered with the flags on (emitter unwired?)", path)
+		}
+	}
+	d := newAPIDeps(cfg, telemetry.NewLogger(io.Discard), nil)
+	if d.AudienceEvents == nil {
+		t.Error("AudienceEvents unwired")
+	}
+	if len(d.EgressAllowHosts) != 1 || d.EgressAllowHosts[0] != "127.0.0.1:1" {
+		t.Errorf("EgressAllowHosts = %v", d.EgressAllowHosts)
+	}
+}
