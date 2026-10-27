@@ -46,9 +46,8 @@ type Config struct {
 	// python-run (ai_formula, research, agent) column types the Go executor may
 	// take besides enrichment/waterfall. output is never allowed.
 	ExtraColumnTypes map[string]bool
-	// NativeProviders is GO_RUN_NATIVE_PROVIDERS (Go-only, default off = Python parity): chains
-	// with providers outside the manifest index (Go-native or pyworker) stay on Go instead of
-	// being handed back as non_declarative_provider.
+	// NativeProviders is GO_RUN_NATIVE_PROVIDERS (retired: Build always treats it as on): chains
+	// with providers outside the manifest index (Go-native) get a cost-only go block entry.
 	NativeProviders bool
 	// FullRun is GO_EXECUTOR_FULL_RUN (Go-only, default off = Python parity): the Go executor
 	// writes provenance, emits automations, evaluates conditions, verifies emails, delivers

@@ -129,8 +129,8 @@ type Deps struct {
 	// RunExecutor picks the executor of the research_playbook_run job (nil: "go", the
 	// only executor since the cutover). The schedule job's executor is ScheduleExecutor.
 	RunExecutor func(workspaceID string) string
-	// Researcher runs a playbook step (HandleRun); nil means the Python worker
-	// is not configured and a claimed run is handed back.
+	// Researcher runs a playbook step (HandleRun); nil means no research runner is
+	// wired and a claimed run fails permanently.
 	Researcher Researcher
 }
 

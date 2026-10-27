@@ -14,7 +14,7 @@ const (
 	CapOutput      = "output"
 )
 
-// checkRequires refuses (hands back) a job that needs a capability this worker was not wired
+// checkRequires refuses (permanently fails) a job that needs a capability this worker was not wired
 // with. An unknown name fails closed: a newer enqueuer may require something this build lacks.
 func checkRequires(d Deps, requires []string) error {
 	for _, c := range requires {

@@ -103,7 +103,7 @@ func (c CRMClients) FetchContacts(ctx context.Context, ws, name string, limit in
 }
 
 // Deps are the engine dependencies. Nil seams make the kinds that need them
-// unsupported (ErrUnsupported: the job is handed back to the Python worker).
+// unsupported (ErrUnsupported: the worker fails the job permanently).
 type Deps struct {
 	Pool      *pgxpool.Pool
 	Collector Collector

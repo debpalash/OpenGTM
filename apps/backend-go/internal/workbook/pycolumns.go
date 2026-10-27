@@ -54,8 +54,8 @@ func newCallID() string {
 	return "go-" + hex.EncodeToString(b[:])
 }
 
-// checkPyColumn refuses (hands back) a column Go may not run: no Python worker
-// is configured, or an agent could spend money outside the Go spend ledger.
+// checkPyColumn refuses (permanently fails the run) a column Go may not run: neither the in-process AI columns
+// nor a worker RPC are wired, or an agent could spend money outside the Go spend ledger.
 func (rs *runState) checkPyColumn(c column) error {
 	if !pyColumnTypes[c.Type] || rs.deps.AICols != nil {
 		return nil // native: every AI column runs here, paid agent tools through the spend ledger

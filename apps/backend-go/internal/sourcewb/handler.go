@@ -30,7 +30,7 @@ type payload struct {
 // Handle is handle_source_workbook: the tenant comes only from the claim (jobs.workspace_id;
 // a job without one, or whose payload names another workspace, is refused permanently), the source column is materialized, and with enrich_after a run_workbook job
 // is chained when rows were added. Run errors are data (logged, the job completes);
-// ErrUnsupported means the job must be handed back to Python.
+// ErrUnsupported means this worker lacks the seam the source kind needs; the worker fails the job permanently.
 func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 	var p payload
 	if err := json.Unmarshal(c.Payload, &p); err != nil {

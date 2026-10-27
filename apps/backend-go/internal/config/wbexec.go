@@ -2,12 +2,10 @@ package config
 
 // WbExecSettings are the plan 15 WP-WBEXEC switches of the run_workbook executor.
 //
-// GO_EXECUTOR_FULL_RUN (default false = Python parity) lets runplan route runs to Go that
-// Python's go_eligibility refuses (provenance_on, automations_on, condition, email_verify,
-// structured_target, column references, formula/http/output columns), and lets the Go
-// executor and the single-cell route run them in process instead of handing back or
-// proxying to the Python API. PROVENANCE_TRACKING_ENABLED is Python's per-fact provenance
-// switch, read here so the Go executor writes the same provenance when it runs such a job.
+// GO_EXECUTOR_FULL_RUN is retired (plan 15 cutover; always on): the Go executor and the single-cell route run
+// conditions, email verification, provenance, output and computed columns in process.
+// PROVENANCE_TRACKING_ENABLED is Python's per-fact provenance switch, read here so the Go executor writes the same
+// provenance.
 type WbExecSettings struct {
 	FullRun            bool // GO_EXECUTOR_FULL_RUN
 	ProvenanceTracking bool // PROVENANCE_TRACKING_ENABLED
