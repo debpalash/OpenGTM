@@ -43,20 +43,26 @@ a bug report, or a whole feature.
 uv sync
 uv run uvicorn apps.api.main:app --reload --port 8000
 
-# Frontend (Bun)
-cd apps/web && bun install && bun run dev
+# Go API + worker, with the web UI embedded (needs Go and Bun)
+make build          # bin/opengtm-api (UI embedded), opengtm-worker, opengtm-mcp
+make run            # start api + worker in the background; make kill stops them
+
+# Frontend with hot reload (each app has its own bun.lock; there is no root workspace)
+make dev            # Vite in apps/web, proxying to VITE_API_TARGET (default nginx on :3000)
+make kill
+# or: cd apps/web && bun install && bun run dev:app
 
 # Background enrichment worker
 python -m apps.api.worker
 ```
 
-The whole stack also runs with `docker compose up` (API + worker + Postgres +
-Redis + nginx). See the [README](./README.md) for details.
+The whole stack also runs with `make up` / `docker compose up` (API + worker +
+Postgres + Redis + nginx; `make down` stops it). See the [README](./README.md) for details.
 
 ## Before you open a PR
 
-- **Tests:** `uv run pytest` (backend) and `bun run build` / `bunx tsc -b`
-  (frontend typecheck) should pass.
+- **Tests:** `make test` (go vet, go test, web lint and build); `uv run pytest`
+  for the Python backend.
 - **Scope:** keep PRs focused. One provider, one fix, one feature.
 - **Security-sensitive paths** (auth, tenancy/RLS, SSRF url guard, secrets,
   outbound fetches, LLM prompt handling): call it out in the PR description so a

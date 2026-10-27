@@ -110,6 +110,24 @@ docker compose up -d --scale worker=4     # add capacity
 docker compose down                       # stop without deleting data
 ```
 
+### Build from source
+
+Needs Go, [Bun](https://bun.sh) and a Postgres/Redis (`make up` starts the compose stack).
+The web UI is embedded in the Go API binary, so one build gives one server:
+
+```bash
+make build   # web UI + bin/opengtm-{api,worker,mcp} + bin/suppressnorm
+make run     # build, then start api + worker in the background (.run/*.pid, .run/*.log)
+make dev     # Vite dev server for apps/web (VITE_API_TARGET, default http://127.0.0.1:3000)
+make kill    # stop whatever make run / make dev started
+make up      # docker compose up -d --build
+make down    # docker compose down
+make test    # go vet + go test, web lint + build
+```
+
+`make run` uses the environment of the shell (`DATABASE_URL`, `SECRET_KEY`, ...); set `SERVE_UI=false` to
+serve the API only.
+
 ## What you can build
 
 - **Workbooks:** import leads, add formulas, HTTP columns, enrichment waterfalls,

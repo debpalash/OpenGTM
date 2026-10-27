@@ -10,7 +10,7 @@ before building any Python image:
 git clone <legacy-python-repo-url> legacy/python    # or copy your existing checkout there
 ```
 
-The Python services `migrate`, `api`, `seed`, `worker`, `scheduler` and `frontend_assets` all use the root
+The Python services `migrate`, `api`, `seed`, `worker`, `scheduler` all use the root
 `Dockerfile` (build context `.`), whose first stage reads `legacy/python`. If it is missing the build stops with:
 
 ```
@@ -27,9 +27,9 @@ workspace before `docker compose build`). The Go images need nothing from `legac
 | `postgres`, `redis` | upstream images | default | healthchecked; host ports bound to 127.0.0.1 |
 | `migrate` | root `Dockerfile` (Python) | default | one-shot Alembic + runtime role; everything else waits on it |
 | `seed` | root `Dockerfile` (Python) | `demo` | opt-in demo data + `admin`/`admin`; not started by default |
-| `api`, `worker`, `scheduler`, `frontend_assets` | root `Dockerfile` (Python) | default | built from `legacy/python`; web UI built from `apps/web` |
-| `nginx` | `nginx:alpine` + `infra/nginx/*.conf` | default | public entrypoint (`PORT`, default 3000); canary split |
-| `api-go` | `apps/backend-go/Dockerfile` target `api` | `go` | static binary, distroless nonroot, `/api -healthcheck` |
+| `api`, `worker`, `scheduler` | root `Dockerfile` (Python) | default | built from `legacy/python`; no frontend stage |
+| `nginx` | `nginx:alpine` + `infra/nginx/*.conf` | default | public entrypoint (`PORT`, default 3000); canary split; `location /` proxies to `api-go` (serves the UI) |
+| `api-go` | `apps/backend-go/Dockerfile` target `api` | default | static binary with the web UI embedded (`-tags webui`; Bun stage builds the compose `additional_contexts.web` = `./apps/web`); distroless nonroot, `/api -healthcheck`; `SERVE_UI=false` disables the UI. Standalone: `docker build --target api --build-context web=apps/web apps/backend-go` |
 | `worker-go` | same Dockerfile, target `worker` | `go` | idle until `GO_EXECUTOR_*` flags are on; needs `INTERNAL_SERVICE_TOKEN` |
 | `mcp` | same Dockerfile, target `mcp` | `mcp` | SSE on `mcp:3100`, internal only |
 | `reacher`, `providersim` | upstream / Go | `reacher` / `bench` | optional |
@@ -92,14 +92,15 @@ nginx runs without `api-go`. To ramp, edit the `go` lines in `go-split.conf` (bo
 
 ## Workspace
 
-Root `bun` workspaces are `apps/*` and `packages/*`. The Python API package (`@opengtm/api`) was removed from the
-workspace and `bun.lock` because its directory now lives in the untracked `legacy/python`; run the Python API from
-`legacy/python/apps/api` (`uv run ...`) rather than through turbo. `apps/backend-go` has no `package.json`, so
-bun/turbo ignore it.
+There is no root Bun workspace: `apps/web`, `apps/docs`, `packages/chrome-extension` and
+`packages/n8n-nodes-yupcha` each have their own `package.json` and `bun.lock` (run `bun install` in the app's
+directory). The root `Makefile` drives local builds: `make build` (web UI embedded into `bin/opengtm-api`),
+`make run`, `make dev`, `make kill`, `make up`, `make down`, `make test`. The Python API runs from
+`legacy/python/apps/api` (`uv run ...`). `apps/backend-go` has no `package.json`.
 
 ## Verified
 
 `docker compose config` (with and without `--profile go --profile mcp --profile bench`), builds of `api-go`,
 `worker-go`, `mcp`, `api`, `worker`, `scheduler`, and a boot of `postgres redis api-go nginx` (+ `migrate`,
-`api`, `frontend_assets`) in an isolated project: nginx `/health` 200, `/auth/me` -> `X-Upstream: py`,
+`api`) in an isolated project: nginx `/health` 200, `/auth/me` -> `X-Upstream: py`,
 `api-go /healthz` ok from inside the network.
