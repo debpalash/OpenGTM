@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -30,6 +31,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/webui"
 )
 
 const (
@@ -105,6 +107,11 @@ func run() error {
 		return err
 	}
 	handler := router.Handler()
+	// The embedded UI (webui build tag) is the lowest-precedence catch-all; SERVE_UI=false turns it off.
+	if serveUI(os.Getenv("SERVE_UI")) && webui.FS() != nil {
+		handler = webui.Mount(handler, webui.Default())
+		log.Info("serving embedded UI")
+	}
 	srv := newServer(cfg.Addr, handler)
 	srv.RegisterOnShutdown(endStreams)
 	errc := make(chan error, 1)
@@ -123,6 +130,15 @@ func run() error {
 		return fmt.Errorf("shutdown: %w", err)
 	}
 	return nil
+}
+
+// serveUI reports whether the embedded UI is enabled (SERVE_UI, default true).
+func serveUI(v string) bool {
+	switch strings.ToLower(strings.TrimSpace(v)) {
+	case "0", "false", "no", "off":
+		return false
+	}
+	return true
 }
 
 // healthURL targets the local /healthz on the port of API_ADDR (default 8000).
