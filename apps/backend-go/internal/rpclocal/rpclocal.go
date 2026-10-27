@@ -65,7 +65,7 @@ type Runner interface {
 type Deps struct {
 	// Runner runs registered Go providers; nil builds a providerrun.Runner without a pool
 	// (settings and keys, no cache or stats ledger).
-	Runner Runner
+	Runner  Runner
 	Py      PyCaller          // nil: names not served here fail with pyworker.ErrUnavailable
 	Local   func(string) bool // the GO_LOCAL_PROVIDERS gate; nil serves nothing here
 	HTTP    *http.Client      // strict egress client for lead-supplied URLs; nil builds egress.NewClient

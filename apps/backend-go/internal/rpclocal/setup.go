@@ -4,11 +4,14 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/scrape"
 	secretstore "github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
@@ -22,6 +25,14 @@ type Setup struct {
 	Py          PyCaller            // the Python worker client, or nil
 	Secrets     Secrets             // credential resolver (LinkedIn session, keyed providers), or nil
 	Log         *slog.Logger
+	// Web and Browser are the process's shared leadweb and browser-service client (one rate
+	// limiter, breaker and search cache per process); nil builds them from the environment.
+	Web     *leadweb.Web
+	Browser *browserclient.Client
+	// Runner runs registered Go providers (the binary's providerrun.Runner); nil builds one on
+	// Pool (enrichment cache + provider_stats ledger) — without a Pool, settings and keys only.
+	Runner Runner
+	Pool   *pgxpool.Pool
 }
 
 // Configure reads GO_LOCAL_PROVIDERS, the browser service and leadweb
@@ -38,13 +49,18 @@ func Configure(s Setup) (*Caller, error) {
 	if err != nil {
 		return nil, err
 	}
-	lw, err := config.LeadwebFrom(get)
-	if err != nil {
-		return nil, err
-	}
 	providers.SetLocalGate(cfg.Local.Enabled)
-	bc := browserclient.New(cfg.BrowserURL, cfg.BrowserToken.Reveal(), nil)
-	web := leadweb.New(lw, bc, s.AppEnv, s.EgressAllow)
+	bc, web := s.Browser, s.Web
+	if bc == nil {
+		bc = browserclient.New(cfg.BrowserURL, cfg.BrowserToken.Reveal(), nil)
+	}
+	if web == nil {
+		lw, err := config.LeadwebFrom(get)
+		if err != nil {
+			return nil, err
+		}
+		web = leadweb.New(lw, bc, s.AppEnv, s.EgressAllow)
+	}
 
 	mail := emailverify.NewDeps()
 	mail.SMTPDisabled = get("LEADGEN_SMTP_VERIFY") == "0"
@@ -102,6 +118,15 @@ func Configure(s Setup) (*Caller, error) {
 	if s.Log != nil && cfg.Local.Any() {
 		s.Log.Info("in-process providers on (GO_LOCAL_PROVIDERS)", "browser_service", bc.Configured())
 	}
-	return New(Deps{Py: s.Py, Local: cfg.Local.Enabled, HTTP: egress.NewClientForEnv(s.AppEnv, s.EgressAllow),
+	strict := egress.NewClientForEnv(s.AppEnv, s.EgressAllow)
+	runner := s.Runner
+	if runner == nil {
+		var sec providerrun.Secrets = noSecrets{}
+		if s.Secrets != nil {
+			sec = s.Secrets
+		}
+		runner = providerrun.New(providerrun.Deps{Pool: s.Pool, HTTP: strict, Secrets: sec, Log: s.Log})
+	}
+	return New(Deps{Py: s.Py, Local: cfg.Local.Enabled, HTTP: strict, Runner: runner,
 		Secrets: s.Secrets, Scrub: session, Log: s.Log}), nil
 }
