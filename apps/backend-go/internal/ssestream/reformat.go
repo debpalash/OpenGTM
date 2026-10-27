@@ -11,8 +11,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
 )
 
-// MaxFrameBytes caps one relayed input frame: the pyworker per-line cap (8 MiB + 64 KiB;
-// keep in step with internal/pyworker/stream.go maxFrameBytes).
+// MaxFrameBytes caps one relayed input frame (8 MiB + 64 KiB, the per-line cap of the retired Python worker
+// stream).
 var MaxFrameBytes = 8<<20 + 64<<10
 
 // outputFactor bounds the output: ensure_ascii turns a 2-4 byte rune into up to 12 bytes
