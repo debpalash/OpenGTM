@@ -129,6 +129,18 @@ var providerTTL = map[string]time.Duration{"tech_stack": 90 * 24 * time.Hour}
 // ErrUnknownProvider or ErrUnauthorized. A call that outlives timeout (hard cap
 // 120 s) reports Output{Error: "timeout"}.
 func (r *Runner) Run(ctx context.Context, workspaceID, provider string, in providers.Input, timeout time.Duration) (providers.Output, error) {
+	return r.run(ctx, workspaceID, provider, in, timeout, false)
+}
+
+// RunLocal is Run for a caller that already decided the provider is served in
+// process (rpclocal under GO_LOCAL_PROVIDERS): a registered Go provider runs
+// in Go even when the process-wide gate is not installed. Settings, keys,
+// cache, stats ledger and the worker semaphore are the same as Run's.
+func (r *Runner) RunLocal(ctx context.Context, workspaceID, provider string, in providers.Input, timeout time.Duration) (providers.Output, error) {
+	return r.run(ctx, workspaceID, provider, in, timeout, true)
+}
+
+func (r *Runner) run(ctx context.Context, workspaceID, provider string, in providers.Input, timeout time.Duration, local bool) (providers.Output, error) {
 	if workspaceID == "" || provider == "" {
 		return providers.Output{}, errors.New("providerrun: workspace and provider are required")
 	}
@@ -143,7 +155,7 @@ func (r *Runner) Run(ctx context.Context, workspaceID, provider string, in provi
 	}
 	p, native := providers.Get(provider)
 	// A gated provider (providers/scrape) runs in Go only when GO_LOCAL_PROVIDERS lists it.
-	native = native && providers.InProcess(p)
+	native = native && (local || providers.InProcess(p))
 
 	if out, ok := r.cacheGet(ctx, workspaceID, provider, in); ok {
 		return out, nil

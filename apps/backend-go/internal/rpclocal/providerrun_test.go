@@ -106,12 +106,12 @@ type fakeRunner struct {
 	out   providers.Output
 }
 
-func (f *fakeRunner) Run(_ context.Context, ws, provider string, in providers.Input, timeout time.Duration) (providers.Output, error) {
+func (f *fakeRunner) RunLocal(_ context.Context, ws, provider string, in providers.Input, timeout time.Duration) (providers.Output, error) {
 	f.calls = append(f.calls, ws+"/"+provider)
 	return f.out, nil
 }
 
-// M3: the Go-provider path is providerrun.Runner.Run (stats, cache, semaphore, settings).
+// M3: the Go-provider path is providerrun.Runner.RunLocal (stats, cache, semaphore, settings).
 func TestLocalGoProvidersUseRunner(t *testing.T) {
 	obj := providers.NewObj()
 	obj.Set("company_size", "11-50")

@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/scrape"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
@@ -57,7 +58,7 @@ type Secrets interface {
 // (providerrun.Runner: operator settings, per-workspace keys, cache, stats
 // ledger, worker semaphore).
 type Runner interface {
-	Run(ctx context.Context, workspaceID, provider string, in providers.Input, timeout time.Duration) (providers.Output, error)
+	RunLocal(ctx context.Context, workspaceID, provider string, in providers.Input, timeout time.Duration) (providers.Output, error)
 }
 
 // Deps wire a Caller.
@@ -106,6 +107,13 @@ func New(d Deps) *Caller {
 	}
 	if d.Now == nil {
 		d.Now = time.Now
+	}
+	if d.Runner == nil {
+		var sec providerrun.Secrets = noSecrets{}
+		if d.Secrets != nil {
+			sec = d.Secrets
+		}
+		d.Runner = providerrun.New(providerrun.Deps{HTTP: d.HTTP, Secrets: sec, Log: d.Log, Cost: d.Cost})
 	}
 	return &Caller{d: d, calls: map[dedupeKey]*flight{}}
 }
@@ -191,9 +199,15 @@ func effectiveTimeout(t time.Duration) time.Duration {
 }
 
 type outcome struct {
-	out *providers.Obj
-	err error
+	out      *providers.Obj
+	err      error
+	timedOut bool // providerrun reported its own timeout
 }
+
+// noSecrets resolves nothing (no resolver configured).
+type noSecrets struct{}
+
+func (noSecrets) Get(context.Context, string, string) (string, string, error) { return "", "", nil }
 
 // execute is _execute: one run under the clamped timeout.
 func (c *Caller) execute(ctx context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error) {
@@ -232,30 +246,25 @@ func (c *Caller) execute(ctx context.Context, call pyworker.ProviderCall) (pywor
 			o.out, o.err = rpc(cctx, c.d.HTTP, input)
 			return
 		}
+		// Registered Go providers run through providerrun, exactly like every other Go
+		// caller: global operator settings, per-workspace keys, the enrichment cache, the
+		// provider_stats ledger and the worker semaphore.
 		p, _ := providers.Get(call.Provider)
-		key := func() (string, error) {
-			k, ok := p.(providers.Keyed)
-			if !ok || c.d.Secrets == nil {
-				return "", nil
-			}
-			vals := []string{}
+		out, err := c.d.Runner.RunLocal(cctx, call.WorkspaceID, call.Provider, providers.Input{Lead: lead}, effectiveTimeout(call.Timeout))
+		if k, ok := p.(providers.Keyed); ok && c.d.Secrets != nil {
+			// The key values providerrun resolved are scrubbed from everything returned.
 			for _, env := range k.KeyEnv() {
-				v, _, err := c.d.Secrets.Get(cctx, call.WorkspaceID, env)
-				if err != nil {
-					return "", fmt.Errorf("credential lookup failed: %w", err)
+				if v, _, kerr := c.d.Secrets.Get(context.WithoutCancel(cctx), call.WorkspaceID, env); kerr == nil {
+					addSecret(v)
 				}
-				addSecret(v)
-				vals = append(vals, v)
 			}
-			if len(vals) == 1 {
-				return vals[0], nil
-			}
-			return providers.JoinKeys(vals...), nil
 		}
-		out, err := p.Enrich(cctx, c.d.HTTP, key, providers.Input{Lead: lead})
 		if err != nil {
 			o.err = err
 			return
+		}
+		if out.Error == "timeout" {
+			o.timedOut = true
 		}
 		o.out = scrape.OutputDict(scrape.ResultProviderOf(p, out), out)
 	}()
@@ -273,6 +282,9 @@ func (c *Caller) execute(ctx context.Context, call pyworker.ProviderCall) (pywor
 		for _, s := range c.d.Scrub(ctx, call.WorkspaceID) {
 			addSecret(s)
 		}
+	}
+	if o.timedOut {
+		return pyworker.ProviderResult{Status: "timeout", Error: "provider timed out"}, nil
 	}
 	if o.err != nil {
 		if ctx.Err() != nil {
