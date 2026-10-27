@@ -88,8 +88,11 @@ func TestInvalidDetailsJSONBecomesEmptyObject(t *testing.T) {
 		n++
 		got, err := ParseDetails(*c.Text)
 		if c.RenderError != nil {
-			if !errors.Is(err, ErrNotRenderable) {
-				t.Errorf("%q: want ErrNotRenderable, got %q %v", *c.Text, got, err)
+			// Python 500s here; Go renders NaN, +-Infinity and overflowing floats as null (audit F8).
+			want := map[string]string{`NaN`: `null`, `Infinity`: `null`, `{"a":NaN}`: `{"a":null}`,
+				`{"big":12345678901234567890,"f":1.0,"e":1e400}`: `{"big":12345678901234567890,"f":1.0,"e":null}`}[*c.Text]
+			if err != nil || string(got) != want {
+				t.Errorf("%q: want %s, got %q %v", *c.Text, want, got, err)
 			}
 			continue
 		}
@@ -138,10 +141,13 @@ func TestParseDetailsPythonSemantics(t *testing.T) {
 			t.Errorf("%q: got %s want %s", in, got, want)
 		}
 	}
-	for _, in := range []string{`NaN`, `[Infinity]`, `{"a":-Infinity}`, `1e999`, `"\ud800"`} {
-		if _, err := ParseDetails(in); !errors.Is(err, ErrNotRenderable) {
-			t.Errorf("%q: want ErrNotRenderable, got %v", in, err)
+	for in, want := range map[string]string{`NaN`: `null`, `[Infinity]`: `[null]`, `{"a":-Infinity}`: `{"a":null}`, `1e999`: `null`} {
+		if got, err := ParseDetails(in); err != nil || string(got) != want {
+			t.Errorf("%q: want %s, got %s %v", in, want, got, err)
 		}
+	}
+	if _, err := ParseDetails(`"\ud800"`); !errors.Is(err, ErrNotRenderable) {
+		t.Errorf("lone surrogate: want ErrNotRenderable, got %v", err)
 	}
 }
 

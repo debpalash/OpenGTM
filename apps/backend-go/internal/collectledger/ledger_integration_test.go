@@ -186,9 +186,9 @@ func TestInvalidDetailsJSONBecomesEmptyObjectInStore(t *testing.T) {
 		if string(d.IntentDetails) != `{}` || string(d.Stages[0].Details) != `{}` || string(d.Stages[1].Details) != `{}` {
 			t.Errorf("%s %s %s", d.IntentDetails, d.Stages[0].Details, d.Stages[1].Details)
 		}
-		// NaN parses in Python but the response render fails: surfaced as an error, not {}.
-		if _, err := collectledger.Detail(ctx, tx, "t10-i2"); !errors.Is(err, collectledger.ErrNotRenderable) {
-			t.Errorf("NaN detail: %v", err)
+		// NaN parses in Python but its render fails (500); Go renders null (audit F8).
+		if d2, err := collectledger.Detail(ctx, tx, "t10-i2"); err != nil || string(d2.IntentDetails) != `null` {
+			t.Errorf("NaN detail: %v %s", err, d2.IntentDetails)
 		}
 		return nil
 	})

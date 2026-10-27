@@ -10,9 +10,8 @@ import (
 )
 
 // ErrNotRenderable marks a stored JSON document that Python's json.loads accepts
-// but that its response render rejects (NaN/Infinity/overflowing floats, which
-// json.dumps(allow_nan=False) refuses, or a lone surrogate, which cannot be
-// UTF-8 encoded). The route answers 500 for these, exactly as FastAPI does.
+// but that cannot be rendered (a lone surrogate, which cannot be UTF-8 encoded).
+// NaN, +-Infinity and overflowing floats render as null instead (audit F8).
 var ErrNotRenderable = errors.New("collectledger: stored JSON is not renderable")
 
 // maxNesting stands in for CPython's recursion limit: deeper documents make
@@ -99,17 +98,12 @@ func (p *pyParser) value(depth int) (any, bool) {
 	case c == 'f':
 		return false, p.lit("false")
 	case c == 'N':
-		ok := p.lit("NaN")
-		p.bad = p.bad || ok
-		return numLit("NaN"), ok
+		return nil, p.lit("NaN") // rendered as null: JSON has no NaN
 	case c == 'I':
-		ok := p.lit("Infinity")
-		p.bad = p.bad || ok
-		return numLit("Infinity"), ok
+		return nil, p.lit("Infinity")
 	case c == '-' && strings.HasPrefix(p.s[p.i:], "-Infinity"):
 		p.i += len("-Infinity")
-		p.bad = true
-		return numLit("-Infinity"), true
+		return nil, true
 	case c == '-' || (c >= '0' && c <= '9'):
 		return p.number()
 	}
@@ -168,13 +162,11 @@ func (p *pyParser) number() (any, bool) {
 	}
 	f, err := strconv.ParseFloat(text, 64)
 	if err != nil { // overflow: float("1e400") is inf in Python
-		p.bad = true
-		return numLit("Infinity"), true
+		return nil, true
 	}
 	r, err := canonjson.FloatRepr(f)
 	if err != nil {
-		p.bad = true
-		return numLit("Infinity"), true
+		return nil, true
 	}
 	return numLit(r), true
 }

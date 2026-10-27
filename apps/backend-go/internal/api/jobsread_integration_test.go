@@ -606,12 +606,12 @@ func TestJobDetailInvalidDetailsJSON(t *testing.T) {
 			t.Errorf("intent_details %s: want %s in %s", in, want, rec.Body)
 		}
 	}
-	// NaN/Infinity parse in Python but make the response render fail: a bare 500 (documented, same as Python).
-	for _, in := range []string{`{"x": NaN}`, `[Infinity]`, `{"x": -Infinity}`} {
+	// NaN/Infinity parse in Python but make its response render fail (500); Go answers 200 with null (audit F8).
+	for in, want := range map[string]string{`{"x": NaN}`: `{"x":null}`, `[Infinity]`: `[null]`, `{"x": -Infinity}`: `{"x":null}`} {
 		set(in)
 		rec := e.getAlice("/api/jobs/" + jA1)
-		if rec.Code != 500 || rec.Header().Get("Content-Type") != "text/plain; charset=utf-8" || rec.Body.String() != "Internal Server Error" {
-			t.Errorf("%s: %d %q %q", in, rec.Code, rec.Header().Get("Content-Type"), rec.Body)
+		if rec.Code != 200 || !strings.Contains(rec.Body.String(), `"intent_details":`+want+`,`) {
+			t.Errorf("%s: %d %q", in, rec.Code, rec.Body)
 		}
 		// the stages route reads other columns and the list route never parses
 		if rec := e.getAlice("/api/jobs/" + jA1 + "/stages"); rec.Code != 200 {
@@ -628,7 +628,7 @@ func TestJobDetailInvalidDetailsJSON(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, p := range []string{"/api/jobs/" + jA3, "/api/jobs/" + jA3 + "/stages"} {
-		if rec := e.getAlice(p); rec.Code != 500 || rec.Body.String() != "Internal Server Error" {
+		if rec := e.getAlice(p); rec.Code != 200 || !strings.Contains(rec.Body.String(), `"details":{"x":null}`) {
 			t.Errorf("%s with NaN stage details: %d %q", p, rec.Code, rec.Body)
 		}
 	}
