@@ -58,6 +58,9 @@ type providerCall struct {
 	kind callKind
 	resp map[string]any // provider response dict (callOK)
 	text string
+	// charged is the settled charge of a reserved call (micro-USD; 0 for a replayed
+	// settlement): the agent column counts it against its cell budget.
+	charged int64
 }
 
 func truncRunes(s string, n int) string {
@@ -316,7 +319,7 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 	if unknown {
 		return providerCall{kind: callUnknown}, nil
 	}
-	return providerCall{kind: callOK, resp: env.Result}, nil
+	return providerCall{kind: callOK, resp: env.Result, charged: env.ChargedMicroUSD}, nil
 }
 
 // providerInputs is the provider-visible part of the RAW stored row, used as

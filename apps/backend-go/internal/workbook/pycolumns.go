@@ -12,6 +12,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/aicol"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colcompute"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
@@ -53,8 +54,8 @@ func newCallID() string {
 // checkPyColumn refuses (hands back) a column Go may not run: no Python worker
 // is configured, or an agent could spend money outside the Go spend ledger.
 func (rs *runState) checkPyColumn(c column) error {
-	if !pyColumnTypes[c.Type] {
-		return nil
+	if !pyColumnTypes[c.Type] || rs.deps.AICols != nil {
+		return nil // native: every AI column runs here, paid agent tools through the spend ledger
 	}
 	if rs.deps.Py == nil {
 		return refuse("python_worker_unavailable: column %q (%s) runs on the python worker", c.ID, c.Type)
@@ -159,16 +160,30 @@ func (rs *runState) pyCell(ctx context.Context, lead map[string]any, col column,
 	case rpcAgent:
 		timeout, provider, timeoutErr = agentTimeout, "agent", "agent_timeout"
 	}
-	input := map[string]any{
-		"prompt": col.cfg["prompt"], "row": rowForColumn(lead), "columns": rs.columnConfigs(), "column": col.cfg,
-		"workbook_id": rs.p.WorkbookID, "lead_id": intOrNil(lead["__lead_id"]), "row_id": rowID,
-		"provider_timeout": rs.p.ProviderTimeout,
+	var status string
+	var out pyOutput
+	var derr error
+	if rs.deps.AICols != nil {
+		var err error
+		if status, out, err = rs.nativeColumn(ctx, lead, col, rowID, leadID); err != nil {
+			return cellOutcome{}, err
+		}
+	} else {
+		input := map[string]any{
+			"prompt": col.cfg["prompt"], "row": rowForColumn(lead), "columns": rs.columnConfigs(), "column": col.cfg,
+			"workbook_id": rs.p.WorkbookID, "lead_id": intOrNil(lead["__lead_id"]), "row_id": rowID,
+			"provider_timeout": rs.p.ProviderTimeout,
+		}
+		res, err := rs.pyCall(ctx, col.Type, input, timeout)
+		if err != nil {
+			return cellOutcome{}, err
+		}
+		status = res.Status
+		if status == "ok" || status == "error" {
+			out, derr = decodeColumnOutput(res.Output)
+		}
 	}
-	res, err := rs.pyCall(ctx, col.Type, input, timeout)
-	if err != nil {
-		return cellOutcome{}, err
-	}
-	switch res.Status {
+	switch status {
 	case "timeout":
 		rs.markNoRetry(rowID, col.ID) // a timed-out RPC is never re-run automatically
 		return rs.commitCell(ctx, col, rowID, leadID, cellResult{Provider: provider, Err: timeoutErr})
@@ -176,8 +191,7 @@ func (rs *runState) pyCell(ctx context.Context, lead map[string]any, col column,
 	default:
 		return rs.failDependent(ctx, lead, col, "cell_execution_failed")
 	}
-	out, derr := decodeColumnOutput(res.Output)
-	if derr != nil || (res.Status == "error" && !out.HasValue && out.Error == "") {
+	if derr != nil || (status == "error" && !out.HasValue && out.Error == "") {
 		// The Python column raised: enrich_cell lets that escape to _run_one_cell.
 		return rs.failDependent(ctx, lead, col, "cell_execution_failed")
 	}
@@ -253,15 +267,17 @@ func (rs *runState) batchEligible() map[string]bool {
 	return ok
 }
 
-// aiBatchPrepass ports _run_ai_batch_prepass over the Python worker: eligible
-// cells of many rows go out as one batch request; every answered cell is
-// persisted like a synchronous ai cell. It returns the handled (row, column)
-// pairs; any failure is "nothing handled" so the synchronous loop runs those
-// cells (the durable attempt-recovery of the Python executor is not reproduced,
-// which is why the prepass is off unless Deps.AIBatch.Enabled).
+// aiBatchPrepass ports _run_ai_batch_prepass: eligible cells of many rows go out
+// as one batch request; every answered cell is persisted like a synchronous ai
+// cell. It returns the handled (row, column) pairs. Over the Python worker any
+// failure is "nothing handled" so the synchronous loop runs those cells (no
+// durable attempt recovery). With Deps.AICols the batch runs on the Go LLM client
+// with the durable claim of batch_attempts.py (nativeBatch): once a queued job
+// has an attempt, a failure is ErrBatchRecovery, never a synchronous re-spend.
 func (rs *runState) aiBatchPrepass(ctx context.Context, items []workItem) (map[batchKey]bool, int, error) {
 	cfg := rs.deps.AIBatch
-	if !cfg.Enabled || rs.deps.Py == nil {
+	native := rs.deps.AICols != nil
+	if !cfg.Enabled || (rs.deps.Py == nil && !native) {
 		return nil, 0, nil
 	}
 	minRows := cfg.MinRows
@@ -270,6 +286,7 @@ func (rs *runState) aiBatchPrepass(ctx context.Context, items []workItem) (map[b
 	}
 	eligible := rs.batchEligible()
 	var reqs []map[string]any
+	var cells []aicol.BatchCell
 	index := map[string]batchKey{}
 	leads := map[int64]map[string]any{}
 	for _, it := range items {
@@ -282,22 +299,51 @@ func (rs *runState) aiBatchPrepass(ctx context.Context, items []workItem) (map[b
 			index[cid] = batchKey{rid, c.ID}
 			leads[rid] = it.lead
 			reqs = append(reqs, map[string]any{"custom_id": cid, "row": rowForColumn(it.lead), "column_id": c.ID})
+			cells = append(cells, aicol.BatchCell{CustomID: cid, Row: rowForColumn(it.lead), ColumnID: c.ID})
 		}
 	}
 	if len(reqs) < minRows {
+		if native && rs.claim != nil {
+			// An attempt of this job exists: eligibility changed, never re-spend synchronously.
+			if prior, err := rs.priorBatchAttempt(ctx); err != nil || prior != nil {
+				if err == nil {
+					err = batchRecovery("batch eligibility changed with an existing attempt; reconcile before retrying")
+				}
+				return nil, 0, err
+			}
+		}
 		return nil, 0, nil
 	}
+	var results map[string]string
+	if native {
+		r, err := rs.nativeBatch(ctx, cells, index)
+		if err != nil || r == nil {
+			return nil, 0, err
+		}
+		results = r
+	} else {
+		r, ok, err := rs.pyBatch(ctx, reqs)
+		if err != nil || !ok {
+			return nil, 0, err
+		}
+		results = r
+	}
+	return rs.writeBatchResults(ctx, results, index, leads)
+}
+
+// pyBatch is the ai_batch RPC; ok=false means "run synchronously".
+func (rs *runState) pyBatch(ctx context.Context, reqs []map[string]any) (map[string]string, bool, error) {
 	res, err := rs.pyCall(ctx, rpcAIBatch, map[string]any{"requests": reqs, "columns": rs.columnConfigs()}, batchTimeout)
 	if err != nil {
 		if abortErr(ctx, err) != nil {
-			return nil, 0, err
+			return nil, false, err
 		}
 		rs.log.Warn("ai batch pre-pass unavailable, continuing synchronously", "err", err)
-		return nil, 0, nil
+		return nil, false, nil
 	}
 	if res.Status != "ok" {
 		rs.log.Warn("ai batch pre-pass failed, continuing synchronously", "status", res.Status)
-		return nil, 0, nil
+		return nil, false, nil
 	}
 	var out struct {
 		Fields struct {
@@ -305,11 +351,17 @@ func (rs *runState) aiBatchPrepass(ctx context.Context, items []workItem) (map[b
 		} `json:"fields"`
 	}
 	if json.Unmarshal(res.Output, &out) != nil {
-		return nil, 0, nil
+		return nil, false, nil
 	}
+	return out.Fields.Results, true, nil
+}
+
+// writeBatchResults persists every answered cell like a synchronous ai cell (fenced).
+func (rs *runState) writeBatchResults(ctx context.Context, results map[string]string, index map[string]batchKey,
+	leads map[int64]map[string]any) (map[batchKey]bool, int, error) {
 	handled := map[batchKey]bool{}
 	completed := 0
-	for cid, text := range out.Fields.Results {
+	for cid, text := range results {
 		k, ok := index[cid]
 		if !ok {
 			continue

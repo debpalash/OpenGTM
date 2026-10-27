@@ -77,6 +77,15 @@ func (o *Obj) MarshalJSON() ([]byte, error) {
 	return b.Bytes(), nil
 }
 
+// JSON is compact JSON of v (Objs in insertion order, maps sorted, Python float text).
+func JSON(v any) ([]byte, error) {
+	var b bytes.Buffer
+	if err := writeJSON(&b, v, false, false); err != nil {
+		return nil, err
+	}
+	return b.Bytes(), nil
+}
+
 // writeJSON writes v; pySep uses json.dumps' default ", " / ": " separators and ascii
 // escapes non-ASCII like ensure_ascii=True.
 func writeJSON(b *bytes.Buffer, v any, pySep, ascii bool) error {

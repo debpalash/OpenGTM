@@ -54,6 +54,9 @@ type Deps struct {
 	Py PyCaller
 	// AIBatch configures the ai_formula batch prepass (off by default).
 	AIBatch BatchConfig
+	// AICols runs the AI columns and the batch pre-pass in process (GO_NATIVE_AI_COLUMNS);
+	// when set, Py is not used for them and agents may call paid tools (spend ledger).
+	AICols *AIColumns
 	// Emitter receives the run-end on_row_changed deltas (automationhook.Emitter; nil: none).
 	// AUTOMATIONS_ENABLED is the emitter's own switch.
 	Emitter RowChangeEmitter
@@ -127,6 +130,7 @@ const defaultStopCheckInterval = 2 * time.Second
 
 // runState is the per-run context shared by every cell goroutine.
 type runState struct {
+	aiState
 	deps  Deps
 	claim *queue.Claim
 	p     *runPayload
