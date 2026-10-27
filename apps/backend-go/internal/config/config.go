@@ -15,7 +15,7 @@ import (
 
 // RequiredGoSchemaRevision is the Alembic revision the Go worker requires.
 // It must equal REQUIRED_GO_SCHEMA_REVISION in the Python go_executor module.
-const RequiredGoSchemaRevision = "d3f5a7b9c1e2"
+const RequiredGoSchemaRevision = "e7b2c4d6f8a0"
 
 const (
 	minServiceTokenLen       = 32
@@ -322,7 +322,6 @@ type APIConfig struct {
 	AppEnv           string
 	MCPTokenTTLDays  int
 	ScimTokenTTLDays int // OPENGTM_SCIM_TOKEN_TTL_DAYS, clamped 1..365
-	TrustProxy       bool
 	DBMaxConns       int
 	// RLSRequireSafeRole is PG_RLS_REQUIRE_SAFE_ROLE (default true): refuse to
 	// start when the DB role is superuser/BYPASSRLS; false only logs CRITICAL.
@@ -355,12 +354,10 @@ type APIConfig struct {
 	SSEMaxLifetime     time.Duration // SSE_MAX_LIFETIME_SECONDS (default 1800, 30..86400)
 }
 
-// FilesAPIMode values: hardened (default) requires auth + global admin and a
-// safe path check on /api/files and /api/system; legacy keeps FastAPI parity.
-const (
-	FilesAPIModeHardened = "hardened"
-	FilesAPIModeLegacy   = "legacy"
-)
+// FilesAPIModeHardened is the only files-API mode: auth + global admin and a safe path
+// check on /api/files and /api/system. FILES_API_MODE=legacy (unauthenticated FastAPI
+// parity) was removed (S-M4) and is rejected at startup in every APP_ENV.
+const FilesAPIModeHardened = "hardened"
 
 // Flags are the feature flags shared with the Python settings.
 type Flags struct {
@@ -412,10 +409,13 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 		Algorithm:   get("ALGORITHM"),
 		CORSOrigins: get("CORS_ORIGINS"),
 		AppEnv:      get("APP_ENV"),
-		TrustProxy:  strings.EqualFold(strings.TrimSpace(get("TRUST_PROXY")), "true"),
 	}
 	if c.Addr == "" {
 		c.Addr = ":8000"
+	}
+	if strings.TrimSpace(get("TRUST_PROXY")) != "" {
+		// S-L18: TRUST_PROXY never changed anything (client-IP trust is TRUST_PROXY_CIDRS, default loopback only).
+		slog.Warn("config: TRUST_PROXY is deprecated and ignored; set TRUST_PROXY_CIDRS to the proxy network (docker bridge subnet or pod CIDR)")
 	}
 	if c.SecretKey == "" {
 		c.SecretKey = InsecureDefaultSecretKey
@@ -546,9 +546,9 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	switch c.Flags.FilesAPIMode {
 	case "":
 		c.Flags.FilesAPIMode = FilesAPIModeHardened
-	case FilesAPIModeHardened, FilesAPIModeLegacy:
+	case FilesAPIModeHardened:
 	default:
-		return APIConfig{}, fmt.Errorf("config: FILES_API_MODE must be %q or %q", FilesAPIModeHardened, FilesAPIModeLegacy)
+		return APIConfig{}, fmt.Errorf("config: FILES_API_MODE must be %q (the unauthenticated legacy mode was removed)", FilesAPIModeHardened)
 	}
 	if c.DataDir = strings.TrimSpace(get("DATA_DIR")); c.DataDir == "" {
 		c.DataDir = "data"
@@ -619,7 +619,6 @@ func (c APIConfig) LogValue() slog.Value {
 		slog.String("app_env", r.AppEnv),
 		slog.Int("mcp_token_ttl_days", r.MCPTokenTTLDays),
 		slog.Int("scim_token_ttl_days", r.ScimTokenTTLDays),
-		slog.Bool("trust_proxy", r.TrustProxy),
 		slog.Bool("billing_enabled", r.BillingEnabled),
 		slog.String("stripe_secret_key", r.StripeSecretKey),
 		slog.String("stripe_webhook_secret", r.StripeWebhookSecret),

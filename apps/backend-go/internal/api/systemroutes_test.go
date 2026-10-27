@@ -21,8 +21,7 @@ import (
 
 func quietLog() *slog.Logger { return slog.New(slog.NewTextHandler(io.Discard, nil)) }
 
-// sysHandler registers the system routes without auth middleware (legacy mode) or with it
-// (hardened); unit tests exercise legacy and call handlers directly for hardened behaviour.
+// sysHandler registers the system routes with their (always on) auth middleware.
 func sysHandler(t *testing.T, mode, dataDir string) http.Handler {
 	t.Helper()
 	r := httpx.NewRouter()
@@ -63,50 +62,34 @@ func legacyTree(t *testing.T) string {
 	return data
 }
 
-func TestLegacyModeMatchesPythonFixtures(t *testing.T) {
+// S-M4: no mode value (including the removed "legacy") leaves a route without authentication.
+func TestNoUnauthenticatedRouteInAnyMode(t *testing.T) {
 	data := legacyTree(t)
-	h := sysHandler(t, config.FilesAPIModeLegacy, data)
-	// Order matters: later cases see the deletions recorded by FastAPI.
-	for _, name := range []string{
-		"list_root", "list_sub", "list_nested", "list_empty_dir", "list_missing", "list_traversal",
-		"download_text", "download_nested", "download_missing", "download_dir",
-		"delete_missing", "delete_file", "delete_file_again", "delete_dir_recursive", "list_root_after",
-	} {
-		fx := contract.Load(t, "system/"+name)
-		_, got := sysDo(h, fx.Request.Method, fx.Request.Path)
-		t.Run(name, func(t *testing.T) { contract.AssertEqual(t, got, fx.Response) })
+	for _, mode := range []string{"", config.FilesAPIModeHardened, "legacy"} {
+		h := sysHandler(t, mode, data)
+		for _, c := range [][2]string{
+			{"GET", "/api/system/stats"}, {"GET", "/api/files/list"},
+			{"GET", "/api/files/download/alpha.txt"}, {"DELETE", "/api/files/delete/alpha.txt"}, {"DELETE", "/api/files/delete/sub"},
+		} {
+			if rec, _ := sysDo(h, c[0], c[1]); rec.Code != http.StatusUnauthorized {
+				t.Errorf("mode %q %v = %d, want 401", mode, c, rec.Code)
+			}
+		}
 	}
-	fx := contract.Load(t, "system/stats")
-	_, got := sysDo(h, "GET", fx.Request.Path)
-	contract.AssertEqual(t, got, fx.Response, contract.IgnoreShapeOf("$.disk_total", "$.disk_used", "$.disk_free", "$.project_size", "$.db_size"))
-	var keys []string
-	dec := json.NewDecoder(strings.NewReader(string(got.Body)))
-	dec.Token()
-	for dec.More() {
-		k, _ := dec.Token()
-		keys = append(keys, k.(string))
-		var v json.RawMessage
-		dec.Decode(&v)
-	}
-	if strings.Join(keys, ",") != "disk_total,disk_used,disk_free,project_size,db_size" {
-		t.Errorf("stats key order = %v", keys)
+	if _, err := os.Stat(filepath.Join(data, "sub")); err != nil {
+		t.Errorf("anonymous delete removed sub: %v", err)
 	}
 }
 
 func TestDownloadStreamsFileWithFilename(t *testing.T) {
 	data := legacyTree(t)
-	for _, mode := range []string{config.FilesAPIModeLegacy, config.FilesAPIModeHardened} {
-		var h http.Handler = sysHandler(t, mode, data)
-		if mode == config.FilesAPIModeHardened {
-			h = sysHandlerNoAuth(t, data)
-		}
-		rec, _ := sysDo(h, "GET", "/api/files/download/sub/inner.md")
-		if rec.Code != 200 || rec.Body.String() != "# inner\n" {
-			t.Fatalf("%s: %d %q", mode, rec.Code, rec.Body.String())
-		}
-		if cd := rec.Header().Get("Content-Disposition"); cd != `attachment; filename=inner.md` && cd != `attachment; filename="inner.md"` {
-			t.Errorf("%s: Content-Disposition = %q", mode, cd)
-		}
+	h := sysHandlerNoAuth(t, data)
+	rec, _ := sysDo(h, "GET", "/api/files/download/sub/inner.md")
+	if rec.Code != 200 || rec.Body.String() != "# inner\n" {
+		t.Fatalf("%d %q", rec.Code, rec.Body.String())
+	}
+	if cd := rec.Header().Get("Content-Disposition"); cd != `attachment; filename=inner.md` && cd != `attachment; filename="inner.md"` {
+		t.Errorf("Content-Disposition = %q", cd)
 	}
 }
 
@@ -321,13 +304,11 @@ func directFiles(t *testing.T, data, method, route, p string) *httptest.Response
 }
 
 func TestRegisterSystemRoutes(t *testing.T) {
-	for _, mode := range []string{config.FilesAPIModeHardened, config.FilesAPIModeLegacy} {
-		r := httpx.NewRouter()
-		RegisterSystem(r, Deps{Log: quietLog(), Flags: config.Flags{FilesAPIMode: mode}, DataDir: t.TempDir()})
-		got := strings.Join(r.Patterns(), "|")
-		want := "DELETE /api/files/delete/{file_path...}|GET /api/files/download/{file_path...}|GET /api/files/list|GET /api/system/stats"
-		if got != want {
-			t.Errorf("%s patterns = %s", mode, got)
-		}
+	r := httpx.NewRouter()
+	RegisterSystem(r, Deps{Log: quietLog(), Flags: config.Flags{FilesAPIMode: config.FilesAPIModeHardened}, DataDir: t.TempDir()})
+	got := strings.Join(r.Patterns(), "|")
+	want := "DELETE /api/files/delete/{file_path...}|GET /api/files/download/{file_path...}|GET /api/files/list|GET /api/system/stats"
+	if got != want {
+		t.Errorf("patterns = %s", got)
 	}
 }

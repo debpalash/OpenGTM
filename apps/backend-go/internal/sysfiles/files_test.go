@@ -96,15 +96,15 @@ func TestListSortingAndHiddenFiles(t *testing.T) {
 	time.Local = time.UTC
 	t.Cleanup(func() { time.Local = old })
 
-	names := func(legacy bool) []string {
-		l, err := New(data, legacy).List("")
+	names := func() []string {
+		l, err := New(data).List("")
 		if err != nil {
 			t.Fatal(err)
 		}
 		var out []string
 		for _, e := range l {
 			if e.Name == ".hidden" {
-				t.Errorf("hidden file listed (legacy=%v)", legacy)
+				t.Errorf("hidden file listed")
 			}
 			out = append(out, e.Name)
 		}
@@ -112,18 +112,15 @@ func TestListSortingAndHiddenFiles(t *testing.T) {
 	}
 	// Python quirk kept for parity: reverse=True on (not is_dir, modified) puts FILES first.
 	// Hardened mode hides symlinks that point outside the data dir ("escape", "escapefile").
-	got := strings.Join(names(false), ",")
+	got := strings.Join(names(), ",")
 	if want := "f.zzz,e.pdf,d.wav,c.PNG,b.mp4,a.txt,emptydir,sub"; got != want {
 		t.Fatalf("hardened order = %s, want %s", got, want)
 	}
-	if lg := names(true); len(lg) != 10 {
-		t.Errorf("legacy lists symlinks too, got %v", lg)
-	}
-	first, _ := New(data, false).List("")
+	first, _ := New(data).List("")
 	if e := first[0]; e.Modified != "2026-01-06T10:00:00" || e.Type != "other" || e.Size != 2 || e.Path != "f.zzz" {
 		t.Errorf("entry = %+v", e)
 	}
-	l, _ := New(data, false).List("")
+	l, _ := New(data).List("")
 	types := map[string]string{}
 	for _, e := range l {
 		types[e.Name] = e.Type
@@ -133,7 +130,7 @@ func TestListSortingAndHiddenFiles(t *testing.T) {
 			t.Errorf("type(%s) = %q, want %q", n, types[n], w)
 		}
 	}
-	sub, _ := New(data, false).List("sub")
+	sub, _ := New(data).List("sub")
 	if len(sub) != 2 || sub[0].Path != filepath.Join("sub", "inner.md") || sub[0].Name != "inner.md" {
 		t.Errorf("sub listing = %+v", sub)
 	}
@@ -141,15 +138,13 @@ func TestListSortingAndHiddenFiles(t *testing.T) {
 
 func TestListMissingDirIsEmpty(t *testing.T) {
 	data, _ := tree(t)
-	for _, legacy := range []bool{false, true} {
-		l, err := New(data, legacy).List("nope")
-		if err != nil || l == nil || len(l) != 0 {
-			t.Errorf("missing dir: %v %v (legacy=%v)", l, err, legacy)
-		}
-		l, err = New(filepath.Join(data, "missing-root"), legacy).List("")
-		if err != nil || l == nil || len(l) != 0 {
-			t.Errorf("missing root: %v %v", l, err)
-		}
+	l, err := New(data).List("nope")
+	if err != nil || l == nil || len(l) != 0 {
+		t.Errorf("missing dir: %v %v", l, err)
+	}
+	l, err = New(filepath.Join(data, "missing-root")).List("")
+	if err != nil || l == nil || len(l) != 0 {
+		t.Errorf("missing root: %v %v", l, err)
 	}
 }
 
@@ -160,7 +155,7 @@ func TestTraversalRejected(t *testing.T) {
 		"sub/../../data-evil/secret.txt", "escape", "escape/secret.txt", "escapefile", "a.txt\x00/../../x",
 		"sub/../a.txt", // any dot-dot segment is refused outright (symlink-safe)
 	}
-	f := New(data, false)
+	f := New(data)
 	for _, c := range cases {
 		if _, err := f.List(c); !errors.Is(err, ErrAccessDenied) {
 			t.Errorf("List(%q) err = %v, want ErrAccessDenied", c, err)
@@ -200,20 +195,16 @@ func TestTraversalRejected(t *testing.T) {
 
 func TestSiblingPrefixRootIsNotInside(t *testing.T) {
 	_, tmp := tree(t)
-	// root "<tmp>/data" must not accept "<tmp>/data-evil" even in a lexical prefix sense; legacy does.
-	f := New(filepath.Join(tmp, "data"), false)
+	// root "<tmp>/data" must not accept "<tmp>/data-evil" even in a lexical prefix sense.
+	f := New(filepath.Join(tmp, "data"))
 	if _, _, err := f.Open("../data-evil/secret.txt"); !errors.Is(err, ErrAccessDenied) {
 		t.Errorf("hardened accepted sibling prefix: %v", err)
-	}
-	lf := New(filepath.Join(tmp, "data"), true)
-	if _, _, err := lf.Open("../data-evil/secret.txt"); err != nil {
-		t.Errorf("legacy must keep the string-prefix quirk: %v", err)
 	}
 }
 
 func TestDeleteRefusesRootAndNonEmptyDir(t *testing.T) {
 	data, _ := tree(t)
-	f := New(data, false)
+	f := New(data)
 	for _, root := range []string{"", ".", "./", "sub/.."} {
 		err := f.Delete(root)
 		if !errors.Is(err, ErrRoot) && !errors.Is(err, ErrAccessDenied) {
@@ -240,23 +231,13 @@ func TestDeleteRefusesRootAndNonEmptyDir(t *testing.T) {
 	}
 }
 
-func TestLegacyDeleteIsRecursive(t *testing.T) {
-	data, _ := tree(t)
-	if err := New(data, true).Delete("sub"); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := os.Stat(filepath.Join(data, "sub")); !os.IsNotExist(err) {
-		t.Errorf("legacy rmtree did not remove sub: %v", err)
-	}
-}
-
 func TestDanglingSymlinkRejected(t *testing.T) {
 	data, tmp := tree(t)
 	target := filepath.Join(tmp, "not-yet-created")
 	if err := os.Symlink(target, filepath.Join(data, "dangling")); err != nil {
 		t.Fatal(err)
 	}
-	f := New(data, false)
+	f := New(data)
 	for _, c := range []string{"dangling", "dangling/x"} {
 		if _, _, err := f.Open(c); !errors.Is(err, ErrAccessDenied) {
 			t.Errorf("Open(%q) = %v, want ErrAccessDenied", c, err)
@@ -290,7 +271,7 @@ func TestOpenFileNoFollowAndRecheck(t *testing.T) {
 	if err := os.Symlink(filepath.Join(data, "a.txt"), filepath.Join(data, "inlink")); err != nil {
 		t.Fatal(err)
 	}
-	f := New(data, false)
+	f := New(data)
 	fh, st, err := f.OpenFile("inlink") // in-root link resolves to a.txt, then opens without following
 	if err != nil || st.Size() != 1 || filepath.Base(fh.Name()) != "a.txt" {
 		t.Fatalf("OpenFile in-root link: %v %v", err, st)
@@ -316,15 +297,12 @@ func TestListCapTruncates(t *testing.T) {
 		}
 		touch(t, p, "2026-02-0"+string(rune('1'+i))+" 10:00:00")
 	}
-	l, trunc, err := New(data, false).WithListLimit(3).ListTruncated("")
+	l, trunc, err := New(data).WithListLimit(3).ListTruncated("")
 	if err != nil || !trunc || len(l) != 3 || l[1].Name != "f4.txt" {
 		t.Fatalf("capped list: %v %v %+v", err, trunc, l)
 	}
-	if l, trunc, _ := New(data, false).ListTruncated(""); trunc || len(l) < 8 {
+	if l, trunc, _ := New(data).ListTruncated(""); trunc || len(l) < 8 {
 		t.Errorf("default cap truncated a small dir: %v %d", trunc, len(l))
-	}
-	if l, trunc, _ := New(data, true).WithListLimit(3).ListTruncated(""); trunc || len(l) < 8 {
-		t.Errorf("legacy must stay unbounded: %v %d", trunc, len(l))
 	}
 }
 

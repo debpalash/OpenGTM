@@ -28,7 +28,7 @@ func TestConfigWorkbookFlagsDefaults(t *testing.T) {
 	c, err = loadAPI(apiEnv(map[string]string{
 		"APP_ENV": "test", "PG_LEAD_STORE": "false", "AUTOMATIONS_ENABLED": "true",
 		"INTENT_POLLER_ENABLED": "1", "AUTOMATIONS_ALLOW_LEGACY_OUTREACH": "yes",
-		"DATA_DIR": "/srv/data", "FILES_API_MODE": " LEGACY ",
+		"DATA_DIR": "/srv/data", "FILES_API_MODE": " HARDENED ",
 	}))
 	if err != nil {
 		t.Fatal(err)
@@ -37,20 +37,26 @@ func TestConfigWorkbookFlagsDefaults(t *testing.T) {
 	if f.PGLeadStore || !f.AutomationsEnabled || !f.IntentPollerEnabled || !f.AutomationsAllowLegacyOutreach {
 		t.Errorf("flags not parsed: %+v", f)
 	}
-	if f.FilesAPIMode != FilesAPIModeLegacy || c.DataDir != "/srv/data" {
+	if f.FilesAPIMode != FilesAPIModeHardened || c.DataDir != "/srv/data" {
 		t.Errorf("mode/dir = %q %q", f.FilesAPIMode, c.DataDir)
 	}
 }
 
 func TestConfigFilesAPIModeValidation(t *testing.T) {
-	for _, bad := range []string{"strict", "hardened2", "off", "true"} {
+	for _, bad := range []string{"strict", "hardened2", "off", "true", "legacy", " LEGACY "} {
 		if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "FILES_API_MODE": bad})); err == nil {
 			t.Errorf("FILES_API_MODE=%q accepted", bad)
 		}
 	}
-	for _, ok := range []string{"hardened", "legacy", ""} {
+	for _, ok := range []string{"hardened", ""} {
 		if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "FILES_API_MODE": ok})); err != nil {
 			t.Errorf("FILES_API_MODE=%q rejected: %v", ok, err)
+		}
+	}
+	// S-M4: the unauthenticated legacy mode is rejected in every APP_ENV, production included.
+	for _, env := range []string{"production", "prod", "dev", "test"} {
+		if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": env, "FILES_API_MODE": "legacy"})); err == nil {
+			t.Errorf("FILES_API_MODE=legacy accepted with APP_ENV=%s", env)
 		}
 	}
 	if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "PG_LEAD_STORE": "maybe"})); err == nil {

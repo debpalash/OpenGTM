@@ -1,7 +1,6 @@
 // Package sysfiles implements the data-directory file operations and system stats behind
-// /api/files/* and /api/system/stats. Hardened mode (default) confines every operation to the
-// resolved data directory; legacy mode reproduces the Python behaviour (string-prefix check,
-// recursive delete) for contract diffing only.
+// /api/files/* and /api/system/stats. Every operation is confined to the resolved data
+// directory. The Python-parity legacy mode (string-prefix check, recursive delete) is gone (S-M4).
 package sysfiles
 
 import (
@@ -38,23 +37,22 @@ type Entry struct {
 	Type     string `json:"type"`
 }
 
-// DefaultListLimit caps hardened listings; legacy is unbounded.
+// DefaultListLimit caps listings.
 const DefaultListLimit = 5000
 
-// FS is a data directory plus the mode.
+// FS is a data directory.
 type FS struct {
 	dir       string
-	legacy    bool
 	listLimit int
 }
 
-// New returns an FS over dataDir. legacy selects the Python-parity behaviour.
-func New(dataDir string, legacy bool) *FS {
+// New returns an FS over dataDir.
+func New(dataDir string) *FS {
 	abs, err := filepath.Abs(dataDir)
 	if err != nil {
 		abs = filepath.Clean(dataDir)
 	}
-	return &FS{dir: abs, legacy: legacy, listLimit: DefaultListLimit}
+	return &FS{dir: abs, listLimit: DefaultListLimit}
 }
 
 // FileType buckets a file name like file_manager.get_file_type.
@@ -152,20 +150,6 @@ func (f *FS) hardenedPath(rel string, followLeaf bool) (root, target string, err
 	return root, target, nil
 }
 
-// legacyPath is the Python check: abspath(join(DATA_DIR, rel)).startswith(abspath(DATA_DIR)).
-func (f *FS) legacyPath(rel string) (string, error) {
-	var p string
-	if filepath.IsAbs(rel) {
-		p = filepath.Clean(rel)
-	} else {
-		p = filepath.Clean(filepath.Join(f.dir, rel))
-	}
-	if !strings.HasPrefix(p, f.dir) {
-		return "", ErrAccessDenied
-	}
-	return p, nil
-}
-
 func isoLocal(t time.Time) string {
 	t = t.Local().Round(time.Microsecond)
 	s := t.Format("2006-01-02T15:04:05")
@@ -188,14 +172,8 @@ func (f *FS) List(rel string) ([]Entry, error) {
 // ListTruncated is List plus a flag that is true when the hardened cap cut the result
 // (the newest entries within each group are kept).
 func (f *FS) ListTruncated(rel string) ([]Entry, bool, error) {
-	var root, dir string
-	var err error
-	if f.legacy {
-		root = f.dir
-		if dir, err = f.legacyPath(rel); err != nil {
-			return nil, false, err
-		}
-	} else if root, dir, err = f.hardenedPath(rel, true); err != nil {
+	root, dir, err := f.hardenedPath(rel, true)
+	if err != nil {
 		return nil, false, err
 	}
 	st, err := os.Stat(dir)
@@ -218,7 +196,7 @@ func (f *FS) ListTruncated(rel string) ([]Entry, bool, error) {
 			continue
 		}
 		full := filepath.Join(dir, de.Name())
-		if !f.legacy && de.Type()&fs.ModeSymlink != 0 {
+		if de.Type()&fs.ModeSymlink != 0 {
 			real, err := filepath.EvalSymlinks(full)
 			if err != nil || !inside(root, real) {
 				continue // dangling or escaping links are not listed
@@ -226,9 +204,6 @@ func (f *FS) ListTruncated(rel string) ([]Entry, bool, error) {
 		}
 		info, err := os.Stat(full) // follows symlinks, like DirEntry.stat()
 		if err != nil {
-			if f.legacy {
-				return nil, false, err
-			}
 			continue
 		}
 		e := Entry{Name: de.Name(), IsDir: info.IsDir(), Modified: isoLocal(info.ModTime())}
@@ -248,7 +223,7 @@ func (f *FS) ListTruncated(rel string) ([]Entry, bool, error) {
 		}
 		return out[i].Modified > out[j].Modified
 	})
-	if !f.legacy && f.listLimit > 0 && len(out) > f.listLimit {
+	if f.listLimit > 0 && len(out) > f.listLimit {
 		return out[:f.listLimit], true, nil
 	}
 	return out, false, nil
@@ -256,13 +231,7 @@ func (f *FS) ListTruncated(rel string) ([]Entry, bool, error) {
 
 // Open resolves rel to a regular file for download.
 func (f *FS) Open(rel string) (string, os.FileInfo, error) {
-	var p string
-	var err error
-	if f.legacy {
-		p, err = f.legacyPath(rel)
-	} else {
-		_, p, err = f.hardenedPath(rel, true)
-	}
+	_, p, err := f.hardenedPath(rel, true)
 	if err != nil {
 		return "", nil, err
 	}
@@ -279,7 +248,7 @@ func (f *FS) Open(rel string) (string, os.FileInfo, error) {
 	return p, st, nil
 }
 
-// OpenFile opens rel for reading. Hardened mode opens with O_NOFOLLOW (the resolved path has
+// OpenFile opens rel for reading. It opens with O_NOFOLLOW (the resolved path has
 // no symlinks left, so a link at the leaf means a swap) and re-checks, through /proc/self/fd,
 // that the opened file still lives inside the data dir.
 func (f *FS) OpenFile(rel string) (*os.File, os.FileInfo, error) {
@@ -287,11 +256,7 @@ func (f *FS) OpenFile(rel string) (*os.File, os.FileInfo, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	flags := os.O_RDONLY
-	if !f.legacy {
-		flags |= syscall.O_NOFOLLOW
-	}
-	fh, err := os.OpenFile(p, flags, 0)
+	fh, err := os.OpenFile(p, os.O_RDONLY|syscall.O_NOFOLLOW, 0)
 	if err != nil {
 		if errors.Is(err, syscall.ELOOP) {
 			return nil, nil, ErrAccessDenied
@@ -305,7 +270,7 @@ func (f *FS) OpenFile(rel string) (*os.File, os.FileInfo, error) {
 	if err == nil && !st.Mode().IsRegular() {
 		err = ErrNotFound
 	}
-	if err == nil && !f.legacy {
+	if err == nil {
 		if root, rerr := evalPartial(f.dir); rerr != nil {
 			err = rerr
 		} else if real, rerr := os.Readlink("/proc/self/fd/" + fmt.Sprint(fh.Fd())); rerr == nil && !inside(root, real) {
@@ -319,23 +284,8 @@ func (f *FS) OpenFile(rel string) (*os.File, os.FileInfo, error) {
 	return fh, st, nil
 }
 
-// Delete removes a file, symlink (the link only) or empty directory. Legacy mode removes
-// directories recursively like shutil.rmtree.
+// Delete removes a file, symlink (the link only) or empty directory; never recursive.
 func (f *FS) Delete(rel string) error {
-	if f.legacy {
-		p, err := f.legacyPath(rel)
-		if err != nil {
-			return err
-		}
-		st, err := os.Stat(p)
-		if err != nil {
-			return ErrNotFound
-		}
-		if st.IsDir() {
-			return os.RemoveAll(p)
-		}
-		return os.Remove(p)
-	}
 	root, p, err := f.hardenedPath(rel, false)
 	if err != nil {
 		return err
@@ -373,12 +323,12 @@ type Stat struct {
 	DiskFree    uint64 `json:"disk_free"`
 	ProjectSize int64  `json:"project_size"`
 	DBSize      int64  `json:"db_size"`
-	// ProjectSizePartial is set (hardened mode only, key otherwise absent) when the walk hit the
+	// ProjectSizePartial is set  when the walk hit the
 	// entry or time cap, so project_size is a lower bound.
 	ProjectSizePartial bool `json:"project_size_partial,omitempty"`
 }
 
-// StatsLimits bounds the project-size walk. Zero values mean unbounded (legacy parity).
+// StatsLimits bounds the project-size walk. Zero values mean unbounded.
 type StatsLimits struct {
 	MaxEntries int
 	MaxTime    time.Duration

@@ -103,11 +103,11 @@ func TestAPIDefaults(t *testing.T) {
 		t.Fatal(err)
 	}
 	if c.Addr != ":8000" || c.AccessTTL != 30*time.Minute || c.RefreshTTL != 20160*time.Minute ||
-		c.CORSOrigins != "*" || c.MCPTokenTTLDays != 90 || c.TrustProxy || c.Algorithm != "HS256" {
+		c.CORSOrigins != "*" || c.MCPTokenTTLDays != 90 || c.Algorithm != "HS256" {
 		t.Fatalf("defaults: %+v", c)
 	}
-	c, _ = loadAPI(apiEnv(map[string]string{"APP_ENV": "dev", "TRUST_PROXY": "true", "API_ADDR": ":9", "ACCESS_TOKEN_EXPIRE_MINUTES": "5"}))
-	if !c.TrustProxy || c.Addr != ":9" || c.AccessTTL != 5*time.Minute {
+	c, _ = loadAPI(apiEnv(map[string]string{"APP_ENV": "dev", "API_ADDR": ":9", "ACCESS_TOKEN_EXPIRE_MINUTES": "5"}))
+	if c.Addr != ":9" || c.AccessTTL != 5*time.Minute {
 		t.Fatalf("overrides: %+v", c)
 	}
 	if _, err := loadAPI(env(nil)); err == nil {
