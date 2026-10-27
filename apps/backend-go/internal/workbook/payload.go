@@ -49,6 +49,9 @@ func IsRefused(err error) bool { return errors.Is(err, ErrRefused) || errors.Is(
 
 func refuse(format string, a ...any) error { return &RefusalError{Reason: fmt.Sprintf(format, a...)} }
 
+// NewRefusal is a deterministic refusal for collaborators (Deps.PlanGoBlock): the run fails permanently with reason.
+func NewRefusal(reason string) error { return &RefusalError{Reason: reason} }
+
 // refusalReason classifies err as a deterministic refusal.
 func refusalReason(err error) (string, bool) {
 	var re *RefusalError

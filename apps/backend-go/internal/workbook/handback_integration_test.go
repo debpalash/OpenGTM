@@ -158,11 +158,18 @@ func TestMissingGoBlockIsPlannedAtClaim(t *testing.T) {
 	if len(asked) != 1 || asked[0] != wsA+"/wb-plan" {
 		t.Fatalf("planner asked %v", asked)
 	}
-	// A planner failure is a permanent refusal before any work.
+	// A planner refusal is permanent; any other planner error is transient (retried). Neither does work.
 	e.seed(wsA, "wb-plan2", "["+colJSON("c1", "free1")+"]", 1, 0)
-	d.PlanGoBlock = func(context.Context, string, string) (json.RawMessage, error) { return nil, errors.New("no index") }
 	raw2 := mutate(payloadFor(wsA, "wb-plan2", map[string]float64{"free1": 0}, nil), func(p map[string]any) { delete(p, "go") })
+	d.PlanGoBlock = func(context.Context, string, string) (json.RawMessage, error) { return nil, workbook.NewRefusal("workbook gone") }
 	if _, err := workbook.Run(e.ctx, d, e.claim(wsA, raw2)); !workbook.IsRefused(err) || !queue.IsPermanent(err) {
-		t.Fatalf("planner failure: %v", err)
+		t.Fatalf("planner refusal: %v", err)
+	}
+	d.PlanGoBlock = func(context.Context, string, string) (json.RawMessage, error) { return nil, errors.New("db down") }
+	if _, err := workbook.Run(e.ctx, d, e.claim(wsA, raw2)); err == nil || workbook.IsRefused(err) || queue.IsPermanent(err) {
+		t.Fatalf("transient planner error: %v", err)
+	}
+	if s.count("free1") != 1 {
+		t.Fatal("a failed plan did work")
 	}
 }

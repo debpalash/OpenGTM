@@ -3,6 +3,7 @@ package workbook
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
@@ -11,8 +12,9 @@ import (
 // planMissingGoBlock returns the claim's payload, with a "go" block planned through deps.PlanGoBlock when the
 // payload has none. Since the plan 15 cutover the Go worker runs every run_workbook job, including the ones whose
 // enqueuer does not plan (refresh, source workbooks, the recompute fallback) and Python-era rows reassigned to Go.
-// A payload that is not a JSON object, or that names no workbook, is left to parsePayload. A planner failure is a
-// refusal (permanent): the workbook's columns cannot be planned now and will not plan on a retry either.
+// A payload that is not a JSON object, or that names no workbook, is left to parsePayload. A planner refusal
+// (NewRefusal: the workbook is gone or its columns cannot be planned) is permanent; any other planner error is
+// transient and retried.
 func planMissingGoBlock(ctx context.Context, deps Deps, c *queue.Claim) ([]byte, error) {
 	var p map[string]json.RawMessage
 	if err := json.Unmarshal(c.Payload, &p); err != nil || p == nil {
@@ -33,7 +35,10 @@ func planMissingGoBlock(ctx context.Context, deps Deps, c *queue.Claim) ([]byte,
 		if ctx.Err() != nil {
 			return nil, ctx.Err()
 		}
-		return nil, refuse("plan_failed: %v", err)
+		if errors.Is(err, ErrRefused) {
+			return nil, err
+		}
+		return nil, fmt.Errorf("workbook: plan the go block: %w", err)
 	}
 	p["go"] = block
 	out, err := json.Marshal(p)
