@@ -370,7 +370,10 @@ func Webhook(ctx context.Context, d WebhookDeps, ws string, cfg map[string]any, 
 			}
 		}
 	}
-	if ref, _ := cfg["header_secret_ref"].(string); ref != "" && d.Secrets != nil {
+	if ref, _ := cfg["header_secret_ref"].(string); ref != "" {
+		if d.Secrets == nil {
+			return failed(secrets.OutboundRefMessage)
+		}
 		val, src, err := d.Secrets.Get(ctx, ws, ref)
 		if err != nil {
 			return failed("webhook secret lookup failed")
@@ -380,15 +383,16 @@ func Webhook(ctx context.Context, d WebhookDeps, ws string, cfg map[string]any, 
 			// would let an unauthenticated receiver accept the call.
 			return failed("webhook secret unavailable on this worker (requires CREDENTIALS_SOURCE=local)")
 		}
-		if val != "" && src == secrets.SourceWorkspace { // own workspace only, never global/env
-			redact = append(redact, val)
-			name := "Authorization"
-			if n := cfg["header_name"]; truthy(n) {
-				name = str(n)
-			}
-			if _, set := hdr[http.CanonicalHeaderKey(name)]; !set && !strings.EqualFold(name, "host") {
-				hdr.Set(name, val)
-			}
+		if val == "" || src != secrets.SourceWorkspace { // own workspace only, never global/env; missing fails closed (R2)
+			return failed(secrets.OutboundRefMessage)
+		}
+		redact = append(redact, val)
+		name := "Authorization"
+		if n := cfg["header_name"]; truthy(n) {
+			name = str(n)
+		}
+		if _, set := hdr[http.CanonicalHeaderKey(name)]; !set && !strings.EqualFold(name, "host") {
+			hdr.Set(name, val)
 		}
 	}
 

@@ -243,7 +243,9 @@ func trColumns(in []map[string]any) []Column {
 var transcriptDeviation = map[string]bool{
 	// S-L1: the Go sender refuses a templated authority (Python resolved it, then blocked the IP).
 	"blocked_templated_to_loopback": true,
-	"allowlist_subdomain_ok":        true, // bare allowlist entry is exact-host only (TestAllowlistEnforced)
+	// R2: a ref that is missing at delivery fails closed instead of sending without the header.
+	"secret_ref_unknown_not_injected": true,
+	"allowlist_subdomain_ok":          true, // bare allowlist entry is exact-host only (TestAllowlistEnforced)
 }
 
 func TestWebhookTranscripts(t *testing.T) {
@@ -424,6 +426,8 @@ type vec struct {
 var vectorDeviation = map[string]bool{
 	// S-L1: a templated scheme/host fails closed before resolution (see TestTemplatedURLHostLiteral).
 	"templated_url_resolves_to_loopback_blocked": true,
+	"secret_not_found_not_injected":              true, // R2: missing ref fails closed
+	"secret_empty_not_injected":                  true, // R2
 	"templated_scheme_blocked":                   true,
 	"url_cgnat":                                  true, "url_localhost_subdomain": true, "url_loopback_short": true,
 	"allowlist_hit_subdomain": true,                                // bare entry is exact-host only
@@ -744,16 +748,16 @@ func TestHeaderSecretOnlyFromOwnWorkspace(t *testing.T) {
 	if got := h.run(cfg); got.Status != "success" || h.last().Header.Get("Authorization") != "ctk_transcript_hook_0001" {
 		t.Fatalf("own ws: %+v auth=%q", got, h.last().Header.Get("Authorization"))
 	}
-	// ws-3 has no such secret: nothing injected (never ws-1's, never global).
-	_ = Webhook(context.Background(), h.deps, "ws-3", cfg, testLead, testCols)
-	if a := h.last().Header.Get("Authorization"); a != "" {
-		t.Fatalf("injected foreign secret %q", a)
+	// ws-3 has no such secret: the action fails closed and nothing is sent (never ws-1's, never global).
+	before := h.hits.Load()
+	if got := Webhook(context.Background(), h.deps, "ws-3", cfg, testLead, testCols); got.Status != "failed" || h.hits.Load() != before {
+		t.Fatalf("foreign ws: %+v hits %d->%d", got, before, h.hits.Load())
 	}
-	// Global / env fallback is refused (hardening): only workspace secrets inject.
+	// Global / env fallback is refused (hardening): only workspace secrets inject, a global-only ref fails closed.
 	for _, ref := range []string{"GLOBAL_KEY", "DATABASE_URL"} {
-		_ = h.run(map[string]any{"url": "https://hooks.example.com/x", "header_secret_ref": ref})
-		if a := h.last().Header.Get("Authorization"); a != "" {
-			t.Fatalf("global secret %s injected", ref)
+		before = h.hits.Load()
+		if got := h.run(map[string]any{"url": "https://hooks.example.com/x", "header_secret_ref": ref}); got.Status != "failed" || h.hits.Load() != before {
+			t.Fatalf("global secret %s: %+v", ref, got)
 		}
 	}
 	// custom header name + explicit header wins (case-insensitive setdefault).

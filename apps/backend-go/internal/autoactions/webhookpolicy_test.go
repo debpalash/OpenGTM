@@ -56,3 +56,22 @@ func TestWebhookTemplatedURLHostLiteral(t *testing.T) {
 		t.Fatalf("request uri %q", seen)
 	}
 }
+
+// R2: a ref that is allowed but missing (or empty) at delivery sends nothing and fails with the shared text.
+func TestWebhookDeliveryMissingRefFailsClosed(t *testing.T) {
+	for _, byWS := range []map[string]map[string]string{nil, {"ws-1": {"WEBHOOK_GONE": ""}}, {"ws-2": {"WEBHOOK_GONE": "other"}}} {
+		h := newHarness(t, nil)
+		h.deps.Outbound = secrets.OutboundPolicy{}
+		h.sec.byWS = byWS
+		got := h.run(map[string]any{"url": "https://hooks.example.com/x", "header_secret_ref": "WEBHOOK_GONE"})
+		if got.Status != "failed" || got.Error != secrets.OutboundRefMessage || h.hits.Load() != 0 || len(h.dials) != 0 {
+			t.Errorf("%v: %+v", byWS, got)
+		}
+	}
+	h := newHarness(t, nil)
+	h.deps.Outbound = secrets.OutboundPolicy{}
+	h.deps.Secrets = nil
+	if got := h.run(map[string]any{"url": "https://hooks.example.com/x", "header_secret_ref": "WEBHOOK_X"}); got.Status != "failed" || h.hits.Load() != 0 {
+		t.Errorf("nil getter: %+v", got)
+	}
+}
