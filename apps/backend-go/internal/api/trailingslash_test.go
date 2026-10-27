@@ -104,7 +104,9 @@ func TestTrailingSlashMatchesRecordedFastAPI(t *testing.T) {
 	r := httpx.NewRouter()
 	d, restore := capDeps(t, true)
 	defer restore()
-	d.Getenv = func(k string) string { return map[string]string{"GO_CAPABILITY_ROUTES_ENABLED": "true", "GO_TRAILING_SLASH_COMPAT": "true"}[k] }
+	d.Getenv = func(k string) string {
+		return map[string]string{"GO_CAPABILITY_ROUTES_ENABLED": "true", "GO_TRAILING_SLASH_COMPAT": "true"}[k]
+	}
 	RegisterCapabilityRoutes(r, d)
 	registerEnrich(r, enrichDepsWithPool(t))
 	ported := map[string]bool{}
