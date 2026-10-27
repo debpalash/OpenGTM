@@ -201,7 +201,9 @@ async def test_plain_http_chains_through_upstream_in_origin_form():
         s = proxy.open_session(1 << 20, upstream=parse_upstream(f"http://127.0.0.1:{up.port}"))
         out = await _send(
             proxy,
-            f"GET http://site.test/x?y=1 HTTP/1.1\r\nHost: site.test\r\nProxy-Authorization: {_auth(s)}\r\n\r\n".encode(),
+            (
+                f"GET http://site.test/x?y=1 HTTP/1.1\r\nHost: site.test\r\nProxy-Authorization: {_auth(s)}\r\n\r\n"
+            ).encode(),
         )
         assert out.endswith(b"pong")
         assert up.target == "CONNECT 127.0.0.7:80 HTTP/1.1" and up.auth is None
