@@ -364,6 +364,21 @@ func TestApplyRejectsNewCycles(t *testing.T) {
 	}
 }
 
+// F4 (final wave): the cycle check must use the exact column-identity rule of Apply (id or key by
+// Python truthiness). An existing column {"id":false,"key":"b"} is identified as "b" by Apply, so the
+// chain column {"id":"b"} is a duplicate and nothing is written: a self-referencing chain column
+// must therefore not be reported as a new cycle.
+func TestApplyCycleCheckUsesApplyIdentity(t *testing.T) {
+	e := newFnEnv(t)
+	h := e.user(t, "t15-ws10b", "t15-u10b", "editor", false)
+	e.workbookIn(t, "t15-ws10b", "t15-wb4b", `[{"id":false,"key":"b","name":"B"}]`)
+	e.fn(t, "t15-f3b", "t15 f3b", "t15-f", 0, `[{"id":"b","type":"ai_formula","prompt":"{B}","input_columns":["b"],"name":"B"}]`)
+	code, out := e.call("POST", "/api/functions/t15-f3b/apply", `{"workbook_id":"t15-wb4b"}`, h)
+	if code != 200 || out["columns_added"] != float64(0) {
+		t.Fatalf("duplicate by Apply identity must be a no-op, got %d %v", code, out)
+	}
+}
+
 func TestApplyOtherWorkspaceWorkbook404(t *testing.T) {
 	e := newFnEnv(t)
 	h := e.user(t, "t15-ws11", "t15-u11", "editor", false)
