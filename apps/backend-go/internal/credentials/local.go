@@ -11,11 +11,22 @@ import (
 )
 
 // ErrUnknownCredential means the env var is not named by any manifest
-// auth.env_var, so it is never served (the HTTP endpoint answers 404).
+// auth.env_var, so it is never served.
 var ErrUnknownCredential = errors.New("credentials: unknown credential")
 
+// TTL is how long a non-empty credential stays cached.
+const TTL = 60 * time.Second
+
+type cacheKey struct{ workspaceID, envVar string }
+
+type cacheEntry struct {
+	value   string
+	expires time.Time
+}
+
 // Local resolves credentials in-process (workspace secret -> settings DB ->
-// environment) with the same semantics as Client. Safe for concurrent use.
+// environment). It is the only credentials source since the plan 15 cutover
+// (the Python internal endpoint is gone). Safe for concurrent use.
 type Local struct {
 	r     *secrets.Resolver
 	allow func(envVar string) bool

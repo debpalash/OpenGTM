@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"net/http"
-	"net/http/httptest"
 	"strings"
 	"sync"
 	"testing"
@@ -77,22 +75,20 @@ func newLocalTest(t *testing.T, st *memStore, env map[string]string, allow func(
 	return NewLocal(r, allow, clk.Now), clk
 }
 
-// pythonFake mimics the Python internal endpoint over a mutable value map and
-// the manifest allow-list.
-func pythonFake(t *testing.T, values map[string]string, allow map[string]bool) *httptest.Server {
-	t.Helper()
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		env := strings.TrimPrefix(r.URL.Path, "/internal/v1/credentials/")
-		if !allow[env] {
-			w.WriteHeader(404)
-			return
-		}
-		_ = json.NewEncoder(w).Encode(map[string]string{"value": values[r.Header.Get("X-Workspace-Id")+"/"+env]})
-	}))
+type fakeClock struct {
+	mu sync.Mutex
+	t  time.Time
 }
 
-// TestLocalMatchesHTTPClientSemantics runs one table against both sources.
-func TestLocalMatchesHTTPClientSemantics(t *testing.T) {
+func (f *fakeClock) Now() time.Time { f.mu.Lock(); defer f.mu.Unlock(); return f.t }
+func (f *fakeClock) Add(d time.Duration) {
+	f.mu.Lock()
+	f.t = f.t.Add(d)
+	f.mu.Unlock()
+}
+
+// TestLocalSemantics is the table the former HTTP client shared with Local (the HTTP source is gone).
+func TestLocalSemantics(t *testing.T) {
 	type impl struct {
 		name string
 		get  func(ws, env string) (string, error)
@@ -100,23 +96,6 @@ func TestLocalMatchesHTTPClientSemantics(t *testing.T) {
 		adv  func(d time.Duration)
 	}
 	mk := map[string]func(t *testing.T) impl{
-		"http": func(t *testing.T) impl {
-			values := map[string]string{}
-			srv := pythonFake(t, values, map[string]bool{"OK_KEY": true})
-			t.Cleanup(srv.Close)
-			c := New(srv.URL, tok, nil)
-			clk := &fakeClock{t: time.Unix(1_700_000_000, 0)}
-			c.now = clk.Now
-			var mu sync.Mutex
-			return impl{"http",
-				func(ws, env string) (string, error) {
-					mu.Lock()
-					defer mu.Unlock()
-					return c.Get(context.Background(), ws, env)
-				},
-				func(ws, env, v string) { mu.Lock(); values[ws+"/"+env] = v; mu.Unlock() },
-				clk.Add}
-		},
 		"local": func(t *testing.T) impl {
 			st := newMem()
 			l, clk := newLocalTest(t, st, nil, allowOnly("OK_KEY"))

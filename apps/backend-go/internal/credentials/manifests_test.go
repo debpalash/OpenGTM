@@ -15,14 +15,14 @@ import (
 func TestLocalManifestsServeTheIndex(t *testing.T) {
 	idx := ConnectorIndex(func(string) (string, bool) { return "", false }, nil) // built-ins, policy optional
 	entries := idx()
-	e, ok := entries["leadmagic"]
+	e, ok := entries["leadmagic_email"]
 	if !ok || e.SHA256 == "" {
-		t.Fatalf("built-in index lacks leadmagic: %d entries", len(entries))
+		t.Fatalf("built-in index lacks leadmagic_email: %d entries", len(entries))
 	}
 	render := func(m manifest.Manifest) ([]byte, error) { return json.Marshal(map[string]string{"name": m.Name}) }
 	src := NewLocalManifests(idx, render)
-	raw, sha, err := src.Manifest(context.Background(), "leadmagic")
-	if err != nil || sha != e.SHA256 || string(raw) != `{"name":"leadmagic"}` {
+	raw, sha, err := src.Manifest(context.Background(), "leadmagic_email")
+	if err != nil || sha != e.SHA256 || string(raw) != `{"name":"leadmagic_email"}` {
 		t.Fatalf("got %s %s %v", raw, sha, err)
 	}
 	if _, _, err := src.Manifest(context.Background(), "no-such-provider"); !errors.Is(err, ErrManifestNotFound) {
