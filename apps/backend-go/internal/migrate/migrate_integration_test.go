@@ -508,4 +508,8 @@ func TestCutoverMigration(t *testing.T) {
 	if err := migrate.CheckSchema(context.Background(), p, config.RequiredGoSchemaVersion); err != nil {
 		t.Fatalf("CheckSchema at the required version: %v", err)
 	}
+	// Migration 4: a job inserted without an explicit executor is a Go job.
+	if d := scalar[string](t, p, `SELECT column_default FROM information_schema.columns WHERE table_name='jobs' AND column_name='executor'`); d != "'go'::text" {
+		t.Fatalf("jobs.executor default %q", d)
+	}
 }
