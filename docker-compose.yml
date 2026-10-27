@@ -5,7 +5,7 @@
 #
 # PREREQUISITE: the Python backend lives in ./legacy/python, which is its own git
 # repo and is gitignored here. It must be cloned into ./legacy/python before the
-# Python images (migrate, api, seed [demo profile], worker, scheduler) can build;
+# Python images (api, seed [demo profile], worker, scheduler) can build;
 # the root Dockerfile stops with an explicit message otherwise. The Go images build
 # from ./apps/backend-go and need nothing else. See docs/go-port/runbooks/docker-compose.md.
 #
@@ -43,25 +43,28 @@ services:
 
   # ── Schema migration (single owner; must finish before app startup) ──
   migrate:
-    # Every first-party service deliberately shares one immutable application
-    # image. This prevents an old one-shot migrator from lagging behind a newly
-    # rebuilt API/worker image during an upgrade.
-    image: ${YUPCHA_IMAGE:-lead-data-app:local}
+    # One-shot schema owner: the Go runner (internal/migrate, goose) from the api-go image.
+    # Empty database -> baseline; Alembic database at e7b2c4d6f8a0 -> adopted; any other
+    # Alembic revision -> refused (upgrade it with legacy/python first). It keeps
+    # alembic_version at e7b2c4d6f8a0 so the Python services still pass their head check,
+    # and provisions the runtime login like the old Python job. Concurrent runs are safe
+    # (advisory lock). See docs/go-port/runbooks/migrations.md.
     build:
-      context: .
+      context: ./apps/backend-go
       dockerfile: Dockerfile
-    env_file:
-      - path: .env
-        required: false
+      target: api
+      additional_contexts:
+        web: ./apps/web
+    image: opengtm-api-go:local
+    entrypoint: ["/opengtm-migrate"]
+    command: ["up"]
     environment:
-      - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
-      - PYTHONPATH=/app
-      - YUPCHA_DB_INIT=alembic
+      # Owner credentials (DDL, CREATE ROLE). A SQLAlchemy postgresql+psycopg:// URL is accepted.
+      - DATABASE_URL=${DATABASE_URL:-postgresql://yupcha:yupcha@postgres:5432/yupcha}
       - YUPCHA_APP_DB_ROLE=${YUPCHA_APP_DB_ROLE:-yupcha_app}
       - YUPCHA_PROVISION_RUNTIME_ROLE=1
       - YUPCHA_RUNTIME_DB_USER=${YUPCHA_RUNTIME_DB_USER:-yupcha_runtime}
       - YUPCHA_RUNTIME_DB_PASSWORD=${YUPCHA_RUNTIME_DB_PASSWORD:-yupcha_runtime}
-    command: python -m apps.api.scripts.migrate
     depends_on:
       postgres:
         condition: service_healthy
@@ -319,7 +322,7 @@ services:
   # nginx sends it traffic only when the canary percentage in
   # infra/nginx/go-split.conf is raised (shipped at 0% = all Python), so starting
   # it is harmless. It shares SECRET_KEY/DATABASE with the Python API and refuses
-  # to start unless the schema is at the expected Alembic head (hence `migrate`).
+  # to start unless goose_db_version is at config.RequiredGoSchemaVersion (hence `migrate`).
   # Every GO_* route/executor flag defaults OFF here: raise them per runbook.
   api-go:
     build:

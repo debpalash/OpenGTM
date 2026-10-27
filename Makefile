@@ -1,6 +1,7 @@
 # OpenGTM build. `make build` produces one self-contained Go API (UI embedded) in ./bin.
 #
-#   make build   clean, build the web UI, build bin/opengtm-{api,worker,mcp} + bin/suppressnorm
+#   make build   clean, build the web UI, build bin/opengtm-{api,worker,mcp,migrate} + bin/suppressnorm
+#   make migrate build bin/opengtm-migrate and apply pending schema migrations (DATABASE_URL = owner)
 #   make run     build, then start api + worker in the background (pids/logs in .run/)
 #   make dev     vite dev server for apps/web (pid in .run/web.pid; proxies to VITE_API_TARGET)
 #   make kill    stop what run/dev started (pid file, verified against /proc; never by port or name)
@@ -17,7 +18,7 @@ BIN     := $(CURDIR)/bin
 RUN     := $(CURDIR)/.run
 GOFLAGS_BUILD := -trimpath -ldflags="-s -w"
 
-.PHONY: build web clean run dev kill up down test
+.PHONY: build web clean run dev kill up down test migrate migrate-bin
 
 build: clean web
 	rm -rf $(UI_DIST) && mkdir -p $(UI_DIST) $(BIN)
@@ -26,7 +27,17 @@ build: clean web
 	cd $(GO_DIR) && go build $(GOFLAGS_BUILD) -o $(BIN)/opengtm-worker ./cmd/worker
 	cd $(GO_DIR) && go build $(GOFLAGS_BUILD) -o $(BIN)/opengtm-mcp ./cmd/mcp
 	cd $(GO_DIR) && go build $(GOFLAGS_BUILD) -o $(BIN)/suppressnorm ./cmd/suppressnorm
-	@echo "built $(BIN)/{opengtm-api,opengtm-worker,opengtm-mcp,suppressnorm}"
+	@$(MAKE) --no-print-directory migrate-bin
+	@echo "built $(BIN)/{opengtm-api,opengtm-worker,opengtm-mcp,opengtm-migrate,suppressnorm}"
+
+# Schema migrations (internal/migrate, goose): safe to run concurrently; see docs/go-port/runbooks/migrations.md.
+migrate-bin:
+	@mkdir -p $(BIN)
+	cd $(GO_DIR) && go build $(GOFLAGS_BUILD) -o $(BIN)/opengtm-migrate ./cmd/migrate
+
+migrate: migrate-bin
+	@test -n "$$DATABASE_URL" || { echo "DATABASE_URL (owner credentials) is required" >&2; exit 1; }
+	$(BIN)/opengtm-migrate up
 
 web:
 	cd $(WEB_DIR) && bun install --frozen-lockfile && bun run build

@@ -5,6 +5,8 @@
 #   docker build --target worker -t opengtm-worker-go:local apps/backend-go
 #   docker build --target mcp    -t opengtm-mcp-go:local    apps/backend-go
 #
+# The api image also carries /opengtm-migrate (schema migrations; compose `migrate` service).
+#
 # The api image embeds the web UI: the `web` named build context (compose: additional_contexts,
 # ./apps/web) is built with Bun and baked in via the `webui` build tag. worker/mcp need no `web`.
 #
@@ -21,7 +23,8 @@ ENV CGO_ENABLED=0 GOFLAGS=-trimpath
 RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
     go build -ldflags="-s -w" -o /out/worker ./cmd/worker \
  && go build -ldflags="-s -w" -o /out/suppressnorm ./cmd/suppressnorm \
- && go build -ldflags="-s -w" -o /out/opengtm-mcp ./cmd/mcp
+ && go build -ldflags="-s -w" -o /out/opengtm-mcp ./cmd/mcp \
+ && go build -ldflags="-s -w" -o /out/opengtm-migrate ./cmd/migrate
 
 # Stage: build apps/web (the `web` named context) into static files.
 FROM oven/bun:1 AS web-build
@@ -41,6 +44,8 @@ RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache
 
 FROM gcr.io/distroless/static-debian12:nonroot AS api
 COPY --from=build-api /out/api /api
+# One-shot schema migrations: `docker compose run --rm migrate` (entrypoint /opengtm-migrate).
+COPY --from=build /out/opengtm-migrate /opengtm-migrate
 USER nonroot:nonroot
 ENV API_ADDR=:8000
 EXPOSE 8000
