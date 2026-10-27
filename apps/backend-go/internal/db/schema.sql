@@ -831,7 +831,7 @@ CREATE TABLE public.jobs (
     locked_at timestamp without time zone,
     fire_key character varying,
     workspace_id character varying,
-    executor text DEFAULT 'python'::text NOT NULL,
+    executor text DEFAULT 'go'::text NOT NULL,
     lease_token bigint DEFAULT '0'::bigint NOT NULL,
     CONSTRAINT ck_jobs_executor CHECK ((executor = ANY (ARRAY['python'::text, 'go'::text])))
 );
