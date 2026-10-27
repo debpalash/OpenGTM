@@ -19,7 +19,10 @@ const errReconcilePayload = "playbook failure payload requires workspace_id and 
 // research_playbook_run: a retry puts the run and its running results back to
 // pending; a final failure fails the run and its pending/running results and
 // recomputes the counts. A run that is gone, of another workspace, completed,
-// completed_with_errors or cancelled is left alone.
+// completed_with_errors or cancelled is left alone, and so is a final failure
+// of a run that is already failed (F18: no re-processing of the first error,
+// finished_at and counts). A retry of a failed run still puts it back to
+// pending so the retried job can run it.
 func ReconcileFailure(ctx context.Context, d Deps, jobID int64, payload []byte, errMsg string, willRetry bool) error {
 	_ = jobID
 	var p map[string]any
@@ -49,6 +52,10 @@ func ReconcileFailure(ctx context.Context, d Deps, jobID int64, payload []byte, 
 		switch row.Status {
 		case "completed", "completed_with_errors", "cancelled":
 			return nil
+		case "failed":
+			if !willRetry {
+				return nil
+			}
 		}
 		if willRetry {
 			text := "Queue retry scheduled: " + msg
