@@ -14,11 +14,15 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ambitionimport"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/chathistory"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/chatmemory"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/copilot"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/copilotauth"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
@@ -51,6 +55,15 @@ type chatHandler struct {
 	toolTimeout time.Duration
 	// configure, when set, adjusts each Turn before it is used (tests).
 	configure func(*copilot.Turn)
+
+	// GO_COPILOT_NATIVE: the in-process engine replaces the worker's llm/preroute/describe/system-prompt RPCs
+	// and runs the tools ported to Go. llmHTTP is the egress-guarded operator client (public provider hosts
+	// pass the guard; private operator base URLs only when listed in EGRESS_ALLOW_HOSTS; a workspace-supplied
+	// base URL never widens it).
+	native  bool
+	llmHTTP *http.Client
+	llmCfg  config.LLMSettings
+	ab      copilot.AmbitionClient
 }
 
 func newChatHandler(d Deps) *chatHandler {
@@ -83,7 +96,46 @@ func newChatHandler(d Deps) *chatHandler {
 	if d.Registry != nil && d.Envelope != nil && d.Pool != nil {
 		h.settings = &settings.App{Store: secrets.NewPgStore(d.Pool), Env: d.Envelope, Secret: d.Registry.SecretSet(), Getenv: d.getenv()}
 	}
+	h.enableNative()
 	return h
+}
+
+// enableNative turns the in-process engine on when GO_COPILOT_NATIVE is set and its dependencies exist; any
+// problem keeps the Python worker path (logged).
+func (h *chatHandler) enableNative() {
+	on, err := config.CopilotNativeFrom(h.d.getenv())
+	switch {
+	case err != nil:
+		h.log.Error("copilot: GO_COPILOT_NATIVE is not a boolean; the Python worker path stays on")
+		return
+	case !on:
+		return
+	case h.settings == nil || h.d.Registry == nil:
+		h.log.Error("copilot: GO_COPILOT_NATIVE needs the settings registry and envelope; the Python worker path stays on")
+		return
+	}
+	cfg, err := config.LLMFrom(h.d.getenv())
+	if err != nil {
+		h.log.Error("copilot: invalid LLM settings; the Python worker path stays on", "reason", err.Error())
+		return
+	}
+	h.native, h.llmCfg = true, cfg
+	h.llmHTTP = egress.NewOperatorClient(h.d.EgressAllowHosts)
+	h.ab = newAmbitionBoxClient(h.d)
+}
+
+// engine builds the per-turn engine: an LLM client accounting usage to the workspace, global settings as
+// Python's chat read them (app settings, then the environment).
+func (h *chatHandler) engine(ws string) *copilot.Engine {
+	getenv := h.d.getenv()
+	cl := llm.New(llm.Options{Settings: h.settings, HTTP: h.llmHTTP, Usage: &llm.PgUsage{Pool: h.d.Pool}, WorkspaceID: ws,
+		Config: h.llmCfg, Registry: h.d.Registry, Log: h.log})
+	return &copilot.Engine{
+		LLM: cl, IntentPollerEnabled: h.d.Flags.IntentPollerEnabled, PGLeadStore: h.d.Flags.PGLeadStore,
+		Ambition: h.ab, AmbitionImportExecutor: ambitionimport.ExecutorFor(getenv),
+		RefreshExecutor: config.ExecutorCohortFrom(getenv).RefreshExecutor, WatchExecutor: h.d.watchPollExecutor(),
+		CollectionLedgerPG: h.d.CollectionLedgerBackend == "postgres", Progress: progressBus(h.d),
+	}
 }
 
 // chatBodyErr is a hardening rejection (Python answers 500 or has no limit).
@@ -408,6 +460,9 @@ func (h *chatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		WS: res.WorkspaceID, Slug: res.Slug, UID: res.UserID, ConvID: convID, Auth: res,
 		OpenFault: func() bool { return !lazy.Started() },
 	}
+	if h.native {
+		tn.Engine = h.engine(res.WorkspaceID)
+	}
 	if h.configure != nil {
 		h.configure(tn)
 	}
@@ -540,17 +595,31 @@ func (h *chatHandler) assemble(ctx context.Context, tn *copilot.Turn, res copilo
 	var sp struct {
 		SystemPrompt string `json:"system_prompt"`
 	}
-	err := h.d.PyWorker.Unary(ctx, chatSystemPromptRPC, map[string]any{"workspace_id": res.WorkspaceID, "slug": res.Slug}, &sp, 0)
-	if err != nil {
-		if ctx.Err() != nil {
-			return nil, ctx.Err()
+	if tn.Engine != nil {
+		// build_system_prompt in Go; like Python a stats failure renders "Pipeline stats unavailable".
+		err := tenancy.InWorkspace(ctx, h.d.Pool, res.WorkspaceID, func(tx pgx.Tx) error {
+			sp.SystemPrompt = copilot.SystemPrompt(ctx, tx)
+			return nil
+		})
+		if err != nil {
+			if ctx.Err() != nil {
+				return nil, ctx.Err()
+			}
+			sp.SystemPrompt = copilot.RenderSystemPrompt(nil, err)
 		}
-		return nil, errWorkerUnavailable
+	} else {
+		err := h.d.PyWorker.Unary(ctx, chatSystemPromptRPC, map[string]any{"workspace_id": res.WorkspaceID, "slug": res.Slug}, &sp, 0)
+		if err != nil {
+			if ctx.Err() != nil {
+				return nil, ctx.Err()
+			}
+			return nil, errWorkerUnavailable
+		}
 	}
 	messages := []map[string]any{{"role": "system", "content": sp.SystemPrompt}}
 
 	var toolCtx string
-	err = tenancy.InWorkspace(ctx, h.d.Pool, res.WorkspaceID, func(tx pgx.Tx) error {
+	err := tenancy.InWorkspace(ctx, h.d.Pool, res.WorkspaceID, func(tx pgx.Tx) error {
 		rows, err := chathistory.Messages(ctx, tx, convID, res.WorkspaceID, res.UserID)
 		toolCtx = copilot.ToolContext(rows, copilot.DefaultToolContextLimit)
 		return err
