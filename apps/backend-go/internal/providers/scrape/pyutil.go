@@ -553,3 +553,20 @@ func decodeJSON(s string) (any, bool) {
 	}
 	return v, true
 }
+
+// callOption is the per-call tuning option key of Input.Settings (the collect stages' provider
+// settings) clamped to lo..hi; def when absent or not an integer.
+func callOption(in providers.Input, key string, def, lo, hi int) int {
+	var n int
+	switch v := in.Settings[key].(type) {
+	case int:
+		n = v
+	case int64:
+		n = int(v)
+	case float64:
+		n = int(v)
+	default:
+		return def
+	}
+	return max(lo, min(n, hi))
+}

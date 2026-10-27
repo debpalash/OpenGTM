@@ -17,3 +17,8 @@ func globalSettingKeys(provider string) []string {
 	}
 	return nil
 }
+
+// callOptionKeys are per-call tuning options a caller may pass in Input.Settings (the collect
+// stages' JobRunner constructor arguments). They only bound work (counts, pacing); each provider
+// clamps them. Operator settings (globalSettingKeys) are never taken from the caller.
+var callOptionKeys = []string{"max_people", "max_jobs", "max_verify", "delay_ms", "timeout_ms"}

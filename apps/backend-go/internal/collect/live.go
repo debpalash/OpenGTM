@@ -117,6 +117,16 @@ func (e LiveEnrich) Deliverability(ctx context.Context, ws string, l *Lead) (boo
 	return res.Keep, res.Confidence, true
 }
 
+// stageOptions are the provider settings of the collect stages, as JobRunner constructed the
+// providers: CrossLinkedProvider(max_people=3, delay=1.5), JobSpySignalProvider(max_jobs=3,
+// delay=1.5), MailScoutVerifyProvider(timeout=5, max_verify=2). They travel in the provider-call
+// input's reserved "_options" object (rpclocal hands them to the provider as call options).
+var stageOptions = map[string]map[string]int{
+	"crosslinked": {"max_people": 3, "delay_ms": 1500},
+	"jobspy":      {"max_jobs": 3, "delay_ms": 1500},
+	"mailscout":   {"max_verify": 2, "timeout_ms": 5000},
+}
+
 // ErrNoProviderCaller is returned by Provider when no caller is wired.
 var ErrNoProviderCaller = errors.New("collect: no provider caller")
 
@@ -124,7 +134,11 @@ func (e LiveEnrich) Provider(ctx context.Context, ws, name string, l *Lead) (Pro
 	if e.Caller == nil {
 		return ProviderResult{}, ErrNoProviderCaller
 	}
-	input, err := json.Marshal(l.Map())
+	m := l.Map()
+	if o, ok := stageOptions[name]; ok {
+		m["_options"] = o
+	}
+	input, err := json.Marshal(m)
 	if err != nil {
 		return ProviderResult{}, err
 	}

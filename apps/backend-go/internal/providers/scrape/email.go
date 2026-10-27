@@ -191,8 +191,9 @@ func (mailScout) Enrich(ctx context.Context, _ *http.Client, _ func() (string, e
 		if domain := domainFromURL(website); domain != "" {
 			first, last := splitName(person)
 			pats := personalPatterns(first, last, domain)
-			if len(pats) > 3 {
-				pats = pats[:3]
+			// max_verify (collect: MailScoutVerifyProvider(max_verify=2); default 3), clamped.
+			if n := callOption(in, "max_verify", 3, 1, 3); len(pats) > n {
+				pats = pats[:n]
 			}
 			picked, err := m.PickBest(ctx, pats)
 			if err != nil {

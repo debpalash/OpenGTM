@@ -183,6 +183,9 @@ func (c CrossLinked) delay() time.Duration {
 }
 
 func (c CrossLinked) Enrich(ctx context.Context, _ *http.Client, _ func() (string, error), in providers.Input) (providers.Output, error) {
+	// Per-call settings (collect: CrossLinkedProvider(max_people=3, delay=1.5)), clamped.
+	c.MaxPeople = callOption(in, "max_people", c.maxPeople(), 1, 10)
+	c.Delay = time.Duration(callOption(in, "delay_ms", int(c.delay()/time.Millisecond), 0, 5000)) * time.Millisecond
 	company := ls(in.Lead, "company")
 	if company == "" {
 		return fail(in, "no_company_name"), nil

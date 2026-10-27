@@ -24,6 +24,7 @@ var (
 type JobSpy struct {
 	gated
 	MaxJobs int
+	Delay   time.Duration // between queries; 0 = 1 s
 }
 
 func (JobSpy) Name() string { return "jobspy" }
@@ -60,7 +61,11 @@ func (j JobSpy) searchJobs(ctx context.Context, s Search, company, city string) 
 				jobs = append(jobs, job{title: t, description: trunc(r.Body, 200), source: src})
 			}
 		}
-		if err := sleep(ctx, time.Second); err != nil {
+		d := j.Delay
+		if d <= 0 {
+			d = time.Second
+		}
+		if err := sleep(ctx, d); err != nil {
 			return nil, err
 		}
 	}
@@ -169,6 +174,11 @@ func analyzeJobs(jobs []job) (*providers.Obj, []string) {
 }
 
 func (j JobSpy) Enrich(ctx context.Context, _ *http.Client, _ func() (string, error), in providers.Input) (providers.Output, error) {
+	// Per-call settings (collect: JobSpySignalProvider(max_jobs=3, delay=1.5)), clamped.
+	j.MaxJobs = callOption(in, "max_jobs", j.maxJobs(), 1, 10)
+	if ms := callOption(in, "delay_ms", -1, 0, 5000); ms >= 0 {
+		j.Delay = time.Duration(ms) * time.Millisecond
+	}
 	company := ls(in.Lead, "company")
 	if company == "" {
 		return fail(in, "no_company_name"), nil

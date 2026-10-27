@@ -194,7 +194,13 @@ type goResult struct {
 
 func (r *Runner) runGo(ctx context.Context, ws string, p providers.Provider, in providers.Input, timeout time.Duration) (providers.Output, bool, error) {
 	name := p.Name()
+	caller := in.Settings
 	in.Settings = map[string]any{}
+	for _, k := range callOptionKeys {
+		if v, ok := caller[k]; ok {
+			in.Settings[k] = v
+		}
+	}
 	for _, k := range globalSettingKeys(name) {
 		v, _, err := r.d.Secrets.Get(ctx, "", k)
 		if err != nil {

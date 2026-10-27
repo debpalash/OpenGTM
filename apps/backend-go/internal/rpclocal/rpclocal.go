@@ -221,6 +221,7 @@ func (c *Caller) execute(ctx context.Context, call pyworker.ProviderCall) (pywor
 	if err := dec.Decode(&lead); err != nil || lead == nil {
 		return pyworker.ProviderResult{Status: "error", Error: "invalid provider call", HTTPStatus: http.StatusUnprocessableEntity}, nil
 	}
+	settings := callOptions(lead)
 	var smu sync.Mutex
 	var secrets []string
 	addSecret := func(v string) {
@@ -250,7 +251,7 @@ func (c *Caller) execute(ctx context.Context, call pyworker.ProviderCall) (pywor
 		// caller: global operator settings, per-workspace keys, the enrichment cache, the
 		// provider_stats ledger and the worker semaphore.
 		p, _ := providers.Get(call.Provider)
-		out, err := c.d.Runner.RunLocal(cctx, call.WorkspaceID, call.Provider, providers.Input{Lead: lead}, effectiveTimeout(call.Timeout))
+		out, err := c.d.Runner.RunLocal(cctx, call.WorkspaceID, call.Provider, providers.Input{Lead: lead, Settings: settings}, effectiveTimeout(call.Timeout))
 		if k, ok := p.(providers.Keyed); ok && c.d.Secrets != nil {
 			// The key values providerrun resolved are scrubbed from everything returned.
 			for _, env := range k.KeyEnv() {
@@ -363,4 +364,30 @@ func scrubValue(v any, secrets []string) any {
 		return out
 	}
 	return v
+}
+
+// callOptionKeys are the per-call tuning options a caller may put in the input's "_options"
+// object (the collect stages' provider settings); providers clamp them.
+var callOptionKeys = map[string]bool{"max_people": true, "max_jobs": true, "max_verify": true, "delay_ms": true, "timeout_ms": true}
+
+// callOptions removes the reserved "_options" object from lead and returns its integer options.
+func callOptions(lead map[string]any) map[string]any {
+	raw, ok := lead["_options"]
+	if !ok {
+		return nil
+	}
+	delete(lead, "_options")
+	m, _ := raw.(map[string]any)
+	out := map[string]any{}
+	for k, v := range m {
+		if !callOptionKeys[k] {
+			continue
+		}
+		if n, ok := v.(json.Number); ok {
+			if i, err := n.Int64(); err == nil && i >= 0 && i <= 1<<20 {
+				out[k] = int(i)
+			}
+		}
+	}
+	return out
 }
