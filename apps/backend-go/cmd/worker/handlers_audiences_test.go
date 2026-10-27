@@ -66,3 +66,29 @@ func TestProvenanceEligible(t *testing.T) {
 type fakeResolver struct{}
 
 func (fakeResolver) Get(context.Context, string, string) (string, string, error) { return "", "", nil }
+
+type srcFake struct{ source string }
+
+func (s srcFake) Get(context.Context, string, string) (string, string, error) {
+	return "tok", s.source, nil
+}
+
+// S-L25: AD_TOKENS_WORKSPACE_ONLY off keeps the global/env fallback; on, a global-only token reads as unset
+// (delivery fails "missing workspace secret ..."), and an http-credentials resolver hands ad types back.
+func TestAdTokenGetterWorkspaceOnly(t *testing.T) {
+	ctx := context.Background()
+	for _, tc := range []struct {
+		only   bool
+		source string
+		want   string
+	}{{false, "global", "tok"}, {false, "env", "tok"}, {true, "global", ""}, {true, "env", ""}, {true, "workspace", "tok"}} {
+		got, err := adTokenGetter(srcFake{tc.source}, tc.only)(ctx, "ws", "META_ACCESS_TOKEN")
+		if err != nil || got != tc.want {
+			t.Errorf("only=%v %s: %q %v", tc.only, tc.source, got, err)
+		}
+	}
+	t.Setenv("AD_TOKENS_WORKSPACE_ONLY", "true")
+	if provenanceEligible(apiSecrets{}, "meta_ads") || !provenanceEligible(fakeResolver{}, "meta_ads") {
+		t.Error("ad types need a provenance-aware resolver when tokens are workspace-only")
+	}
+}

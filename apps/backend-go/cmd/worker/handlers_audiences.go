@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"os"
 	"strings"
 	"time"
 
@@ -243,13 +244,7 @@ func destSyncHandler(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, se
 			log.Warn("GO_DEST_TYPES lists a destination type without a Go delivery port; its jobs stay on Python", "type", t)
 		}
 	}
-	get := func(ctx context.Context, ws, name string) (string, error) {
-		if sec == nil {
-			return "", nil
-		}
-		v, _, err := sec.Get(ctx, ws, name)
-		return v, err
-	}
+	get := adTokenGetter(sec, adTokensWorkspaceOnly())
 	dd := destsync.Deps{
 		Pool: pool, Deliverer: destdeliver.New(ports, aud.DestDeliveryTimeout),
 		Ads:            destsync.NewAdSyncer(adsdrv.NewClient(get, cfg.AppEnv, cfg.EgressAllowHosts)),
@@ -282,6 +277,31 @@ func destSyncHandler(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, se
 	}
 }
 
+// adTokensWorkspaceOnly is AD_TOKENS_WORKSPACE_ONLY (default off): with it on, ad-platform tokens resolve from
+// workspace secrets only, like the other destination references (S-L25; the default keeps the global and env
+// fallback the plan 10 ruling accepted).
+func adTokensWorkspaceOnly() bool {
+	switch strings.ToLower(strings.TrimSpace(os.Getenv("AD_TOKENS_WORKSPACE_ONLY"))) {
+	case "1", "true", "yes", "on":
+		return true
+	}
+	return false
+}
+
+// adTokenGetter resolves an ad-platform token: workspace, then global and env, or workspace only.
+func adTokenGetter(sec destdeliver.SecretResolver, workspaceOnly bool) adsdrv.SecretGetter {
+	if workspaceOnly {
+		return destdeliver.WorkspaceOnly(sec)
+	}
+	return func(ctx context.Context, ws, name string) (string, error) {
+		if sec == nil {
+			return "", nil
+		}
+		v, _, err := sec.Get(ctx, ws, name)
+		return v, err
+	}
+}
+
 // provenanceEligible is false for the types whose secret refs must resolve workspace-only
 // (warehouse_http, slack) when the worker's resolver is the credentials API (CREDENTIALS_SOURCE=http):
 // it cannot report a value's source, so every delivery would fail. Those rows stay on Python.
@@ -292,6 +312,8 @@ func provenanceEligible(sec destdeliver.SecretResolver, destType string) bool {
 	switch strings.ToLower(strings.TrimSpace(destType)) {
 	case "warehouse_http", "slack":
 		return false
+	case "meta_ads", "google_ads", "linkedin_ads":
+		return !adTokensWorkspaceOnly() // workspace-only tokens need the source of each value
 	}
 	return true
 }
