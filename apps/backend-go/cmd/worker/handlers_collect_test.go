@@ -16,7 +16,7 @@ import (
 
 type noWeb struct{}
 
-func (noWeb) Search(context.Context, string, int) []leadweb.Hit { return nil }
+func (noWeb) Search(context.Context, string, int) []leadweb.Hit                { return nil }
 func (noWeb) Fetch(context.Context, string, int, time.Duration) (string, bool) { return "", false }
 
 func envMap(m map[string]string) func(string) string { return func(k string) string { return m[k] } }
