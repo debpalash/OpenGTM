@@ -89,6 +89,11 @@ func CheckSlackTemplate(tpl string) error {
 	return err
 }
 
+// slackEscape is Slack's mrkdwn control-character escaping, applied to substituted values only
+// (never to the template): a lead value such as <!channel> must not ping the channel or form a
+// link (S-L24).
+var slackEscape = strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;")
+
 // RenderSlackTemplate expands {name} fields from fields (a missing or nil key
 // renders empty, like Python's __missing__) and returns the text stripped of
 // surrounding whitespace. An empty template means DefaultSlackTemplate.
@@ -112,7 +117,7 @@ func RenderSlackTemplate(template string, fields map[string]any) (string, error)
 		if !ok || v == nil {
 			continue
 		}
-		out.WriteString(colgraph.PyStr(v))
+		out.WriteString(slackEscape.Replace(colgraph.PyStr(v)))
 	}
 	return colgraph.PyStrip(out.String()), nil
 }
