@@ -53,7 +53,18 @@ _METADATA_IPS = frozenset(ipaddress.ip_address(a) for a in ("169.254.169.254", "
 # Ranges blocked on top of ``not is_global`` (some are "global" per IANA but can
 # be translated by a gateway into an internal address).
 _EXTRA_BLOCKED = tuple(
-    ipaddress.ip_network(n) for n in ("100.64.0.0/10", "64:ff9b::/96", "64:ff9b:1::/48", "2002::/16", "2001::/32")
+    ipaddress.ip_network(n)
+    for n in (
+        "100.64.0.0/10",
+        "192.88.99.0/24",  # 6to4 relay anycast (deprecated)
+        "64:ff9b::/96",
+        "64:ff9b:1::/48",
+        "2002::/16",
+        "2001::/32",
+        "2001:20::/28",  # ORCHIDv2, not routable
+        "5f00::/16",  # SRv6 SIDs, not internet destinations
+        "fec0::/10",  # deprecated site-local, still "global" to ipaddress
+    )
 )
 _BLOCKED_HOSTNAMES = frozenset(
     {"localhost", "ip6-localhost", "ip6-loopback", "metadata", "metadata.google.internal", "metadata.goog"}
