@@ -142,19 +142,32 @@ func TestCatalogDriftGuard(t *testing.T) {
 
 func TestCatalogMatchesGeneratorCheck(t *testing.T) {
 	py := legacyDir(t)
-	cmd := exec.Command("uv", "run", "python", "scripts/gen_copilot_catalog.py", "--check")
+	// The generator's own executor column only knows the four native lead tools; the plan 15 engine tools are Go
+	// too (GO_COPILOT_NATIVE), so the generated catalog is compared with those executors overridden.
+	goTools := strings.Join(append(NativeToolNames(), EngineToolNames()...), ",")
+	cmd := exec.Command("uv", "run", "python", "-c",
+		"import json,os,sys;sys.path.insert(0,'scripts');import gen_copilot_catalog as g\n"+
+			"d=g.build();go=set(os.environ['GO_TOOLS'].split(','))\n"+
+			"[e.update(executor='go' if e['name'] in go else 'python') for e in d['tools']]\n"+
+			"sys.stdout.write(json.dumps(d, indent=2, ensure_ascii=False)+'\\n')")
 	cmd.Dir = py
-	if out, err := cmd.CombinedOutput(); err != nil {
-		if ee, ok := err.(*exec.ExitError); ok && ee.ExitCode() == 1 {
-			t.Fatalf("catalog.json drifted from Python: %s", out)
-		}
+	cmd.Env = append(os.Environ(), "GO_TOOLS="+goTools)
+	out, err := cmd.Output()
+	if err != nil {
 		t.Skipf("generator unavailable: %v", err)
+	}
+	b, err := os.ReadFile("catalog.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(out, b) {
+		t.Fatal("catalog.json drifted from Python's gen_copilot_catalog.build() (executors overridden by the Go tool lists)")
 	}
 }
 
 func TestCatalogEveryToolHasExecutor(t *testing.T) {
 	native := map[string]bool{}
-	for _, n := range NativeToolNames() {
+	for _, n := range append(NativeToolNames(), EngineToolNames()...) {
 		native[n] = true
 	}
 	for _, tl := range Catalog() {
@@ -180,8 +193,8 @@ func TestCatalogEveryToolHasExecutor(t *testing.T) {
 			t.Errorf("native tool %s is not in the catalog", n)
 		}
 	}
-	if len(native) != 4 {
-		t.Errorf("native tools = %d, want 4", len(native))
+	if len(native) != 16 {
+		t.Errorf("Go tools = %d, want 16 (4 always native + 12 behind GO_COPILOT_NATIVE)", len(native))
 	}
 }
 
