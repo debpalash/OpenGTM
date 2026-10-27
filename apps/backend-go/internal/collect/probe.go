@@ -2,6 +2,8 @@ package collect
 
 import (
 	"context"
+	"sync"
+	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
 )
@@ -53,4 +55,42 @@ func SourceByName(name string) (Source, bool) {
 		}
 	}
 	return Source{}, false
+}
+
+// NativeProber is the leadjobs.Prober of GO_NATIVE_SOURCE_PROBE: the registry source list and
+// the canary probes in process (no Python worker).
+type NativeProber struct{ Web Web }
+
+// SourceList is get_all_sources(enabled_only=False) names.
+func (p NativeProber) SourceList(context.Context, time.Duration) ([]string, error) {
+	return ProbeSourceNames(), nil
+}
+
+// SourceProbe probes one batch concurrently; a source whose probe did not finish within timeout
+// answers nil (the health job then treats the run as an outage), as the RPC did.
+func (p NativeProber) SourceProbe(ctx context.Context, names []string, timeout time.Duration) (map[string]*int, error) {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	out := make(map[string]*int, len(names))
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	for _, n := range names {
+		s, ok := SourceByName(n)
+		if !ok {
+			continue
+		}
+		wg.Add(1)
+		go func(n string, s Source) {
+			defer wg.Done()
+			y := ProbeYield(ctx, p.Web, s)
+			if ctx.Err() != nil {
+				return
+			}
+			mu.Lock()
+			out[n] = &y
+			mu.Unlock()
+		}(n, s)
+	}
+	wg.Wait()
+	return out, nil
 }
