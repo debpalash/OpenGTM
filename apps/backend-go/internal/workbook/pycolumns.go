@@ -241,6 +241,13 @@ func (rs *runState) batchEligible() map[string]bool {
 		if p, _ := c.cfg["prompt"].(string); trim(p) == "" {
 			continue
 		}
+		// A condition is evaluated per cell before it runs (preRunGates); the pre-pass
+		// writes complete cells without that gate, so a gated column stays on the per-cell
+		// path and an unmet condition never reaches the LLM (review wave 2b M5; Python's
+		// pre-pass had the same gap).
+		if manifest.PyTruthy(c.cfg["condition"]) {
+			continue
+		}
 		ok[id] = true
 	}
 	return ok
