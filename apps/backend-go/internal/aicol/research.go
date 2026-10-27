@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -49,6 +50,45 @@ const reactSystem = "You are a web-research agent answering ONE question about a
 
 const lockedFetch = "blocked: cannot fetch immediately after reading a page " +
 	"(untrusted-content safeguard); search or answer instead"
+
+// notFromSearch refuses a fetch of a URL that no earlier search of this research returned
+// (review wave 3b M2): a URL planted in page or snippet text cannot steer the agent to an
+// attacker host carrying row data. Python enforced this only in the tool description.
+const notFromSearch = "blocked: url was not returned by a search in this research " +
+	"(untrusted-content safeguard); fetch only a search result url"
+
+// fetchAnyURL disables the search-result allow-list; only the recorded Python vectors set it
+// (their fetch error paths use URLs no search returned, as Python allowed).
+var fetchAnyURL bool
+
+// normURL is the comparison form of a URL for the search-result allow-list: surrounding
+// whitespace and the fragment dropped, scheme and host lowercased, an empty path as "/".
+// Anything else (path, query, port) must match exactly.
+func normURL(raw string) string {
+	s := pyStrip(raw)
+	u, err := url.Parse(s)
+	if err != nil || u.Host == "" {
+		return s
+	}
+	u.Fragment, u.RawFragment = "", ""
+	u.Scheme, u.Host = strings.ToLower(u.Scheme), strings.ToLower(u.Host)
+	if u.Path == "" && u.RawPath == "" {
+		u.Path = "/"
+	}
+	return u.String()
+}
+
+// allowHits adds the hrefs a search observation showed to the fetch allow-list.
+func allowHits(allowed map[string]bool, hits []Hit, n int) {
+	if len(hits) > n {
+		hits = hits[:n]
+	}
+	for _, h := range hits {
+		if h.Href != "" {
+			allowed[normURL(h.Href)] = true
+		}
+	}
+}
 
 func searchToolDef() map[string]any {
 	return map[string]any{
@@ -267,6 +307,7 @@ func runLegacy(ctx context.Context, d Deps, g Guard, question string, maxSteps i
 	var steps []step
 	bound := boundSteps(maxSteps, maxStepsCap)
 	justIngested := false
+	allowed := map[string]bool{}
 	system := g.withNotice(reactSystem)
 	for i := 0; i < bound; i++ {
 		guidance := ""
@@ -302,6 +343,7 @@ func runLegacy(ctx context.Context, d Deps, g Guard, question string, maxSteps i
 				if ctx.Err() != nil {
 					return Result{}, ctx.Err()
 				}
+				allowHits(allowed, hits, searchResults)
 				steps = append(steps, step{"search", query, searchObservation(hits, searchResults)})
 			}
 			justIngested = false
@@ -310,6 +352,11 @@ func runLegacy(ctx context.Context, d Deps, g Guard, question string, maxSteps i
 			u := pyStrip(pyGetStr(decision, "url"))
 			if justIngested {
 				steps = append(steps, step{"fetch", u, lockedFetch})
+				justIngested = false
+				continue
+			}
+			if u != "" && !fetchAnyURL && !allowed[normURL(u)] {
+				steps = append(steps, step{"fetch", u, notFromSearch})
 				justIngested = false
 				continue
 			}
@@ -361,6 +408,7 @@ func runLegacy(ctx context.Context, d Deps, g Guard, question string, maxSteps i
 // researchCtx is the per-cell state of the native loop.
 type researchCtx struct {
 	justIngested bool
+	allowed      map[string]bool // normURL of every href a search returned
 	fetched      map[string]bool
 	fetchedAt    map[string]string
 	fetchedText  map[string]string
@@ -418,7 +466,7 @@ func runNative(ctx context.Context, d Deps, g Guard, question string, maxSteps i
 	tools := []any{searchToolDef(), fetchToolDef()}
 	messages := []any{map[string]any{"role": "user", "content": "Question: " + question}}
 	var toolChoice any = map[string]any{"type": "any"}
-	rc := &researchCtx{fetched: map[string]bool{}, fetchedAt: map[string]string{}, fetchedText: map[string]string{}}
+	rc := &researchCtx{allowed: map[string]bool{}, fetched: map[string]bool{}, fetchedAt: map[string]string{}, fetchedText: map[string]string{}}
 	spent := 0.0
 	reserve := budget * synthReserveFraction
 	bound := boundSteps(maxSteps, max(1, settingInt(ctx, d.Settings, "RESEARCH_MAX_STEPS_CAP", maxStepsCap)))
@@ -496,6 +544,7 @@ func runTool(ctx context.Context, d Deps, rc *researchCtx, u toolUse, nSearch, n
 			return "no query given", true
 		}
 		hits := d.search(ctx, q, nSearch)
+		allowHits(rc.allowed, hits, nSearch)
 		rc.justIngested = false
 		return searchObservation(hits, nSearch), false
 	case "fetch":
@@ -503,6 +552,9 @@ func runTool(ctx context.Context, d Deps, rc *researchCtx, u toolUse, nSearch, n
 		if rc.justIngested {
 			rc.justIngested = false
 			return lockedFetch, true
+		}
+		if url != "" && !fetchAnyURL && !rc.allowed[normURL(url)] {
+			return notFromSearch, true
 		}
 		if ok, reason := d.checkURL(url); !ok {
 			return "blocked: " + reason, true

@@ -369,7 +369,12 @@ func TestAIFormulaVectors(t *testing.T) {
 func TestResearchVectors(t *testing.T) {
 	v := loadVectors(t)
 	cols := decodeCols(t, v.Prompts.Cols["cols"])
+	// These Python transcripts fetch URLs no search returned (to exercise the fetch error
+	// paths); Go refuses such fetches (review wave 3b M2), so the allow-list is lifted for them.
+	anyURL := map[string]bool{"legacy_blocked_errors": true, "native_max_steps_no_answer": true}
+	defer func() { fetchAnyURL = false }()
 	for _, sc := range v.Research {
+		fetchAnyURL = anyURL[sc.Name]
 		f := &fakeWorld{t: t, sc: sc}
 		in := ResearchInput{Template: sc.Prompt, Row: decodeRow(t, sc.Row), Cols: cols, MaxSteps: 4, Budget: sc.Budget}
 		if sc.MaxSteps != nil {
