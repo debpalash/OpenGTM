@@ -99,8 +99,14 @@ func pythonLeadSignalRoutes(t *testing.T) []string {
 func TestEveryPythonLeadSignalRouteIsPortedOrRetained(t *testing.T) {
 	routes := pythonLeadSignalRoutes(t)
 	ported, retained := leadsGoPatterns(t), readRetainedLeads(t)
-	if len(ported) != 20 || len(retained) != 4 {
-		t.Errorf("want 20 ported + 4 retained, got %d + %d", len(ported), len(retained))
+	if len(ported) != 20 || len(retained) != 3 {
+		t.Errorf("want 20 ported + 3 retained, got %d + %d", len(ported), len(retained))
+	}
+	// GET /api/signals/sources is registered with the run routes (RegisterWorkbookRuns, plan 06).
+	if goPat := enrichmentGoPatterns(t); goPat["GET /api/signals/sources"] {
+		ported["GET /api/signals/sources"] = true
+	} else {
+		t.Error("GET /api/signals/sources is not registered by the run routes")
 	}
 	// POST /api/lead/{lead_id}/enrich moved to llmroutes.go (WP-LLMROUTES, behind GO_LLM_ROUTES_ENABLED).
 	for p := range llmRoutePatterns(t) {
