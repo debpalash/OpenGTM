@@ -254,7 +254,7 @@ func (q *Queries) DestListWithLatestRun(ctx context.Context, arg DestListWithLat
 }
 
 const destMarkDegraded = `-- name: DestMarkDegraded :exec
-UPDATE audience_destinations SET health_status = 'degraded', last_error = $1::text, updated_at = now()
+UPDATE audience_destinations SET health_status = 'degraded', last_error = $1::text, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $2::text AND id = $3::text
 `
 
@@ -289,7 +289,7 @@ func (q *Queries) DestRevokeInboundTokens(ctx context.Context, arg DestRevokeInb
 }
 
 const destSetLastSuccess = `-- name: DestSetLastSuccess :exec
-UPDATE audience_destinations SET last_success_at = $1::timestamp, updated_at = now()
+UPDATE audience_destinations SET last_success_at = $1::timestamp, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $2::text AND id = $3::text
 `
 
@@ -310,7 +310,7 @@ UPDATE audience_destinations SET
   enabled = COALESCE($2::boolean, enabled),
   config = COALESCE($3::json, config),
   field_map = COALESCE($4::json, field_map),
-  updated_at = now()
+  updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $5::text AND id = $6::text
 RETURNING id, workspace_id, audience_id, name, destination_type, enabled, config, field_map, health_status, last_error, last_success_at, created_at, updated_at
 `

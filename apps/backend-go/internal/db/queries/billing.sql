@@ -29,7 +29,7 @@ VALUES (
 
 -- name: BillingSetBalance :exec
 UPDATE workspace_credits
-SET balance_usd = sqlc.arg(balance_usd)::float8, updated_at = CURRENT_TIMESTAMP
+SET balance_usd = sqlc.arg(balance_usd)::float8, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: BillingRecentEntries :many

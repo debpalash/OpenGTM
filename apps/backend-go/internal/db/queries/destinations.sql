@@ -20,7 +20,7 @@ UPDATE audience_destinations SET
   enabled = COALESCE(sqlc.narg(enabled)::boolean, enabled),
   config = COALESCE(sqlc.narg(config)::json, config),
   field_map = COALESCE(sqlc.narg(field_map)::json, field_map),
-  updated_at = now()
+  updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::text
 RETURNING *;
 
@@ -61,9 +61,9 @@ DELETE FROM audience_destinations
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::text;
 
 -- name: DestMarkDegraded :exec
-UPDATE audience_destinations SET health_status = 'degraded', last_error = sqlc.arg(last_error)::text, updated_at = now()
+UPDATE audience_destinations SET health_status = 'degraded', last_error = sqlc.arg(last_error)::text, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::text;
 
 -- name: DestSetLastSuccess :exec
-UPDATE audience_destinations SET last_success_at = sqlc.arg(last_success_at)::timestamp, updated_at = now()
+UPDATE audience_destinations SET last_success_at = sqlc.arg(last_success_at)::timestamp, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::text;

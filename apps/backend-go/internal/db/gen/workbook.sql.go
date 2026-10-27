@@ -29,7 +29,7 @@ func (q *Queries) CountWorkbookRows(ctx context.Context, arg CountWorkbookRowsPa
 }
 
 const failWorkbook = `-- name: FailWorkbook :exec
-UPDATE workbooks SET status = 'failed', updated_at = now()
+UPDATE workbooks SET status = 'failed', updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = $1::text AND workspace_id = $2::text AND status IS DISTINCT FROM 'paused'
 `
 
@@ -48,7 +48,7 @@ const finalizeWorkbook = `-- name: FinalizeWorkbook :one
 UPDATE workbooks SET
   status = CASE WHEN status IS DISTINCT FROM 'paused' THEN $1::text ELSE status END,
   completed_rows = CASE WHEN status IS DISTINCT FROM 'paused' THEN $2::int ELSE completed_rows END,
-  updated_at = now()
+  updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = $3::text AND workspace_id = $4::text
 RETURNING status
 `
@@ -403,7 +403,7 @@ func (q *Queries) LockLeaseForReceipt(ctx context.Context, arg LockLeaseForRecei
 }
 
 const markWorkbookComplete = `-- name: MarkWorkbookComplete :exec
-UPDATE workbooks SET status = 'complete', updated_at = now()
+UPDATE workbooks SET status = 'complete', updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = $1::text AND workspace_id = $2::text
 `
 
@@ -418,7 +418,7 @@ func (q *Queries) MarkWorkbookComplete(ctx context.Context, arg MarkWorkbookComp
 }
 
 const markWorkbookRunning = `-- name: MarkWorkbookRunning :exec
-UPDATE workbooks SET status = 'running', updated_at = now()
+UPDATE workbooks SET status = 'running', updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = $1::text AND workspace_id = $2::text AND status IS DISTINCT FROM 'paused'
 `
 
@@ -435,7 +435,7 @@ func (q *Queries) MarkWorkbookRunning(ctx context.Context, arg MarkWorkbookRunni
 const mergeRowOverlay = `-- name: MergeRowOverlay :execrows
 UPDATE workbook_rows
 SET enrichments = jsonb_set(COALESCE(enrichments::jsonb, '{}'::jsonb), ARRAY[$1::text], $2::jsonb, true)::json,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = $3::int AND workbook_id = $4::text AND workspace_id = $5::text
 `
 
@@ -512,7 +512,7 @@ func (q *Queries) RecordProviderAttempt(ctx context.Context, arg RecordProviderA
 }
 
 const setWorkbookProgress = `-- name: SetWorkbookProgress :exec
-UPDATE workbooks SET total_rows = $1::int, completed_rows = $2::int, updated_at = now()
+UPDATE workbooks SET total_rows = $1::int, completed_rows = $2::int, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = $3::text AND workspace_id = $4::text
 `
 
@@ -571,7 +571,7 @@ VALUES ($1::text, $2::text, $3::int, $4::text,
   $5::text, $6::text, $7::text, $8::text, $9::json)
 ON CONFLICT (workbook_id, lead_id, column_id) DO UPDATE SET
   value = EXCLUDED.value, status = EXCLUDED.status, provider = EXCLUDED.provider,
-  error = EXCLUDED.error, cell_metadata = EXCLUDED.cell_metadata, updated_at = now()
+  error = EXCLUDED.error, cell_metadata = EXCLUDED.cell_metadata, updated_at = (now() AT TIME ZONE 'UTC')
 `
 
 type UpsertEnrichmentParams struct {

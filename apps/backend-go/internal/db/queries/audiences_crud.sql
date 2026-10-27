@@ -29,7 +29,7 @@ FOR UPDATE;
 UPDATE audiences
 SET name = sqlc.arg(name)::text, description = sqlc.arg(description)::text, filters = sqlc.arg(filters)::json,
     refresh_enabled = sqlc.arg(refresh_enabled)::boolean, refresh_interval_minutes = sqlc.arg(refresh_interval_minutes)::int,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: AudCrudDelete :execrows

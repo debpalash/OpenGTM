@@ -1,13 +1,13 @@
 -- Retention policy store, preview counts and scheduling (internal/retention).
 -- retention_policies and the eight target tables are FORCE RLS: run inside
 -- tenancy.InWorkspace, with the explicit workspace filter as well. retention_schedules and jobs
--- are non-RLS control tables. Naive timestamp columns are compared and written as
--- timestamptz so Postgres reads them in the session TimeZone exactly as
--- psycopg/SQLAlchemy do for Python's aware datetimes (see govaudit/gov_audit.sql).
+-- are non-RLS control tables. Naive timestamp columns hold UTC wall time: aware instants
+-- are converted with AT TIME ZONE 'UTC' on write and on comparison, so the result never
+-- depends on the session TimeZone.
 
 -- name: RetCountAudit :one
 SELECT count(*)::bigint FROM governance_audit_events
-WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz;
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < (sqlc.arg(cutoff)::timestamptz AT TIME ZONE 'UTC');
 
 -- llm_usage_daily.date is a 'YYYY-MM-DD' string: string comparison, as in Python.
 -- name: RetCountLLMUsage :one
@@ -21,19 +21,19 @@ WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cuto
 
 -- name: RetCountDeliveries :one
 SELECT count(*)::bigint FROM destination_deliveries
-WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz;
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < (sqlc.arg(cutoff)::timestamptz AT TIME ZONE 'UTC');
 
 -- name: RetCountInboundReceipts :one
 SELECT count(*)::bigint FROM destination_inbound_receipts
-WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz;
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < (sqlc.arg(cutoff)::timestamptz AT TIME ZONE 'UTC');
 
 -- name: RetCountMembershipEvents :one
 SELECT count(*)::bigint FROM audience_membership_events
-WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz;
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < (sqlc.arg(cutoff)::timestamptz AT TIME ZONE 'UTC');
 
 -- name: RetCountPlaybookResults :one
 SELECT count(*)::bigint FROM playbook_results
-WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz;
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < (sqlc.arg(cutoff)::timestamptz AT TIME ZONE 'UTC');
 
 -- outreach_sends.created_at is timestamptz.
 -- name: RetCountOutreachSends :one
@@ -44,22 +44,22 @@ WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cuto
 SELECT workspace_id, enabled, legal_hold, retention_days, next_run_at, updated_by, created_at, updated_at
 FROM retention_policies WHERE workspace_id = sqlc.arg(workspace_id)::text;
 
--- created_at/updated_at default to now() (session TimeZone, naive) on insert; an update
--- sets updated_at = now() like SQLAlchemy's onupdate=func.now(). next_run_at is left
+-- created_at/updated_at are stamped with UTC wall time on insert (not the session-zone
+-- column default); an update sets updated_at likewise. next_run_at is left
 -- alone (SchedulePolicy owns it).
 -- name: RetUpsertPolicy :one
-INSERT INTO retention_policies (workspace_id, enabled, legal_hold, retention_days, updated_by)
+INSERT INTO retention_policies (workspace_id, enabled, legal_hold, retention_days, updated_by, created_at, updated_at)
 VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(enabled)::bool, sqlc.arg(legal_hold)::bool,
-        sqlc.arg(retention_days)::json, sqlc.narg(updated_by)::int)
+        sqlc.arg(retention_days)::json, sqlc.narg(updated_by)::int, (now() AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'))
 ON CONFLICT (workspace_id) DO UPDATE
 SET enabled = EXCLUDED.enabled, legal_hold = EXCLUDED.legal_hold,
     retention_days = EXCLUDED.retention_days, updated_by = EXCLUDED.updated_by,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 RETURNING workspace_id, enabled, legal_hold, retention_days, next_run_at, updated_by, created_at, updated_at;
 
 -- name: RetSetPolicyNextRun :one
 UPDATE retention_policies
-SET next_run_at = (sqlc.narg(next_run_at)::timestamptz)::timestamp, updated_at = now()
+SET next_run_at = (sqlc.narg(next_run_at)::timestamptz AT TIME ZONE 'UTC'), updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text
 RETURNING next_run_at, updated_at;
 
@@ -74,10 +74,10 @@ WHERE type = 'retention_enforce' AND status = 'pending'
   AND length(fire_key) = length(sqlc.arg(fire_key_prefix)::text) + 10;
 
 -- name: RetUpsertMirror :exec
-INSERT INTO retention_schedules (workspace_id, enabled, next_run_at)
-VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(enabled)::bool, (sqlc.narg(next_run_at)::timestamptz)::timestamp)
+INSERT INTO retention_schedules (workspace_id, enabled, next_run_at, updated_at)
+VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(enabled)::bool, (sqlc.narg(next_run_at)::timestamptz AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'))
 ON CONFLICT (workspace_id) DO UPDATE
-SET enabled = EXCLUDED.enabled, next_run_at = EXCLUDED.next_run_at, updated_at = now();
+SET enabled = EXCLUDED.enabled, next_run_at = EXCLUDED.next_run_at, updated_at = (now() AT TIME ZONE 'UTC');
 
 -- The row enqueue_job_once writes: priority 1, max_retries 3, next_run_at = the next
 -- occurrence (NOT now: the job must wait a day), workspace_id set (Python
@@ -85,24 +85,24 @@ SET enabled = EXCLUDED.enabled, next_run_at = EXCLUDED.next_run_at, updated_at =
 -- name: RetInsertScheduledJob :one
 INSERT INTO jobs (executor, type, payload, workspace_id, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count)
 VALUES (sqlc.arg(executor)::text, 'retention_enforce', sqlc.arg(payload)::json, sqlc.arg(workspace_id)::text, 1, sqlc.arg(fire_key)::text, 'pending',
-        (now() AT TIME ZONE 'UTC'), (sqlc.arg(next_run_at)::timestamptz)::timestamp, 3, 0)
+        (now() AT TIME ZONE 'UTC'), (sqlc.arg(next_run_at)::timestamptz AT TIME ZONE 'UTC'), 3, 0)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id;
 
 -- ---- enforcement and failure reconcile (enforce.go, reconcile.go) ----
 -- retention_runs is FORCE RLS; jobs is not. Naive timestamps are written from a
--- timestamptz so Postgres stores them in the session TimeZone (what psycopg does for
--- Python's aware datetimes) and read back as timestamptz for the same reason.
+-- timestamptz as UTC wall time and read back as timestamptz in UTC, whatever the
+-- session TimeZone.
 
 -- name: RetRunGet :one
 SELECT id, workspace_id, status, requested_by, policy_snapshot, deleted_counts, error,
-       (started_at::timestamptz) AS started_at
+       (started_at AT TIME ZONE 'UTC')::timestamptz AS started_at
 FROM retention_runs
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- Locks the run row so a concurrent cancel waits for the batch in flight.
 -- name: RetRunLock :one
-SELECT status, (started_at::timestamptz) AS started_at
+SELECT status, (started_at AT TIME ZONE 'UTC')::timestamptz AS started_at
 FROM retention_runs
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text
 FOR UPDATE;
@@ -113,24 +113,24 @@ FROM retention_policies WHERE workspace_id = sqlc.arg(workspace_id)::text
 FOR SHARE;
 
 -- name: RetRunCreate :one
-INSERT INTO retention_runs (id, workspace_id, status, requested_by, policy_snapshot, deleted_counts)
-VALUES (gen_random_uuid()::text, sqlc.arg(workspace_id)::text, 'pending', 'scheduler', sqlc.arg(policy_snapshot)::json, '{}'::json)
+INSERT INTO retention_runs (id, workspace_id, status, requested_by, policy_snapshot, deleted_counts, created_at)
+VALUES (gen_random_uuid()::text, sqlc.arg(workspace_id)::text, 'pending', 'scheduler', sqlc.arg(policy_snapshot)::json, '{}'::json, (now() AT TIME ZONE 'UTC'))
 RETURNING id;
 
 -- name: RetRunCancel :exec
 UPDATE retention_runs
-SET status = 'cancelled', error = sqlc.arg(error)::text, finished_at = (sqlc.arg(finished_at)::timestamptz)::timestamp
+SET status = 'cancelled', error = sqlc.arg(error)::text, finished_at = (sqlc.arg(finished_at)::timestamptz AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: RetRunStart :exec
 UPDATE retention_runs
-SET status = 'running', started_at = (sqlc.arg(started_at)::timestamptz)::timestamp
+SET status = 'running', started_at = (sqlc.arg(started_at)::timestamptz AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: RetRunFinish :exec
 UPDATE retention_runs
 SET status = sqlc.arg(status)::text, deleted_counts = sqlc.arg(deleted_counts)::json,
-    error = sqlc.narg(error)::text, finished_at = (sqlc.arg(finished_at)::timestamptz)::timestamp
+    error = sqlc.narg(error)::text, finished_at = (sqlc.arg(finished_at)::timestamptz AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- Counts so far for a run another actor already cancelled (status and error stay).
@@ -150,7 +150,7 @@ SELECT status, payload FROM jobs WHERE id = sqlc.arg(id)::int;
 UPDATE jobs SET payload = sqlc.arg(payload)::json WHERE id = sqlc.arg(id)::int;
 
 -- name: RetJobCancelPending :exec
-UPDATE jobs SET status = 'cancelled', error = sqlc.arg(error)::text, completed_at = (sqlc.arg(completed_at)::timestamptz)::timestamp
+UPDATE jobs SET status = 'cancelled', error = sqlc.arg(error)::text, completed_at = (sqlc.arg(completed_at)::timestamptz AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(id)::int AND status = 'pending';
 
 -- Batched deletes: the explicit workspace predicate is in both the inner select and the
@@ -159,7 +159,7 @@ WHERE id = sqlc.arg(id)::int AND status = 'pending';
 DELETE FROM governance_audit_events
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
   SELECT ctid FROM governance_audit_events
-  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < (sqlc.arg(cutoff)::timestamptz AT TIME ZONE 'UTC')
   LIMIT sqlc.arg(batch)::int);
 
 -- name: RetDeleteLLMUsage :execrows
@@ -180,28 +180,28 @@ WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
 DELETE FROM destination_deliveries
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
   SELECT ctid FROM destination_deliveries
-  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < (sqlc.arg(cutoff)::timestamptz AT TIME ZONE 'UTC')
   LIMIT sqlc.arg(batch)::int);
 
 -- name: RetDeleteInboundReceipts :execrows
 DELETE FROM destination_inbound_receipts
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
   SELECT ctid FROM destination_inbound_receipts
-  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < (sqlc.arg(cutoff)::timestamptz AT TIME ZONE 'UTC')
   LIMIT sqlc.arg(batch)::int);
 
 -- name: RetDeleteMembershipEvents :execrows
 DELETE FROM audience_membership_events
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
   SELECT ctid FROM audience_membership_events
-  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < (sqlc.arg(cutoff)::timestamptz AT TIME ZONE 'UTC')
   LIMIT sqlc.arg(batch)::int);
 
 -- name: RetDeletePlaybookResults :execrows
 DELETE FROM playbook_results
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
   SELECT ctid FROM playbook_results
-  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < (sqlc.arg(cutoff)::timestamptz AT TIME ZONE 'UTC')
   LIMIT sqlc.arg(batch)::int);
 
 -- name: RetDeleteOutreachSends :execrows
@@ -214,22 +214,21 @@ WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
 -- ---- routes (internal/api/governanceretention.go) ----
 
 -- An operator-requested run (requested_by is the user id as text, like Python's str(ctx.user.id)).
--- created_at takes its server default (now(), naive, session TimeZone).
+-- created_at is stamped with UTC wall time (the column default would use the session zone).
 -- name: RetRunInsertRequested :one
-INSERT INTO retention_runs (id, workspace_id, status, requested_by, policy_snapshot, deleted_counts)
+INSERT INTO retention_runs (id, workspace_id, status, requested_by, policy_snapshot, deleted_counts, created_at)
 VALUES (gen_random_uuid()::text, sqlc.arg(workspace_id)::text, 'pending', sqlc.arg(requested_by)::text,
-        sqlc.arg(policy_snapshot)::json, '{}'::json)
+        sqlc.arg(policy_snapshot)::json, '{}'::json, (now() AT TIME ZONE 'UTC'))
 RETURNING id, status, requested_by, policy_snapshot, deleted_counts, error, started_at, finished_at, created_at;
 
--- Newest first. The keyset compares the naive column to an aware UTC cursor as timestamptz (the
--- session TimeZone reads the column), exactly what psycopg sends for Python's aware datetime.
+-- Newest first. The keyset compares the naive UTC column to an aware cursor converted to UTC wall time.
 -- name: RetRunsList :many
 SELECT id, status, requested_by, policy_snapshot, deleted_counts, error, started_at, finished_at, created_at
 FROM retention_runs
 WHERE workspace_id = sqlc.arg(workspace_id)::text
   AND (NOT sqlc.arg(use_cursor)::bool
-       OR created_at < sqlc.arg(cursor_created)::timestamptz
-       OR (created_at = sqlc.arg(cursor_created)::timestamptz AND id < sqlc.arg(cursor_id)::text))
+       OR created_at < (sqlc.arg(cursor_created)::timestamptz AT TIME ZONE 'UTC')
+       OR (created_at = (sqlc.arg(cursor_created)::timestamptz AT TIME ZONE 'UTC') AND id < sqlc.arg(cursor_id)::text))
 ORDER BY created_at DESC, id DESC
 LIMIT sqlc.arg(row_limit)::int OFFSET sqlc.arg(row_offset)::int;
 

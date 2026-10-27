@@ -139,7 +139,7 @@ func (q *Queries) BillingRecentEntries(ctx context.Context, arg BillingRecentEnt
 
 const billingSetBalance = `-- name: BillingSetBalance :exec
 UPDATE workspace_credits
-SET balance_usd = $1::float8, updated_at = CURRENT_TIMESTAMP
+SET balance_usd = $1::float8, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $2::text
 `
 

@@ -735,8 +735,8 @@ type DestInboundTokenInsertParams struct {
 // destination_inbound_tokens is a non-RLS auth-plane table (looked up by hash on
 // the plain pool); receipts, deliveries and leads are RLS tables: run inside
 // tenancy.InWorkspace and keep the explicit workspace predicate.
-// Naive timestamp columns (created_at, revoked_at) take a timestamptz that PG
-// casts under the session TimeZone (UTC in production), as the Python driver did.
+// Naive timestamp columns (created_at, revoked_at) hold UTC wall time: revoked_at is
+// converted with AT TIME ZONE 'UTC', never through the session TimeZone.
 func (q *Queries) DestInboundTokenInsert(ctx context.Context, arg DestInboundTokenInsertParams) (pgtype.Timestamp, error) {
 	row := q.db.QueryRow(ctx, destInboundTokenInsert,
 		arg.ID,
@@ -809,7 +809,7 @@ func (q *Queries) DestInboundTokenStamp(ctx context.Context, arg DestInboundToke
 }
 
 const destInboundTokensRevokeActive = `-- name: DestInboundTokensRevokeActive :execrows
-UPDATE destination_inbound_tokens SET revoked_at = $1::timestamptz
+UPDATE destination_inbound_tokens SET revoked_at = ($1::timestamptz AT TIME ZONE 'UTC')
 WHERE workspace_id = $2::text AND destination_id = $3::text
   AND revoked_at IS NULL
 `

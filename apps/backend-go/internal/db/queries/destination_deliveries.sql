@@ -11,17 +11,17 @@ FROM destination_deliveries
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND run_id = sqlc.arg(run_id)::text;
 
 -- name: DestDeliveriesCancelOpen :exec
-UPDATE destination_deliveries SET status = 'cancelled', error = 'Run cancelled before delivery', updated_at = now()
+UPDATE destination_deliveries SET status = 'cancelled', error = 'Run cancelled before delivery', updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND run_id = sqlc.arg(run_id)::text
   AND status IN ('pending', 'in_flight');
 
 -- name: DestDeliveriesResetInFlight :exec
-UPDATE destination_deliveries SET status = 'pending', error = sqlc.arg(error)::text, updated_at = now()
+UPDATE destination_deliveries SET status = 'pending', error = sqlc.arg(error)::text, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND run_id = sqlc.arg(run_id)::text
   AND status = 'in_flight';
 
 -- name: DestDeliveriesFailOpen :exec
-UPDATE destination_deliveries SET status = 'failed', error = sqlc.arg(error)::text, updated_at = now()
+UPDATE destination_deliveries SET status = 'failed', error = sqlc.arg(error)::text, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND run_id = sqlc.arg(run_id)::text
   AND status IN ('pending', 'in_flight');
 
@@ -64,7 +64,7 @@ VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(run_id)::text, sqlc.arg(destinati
 ON CONFLICT (workspace_id, idempotency_key) DO UPDATE SET
   run_id = EXCLUDED.run_id, status = EXCLUDED.status, error = NULL, payload = EXCLUDED.payload,
   attempts = destination_deliveries.attempts + EXCLUDED.attempts,
-  summary = coalesce(EXCLUDED.summary, destination_deliveries.summary), updated_at = now()
+  summary = coalesce(EXCLUDED.summary, destination_deliveries.summary), updated_at = (now() AT TIME ZONE 'UTC')
 WHERE destination_deliveries.status <> 'success'
 RETURNING *, (xmax = 0) AS inserted;
 
@@ -72,6 +72,6 @@ RETURNING *, (xmax = 0) AS inserted;
 UPDATE destination_deliveries SET status = sqlc.arg(status)::text, summary = sqlc.narg(summary)::text,
   error = sqlc.narg(error)::text, external_id = sqlc.narg(external_id)::text,
   delivered_at = CASE WHEN sqlc.arg(delivered)::boolean THEN (now() AT TIME ZONE 'UTC') ELSE delivered_at END,
-  updated_at = now()
+  updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::int
 RETURNING *;

@@ -14,7 +14,7 @@ import (
 const audRefreshMemberInsert = `-- name: AudRefreshMemberInsert :exec
 INSERT INTO audience_members (workspace_id, audience_id, lead_id, snapshot, refresh_token, joined_at, last_seen_at)
 VALUES ($1::text, $2::text, $3::int, $4::json,
-        $5::text, ($6::timestamptz)::timestamp, ($6::timestamptz)::timestamp)
+        $5::text, ($6::timestamptz AT TIME ZONE 'UTC'), ($6::timestamptz AT TIME ZONE 'UTC'))
 `
 
 type AudRefreshMemberInsertParams struct {
@@ -41,7 +41,7 @@ func (q *Queries) AudRefreshMemberInsert(ctx context.Context, arg AudRefreshMemb
 const audRefreshMemberTouch = `-- name: AudRefreshMemberTouch :exec
 UPDATE audience_members
 SET snapshot = $1::json, refresh_token = $2::text,
-    last_seen_at = ($3::timestamptz)::timestamp
+    last_seen_at = ($3::timestamptz AT TIME ZONE 'UTC')
 WHERE id = $4::int AND workspace_id = $5::text AND audience_id = $6::text
 `
 

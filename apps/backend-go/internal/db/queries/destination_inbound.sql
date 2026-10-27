@@ -2,8 +2,8 @@
 -- destination_inbound_tokens is a non-RLS auth-plane table (looked up by hash on
 -- the plain pool); receipts, deliveries and leads are RLS tables: run inside
 -- tenancy.InWorkspace and keep the explicit workspace predicate.
--- Naive timestamp columns (created_at, revoked_at) take a timestamptz that PG
--- casts under the session TimeZone (UTC in production), as the Python driver did.
+-- Naive timestamp columns (created_at, revoked_at) hold UTC wall time: revoked_at is
+-- converted with AT TIME ZONE 'UTC', never through the session TimeZone.
 
 -- name: DestInboundTokenInsert :one
 INSERT INTO destination_inbound_tokens (id, workspace_id, destination_id, token_hash, prefix, created_by, expires_at)
@@ -12,7 +12,7 @@ VALUES (sqlc.arg(id)::text, sqlc.arg(workspace_id)::text, sqlc.arg(destination_i
 RETURNING created_at;
 
 -- name: DestInboundTokensRevokeActive :execrows
-UPDATE destination_inbound_tokens SET revoked_at = sqlc.arg(now)::timestamptz
+UPDATE destination_inbound_tokens SET revoked_at = (sqlc.arg(now)::timestamptz AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND destination_id = sqlc.arg(destination_id)::text
   AND revoked_at IS NULL;
 

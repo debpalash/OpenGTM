@@ -1,8 +1,8 @@
 -- plan 10 (audiences): schedule_next, the audience_schedules mirror and the failure
 -- reconcile. audiences is RLS (run inside tenancy.InWorkspace, with the explicit
 -- workspace filter as well); audience_schedules and jobs are non-RLS control tables.
--- Timestamps are naive UTC columns; instants bind as timestamptz and cast to
--- timestamp exactly as the autoschedule/retention mirrors do.
+-- Timestamps are naive UTC columns; instants bind as timestamptz and convert with
+-- AT TIME ZONE 'UTC' (never a bare ::timestamp cast, which uses the session TimeZone).
 
 -- name: AudSchedLockAudience :one
 SELECT refresh_enabled, refresh_interval_minutes, next_refresh_at
@@ -27,40 +27,40 @@ WHERE type = 'audience_refresh' AND status = 'pending'
 -- name: AudSchedInsertJob :one
 INSERT INTO jobs (executor, type, payload, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count, workspace_id)
 VALUES (sqlc.arg(executor)::text, 'audience_refresh', sqlc.arg(payload)::json, 1, sqlc.arg(fire_key)::text, 'pending',
-        (now() AT TIME ZONE 'UTC'), (sqlc.arg(next_run_at)::timestamptz)::timestamp, 3, 0, sqlc.arg(workspace_id)::text)
+        (now() AT TIME ZONE 'UTC'), (sqlc.arg(next_run_at)::timestamptz AT TIME ZONE 'UTC'), 3, 0, sqlc.arg(workspace_id)::text)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id;
 
 -- SQLAlchemy only writes a changed attribute (and then bumps updated_at).
 -- name: AudSchedSetNextRefresh :exec
 UPDATE audiences
-SET next_refresh_at = (sqlc.narg(next_refresh_at)::timestamptz)::timestamp, updated_at = now()
+SET next_refresh_at = (sqlc.narg(next_refresh_at)::timestamptz AT TIME ZONE 'UTC'), updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text
-  AND next_refresh_at IS DISTINCT FROM (sqlc.narg(next_refresh_at)::timestamptz)::timestamp;
+  AND next_refresh_at IS DISTINCT FROM (sqlc.narg(next_refresh_at)::timestamptz AT TIME ZONE 'UTC');
 
 -- name: AudSchedSetNextRefreshNaive :exec
 UPDATE audiences
-SET next_refresh_at = sqlc.narg(next_refresh_at)::timestamp, updated_at = now()
+SET next_refresh_at = sqlc.narg(next_refresh_at)::timestamp, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text
   AND next_refresh_at IS DISTINCT FROM sqlc.narg(next_refresh_at)::timestamp;
 
 -- name: AudSchedUpsertMirror :exec
-INSERT INTO audience_schedules (audience_id, workspace_id, next_refresh_at, enabled)
+INSERT INTO audience_schedules (audience_id, workspace_id, next_refresh_at, enabled, updated_at)
 VALUES (sqlc.arg(audience_id)::text, sqlc.arg(workspace_id)::text,
-        (sqlc.narg(next_refresh_at)::timestamptz)::timestamp, sqlc.arg(enabled)::boolean)
+        (sqlc.narg(next_refresh_at)::timestamptz AT TIME ZONE 'UTC'), sqlc.arg(enabled)::boolean, (now() AT TIME ZONE 'UTC'))
 ON CONFLICT (audience_id) DO UPDATE
 SET workspace_id = EXCLUDED.workspace_id, next_refresh_at = EXCLUDED.next_refresh_at,
-    enabled = EXCLUDED.enabled, updated_at = now()
+    enabled = EXCLUDED.enabled, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE (audience_schedules.workspace_id, audience_schedules.next_refresh_at, audience_schedules.enabled)
       IS DISTINCT FROM (EXCLUDED.workspace_id, EXCLUDED.next_refresh_at, EXCLUDED.enabled);
 
 -- Mirror of a retry time that is already a naive UTC value (job.next_run_at).
 -- name: AudSchedUpsertMirrorNaive :exec
-INSERT INTO audience_schedules (audience_id, workspace_id, next_refresh_at, enabled)
-VALUES (sqlc.arg(audience_id)::text, sqlc.arg(workspace_id)::text, sqlc.narg(next_refresh_at)::timestamp, sqlc.arg(enabled)::boolean)
+INSERT INTO audience_schedules (audience_id, workspace_id, next_refresh_at, enabled, updated_at)
+VALUES (sqlc.arg(audience_id)::text, sqlc.arg(workspace_id)::text, sqlc.narg(next_refresh_at)::timestamp, sqlc.arg(enabled)::boolean, (now() AT TIME ZONE 'UTC'))
 ON CONFLICT (audience_id) DO UPDATE
 SET workspace_id = EXCLUDED.workspace_id, next_refresh_at = EXCLUDED.next_refresh_at,
-    enabled = EXCLUDED.enabled, updated_at = now()
+    enabled = EXCLUDED.enabled, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE (audience_schedules.workspace_id, audience_schedules.next_refresh_at, audience_schedules.enabled)
       IS DISTINCT FROM (EXCLUDED.workspace_id, EXCLUDED.next_refresh_at, EXCLUDED.enabled);
 
@@ -73,7 +73,7 @@ WHERE audience_id = sqlc.arg(audience_id)::text
 -- name: AudSchedMarkFailed :exec
 UPDATE audiences
 SET refresh_health = 'degraded', last_refresh_error = sqlc.arg(last_refresh_error)::text,
-    consecutive_refresh_failures = coalesce(consecutive_refresh_failures, 0) + 1, updated_at = now()
+    consecutive_refresh_failures = coalesce(consecutive_refresh_failures, 0) + 1, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: AudSchedJobNextRun :one

@@ -12,7 +12,7 @@ import (
 )
 
 const destDeliveriesCancelOpen = `-- name: DestDeliveriesCancelOpen :exec
-UPDATE destination_deliveries SET status = 'cancelled', error = 'Run cancelled before delivery', updated_at = now()
+UPDATE destination_deliveries SET status = 'cancelled', error = 'Run cancelled before delivery', updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $1::text AND run_id = $2::text
   AND status IN ('pending', 'in_flight')
 `
@@ -28,7 +28,7 @@ func (q *Queries) DestDeliveriesCancelOpen(ctx context.Context, arg DestDeliveri
 }
 
 const destDeliveriesFailOpen = `-- name: DestDeliveriesFailOpen :exec
-UPDATE destination_deliveries SET status = 'failed', error = $1::text, updated_at = now()
+UPDATE destination_deliveries SET status = 'failed', error = $1::text, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $2::text AND run_id = $3::text
   AND status IN ('pending', 'in_flight')
 `
@@ -106,7 +106,7 @@ func (q *Queries) DestDeliveriesList(ctx context.Context, arg DestDeliveriesList
 }
 
 const destDeliveriesResetInFlight = `-- name: DestDeliveriesResetInFlight :exec
-UPDATE destination_deliveries SET status = 'pending', error = $1::text, updated_at = now()
+UPDATE destination_deliveries SET status = 'pending', error = $1::text, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $2::text AND run_id = $3::text
   AND status = 'in_flight'
 `
@@ -198,7 +198,7 @@ const destDeliverySettle = `-- name: DestDeliverySettle :one
 UPDATE destination_deliveries SET status = $1::text, summary = $2::text,
   error = $3::text, external_id = $4::text,
   delivered_at = CASE WHEN $5::boolean THEN (now() AT TIME ZONE 'UTC') ELSE delivered_at END,
-  updated_at = now()
+  updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $6::text AND id = $7::int
 RETURNING id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, summary, error, delivered_at, created_at, updated_at, payload
 `
@@ -281,7 +281,7 @@ VALUES ($1::text, $2::text, $3::text, $4::int,
 ON CONFLICT (workspace_id, idempotency_key) DO UPDATE SET
   run_id = EXCLUDED.run_id, status = EXCLUDED.status, error = NULL, payload = EXCLUDED.payload,
   attempts = destination_deliveries.attempts + EXCLUDED.attempts,
-  summary = coalesce(EXCLUDED.summary, destination_deliveries.summary), updated_at = now()
+  summary = coalesce(EXCLUDED.summary, destination_deliveries.summary), updated_at = (now() AT TIME ZONE 'UTC')
 WHERE destination_deliveries.status <> 'success'
 RETURNING id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, summary, error, delivered_at, created_at, updated_at, payload, (xmax = 0) AS inserted
 `

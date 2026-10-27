@@ -289,9 +289,10 @@ func TestExportCSVStreamsInBatches(t *testing.T) {
 	}
 }
 
-// Python sends aware since/before and every decoded cursor as timestamptz, so
-// Postgres reads the naive column in the session TimeZone; Go must do the same.
-func TestListSessionTimeZoneMatchesPython(t *testing.T) {
+// The column holds UTC wall time. Aware since/before and every decoded cursor are
+// converted to UTC, so the session TimeZone (set to Asia/Kolkata here) changes nothing.
+// (Python compared them in the session zone; that skew is deliberately not reproduced.)
+func TestListIgnoresSessionTimeZone(t *testing.T) {
 	e := setup(t)
 	ws := e.workspace(t, "tz")
 	for i, h := range []int{10, 12, 14} {
@@ -313,32 +314,34 @@ func TestListSessionTimeZoneMatchesPython(t *testing.T) {
 		return ids(p)
 	}
 	kolkata := time.FixedZone("", 19800)
-	// aware 11:30+05:30 == 11:30 IST wall clock == naive 11:30 -> rows at 12:00 and 14:00
+	// aware 11:30+05:30 == 06:00Z: all three rows are later
 	s := time.Date(2026, 3, 1, 11, 30, 0, 0, kolkata)
-	if got := run(Filter{Since: &s}, ""); got != "e2,e1" {
+	if got := run(Filter{Since: &s}, ""); got != "e2,e1,e0" {
 		t.Errorf("aware since (offset equal to session tz): %s", got)
 	}
-	// aware 06:00Z == 11:30 IST wall clock: same rows (UTC conversion would return all three)
-	z := time.Date(2026, 3, 1, 6, 0, 0, 0, time.FixedZone("", 0))
+	z := time.Date(2026, 3, 1, 11, 30, 0, 0, time.FixedZone("", 0))
 	if got := run(Filter{Since: &z}, ""); got != "e2,e1" {
 		t.Errorf("aware since Z: %s", got)
 	}
 	if got := run(Filter{Before: &z}, ""); got != "e0" {
 		t.Errorf("aware before Z: %s", got)
 	}
+	if got := run(Filter{Before: &s}, ""); got != "" {
+		t.Errorf("aware before +05:30: %s", got)
+	}
 	// naive stays a plain wall-clock compare
 	n := time.Date(2026, 3, 1, 11, 0, 0, 0, time.UTC)
 	if got := run(Filter{Since: &n}, ""); got != "e2,e1" {
 		t.Errorf("naive since: %s", got)
 	}
-	// Python decodes a naive cursor as UTC-aware: 12:00Z == 17:30 IST, so all rows sort before it
+	// a UTC cursor at 12:00Z: ties on e1 resolved by id
 	cur := EncodeCursor(time.Date(2026, 3, 1, 12, 0, 0, 0, time.UTC), "zzz")
-	if got := run(Filter{}, cur); got != "e2,e1,e0" {
+	if got := run(Filter{}, cur); got != "e1,e0" {
 		t.Errorf("naive cursor: %s", got)
 	}
-	// an explicit-offset cursor 12:00+05:30 == 12:00 IST wall clock: ties on e1 resolved by id
+	// an explicit-offset cursor 12:00+05:30 == 06:30Z: every row is later
 	cur = EncodeCursor(time.Date(2026, 3, 1, 12, 0, 0, 0, kolkata), "e1")
-	if got := run(Filter{}, cur); got != "e0" {
+	if got := run(Filter{}, cur); got != "" {
 		t.Errorf("aware cursor: %s", got)
 	}
 }

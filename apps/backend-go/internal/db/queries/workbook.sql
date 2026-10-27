@@ -27,15 +27,15 @@ WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(work
   AND id = ANY(sqlc.arg(row_ids)::int[]);
 
 -- name: MarkWorkbookRunning :exec
-UPDATE workbooks SET status = 'running', updated_at = now()
+UPDATE workbooks SET status = 'running', updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text AND status IS DISTINCT FROM 'paused';
 
 -- name: MarkWorkbookComplete :exec
-UPDATE workbooks SET status = 'complete', updated_at = now()
+UPDATE workbooks SET status = 'complete', updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: SetWorkbookProgress :exec
-UPDATE workbooks SET total_rows = sqlc.arg(total_rows)::int, completed_rows = sqlc.arg(completed_rows)::int, updated_at = now()
+UPDATE workbooks SET total_rows = sqlc.arg(total_rows)::int, completed_rows = sqlc.arg(completed_rows)::int, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: FinalizeWorkbook :one
@@ -44,13 +44,13 @@ WHERE id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)
 UPDATE workbooks SET
   status = CASE WHEN status IS DISTINCT FROM 'paused' THEN sqlc.arg(final_status)::text ELSE status END,
   completed_rows = CASE WHEN status IS DISTINCT FROM 'paused' THEN sqlc.arg(completed_rows)::int ELSE completed_rows END,
-  updated_at = now()
+  updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text
 RETURNING status;
 
 -- name: FailWorkbook :exec
 -- Terminal/refusal path: never overwrite a user's pause.
-UPDATE workbooks SET status = 'failed', updated_at = now()
+UPDATE workbooks SET status = 'failed', updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text AND status IS DISTINCT FROM 'paused';
 
 -- name: UpsertEnrichment :exec
@@ -60,7 +60,7 @@ VALUES (sqlc.arg(workbook_id)::text, sqlc.arg(workspace_id)::text, sqlc.arg(lead
   sqlc.narg(value)::text, sqlc.arg(status)::text, sqlc.narg(provider)::text, sqlc.narg(error)::text, sqlc.narg(cell_metadata)::json)
 ON CONFLICT (workbook_id, lead_id, column_id) DO UPDATE SET
   value = EXCLUDED.value, status = EXCLUDED.status, provider = EXCLUDED.provider,
-  error = EXCLUDED.error, cell_metadata = EXCLUDED.cell_metadata, updated_at = now();
+  error = EXCLUDED.error, cell_metadata = EXCLUDED.cell_metadata, updated_at = (now() AT TIME ZONE 'UTC');
 
 -- name: GetRowOverlayCell :one
 -- Prior overlay cell (enrichments[column_id]) as JSON text, 'null' when absent: the old value of
@@ -73,7 +73,7 @@ WHERE id = sqlc.arg(row_id)::int AND workbook_id = sqlc.arg(workbook_id)::text A
 -- merge is a single statement so concurrent cells of one row cannot lose writes.
 UPDATE workbook_rows
 SET enrichments = jsonb_set(COALESCE(enrichments::jsonb, '{}'::jsonb), ARRAY[sqlc.arg(column_id)::text], sqlc.arg(cell)::jsonb, true)::json,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(row_id)::int AND workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: ListPriorAttemptProviders :many

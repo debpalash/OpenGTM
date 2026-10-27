@@ -56,8 +56,8 @@ SELECT id, destination_id, provider, external_event_id, external_record_id, lead
 FROM destination_inbound_receipts
 WHERE workspace_id = $1::text AND destination_id = $2::text
   AND (NOT $3::boolean
-       OR created_at < $4::timestamptz
-       OR (created_at = $4::timestamptz AND id < $5::text))
+       OR created_at < ($4::timestamptz AT TIME ZONE 'UTC')
+       OR (created_at = ($4::timestamptz AT TIME ZONE 'UTC') AND id < $5::text))
 ORDER BY created_at DESC, id DESC
 LIMIT $7::int OFFSET $6::int
 `

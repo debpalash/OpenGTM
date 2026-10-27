@@ -36,12 +36,12 @@ RETURNING finished_at;
 UPDATE audience_destinations
 SET health_status = sqlc.arg(health_status)::text, last_error = sqlc.narg(last_error)::text,
     last_success_at = CASE WHEN sqlc.arg(set_success)::boolean THEN sqlc.arg(finished_at)::timestamp ELSE last_success_at END,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::text;
 
 -- name: DSDeliveriesMarkInFlight :exec
 UPDATE destination_deliveries
-SET status = 'in_flight', attempts = attempts + 1, updated_at = now()
+SET status = 'in_flight', attempts = attempts + 1, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = ANY(sqlc.arg(ids)::int[]);
 
 -- Settle a batch together: only rows still in flight (a concurrent reconcile may have
@@ -51,12 +51,12 @@ UPDATE destination_deliveries
 SET status = sqlc.arg(status)::text, summary = sqlc.narg(summary)::text, error = sqlc.narg(error)::text,
     external_id = sqlc.narg(external_id)::text,
     delivered_at = CASE WHEN sqlc.arg(delivered)::boolean THEN (now() AT TIME ZONE 'UTC') ELSE delivered_at END,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = ANY(sqlc.arg(ids)::int[]) AND status = 'in_flight';
 
 -- name: DSWarehouseToInFlight :execrows
 UPDATE destination_deliveries
-SET status = 'in_flight', attempts = attempts + 1, updated_at = now()
+SET status = 'in_flight', attempts = attempts + 1, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND run_id = sqlc.arg(run_id)::text
   AND destination_id = sqlc.arg(destination_id)::text AND status = 'pending';
 
@@ -65,7 +65,7 @@ UPDATE destination_deliveries
 SET status = sqlc.arg(status)::text, summary = sqlc.narg(summary)::text, error = sqlc.narg(error)::text,
     external_id = sqlc.narg(external_id)::text,
     delivered_at = CASE WHEN sqlc.arg(delivered)::boolean THEN (now() AT TIME ZONE 'UTC') ELSE delivered_at END,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND run_id = sqlc.arg(run_id)::text
   AND destination_id = sqlc.arg(destination_id)::text AND status = 'in_flight';
 
@@ -90,7 +90,7 @@ LIMIT sqlc.arg(page_limit)::int;
 -- A removal row that failed (or was cancelled) earlier is queued again where it is: it
 -- keeps its run (as Python does), error cleared.
 -- name: DSDeliveryRequeue :exec
-UPDATE destination_deliveries SET status = 'pending', error = NULL, updated_at = now()
+UPDATE destination_deliveries SET status = 'pending', error = NULL, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::int;
 
 -- One delivery's result, only while the row is still ours: in flight and in this run (a
@@ -100,6 +100,6 @@ UPDATE destination_deliveries
 SET status = sqlc.arg(status)::text, summary = sqlc.narg(summary)::text, error = sqlc.narg(error)::text,
     external_id = sqlc.narg(external_id)::text,
     delivered_at = CASE WHEN sqlc.arg(delivered)::boolean THEN (now() AT TIME ZONE 'UTC') ELSE delivered_at END,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::int
   AND run_id = sqlc.arg(run_id)::text AND status = 'in_flight';

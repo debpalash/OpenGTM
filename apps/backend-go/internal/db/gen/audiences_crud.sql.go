@@ -180,7 +180,7 @@ const audCrudUpdate = `-- name: AudCrudUpdate :exec
 UPDATE audiences
 SET name = $1::text, description = $2::text, filters = $3::json,
     refresh_enabled = $4::boolean, refresh_interval_minutes = $5::int,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = $6::text AND workspace_id = $7::text
 `
 

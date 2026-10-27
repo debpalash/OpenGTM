@@ -22,14 +22,14 @@ WHERE workspace_id = $1::text
   AND ($4::text = '' OR outcome = $4::text)
   AND ($5::timestamp IS NULL OR created_at >= $5::timestamp)
   AND ($6::timestamp IS NULL OR created_at < $6::timestamp)
-  AND ($7::timestamptz IS NULL OR created_at >= $7::timestamptz)
-  AND ($8::timestamptz IS NULL OR created_at < $8::timestamptz)
+  AND ($7::timestamptz IS NULL OR created_at >= ($7::timestamptz AT TIME ZONE 'UTC'))
+  AND ($8::timestamptz IS NULL OR created_at < ($8::timestamptz AT TIME ZONE 'UTC'))
   AND ($9::timestamp IS NULL
        OR created_at < $9::timestamp
        OR (created_at = $9::timestamp AND id < $10::text))
   AND ($11::timestamptz IS NULL
-       OR created_at < $11::timestamptz
-       OR (created_at = $11::timestamptz AND id < $10::text))
+       OR created_at < ($11::timestamptz AT TIME ZONE 'UTC')
+       OR (created_at = ($11::timestamptz AT TIME ZONE 'UTC') AND id < $10::text))
 ORDER BY created_at DESC, id DESC
 LIMIT $12::int
 `
@@ -64,10 +64,9 @@ type ListGovernanceAuditEventsRow struct {
 }
 
 // Governance audit event listing and CSV keyset batches (tenant table under FORCE RLS:
-// run inside tenancy.InWorkspace). created_at is a naive timestamp. Naive since/before
-// compare as timestamps; aware ones (*_tz) and decoded cursors (cursor_tz) compare as
-// timestamptz, so Postgres reads the column in the session TimeZone exactly as
-// psycopg/SQLAlchemy do for Python.
+// run inside tenancy.InWorkspace). created_at is a naive UTC timestamp. Naive since/before
+// compare as timestamps; aware ones (*_tz) and decoded cursors (cursor_tz) are converted
+// to UTC wall time first, so the result does not depend on the session TimeZone.
 func (q *Queries) ListGovernanceAuditEvents(ctx context.Context, arg ListGovernanceAuditEventsParams) ([]ListGovernanceAuditEventsRow, error) {
 	rows, err := q.db.Query(ctx, listGovernanceAuditEvents,
 		arg.WorkspaceID,

@@ -9,12 +9,12 @@ WHERE workspace_id = sqlc.arg(workspace_id)::text AND audience_id = sqlc.arg(aud
 -- name: AudRefreshMemberInsert :exec
 INSERT INTO audience_members (workspace_id, audience_id, lead_id, snapshot, refresh_token, joined_at, last_seen_at)
 VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(audience_id)::text, sqlc.arg(lead_id)::int, sqlc.arg(snapshot)::json,
-        sqlc.arg(refresh_token)::text, (sqlc.arg(now)::timestamptz)::timestamp, (sqlc.arg(now)::timestamptz)::timestamp);
+        sqlc.arg(refresh_token)::text, (sqlc.arg(now)::timestamptz AT TIME ZONE 'UTC'), (sqlc.arg(now)::timestamptz AT TIME ZONE 'UTC'));
 
 -- name: AudRefreshMemberTouch :exec
 UPDATE audience_members
 SET snapshot = sqlc.arg(snapshot)::json, refresh_token = sqlc.arg(refresh_token)::text,
-    last_seen_at = (sqlc.arg(now)::timestamptz)::timestamp
+    last_seen_at = (sqlc.arg(now)::timestamptz AT TIME ZONE 'UTC')
 WHERE id = sqlc.arg(id)::int AND workspace_id = sqlc.arg(workspace_id)::text AND audience_id = sqlc.arg(audience_id)::text;
 
 -- Members the refresh did not see (NULL or another token), keyset by id.

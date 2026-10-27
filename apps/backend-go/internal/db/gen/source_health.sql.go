@@ -58,7 +58,7 @@ func (q *Queries) SHAll(ctx context.Context) ([]SourceHealth, error) {
 
 const sHCreateIfMissing = `-- name: SHCreateIfMissing :exec
 INSERT INTO source_health (name, state, consecutive_zero, consecutive_nonzero, probes, manual_override, updated_at)
-VALUES ($1::text, 'healthy', 0, 0, 0, false, now())
+VALUES ($1::text, 'healthy', 0, 0, 0, false, (now() AT TIME ZONE 'UTC'))
 ON CONFLICT (name) DO NOTHING
 `
 
@@ -152,14 +152,14 @@ func (q *Queries) SHGetForUpdate(ctx context.Context, name string) (SourceHealth
 
 const sHManualEnable = `-- name: SHManualEnable :one
 INSERT INTO source_health (name, state, consecutive_zero, consecutive_nonzero, probes, manual_override, updated_at)
-VALUES ($1::text, 'healthy', 0, 0, 0, true, now())
+VALUES ($1::text, 'healthy', 0, 0, 0, true, (now() AT TIME ZONE 'UTC'))
 ON CONFLICT (name) DO UPDATE SET
   manual_override = true,
   state = CASE WHEN source_health.state = 'auto_disabled' THEN 'healthy' ELSE source_health.state END,
   disabled_at = CASE WHEN source_health.state = 'auto_disabled' THEN NULL ELSE source_health.disabled_at END,
   disabled_reason = CASE WHEN source_health.state = 'auto_disabled' THEN NULL ELSE source_health.disabled_reason END,
   consecutive_zero = CASE WHEN source_health.state = 'auto_disabled' THEN 0 ELSE source_health.consecutive_zero END,
-  updated_at = now()
+  updated_at = (now() AT TIME ZONE 'UTC')
 RETURNING name, state, consecutive_zero, consecutive_nonzero, last_yield, ewma_yield, probes, last_probe_at, last_ok_at, last_outage_at, disabled_at, disabled_reason, manual_override, updated_at
 `
 
@@ -190,7 +190,7 @@ func (q *Queries) SHManualEnable(ctx context.Context, name string) (SourceHealth
 const sHReset = `-- name: SHReset :one
 UPDATE source_health
 SET state = 'healthy', consecutive_zero = 0, consecutive_nonzero = 0, disabled_at = NULL,
-    disabled_reason = NULL, manual_override = false, updated_at = now()
+    disabled_reason = NULL, manual_override = false, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE name = $1::text
 RETURNING name, state, consecutive_zero, consecutive_nonzero, last_yield, ewma_yield, probes, last_probe_at, last_ok_at, last_outage_at, disabled_at, disabled_reason, manual_override, updated_at
 `
@@ -224,14 +224,14 @@ INSERT INTO source_health (name, state, consecutive_zero, consecutive_nonzero, l
 VALUES ($1::text, $2::text, $3::int4, $4::int4,
         $5::int4, $6::float8, $7::int4,
         $8::timestamp, $9::timestamp, $10::timestamp,
-        $11::timestamp, $12::text, $13::bool, now())
+        $11::timestamp, $12::text, $13::bool, (now() AT TIME ZONE 'UTC'))
 ON CONFLICT (name) DO UPDATE SET
   state = EXCLUDED.state, consecutive_zero = EXCLUDED.consecutive_zero,
   consecutive_nonzero = EXCLUDED.consecutive_nonzero, last_yield = EXCLUDED.last_yield,
   ewma_yield = EXCLUDED.ewma_yield, probes = EXCLUDED.probes, last_probe_at = EXCLUDED.last_probe_at,
   last_ok_at = EXCLUDED.last_ok_at, last_outage_at = EXCLUDED.last_outage_at,
   disabled_at = EXCLUDED.disabled_at, disabled_reason = EXCLUDED.disabled_reason,
-  manual_override = EXCLUDED.manual_override, updated_at = now()
+  manual_override = EXCLUDED.manual_override, updated_at = (now() AT TIME ZONE 'UTC')
 `
 
 type SHUpsertParams struct {

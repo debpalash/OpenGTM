@@ -18,7 +18,7 @@ SELECT id, destination_id, provider, external_event_id, external_record_id, lead
 FROM destination_inbound_receipts
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND destination_id = sqlc.arg(destination_id)::text
   AND (NOT sqlc.arg(has_cursor)::boolean
-       OR created_at < sqlc.arg(cursor_at)::timestamptz
-       OR (created_at = sqlc.arg(cursor_at)::timestamptz AND id < sqlc.arg(cursor_id)::text))
+       OR created_at < (sqlc.arg(cursor_at)::timestamptz AT TIME ZONE 'UTC')
+       OR (created_at = (sqlc.arg(cursor_at)::timestamptz AT TIME ZONE 'UTC') AND id < sqlc.arg(cursor_id)::text))
 ORDER BY created_at DESC, id DESC
 LIMIT sqlc.arg(page_limit)::int OFFSET sqlc.arg(page_offset)::int;

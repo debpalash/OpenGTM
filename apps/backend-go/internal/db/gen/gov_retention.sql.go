@@ -33,7 +33,7 @@ func (q *Queries) RetCancelPendingJobs(ctx context.Context, fireKeyPrefix string
 const retCountAudit = `-- name: RetCountAudit :one
 
 SELECT count(*)::bigint FROM governance_audit_events
-WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+WHERE workspace_id = $1::text AND created_at < ($2::timestamptz AT TIME ZONE 'UTC')
 `
 
 type RetCountAuditParams struct {
@@ -44,9 +44,9 @@ type RetCountAuditParams struct {
 // Retention policy store, preview counts and scheduling (internal/retention).
 // retention_policies and the eight target tables are FORCE RLS: run inside
 // tenancy.InWorkspace, with the explicit workspace filter as well. retention_schedules and jobs
-// are non-RLS control tables. Naive timestamp columns are compared and written as
-// timestamptz so Postgres reads them in the session TimeZone exactly as
-// psycopg/SQLAlchemy do for Python's aware datetimes (see govaudit/gov_audit.sql).
+// are non-RLS control tables. Naive timestamp columns hold UTC wall time: aware instants
+// are converted with AT TIME ZONE 'UTC' on write and on comparison, so the result never
+// depends on the session TimeZone.
 func (q *Queries) RetCountAudit(ctx context.Context, arg RetCountAuditParams) (int64, error) {
 	row := q.db.QueryRow(ctx, retCountAudit, arg.WorkspaceID, arg.Cutoff)
 	var column_1 int64
@@ -56,7 +56,7 @@ func (q *Queries) RetCountAudit(ctx context.Context, arg RetCountAuditParams) (i
 
 const retCountDeliveries = `-- name: RetCountDeliveries :one
 SELECT count(*)::bigint FROM destination_deliveries
-WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+WHERE workspace_id = $1::text AND created_at < ($2::timestamptz AT TIME ZONE 'UTC')
 `
 
 type RetCountDeliveriesParams struct {
@@ -73,7 +73,7 @@ func (q *Queries) RetCountDeliveries(ctx context.Context, arg RetCountDeliveries
 
 const retCountInboundReceipts = `-- name: RetCountInboundReceipts :one
 SELECT count(*)::bigint FROM destination_inbound_receipts
-WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+WHERE workspace_id = $1::text AND created_at < ($2::timestamptz AT TIME ZONE 'UTC')
 `
 
 type RetCountInboundReceiptsParams struct {
@@ -108,7 +108,7 @@ func (q *Queries) RetCountLLMUsage(ctx context.Context, arg RetCountLLMUsagePara
 
 const retCountMembershipEvents = `-- name: RetCountMembershipEvents :one
 SELECT count(*)::bigint FROM audience_membership_events
-WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+WHERE workspace_id = $1::text AND created_at < ($2::timestamptz AT TIME ZONE 'UTC')
 `
 
 type RetCountMembershipEventsParams struct {
@@ -143,7 +143,7 @@ func (q *Queries) RetCountOutreachSends(ctx context.Context, arg RetCountOutreac
 
 const retCountPlaybookResults = `-- name: RetCountPlaybookResults :one
 SELECT count(*)::bigint FROM playbook_results
-WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+WHERE workspace_id = $1::text AND created_at < ($2::timestamptz AT TIME ZONE 'UTC')
 `
 
 type RetCountPlaybookResultsParams struct {
@@ -180,7 +180,7 @@ const retDeleteAudit = `-- name: RetDeleteAudit :execrows
 DELETE FROM governance_audit_events
 WHERE workspace_id = $1::text AND ctid IN (
   SELECT ctid FROM governance_audit_events
-  WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+  WHERE workspace_id = $1::text AND created_at < ($2::timestamptz AT TIME ZONE 'UTC')
   LIMIT $3::int)
 `
 
@@ -204,7 +204,7 @@ const retDeleteDeliveries = `-- name: RetDeleteDeliveries :execrows
 DELETE FROM destination_deliveries
 WHERE workspace_id = $1::text AND ctid IN (
   SELECT ctid FROM destination_deliveries
-  WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+  WHERE workspace_id = $1::text AND created_at < ($2::timestamptz AT TIME ZONE 'UTC')
   LIMIT $3::int)
 `
 
@@ -226,7 +226,7 @@ const retDeleteInboundReceipts = `-- name: RetDeleteInboundReceipts :execrows
 DELETE FROM destination_inbound_receipts
 WHERE workspace_id = $1::text AND ctid IN (
   SELECT ctid FROM destination_inbound_receipts
-  WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+  WHERE workspace_id = $1::text AND created_at < ($2::timestamptz AT TIME ZONE 'UTC')
   LIMIT $3::int)
 `
 
@@ -270,7 +270,7 @@ const retDeleteMembershipEvents = `-- name: RetDeleteMembershipEvents :execrows
 DELETE FROM audience_membership_events
 WHERE workspace_id = $1::text AND ctid IN (
   SELECT ctid FROM audience_membership_events
-  WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+  WHERE workspace_id = $1::text AND created_at < ($2::timestamptz AT TIME ZONE 'UTC')
   LIMIT $3::int)
 `
 
@@ -314,7 +314,7 @@ const retDeletePlaybookResults = `-- name: RetDeletePlaybookResults :execrows
 DELETE FROM playbook_results
 WHERE workspace_id = $1::text AND ctid IN (
   SELECT ctid FROM playbook_results
-  WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+  WHERE workspace_id = $1::text AND created_at < ($2::timestamptz AT TIME ZONE 'UTC')
   LIMIT $3::int)
 `
 
@@ -406,7 +406,7 @@ func (q *Queries) RetInsertRunJob(ctx context.Context, arg RetInsertRunJobParams
 const retInsertScheduledJob = `-- name: RetInsertScheduledJob :one
 INSERT INTO jobs (executor, type, payload, workspace_id, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count)
 VALUES ($1::text, 'retention_enforce', $2::json, $3::text, 1, $4::text, 'pending',
-        (now() AT TIME ZONE 'UTC'), ($5::timestamptz)::timestamp, 3, 0)
+        (now() AT TIME ZONE 'UTC'), ($5::timestamptz AT TIME ZONE 'UTC'), 3, 0)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id
 `
@@ -436,7 +436,7 @@ func (q *Queries) RetInsertScheduledJob(ctx context.Context, arg RetInsertSchedu
 }
 
 const retJobCancelPending = `-- name: RetJobCancelPending :exec
-UPDATE jobs SET status = 'cancelled', error = $1::text, completed_at = ($2::timestamptz)::timestamp
+UPDATE jobs SET status = 'cancelled', error = $1::text, completed_at = ($2::timestamptz AT TIME ZONE 'UTC')
 WHERE id = $3::int AND status = 'pending'
 `
 
@@ -505,7 +505,7 @@ func (q *Queries) RetPolicyLockShared(ctx context.Context, workspaceID string) (
 
 const retRunCancel = `-- name: RetRunCancel :exec
 UPDATE retention_runs
-SET status = 'cancelled', error = $1::text, finished_at = ($2::timestamptz)::timestamp
+SET status = 'cancelled', error = $1::text, finished_at = ($2::timestamptz AT TIME ZONE 'UTC')
 WHERE id = $3::text AND workspace_id = $4::text
 `
 
@@ -527,8 +527,8 @@ func (q *Queries) RetRunCancel(ctx context.Context, arg RetRunCancelParams) erro
 }
 
 const retRunCreate = `-- name: RetRunCreate :one
-INSERT INTO retention_runs (id, workspace_id, status, requested_by, policy_snapshot, deleted_counts)
-VALUES (gen_random_uuid()::text, $1::text, 'pending', 'scheduler', $2::json, '{}'::json)
+INSERT INTO retention_runs (id, workspace_id, status, requested_by, policy_snapshot, deleted_counts, created_at)
+VALUES (gen_random_uuid()::text, $1::text, 'pending', 'scheduler', $2::json, '{}'::json, (now() AT TIME ZONE 'UTC'))
 RETURNING id
 `
 
@@ -547,7 +547,7 @@ func (q *Queries) RetRunCreate(ctx context.Context, arg RetRunCreateParams) (str
 const retRunFinish = `-- name: RetRunFinish :exec
 UPDATE retention_runs
 SET status = $1::text, deleted_counts = $2::json,
-    error = $3::text, finished_at = ($4::timestamptz)::timestamp
+    error = $3::text, finished_at = ($4::timestamptz AT TIME ZONE 'UTC')
 WHERE id = $5::text AND workspace_id = $6::text
 `
 
@@ -575,7 +575,7 @@ func (q *Queries) RetRunFinish(ctx context.Context, arg RetRunFinishParams) erro
 const retRunGet = `-- name: RetRunGet :one
 
 SELECT id, workspace_id, status, requested_by, policy_snapshot, deleted_counts, error,
-       (started_at::timestamptz) AS started_at
+       (started_at AT TIME ZONE 'UTC')::timestamptz AS started_at
 FROM retention_runs
 WHERE id = $1::text AND workspace_id = $2::text
 `
@@ -598,8 +598,8 @@ type RetRunGetRow struct {
 
 // ---- enforcement and failure reconcile (enforce.go, reconcile.go) ----
 // retention_runs is FORCE RLS; jobs is not. Naive timestamps are written from a
-// timestamptz so Postgres stores them in the session TimeZone (what psycopg does for
-// Python's aware datetimes) and read back as timestamptz for the same reason.
+// timestamptz as UTC wall time and read back as timestamptz in UTC, whatever the
+// session TimeZone.
 func (q *Queries) RetRunGet(ctx context.Context, arg RetRunGetParams) (RetRunGetRow, error) {
 	row := q.db.QueryRow(ctx, retRunGet, arg.ID, arg.WorkspaceID)
 	var i RetRunGetRow
@@ -618,9 +618,9 @@ func (q *Queries) RetRunGet(ctx context.Context, arg RetRunGetParams) (RetRunGet
 
 const retRunInsertRequested = `-- name: RetRunInsertRequested :one
 
-INSERT INTO retention_runs (id, workspace_id, status, requested_by, policy_snapshot, deleted_counts)
+INSERT INTO retention_runs (id, workspace_id, status, requested_by, policy_snapshot, deleted_counts, created_at)
 VALUES (gen_random_uuid()::text, $1::text, 'pending', $2::text,
-        $3::json, '{}'::json)
+        $3::json, '{}'::json, (now() AT TIME ZONE 'UTC'))
 RETURNING id, status, requested_by, policy_snapshot, deleted_counts, error, started_at, finished_at, created_at
 `
 
@@ -644,7 +644,7 @@ type RetRunInsertRequestedRow struct {
 
 // ---- routes (internal/api/governanceretention.go) ----
 // An operator-requested run (requested_by is the user id as text, like Python's str(ctx.user.id)).
-// created_at takes its server default (now(), naive, session TimeZone).
+// created_at is stamped with UTC wall time (the column default would use the session zone).
 func (q *Queries) RetRunInsertRequested(ctx context.Context, arg RetRunInsertRequestedParams) (RetRunInsertRequestedRow, error) {
 	row := q.db.QueryRow(ctx, retRunInsertRequested, arg.WorkspaceID, arg.RequestedBy, arg.PolicySnapshot)
 	var i RetRunInsertRequestedRow
@@ -663,7 +663,7 @@ func (q *Queries) RetRunInsertRequested(ctx context.Context, arg RetRunInsertReq
 }
 
 const retRunLock = `-- name: RetRunLock :one
-SELECT status, (started_at::timestamptz) AS started_at
+SELECT status, (started_at AT TIME ZONE 'UTC')::timestamptz AS started_at
 FROM retention_runs
 WHERE id = $1::text AND workspace_id = $2::text
 FOR UPDATE
@@ -723,7 +723,7 @@ func (q *Queries) RetRunSetCounts(ctx context.Context, arg RetRunSetCountsParams
 
 const retRunStart = `-- name: RetRunStart :exec
 UPDATE retention_runs
-SET status = 'running', started_at = ($1::timestamptz)::timestamp
+SET status = 'running', started_at = ($1::timestamptz AT TIME ZONE 'UTC')
 WHERE id = $2::text AND workspace_id = $3::text
 `
 
@@ -743,8 +743,8 @@ SELECT id, status, requested_by, policy_snapshot, deleted_counts, error, started
 FROM retention_runs
 WHERE workspace_id = $1::text
   AND (NOT $2::bool
-       OR created_at < $3::timestamptz
-       OR (created_at = $3::timestamptz AND id < $4::text))
+       OR created_at < ($3::timestamptz AT TIME ZONE 'UTC')
+       OR (created_at = ($3::timestamptz AT TIME ZONE 'UTC') AND id < $4::text))
 ORDER BY created_at DESC, id DESC
 LIMIT $6::int OFFSET $5::int
 `
@@ -770,8 +770,7 @@ type RetRunsListRow struct {
 	CreatedAt      pgtype.Timestamp
 }
 
-// Newest first. The keyset compares the naive column to an aware UTC cursor as timestamptz (the
-// session TimeZone reads the column), exactly what psycopg sends for Python's aware datetime.
+// Newest first. The keyset compares the naive UTC column to an aware cursor converted to UTC wall time.
 func (q *Queries) RetRunsList(ctx context.Context, arg RetRunsListParams) ([]RetRunsListRow, error) {
 	rows, err := q.db.Query(ctx, retRunsList,
 		arg.WorkspaceID,
@@ -811,7 +810,7 @@ func (q *Queries) RetRunsList(ctx context.Context, arg RetRunsListParams) ([]Ret
 
 const retSetPolicyNextRun = `-- name: RetSetPolicyNextRun :one
 UPDATE retention_policies
-SET next_run_at = ($1::timestamptz)::timestamp, updated_at = now()
+SET next_run_at = ($1::timestamptz AT TIME ZONE 'UTC'), updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $2::text
 RETURNING next_run_at, updated_at
 `
@@ -834,10 +833,10 @@ func (q *Queries) RetSetPolicyNextRun(ctx context.Context, arg RetSetPolicyNextR
 }
 
 const retUpsertMirror = `-- name: RetUpsertMirror :exec
-INSERT INTO retention_schedules (workspace_id, enabled, next_run_at)
-VALUES ($1::text, $2::bool, ($3::timestamptz)::timestamp)
+INSERT INTO retention_schedules (workspace_id, enabled, next_run_at, updated_at)
+VALUES ($1::text, $2::bool, ($3::timestamptz AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'))
 ON CONFLICT (workspace_id) DO UPDATE
-SET enabled = EXCLUDED.enabled, next_run_at = EXCLUDED.next_run_at, updated_at = now()
+SET enabled = EXCLUDED.enabled, next_run_at = EXCLUDED.next_run_at, updated_at = (now() AT TIME ZONE 'UTC')
 `
 
 type RetUpsertMirrorParams struct {
@@ -852,13 +851,13 @@ func (q *Queries) RetUpsertMirror(ctx context.Context, arg RetUpsertMirrorParams
 }
 
 const retUpsertPolicy = `-- name: RetUpsertPolicy :one
-INSERT INTO retention_policies (workspace_id, enabled, legal_hold, retention_days, updated_by)
+INSERT INTO retention_policies (workspace_id, enabled, legal_hold, retention_days, updated_by, created_at, updated_at)
 VALUES ($1::text, $2::bool, $3::bool,
-        $4::json, $5::int)
+        $4::json, $5::int, (now() AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'))
 ON CONFLICT (workspace_id) DO UPDATE
 SET enabled = EXCLUDED.enabled, legal_hold = EXCLUDED.legal_hold,
     retention_days = EXCLUDED.retention_days, updated_by = EXCLUDED.updated_by,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 RETURNING workspace_id, enabled, legal_hold, retention_days, next_run_at, updated_by, created_at, updated_at
 `
 
@@ -870,8 +869,8 @@ type RetUpsertPolicyParams struct {
 	UpdatedBy     pgtype.Int4
 }
 
-// created_at/updated_at default to now() (session TimeZone, naive) on insert; an update
-// sets updated_at = now() like SQLAlchemy's onupdate=func.now(). next_run_at is left
+// created_at/updated_at are stamped with UTC wall time on insert (not the session-zone
+// column default); an update sets updated_at likewise. next_run_at is left
 // alone (SchedulePolicy owns it).
 func (q *Queries) RetUpsertPolicy(ctx context.Context, arg RetUpsertPolicyParams) (RetentionPolicy, error) {
 	row := q.db.QueryRow(ctx, retUpsertPolicy,

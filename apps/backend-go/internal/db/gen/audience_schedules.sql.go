@@ -83,7 +83,7 @@ func (q *Queries) AudSchedDue(ctx context.Context, now pgtype.Timestamptz) ([]Au
 const audSchedInsertJob = `-- name: AudSchedInsertJob :one
 INSERT INTO jobs (executor, type, payload, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count, workspace_id)
 VALUES ($1::text, 'audience_refresh', $2::json, 1, $3::text, 'pending',
-        (now() AT TIME ZONE 'UTC'), ($4::timestamptz)::timestamp, 3, 0, $5::text)
+        (now() AT TIME ZONE 'UTC'), ($4::timestamptz AT TIME ZONE 'UTC'), 3, 0, $5::text)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id
 `
@@ -144,8 +144,8 @@ type AudSchedLockAudienceRow struct {
 // plan 10 (audiences): schedule_next, the audience_schedules mirror and the failure
 // reconcile. audiences is RLS (run inside tenancy.InWorkspace, with the explicit
 // workspace filter as well); audience_schedules and jobs are non-RLS control tables.
-// Timestamps are naive UTC columns; instants bind as timestamptz and cast to
-// timestamp exactly as the autoschedule/retention mirrors do.
+// Timestamps are naive UTC columns; instants bind as timestamptz and convert with
+// AT TIME ZONE 'UTC' (never a bare ::timestamp cast, which uses the session TimeZone).
 func (q *Queries) AudSchedLockAudience(ctx context.Context, arg AudSchedLockAudienceParams) (AudSchedLockAudienceRow, error) {
 	row := q.db.QueryRow(ctx, audSchedLockAudience, arg.ID, arg.WorkspaceID)
 	var i AudSchedLockAudienceRow
@@ -156,7 +156,7 @@ func (q *Queries) AudSchedLockAudience(ctx context.Context, arg AudSchedLockAudi
 const audSchedMarkFailed = `-- name: AudSchedMarkFailed :exec
 UPDATE audiences
 SET refresh_health = 'degraded', last_refresh_error = $1::text,
-    consecutive_refresh_failures = coalesce(consecutive_refresh_failures, 0) + 1, updated_at = now()
+    consecutive_refresh_failures = coalesce(consecutive_refresh_failures, 0) + 1, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = $2::text AND workspace_id = $3::text
 `
 
@@ -173,9 +173,9 @@ func (q *Queries) AudSchedMarkFailed(ctx context.Context, arg AudSchedMarkFailed
 
 const audSchedSetNextRefresh = `-- name: AudSchedSetNextRefresh :exec
 UPDATE audiences
-SET next_refresh_at = ($1::timestamptz)::timestamp, updated_at = now()
+SET next_refresh_at = ($1::timestamptz AT TIME ZONE 'UTC'), updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = $2::text AND workspace_id = $3::text
-  AND next_refresh_at IS DISTINCT FROM ($1::timestamptz)::timestamp
+  AND next_refresh_at IS DISTINCT FROM ($1::timestamptz AT TIME ZONE 'UTC')
 `
 
 type AudSchedSetNextRefreshParams struct {
@@ -192,7 +192,7 @@ func (q *Queries) AudSchedSetNextRefresh(ctx context.Context, arg AudSchedSetNex
 
 const audSchedSetNextRefreshNaive = `-- name: AudSchedSetNextRefreshNaive :exec
 UPDATE audiences
-SET next_refresh_at = $1::timestamp, updated_at = now()
+SET next_refresh_at = $1::timestamp, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE id = $2::text AND workspace_id = $3::text
   AND next_refresh_at IS DISTINCT FROM $1::timestamp
 `
@@ -209,12 +209,12 @@ func (q *Queries) AudSchedSetNextRefreshNaive(ctx context.Context, arg AudSchedS
 }
 
 const audSchedUpsertMirror = `-- name: AudSchedUpsertMirror :exec
-INSERT INTO audience_schedules (audience_id, workspace_id, next_refresh_at, enabled)
+INSERT INTO audience_schedules (audience_id, workspace_id, next_refresh_at, enabled, updated_at)
 VALUES ($1::text, $2::text,
-        ($3::timestamptz)::timestamp, $4::boolean)
+        ($3::timestamptz AT TIME ZONE 'UTC'), $4::boolean, (now() AT TIME ZONE 'UTC'))
 ON CONFLICT (audience_id) DO UPDATE
 SET workspace_id = EXCLUDED.workspace_id, next_refresh_at = EXCLUDED.next_refresh_at,
-    enabled = EXCLUDED.enabled, updated_at = now()
+    enabled = EXCLUDED.enabled, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE (audience_schedules.workspace_id, audience_schedules.next_refresh_at, audience_schedules.enabled)
       IS DISTINCT FROM (EXCLUDED.workspace_id, EXCLUDED.next_refresh_at, EXCLUDED.enabled)
 `
@@ -237,11 +237,11 @@ func (q *Queries) AudSchedUpsertMirror(ctx context.Context, arg AudSchedUpsertMi
 }
 
 const audSchedUpsertMirrorNaive = `-- name: AudSchedUpsertMirrorNaive :exec
-INSERT INTO audience_schedules (audience_id, workspace_id, next_refresh_at, enabled)
-VALUES ($1::text, $2::text, $3::timestamp, $4::boolean)
+INSERT INTO audience_schedules (audience_id, workspace_id, next_refresh_at, enabled, updated_at)
+VALUES ($1::text, $2::text, $3::timestamp, $4::boolean, (now() AT TIME ZONE 'UTC'))
 ON CONFLICT (audience_id) DO UPDATE
 SET workspace_id = EXCLUDED.workspace_id, next_refresh_at = EXCLUDED.next_refresh_at,
-    enabled = EXCLUDED.enabled, updated_at = now()
+    enabled = EXCLUDED.enabled, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE (audience_schedules.workspace_id, audience_schedules.next_refresh_at, audience_schedules.enabled)
       IS DISTINCT FROM (EXCLUDED.workspace_id, EXCLUDED.next_refresh_at, EXCLUDED.enabled)
 `

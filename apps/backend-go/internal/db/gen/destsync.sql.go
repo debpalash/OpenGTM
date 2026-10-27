@@ -13,7 +13,7 @@ import (
 
 const dSDeliveriesMarkInFlight = `-- name: DSDeliveriesMarkInFlight :exec
 UPDATE destination_deliveries
-SET status = 'in_flight', attempts = attempts + 1, updated_at = now()
+SET status = 'in_flight', attempts = attempts + 1, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $1::text AND id = ANY($2::int[])
 `
 
@@ -32,7 +32,7 @@ UPDATE destination_deliveries
 SET status = $1::text, summary = $2::text, error = $3::text,
     external_id = $4::text,
     delivered_at = CASE WHEN $5::boolean THEN (now() AT TIME ZONE 'UTC') ELSE delivered_at END,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $6::text AND id = ANY($7::int[]) AND status = 'in_flight'
 `
 
@@ -65,7 +65,7 @@ func (q *Queries) DSDeliveriesSettle(ctx context.Context, arg DSDeliveriesSettle
 }
 
 const dSDeliveryRequeue = `-- name: DSDeliveryRequeue :exec
-UPDATE destination_deliveries SET status = 'pending', error = NULL, updated_at = now()
+UPDATE destination_deliveries SET status = 'pending', error = NULL, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $1::text AND id = $2::int
 `
 
@@ -86,7 +86,7 @@ UPDATE destination_deliveries
 SET status = $1::text, summary = $2::text, error = $3::text,
     external_id = $4::text,
     delivered_at = CASE WHEN $5::boolean THEN (now() AT TIME ZONE 'UTC') ELSE delivered_at END,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $6::text AND id = $7::int
   AND run_id = $8::text AND status = 'in_flight'
 `
@@ -125,7 +125,7 @@ const dSDestSetHealth = `-- name: DSDestSetHealth :exec
 UPDATE audience_destinations
 SET health_status = $1::text, last_error = $2::text,
     last_success_at = CASE WHEN $3::boolean THEN $4::timestamp ELSE last_success_at END,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $5::text AND id = $6::text
 `
 
@@ -351,7 +351,7 @@ UPDATE destination_deliveries
 SET status = $1::text, summary = $2::text, error = $3::text,
     external_id = $4::text,
     delivered_at = CASE WHEN $5::boolean THEN (now() AT TIME ZONE 'UTC') ELSE delivered_at END,
-    updated_at = now()
+    updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $6::text AND run_id = $7::text
   AND destination_id = $8::text AND status = 'in_flight'
 `
@@ -386,7 +386,7 @@ func (q *Queries) DSWarehouseSettle(ctx context.Context, arg DSWarehouseSettlePa
 
 const dSWarehouseToInFlight = `-- name: DSWarehouseToInFlight :execrows
 UPDATE destination_deliveries
-SET status = 'in_flight', attempts = attempts + 1, updated_at = now()
+SET status = 'in_flight', attempts = attempts + 1, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $1::text AND run_id = $2::text
   AND destination_id = $3::text AND status = 'pending'
 `
