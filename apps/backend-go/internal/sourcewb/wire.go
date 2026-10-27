@@ -2,8 +2,10 @@ package sourcewb
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collect"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadpeople"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
@@ -95,3 +97,28 @@ func (g SplitGate) AccountFit(lead, brief *wbcrud.Obj) (*wbcrud.Obj, error) {
 
 // Available: the validator comes from internal/collect, which may not be wired yet.
 func (g SplitGate) Available() bool { return g.Validate != nil && g.Fit != nil }
+
+// CollectCollector is the production Collector: internal/collect's Submitter (JobRunner.submit)
+// over the workspace's runner.
+type CollectCollector struct{ Deps *collect.Deps }
+
+// Submit runs the collection inline and returns its job id.
+func (c CollectCollector) Submit(ctx context.Context, ws, query string) (string, error) {
+	return collect.Submitter{Pool: c.Deps.Pool, Runner: c.Deps.For(ws), Emit: c.Deps.Emit}.Submit(ctx, ws, query)
+}
+
+// Available: the collect pipeline is wired.
+func (c CollectCollector) Available() bool { return c.Deps != nil && c.Deps.For != nil }
+
+// CollectValidateLight is lead_validator.validate_lead_light over internal/collect.
+func CollectValidateLight(lead *wbcrud.Obj) (bool, string) {
+	raw, err := lead.MarshalJSON()
+	if err != nil {
+		return false, "invalid_lead"
+	}
+	var l collect.Lead
+	if err := json.Unmarshal(raw, &l); err != nil {
+		return false, "invalid_lead"
+	}
+	return collect.ValidateLeadLight(&l)
+}
