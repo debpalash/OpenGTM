@@ -49,9 +49,10 @@ const inboundPath = drPrefix + "/inbound/"
 //
 // It is not a mux pattern. "POST .../inbound/{destination_id}" overlaps "POST .../{destination_id}/sync" and
 // "POST .../{destination_id}/inbound-token" (both match ".../inbound/sync"), and ServeMux panics at registration when two
-// patterns overlap and neither is more specific. FastAPI resolves such a pair by registration order, so the route is served
-// by the innermost global middleware, which takes exactly POST <inboundPath><one segment> and hands everything else on. As in
-// Python (sync and inbound-token are declared first) the two overlapping literals still belong to those routes.
+// patterns overlap and neither is more specific. FastAPI resolves such a pair by registration order, so the route is a
+// first-class router override (httpx.Router.Override): it owns exactly <inboundPath><one segment>, wins over the mux and
+// does not depend on the order of any r.Use. As in Python (sync and inbound-token are declared first) the two overlapping
+// literals still belong to those routes, and any other method on the path answers 405 with Allow: POST.
 func registerDestsInbound(r *httpx.Router, d Deps) {
 	ipLim, tokLim := ratelimit.New(nil), ratelimit.New(nil)
 	if inboundLimiterCap > 0 {
@@ -62,23 +63,21 @@ func registerDestsInbound(r *httpx.Router, d Deps) {
 		pub:   &pubRoutes{d: d, proxies: parseTrustedProxies(d.getenv()("TRUST_PROXY_CIDRS"), d.logger())},
 		ipMW:  ipLim.Limit(inboundRateSpec),
 		tokMW: tokLim.Limit(inboundRateSpec)}
-	r.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			if id, ok := inboundDestination(req); ok {
-				h.callback(w, req, id)
-				return
-			}
-			next.ServeHTTP(w, req)
-		})
-	})
+	r.Override("POST "+inboundPattern, func(escaped string) bool {
+		_, ok := inboundPathID(escaped)
+		return ok
+	}, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		id, _ := inboundPathID(req.URL.EscapedPath())
+		h.callback(w, req, id)
+	}))
 }
 
-// inboundDestination reports whether req is POST <inboundPath>{destination_id} and returns the decoded id.
-func inboundDestination(req *http.Request) (string, bool) {
-	if req.Method != http.MethodPost {
-		return "", false
-	}
-	rest, ok := strings.CutPrefix(req.URL.EscapedPath(), inboundPath)
+// inboundPattern is the route pattern recorded for Router.Patterns (coverage tests compare it with the Python table).
+const inboundPattern = "/api/audience-destinations/inbound/{destination_id}"
+
+// inboundPathID reports whether the escaped path is <inboundPath>{destination_id} and returns the decoded id.
+func inboundPathID(escaped string) (string, bool) {
+	rest, ok := strings.CutPrefix(escaped, inboundPath)
 	if !ok || rest == "" || strings.Contains(rest, "/") {
 		return "", false
 	}

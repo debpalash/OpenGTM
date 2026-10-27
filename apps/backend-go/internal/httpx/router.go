@@ -18,6 +18,14 @@ type Router struct {
 	global       []Middleware
 	explicitHead bool
 	patterns     []string
+	overrides    []override
+}
+
+// override is a route that takes precedence over the mux (see Override).
+type override struct {
+	method    string
+	pathMatch func(escapedPath string) bool
+	h         http.Handler
 }
 
 var probeMethods = []string{"DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"}
@@ -38,6 +46,21 @@ func (r *Router) Handle(pattern string, h http.Handler, mws ...Middleware) {
 	}
 	r.patterns = append(r.patterns, pattern)
 	r.mux.Handle(exactPattern(pattern), chain(h, mws))
+}
+
+// Override registers a route the mux cannot hold: pattern is "METHOD /path/{param}" (recorded for Patterns, as
+// Handle does), pathMatch decides from the escaped request path whether the route owns the path, and h serves it.
+// Overrides are consulted after the canonical-path guard and before the mux, inside the global middleware, so
+// they win over any overlapping mux pattern (FastAPI resolves such overlaps by declaration order, and ServeMux
+// refuses to register two patterns where neither is more specific). A request for an owned path with another
+// method answers 405 with Allow: METHOD; the mux is not consulted. mws wrap h; the first is outermost.
+func (r *Router) Override(pattern string, pathMatch func(escapedPath string) bool, h http.Handler, mws ...Middleware) {
+	method, _, ok := strings.Cut(pattern, " ")
+	if !ok || method == "" || method != strings.ToUpper(method) {
+		panic("httpx: Override pattern must be \"METHOD /path\": " + pattern)
+	}
+	r.patterns = append(r.patterns, pattern)
+	r.overrides = append(r.overrides, override{method: method, pathMatch: pathMatch, h: chain(h, mws)})
 }
 
 // Patterns returns every pattern passed to Handle, sorted ("METHOD /path/{param}").
@@ -95,6 +118,17 @@ func (r *Router) Handler() http.Handler { return chain(http.HandlerFunc(r.serve)
 func (r *Router) serve(w http.ResponseWriter, req *http.Request) {
 	if p := req.URL.Path; p != "/" && !safeRedirectPath(p, "/") {
 		Detail(w, http.StatusNotFound, "Not Found")
+		return
+	}
+	for _, o := range r.overrides {
+		if !o.pathMatch(req.URL.EscapedPath()) {
+			continue
+		}
+		if req.Method == o.method {
+			o.h.ServeHTTP(w, req)
+			return
+		}
+		Detail(w, http.StatusMethodNotAllowed, "Method Not Allowed", Header{"Allow", o.method})
 		return
 	}
 	r.mux.ServeHTTP(w, req)

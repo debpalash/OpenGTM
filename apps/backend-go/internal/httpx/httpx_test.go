@@ -289,3 +289,38 @@ func TestGzipDoesNotWrapProtocolUpgrades(t *testing.T) {
 		t.Fatal("upgrade request got a gzip writer")
 	}
 }
+
+func TestOverrideWinsOverMuxAndIsRegistered(t *testing.T) {
+	r := NewRouter()
+	r.Handle("POST /x/{id}/sync", http.HandlerFunc(ok))
+	hit := false
+	r.Override("POST /x/inbound/{id}", func(p string) bool {
+		rest, found := strings.CutPrefix(p, "/x/inbound/")
+		return found && rest != "" && rest != "sync" && !strings.Contains(rest, "/")
+	}, http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { hit = true; ok(w, nil) }))
+	r.Use(func(next http.Handler) http.Handler { // a Use registered after the override still wraps it
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) { w.Header().Set("X-Seen", "1"); next.ServeHTTP(w, req) })
+	})
+	h := r.Handler()
+	if rec := do(h, "POST", "/x/inbound/abc", nil); rec.Code != 200 || !hit || rec.Header().Get("X-Seen") != "1" {
+		t.Fatalf("override: %d hit=%v", rec.Code, hit)
+	}
+	if rec := do(h, "POST", "/x/inbound/sync", nil); rec.Code != 200 { // the literal belongs to the mux route
+		t.Fatalf("mux literal: %d", rec.Code)
+	}
+	for _, m := range []string{"GET", "PUT", "DELETE"} {
+		if rec := do(h, m, "/x/inbound/abc", nil); rec.Code != 405 || rec.Header().Get("Allow") != "POST" {
+			t.Fatalf("%s: %d Allow=%q", m, rec.Code, rec.Header().Get("Allow"))
+		}
+	}
+	if rec := do(h, "POST", "/x//inbound/abc", nil); rec.Code != 404 { // the canonical-path guard runs first
+		t.Fatalf("non-canonical: %d", rec.Code)
+	}
+	found := false
+	for _, p := range r.Patterns() {
+		found = found || p == "POST /x/inbound/{id}"
+	}
+	if !found {
+		t.Fatalf("patterns %v", r.Patterns())
+	}
+}

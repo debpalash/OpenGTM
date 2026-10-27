@@ -29,7 +29,7 @@ import (
 )
 
 // Plan 10 coverage (Task 22): every route of routers/audiences.py and routers/destinations.py is ported (23, one of
-// them served by middleware instead of a mux pattern) or retained on Python (2, D1); every ported route has a recorded
+// them a router override instead of a mux pattern) or retained on Python (2, D1); every ported route has a recorded
 // fixture; both audience job types are dispatched by the Go worker; every destination type has a Go driver or port; no
 // seeded secret leaks into fixtures, transcripts or logs; the deviations and the cutover runbook are written down.
 
@@ -38,8 +38,8 @@ const (
 	audienceReadme       = "../../testdata/contract/README.md"
 	audienceRunbook      = "../../../../docs/go-port/runbooks/audiences-destinations-cutover.md"
 	audienceNginxConf    = "../../../../infra/nginx/go-routes.conf"
-	// inboundRoutePattern is the one ported route that is not in Router.Patterns(): the public CRM callback is served by
-	// a pre-mux hook (destsinbound.go) because it overlaps two literal routes.
+	// inboundRoutePattern is the public CRM callback. It overlaps two literal routes, so it is a router override
+	// (httpx.Router.Override, destsinbound.go) rather than a mux pattern, but it is still listed in Router.Patterns().
 	inboundRoutePattern = "POST /api/audience-destinations/inbound/{destination_id}"
 )
 
@@ -130,12 +130,12 @@ func TestEveryAudienceDestinationRouteIsPortedOrRetained(t *testing.T) {
 	routes := pythonAudienceRoutes(t)
 	patterns := audienceGoPatterns(t)
 	retained := readRetainedAudiences(t)
-	ported := map[string]bool{inboundRoutePattern: true} // served by middleware, see destsinbound.go
+	ported := map[string]bool{}
 	for p := range patterns {
 		ported[p] = true
 	}
-	if len(patterns) != 22 || len(routes) != 25 || len(ported) != 23 || len(retained) != 2 {
-		t.Fatalf("want 25 Python routes = 23 ported (22 mux patterns + the inbound middleware) + 2 retained, got %d = %d (%d patterns) + %d",
+	if len(patterns) != 23 || !patterns[inboundRoutePattern] || len(routes) != 25 || len(ported) != 23 || len(retained) != 2 {
+		t.Fatalf("want 25 Python routes = 23 ported (22 mux patterns + the inbound override) + 2 retained, got %d = %d (%d patterns) + %d",
 			len(routes), len(ported), len(patterns), len(retained))
 	}
 	seen := map[string]bool{}
@@ -175,37 +175,45 @@ func TestRetainedAudienceRoutesNotRegisteredInGo(t *testing.T) {
 	}
 }
 
-// The inbound callback must really be served by the middleware (not by a pattern), and its overlapping literals must
-// not be: the coverage count above relies on both.
-func TestInboundCallbackIsMiddlewareNotPattern(t *testing.T) {
+// The inbound callback is a router override listed in Router.Patterns() (not a mux pattern), its overlapping literals
+// are not claimed by it, and any other method on its path answers 405 with Allow: POST (I1).
+func TestInboundCallbackIsRouterOverride(t *testing.T) {
 	d := audienceGoDeps(t, nil)
 	r := httpx.NewRouter()
 	RegisterDestinations(r, d)
+	found := false
 	for _, p := range r.Patterns() {
-		if strings.Contains(p, "/inbound/") {
-			t.Errorf("inbound callback unexpectedly registered as a pattern: %s", p)
-		}
+		found = found || p == inboundRoutePattern
+	}
+	if !found {
+		t.Errorf("%s missing from Router.Patterns()", inboundRoutePattern)
 	}
 	for _, c := range []struct {
-		method, path string
-		want         bool
+		path string
+		want bool
 	}{
-		{"POST", "/api/audience-destinations/inbound/dst-1", true},
-		{"POST", "/api/audience-destinations/inbound/sync", false},
-		{"POST", "/api/audience-destinations/inbound/inbound-token", false},
-		{"GET", "/api/audience-destinations/inbound/dst-1", false},
-		{"POST", "/api/audience-destinations/inbound/dst-1/x", false},
+		{"/api/audience-destinations/inbound/dst-1", true},
+		{"/api/audience-destinations/inbound/sync", false},
+		{"/api/audience-destinations/inbound/sy%6ec", false},
+		{"/api/audience-destinations/inbound/inbound-token", false},
+		{"/api/audience-destinations/inbound/dst-1/x", false},
+		{"/api/audience-destinations/inbound/a%2Fb", false},
 	} {
-		req := httptest.NewRequest(c.method, c.path, nil)
-		if _, got := inboundDestination(req); got != c.want {
-			t.Errorf("inboundDestination(%s %s) = %v, want %v", c.method, c.path, got, c.want)
+		if _, got := inboundPathID(c.path); got != c.want {
+			t.Errorf("inboundPathID(%s) = %v, want %v", c.path, got, c.want)
+		}
+	}
+	for _, method := range []string{"GET", "PUT", "DELETE", "PATCH"} {
+		rec := httptest.NewRecorder()
+		r.Handler().ServeHTTP(rec, httptest.NewRequest(method, "/api/audience-destinations/inbound/dst-1", nil))
+		if rec.Code != 405 || rec.Header().Get("Allow") != "POST" {
+			t.Errorf("%s: %d Allow=%q", method, rec.Code, rec.Header().Get("Allow"))
 		}
 	}
 }
 
 func TestEveryAudienceDestinationRouteHasFixtureOrIsRetained(t *testing.T) {
 	ported := audienceGoPatterns(t)
-	ported[inboundRoutePattern] = true
 	retained := readRetainedAudiences(t)
 	rest := map[string]bool{}
 	for p := range ported {
