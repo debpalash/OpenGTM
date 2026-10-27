@@ -255,3 +255,42 @@ def test_checked_in_openapi_matches_the_service():
     assert json.loads(path.read_text()) == json.loads(render_openapi()), (
         "OpenAPI drift: regenerate the Go client's testdata/openapi.json and update the client"
     )
+
+
+# review L3: header-bound fields cannot smuggle CR/LF or other control characters
+
+
+@pytest.mark.parametrize(
+    "extra,field",
+    [
+        ({"locale": "en-US\r\nX-Evil: 1"}, "locale"),
+        ({"locale": "e"}, "locale"),
+        ({"locale": "en_US"}, "locale"),
+        ({"user_agent": "Mozilla/5.0\r\nX-Evil: 1"}, "user_agent"),
+        ({"user_agent": "Mozilla\x00"}, "user_agent"),
+        ({"user_agent": "Mozilla  "}, "user_agent"),
+        ({"cookies": [{"name": "a b", "value": "v", "domain": ".e.com"}]}, "cookies.0.name"),
+        ({"cookies": [{"name": "a", "value": "v\r\nX: 1", "domain": ".e.com"}]}, "cookies.0.value"),
+        ({"cookies": [{"name": "a", "value": "v; other=1", "domain": ".e.com"}]}, "cookies.0.value"),
+    ],
+)
+async def test_header_fields_are_validated(make_client, pool, extra, field):
+    c = await make_client()
+    r = await c.post("/v1/render", headers=AUTH, json={"url": "https://example.com/", **extra})
+    assert r.status_code == 400 and field in r.json()["error"]["fields"], r.text
+    assert not pool.calls
+
+
+async def test_header_fields_accept_normal_values(make_client, pool):
+    c = await make_client()
+    r = await c.post(
+        "/v1/render",
+        headers=AUTH,
+        json={
+            "url": "https://example.com/",
+            "locale": "zh-Hant-TW",
+            "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
+            "cookies": [{"name": "li_at", "value": 'AQE"x/y=z', "domain": ".example.com"}],
+        },
+    )
+    assert r.status_code == 200, r.text
