@@ -70,9 +70,22 @@ func (h *llmRoutes) generateColumn(w http.ResponseWriter, r *http.Request) {
 		h.internal(w, "generate-column", err)
 		return
 	}
+	writePy(w, columnResponse(res))
+}
+
+// columnResponse is GenerateColumnResponse. A generated http column that failed validation is dropped: column is
+// null and "warnings" says why (a field Python's response never had, present only then).
+func columnResponse(res nlcolumn.Result) *wbcrud.Obj {
 	resp := wbcrud.NewObj()
-	resp.Set("column", fullColumn(res.Column))
+	if res.Dropped {
+		resp.Set("column", nil)
+	} else {
+		resp.Set("column", fullColumn(res.Column))
+	}
 	resp.Set("kind", res.Kind)
 	resp.Set("explanation", res.Explanation)
-	writePy(w, resp)
+	if len(res.Warnings) > 0 {
+		resp.Set("warnings", res.Warnings)
+	}
+	return resp
 }

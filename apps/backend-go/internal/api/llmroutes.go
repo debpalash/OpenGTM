@@ -104,12 +104,25 @@ func (h *llmRoutes) register(r *httpx.Router) {
 	authn := identity.Authenticate(d.Signer, d.Identity)
 	workspace := identity.Workspace(d.Identity)
 	writer := identity.RequireRole("tables.write", "editor", "admin")
-	r.Handle("POST /api/campaigns/generate", http.HandlerFunc(h.campaignGenerate), authn, workspace,
+	// Both routes spend LLM tokens per request (campaigns: up to 10 sequential calls), so they are limited per
+	// workspace like the other LLM routes (the limiter keys by workspace, then user). Python had no limit.
+	r.Handle("POST /api/campaigns/generate", h.limit(llmGenerateRate, http.HandlerFunc(h.campaignGenerate)), authn, workspace,
 		identity.RequireRole("campaigns.write", "editor", "admin"))
-	r.Handle("POST /api/v2/workbooks/{workbook_id}/generate-column", http.HandlerFunc(h.generateColumn), authn, workspace, writer)
+	r.Handle("POST /api/v2/workbooks/{workbook_id}/generate-column", h.limit(llmGenerateRate, http.HandlerFunc(h.generateColumn)), authn, workspace, writer)
 	r.Handle("GET /api/workbooks/meta/provider-accuracy", http.HandlerFunc(h.providerAccuracy), authn, workspace)
 	// The 30/minute limit is applied inside leadEnrich, after path validation (slowapi order).
 	r.Handle("POST /api/lead/{lead_id}/enrich", http.HandlerFunc(h.leadEnrich), authn, workspace, writer)
+}
+
+// llmGenerateRate is the per-workspace budget of /campaigns/generate and /generate-column.
+const llmGenerateRate = "20/minute"
+
+// limit wraps next in the shared limiter (a no-op when the deployment has none).
+func (h *llmRoutes) limit(spec string, next http.Handler) http.Handler {
+	if h.d.Limiter == nil {
+		return next
+	}
+	return h.d.Limiter.Limit(spec)(next)
 }
 
 func (h *llmRoutes) defaultLLM(ctx context.Context, ws string) llmBundle {

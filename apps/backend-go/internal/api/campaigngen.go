@@ -43,13 +43,20 @@ type generatedEmail struct {
 	Body    string `json:"body"`
 }
 
+const (
+	maxValuePropChars    = 2000
+	maxToneChars         = 200
+	maxExtraContextChars = 4000
+)
+
 func parseCampaignRequest(o *wbcrud.Obj) (campaignRequest, []httpx.FieldError) {
 	var errs []httpx.FieldError
 	req := campaignRequest{}
 	req.LeadIDs = intList(o, "lead_ids", &errs)
-	req.ValueProposition = strField(o, "value_proposition", true, "", 0, -1, &errs)
-	req.Tone = strField(o, "tone", false, "professional", 0, -1, &errs)
-	req.ExtraContext = strField(o, "extra_context", false, "", 0, -1, &errs)
+	// Python left these uncapped; each is spliced into up to 10 LLM prompts, so a cap bounds spend (plan 15 review M7).
+	req.ValueProposition = strField(o, "value_proposition", true, "", 0, maxValuePropChars, &errs)
+	req.Tone = strField(o, "tone", false, "professional", 0, maxToneChars, &errs)
+	req.ExtraContext = strField(o, "extra_context", false, "", 0, maxExtraContextChars, &errs)
 	return req, errs
 }
 
