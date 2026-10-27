@@ -779,3 +779,63 @@ func TestRegisterLLMRoutesFlagOff(t *testing.T) {
 		t.Errorf("%d routes registered with the flag on, want 4", n)
 	}
 }
+
+// Lead websites are user data: private, loopback and metadata targets are refused before any provider runs, and
+// providers receive the strict client, never the operator client.
+func TestScrapeRefusesInternalWebsites(t *testing.T) {
+	for _, site := range []string{"http://127.0.0.1/x", "http://169.254.169.254/latest/meta-data", "http://10.1.2.3", "https://192.168.0.5/a", "http://localhost:8080", "file:///etc/passwd"} {
+		m := map[string]any{"id": 1, "company": "C", "website": site}
+		store := &fakeLeadStore{leads: map[int64]*leadsread.Lead{1: leadFrom(t, m)}}
+		h := newTestRoutes(store, &scriptLLM{})
+		called := false
+		ex := providers.NewObj()
+		ex.Set("email", "a@b.test")
+		h.providerLookup = mapProviders{"website_scraper_provider": spyProvider{called: &called, out: providers.Output{Extra: ex}}}
+		req := httptest.NewRequest("POST", "/x?action=scrape_website", nil)
+		req.SetPathValue("lead_id", "1")
+		rec := httptest.NewRecorder()
+		h.leadEnrich(rec, req)
+		if called || len(store.updates) != 0 || !strings.Contains(rec.Body.String(), "Website URL is not allowed") {
+			t.Errorf("%s: called=%v updates=%v body=%q", site, called, store.updates, rec.Body)
+		}
+	}
+}
+
+func TestProvidersGetTheStrictClient(t *testing.T) {
+	h := newLLMRoutes(Deps{})
+	if h.userHTTP == nil || h.userHTTP == h.httpc {
+		t.Fatal("user-data client must be separate from the operator client")
+	}
+	store := &fakeLeadStore{leads: map[int64]*leadsread.Lead{1: leadFrom(t, map[string]any{"id": 1, "company": "C", "website": "https://example.com"})}}
+	h.store = store
+	var got *http.Client
+	h.providerLookup = mapProviders{"website_scraper_provider": clientSpy{got: &got}, "ddg_email_provider": clientSpy{got: &got}}
+	for _, a := range []string{"scrape_website", "find_emails"} {
+		got = nil
+		req := httptest.NewRequest("POST", "/x?action="+a, nil)
+		req.SetPathValue("lead_id", "1")
+		h.leadEnrich(httptest.NewRecorder(), req)
+		if got != h.userHTTP {
+			t.Errorf("%s: provider did not get the user-data client", a)
+		}
+	}
+}
+
+type spyProvider struct {
+	called *bool
+	out    providers.Output
+}
+
+func (s spyProvider) Name() string { return "spy" }
+func (s spyProvider) Enrich(context.Context, *http.Client, func() (string, error), providers.Input) (providers.Output, error) {
+	*s.called = true
+	return s.out, nil
+}
+
+type clientSpy struct{ got **http.Client }
+
+func (c clientSpy) Name() string { return "spy" }
+func (c clientSpy) Enrich(_ context.Context, hc *http.Client, _ func() (string, error), _ providers.Input) (providers.Output, error) {
+	*c.got = hc
+	return providers.Output{Extra: providers.NewObj()}, nil
+}

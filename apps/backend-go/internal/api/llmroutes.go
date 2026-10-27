@@ -45,8 +45,13 @@ type llmRoutes struct {
 	// store reads and writes leads (Postgres by default).
 	store leadStore
 
-	// httpc is the egress-guarded client for the chat stream and the Nominatim lookup.
-	httpc *http.Client
+	// httpc is the OPERATOR egress client (EGRESS_ALLOW_HOSTS honoured): only for operator-configured endpoints, the
+	// chat stream and the Nominatim lookup. userHTTP is the strict client for anything that fetches user data (lead
+	// websites): it is handed to providers, and lead URLs are checked against appEnv/allowHosts first.
+	httpc     *http.Client
+	userHTTP  *http.Client
+	appEnv    string
+	allowHost []string
 	// nominatimURL is the geocoder endpoint (tests only).
 	nominatimURL string
 
@@ -80,7 +85,12 @@ func RegisterLLMRoutes(r *httpx.Router, d Deps) {
 }
 
 func newLLMRoutes(d Deps) *llmRoutes {
-	h := &llmRoutes{d: d, log: d.Log, httpc: egress.NewOperatorClient(d.EgressAllowHosts), nominatimURL: "https://nominatim.openstreetmap.org/search",
+	appEnv := d.Config.AppEnv
+	if appEnv == "" {
+		appEnv = d.getenv()("APP_ENV")
+	}
+	h := &llmRoutes{d: d, log: d.Log, httpc: egress.NewOperatorClient(d.EgressAllowHosts),
+		userHTTP: egress.NewClientForEnv(appEnv, d.EgressAllowHosts), appEnv: appEnv, allowHost: d.EgressAllowHosts, nominatimURL: "https://nominatim.openstreetmap.org/search",
 		providerLookup: registryProviders{}, store: pgLeadStore{pool: d.Pool}}
 	if h.log == nil {
 		h.log = slog.Default()

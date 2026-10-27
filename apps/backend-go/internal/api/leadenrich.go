@@ -16,6 +16,7 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadsread"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
@@ -406,7 +407,7 @@ func (e *enrichRun) findEmails() {
 		e.out.event("step", "error", "message", "Email finder is not available")
 		return
 	}
-	out, err := p.Enrich(e.ctx, e.h.httpc, noKey, providers.Input{Lead: e.leadMap(), Field: "email"})
+	out, err := p.Enrich(e.ctx, e.h.userHTTP, noKey, providers.Input{Lead: e.leadMap(), Field: "email"})
 	if err != nil {
 		if e.ctx.Err() == nil {
 			e.fail("the email search", err)
@@ -434,12 +435,17 @@ func (e *enrichRun) scrapeWebsite() {
 		return
 	}
 	e.out.event("step", "start", "action", "scrape_website", "message", "Scraping "+site+"...")
+	// The site is user data: refuse private, loopback and metadata targets before any provider dials it.
+	if err := egress.CheckURLFor(e.h.appEnv, e.h.allowHost, site, true); err != nil {
+		e.out.event("step", "error", "message", "Website URL is not allowed")
+		return
+	}
 	p, ok := e.provider("website_scraper_provider", "website_scraper")
 	if !ok {
 		e.out.event("step", "error", "message", "Website scraper is not available")
 		return
 	}
-	out, err := p.Enrich(e.ctx, e.h.httpc, noKey, providers.Input{Lead: e.leadMap(), Field: "email"})
+	out, err := p.Enrich(e.ctx, e.h.userHTTP, noKey, providers.Input{Lead: e.leadMap(), Field: "email"})
 	if err != nil {
 		if e.ctx.Err() == nil {
 			e.fail("the website scrape", err)
