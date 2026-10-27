@@ -35,9 +35,9 @@ import logging
 import re
 import secrets
 import socket
+import struct
 from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass, field
-import struct
 from urllib.parse import unquote, urlsplit
 
 logger = logging.getLogger("browser_service.egress")

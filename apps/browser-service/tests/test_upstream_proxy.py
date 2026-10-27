@@ -24,6 +24,10 @@ def _resolver(table):
     return resolve
 
 
+def _connect(session, target: str, extra: bytes = b"") -> bytes:
+    return f"CONNECT {target} HTTP/1.1\r\nProxy-Authorization: {_auth(session)}\r\n\r\n".encode() + extra
+
+
 def _auth(session):
     return "Basic " + base64.b64encode(f"{session.sid}:{session.secret}".encode()).decode()
 
@@ -176,7 +180,7 @@ async def test_connect_chains_through_upstream_to_the_vetted_ip(kind):
     proxy = await _proxy({"site.test": ["127.0.0.7"]})
     try:
         s = proxy.open_session(1 << 20, upstream=parse_upstream(f"{kind}://us:pw@127.0.0.1:{up.port}"))
-        out = await _send(proxy, f"CONNECT site.test:443 HTTP/1.1\r\nProxy-Authorization: {_auth(s)}\r\n\r\nping".encode())
+        out = await _send(proxy, _connect(s, "site.test:443", b"ping"))
         assert out.startswith(b"HTTP/1.1 200 Connection Established\r\n\r\n") and out.endswith(b"pong")
         assert up.payload == b"ping"
         # the upstream is asked for the pinned address, never the name
@@ -196,7 +200,8 @@ async def test_plain_http_chains_through_upstream_in_origin_form():
     try:
         s = proxy.open_session(1 << 20, upstream=parse_upstream(f"http://127.0.0.1:{up.port}"))
         out = await _send(
-            proxy, f"GET http://site.test/x?y=1 HTTP/1.1\r\nHost: site.test\r\nProxy-Authorization: {_auth(s)}\r\n\r\n".encode()
+            proxy,
+            f"GET http://site.test/x?y=1 HTTP/1.1\r\nHost: site.test\r\nProxy-Authorization: {_auth(s)}\r\n\r\n".encode(),
         )
         assert out.endswith(b"pong")
         assert up.target == "CONNECT 127.0.0.7:80 HTTP/1.1" and up.auth is None
@@ -225,7 +230,7 @@ async def test_private_upstream_is_refused():
     try:
         for url in ("http://10.0.0.9:3128", "socks5://gw.test:1080", "http://169.254.169.254:80"):
             s = proxy.open_session(1 << 20, upstream=parse_upstream(url))
-            out = await _send(proxy, f"CONNECT site.test:443 HTTP/1.1\r\nProxy-Authorization: {_auth(s)}\r\n\r\n".encode())
+            out = await _send(proxy, _connect(s, "site.test:443"))
             assert out.startswith(b"HTTP/1.1 502") and f"{EGRESS_HEADER}: upstream_blocked".encode() in out
             assert s.upstream_failed
     finally:
@@ -238,7 +243,7 @@ async def test_upstream_refusal_is_502_and_flagged(kind):
     proxy = await _proxy({"site.test": ["127.0.0.7"]})
     try:
         s = proxy.open_session(1 << 20, upstream=parse_upstream(f"{kind}://127.0.0.1:{up.port}"))
-        out = await _send(proxy, f"CONNECT site.test:443 HTTP/1.1\r\nProxy-Authorization: {_auth(s)}\r\n\r\n".encode())
+        out = await _send(proxy, _connect(s, "site.test:443"))
         assert out.startswith(b"HTTP/1.1 502") and f"{EGRESS_HEADER}: upstream_failed".encode() in out
         assert s.upstream_failed and not s.blocked
     finally:
