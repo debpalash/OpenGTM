@@ -95,7 +95,7 @@ func TestAccountsMatchesFixtures(t *testing.T) {
 		}
 	}
 	if _, err := audiencerefresh.Refresh(context.Background(), e.pool, "ws-alpha", "aud-act-2", audiencerefresh.Deps{
-		AudienceEvents: nopEmitter{}, ExecutorFor: func(string) string { return "python" }, PageSize: 500}); err != nil {
+		AudienceEvents: nopEmitter{}, ExecutorFor: func(string) string { return "go" }, PageSize: 500}); err != nil {
 		t.Fatal(err)
 	}
 	replay("aud_accounts_everyone_after_refresh")

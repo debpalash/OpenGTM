@@ -417,7 +417,7 @@ func TestCreateMaterializesAndSchedules(t *testing.T) {
 		t.Errorf("entered events %d", n)
 	}
 	n, exec, next := e.pendingJobs(t, id)
-	if n != 1 || exec != "python" {
+	if n != 1 || exec != "go" {
 		t.Fatalf("pending refresh jobs %d executor %q", n, exec)
 	}
 	if d := time.Until(next.UTC()); d < 59*time.Minute || d > 61*time.Minute {
@@ -831,17 +831,17 @@ func TestListOrderTiebreakAndCap(t *testing.T) {
 	}
 }
 
-// The refresh job's executor follows go_executor.audience_refresh_executor: enabled + cohort workspace + flag.
-func TestCreateExecutorCohort(t *testing.T) {
+// The refresh job's executor is go whatever the retired cohort flags say (plan 15 cutover).
+func TestCreateEnqueuesGoIgnoringRetiredCohort(t *testing.T) {
 	cases := []struct {
 		name string
 		vars map[string]string
 		want string
 	}{
 		{"all on", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-beta, ws-alpha", "GO_EXECUTOR_AUDIENCE_REFRESH": "true"}, "go"},
-		{"not in cohort", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-beta", "GO_EXECUTOR_AUDIENCE_REFRESH": "true"}, "python"},
-		{"kind flag off", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-alpha"}, "python"},
-		{"executor off", map[string]string{"GO_EXECUTOR_WORKSPACES": "ws-alpha", "GO_EXECUTOR_AUDIENCE_REFRESH": "true"}, "python"},
+		{"not in cohort", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-beta", "GO_EXECUTOR_AUDIENCE_REFRESH": "true"}, "go"},
+		{"kind flag off", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-alpha"}, "go"},
+		{"executor off", map[string]string{"GO_EXECUTOR_WORKSPACES": "ws-alpha", "GO_EXECUTOR_AUDIENCE_REFRESH": "true"}, "go"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {

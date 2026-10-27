@@ -698,7 +698,7 @@ func TestAutoScheduleCreateEnqueuesAlignedJob(t *testing.T) {
 		if err != nil || njobs != 1 {
 			t.Fatalf("%s: jobs=%d err=%v", interval, njobs, err)
 		}
-		if typ != "trigger_eval" || status != "pending" || exec != "python" {
+		if typ != "trigger_eval" || status != "pending" || exec != "go" {
 			t.Errorf("%s job: type=%s status=%s executor=%s", interval, typ, status, exec)
 		}
 		next, err := time.Parse(time.RFC3339Nano, *r.NextRunAt)

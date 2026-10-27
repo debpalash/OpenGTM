@@ -444,7 +444,7 @@ func TestEnforceCreatesRunAndJobAtomically(t *testing.T) {
 		FROM jobs WHERE type='retention_enforce' AND fire_key=$1`, "retention-run:"+run.ID).Scan(&executor, &status, &fireKey, &ws, &payload, &offset); err != nil {
 		t.Fatalf("job: %v", err)
 	}
-	if executor != "python" || status != "pending" || ws != "ws-alpha" || offset != 0 || !jsonEqual(payload, fmt.Sprintf(`{"workspace_id":"ws-alpha","run_id":%q}`, run.ID)) {
+	if executor != "go" || status != "pending" || ws != "ws-alpha" || offset != 0 || !jsonEqual(payload, fmt.Sprintf(`{"workspace_id":"ws-alpha","run_id":%q}`, run.ID)) {
 		t.Errorf("job %s %s %s %v %s", executor, status, ws, offset, payload)
 	}
 }
@@ -468,7 +468,7 @@ func TestEnforceEnqueueFailureLeavesNoRun(t *testing.T) {
 	}
 }
 
-func TestEnforceJobExecutorFollowsFlag(t *testing.T) {
+func TestEnforceJobExecutorGoIgnoringRetiredFlag(t *testing.T) {
 	e := newGREnv(t)
 	e.exec(t, `INSERT INTO retention_policies (workspace_id, enabled, legal_hold, retention_days, updated_by) VALUES ('ws-beta', true, false, '{}', NULL)`)
 	executorOf := func(ws, who string) string {
@@ -496,10 +496,10 @@ func TestEnforceJobExecutorFollowsFlag(t *testing.T) {
 	for _, c := range []struct {
 		name, enabled, workspaces, alpha, beta string
 	}{
-		{"flag off", "", "ws-alpha", "python", "python"},
-		{"in cohort", "true", "ws-alpha", "go", "python"},
-		{"cohort of beta only", "true", "ws-beta", "python", "go"},
-		{"empty cohort", "true", "", "python", "python"},
+		{"flag off", "", "ws-alpha", "go", "go"},
+		{"in cohort", "true", "ws-alpha", "go", "go"},
+		{"cohort of beta only", "true", "ws-beta", "go", "go"},
+		{"empty cohort", "true", "", "go", "go"},
 	} {
 		e.cfg.enabled, e.cfg.workspaces = c.enabled, c.workspaces
 		if got := executorOf("ws-alpha", "alice"); got != c.alpha {

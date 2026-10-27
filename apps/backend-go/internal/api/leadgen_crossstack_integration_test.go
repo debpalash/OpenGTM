@@ -94,9 +94,9 @@ func ownerRow(t *testing.T, sql string, args ...any) []any {
 	return vals
 }
 
-// TestGoEnqueuedCollectIsClaimableByPythonWorker: the queue row and ledger row of POST /api/collect
-// satisfy Python's claim predicate and handle_collect's payload contract.
-func TestGoEnqueuedCollectIsClaimableByPythonWorker(t *testing.T) {
+// TestGoEnqueuedCollectIsClaimableByGoWorker: the queue row and ledger row of POST /api/collect satisfy the
+// worker's claim predicate (executor go, the only one since the plan 15 cutover) and the collect payload contract.
+func TestGoEnqueuedCollectIsClaimableByGoWorker(t *testing.T) {
 	e := newCrossEnv(t)
 	rec := e.post("alice", "", `{"query":"IT staffing Pune"}`)
 	if rec.Code != 200 {
@@ -110,10 +110,10 @@ func TestGoEnqueuedCollectIsClaimableByPythonWorker(t *testing.T) {
 		t.Fatalf("%v %s", err, rec.Body)
 	}
 
-	// QueueService._eligible_clause with executor='python', tenant cap off.
-	if n := ownerCount(t, `SELECT count(*) FROM jobs j WHERE j.id = $1 AND j.type = 'collect' AND j.status = 'pending' AND j.executor = 'python'
+	// the claim predicate with executor='go', tenant cap off.
+	if n := ownerCount(t, `SELECT count(*) FROM jobs j WHERE j.id = $1 AND j.type = 'collect' AND j.status = 'pending' AND j.executor = 'go'
 		AND (j.next_run_at IS NULL OR j.next_run_at <= now() AT TIME ZONE 'utc')`, resp.QueueJobID); n != 1 {
-		t.Fatalf("Go's collect queue row is not claimable by the Python worker (eligible rows %d)", n)
+		t.Fatalf("Go's collect queue row is not claimable by the Go worker (eligible rows %d)", n)
 	}
 	row := ownerRow(t, `SELECT payload::text, workspace_id, fire_key, retry_count, max_retries, priority FROM jobs WHERE id = $1`, resp.QueueJobID)
 	if row[1] != "ws-alpha" || row[2] != "collect:ws-alpha:"+resp.JobID {

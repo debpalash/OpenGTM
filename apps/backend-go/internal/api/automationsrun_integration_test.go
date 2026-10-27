@@ -388,7 +388,7 @@ func TestRunEnqueuesTriggerEval(t *testing.T) {
 		name    string
 		getenv  func(string) string
 		wantExe string
-	}{{"cohort", cohort, "go"}, {"off", func(string) string { return "" }, "python"}} {
+	}{{"cohort", cohort, "go"}, {"off", func(string) string { return "" }, "go"}} {
 		t.Run(c.name, func(t *testing.T) {
 			e := newArunEnv(t, true, c.getenv)
 			r := e.call("alice", "", "POST", "/api/automations/triggers/trg-a-01/run", `{"row_ids":["3001","3002","nope","3101"]}`)

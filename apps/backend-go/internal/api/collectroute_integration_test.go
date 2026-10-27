@@ -307,7 +307,7 @@ func TestCollectQueueRowShape(t *testing.T) {
 		t.Fatal(err)
 	}
 	// the Python-enqueued row (jobs/queue_after_collect.json): type, executor, fire key, retries, status
-	if typ != "collect" || executor != "python" || fireKey != "collect:ws-alpha:00000000000040008000000000005000" ||
+	if typ != "collect" || executor != "go" || fireKey != "collect:ws-alpha:00000000000040008000000000005000" ||
 		ws != "ws-alpha" || status != "pending" || prio != 1 || maxRetries != 3 || retryCount != 0 {
 		t.Errorf("row: %s %s %s %s %s %d %d %d", typ, executor, fireKey, ws, status, prio, maxRetries, retryCount)
 	}

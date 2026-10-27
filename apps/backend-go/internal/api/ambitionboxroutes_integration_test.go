@@ -552,7 +552,7 @@ func TestUpstreamErrorNeverFromImports(t *testing.T) {
 	}
 }
 
-func TestImportsEnqueueExecutorFlag(t *testing.T) {
+func TestImportsEnqueueGoExecutorIgnoringRetiredFlags(t *testing.T) {
 	e := newAbEnv(t)
 	run := func() string {
 		got := e.call("alice", "ws-alpha", "POST", "/api/ambitionbox/imports", `{"limit":5}`)
@@ -565,11 +565,11 @@ func TestImportsEnqueueExecutorFlag(t *testing.T) {
 		_ = json.Unmarshal(got.Body, &res)
 		return e.ownerText(t, `SELECT executor FROM jobs WHERE id=$1`, res.JobID)
 	}
-	if ex := run(); ex != "python" {
+	if ex := run(); ex != "go" {
 		t.Fatalf("default executor %q", ex)
 	}
 	e.getenv["GO_EXECUTOR_ENABLED"], e.getenv["GO_EXECUTOR_AMBITIONBOX"], e.getenv["GO_EXECUTOR_WORKSPACES"] = "true", "true", "ws-beta"
-	if ex := run(); ex != "python" {
+	if ex := run(); ex != "go" {
 		t.Fatalf("workspace outside the cohort got %q", ex)
 	}
 	e.getenv["GO_EXECUTOR_WORKSPACES"] = "ws-beta, ws-alpha"

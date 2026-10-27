@@ -406,8 +406,8 @@ func TestRunForeignWorkbook404(t *testing.T) {
 	}
 }
 
-// TestRunExecutorFollowsCohort: the job row's executor comes from the plan.
-func TestRunExecutorFollowsCohort(t *testing.T) {
+// TestRunExecutorGoIgnoringRetiredCohort: every run is a go job carrying its Go plan, whatever the retired cohort says.
+func TestRunExecutorGoIgnoringRetiredCohort(t *testing.T) {
 	dir, _ := filepath.Abs(filepath.Join("..", "runplan", "testdata", "manifests"))
 	env := map[string]string{}
 	e := newRunEnv(t, runOpts{getenv: env, manDir: dir}) // one env: each env holds the suite-wide DB lock
@@ -429,19 +429,19 @@ func TestRunExecutorFollowsCohort(t *testing.T) {
 		}
 		return
 	}
-	ex, p := run(map[string]string{"GO_EXECUTOR_ENABLED": "1", "GO_EXECUTOR_WORKSPACES": runWsAlpha})
-	var job struct {
-		WorkspaceID string          `json:"workspace_id"`
-		Go          json.RawMessage `json:"go"`
-	}
-	if err := json.Unmarshal([]byte(p), &job); err != nil || ex != "go" || len(job.Go) == 0 || job.WorkspaceID != runWsAlpha {
-		t.Fatalf("cohort member: executor %s payload %s (%v)", ex, p, err)
-	}
-	if ex, p := run(map[string]string{"GO_EXECUTOR_ENABLED": "1", "GO_EXECUTOR_WORKSPACES": "someone-else"}); ex != "python" || strings.Contains(p, `"go"`) {
-		t.Fatalf("outside cohort: executor %s payload %s", ex, p)
-	}
-	if ex, _ := run(nil); ex != "python" {
-		t.Fatalf("flag off: executor %s", ex)
+	for _, vars := range []map[string]string{
+		{"GO_EXECUTOR_ENABLED": "1", "GO_EXECUTOR_WORKSPACES": runWsAlpha},
+		{"GO_EXECUTOR_ENABLED": "1", "GO_EXECUTOR_WORKSPACES": "someone-else"},
+		nil,
+	} {
+		ex, p := run(vars)
+		var job struct {
+			WorkspaceID string          `json:"workspace_id"`
+			Go          json.RawMessage `json:"go"`
+		}
+		if err := json.Unmarshal([]byte(p), &job); err != nil || ex != "go" || len(job.Go) == 0 || job.WorkspaceID != runWsAlpha {
+			t.Fatalf("%v: executor %s payload %s (%v)", vars, ex, p, err)
+		}
 	}
 }
 

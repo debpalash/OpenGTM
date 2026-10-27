@@ -311,7 +311,7 @@ func TestStartRunCreatesRunAndJobAtomically(t *testing.T) {
 	if n := e.runJobs(t, run.ID); n != 1 {
 		t.Fatalf("jobs for the run: %d", n)
 	}
-	if got := e.text(t, `SELECT status||'|'||executor||'|'||priority||'|'||max_retries||'|'||workspace_id FROM jobs WHERE fire_key=$1`, "playbook:"+run.ID); got != "pending|python|1|3|ws-alpha" {
+	if got := e.text(t, `SELECT status||'|'||executor||'|'||priority||'|'||max_retries||'|'||workspace_id FROM jobs WHERE fire_key=$1`, "playbook:"+run.ID); got != "pending|go|1|3|ws-alpha" {
 		t.Errorf("job: %s", got)
 	}
 	var payload map[string]string
@@ -429,7 +429,7 @@ func TestRetryOnlyTerminalStatesResetsRunAndEnqueues(t *testing.T) {
 		if n := e.runJobs(t, run); n != before+1 {
 			t.Errorf("%s: jobs %d -> %d, want one more", run, before, n)
 		}
-		if got := e.text(t, `SELECT status||'|'||executor||'|'||payload::text FROM jobs WHERE fire_key=$1 ORDER BY id DESC LIMIT 1`, "playbook:"+run); !strings.HasPrefix(got, "pending|python|") || !strings.Contains(got, run) {
+		if got := e.text(t, `SELECT status||'|'||executor||'|'||payload::text FROM jobs WHERE fire_key=$1 ORDER BY id DESC LIMIT 1`, "playbook:"+run); !strings.HasPrefix(got, "pending|go|") || !strings.Contains(got, run) {
 			t.Errorf("%s: job %s", run, got)
 		}
 	}

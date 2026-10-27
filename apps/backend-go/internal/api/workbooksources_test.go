@@ -272,7 +272,7 @@ func TestSourceRunMatchesFixtures(t *testing.T) {
 	}
 }
 
-func TestSourceRunEnqueuesPythonExecutor(t *testing.T) {
+func TestSourceRunEnqueuesGoExecutor(t *testing.T) {
 	e := newSrcEnv(t, nil)
 	if code, resp := e.call("POST", "/api/workbooks/wb-enrich-1/sources/src_icp/run", "alice", "ws-alpha", ""); code != 200 {
 		t.Fatalf("got %d %s", code, resp.Body)
@@ -285,7 +285,7 @@ func TestSourceRunEnqueuesPythonExecutor(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if executor != "python" || status != "pending" || ws != "ws-alpha" || fk != nil {
+	if executor != "go" || status != "pending" || ws != "ws-alpha" || fk != nil {
 		t.Fatalf("job = %s %s %s %s fire_key=%v", typ, executor, status, ws, fk)
 	}
 	if strings.ReplaceAll(payload, " ", "") != `{"workbook_id":"wb-enrich-1","column_id":"src_icp","workspace_id":"ws-alpha"}` {
@@ -360,12 +360,12 @@ func srcFlags(kv ...string) func(string) string {
 	return func(k string) string { return m[k] }
 }
 
-// TestSourceRunEnqueuesGoExecutorForCohort: GO_EXECUTOR_SOURCE_WORKBOOK routes the cohort's runs to
-// the Go worker (same payload and workspace stamp); other workspaces stay on Python.
-func TestSourceRunEnqueuesGoExecutorForCohort(t *testing.T) {
+// TestSourceRunEnqueuesGoIgnoringRetiredCohort: every workspace's run goes to the Go worker (same payload and
+// workspace stamp) whatever the retired GO_EXECUTOR_SOURCE_WORKBOOK cohort says.
+func TestSourceRunEnqueuesGoIgnoringRetiredCohort(t *testing.T) {
 	for _, c := range []struct {
 		cohort, want string
-	}{{"ws-alpha", "go"}, {"ws-other", "python"}} {
+	}{{"ws-alpha", "go"}, {"ws-other", "go"}} {
 		t.Run(c.cohort, func(t *testing.T) { // one env (and test-DB lock) per subtest
 			e := newSrcEnv(t, srcFlags("GO_EXECUTOR_ENABLED", "true", "GO_EXECUTOR_WORKSPACES", c.cohort,
 				"GO_EXECUTOR_SOURCE_WORKBOOK", "true"))

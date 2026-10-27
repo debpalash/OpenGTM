@@ -692,7 +692,7 @@ func TestWatchAccountGroupExtrasInResponse(t *testing.T) {
 	}
 }
 
-func TestWatchCreateEnqueuesPollInConfiguredExecutor(t *testing.T) {
+func TestWatchCreateEnqueuesPollOnGoExecutor(t *testing.T) {
 	e := newWcrudEnv(t, "default", func(d *Deps) {
 		d.Flags.Automations.GoExecutorWatchPoll = true
 		d.Getenv = func(k string) string {
@@ -705,7 +705,7 @@ func TestWatchCreateEnqueuesPollInConfiguredExecutor(t *testing.T) {
 			return ""
 		}
 	})
-	for who, want := range map[string]string{"alice": "go", "bob": "python"} {
+	for who, want := range map[string]string{"alice": "go", "bob": "go"} {
 		code, m, raw := e.as(who, "POST", "/api/watches", `{"kind":"feed","target":"https://feeds.example.com/exec.xml"}`)
 		if code != 200 {
 			t.Fatalf("%s: %d %s", who, code, raw)

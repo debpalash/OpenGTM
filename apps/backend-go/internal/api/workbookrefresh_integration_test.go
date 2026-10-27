@@ -151,11 +151,11 @@ func (c *cohortEnv) get(k string) string {
 	return ""
 }
 
-// The chain job the policy starts uses the cohort executor, like refresh_executor in Python.
-func TestRefreshPolicyChainUsesCohortExecutor(t *testing.T) {
+// The chain job the policy starts runs on the go executor whatever the retired cohort says (plan 15 cutover).
+func TestRefreshPolicyChainUsesGoExecutor(t *testing.T) {
 	co := &cohortEnv{}
 	e := newRefreshEnv(t, co.get)
-	for _, c := range []struct{ cohort, want string }{{"", "python"}, {"ws-alpha", "go"}} {
+	for _, c := range []struct{ cohort, want string }{{"", "go"}, {"ws-alpha", "go"}} {
 		co.workspaces = c.cohort
 		e.clearJobs()
 		r := e.call("alice", "ws-alpha", "PUT", "/api/workbooks/wb-enrich-1/refresh-policy", `{"interval":"daily"}`)
@@ -172,7 +172,7 @@ func TestRefreshPolicyChainUsesCohortExecutor(t *testing.T) {
 func TestRefreshEnqueuesWithWorkspaceID(t *testing.T) {
 	co := &cohortEnv{}
 	e := newRefreshEnv(t, co.get)
-	for _, c := range []struct{ cohort, want string }{{"", "python"}, {"ws-alpha", "go"}, {"ws-other", "python"}} {
+	for _, c := range []struct{ cohort, want string }{{"", "go"}, {"ws-alpha", "go"}, {"ws-other", "go"}} {
 		co.workspaces = c.cohort
 		e.clearJobs()
 		r := e.call("alice", "ws-alpha", "POST", "/api/workbooks/wb-enrich-1/refresh", "")

@@ -57,7 +57,7 @@ func (e jwEnv) queueRow(t *testing.T, ws, slug, id, status, fireKey string) {
 	t.Helper()
 	payload := fmt.Sprintf(`{"job_id": %q, "query": "seeded", "slug": %q, "workspace_id": %q}`, id, slug, ws)
 	ownerExec(t, `INSERT INTO jobs (executor, type, payload, workspace_id, priority, fire_key, status, created_at, next_run_at, max_retries, retry_count)
-		VALUES ('python', 'collect', $1::json, $2, 1, $3, $4, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC', 3, 0)`, payload, ws, fireKey, status)
+		VALUES ('go', 'collect', $1::json, $2, 1, $3, $4, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC', 3, 0)`, payload, ws, fireKey, status)
 }
 
 type qRow struct {
@@ -185,6 +185,9 @@ func fixtureQueue(t *testing.T, name string) []map[string]any {
 	var out []map[string]any
 	for _, r := range fixtureRows(t, name) {
 		if fk, _ := r["fire_key"].(string); strings.Contains(fk, ":a1000") || strings.Contains(fk, ":b1000") {
+			if r["executor"] == "python" { // recorded under Python; every row is go since the plan 15 cutover
+				r["executor"] = "go"
+			}
 			out = append(out, r)
 		}
 	}
@@ -509,7 +512,7 @@ func TestRetryOnlyFailedOrCancelled409(t *testing.T) {
 	}
 	n := rows[1]
 	want := `{"job_id":"` + jA5 + `","query":"payroll outsourcing Delhi","workspace_id":"ws-alpha","slug":"alpha","fire_key":"collect:ws-alpha:` + jA5 + `"}`
-	if n.Status != "pending" || n.Executor != "python" || n.PayloadText != want {
+	if n.Status != "pending" || n.Executor != "go" || n.PayloadText != want {
 		t.Errorf("new row %+v\nwant payload %s", n, want)
 	}
 	if rec.Body.String() != fmt.Sprintf(`{"ok":true,"queue_job_id":%d,"message":"Job %s queued for retry"}`, n.ID, jA5) {

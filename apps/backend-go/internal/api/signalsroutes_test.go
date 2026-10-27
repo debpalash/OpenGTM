@@ -362,7 +362,7 @@ func TestScanEnqueuesSignalScan(t *testing.T) {
 		t.Fatal(err)
 	}
 	_ = e.pool.QueryRow(context.Background(), `SELECT workspace_id, fire_key FROM jobs WHERE type='signal_scan'`).Scan(&ws, &fire)
-	if n != 1 || payload != "{}" || exec != "python" || ws != nil || fire != nil {
+	if n != 1 || payload != "{}" || exec != "go" || ws != nil || fire != nil {
 		t.Errorf("job n=%d payload=%s exec=%s ws=%v fire=%v", n, payload, exec, ws, fire)
 	}
 }

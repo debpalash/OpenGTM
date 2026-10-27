@@ -66,7 +66,7 @@ func payloadKeys(t *testing.T, raw string) []string {
 	return keys
 }
 
-func TestBulkEnrichEnqueuesPythonJob(t *testing.T) {
+func TestBulkEnrichEnqueuesGoJob(t *testing.T) {
 	e := newLeadsEnv(t)
 	e.clearBulkJobs(t)
 	rec := e.send("alice", "ws-alpha", "POST", "/api/leads/bulk-enrich", `{"lead_ids":[3,1,2],"action":"scrape_website"}`)
@@ -79,8 +79,8 @@ func TestBulkEnrichEnqueuesPythonJob(t *testing.T) {
 		t.Fatalf("jobs = %d", len(js))
 	}
 	j := js[0]
-	// Python (add_job): executor python, priority 1, pending, max_retries 3, NULL fire_key, workspace_id from payload.
-	if j.executor != "python" || j.status != "pending" || j.priority != 1 || j.maxRetries != 3 || j.retries != 0 || !j.fireKeyNull ||
+	// Python (add_job) shape with executor go (the only one since the plan 15 cutover): priority 1, pending, max_retries 3, NULL fire_key, workspace_id from payload.
+	if j.executor != "go" || j.status != "pending" || j.priority != 1 || j.maxRetries != 3 || j.retries != 0 || !j.fireKeyNull ||
 		j.ws == nil || *j.ws != "ws-alpha" {
 		t.Fatalf("row %+v", j)
 	}

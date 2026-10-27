@@ -337,7 +337,7 @@ func TestRowRecomputeEnqueuesRunJob(t *testing.T) {
 		if len(runID(j.payload)) != 32 || got != want {
 			t.Errorf("job %d payload\n got %s\nwant %s", i, got, want)
 		}
-		if j.executor != "python" || j.ws != rowsWsAlpha || j.prio != 1 || j.retries != 3 {
+		if j.executor != "go" || j.ws != rowsWsAlpha || j.prio != 1 || j.retries != 3 {
 			t.Errorf("job %d columns: %+v", i, j)
 		}
 	}

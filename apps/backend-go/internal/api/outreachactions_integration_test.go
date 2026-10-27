@@ -424,8 +424,8 @@ func TestExecuteEnqueuesOnce(t *testing.T) {
 	if c, m, _ := e.as("alice", "", "POST", "/api/outreach/sequences/seq-out-a-01/execute", ""); c != 200 || m["enqueued"] != float64(0) {
 		t.Fatalf("second execute: %d %v", c, m)
 	}
-	if got := e.rowCount(t, `SELECT count(*) FROM jobs WHERE type='send' AND workspace_id='ws-alpha' AND executor='python'`); got != int(n) {
-		t.Fatalf("executor python jobs %d", got)
+	if got := e.rowCount(t, `SELECT count(*) FROM jobs WHERE type='send' AND workspace_id='ws-alpha' AND executor='go'`); got != int(n) {
+		t.Fatalf("executor go jobs %d", got)
 	}
 }
 

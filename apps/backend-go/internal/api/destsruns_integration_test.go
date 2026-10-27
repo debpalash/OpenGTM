@@ -245,7 +245,7 @@ func TestSyncCreatesRunAndJob(t *testing.T) {
 	// cohort + GO_DEST_TYPES: webhook goes to Go, hubspot (not listed) and an out-of-cohort workspace stay on Python
 	vars := map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-alpha", "GO_DEST_TYPES": "webhook,airtable"}
 	e := newDrEnv(t, vars)
-	for _, c := range []struct{ dest, executor string }{{"dst-act-airtable", "go"}, {"dst-act-instantly", "python"}} {
+	for _, c := range []struct{ dest, executor string }{{"dst-act-airtable", "go"}, {"dst-act-instantly", "go"}} {
 		code, m, raw := e.drJSON(t, "alice", "ws-alpha", "POST", drBase+"/"+c.dest+"/sync")
 		if code != 202 {
 			t.Fatal(code, raw)
@@ -268,7 +268,7 @@ func TestSyncCreatesRunAndJob(t *testing.T) {
 	// the same type with the workspace out of the cohort stays on Python (Getenv reads the map per call)
 	vars["GO_EXECUTOR_WORKSPACES"] = "ws-other"
 	_, m, _ := e.drJSON(t, "alice", "ws-alpha", "POST", drBase+"/dst-act-webhook/sync")
-	if n, ex := drJobs(t, m["id"].(string)); n != 1 || ex != "python" {
+	if n, ex := drJobs(t, m["id"].(string)); n != 1 || ex != "go" {
 		t.Errorf("out of cohort: %d %q", n, ex)
 	}
 }
