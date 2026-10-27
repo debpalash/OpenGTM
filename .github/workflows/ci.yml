@@ -133,6 +133,30 @@ jobs:
           go build -tags webui -o /dev/null ./cmd/api
           go build -o /dev/null ./cmd/worker ./cmd/mcp
 
+  browser-service:
+    name: Browser service lint and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/browser-service
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: '3.13'
+          enable-cache: true
+          cache-dependency-glob: apps/browser-service/uv.lock
+      - run: uv lock --check
+      - run: uv sync --frozen
+      - run: uv run --frozen ruff check .
+      - run: uv run --frozen ruff format --check .
+      # Chromium makes the real-browser egress tests run instead of skipping.
+      - run: uv run --frozen playwright install --with-deps --only-shell chromium
+      - run: uv run --frozen pytest -q
+
   frontend:
     name: Frontend lint, tests and build
     runs-on: ubuntu-latest
