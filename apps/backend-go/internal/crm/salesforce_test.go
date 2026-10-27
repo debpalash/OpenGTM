@@ -583,7 +583,7 @@ func TestInstanceURLRebindingBlockedAtDial(t *testing.T) {
 	} {
 		b, _ := json.Marshal(r)
 		if !strings.Contains(string(b), `"success":false`) || !strings.Contains(string(b), "blocked url: ") ||
-			!strings.Contains(string(b), "private ip") {
+			!strings.Contains(string(b), "private address") {
 			t.Errorf("%s: %s", name, b)
 		}
 		if strings.Contains(string(b), sfToken) {

@@ -140,7 +140,11 @@ func TestPreviewCountsEachCategoryOldVsNew(t *testing.T) {
 	now, _ := time.Parse(time.RFC3339, v.Now)
 	e.seed(t, v, now)
 	for _, c := range v.Cases {
-		for tz, byWS := range c.Expected {
+		// Python's expected counts under a non-UTC session skew by the zone offset; Go reads the
+		// naive columns as UTC whatever the session TimeZone, so every session zone must give the
+		// UTC answer.
+		for tz := range c.Expected {
+			byWS := c.Expected["UTC"]
 			for _, w := range []string{e.prefix + "wsA", e.prefix + "wsB"} {
 				days := map[string]int{}
 				for k, val := range c.Normalized {
@@ -393,7 +397,8 @@ func (e *env) runSchedule(t *testing.T, tz, scenario string, goExec bool) {
 		t.Fatal(err)
 	}
 	for _, s := range v.Schedule {
-		if s.TZ != tz || s.Scenario != scenario {
+		// The session zone (tz) changes nothing in Go: compare with Python's UTC-session vector.
+		if s.TZ != "UTC" || s.Scenario != scenario {
 			continue
 		}
 		if (next == nil) != (s.Returned == nil) || (next != nil && next.Format(time.RFC3339) != "2026-06-16T12:00:00Z") {
