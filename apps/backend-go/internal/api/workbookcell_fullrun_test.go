@@ -8,11 +8,11 @@ import (
 )
 
 // GO_EXECUTOR_FULL_RUN gives the single-cell route its own output clients and verify
-// cascade, so it never proxies to PYTHON_API_URL; off by default.
+// cascade; retired at the plan 15 cutover, so they are always wired.
 func TestCellDepsFullRun(t *testing.T) {
 	off := cellDeps(Deps{}, nil)
-	if off.FullRun || off.Output != nil || off.Verify != nil {
-		t.Fatalf("defaults must keep the proxy: %+v", off)
+	if !off.FullRun || off.Output == nil || off.Verify == nil || off.Py != nil {
+		t.Fatalf("defaults must run every column in process: %+v", off)
 	}
 	on := cellDeps(Deps{Getenv: func(k string) string {
 		switch k {
@@ -27,7 +27,7 @@ func TestCellDepsFullRun(t *testing.T) {
 }
 
 // GO_NATIVE_AI_COLUMNS (plan 15 WP-AICOLS) wires the in-process AI column path into the
-// single-cell route, with or without the full-run flag; off by default.
+// single-cell route; retired at the cutover, so it is on whatever the environment says.
 func TestCellDepsNativeAICols(t *testing.T) {
 	reg, err := settings.Load()
 	if err != nil {
@@ -45,8 +45,8 @@ func TestCellDepsNativeAICols(t *testing.T) {
 			return ""
 		}
 	}
-	if d := cellDeps(Deps{Getenv: get(""), Registry: reg, Envelope: env}, nil); d.AICols != nil {
-		t.Fatal("AI columns must default to the python worker path")
+	if d := cellDeps(Deps{Getenv: get(""), Registry: reg, Envelope: env}, nil); d.AICols == nil {
+		t.Fatal("AI columns must run in process by default")
 	}
 	d := cellDeps(Deps{Getenv: get("1"), Registry: reg, Envelope: env}, nil)
 	if d.AICols == nil || d.AICols.For == nil {

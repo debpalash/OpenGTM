@@ -11,34 +11,39 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
-// statsWeb is the one leadweb instance of the api process (its proxy pool and rate limiter state is per process,
-// plan 15 R6/D5), built on first use from the environment.
+// fallbackWeb is the process leadweb when Deps.Web is not set (tests, tools): built once from the environment.
 var (
-	statsWebOnce sync.Once
-	statsWeb     *leadweb.Web
+	fallbackWebOnce sync.Once
+	fallbackWeb     *leadweb.Web
 )
 
-// webStats is leadweb.Web.Stats; tests replace it.
-var webStats = func(d Deps, ctx context.Context) leadweb.SystemStats {
-	statsWebOnce.Do(func() {
+// leadweb is the api process's one leadweb instance (one proxy pool, rate limiter, breaker and search cache;
+// plan 15 R6/D5): Deps.Web (cmd/api shares it with the in-process providers), else one built from the environment.
+func (d Deps) leadweb() *leadweb.Web {
+	if d.Web != nil {
+		return d.Web
+	}
+	fallbackWebOnce.Do(func() {
 		cfg, err := config.LeadwebFrom(d.getenv())
 		if err != nil {
-			d.logger().Error("leadweb settings invalid; system-stats counters stay empty", "err_type", errTypeName(err))
+			d.logger().Error("leadweb settings invalid; the defaults are used", "err_type", errTypeName(err))
 			cfg, _ = config.LeadwebFrom(func(string) string { return "" })
 		}
-		sc := config.ScrapeFrom(d.getenv())
 		var bc *browserclient.Client
-		if sc.BrowserURL != "" {
-			bc = browserclient.New(sc.BrowserURL, sc.BrowserToken.Reveal(), nil)
+		if b := d.browser(); b.Configured() {
+			bc = b
 		}
 		appEnv := d.Config.AppEnv
 		if appEnv == "" {
 			appEnv = d.getenv()("APP_ENV")
 		}
-		statsWeb = leadweb.New(cfg, bc, appEnv, d.EgressAllowHosts)
+		fallbackWeb = leadweb.New(cfg, bc, appEnv, d.EgressAllowHosts)
 	})
-	return statsWeb.Stats(ctx)
+	return fallbackWeb
 }
+
+// webStats is leadweb.Web.Stats of the process instance; tests replace it.
+var webStats = func(d Deps, ctx context.Context) leadweb.SystemStats { return d.leadweb().Stats(ctx) }
 
 // newGoStats builds the system-stats source over leadweb: proxy_pool and rate_limiter in the legacy shape, plus the
 // browser service's counters when it answers.

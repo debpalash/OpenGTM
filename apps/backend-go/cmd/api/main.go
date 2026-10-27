@@ -20,15 +20,16 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/api"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/auth"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rpclocal"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rpclocal"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
@@ -195,11 +196,6 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool, str
 	}
 	deps := newAPIDeps(cfg, log, pool)
 	deps.Identity = st
-	// Python provider RPC (plan 06 D8): nil when PY_WORKER_URL is unset, so
-	// callers hand jobs back to Python.
-	if cfg.PyWorkerURL != "" {
-		deps.PyWorker = pyworker.New(cfg.PyWorkerURL, cfg.PyWorkerToken, nil)
-	}
 	// Settings routes need the registry, the secrets envelope and the guarded
 	// egress client; without a pool they stay unregistered (route tests). With a
 	// pool, a bad config fails startup rather than silently 404ing the routes.
@@ -210,14 +206,31 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool, str
 		}
 		deps.Registry, deps.Envelope, deps.Egress = sd.Registry, sd.Envelope, sd.Egress
 	}
-	// In-process providers (plan 15 WP-PROVIDERS): GO_LOCAL_PROVIDERS gate and the providers/scrape seams
-	// (providerrun runs listed providers here; people research finds crosslinked in the registry).
+	// In-process providers (plan 15 WP-PROVIDERS): the provider gate and the providers/scrape seams (providerrun
+	// runs them here; people research finds crosslinked in the registry). One browser-service client and one
+	// leadweb (proxy pool, rate limiter, breaker, search cache) serve the whole process.
+	lw, err := config.LeadwebFrom(config.Getenv)
+	if err != nil {
+		return nil, err
+	}
+	sc := config.ScrapeFrom(config.Getenv)
+	deps.Browser = browserclient.New(sc.BrowserURL, sc.BrowserToken.Reveal(), nil)
+	var webBrowser *browserclient.Client
+	if deps.Browser.Configured() {
+		webBrowser = deps.Browser
+	}
+	deps.Web = leadweb.New(lw, webBrowser, cfg.AppEnv, cfg.EgressAllowHosts)
 	var provSecrets rpclocal.Secrets
 	if pool != nil {
 		provSecrets = secrets.NewResolver(deps.Envelope, secrets.NewPgStore(pool), os.Getenv)
 	}
-	if _, err := rpclocal.Configure(rpclocal.Setup{AppEnv: cfg.AppEnv, EgressAllow: cfg.EgressAllowHosts, Secrets: provSecrets, Log: log}); err != nil {
+	caller, err := rpclocal.Configure(rpclocal.Setup{AppEnv: cfg.AppEnv, EgressAllow: cfg.EgressAllowHosts, Secrets: provSecrets,
+		Log: log, Web: deps.Web, Browser: deps.Browser, Pool: pool})
+	if err != nil {
 		return nil, err
+	}
+	if caller != nil {
+		deps.Providers = caller
 	}
 	// Leadgen routes (plan 14) register only when the ledger cutover marker is "postgres". Fail closed: a
 	// missing marker or a failed read leaves it empty, so the routes stay unregistered (Go answers 404 for these paths; nothing falls

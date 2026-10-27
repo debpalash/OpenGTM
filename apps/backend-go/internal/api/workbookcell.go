@@ -8,11 +8,8 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"net"
 	"net/http"
-	"net/url"
 	"strings"
-	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
@@ -25,11 +22,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
-const (
-	cellRunMaxBody    = 1 << 20 // RunCellRequest is one bool: far more than enough
-	cellProxyMaxReply = 8 << 20
-	cellProxyTimeout  = 5 * time.Minute
-)
+const cellRunMaxBody = 1 << 20 // RunCellRequest is one bool: far more than enough
 
 // newCellRunner builds the provider runner of the cell run route (replaced by tests).
 // Credentials resolve per workspace through the settings resolver (workspace, then operator,
@@ -40,17 +33,13 @@ var newCellRunner = func(d Deps) workbook.ProviderRunner {
 	if d.Envelope != nil && d.Pool != nil {
 		sec = secrets.NewResolver(d.Envelope, secrets.NewPgStore(d.Pool), d.getenv())
 	}
-	var py providerrun.PyCaller
-	if d.PyWorker != nil { // never wrap a nil *Client in a non-nil interface
-		py = d.PyWorker
-	}
 	var allow []string
 	for _, h := range strings.Split(d.getenv()("EGRESS_ALLOW_HOSTS"), ",") {
 		if h = strings.TrimSpace(h); h != "" {
 			allow = append(allow, h)
 		}
 	}
-	return providerrun.New(providerrun.Deps{Pool: d.Pool, Secrets: sec, Py: py, OperatorAllow: allow, Log: d.Log})
+	return providerrun.New(providerrun.Deps{Pool: d.Pool, Secrets: sec, OperatorAllow: allow, Log: d.Log})
 }
 
 type noSecrets struct{}
@@ -60,16 +49,13 @@ func (noSecrets) Get(context.Context, string, string) (string, string, error) { 
 // cellRoutes serves POST /api/workbooks/{workbook_id}/rows/{row_id}/cells/{col_id}/run.
 type cellRoutes struct {
 	d    Deps
-	py   string // validated PYTHON_API_URL (empty = proxy unavailable)
 	deps workbook.Deps
 	log  *slog.Logger
-	http *http.Client
 }
 
 // registerWorkbookCell registers the single-cell run route (plan 06 Task 25): an editor
 // route limited to 120/min that runs one cell in the request and answers the fresh cell.
-// Output columns (and email verification, which needs the Python cascade) are proxied to the
-// Python API unchanged; see workbook.ErrNeedsPython.
+// Every column type runs in this process (plan 15: the Python API proxy is gone).
 func registerWorkbookCell(r *httpx.Router, d Deps) {
 	if d.Pool == nil {
 		return
@@ -78,9 +64,7 @@ func registerWorkbookCell(r *httpx.Router, d Deps) {
 	if log == nil {
 		log = slog.Default()
 	}
-	h := &cellRoutes{d: d, log: log, deps: cellDeps(d, log),
-		http: &http.Client{Timeout: cellProxyTimeout, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}
-	h.py = validPythonURL(d.getenv()("PYTHON_API_URL"), log)
+	h := &cellRoutes{d: d, log: log, deps: cellDeps(d, log)}
 	// slowapi wraps the endpoint, so authentication, role and path validation answer first
 	// and only a request that reaches the endpoint spends the 120/min budget.
 	mws := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity),
@@ -89,21 +73,6 @@ func registerWorkbookCell(r *httpx.Router, d Deps) {
 		mws = append(mws, d.Limiter.Limit("120/minute"))
 	}
 	r.Handle("POST /api/workbooks/{workbook_id}/rows/{row_id}/cells/{col_id}/run", http.HandlerFunc(h.run), mws...)
-}
-
-// validPythonURL checks PYTHON_API_URL once: an absolute http(s) URL with a host and no
-// credentials. Anything else is logged and treated as unset (the proxy answers 502).
-func validPythonURL(raw string, log *slog.Logger) string {
-	raw = strings.TrimSpace(raw)
-	if raw == "" {
-		return ""
-	}
-	u, err := url.Parse(raw)
-	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Hostname() == "" || u.User != nil {
-		log.Error("PYTHON_API_URL is not an http(s) URL with a host; the cell run proxy is disabled")
-		return ""
-	}
-	return strings.TrimRight(raw, "/")
 }
 
 // validatePath is FastAPI's `row_id: int` path validation.
@@ -150,8 +119,6 @@ func (h *cellRoutes) run(w http.ResponseWriter, r *http.Request) {
 		httpx.Detail(w, http.StatusNotFound, "Workbook row not found")
 	case errors.Is(err, workbook.ErrLegacyRowNotFound):
 		httpx.Detail(w, http.StatusNotFound, "Row not found")
-	case errors.Is(err, workbook.ErrNeedsPython):
-		h.proxy(w, r, raw, workbook.NeedsPythonReason(err))
 	case r.Context().Err() != nil:
 		// The client went away: the run was cancelled (a paid call in flight stays
 		// uncertain). Nobody reads this answer; 499 keeps the access log honest.
@@ -212,84 +179,15 @@ func lenientBool(v any, loc []any) (bool, []httpx.FieldError) {
 	return bad("bool_type", "Input should be a valid boolean")
 }
 
-// hopByHop headers are never forwarded in either direction.
-var hopByHop = map[string]bool{"Connection": true, "Keep-Alive": true, "Proxy-Authenticate": true,
-	"Proxy-Authorization": true, "Te": true, "Trailer": true, "Transfer-Encoding": true, "Upgrade": true,
-	"Host": true, "Content-Length": true}
-
-// spoofable headers state a client address: never taken from the caller.
-var spoofable = map[string]bool{"X-Forwarded-For": true, "X-Real-Ip": true, "Forwarded": true, "X-Forwarded-Host": true,
-	"X-Forwarded-Proto": true}
-
-// proxy sends the request to the Python API and relays its answer (status, headers, body)
-// unchanged. nginx cannot route on the request body or the column type, so output columns
-// reach this process and are forwarded; PYTHON_API_URL names the FastAPI base URL.
-func (h *cellRoutes) proxy(w http.ResponseWriter, r *http.Request, body []byte, reason string) {
-	base := h.py
-	if base == "" {
-		h.log.Error("cell run needs the python api but PYTHON_API_URL is not set", "reason", reason)
-		httpx.Detail(w, http.StatusBadGateway, "Python API is not configured")
-		return
-	}
-	req, err := http.NewRequestWithContext(r.Context(), r.Method, base+r.URL.RequestURI(), bytes.NewReader(body))
-	if err != nil {
-		httpx.Detail(w, http.StatusBadGateway, "Python API unavailable")
-		return
-	}
-	for k, vs := range r.Header {
-		if hopByHop[http.CanonicalHeaderKey(k)] || spoofable[http.CanonicalHeaderKey(k)] {
-			continue
-		}
-		for _, v := range vs {
-			req.Header.Add(k, v)
-		}
-	}
-	// Python's per-IP limiter keys on the forwarded client address: state the real peer.
-	if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
-		req.Header.Set("X-Forwarded-For", host)
-	}
-	resp, err := h.http.Do(req)
-	if err != nil {
-		if r.Context().Err() != nil {
-			httpx.Detail(w, 499, "Client Closed Request")
-			return
-		}
-		h.log.Error("python api proxy failed", "reason", reason, "err_type", fmt.Sprintf("%T", err))
-		httpx.Detail(w, http.StatusBadGateway, "Python API unavailable")
-		return
-	}
-	defer resp.Body.Close()
-	reply, err := io.ReadAll(io.LimitReader(resp.Body, cellProxyMaxReply+1))
-	if err != nil || len(reply) > cellProxyMaxReply {
-		// Never relay a truncated body after a status line was sent.
-		h.log.Error("python api reply unreadable or too large", "reason", reason, "bytes", len(reply))
-		httpx.Detail(w, http.StatusBadGateway, "Python API unavailable")
-		return
-	}
-	for k, vs := range resp.Header {
-		if hopByHop[http.CanonicalHeaderKey(k)] {
-			continue
-		}
-		for _, v := range vs {
-			w.Header().Add(k, v)
-		}
-	}
-	w.WriteHeader(resp.StatusCode)
-	_, _ = w.Write(reply)
-}
-
 // cellDeps is the executor wiring of the single-cell route. With GO_EXECUTOR_FULL_RUN
-// (plan 15) output columns and email verification run in process (the Python API proxy is
-// never used): output clients and the verify cascade resolve workspace credentials, the
-// webhook goes through the SSRF-guarded egress client.
+// (plan 15; permanently on since the cutover) output columns and email verification run in
+// process: output clients and the verify cascade resolve workspace credentials, the webhook
+// goes through the SSRF-guarded egress client.
 func cellDeps(d Deps, log *slog.Logger) workbook.Deps {
 	if log == nil {
 		log = slog.Default()
 	}
 	deps := workbook.Deps{Pool: d.Pool, Runner: newCellRunner(d), Log: log}
-	if d.PyWorker != nil {
-		deps.Py = d.PyWorker
-	}
 	deps.AICols = aiColumns(d, log)
 	wx := config.LoadWbExec(d.getenv())
 	for _, p := range wx.Problems {

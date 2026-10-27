@@ -14,7 +14,6 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
@@ -275,31 +274,16 @@ func TestScrapeRoutesAuthAndEndToEnd(t *testing.T) {
 	}
 }
 
-func TestSystemStatsFromGoWhenScrapeRoutesEnabled(t *testing.T) {
-	old := webStats
-	defer func() { webStats = old }()
-	webStats = func(Deps, context.Context) leadweb.SystemStats {
-		st := leadweb.SystemStats{}
-		st.ProxyPool = leadweb.PoolStats{Total: 3, HTTP: 2, Socks5: 1, Blocked: 1, DomainAssignments: 4}
-		st.RateLimiter = leadweb.LimiterStats{TrackedDomains: 2, TrippedDomains: []string{"slow.example"}}
-		st.Browser = &browserclient.Stats{Version: "1", Active: 1, Capacity: 4}
-		return st
-	}
-	e := newStatsEnv(t, nil, 3) // no pyworker at all: the counters must not need it
-	r := httpx.NewRouter()
-	d := Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Config: config.APIConfig{},
-		Flags:                   config.Flags{PGLeadStore: true, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: true}},
-		Getenv:                  func(k string) string { return map[string]string{"GO_SCRAPE_ROUTES_ENABLED": "true"}[k] },
-		CollectionLedgerBackend: "postgres"}
-	RegisterJobs(r, d)
-	e.h = r.Handler()
+func TestSystemStatsFromGoCounters(t *testing.T) {
+	st := leadweb.SystemStats{}
+	st.ProxyPool = leadweb.PoolStats{Total: 3, HTTP: 2, Socks5: 1, Blocked: 1, DomainAssignments: 4}
+	st.RateLimiter = leadweb.LimiterStats{TrackedDomains: 2, TrippedDomains: []string{"slow.example"}}
+	st.Browser = &browserclient.Stats{Version: "1", Active: 1, Capacity: 4}
+	e := newStatsEnv(t, st)
 
 	rec, _ := e.statsGet("alice", "")
 	if rec.Code != 200 {
 		t.Fatalf("status %d %s", rec.Code, rec.Body)
-	}
-	if rec.Header().Get("X-Stats-Source") != "" {
-		t.Error("degraded header although the counters are local")
 	}
 	var got struct {
 		ProxyPool   map[string]int `json:"proxy_pool"`

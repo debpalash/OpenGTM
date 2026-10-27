@@ -18,7 +18,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/copilot"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 )
 
 // Plan 12 coverage (Task 21): the 7 copilotkit + 5 person intel FastAPI routes are all ported (none retained),
@@ -43,9 +42,8 @@ func copilotGoPatterns(t *testing.T) map[string]bool {
 		t.Fatal(err)
 	}
 	t.Cleanup(pool.Close)
-	d := Deps{Log: slog.New(slog.NewTextHandler(io.Discard, nil)), Pool: pool, Identity: identity.NewStore(pool),
-		PyWorker: pyworker.New("http://127.0.0.1:1", "tok", nil),
-		Flags:    config.Flags{PGLeadStore: true, Copilot: config.CopilotSettings{GoCopilotEnabled: true}}}
+	d := withChatEngineDeps(Deps{Log: slog.New(slog.NewTextHandler(io.Discard, nil)), Pool: pool, Identity: identity.NewStore(pool),
+		Flags: config.Flags{PGLeadStore: true, Copilot: config.CopilotSettings{GoCopilotEnabled: true}}})
 	out := map[string]bool{}
 	for _, register := range []func(*httpx.Router, Deps){RegisterCopilot, RegisterPersonIntel} {
 		r := httpx.NewRouter()

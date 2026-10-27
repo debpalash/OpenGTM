@@ -112,7 +112,7 @@ func startStack(t *testing.T, extra map[string]string) *stack {
 		"API_ADDR="+addr, "SERVE_UI=false", "SECRET_KEY=e2e-secret-key-e2e-secret-key-e2e-secret", "SECRETS_PROVIDER=local",
 		"SECRETS_MASTER_KEY=e2e-master-key-e2e-master-key-e2e-master", "CREDENTIALS_SOURCE=local",
 		"PG_LEAD_STORE=true", "COPILOT_GO_ENABLED=true", "BILLING_ENABLED=false", "EGRESS_ALLOW_HOSTS=127.0.0.1",
-		"PY_WORKER_URL="+s.py.srv.URL, "PY_WORKER_TOKEN="+serviceToken, "INTERNAL_API_URL="+s.py.srv.URL,
+		"INTERNAL_API_URL="+s.py.srv.URL, // PY_WORKER_URL is not set at all: there is no Python worker (plan 15)
 		"INTERNAL_SERVICE_TOKEN="+serviceToken, "DATA_DIR="+t.TempDir(),
 		"BROWSER_SERVICE_URL="+s.browser.srv.URL, "BROWSER_SERVICE_TOKEN="+s.browser.token,
 		"AUTOMATIONS_ENABLED=true",

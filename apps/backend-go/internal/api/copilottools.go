@@ -8,13 +8,10 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/autopilot"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/copilot"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/entities"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadpeople"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
@@ -27,6 +24,7 @@ type copilotTools struct {
 	executor *leadpeople.ContactExecutor
 	plans    autopilot.PlanStore
 	memory   autopilot.Memory
+	urlCheck func(string) error // enrich_lead's lead-website egress check
 }
 
 func newCopilotTools(d Deps, s autopilot.Settings) *copilotTools {
@@ -40,29 +38,16 @@ func newCopilotTools(d Deps, s autopilot.Settings) *copilotTools {
 		d.logger().Warn("copilot: no Redis; autopilot plans are kept in this API process only")
 	}
 
-	lw, err := config.LeadwebFrom(getenv)
-	if err != nil {
-		d.logger().Error("copilot: leadweb settings invalid; people verification search uses the defaults", "err_type", errTypeName(err))
-		lw, _ = config.LeadwebFrom(func(string) string { return "" })
-	}
-	sc := config.ScrapeFrom(getenv)
-	var bc *browserclient.Client
-	if sc.BrowserURL != "" {
-		bc = browserclient.New(sc.BrowserURL, sc.BrowserToken.Reveal(), nil)
-	}
 	appEnv := d.Config.AppEnv
 	if appEnv == "" {
 		appEnv = getenv("APP_ENV")
 	}
-	web := leadweb.New(lw, bc, appEnv, d.EgressAllowHosts)
+	web := d.leadweb()
+	ct.urlCheck = func(raw string) error { return egress.CheckURLFor(appEnv, allow, raw, true) }
 
 	var sec providerrun.Secrets = noSecrets{}
 	if d.Envelope != nil && d.Pool != nil {
 		sec = secrets.NewResolver(d.Envelope, secrets.NewPgStore(d.Pool), getenv)
-	}
-	var py providerrun.PyCaller
-	if d.PyWorker != nil {
-		py = d.PyWorker
 	}
 	var operatorAllow []string
 	for _, h := range strings.Split(getenv("EGRESS_ALLOW_HOSTS"), ",") {
@@ -70,7 +55,7 @@ func newCopilotTools(d Deps, s autopilot.Settings) *copilotTools {
 			operatorAllow = append(operatorAllow, h)
 		}
 	}
-	runner := providerrun.New(providerrun.Deps{Pool: d.Pool, Secrets: sec, Py: py, OperatorAllow: operatorAllow, Log: d.Log})
+	runner := providerrun.New(providerrun.Deps{Pool: d.Pool, Secrets: sec, OperatorAllow: operatorAllow, Log: d.Log})
 	ct.people = &leadpeople.Service{
 		Identity: leadpeople.WikidataIdentity{Client: egress.NewOperatorClient(allow)},
 		Search:   web.Search,
@@ -94,6 +79,8 @@ func (ct *copilotTools) apply(e *copilot.Engine, ws string) {
 	e.People = copilot.LeadPeople{Service: &svc, Executor: ct.executor}
 	e.ResolvePerson = resolvePerson
 	e.Plans, e.Memory = ct.plans, ct.memory
+	// enrich_lead runs the in-process website_scraper / ddg_email providers (registry; GO_LOCAL_PROVIDERS gate).
+	e.Providers, e.URLCheck = registryProviders{}, ct.urlCheck
 }
 
 func resolvePerson(ctx context.Context, tx pgx.Tx, ws string, o copilot.PersonObservation) (string, error) {

@@ -15,7 +15,7 @@ import (
 	"testing"
 )
 
-// pyGuard is the stand-in for the Python api/worker (PY_WORKER_URL, INTERNAL_API_URL). Every request is recorded
+// pyGuard is the stand-in for the retired Python api (INTERNAL_API_URL; PY_WORKER_URL is not set). Every request is recorded
 // with the scenario that was running and answered 503; the parent test fails when any were seen unless the scenario
 // is in the known-failing report mode.
 type pyGuard struct {

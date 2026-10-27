@@ -6,11 +6,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/http/httptest"
-	"sync/atomic"
 	"testing"
-	"time"
 
 	"github.com/jackc/pgx/v5"
 
@@ -18,56 +15,24 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
 
 // Plan 14 Task 17: GET /api/system-stats against the recorded Python fixtures (testdata/contract/jobs/system_stats_*).
-// The proxy_pool and rate_limiter objects come from the pyworker RPC POST /internal/leadgen/system-stats; the fake
-// worker here replays the recorded answer.
+// The proxy_pool and rate_limiter objects are this process's leadweb counters (webStats; plan 15 D5).
 
-const statsToken = "svc-token-abc-0123456789abcdef0123456789"
-
-type statsWorker struct {
-	srv   *httptest.Server
-	calls atomic.Int32
-	delay time.Duration
-	code  int
-	body  string
-}
-
-func newStatsWorker(t *testing.T) *statsWorker {
+// newStatsEnv is newJobsEnv serving the stats route over st (the leadweb counters) for the test's duration.
+func newStatsEnv(t *testing.T, st leadweb.SystemStats) jobsEnv {
 	t.Helper()
-	// the answer of the RPC: Python's ProxyPool().stats() and RateLimiter().stats() in source order
-	w := &statsWorker{code: 200, body: `{"proxy_pool": {"total": 0, "http": 0, "socks5": 0, "socks4": 0, "blocked": 0, "domain_assignments": 0}, "rate_limiter": {"tracked_domains": 0, "tripped_domains": []}}`}
-	w.srv = httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		w.calls.Add(1)
-		if r.Method != "POST" || r.URL.Path != "/internal/leadgen/system-stats" || r.Header.Get("Authorization") != "Bearer "+statsToken {
-			rw.WriteHeader(401)
-			return
-		}
-		time.Sleep(w.delay)
-		rw.Header().Set("Content-Type", "application/json")
-		rw.WriteHeader(w.code)
-		_, _ = rw.Write([]byte(w.body))
-	}))
-	t.Cleanup(w.srv.Close)
-	return w
-}
-
-// newStatsEnv is newJobsEnv with a pyworker client (nil: no worker) and the RPC timeout in seconds.
-func newStatsEnv(t *testing.T, py *pyworker.Client, timeoutS int) jobsEnv {
-	t.Helper()
-	return newJobsEnv(t, nil).withWorker(py, timeoutS)
-}
-
-// withWorker re-registers the jobs routes on the same pool with another worker client (one env per test: NewAppPool
-// holds an advisory lock for the whole test).
-func (e jobsEnv) withWorker(py *pyworker.Client, timeoutS int) jobsEnv {
+	old := webStats
+	webStats = func(Deps, context.Context) leadweb.SystemStats { return st }
+	t.Cleanup(func() { webStats = old })
+	e := newJobsEnv(t, nil)
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(e.pool, nil))
-	d := Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Config: config.APIConfig{}, PyWorker: py,
-		Flags:                   config.Flags{PGLeadStore: true, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: true, SystemStatsRPCTimeoutSeconds: timeoutS}},
+	d := Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Config: config.APIConfig{},
+		Flags:                   config.Flags{PGLeadStore: true, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: true}},
 		CollectionLedgerBackend: "postgres"}
 	RegisterJobs(r, d)
 	e.h = r.Handler()
@@ -86,8 +51,7 @@ func (e jobsEnv) statsGet(who, ws string) (*httptest.ResponseRecorder, contract.
 }
 
 func TestSystemStatsMatchesFixture(t *testing.T) {
-	w := newStatsWorker(t)
-	e := newStatsEnv(t, pyworker.New(w.srv.URL, statsToken, nil), 3)
+	e := newStatsEnv(t, leadweb.SystemStats{})
 	for _, c := range []struct{ fixture, who, ws string }{
 		{"system_stats_alpha", "alice", ""},
 		{"system_stats_beta", "bob", "ws-beta"},
@@ -97,9 +61,7 @@ func TestSystemStatsMatchesFixture(t *testing.T) {
 		fx := contract.Load(t, "jobs/"+c.fixture)
 		rec, got := e.statsGet(c.who, c.ws)
 		contract.AssertEqual(t, got, fx.Response)
-		if fx.Response.Status == 200 && rec.Header().Get("X-Stats-Source") != "" {
-			t.Errorf("%s: degraded header on a healthy answer", c.fixture)
-		}
+		_ = rec
 	}
 	// key order of Python's dict: proxy_pool, rate_limiter, jobs; jobs total, pending, running, done, failed
 	rec, _ := e.statsGet("alice", "")
@@ -145,8 +107,7 @@ func jobCounts(t *testing.T, e jobsEnv, who, ws string) map[string]int {
 }
 
 func TestJobCountsWindowOf100(t *testing.T) {
-	w := newStatsWorker(t)
-	e := newStatsEnv(t, pyworker.New(w.srv.URL, statsToken, nil), 3)
+	e := newStatsEnv(t, leadweb.SystemStats{})
 	var rows []struct{ id, status, created string }
 	add := func(n int, status string) {
 		for i := 0; i < n; i++ {
@@ -171,8 +132,7 @@ func TestJobCountsWindowOf100(t *testing.T) {
 }
 
 func TestCancelledOnlyInTotal(t *testing.T) {
-	w := newStatsWorker(t)
-	e := newStatsEnv(t, pyworker.New(w.srv.URL, statsToken, nil), 3)
+	e := newStatsEnv(t, leadweb.SystemStats{})
 	insertJobs(t, e, "ws-beta", []struct{ id, status, created string }{
 		{fmt.Sprintf("d%031d", 1), "cancelled", "2026-09-01T00:00:01+00:00"},
 		{fmt.Sprintf("d%031d", 2), "cancelled", "2026-09-01T00:00:02+00:00"},
@@ -185,8 +145,7 @@ func TestCancelledOnlyInTotal(t *testing.T) {
 }
 
 func TestSystemStatsTenantJobsOnly(t *testing.T) {
-	w := newStatsWorker(t)
-	e := newStatsEnv(t, pyworker.New(w.srv.URL, statsToken, nil), 3)
+	e := newStatsEnv(t, leadweb.SystemStats{})
 	insertJobs(t, e, "ws-alpha", []struct{ id, status, created string }{{fmt.Sprintf("e%031d", 1), "running", "2026-09-01T00:00:01+00:00"}})
 	insertJobs(t, e, "ws-beta", nil)
 	if got := jobCounts(t, e, "alice", ""); got["total"] != 1 || got["running"] != 1 {
@@ -197,57 +156,10 @@ func TestSystemStatsTenantJobsOnly(t *testing.T) {
 	}
 }
 
-const degradedBody = `{"proxy_pool":{"total":0,"http":0,"socks5":0,"socks4":0,"blocked":0,"domain_assignments":0},"rate_limiter":{"tracked_domains":0,"tripped_domains":[]},"jobs":{"total":7,"pending":1,"running":2,"done":2,"failed":1}}`
-
-func assertDegraded(t *testing.T, e jobsEnv) {
-	t.Helper()
-	rec, _ := e.statsGet("alice", "")
-	if rec.Code != 200 || rec.Header().Get("X-Stats-Source") != "degraded" || rec.Body.String() != degradedBody {
-		t.Errorf("want degraded 200: %d %q %s", rec.Code, rec.Header().Get("X-Stats-Source"), rec.Body)
-	}
-}
-
-func TestPyWorkerDownDegradedShape(t *testing.T) {
-	// no worker configured, connection refused, 5xx, garbage and a wrong shape all degrade (jobs stay real)
-	e := newStatsEnv(t, nil, 3)
-	assertDegraded(t, e)
-	dead := httptest.NewServer(http.NotFoundHandler())
-	url := dead.URL
-	dead.Close()
-	assertDegraded(t, e.withWorker(pyworker.New(url, statsToken, nil), 3))
-	for _, c := range []struct {
-		code int
-		body string
-	}{{500, `{}`}, {200, `not json`}, {200, `{"proxy_pool": 1, "rate_limiter": {}}`}, {200, `{"proxy_pool": {}}`}, {200, `[]`}} {
-		w := newStatsWorker(t)
-		w.code, w.body = c.code, c.body
-		assertDegraded(t, e.withWorker(pyworker.New(w.srv.URL, statsToken, nil), 3))
-	}
-	// a worker that rejects the token (401) degrades
-	bad := newStatsWorker(t)
-	rec, _ := e.withWorker(pyworker.New(bad.srv.URL, "wrong-token", nil), 3).statsGet("alice", "")
-	if rec.Header().Get("X-Stats-Source") != "degraded" || rec.Code != 200 {
-		t.Errorf("401 from worker: %d", rec.Code)
-	}
-}
-
-func TestPyWorkerSlowTimesOut(t *testing.T) {
-	w := newStatsWorker(t)
-	w.delay = 3 * time.Second
-	e := newStatsEnv(t, pyworker.New(w.srv.URL, statsToken, nil), 1)
-	start := time.Now()
-	assertDegraded(t, e)
-	if d := time.Since(start); d > 2500*time.Millisecond {
-		t.Errorf("took %v, the RPC budget is 1 s", d)
-	}
-}
-
-// TestSystemStatsHidesTrippedDomains: the worker's rate limiter is process-global, so tripped_domains names domains
+// TestSystemStatsHidesTrippedDomains: the process's rate limiter is global, so tripped_domains names domains
 // scraped for any tenant. Only a global admin sees them; everyone else gets [] (key kept, tracked_domains kept).
 func TestSystemStatsHidesTrippedDomains(t *testing.T) {
-	w := newStatsWorker(t)
-	w.body = `{"proxy_pool": {"total": 0, "http": 0, "socks5": 0, "socks4": 0, "blocked": 0, "domain_assignments": 0}, "rate_limiter": {"tracked_domains": 2, "tripped_domains": ["tenant-b-target.example"]}}`
-	e := newStatsEnv(t, pyworker.New(w.srv.URL, statsToken, nil), 3)
+	e := newStatsEnv(t, leadweb.SystemStats{RateLimiter: leadweb.LimiterStats{TrackedDomains: 2, TrippedDomains: []string{"tenant-b-target.example"}}})
 	erin := e.mustUserByName(t, "erin")
 	e.member(t, "ws-beta", erin.ID, "admin") // workspace admin, not a global admin
 	for _, c := range []struct {

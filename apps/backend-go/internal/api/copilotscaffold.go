@@ -28,17 +28,13 @@ func notImplemented(pattern string) http.Handler {
 	})
 }
 
-// RegisterCopilot registers the 7 /api/copilotkit routes (Tasks 17-18). Chat itself
-// (POST /api/copilotkit) needs the Python worker (PyWorker non-nil); the rest do not.
+// RegisterCopilot registers the 7 /api/copilotkit routes (Tasks 17-18). Chat itself (POST /api/copilotkit)
+// runs on the in-process engine and needs the settings registry and envelope (see registerCopilotChat).
 func RegisterCopilot(r *httpx.Router, d Deps) {
 	if !d.copilotRoutesEnabled("copilot") {
 		return
 	}
 	registerCopilotRoutes(r, d)
-	if d.PyWorker == nil {
-		d.logger().Warn("copilot chat route not registered: PyWorker is not configured", "area", "copilot")
-		return
-	}
 	registerCopilotChat(r, d)
 }
 

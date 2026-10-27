@@ -44,13 +44,8 @@ func aiColumns(d Deps, log *slog.Logger) *workbook.AIColumns {
 	appEnv, allow := d.Config.AppEnv, d.EgressAllowHosts
 	var web *leadweb.Web
 	var bc *browserclient.Client
-	if sc := config.ScrapeFrom(getenv); sc.BrowserURL != "" {
-		if lw, err := config.LeadwebFrom(getenv); err != nil {
-			log.Error("cell run: leadweb settings invalid; research cells run without web search", "err_type", errTypeName(err))
-		} else {
-			bc = browserclient.New(sc.BrowserURL, sc.BrowserToken.Reveal(), nil)
-			web = leadweb.New(lw, bc, appEnv, allow)
-		}
+	if b := d.browser(); b.Configured() {
+		bc, web = b, d.leadweb() // the process's one leadweb (rate limits, breaker, search cache)
 	} else {
 		log.Warn("cell run: BROWSER_SERVICE_URL is not set; research cells run without web search and page fetch")
 	}

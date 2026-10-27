@@ -171,39 +171,19 @@ func TestEveryLeadgenRouteHasFixtureOrIsRetained(t *testing.T) {
 	assertFixturesCover(t, need, fixtureRequests(t, "collect", "jobs", "leadutils", "sources"))
 }
 
-// The collection execution stays in the Python worker: collect, bulk_enrich and source_workbook are
-// never dispatched by the Go worker; source_health_check is, but only behind its flag (handBackInert
-// otherwise, covered by cmd/worker TestLeadgenHandlers*).
+// Plan 15 cutover: every leadgen job type runs in the Go worker. source_health_check's executor is go whatever the
+// (retired) flags say, and its worker handler no longer hands anything back to Python.
 func TestLeadgenJobTypesHandledOrPython(t *testing.T) {
-	handled := goJobTypes(t)
-	for _, ty := range []string{"collect", "bulk_enrich", "source_workbook"} {
-		if handled[ty] {
-			t.Errorf("job type %s must dispatch to the Python worker, not the Go worker", ty)
-		}
-	}
-	// source_health_check is registered by cmd/worker/handlers_leadgen.go (not in the main map);
-	// its gate must be the master executor flag AND GO_EXECUTOR_SOURCE_HEALTH.
 	b, err := os.ReadFile(filepath.Join("..", "..", "cmd", "worker", "handlers_leadgen.go"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	src := string(b)
-	for _, want := range []string{"SourceHealthExecutor() != \"go\"", "handBackInert(pool, \"GO_EXECUTOR_SOURCE_HEALTH is off\")"} {
-		if !strings.Contains(src, want) {
-			t.Errorf("handlers_leadgen.go no longer gates source_health_check: missing %q", want)
-		}
+	if strings.Contains(string(b), "handBack") {
+		t.Error("handlers_leadgen.go still hands source_health_check back to Python")
 	}
-	for _, c := range []struct {
-		e    config.ExecutorSettings
-		want string
-	}{
-		{config.ExecutorSettings{}, "python"},
-		{config.ExecutorSettings{Enabled: true}, "python"},
-		{config.ExecutorSettings{SourceHealth: true}, "python"},
-		{config.ExecutorSettings{Enabled: true, SourceHealth: true}, "go"},
-	} {
-		if got := c.e.SourceHealthExecutor(); got != c.want {
-			t.Errorf("SourceHealthExecutor(%+v) = %s, want %s", c.e, got, c.want)
+	for _, e := range []config.ExecutorSettings{{}, {Enabled: true}, {SourceHealth: true}, {Enabled: true, SourceHealth: true}} {
+		if got := e.SourceHealthExecutor(); got != "go" {
+			t.Errorf("SourceHealthExecutor(%+v) = %s, want go", e, got)
 		}
 	}
 }
@@ -219,7 +199,7 @@ var scraperImports = []string{
 func TestNoGoHandlerImportsScraperDeps(t *testing.T) {
 	dirs := []string{
 		"../collectintent", "../collectledger", "../leadscore", "../leadprogress", "../sourcehealth", "../sourcecatalog",
-		"../domainintel", "../leadjobs", "../pyworker", "../../cmd/worker", "../../cmd/api", ".",
+		"../domainintel", "../leadjobs", "../../cmd/worker", "../../cmd/api", ".",
 	}
 	var files []string
 	for _, d := range dirs {

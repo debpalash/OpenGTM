@@ -1,15 +1,19 @@
 package api
 
 import (
+	"context"
 	"io"
 	"log/slog"
 	"reflect"
 	"sort"
 	"testing"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 )
 
 // Derived from legacy/python/apps/api/routers/copilotkit.py (prefix /api/copilotkit; approvals ride
@@ -33,12 +37,34 @@ var personIntelPatterns = []string{
 	"POST /api/person/enrich",
 }
 
-func copilotDeps(pg, on bool, worker bool) Deps {
+// copilotDeps builds route deps; engine adds what the in-process chat engine needs (settings registry, secrets
+// envelope and a pool; the pool never connects in these tests).
+func copilotDeps(pg, on bool, engine bool) Deps {
 	d := Deps{Log: slog.New(slog.NewTextHandler(io.Discard, nil)),
 		Flags: config.Flags{PGLeadStore: pg, Copilot: config.CopilotSettings{GoCopilotEnabled: on}}}
-	if worker {
-		d.PyWorker = pyworker.New("http://127.0.0.1:1", "tok", nil)
+	if engine {
+		d = withChatEngineDeps(d)
 	}
+	return d
+}
+
+func withChatEngineDeps(d Deps) Deps {
+	reg, err := settings.Load()
+	if err != nil {
+		panic(err)
+	}
+	env, err := secrets.NewEnvelope(secrets.Config{MasterKey: "k", AppEnv: "dev"}, nil)
+	if err != nil {
+		panic(err)
+	}
+	if d.Pool == nil {
+		pool, err := pgxpool.New(context.Background(), "postgres://coverage@127.0.0.1:1/coverage")
+		if err != nil {
+			panic(err)
+		}
+		d.Pool = pool
+	}
+	d.Registry, d.Envelope = reg, env
 	return d
 }
 
@@ -70,8 +96,9 @@ func TestCopilotRoutePatterns(t *testing.T) {
 	}
 }
 
-// Chat (POST /api/copilotkit) needs the Python worker; the REST history routes and person intel do not.
-func TestCopilotChatRequiresPyWorker(t *testing.T) {
+// Chat (POST /api/copilotkit) needs the in-process engine's settings; the REST history routes and person intel
+// do not. No Python worker is involved (plan 15).
+func TestCopilotChatRequiresEngineSettings(t *testing.T) {
 	r := httpx.NewRouter()
 	RegisterCopilot(r, copilotDeps(true, true, false))
 	want := []string{}
@@ -81,7 +108,7 @@ func TestCopilotChatRequiresPyWorker(t *testing.T) {
 		}
 	}
 	if got := r.Patterns(); !reflect.DeepEqual(got, want) {
-		t.Errorf("without PyWorker\n got %v\nwant %v", got, want)
+		t.Errorf("without the engine settings\n got %v\nwant %v", got, want)
 	}
 }
 

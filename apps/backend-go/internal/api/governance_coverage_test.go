@@ -163,8 +163,8 @@ func TestEveryGovernancePlaybookRouteHasFixtureOrIsRetained(t *testing.T) {
 	assertFixturesCover(t, rest, fixtureRequests(t, "governance", "retention", "rbac", "sso", "playbooks"))
 }
 
-// The three ported job types are exactly the Python ones with a GO_EXECUTOR_* flag; the playbook types are
-// claimed by Go only when GO_EXECUTOR_PLAYBOOKS and the workspace cohort say so (never by default).
+// The three ported job types are exactly the Python ones with a GO_EXECUTOR_* flag; since the plan 15 cutover the
+// flags are retired and Go claims them for every workspace.
 func TestEveryGovernanceJobTypeHandledOrPython(t *testing.T) {
 	timeouts := legacyAPIFile(t, "services", "queue_service.py")
 	flags := legacyAPIFile(t, "services", "go_executor.py")
@@ -181,21 +181,17 @@ func TestEveryGovernanceJobTypeHandledOrPython(t *testing.T) {
 		}
 	}
 	ex := config.ExecutorSettings{Enabled: true, Workspaces: map[string]bool{"w1": true}}
-	off := config.GovernanceSettings{}
-	on := config.GovernanceSettings{GoExecutorRetention: true, GoExecutorPlaybooks: true}
-	for _, ws := range []string{"w1", "w2", ""} {
-		for _, typ := range []string{playbooks.RunJobType, playbooks.ScheduleJobType} {
-			if got := playbooks.ExecutorFor(ex, off, ws); got != "python" {
-				t.Errorf("%s ws=%q flag off: executor %q, want python", typ, ws, got)
+	for _, g := range []config.GovernanceSettings{{}, {GoExecutorRetention: true, GoExecutorPlaybooks: true}} {
+		for _, e := range []config.ExecutorSettings{ex, {}} {
+			for _, ws := range []string{"w1", "w2", ""} {
+				if got := playbooks.ExecutorFor(e, g, ws); got != "go" {
+					t.Errorf("playbooks ws=%q flags %+v: executor %q, want go", ws, g, got)
+				}
+				if got := retention.ExecutorFor(e, g, ws); got != "go" {
+					t.Errorf("retention ws=%q flags %+v: executor %q, want go", ws, g, got)
+				}
 			}
 		}
-		if got := retention.ExecutorFor(ex, off, ws); got != "python" {
-			t.Errorf("retention ws=%q flag off: executor %q, want python", ws, got)
-		}
-	}
-	if playbooks.ExecutorFor(ex, on, "w1") != "go" || playbooks.ExecutorFor(ex, on, "w2") != "python" ||
-		playbooks.ExecutorFor(ex, on, "") != "python" {
-		t.Error("playbook executor cohort rule wrong")
 	}
 }
 
@@ -242,8 +238,8 @@ func TestRetentionTargetsCoverEveryOrmModelInPython(t *testing.T) {
 	}
 }
 
-// RegisterPlaybooks wires playbooks.ScheduleExecutor (the PATCH-enqueued schedule job's executor) to the
-// cohort rule, read per request like the run executor; the default stays python.
+// RegisterPlaybooks wires playbooks.ScheduleExecutor (the PATCH-enqueued schedule job's executor); since the plan 15
+// cutover it is go for every workspace, whatever the retired cohort flags say.
 func TestPlaybookScheduleExecutorWiredByRegister(t *testing.T) {
 	old := playbooks.ScheduleExecutor
 	t.Cleanup(func() { playbooks.ScheduleExecutor = old })
@@ -262,12 +258,12 @@ func TestPlaybookScheduleExecutorWiredByRegister(t *testing.T) {
 	if got := playbooks.ScheduleExecutor("w1"); got != "go" {
 		t.Errorf("cohort workspace schedule executor %q, want go", got)
 	}
-	if got := playbooks.ScheduleExecutor("w2"); got != "python" {
-		t.Errorf("other workspace schedule executor %q, want python", got)
+	if got := playbooks.ScheduleExecutor("w2"); got != "go" {
+		t.Errorf("other workspace schedule executor %q, want go", got)
 	}
 	env["GO_EXECUTOR_ENABLED"] = ""
-	if got := playbooks.ScheduleExecutor("w1"); got != "python" {
-		t.Errorf("cohort off: schedule executor %q, want python", got)
+	if got := playbooks.ScheduleExecutor("w1"); got != "go" {
+		t.Errorf("cohort off: schedule executor %q, want go", got)
 	}
 }
 

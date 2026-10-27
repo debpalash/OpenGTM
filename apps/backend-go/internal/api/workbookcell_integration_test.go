@@ -32,7 +32,7 @@ import (
 )
 
 // cellEnv mounts only the cell run route; python is a stand-in for the FastAPI
-// process the output columns are proxied to.
+// process that must never be called (the output columns once were proxied to it).
 type cellEnv struct {
 	leadsEnv
 	python     *httptest.Server
@@ -268,31 +268,19 @@ func TestCellRunSkipsCompleteOutputWithoutForce(t *testing.T) {
 	}
 }
 
-// Output columns are executed by Python: forced re-pushes and first runs are proxied and the
-// Python answer (status, headers, body) comes back unchanged.
-func TestCellRunProxiesOutputColumnsToPython(t *testing.T) {
+// Output columns run in this process (plan 15: the Python API proxy is gone). PYTHON_API_URL still names a
+// stand-in here, which must never be called.
+func TestCellRunOutputColumnsRunInProcess(t *testing.T) {
 	e := newCellEnv(t)
-	e.pyStatus, e.pyBody = 418, `{"detail":"teapot"}`
 	for _, c := range []struct{ row, body string }{{"102", `{"force": true}`}, {"101", `{}`}} {
 		rec, _ := e.post("alice", "ws-alpha", "/api/workbooks/wb-enrich-1/rows/"+c.row+"/cells/out_hook/run", c.body)
-		if rec.Code != 418 || strings.TrimSpace(rec.Body.String()) != `{"detail":"teapot"}` || rec.Header().Get("X-From-Python") != "yes" {
-			t.Fatalf("row %s: %d %q %v", c.row, rec.Code, rec.Body.String(), rec.Header())
+		var got map[string]any
+		if err := json.Unmarshal(rec.Body.Bytes(), &got); err != nil || rec.Code != 200 || got["status"] == nil || rec.Header().Get("X-From-Python") != "" {
+			t.Fatalf("row %s: %d %q", c.row, rec.Code, rec.Body.String())
 		}
 	}
-	if e.pyHits.Load() != 2 {
-		t.Fatalf("python hit %d times, want 2", e.pyHits.Load())
-	}
-	if b, _ := e.pyLastBody.Load().(string); b != `{}` {
-		t.Fatalf("python received body %q", b)
-	}
-	if a, _ := e.pyLastAuth.Load().(string); !strings.HasPrefix(a, "Bearer ") || !strings.HasSuffix(a, "|ws-alpha|/api/workbooks/wb-enrich-1/rows/101/cells/out_hook/run") {
-		t.Fatalf("python received %q", a)
-	}
-	// An unreachable python api is a clean 502, never a hang or a panic.
-	e.python.Close()
-	rec, _ := e.post("alice", "ws-alpha", "/api/workbooks/wb-enrich-1/rows/101/cells/out_hook/run", `{}`)
-	if rec.Code != 502 {
-		t.Fatalf("python down: %d %s", rec.Code, rec.Body.String())
+	if e.pyHits.Load() != 0 {
+		t.Fatalf("the python api was called %d times", e.pyHits.Load())
 	}
 }
 
@@ -433,42 +421,6 @@ func TestCellRunCancelOnClientDisconnect(t *testing.T) {
 	}
 	if got := e.overlayStatus(t, "wb-paid", 2001, "c1"); got != "complete" {
 		t.Fatalf("cell not persisted: %q", got)
-	}
-}
-
-// The proxy never relays a truncated body and never forwards client-supplied forwarding headers.
-func TestCellRunProxyHardening(t *testing.T) {
-	e := newCellEnv(t)
-	path := "/api/workbooks/wb-enrich-1/rows/101/cells/out_hook/run"
-	hdr := bearer("alice")
-	hdr["X-Workspace-Id"] = "ws-alpha"
-	hdr["X-Forwarded-For"] = "6.6.6.6"
-	hdr["X-Real-Ip"] = "7.7.7.7"
-	rec, _ := e.do("POST", path, "application/json", `{}`, hdr)
-	if rec.Code != 200 {
-		t.Fatalf("%d %s", rec.Code, rec.Body.String())
-	}
-	if x, _ := e.pyLastXFF.Load().(string); strings.Contains(x, "6.6.6.6") || strings.Contains(x, "7.7.7.7") {
-		t.Fatalf("client forwarding headers reached python: %q", x)
-	}
-	e.pyBody = `{"x":"` + strings.Repeat("a", 8<<20) + `"}`
-	rec, _ = e.do("POST", path, "application/json", `{}`, hdr)
-	if rec.Code != 502 {
-		t.Fatalf("oversized python reply: %d (%d bytes)", rec.Code, rec.Body.Len())
-	}
-}
-
-// PYTHON_API_URL is checked once at registration: anything but an http(s) URL with a host is
-// treated as unset.
-func TestCellRunRejectsBadPythonURL(t *testing.T) {
-	for _, bad := range []string{"ftp://example.com", "http://", "example.com:8000", "file:///etc"} {
-		t.Run(bad, func(t *testing.T) {
-			e := newCellEnvURL(t, bad)
-			rec, _ := e.post("alice", "ws-alpha", "/api/workbooks/wb-enrich-1/rows/101/cells/out_hook/run", `{}`)
-			if rec.Code != 502 || !strings.Contains(rec.Body.String(), "not configured") || e.pyHits.Load() != 0 {
-				t.Fatalf("%q: %d %s", bad, rec.Code, rec.Body.String())
-			}
-		})
 	}
 }
 

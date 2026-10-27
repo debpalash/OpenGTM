@@ -13,11 +13,13 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audiencerefresh"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/auth"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destdeliver"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
@@ -47,9 +49,16 @@ type Deps struct {
 	// (nil = never) so http.Server.Shutdown does not wait out its grace on open streams.
 	ShutdownCtx context.Context
 
-	// Enrichment jobs (plan 06). PyWorker may be nil (Python RPC unavailable);
+	// Providers serves provider calls in process (cmd/api: the rpclocal composite for the names
+	// GO_LOCAL_PROVIDERS lists); nil disables the callers that need it (the email waterfall's website finder).
+	// Browser is the process's browser-service client (person intel renders JavaScript pages through it);
+	// nil, or an unconfigured one, disables those renders.
 	// Limiter may be nil (rate limits then not enforced; cmd/api sets it).
-	PyWorker          *pyworker.Client
+	// Web is the process's one leadweb (search, fetch, proxy pool, rate limiter); nil builds one from the
+	// environment on first use.
+	Providers         provcall.Caller
+	Browser           *browserclient.Client
+	Web               *leadweb.Web
 	Limiter           *ratelimit.Limiter
 	WSMaxMessageBytes int
 
@@ -87,6 +96,16 @@ type Deps struct {
 
 	// SetupToken is the first-admin setup token (ResolveSetupToken at API start). Empty: setup needs no token.
 	SetupToken string
+}
+
+// browser is the process's browser-service client: Deps.Browser, else one built from BROWSER_SERVICE_URL /
+// BROWSER_SERVICE_TOKEN (unconfigured when they are unset; its calls then answer browserclient.ErrUnavailable).
+func (d Deps) browser() *browserclient.Client {
+	if d.Browser != nil {
+		return d.Browser
+	}
+	sc := config.ScrapeFrom(d.getenv())
+	return browserclient.New(sc.BrowserURL, sc.BrowserToken.Reveal(), nil)
 }
 
 func (d Deps) getenv() func(string) string {

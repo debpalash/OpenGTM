@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -27,12 +28,10 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/copilot"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
-
-const chatWorkerToken = "tok-secret-9f3c1"
 
 type chatRecordedRPC struct {
 	RPC      string            `json:"rpc"`
@@ -59,134 +58,102 @@ func chatLoadRPCs(t *testing.T, name string) []chatRecordedRPC {
 	return out
 }
 
-// chatFake is the Python worker: it replays recorded preroute and llm rounds in order.
+// chatFake scripts the llm rounds (copilot.Turn.Rounds, set by newChatEnv's configure hook): it replays the
+// recorded llm rounds in order and records each round request with the keys the recordings use.
 type chatFake struct {
 	t       *testing.T
-	srv     *httptest.Server
 	mu      sync.Mutex
-	pre     [][]json.RawMessage
 	llm     [][]json.RawMessage
-	preReqs []map[string]any
 	llmReqs []map[string]any
-	descs   map[string]string
 	// behaviours
-	sysStatus int // 0: 200
-	preStatus int // 0: scripted
-	llmStatus int // 0: scripted
-	llmHold   chan struct{}
-	preHold   chan struct{} // preroute stalls (until released or the request ends)
-	llmStart  chan struct{}
-	llmDone   chan struct{}
-	sysCalls  int
+	llmFail  bool          // the round cannot open
+	llmHold  chan struct{} // the round stalls until released or the turn ends
+	llmStart chan struct{}
+	llmDone  chan struct{}
 }
 
 func newChatFake(t *testing.T) *chatFake {
-	f := &chatFake{t: t, descs: map[string]string{}, llmStart: make(chan struct{}, 16), llmDone: make(chan struct{}, 16)}
-	mux := http.NewServeMux()
-	body := func(r *http.Request) map[string]any {
-		var m map[string]any
-		_ = json.NewDecoder(r.Body).Decode(&m)
-		return m
-	}
-	nd := func(w http.ResponseWriter, lines []json.RawMessage) {
-		w.Header().Set("Content-Type", "application/x-ndjson")
-		for _, l := range lines {
-			var cb bytes.Buffer
-			if json.Compact(&cb, l) == nil {
-				l = cb.Bytes()
-			}
-			_, _ = w.Write(append(append([]byte(nil), l...), '\n'))
-			w.(http.Flusher).Flush()
+	return &chatFake{t: t, llmStart: make(chan struct{}, 16), llmDone: make(chan struct{}, 16)}
+}
+
+var errChatFakeRound = errors.New("chat fake: provider unreachable")
+
+// chatSrc replays one round's frames; when hold is set it first blocks until released or cancelled.
+type chatSrc struct {
+	ctx    context.Context
+	f      *chatFake
+	hold   chan struct{}
+	lines  []json.RawMessage
+	closed chan struct{}
+	once   sync.Once
+}
+
+func (s *chatSrc) Close() { s.once.Do(func() { close(s.closed) }) }
+
+func (s *chatSrc) Next() (copilot.Frame, error) {
+	if s.hold != nil {
+		select {
+		case <-s.hold:
+			s.hold = nil
+		case <-s.ctx.Done():
+			s.f.llmDone <- struct{}{}
+			return copilot.Frame{}, s.ctx.Err()
+		case <-s.closed:
+			s.f.llmDone <- struct{}{}
+			return copilot.Frame{}, errChatFakeRound
 		}
 	}
-	mux.HandleFunc("/internal/copilot/preroute", func(w http.ResponseWriter, r *http.Request) {
-		b := body(r)
+	if len(s.lines) == 0 {
+		return copilot.Frame{}, errChatFakeRound // no terminal frame
+	}
+	l := s.lines[0]
+	s.lines = s.lines[1:]
+	var w struct {
+		T            string          `json:"t"`
+		D            json.RawMessage `json:"d"`
+		Cursor       *int            `json:"cursor"`
+		ProviderDone *bool           `json:"provider_done"`
+	}
+	if err := json.Unmarshal(l, &w); err != nil {
+		return copilot.Frame{}, err
+	}
+	var cb bytes.Buffer
+	d := w.D
+	if len(d) > 0 && json.Compact(&cb, d) == nil {
+		d = cb.Bytes()
+	}
+	return copilot.Frame{T: w.T, D: d, Cursor: w.Cursor, ProviderDone: w.ProviderDone}, nil
+}
+
+func (f *chatFake) round(ws string) copilot.RoundFunc {
+	return func(ctx context.Context, rq copilot.RoundRequest) (copilot.FrameSource, error) {
+		b, _ := json.Marshal(map[string]any{"workspace_id": ws, "messages": rq.Messages, "tools_enabled": rq.ToolsEnabled,
+			"provider_cursor": rq.Cursor, "round_budget_hit": rq.BudgetHit})
+		var req map[string]any
+		_ = json.Unmarshal(b, &req)
 		f.mu.Lock()
-		f.preReqs = append(f.preReqs, b)
-		var lines []json.RawMessage
-		if len(f.pre) > 0 {
-			lines, f.pre = f.pre[0], f.pre[1:]
-		} else {
-			lines = []json.RawMessage{json.RawMessage(`{"t":"none"}`)}
-		}
-		st := f.preStatus
-		hold := f.preHold
-		f.mu.Unlock()
-		if hold != nil {
-			nd(w, []json.RawMessage{json.RawMessage(`{"t":"keepalive"}`)}) // headers out, then the branch hangs
-			select {
-			case <-hold:
-			case <-r.Context().Done():
-				return
-			}
-		}
-		if st != 0 {
-			http.Error(w, "boom "+chatWorkerToken, st)
-			return
-		}
-		nd(w, lines)
-	})
-	mux.HandleFunc("/internal/copilot/llm", func(w http.ResponseWriter, r *http.Request) {
-		b := body(r)
-		f.mu.Lock()
-		f.llmReqs = append(f.llmReqs, b)
+		f.llmReqs = append(f.llmReqs, req)
 		var lines []json.RawMessage
 		if len(f.llm) > 0 {
 			lines, f.llm = f.llm[0], f.llm[1:]
 		}
-		st := f.llmStatus
-		hold := f.llmHold
+		fail, hold := f.llmFail, f.llmHold
 		f.mu.Unlock()
 		f.llmStart <- struct{}{}
-		if hold != nil {
-			select {
-			case <-hold:
-			case <-r.Context().Done():
-				f.llmDone <- struct{}{}
-				return
-			}
-		}
-		if st != 0 {
-			http.Error(w, "boom "+chatWorkerToken, st)
-			return
+		if fail {
+			return nil, errChatFakeRound
 		}
 		if lines == nil {
 			lines = []json.RawMessage{json.RawMessage(`{"t":"content","d":"ok"}`), json.RawMessage(`{"t":"done","cursor":0}`)}
 		}
-		nd(w, lines)
-	})
-	mux.HandleFunc("/internal/copilot/system-prompt", func(w http.ResponseWriter, r *http.Request) {
-		_ = body(r)
-		f.mu.Lock()
-		f.sysCalls++
-		st := f.sysStatus
-		f.mu.Unlock()
-		if st != 0 {
-			http.Error(w, "boom "+chatWorkerToken, st)
-			return
-		}
-		_ = json.NewEncoder(w).Encode(map[string]any{"system_prompt": "SYSTEM"})
-	})
-	mux.HandleFunc("/internal/copilot/describe", func(w http.ResponseWriter, r *http.Request) {
-		b := body(r)
-		_ = json.NewEncoder(w).Encode(map[string]any{"description": f.descs[fmt.Sprint(b["name"])]})
-	})
-	mux.HandleFunc("/internal/copilot/tool", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(404)
-		_, _ = w.Write([]byte(`{"detail":"unknown tool"}`))
-	})
-	f.srv = httptest.NewServer(mux)
-	t.Cleanup(f.srv.Close)
-	return f
+		return &chatSrc{ctx: ctx, f: f, hold: hold, lines: lines, closed: make(chan struct{})}, nil
+	}
 }
 
-// script loads the recorded preroute/llm rounds of a scenario.
+// script loads the recorded llm rounds of a scenario (the pre-route runs in Go).
 func (f *chatFake) script(name string) {
 	for _, r := range chatLoadRPCs(f.t, name) {
-		switch r.RPC {
-		case "preroute":
-			f.pre = append(f.pre, r.Frames)
-		case "llm":
+		if r.RPC == "llm" {
 			f.llm = append(f.llm, r.Frames)
 		}
 	}
@@ -265,12 +232,20 @@ func newChatEnv(t *testing.T, o chatOpts) *chatEnv {
 	if o.maxBody > 0 {
 		cs.MaxBodyBytes = o.maxBody
 	}
+	env, err := secrets.NewEnvelope(secrets.Config{MasterKey: "copilot-chat-master", AppEnv: "dev"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	d := Deps{Pool: le.pool, Signer: testSigner, Identity: le.st, Flags: config.Flags{PGLeadStore: true, Copilot: cs},
-		PyWorker: pyworker.New(f.srv.URL, chatWorkerToken, nil), ChatStreams: caps,
+		ChatStreams: caps, Registry: testRegistry(t), Envelope: env,
 		Log: slog.New(slog.NewTextHandler(logs, &slog.HandlerOptions{Level: slog.LevelDebug}))}
 	h := newChatHandler(d)
+	if !h.native {
+		t.Fatalf("chat engine not built: %s", logs.String())
+	}
 	configure := o.configure
 	h.configure = func(tn *copilot.Turn) {
+		tn.Rounds = f.round(tn.WS)
 		if o.rounds3 {
 			tn.Settings = chatSettingsMap{"CHAT_MAX_TOOL_ROUNDS": "3"}
 		}
@@ -411,8 +386,12 @@ func chatSameLLM(t *testing.T, name string, got []map[string]any, rec []chatReco
 			out[k] = v
 		}
 		var ms []any
-		for _, x := range m["messages"].([]any) {
+		for i, x := range m["messages"].([]any) {
 			mm := x.(map[string]any)
+			if i == 0 && mm["role"] == "system" { // the recorder stubbed the prompt; Go builds it (pinned in internal/copilot)
+				mm = map[string]any{"role": "system", "content": "SYSTEM"}
+				x = mm
+			}
 			if c, _ := mm["content"].(string); mm["role"] == "system" && strings.HasPrefix(c, "Relevant memories from past conversations:") {
 				continue
 			}
@@ -457,13 +436,13 @@ func TestChatBytesMatchLegacyForEveryScenario(t *testing.T) {
 	var names []string
 	for _, n := range contractFixtureNames(t, "copilot") {
 		n = strings.TrimPrefix(n, "copilot/")
-		// pre_tracking_no_selection: the Task 3 frames were recorded with intent tracking off (a different
-		// answer than the contract fixture), so the two recordings cannot be replayed together.
-		if (strings.HasPrefix(n, "chat_") || strings.HasPrefix(n, "pre_")) && n != "pre_tracking_no_selection" {
+		// The pre-route branches (pre_*) run in Go and are pinned against the Python recordings in internal/copilot
+		// (native pre-route and people vectors); they need the people service, so only chat_* replays here.
+		if strings.HasPrefix(n, "chat_") {
 			names = append(names, n)
 		}
 	}
-	if len(names) < 30 {
+	if len(names) < 20 {
 		t.Fatalf("only %d recorded chat scenarios found", len(names))
 	}
 	for _, name := range names {
@@ -471,7 +450,6 @@ func TestChatBytesMatchLegacyForEveryScenario(t *testing.T) {
 			e := newChatEnv(t, chatOpts{rounds3: strings.Contains(name, "tool_loop_budget")})
 			c := chatLoadContract(t, name)
 			e.fake.script(name)
-			e.fake.descs = chatDescsOf(c.expect)
 			rec := e.post("alice", "ws-alpha", c.body)
 			if rec.Code != 200 {
 				t.Fatalf("status %d: %s", rec.Code, rec.Body.String())
@@ -606,8 +584,8 @@ func TestChatUnauthenticated401NoSideEffects(t *testing.T) {
 	if chatCount(t, `SELECT count(*) FROM chat_conversations WHERE workspace_id IN ('ws-alpha','ws-beta')`) != before || chatCount(t, `SELECT count(*) FROM chat_messages WHERE workspace_id IN ('ws-alpha','ws-beta')`) != 0 {
 		t.Fatal("an unauthenticated request left a row")
 	}
-	if len(e.fake.llmRequests()) != 0 || len(e.fake.preReqs) != 0 || e.caps.Active() != 0 {
-		t.Fatal("an unauthenticated request reached the worker")
+	if len(e.fake.llmRequests()) != 0 || e.caps.Active() != 0 {
+		t.Fatal("an unauthenticated request reached the llm")
 	}
 	rec := e.post("alice", "ws-beta", `{"messages":[]}`) // alice is no member of ws-beta
 	if rec.Code != 403 || !strings.Contains(rec.Body.String(), "Workspace access denied") {
@@ -732,9 +710,6 @@ func TestChatApprovalResubmitFlow(t *testing.T) {
 	if !strings.Contains(rec.Body.String(), `"tool_result": {"name": "update_lead_status"`) || e.leadStatus(t, 4) != "qualified" {
 		t.Fatalf("default decision: %q", rec.Body.String())
 	}
-	if pr := e.fake.preReqs[len(e.fake.preReqs)-1]; pr["has_approved_calls"] != true {
-		t.Fatalf("preroute must be told about approved calls: %v", pr)
-	}
 	// ResolveApproved ran before the llm round: the round carries the assistant tool_calls and the tool result
 	last := e.fake.llmRequests()
 	ms := last[len(last)-1]["messages"].([]any)
@@ -745,16 +720,15 @@ func TestChatApprovalResubmitFlow(t *testing.T) {
 
 func TestChatPreRouteHandledSkipsLLM(t *testing.T) {
 	e := newChatEnv(t, chatOpts{})
-	e.fake.script("pre_company_team")
 	c := chatLoadContract(t, "pre_company_team")
 	rec := e.post("alice", "ws-alpha", c.body)
-	if chatNorm(rec.Body.String()) != chatNorm(c.expect) || len(e.fake.llmRequests()) != 0 || e.fake.sysCalls != 0 {
-		t.Fatalf("handled pre-route must not reach the llm or the system prompt")
+	if chatNorm(rec.Body.String()) != chatNorm(c.expect) || len(e.fake.llmRequests()) != 0 {
+		t.Fatalf("a handled pre-route must answer like Python and never reach the llm\n got %q\nwant %q",
+			chatNorm(rec.Body.String()), chatNorm(c.expect))
 	}
-	pr := e.fake.preReqs[0]
-	if pr["workspace_id"] != "ws-alpha" || pr["last_user_message"] != "Stripe partnership teams" || pr["has_approved_calls"] != false ||
-		pr["user_id"] != float64(e.alice) || chatCount(t, `SELECT count(*) FROM chat_conversations WHERE id = $1`, pr["conversation_id"]) != 1 {
-		t.Fatalf("preroute request %v", pr)
+	conv := chatConvOf(t, rec.Body.String())
+	if chatCount(t, `SELECT count(*) FROM chat_conversations WHERE id = $1 AND workspace_id = 'ws-alpha'`, conv) != 1 {
+		t.Fatal("the branch must answer inside the opened conversation")
 	}
 }
 
@@ -784,9 +758,9 @@ func TestChatContextAssemblyOrder(t *testing.T) {
 		}
 		got = append(got, [2]string{mm["role"].(string), mm["content"].(string)})
 	}
-	// one system message (the worker's prompt); stored tool results, memories and the client's context
+	// one system message (the Go-built prompt); stored tool results, memories and the client's context
 	// share ONE user-role message between markers; client system/function/tool messages are dropped
-	if len(got) != 5 || got[0] != [2]string{"system", "SYSTEM"} || got[1][0] != "user" ||
+	if len(got) != 5 || got[0][0] != "system" || !strings.Contains(got[0][1], "## Current Pipeline Stats") || got[1][0] != "user" ||
 		!strings.HasPrefix(got[1][1], chatCtxIntro+chatCtxOpen+"\nUntrusted data returned by tools") ||
 		!strings.HasSuffix(got[1][1], "\n"+chatCtxClose) ||
 		!strings.Contains(got[1][1], `{"name":"search_leads"`) ||
@@ -798,38 +772,16 @@ func TestChatContextAssemblyOrder(t *testing.T) {
 	}
 }
 
-func TestChatPyWorkerDown503BeforeHeaders(t *testing.T) {
-	e := newChatEnv(t, chatOpts{})
-	e.fake.sysStatus = 500
-	rec := e.post("alice", "ws-alpha", `{"messages":[{"role":"user","content":"hi"}]}`)
-	if rec.Code != 503 || strings.TrimSpace(rec.Body.String()) != `{"detail":"AI worker unavailable"}` ||
-		!strings.HasPrefix(rec.Header().Get("Content-Type"), "application/json") || strings.Contains(rec.Body.String(), "data:") {
-		t.Fatalf("%d %q %v", rec.Code, rec.Body.String(), rec.Header())
-	}
-	if len(e.fake.llmRequests()) != 0 || e.caps.Active() != 0 {
-		t.Fatal("llm reached or slot leaked")
-	}
-	// a pre-route that cannot even start fails the request too (Python: 500 before the response exists)
-	e.fake.sysStatus, e.fake.preStatus = 0, 502
-	rec = e.post("alice", "ws-alpha", `{"messages":[{"role":"user","content":"hi"}]}`)
-	if rec.Code != 503 || strings.Contains(rec.Body.String(), "data:") || strings.Contains(rec.Body.String(), chatWorkerToken) {
-		t.Fatalf("preroute open failure: %d %q", rec.Code, rec.Body.String())
-	}
-	if e.caps.Active() != 0 {
-		t.Fatal("slot leaked")
-	}
-}
-
 func TestChatMidStreamFailureKeeps200WithErrorFrame(t *testing.T) {
 	e := newChatEnv(t, chatOpts{})
-	e.fake.llmStatus = 500
+	e.fake.llmFail = true
 	rec := e.post("alice", "ws-alpha", `{"messages":[{"role":"user","content":"hi"}]}`)
 	fs := chatFrames(rec.Body.String())
 	if rec.Code != 200 || len(fs) != 3 || fs[1] != `data: {"error": "AI provider stream interrupted"}` || fs[2] != "data: [DONE]" {
 		t.Fatalf("%d %q", rec.Code, rec.Body.String())
 	}
-	if strings.Contains(rec.Body.String(), chatWorkerToken) {
-		t.Fatal("secret in the stream")
+	if strings.Contains(rec.Body.String(), errChatFakeRound.Error()) {
+		t.Fatal("provider error text in the stream")
 	}
 }
 
@@ -898,7 +850,7 @@ func chatWaitActive(t *testing.T, c *ssestream.Caps, want int) {
 	t.Fatalf("Active() = %d, want %d", c.Active(), want)
 }
 
-func TestChatDisconnectReleasesSlotAndCancelsRPC(t *testing.T) {
+func TestChatDisconnectReleasesSlotAndCancelsRound(t *testing.T) {
 	e := newChatEnv(t, chatOpts{})
 	srv := httptest.NewServer(e.h)
 	defer srv.Close()
@@ -925,7 +877,7 @@ func TestChatDisconnectReleasesSlotAndCancelsRPC(t *testing.T) {
 	select {
 	case <-e.fake.llmDone:
 	case <-time.After(5 * time.Second):
-		t.Fatal("the llm RPC was not cancelled")
+		t.Fatal("the llm round was not cancelled")
 	}
 	chatWaitActive(t, e.caps, 0)
 	time.Sleep(100 * time.Millisecond)
@@ -937,7 +889,7 @@ func TestChatDisconnectReleasesSlotAndCancelsRPC(t *testing.T) {
 
 func TestChatPanicReleasesSlot(t *testing.T) {
 	e := newChatEnv(t, chatOpts{configure: func(tn *copilot.Turn) {
-		tn.NewTicker = func(time.Duration) (<-chan time.Time, func()) { panic("boom") }
+		tn.Rounds = func(context.Context, copilot.RoundRequest) (copilot.FrameSource, error) { panic("boom") }
 	}})
 	func() {
 		defer func() {
@@ -959,18 +911,14 @@ func TestChatNoSecretInLogs(t *testing.T) {
 	e := newChatEnv(t, chatOpts{})
 	const content = "SECRET-MESSAGE-BODY-77"
 	tok := bearer("alice")["Authorization"]
-	e.fake.llmStatus = 500
+	e.fake.llmFail = true
 	e.post("alice", "ws-alpha", `{"context":"CTX-SECRET-5","messages":[{"role":"user","content":"`+content+`"}]}`)
-	e.fake.llmStatus, e.fake.preStatus = 0, 502
-	e.post("alice", "ws-alpha", `{"messages":[{"role":"user","content":"`+content+`"}]}`)
-	e.fake.preStatus, e.fake.sysStatus = 0, 500
-	e.post("alice", "ws-alpha", `{"messages":[{"role":"user","content":"`+content+`"}]}`)
 	e.post("alice", "ws-alpha", `{"messages":"`+content+`"}`)
 	logs := e.logs.String()
 	if logs == "" {
 		t.Fatal("expected the route to log its failures")
 	}
-	for _, s := range []string{chatWorkerToken, content, "CTX-SECRET-5", strings.TrimPrefix(tok, "Bearer "), "SYSTEM"} {
+	for _, s := range []string{content, "CTX-SECRET-5", strings.TrimPrefix(tok, "Bearer ")} {
 		if strings.Contains(logs, s) {
 			t.Fatalf("log leaks %q:\n%s", s, logs)
 		}
@@ -986,38 +934,22 @@ func chatCount(t *testing.T, q string, args ...any) int {
 	return n
 }
 
-// The turn deadline covers the whole turn: a hung pre-route must end by the deadline and free the slot.
-func TestChatTurnDeadlineCoversHungPreRoute(t *testing.T) {
-	for _, started := range []bool{false, true} {
-		started := started
-		t.Run(fmt.Sprint("started=", started), func(t *testing.T) {
-			e := newChatEnv(t, chatOpts{configure: func(tn *copilot.Turn) {
-				tn.NewTicker = func(time.Duration) (<-chan time.Time, func()) { // fast keepalives start the response
-					tk := time.NewTicker(20 * time.Millisecond)
-					return tk.C, tk.Stop
-				}
-			}})
-			if !started {
-				e.hnd.configure = nil // default 10 s keepalive: the deadline fires before any byte
-			}
-			e.hnd.turnTimeout = 600 * time.Millisecond
-			e.fake.preHold = make(chan struct{})
-			defer close(e.fake.preHold)
-			res := make(chan *httptest.ResponseRecorder, 1)
-			go func() { res <- e.post("alice", "ws-alpha", `{"messages":[{"role":"user","content":"hi"}]}`) }()
-			select {
-			case rec := <-res:
-				if started {
-					if rec.Code != 200 || !strings.Contains(rec.Body.String(), `{"error": "Request timed out"}`) || !strings.HasSuffix(rec.Body.String(), "data: [DONE]\n\n") {
-						t.Fatalf("started: %d %q", rec.Code, rec.Body.String())
-					}
-				} else if rec.Code != http.StatusGatewayTimeout {
-					t.Fatalf("not started: %d %q", rec.Code, rec.Body.String())
-				}
-			case <-time.After(5 * time.Second):
-				t.Fatalf("started=%v: a hung pre-route outlived the turn deadline", started)
-			}
-			chatWaitActive(t, e.caps, 0)
-		})
+// The turn deadline covers the whole turn: a hung llm round ends by the deadline with the timeout frame and frees
+// the slot (the conversation_id frame has started the response by then).
+func TestChatTurnDeadlineCoversHungRound(t *testing.T) {
+	e := newChatEnv(t, chatOpts{})
+	e.hnd.turnTimeout = 600 * time.Millisecond
+	e.fake.llmHold = make(chan struct{})
+	defer close(e.fake.llmHold)
+	res := make(chan *httptest.ResponseRecorder, 1)
+	go func() { res <- e.post("alice", "ws-alpha", `{"messages":[{"role":"user","content":"hi"}]}`) }()
+	select {
+	case rec := <-res:
+		if rec.Code != 200 || !strings.Contains(rec.Body.String(), `{"error": "Request timed out"}`) || !strings.HasSuffix(rec.Body.String(), "data: [DONE]\n\n") {
+			t.Fatalf("%d %q", rec.Code, rec.Body.String())
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("a hung round outlived the turn deadline")
 	}
+	chatWaitActive(t, e.caps, 0)
 }

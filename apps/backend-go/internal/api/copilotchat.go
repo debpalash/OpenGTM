@@ -30,19 +30,23 @@ import (
 )
 
 const (
-	chatMaxMessages     = 200
-	chatDefaultBody     = 1 << 20
-	chatDefaultPerUser  = 3
-	chatDefaultTurn     = 900 * time.Second
-	chatDefaultTool     = 120 * time.Second
-	chatMemoryLimit     = 5
-	chatSystemPromptRPC = "/internal/copilot/system-prompt"
-	chatWorkerDown      = "AI worker unavailable"
+	chatMaxMessages    = 200
+	chatDefaultBody    = 1 << 20
+	chatDefaultPerUser = 3
+	chatDefaultTurn    = 900 * time.Second
+	chatDefaultTool    = 120 * time.Second
+	chatMemoryLimit    = 5
+	chatWorkerDown     = "AI worker unavailable" // a pre-route branch could not be answered before the stream started
 )
 
-// registerCopilotChat: POST /api/copilotkit, the SSE chat turn including approved_tool_calls.
+// registerCopilotChat: POST /api/copilotkit, the SSE chat turn including approved_tool_calls. It is not
+// registered (logged) when the in-process engine cannot be built (no settings registry / envelope, bad LLM settings).
 func registerCopilotChat(r *httpx.Router, d Deps) {
-	r.Handle("POST /api/copilotkit", newChatHandler(d))
+	h := newChatHandler(d)
+	if !h.native {
+		return
+	}
+	r.Handle("POST /api/copilotkit", h)
 }
 
 type chatHandler struct {
@@ -56,10 +60,10 @@ type chatHandler struct {
 	// configure, when set, adjusts each Turn before it is used (tests).
 	configure func(*copilot.Turn)
 
-	// GO_COPILOT_NATIVE: the in-process engine replaces the worker's llm/preroute/describe/system-prompt RPCs
-	// and runs the tools ported to Go. llmHTTP is the egress-guarded operator client (public provider hosts
-	// pass the guard; private operator base URLs only when listed in EGRESS_ALLOW_HOSTS; a workspace-supplied
-	// base URL never widens it).
+	// The in-process engine (plan 15: services/copilot in Go) runs the llm rounds, pre-routes, descriptions,
+	// system prompt and tools; native reports that it could be built. llmHTTP is the egress-guarded operator
+	// client (public provider hosts pass the guard; private operator base URLs only when listed in
+	// EGRESS_ALLOW_HOSTS; a workspace-supplied base URL never widens it).
 	native  bool
 	llmHTTP *http.Client
 	llmCfg  config.LLMSettings
@@ -101,23 +105,16 @@ func newChatHandler(d Deps) *chatHandler {
 	return h
 }
 
-// enableNative turns the in-process engine on when GO_COPILOT_NATIVE is set and its dependencies exist; any
-// problem keeps the Python worker path (logged).
+// enableNative builds the in-process engine's collaborators; without its dependencies the chat route stays
+// unregistered (logged).
 func (h *chatHandler) enableNative() {
-	on, err := config.CopilotNativeFrom(h.d.getenv())
-	switch {
-	case err != nil:
-		h.log.Error("copilot: GO_COPILOT_NATIVE is not a boolean; the Python worker path stays on")
-		return
-	case !on:
-		return
-	case h.settings == nil || h.d.Registry == nil:
-		h.log.Error("copilot: GO_COPILOT_NATIVE needs the settings registry and envelope; the Python worker path stays on")
+	if h.settings == nil || h.d.Registry == nil {
+		h.log.Error("copilot chat route not registered: the engine needs the settings registry and envelope", "area", "copilot")
 		return
 	}
 	cfg, err := config.LLMFrom(h.d.getenv())
 	if err != nil {
-		h.log.Error("copilot: invalid LLM settings; the Python worker path stays on", "reason", err.Error())
+		h.log.Error("copilot chat route not registered: invalid LLM settings", "area", "copilot", "reason", err.Error())
 		return
 	}
 	h.native, h.llmCfg = true, cfg
@@ -135,9 +132,7 @@ func (h *chatHandler) engine(ws string) *copilot.Engine {
 	e := &copilot.Engine{
 		LLM: cl, IntentPollerEnabled: h.d.Flags.IntentPollerEnabled, PGLeadStore: h.d.Flags.PGLeadStore,
 		Ambition: h.ab, AmbitionImportExecutor: ambitionimport.ExecutorFor(getenv),
-		RefreshExecutor: config.ExecutorCohortFrom(getenv).RefreshExecutor, WatchExecutor: h.d.watchPollExecutor(),
 		CollectionLedgerPG: h.d.CollectionLedgerBackend == "postgres", Progress: progressBus(h.d),
-		CollectExecutor: func(ws string) string { return config.CollectExecutor(getenv, ws) },
 	}
 	h.tools.apply(e, ws)
 	return e
@@ -328,7 +323,7 @@ func chatClientMessages(in []map[string]any) []map[string]any {
 
 // chatSanitize is the OpenAI-spec cleaning copilot_chat does before the first round: only
 // role/content/tool_calls/tool_call_id/name survive, a function message becomes a tool message and a tool
-// message without tool_call_id is dropped. (The Gemini blank is applied by the worker, which knows the provider.)
+// message without tool_call_id is dropped. (The Gemini blank is applied by the llm round, which knows the provider.)
 func chatSanitize(in []map[string]any) []map[string]any {
 	out := make([]map[string]any, 0, len(in))
 	for _, m := range in {
@@ -443,7 +438,7 @@ func (h *chatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer release()
 
 	// One hard deadline for the whole turn (pre-route, context assembly, approval resume and the tool loop);
-	// without it a hung worker branch keeps the slot as long as the keepalives keep the browser connected.
+	// without it a hung pre-route branch keeps the slot as long as the keepalives keep the browser connected.
 	clientCtx := r.Context()
 	ctx, cancelTurn := context.WithTimeout(clientCtx, h.turnTimeout)
 	defer cancelTurn()
@@ -460,14 +455,12 @@ func (h *chatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tn := &copilot.Turn{
-		Deps: copilot.Deps{Pool: h.d.Pool, PY: h.d.PyWorker, Settings: h.settings, ToolTimeout: h.toolTimeout,
+		Deps: copilot.Deps{Pool: h.d.Pool, Settings: h.settings, ToolTimeout: h.toolTimeout,
 			TurnTimeout: h.turnTimeout, Log: h.log},
 		WS: res.WorkspaceID, Slug: res.Slug, UID: res.UserID, ConvID: convID, Auth: res,
 		OpenFault: func() bool { return !lazy.Started() },
 	}
-	if h.native {
-		tn.Engine = h.engine(res.WorkspaceID)
-	}
+	tn.Engine = h.engine(res.WorkspaceID)
 	if h.configure != nil {
 		h.configure(tn)
 	}
@@ -492,7 +485,7 @@ func (h *chatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		httpx.Detail(w, http.StatusServiceUnavailable, chatWorkerDown)
 		return
 	case handled:
-		return // the worker's branch opens with its own conversation_id frame (Python preroute.py)
+		return // the branch opens with its own conversation_id frame (Python preroute.py)
 	case err != nil:
 		return // the client went away
 	}
@@ -504,11 +497,7 @@ func (h *chatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if ctx.Err() == nil {
-			status, detail := http.StatusInternalServerError, "Internal Server Error"
-			if errors.Is(err, errWorkerUnavailable) {
-				status, detail = http.StatusServiceUnavailable, chatWorkerDown
-			}
-			h.fail(ctx, w, &chatStream{lazy: lazy, sw: sw, tn: tn}, "context assembly failed", err, status, detail)
+			h.fail(ctx, w, &chatStream{lazy: lazy, sw: sw, tn: tn}, "context assembly failed", err, http.StatusInternalServerError, "Internal Server Error")
 		}
 		return
 	}
@@ -548,11 +537,9 @@ func (h *chatHandler) fail(ctx context.Context, w http.ResponseWriter, st *chatS
 	httpx.Detail(w, status, detail)
 }
 
-// chatFailReason names an error without its text (driver and worker errors may carry request data).
+// chatFailReason names an error without its text (driver and provider errors may carry request data).
 func chatFailReason(err error) string {
 	switch {
-	case errors.Is(err, errWorkerUnavailable):
-		return "python worker unavailable"
 	case errors.Is(err, chathistory.ErrContentTooLarge):
 		return "message too large"
 	case errors.Is(err, context.DeadlineExceeded):
@@ -592,39 +579,25 @@ func (h *chatHandler) openConversation(ctx context.Context, res copilotauth.Reso
 	return id, err
 }
 
-var errWorkerUnavailable = errors.New("copilot chat: python worker unavailable")
-
-// assemble builds the llm messages: the worker's system prompt, the trusted tool context of the owned
+// assemble builds the llm messages: the system prompt, the trusted tool context of the owned
 // conversation, the memory block, the application context, then the client's messages, all sanitised.
 func (h *chatHandler) assemble(ctx context.Context, tn *copilot.Turn, res copilotauth.Resolved, convID string, req chatRequest) ([]map[string]any, error) {
-	var sp struct {
-		SystemPrompt string `json:"system_prompt"`
-	}
-	if tn.Engine != nil {
-		// build_system_prompt in Go; like Python a stats failure renders "Pipeline stats unavailable".
-		err := tenancy.InWorkspace(ctx, h.d.Pool, res.WorkspaceID, func(tx pgx.Tx) error {
-			sp.SystemPrompt = copilot.SystemPrompt(ctx, tx)
-			return nil
-		})
-		if err != nil {
-			if ctx.Err() != nil {
-				return nil, ctx.Err()
-			}
-			sp.SystemPrompt = copilot.RenderSystemPrompt(nil, err)
+	// build_system_prompt in Go; like Python a stats failure renders "Pipeline stats unavailable".
+	var prompt string
+	err := tenancy.InWorkspace(ctx, h.d.Pool, res.WorkspaceID, func(tx pgx.Tx) error {
+		prompt = copilot.SystemPrompt(ctx, tx)
+		return nil
+	})
+	if err != nil {
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
 		}
-	} else {
-		err := h.d.PyWorker.Unary(ctx, chatSystemPromptRPC, map[string]any{"workspace_id": res.WorkspaceID, "slug": res.Slug}, &sp, 0)
-		if err != nil {
-			if ctx.Err() != nil {
-				return nil, ctx.Err()
-			}
-			return nil, errWorkerUnavailable
-		}
+		prompt = copilot.RenderSystemPrompt(nil, err)
 	}
-	messages := []map[string]any{{"role": "system", "content": sp.SystemPrompt}}
+	messages := []map[string]any{{"role": "system", "content": prompt}}
 
 	var toolCtx string
-	err := tenancy.InWorkspace(ctx, h.d.Pool, res.WorkspaceID, func(tx pgx.Tx) error {
+	err = tenancy.InWorkspace(ctx, h.d.Pool, res.WorkspaceID, func(tx pgx.Tx) error {
 		rows, err := chathistory.Messages(ctx, tx, convID, res.WorkspaceID, res.UserID)
 		toolCtx = copilot.ToolContext(rows, copilot.DefaultToolContextLimit)
 		return err
@@ -632,7 +605,7 @@ func (h *chatHandler) assemble(ctx context.Context, tn *copilot.Turn, res copilo
 	if err != nil {
 		return nil, err
 	}
-	// Everything that is not the worker's system prompt or the user's own turns (stored tool results,
+	// Everything that is not the system prompt or the user's own turns (stored tool results,
 	// recalled memories, the client's application context) is untrusted data: it travels in ONE user-role
 	// message between markers, never as a system message.
 	var parts []string

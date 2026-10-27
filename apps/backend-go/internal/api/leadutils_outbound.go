@@ -145,9 +145,7 @@ func (h *leadUtils) verifyDeps() emailverify.Deps {
 				return out
 			},
 		}
-		if h.d.PyWorker != nil { // never wrap a nil *Client in a non-nil interface
-			cfg.Py = h.d.PyWorker
-		}
+		cfg.Py = h.d.Providers // the in-process website finder (nil: disabled)
 		h.vd = emailverify.NewLive(cfg)
 	})
 	return h.vd
