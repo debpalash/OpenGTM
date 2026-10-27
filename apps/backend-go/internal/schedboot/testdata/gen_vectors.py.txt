@@ -1,0 +1,284 @@
+# Recorder for apps/backend-go/internal/schedboot/testdata/bootstrap_vectors.json.
+# Runs the Python bootstrap_* functions of apps/api/scheduler.py against a real Postgres seeded with a fixed
+# scenario per bootstrap and dumps the job rows and mirror rows they leave behind, plus the return value of a
+# first and a second run (idempotency). Times are recorded as seconds relative to the recorder start (rounded to
+# 10 s), never as wall clock; fire keys carry {t:N} (an ISO instant) or {d:N} (a UTC date, days from the start date).
+#   cd legacy/python && TZ=UTC DATABASE_URL=postgresql+psycopg://postgres:<pw>@127.0.0.1:55480/<private clone> \
+#     uv run python /path/to/gen_vectors.py > apps/backend-go/internal/schedboot/testdata/bootstrap_vectors.json
+# The clone is a throwaway CREATE DATABASE ...; drop it afterwards. Run as a plain script: it re-executes itself once
+# per executor configuration (settings are read at import).
+import json, os, re, subprocess, sys
+from datetime import datetime, timedelta, timezone
+
+CONFIGS = {
+    "python": {},
+    "go_cohort_wsA": {
+        "GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "wsA", "GO_EXECUTOR_SIGNAL_SCAN": "true",
+        "GO_EXECUTOR_RETENTION": "true", "GO_EXECUTOR_PLAYBOOKS": "true", "GO_EXECUTOR_AUDIENCE_REFRESH": "true",
+        "GO_EXECUTOR_OUTREACH_SEND": "true", "GO_EXECUTOR_OUTREACH_INBOUND": "true",
+    },
+}
+IMAP = {"IMAP_HOST": "imap.example.test", "IMAP_USER": "u@example.test", "IMAP_PASSWORD": "pw"}
+
+
+def driver():
+    out = {}
+    for name, env in CONFIGS.items():
+        e = dict(os.environ, PYTHONPATH=os.getcwd(), PG_RLS_REQUIRE_SAFE_ROLE="false", AUTOMATIONS_ENABLED="true", OUTREACH_INBOUND_POLL_ENABLED="true", TZ="UTC", **env)
+        e.update(IMAP)
+        r = subprocess.run([sys.executable, __file__, "child", name], env=e, capture_output=True, text=True)
+        if r.returncode != 0:
+            sys.stderr.write(r.stderr)
+            sys.exit(1)
+        out[name] = json.loads(r.stdout)
+    # the same scenarios with the mailbox unconfigured and with the automations flag off
+    e = dict(os.environ, PYTHONPATH=os.getcwd(), PG_RLS_REQUIRE_SAFE_ROLE="false", AUTOMATIONS_ENABLED="true", OUTREACH_INBOUND_POLL_ENABLED="true", TZ="UTC")
+    for k in IMAP:
+        e.pop(k, None)
+    r = subprocess.run([sys.executable, __file__, "child", "python"], env=e, capture_output=True, text=True)
+    if r.returncode != 0:
+        sys.stderr.write(r.stderr)
+        sys.exit(1)
+    out["python_no_imap"] = json.loads(r.stdout)
+    e = dict(os.environ, PYTHONPATH=os.getcwd(), PG_RLS_REQUIRE_SAFE_ROLE="false", AUTOMATIONS_ENABLED="false", OUTREACH_INBOUND_POLL_ENABLED="false", TZ="UTC", **IMAP)
+    r = subprocess.run([sys.executable, __file__, "child", "python"], env=e, capture_output=True, text=True)
+    if r.returncode != 0:
+        sys.stderr.write(r.stderr)
+        sys.exit(1)
+    out["python_flags_off"] = json.loads(r.stdout)
+    print(json.dumps(out, indent=1, sort_keys=True))
+
+
+def child(name):
+    from sqlalchemy import create_engine, text
+    from apps.api.services.leadgen.source_health import bootstrap_source_health  # noqa: F401  (import check)
+    from apps.api.services.workbook.refresh import bootstrap_signal_scan
+    from apps.api.services.outreach.sending import bootstrap_outreach_schedules
+    from apps.api.services.outreach.inbound import bootstrap_inbound_schedules
+    from apps.api.services.audiences.scheduler import bootstrap_audience_schedules
+    from apps.api.services.governance.retention import bootstrap_retention_schedules
+    from apps.api.services.playbooks.scheduler import bootstrap_playbook_schedules
+
+    url = os.environ["DATABASE_URL"]
+    assert re.search(r"/wp_sched", url), "run against the private clone"
+    eng = create_engine(url)
+    T0 = datetime.now(timezone.utc).replace(microsecond=0)
+    t0 = T0.replace(tzinfo=None)
+
+    def naive(off):
+        return (t0 + timedelta(seconds=off)).isoformat(sep=" ")
+
+    def aware(off):
+        return (T0 + timedelta(seconds=off)).isoformat()
+
+    def rel(v):
+        if v is None:
+            return None
+        if v.tzinfo is None:
+            v = v.replace(tzinfo=timezone.utc)
+        return int(round((v - T0).total_seconds() / 10.0)) * 10
+
+    iso = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?\+00:00")
+    date = re.compile(r"(?<=:)\d{4}-\d{2}-\d{2}$")
+
+    def norm_key(k):
+        if k is None:
+            return None
+        k = iso.sub(lambda m: "{t:%d}" % rel(datetime.fromisoformat(m.group(0))), k)
+        return date.sub(lambda m: "{d:%d}" % (datetime.fromisoformat(m.group(0)).date() - T0.date()).days, k)
+
+    def norm_payload(p):
+        if isinstance(p, dict):
+            return {k: (norm_key(v) if k == "fire_key" else norm_payload(v)) for k, v in p.items()}
+        return p
+
+    def reset(c):
+        for t in ("jobs", "audience_schedules", "audiences", "retention_schedules", "retention_policies",
+                  "playbook_schedules", "research_playbooks", "outreach_schedules", "outreach_inbound_schedules",
+                  "outreach_sequences", "outreach_enrollments", "outreach_sends"):
+            c.execute(text(f"DELETE FROM {t}"))
+
+    def dump(c, tables):
+        jobs = []
+        for r in c.execute(text("SELECT type, executor, status, payload, priority, max_retries, retry_count, next_run_at, "
+                                "fire_key, workspace_id FROM jobs ORDER BY type, fire_key")).mappings():
+            jobs.append({"type": r["type"], "executor": r["executor"], "status": r["status"],
+                         "payload": norm_payload(r["payload"]), "priority": r["priority"], "max_retries": r["max_retries"],
+                         "retry_count": r["retry_count"], "next_run_at": rel(r["next_run_at"]),
+                         "fire_key": norm_key(r["fire_key"]), "workspace_id": r["workspace_id"]})
+        mirrors = {}
+        for t, cols, order in tables:
+            rows = []
+            for r in c.execute(text(f"SELECT {cols} FROM {t} ORDER BY {order}")).mappings():
+                rows.append({k: (rel(v) if isinstance(v, datetime) else v) for k, v in r.items()})
+            mirrors[t] = rows
+        return jobs, mirrors
+
+    def run(fn, seed, tables, seed_jobs=None):
+        with eng.begin() as c:
+            c.execute(text("SET session_replication_role = replica"))
+            reset(c)
+            seed(c)
+        ret1 = fn()
+        with eng.begin() as c:
+            jobs1, mir1 = dump(c, tables)
+        ret2 = fn()
+        with eng.begin() as c:
+            jobs2, mir2 = dump(c, tables)
+        return {"returned_first": ret1, "returned_second": ret2, "jobs": jobs1, "mirrors": mir1,
+                "second_run_same_jobs": jobs1 == jobs2, "second_run_same_mirrors": mir1 == mir2}
+
+    cases = {}
+
+    # ---- signal_scan ----
+    def seed_none(c):
+        pass
+
+    def seed_pending_scan(c):
+        c.execute(text("INSERT INTO jobs (type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, fire_key, executor) "
+                       "VALUES ('signal_scan', '{}', 'pending', 1, :t, :t, 0, 3, 'signal_scan:old', 'python')"), {"t": naive(0)})
+
+    def seed_processing_scan(c):
+        c.execute(text("INSERT INTO jobs (type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, fire_key, executor) "
+                       "VALUES ('signal_scan', '{}', 'processing', 1, :t, :t, 0, 3, 'signal_scan:old', 'python')"), {"t": naive(0)})
+
+    def seed_done_scan(c):
+        c.execute(text("INSERT INTO jobs (type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, fire_key, executor) "
+                       "VALUES ('signal_scan', '{}', 'completed', 1, :t, :t, 0, 3, 'signal_scan:old', 'python')"), {"t": naive(0)})
+
+    for k, s in (("empty", seed_none), ("pending_exists", seed_pending_scan), ("processing_exists", seed_processing_scan),
+                 ("only_completed", seed_done_scan)):
+        cases["signal_scan/" + k] = run(bootstrap_signal_scan, s, [])
+
+    # ---- audiences ----
+    def seed_audiences(c):
+        def aud(i, ws, enabled=True):
+            c.execute(text("INSERT INTO audiences (id, workspace_id, name, filters, refresh_enabled) VALUES (:i, :w, :i, '{}', :e)"),
+                      {"i": i, "w": ws, "e": enabled})
+
+        def mir(i, ws, off, enabled=True):
+            c.execute(text("INSERT INTO audience_schedules (audience_id, workspace_id, next_refresh_at, enabled) VALUES (:i,:w,:t,:e)"),
+                      {"i": i, "w": ws, "t": naive(off) if off is not None else None, "e": enabled})
+
+        aud("a1", "wsA"); mir("a1", "wsA", -3600)
+        aud("a2", "wsB"); mir("a2", "wsB", None)
+        aud("a3", "wsA"); mir("a3", "wsA", 3600)
+        aud("a4", "wsA"); mir("a4", "wsA", -3600, False)
+        aud("a5", "wsA", False); mir("a5", "wsA", -3600)
+        mir("a6", "wsA", -3600)  # audience row missing
+        aud("a7", "wsB"); mir("a7", "wsB", -3600)
+        c.execute(text("INSERT INTO jobs (type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, fire_key, executor) "
+                       "VALUES ('audience_refresh', '{}', 'pending', 1, :t, :t, 0, 3, 'audience_refresh:a7:older', 'python')"), {"t": naive(0)})
+        aud("a_b", "wsA"); mir("a_b", "wsA", -7200)  # underscore id: LIKE wildcard in Python's active-job check
+        aud("axb", "wsA"); mir("axb", "wsA", -7200)
+        c.execute(text("INSERT INTO jobs (type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, fire_key, executor) "
+                       "VALUES ('audience_refresh', '{}', 'pending', 1, :t, :t, 0, 3, 'audience_refresh:axb:older', 'python')"), {"t": naive(0)})
+
+    cases["audiences/mixed"] = run(bootstrap_audience_schedules, seed_audiences,
+                                   [("audience_schedules", "audience_id, workspace_id, next_refresh_at, enabled", "audience_id")])
+
+    # ---- retention ----
+    def seed_retention(c):
+        def pol(ws, enabled=True, hold=False):
+            c.execute(text("INSERT INTO retention_policies (workspace_id, enabled, legal_hold, retention_days) VALUES (:w,:e,:h,'{}')"),
+                      {"w": ws, "e": enabled, "h": hold})
+
+        def sch(ws, off, enabled=True):
+            c.execute(text("INSERT INTO retention_schedules (workspace_id, enabled, next_run_at) VALUES (:w,:e,:t)"),
+                      {"w": ws, "e": enabled, "t": naive(off) if off is not None else None})
+
+        pol("wsA"); sch("wsA", -86400)
+        pol("wsB", hold=True); sch("wsB", -86400)
+        pol("wsC"); sch("wsC", 86400)
+        pol("wsD", enabled=False); sch("wsD", -86400)
+        pol("wsE"); sch("wsE", -86400)
+        c.execute(text("INSERT INTO jobs (type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, fire_key, executor) "
+                       "VALUES ('retention_enforce', '{}', 'pending', 1, :t, :t, 0, 3, 'retention:wsE:2020-01-01', 'python')"), {"t": naive(0)})
+        pol("wsF"); sch("wsF", None)
+        pol("wsG"); sch("wsG", -86400, False)  # schedule disabled
+        sch("wsH", -86400)  # no policy row
+        pol("w_I"); sch("w_I", -86400)  # underscore workspace id
+        pol("wsJ"); sch("wsJ", -86400)
+        c.execute(text("INSERT INTO jobs (type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, fire_key, executor) "
+                       "VALUES ('retention_enforce', '{}', 'pending', 1, :t, :t, 0, 3, 'retention:wsJ:2020-01-01', 'python')"), {"t": naive(0)})
+
+    cases["retention/mixed"] = run(bootstrap_retention_schedules, seed_retention,
+                                   [("retention_schedules", "workspace_id, enabled, next_run_at", "workspace_id")])
+
+    # ---- playbooks ----
+    def seed_playbooks(c):
+        c.execute(text("INSERT INTO audiences (id, workspace_id, name, filters) VALUES ('aud1','wsA','aud1','{}'), ('aud2','wsB','aud2','{}')"))
+
+        def pb(i, ws, enabled=True, aud="aud1"):
+            c.execute(text("INSERT INTO research_playbooks (id, workspace_id, name, description, prompt_template, output_format, max_steps, "
+                           "cell_budget_usd, version, enabled, schedule_audience_id) VALUES (:i,:w,:i,'','p','text',3,0.1,1,:e,:a)"),
+                      {"i": i, "w": ws, "e": enabled, "a": aud})
+
+        def sch(i, ws, off, enabled=True):
+            c.execute(text("INSERT INTO playbook_schedules (playbook_id, workspace_id, enabled, next_run_at) VALUES (:i,:w,:e,:t)"),
+                      {"i": i, "w": ws, "e": enabled, "t": naive(off) if off is not None else None})
+
+        pb("p1", "wsA"); sch("p1", "wsA", -3600) if False else sch("p1", "wsA", -3600)
+        pb("p2", "wsB", aud=None); sch("p2", "wsB", -3600)
+        pb("p3", "wsA"); sch("p3", "wsA", -3600)
+        c.execute(text("INSERT INTO jobs (type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, fire_key, executor) "
+                       "VALUES ('research_playbook_schedule', '{}', 'processing', 1, :t, :t, 0, 3, 'playbook_schedule:p3:older', 'python')"), {"t": naive(0)})
+        pb("p4", "wsA"); sch("p4", "wsA", None)
+        pb("p5", "wsB", enabled=False); sch("p5", "wsB", -3600)
+        pb("p6", "wsA"); sch("p6", "wsA", 3600)
+        pb("p7", "wsA"); sch("p7", "wsA", -3600, False)
+        sch("p8", "wsA", -3600)  # playbook row missing
+
+    cases["playbooks/mixed"] = run(bootstrap_playbook_schedules, seed_playbooks,
+                                   [("playbook_schedules", "playbook_id, workspace_id, enabled, next_run_at", "playbook_id")])
+
+    # ---- outreach ticker ----
+    def seed_outreach(c):
+        def seq(i, ws, status):
+            c.execute(text("INSERT INTO outreach_sequences (id, workspace_id, name, steps, status) VALUES (:i,:w,:i,'[]',:s)"),
+                      {"i": i, "w": ws, "s": status})
+
+        def sch(i, ws, off, enabled=True):
+            c.execute(text("INSERT INTO outreach_schedules (sequence_id, workspace_id, next_tick_at, enabled) VALUES (:i,:w,:t,:e)"),
+                      {"i": i, "w": ws, "e": enabled, "t": aware(off) if off is not None else None})
+
+        seq("s1", "wsA", "active"); sch("s1", "wsA", -600)
+        seq("s2", "wsB", "paused"); sch("s2", "wsB", -600)
+        seq("s3", "wsA", "active"); sch("s3", "wsA", 600)
+        seq("s4", "wsA", "active"); sch("s4", "wsA", -600, False)
+        sch("s5", "wsA", -600)  # sequence missing
+        seq("s6", "wsB", "active"); sch("s6", "wsB", None)
+        for i, (sq, ws) in enumerate((("s1", "wsA"), ("s6", "wsB"))):
+            c.execute(text("INSERT INTO outreach_enrollments (id, workspace_id, sequence_id, lead_id, to_email_snapshot, current_step, status, next_send_at) "
+                           "VALUES (:i,:w,:s,:l,'x@example.test',0,'pending',:t)"), {"i": 100 + i, "w": ws, "s": sq, "l": 7 + i, "t": aware(-60)})
+
+    cases["outreach/mixed"] = run(bootstrap_outreach_schedules, seed_outreach,
+                                  [("outreach_schedules", "sequence_id, workspace_id, next_tick_at, enabled", "sequence_id")])
+
+    # ---- outreach inbound ----
+    def seed_inbound(c):
+        def mir(ws, off, enabled=True, fails=0):
+            c.execute(text("INSERT INTO outreach_inbound_schedules (workspace_id, next_poll_at, enabled, consecutive_failures) VALUES (:w,:t,:e,:f)"),
+                      {"w": ws, "e": enabled, "f": fails, "t": aware(off) if off is not None else None})
+
+        mir("wsA", -600, fails=3)
+        mir("wsB", None)
+        mir("wsC", 600)
+        mir("wsD", -600, False)
+        c.execute(text("INSERT INTO outreach_sequences (id, workspace_id, name, steps, status) VALUES ('sq','wsE','sq','[]','active')"))
+        c.execute(text("INSERT INTO outreach_schedules (sequence_id, workspace_id, next_tick_at, enabled) VALUES ('sq','wsE',:t,true)"), {"t": aware(600)})
+        c.execute(text("INSERT INTO outreach_sequences (id, workspace_id, name, steps, status) VALUES ('sq2','wsF','sq2','[]','active')"))
+        c.execute(text("INSERT INTO outreach_schedules (sequence_id, workspace_id, next_tick_at, enabled) VALUES ('sq2','wsF',:t,false)"), {"t": aware(600)})
+        mir("wsG", -600)
+
+    cases["outreach_inbound/mixed"] = run(bootstrap_inbound_schedules, seed_inbound,
+                                          [("outreach_inbound_schedules", "workspace_id, next_poll_at, enabled, consecutive_failures", "workspace_id")])
+
+    json.dump({"cases": cases, "note": "times in seconds from recorder start, rounded to 10s; {t:N}/{d:N} in fire keys"}, sys.stdout, indent=1, sort_keys=True, default=str)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "child":
+        child(sys.argv[2])
+    else:
+        driver()
