@@ -848,3 +848,16 @@ func (c clientSpy) Enrich(_ context.Context, hc *http.Client, _ func() (string, 
 	*c.got = hc
 	return providers.Output{Extra: providers.NewObj()}, nil
 }
+
+// The enrich actions must find the providers under the names the Go registry uses (scrape.ddgEmail is "ddg_email").
+func TestLeadEnrichFindsRegisteredProviderNames(t *testing.T) {
+	e := &enrichRun{h: &llmRoutes{providerLookup: mapProviders{
+		"ddg_email":       fakeProvider{name: "ddg_email"},
+		"website_scraper": fakeProvider{name: "website_scraper"},
+	}}}
+	for _, names := range [][]string{emailProviderNames, scraperProviderNames} {
+		if _, ok := e.provider(names...); !ok {
+			t.Errorf("no provider registered under %v", names)
+		}
+	}
+}
