@@ -180,6 +180,7 @@ func (e *cellEnv) row(t *testing.T, id int, wb string, pos int, data, enr string
 	t.Helper()
 	ownerExec(t, `INSERT INTO workbook_rows (id, workbook_id, "position", data, enrichments, workspace_id) VALUES ($1,$2,$3,$4::json,$5::json,'ws-alpha')`,
 		id, wb, pos, data, enr)
+	ownerExec(t, `SELECT setval(pg_get_serial_sequence('workbook_rows','id'), GREATEST((SELECT max(id) FROM workbook_rows), 1))`)
 }
 
 func cellActor(name string) (who, ws string) {

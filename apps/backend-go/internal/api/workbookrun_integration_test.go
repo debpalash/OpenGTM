@@ -148,6 +148,7 @@ func (e runEnv) seedWorkbooks(t *testing.T) {
 	row := func(id int, wbID string, pos int, data, enr string) {
 		exec(`INSERT INTO workbook_rows (id, workbook_id, "position", data, enrichments, workspace_id, created_at, updated_at)
 			VALUES ($1,$2,$3,$4::json,$5::json,$6,'2026-08-29 10:00:00','2026-08-29 10:00:00')`, id, wbID, pos, data, enr, runWsAlpha)
+		exec(`SELECT setval(pg_get_serial_sequence('workbook_rows','id'), GREATEST((SELECT max(id) FROM workbook_rows), 1))`)
 	}
 	sites := []string{"https://globex.example.com", "https://initech.example.com", "", "https://umbrella.example.com", "https://hooli.example.com", "https://stark.example.com"}
 	companies := []string{"Globex", "Initech", "Soylent", "Umbrella", "Hooli", "Stark Industries"}
