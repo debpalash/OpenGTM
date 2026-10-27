@@ -642,12 +642,48 @@ func TestLedgerAndBounceShareOneTransaction(t *testing.T) {
 	}
 }
 
+// seedMoreSend adds a further sent send (another step) to the seeded enrollment.
+func seedMoreSend(t *testing.T, pool *pgxpool.Pool, ws string, s seeded, to, mid string, step int) {
+	t.Helper()
+	inTx(t, pool, ws, func(ctx context.Context, tx pgx.Tx) {
+		e32 := int32(s.enr)
+		idem := fmt.Sprintf("idem-%s-%d", mid, time.Now().UnixNano())
+		if ok, err := outreachstore.InsertInFlight(ctx, tx, outreachstore.SendIn{WorkspaceID: ws, SequenceID: s.seq, EnrollmentID: &e32,
+			StepNumber: int32(step), ToEmail: to, Subject: "hi", IdempotencyKey: idem}); err != nil || !ok {
+			t.Fatalf("in flight: %v %v", ok, err)
+		}
+		now := time.Now()
+		if err := outreachstore.FinalizeSend(ctx, tx, ws, idem, outreachstore.Finalize{Status: "sent", MessageID: mid, SentAt: &now}); err != nil {
+			t.Fatal(err)
+		}
+	})
+}
+
+// S-L14: soft DSNs citing one send count once; the cap needs soft bounces on distinct sends.
+func TestSoftBounceForgedForOneSendDoesNotSuppress(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	ws := newWS(t, pool)
+	s := seedSend(t, pool, ws, "forge@example.com", "<ours-6@sender.example>", 1)
+	for i := 1; i <= 4; i++ {
+		process(t, pool, ws, strconv.Itoa(i), dsn(fmt.Sprintf("<forge-%d@mx.example>", i), "<ours-6@sender.example>", "forge@example.com", "4.2.2", "452 mailbox full"))
+	}
+	if _, _, supp := suppression(t, pool, ws, "forge@example.com"); supp {
+		t.Fatal("forged soft DSNs for one send suppressed the recipient")
+	}
+	if st, _ := enrStatus(t, pool, ws, s.enr); st == "bounced" {
+		t.Fatal("enrollment bounced by forged soft DSNs")
+	}
+}
+
 func TestSoftBounceCapSuppresses(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
 	ws := newWS(t, pool)
 	s := seedSend(t, pool, ws, "full@example.com", "<ours-5@sender.example>", 1)
+	seedMoreSend(t, pool, ws, s, "full@example.com", "<ours-5b@sender.example>", 2)
+	seedMoreSend(t, pool, ws, s, "full@example.com", "<ours-5c@sender.example>", 3)
 	for i := 1; i <= 3; i++ {
-		raw := dsn(fmt.Sprintf("<soft-%d@mx.example>", i), "<ours-5@sender.example>", "full@example.com", "4.2.2", "452 mailbox full")
+		orig := []string{"", "<ours-5@sender.example>", "<ours-5b@sender.example>", "<ours-5c@sender.example>"}[i]
+		raw := dsn(fmt.Sprintf("<soft-%d@mx.example>", i), orig, "full@example.com", "4.2.2", "452 mailbox full")
 		process(t, pool, ws, strconv.Itoa(i), raw)
 		_, _, supp := suppression(t, pool, ws, "full@example.com")
 		st, _ := enrStatus(t, pool, ws, s.enr)
@@ -661,8 +697,9 @@ func TestSoftBounceCapSuppresses(t *testing.T) {
 	if st, e := enrStatus(t, pool, ws, s.enr); st != "bounced" || e != "soft_bounce_max" {
 		t.Fatalf("enrollment %q %q", st, e)
 	}
-	if sendStatus(t, pool, ws, s.sendID) != "bounced" {
-		t.Fatalf("send not bounced")
+	// the send that reached the cap is the one marked bounced, not the first
+	if sendStatus(t, pool, ws, s.sendID) != "sent" {
+		t.Fatalf("first send must stay sent")
 	}
 }
 
