@@ -3,7 +3,6 @@ package rpclocal
 import (
 	"context"
 	"log/slog"
-	"os"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
@@ -16,7 +15,7 @@ import (
 
 // Setup is the per-process wiring of the in-process providers.
 type Setup struct {
-	Getenv      func(string) string // nil: os.Getenv
+	Getenv      func(string) string // nil: config.Getenv (GO_ALL_NATIVE resolved)
 	AppEnv      string              // egress bench/test allow-list scope
 	EgressAllow []string            // EGRESS_ALLOW_HOSTS
 	Py          PyCaller            // the Python worker client, or nil
@@ -32,7 +31,7 @@ type Setup struct {
 func Configure(s Setup) (*Caller, error) {
 	get := s.Getenv
 	if get == nil {
-		get = os.Getenv
+		get = config.Getenv
 	}
 	cfg, err := config.LocalProvidersFrom(get)
 	if err != nil {
