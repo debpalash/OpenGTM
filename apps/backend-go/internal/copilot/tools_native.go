@@ -7,6 +7,7 @@ import (
 	"errors"
 	"math"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -247,6 +248,9 @@ func getLeadStats(ctx context.Context, tx pgx.Tx) (string, bool, error) {
 	return out, err == nil, err
 }
 
+// leadStatuses is the lead status enum of the lead routes (GET /api/filters).
+var leadStatuses = []string{"new", "contacted", "qualified", "negotiating", "converted", "dead"}
+
 func updateLeadStatus(ctx context.Context, tx pgx.Tx, args map[string]any) (string, bool, error) {
 	rawID, present := args["lead_id"]
 	if !present {
@@ -260,6 +264,12 @@ func updateLeadStatus(ctx context.Context, tx pgx.Tx, args map[string]any) (stri
 	status, isStr := rawStatus.(string)
 	if !ok || !isStr {
 		return "", false, nil
+	}
+	if !slices.Contains(leadStatuses, status) {
+		out, err := pyJSON(struct {
+			Error string `json:"error"`
+		}{"Invalid status. Allowed: " + strings.Join(leadStatuses, ", ")}) // the value is not echoed
+		return out, err == nil, err
 	}
 	// Python's UPDATE answers ok whether or not a row matched (a foreign id matches none) and ignores note.
 	if _, err := leadswrite.UpdateStatus(ctx, tx, id, status); err != nil {

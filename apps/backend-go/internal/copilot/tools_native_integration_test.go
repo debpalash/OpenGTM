@@ -262,11 +262,11 @@ func TestUpdateLeadStatusRoleCheck(t *testing.T) {
 	// an explicit per-member deny beats the editor role; an allow lifts a viewer
 	ctx := context.Background()
 	e.owner.Exec(ctx, `INSERT INTO workspace_member_permissions (workspace_id,user_id,permission,effect,updated_at) VALUES ($1,2,'tables.write','deny',0),($1,3,'tables.write','allow',0)`, e.ws)
-	out, _ = e.exec(t, e.ws, "update_lead_status", map[string]any{"lead_id": e.acme, "status": "x"}, i32(2))
+	out, _ = e.exec(t, e.ws, "update_lead_status", map[string]any{"lead_id": e.acme, "status": "qualified"}, i32(2))
 	if out != deny {
 		t.Fatalf("explicit deny ignored: %s", out)
 	}
-	out, _ = e.exec(t, e.ws, "update_lead_status", map[string]any{"lead_id": e.acme, "status": "x"}, i32(3))
+	out, _ = e.exec(t, e.ws, "update_lead_status", map[string]any{"lead_id": e.acme, "status": "qualified"}, i32(3))
 	if !contains(out, `"ok": true`) {
 		t.Fatalf("explicit allow ignored: %s", out)
 	}
@@ -294,6 +294,16 @@ func TestUpdateLeadStatusForeignAndBadArgs(t *testing.T) {
 	out, _ = e.exec(t, e.ws, "update_lead_status", map[string]any{}, i32(3))
 	if out != `{"error": "Insufficient workspace role"}` {
 		t.Fatalf("viewer: %s", out)
+	}
+	// an unknown status is refused and changes nothing (S-L8)
+	for _, bad := range []string{"<script>", "", "DEAD", "won"} {
+		out, ok = e.exec(t, e.ws, "update_lead_status", map[string]any{"lead_id": e.acme, "status": bad}, i32(1))
+		if !ok || !contains(out, `{"error": "Invalid status.`) || contains(out, "script") {
+			t.Fatalf("bad status %q: %s", bad, out)
+		}
+	}
+	if s := e.status(t, e.acme); s == "<script>" || s == "" || s == "DEAD" || s == "won" {
+		t.Fatalf("status written: %s", s)
 	}
 	// non-string status / odd lead_id fall through to Python
 	if _, ok = e.exec(t, e.ws, "update_lead_status", map[string]any{"lead_id": e.acme, "status": 5}, i32(1)); ok {
