@@ -317,6 +317,8 @@ services:
     depends_on:
       api:
         condition: service_healthy
+      api-go:
+        condition: service_healthy
       frontend_assets:
         condition: service_completed_successfully
     restart: unless-stopped
@@ -328,14 +330,13 @@ services:
     networks:
       - lead_net
 
-  # ── Go API (opt-in: --profile go) ──────────────────────────────
+  # ── Go API (runs in a default `up`: first-run setup and /auth live here) ──
   # nginx sends it traffic only when the canary percentage in
   # infra/nginx/go-split.conf is raised (shipped at 0% = all Python), so starting
   # it is harmless. It shares SECRET_KEY/DATABASE with the Python API and refuses
   # to start unless the schema is at the expected Alembic head (hence `migrate`).
   # Every GO_* route/executor flag defaults OFF here: raise them per runbook.
   api-go:
-    profiles: ["go"]
     build:
       context: ./apps/backend-go
       dockerfile: Dockerfile
@@ -361,10 +362,11 @@ services:
       - PY_WORKER_URL=${PY_WORKER_URL:-http://api:8000}
       - PY_WORKER_TOKEN=${PY_WORKER_TOKEN:-}
       - CORS_ORIGINS=${CORS_ORIGINS:-*}
-      # nginx is the only client on lead_net: trust its X-Real-IP. The default
-      # covers every private range Docker allocates compose networks from.
-      - TRUST_PROXY=true
-      - TRUST_PROXY_CIDRS=${TRUST_PROXY_CIDRS:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
+      # nginx is the only client on lead_net: trust its X-Real-IP. lead_net has a fixed subnet
+      # (LEAD_NET_SUBNET), which is the default trusted range; bridge/LAN peers outside it are untrusted.
+      - TRUST_PROXY_CIDRS=${TRUST_PROXY_CIDRS:-${LEAD_NET_SUBNET:-172.29.250.0/24}}
+      # Outreach (GO_OUTREACH_ROUTES_ENABLED / GO_EXECUTOR_OUTREACH_SEND): needs https here unless APP_ENV=dev.
+      - OUTREACH_PUBLIC_BASE_URL=${OUTREACH_PUBLIC_BASE_URL:-}
       - PG_LEAD_STORE=${PG_LEAD_STORE:-true}
       # Route/executor flags: ALL OFF until the matching runbook says otherwise.
       - GO_EXECUTOR_ENABLED=${GO_EXECUTOR_ENABLED:-false}
@@ -436,6 +438,9 @@ services:
       - GO_WORKER_SHUTDOWN_GRACE_SECONDS=${GO_WORKER_SHUTDOWN_GRACE_SECONDS:-30}
       - GO_WORKER_DEBUG_ADDR=${GO_WORKER_DEBUG_ADDR:-127.0.0.1:6060}
       - WORKER_MAX_ACTIVE_PER_WORKSPACE=${WORKER_MAX_ACTIVE_PER_WORKSPACE:-2}
+      # Outreach send: default off; when on, OUTREACH_PUBLIC_BASE_URL must be https unless APP_ENV=dev.
+      - GO_EXECUTOR_OUTREACH_SEND=${GO_EXECUTOR_OUTREACH_SEND:-false}
+      - OUTREACH_PUBLIC_BASE_URL=${OUTREACH_PUBLIC_BASE_URL:-}
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -502,3 +507,6 @@ volumes:
 networks:
   lead_net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: ${LEAD_NET_SUBNET:-172.29.250.0/24}

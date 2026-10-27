@@ -53,15 +53,15 @@ Go-only build check (no Python needed): `docker compose --profile go --profile m
 
 A default `docker compose up` creates no user. The first admin is created by you in the UI:
 
-1. Start the stack with the Go API (it serves the setup endpoints; the Python API has none):
-   `docker compose --profile go up -d`.
+1. Start the stack (`api-go` is part of the default stack and serves the setup endpoints; the Python API has none):
+   `docker compose up -d`.
 2. Open the UI (`http://localhost:${PORT:-3000}`). With no users it redirects to `/setup`.
 3. Enter the setup token. Either set `SETUP_TOKEN` in `.env` beforehand, or read the one `api-go` generated:
    `docker compose logs api-go | grep -i "setup token"` (printed once per start while no admin exists).
 4. Choose username and password (12+ characters) and an optional workspace name. You are signed in directly.
 
-Token rules: `SETUP_TOKEN` wins; `SETUP_TOKEN_DISABLED=1` or `APP_ENV=dev|test|local` opens setup without a
-token (compose defaults `APP_ENV` to `dev`, so set `APP_ENV=production` on any reachable host). After setup
+Token rules: `SETUP_TOKEN` wins; only `SETUP_TOKEN_DISABLED=1` opens setup without a
+token; `APP_ENV` never does (so a dev-default install still demands the logged token). After setup
 `POST /auth/setup` returns 409 permanently. nginx routes `/auth/setup` and `/auth/setup/status` to `api-go`
 at every canary percentage, so `api-go` must be running for first run.
 
@@ -73,8 +73,12 @@ The old `seed` service (admin/admin plus a demo workbook) is behind the `demo` p
 `api-go` / `worker-go` / `mcp` take plain `postgresql://` URLs (`GO_DATABASE_URL`, default is the `yupcha_runtime`
 role the `migrate` service provisions), `REDIS_URL=redis://redis:6379`, `PY_WORKER_URL=http://api:8000`, and the
 same `SECRET_KEY`, `SECRETS_PROVIDER`, `SECRETS_MASTER_KEY`, `INTERNAL_SERVICE_TOKEN` as Python (all from `.env`;
-no secret is in `docker-compose.yml`). `TRUST_PROXY=true` and `TRUST_PROXY_CIDRS` default to the RFC 1918 ranges,
-which cover the compose bridge network. Every `GO_*_ENABLED` route/executor flag and `COPILOT_GO_ENABLED`
+no secret is in `docker-compose.yml`). `lead_net` has a fixed subnet (`LEAD_NET_SUBNET`, default `172.29.250.0/24`) and `TRUST_PROXY_CIDRS` defaults to
+it (the code default is loopback only; `TRUST_PROXY` is gone). Change both if the subnet collides. When
+`GO_OUTREACH_ROUTES_ENABLED` or `GO_EXECUTOR_OUTREACH_SEND` is on, `OUTREACH_PUBLIC_BASE_URL` must be an https URL
+(or `APP_ENV=dev`), otherwise the Go process refuses to start. After upgrading, run `suppressnorm --dry-run` then
+`suppressnorm` once (`docker compose run --rm --entrypoint /suppressnorm worker-go --dry-run`; needs
+`DATABASE_URL`, already set on `worker-go`). Schema revision `e7b2c4d6f8a0` is required (`migrate` applies it). Every `GO_*_ENABLED` route/executor flag and `COPILOT_GO_ENABLED`
 defaults to `false`; with them off, and `go-split.conf` at 0%, the stack behaves like Python even with the `go`
 profile running. Production: set `APP_ENV` and a `SECRET_KEY` of at least 32 bytes (api-go refuses to start
 otherwise), identical on `api` and `api-go`.

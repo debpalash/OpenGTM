@@ -18,6 +18,7 @@ ENV CGO_ENABLED=0 GOFLAGS=-trimpath
 RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
     go build -ldflags="-s -w" -o /out/api ./cmd/api \
  && go build -ldflags="-s -w" -o /out/worker ./cmd/worker \
+ && go build -ldflags="-s -w" -o /out/suppressnorm ./cmd/suppressnorm \
  && go build -ldflags="-s -w" -o /out/opengtm-mcp ./cmd/mcp
 
 FROM gcr.io/distroless/static-debian12:nonroot AS api
@@ -31,6 +32,8 @@ ENTRYPOINT ["/api"]
 
 FROM gcr.io/distroless/static-debian12:nonroot AS worker
 COPY --from=build /out/worker /worker
+# One-shot maintenance: `docker compose run --rm --entrypoint /suppressnorm worker-go --dry-run`.
+COPY --from=build /out/suppressnorm /suppressnorm
 USER nonroot:nonroot
 # No published ports: the debug/metrics server defaults to loopback inside the container.
 ENTRYPOINT ["/worker"]
