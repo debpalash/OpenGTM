@@ -1,0 +1,864 @@
+[
+ {
+  "company": "Stripe",
+  "function": "Partnerships",
+  "hits": {
+   "\"Jane Doe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "Jane Doe leads partnerships at Stripe.",
+     "href": "https://www.linkedin.com/in/jane-doe/",
+     "title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn"
+    },
+    {
+     "body": "Stripe appointed Jane Doe as head of partnerships.",
+     "href": "https://news.example.com/a",
+     "title": "Stripe names Jane Doe head of partnerships"
+    },
+    {
+     "body": "Janet Doe at Stripe partnerships.",
+     "href": "https://news.example.com/b",
+     "title": "Unrelated"
+    }
+   ],
+   "\"John Roe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "x",
+     "href": "https://www.linkedin.com/in/john-roe",
+     "title": "John Roe - Partnerships at Stripe | LinkedIn"
+    },
+    {
+     "body": "John Roe works at Stripe in engineering.",
+     "href": "https://twitter.com/johnroe",
+     "title": "John Roe"
+    }
+   ],
+   "\"José Núñez\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "José Núñez joined Stripe to head partnerships.",
+     "href": "https://blog.example.org/x",
+     "title": "People"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/1",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/2",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/3",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/4",
+     "title": "t"
+    }
+   ],
+   "\"Kim Koe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "content": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+     "title": "Kim Koe - Partnerships | Stripe",
+     "url": "https://www.linkedin.com/in/kim-koe/"
+    },
+    {
+     "content": "",
+     "title": "Kim Koe - Partnerships | Stripe",
+     "url": ""
+    }
+   ],
+   "\"Pat Poe\" \"Stripe\" \"Partnerships\"": []
+  },
+  "max_people": 15,
+  "people": [
+   {
+    "company_resolution": {
+     "canonical_domain": "stripe.com",
+     "company": "Stripe",
+     "status": "resolved"
+    },
+    "confidence": 0.78,
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   },
+   {
+    "confidence": 0.9,
+    "linkedin_url": "https://www.linkedin.com/in/john-roe",
+    "name": "John Roe",
+    "title": "  Engineer  "
+   },
+   {
+    "evidence_url": "https://www.linkedin.com/in/pat-poe",
+    "name": "Pat Poe",
+    "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   {
+    "name": "",
+    "title": "ghost"
+   },
+   {
+    "full_name": "José Núñez",
+    "name": "José Núñez"
+   },
+   {
+    "confidence": 0.6,
+    "linkedin_url": "https://www.linkedin.com/in/kim-koe",
+    "name": "Kim Koe"
+   },
+   "not a dict"
+  ],
+  "queries": [
+   [
+    "\"Jane Doe\" \"Stripe\" \"Partnerships\"",
+    8
+   ],
+   [
+    "\"John Roe\" \"Stripe\" \"Partnerships\"",
+    8
+   ],
+   [
+    "\"Pat Poe\" \"Stripe\" \"Partnerships\"",
+    8
+   ],
+   [
+    "\"José Núñez\" \"Stripe\" \"Partnerships\"",
+    8
+   ],
+   [
+    "\"Kim Koe\" \"Stripe\" \"Partnerships\"",
+    8
+   ]
+  ],
+  "result": {
+   "checked_at": "2026-10-28",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "Stripe",
+    "status": "resolved"
+   },
+   "count": 6,
+   "function": "Partnerships",
+   "methodology": "Fresh exact-name/company/function web searches. Independent pages can support a role; LinkedIn-only matches remain profile-level evidence.",
+   "ok": true,
+   "people": [
+    {
+     "checked_at": "2026-10-28",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "status": "resolved"
+     },
+     "confidence": 0.78,
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "title": "Head of Partnerships",
+     "verification_confidence": 0.85,
+     "verification_sources": [
+      {
+       "snippet": "Jane Doe leads partnerships at Stripe.",
+       "source_type": "linkedin_profile",
+       "title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+       "url": "https://www.linkedin.com/in/jane-doe/"
+      },
+      {
+       "snippet": "Stripe appointed Jane Doe as head of partnerships.",
+       "source_type": "independent_web",
+       "title": "Stripe names Jane Doe head of partnerships",
+       "url": "https://news.example.com/a"
+      }
+     ],
+     "verification_status": "independent_role_evidence"
+    },
+    {
+     "checked_at": "2026-10-28",
+     "confidence": 0.9,
+     "linkedin_url": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "person_id": "person_7199c1c6915b8ee789191534",
+     "title": "Engineer",
+     "verification_confidence": 0.9,
+     "verification_sources": [
+      {
+       "snippet": "x",
+       "source_type": "linkedin_profile",
+       "title": "John Roe - Partnerships at Stripe | LinkedIn",
+       "url": "https://www.linkedin.com/in/john-roe"
+      }
+     ],
+     "verification_status": "profile_reconfirmed"
+    },
+    {
+     "checked_at": "2026-10-28",
+     "evidence_url": "https://www.linkedin.com/in/pat-poe",
+     "name": "Pat Poe",
+     "person_id": "person_27fadb6e81410bdaca9fd784",
+     "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "verification_confidence": 0.5,
+     "verification_sources": [],
+     "verification_status": "not_corroborated"
+    },
+    {
+     "checked_at": "2026-10-28",
+     "name": "",
+     "person_id": "person_4b59ad4e5342a7c0176d6244",
+     "title": "ghost",
+     "verification_confidence": 0.0,
+     "verification_sources": [],
+     "verification_status": "not_corroborated"
+    },
+    {
+     "checked_at": "2026-10-28",
+     "full_name": "José Núñez",
+     "name": "José Núñez",
+     "person_id": "person_fbe6fa0e7b63c0b0094bc098",
+     "title": "",
+     "verification_confidence": 0.85,
+     "verification_sources": [
+      {
+       "snippet": "José Núñez - Partnerships at Stripe",
+       "source_type": "independent_web",
+       "title": "t",
+       "url": "https://a.example.org/1"
+      },
+      {
+       "snippet": "José Núñez - Partnerships at Stripe",
+       "source_type": "independent_web",
+       "title": "t",
+       "url": "https://a.example.org/2"
+      },
+      {
+       "snippet": "José Núñez - Partnerships at Stripe",
+       "source_type": "independent_web",
+       "title": "t",
+       "url": "https://a.example.org/3"
+      }
+     ],
+     "verification_status": "independent_role_evidence"
+    },
+    {
+     "checked_at": "2026-10-28",
+     "confidence": 0.6,
+     "linkedin_url": "https://www.linkedin.com/in/kim-koe",
+     "name": "Kim Koe",
+     "person_id": "person_41e5ae6151fa98ec3aef1657",
+     "title": "",
+     "verification_confidence": 0.85,
+     "verification_sources": [
+      {
+       "snippet": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+       "source_type": "linkedin_profile",
+       "title": "Kim Koe - Partnerships | Stripe",
+       "url": "https://www.linkedin.com/in/kim-koe/"
+      },
+      {
+       "snippet": "",
+       "source_type": "independent_web",
+       "title": "Kim Koe - Partnerships | Stripe",
+       "url": ""
+      }
+     ],
+     "verification_status": "independent_role_evidence"
+    }
+   ],
+   "result_set_id": "people_3b6991d8680d3d5ecafc4d48",
+   "summary": {
+    "independent_role_evidence": 3,
+    "not_corroborated": 2,
+    "profile_reconfirmed": 1,
+    "verification_timeout": 0
+   },
+   "warning": "Not corroborated does not prove a person is incorrect; it means fresh supporting evidence was not found."
+  }
+ },
+ {
+  "company": "Stripe",
+  "function": "Partnerships",
+  "hits": {
+   "\"Jane Doe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "Jane Doe leads partnerships at Stripe.",
+     "href": "https://www.linkedin.com/in/jane-doe/",
+     "title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn"
+    },
+    {
+     "body": "Stripe appointed Jane Doe as head of partnerships.",
+     "href": "https://news.example.com/a",
+     "title": "Stripe names Jane Doe head of partnerships"
+    },
+    {
+     "body": "Janet Doe at Stripe partnerships.",
+     "href": "https://news.example.com/b",
+     "title": "Unrelated"
+    }
+   ],
+   "\"John Roe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "x",
+     "href": "https://www.linkedin.com/in/john-roe",
+     "title": "John Roe - Partnerships at Stripe | LinkedIn"
+    },
+    {
+     "body": "John Roe works at Stripe in engineering.",
+     "href": "https://twitter.com/johnroe",
+     "title": "John Roe"
+    }
+   ],
+   "\"José Núñez\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "José Núñez joined Stripe to head partnerships.",
+     "href": "https://blog.example.org/x",
+     "title": "People"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/1",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/2",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/3",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/4",
+     "title": "t"
+    }
+   ],
+   "\"Kim Koe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "content": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+     "title": "Kim Koe - Partnerships | Stripe",
+     "url": "https://www.linkedin.com/in/kim-koe/"
+    },
+    {
+     "content": "",
+     "title": "Kim Koe - Partnerships | Stripe",
+     "url": ""
+    }
+   ],
+   "\"Pat Poe\" \"Stripe\" \"Partnerships\"": []
+  },
+  "max_people": 2,
+  "people": [
+   {
+    "company_resolution": {
+     "canonical_domain": "stripe.com",
+     "company": "Stripe",
+     "status": "resolved"
+    },
+    "confidence": 0.78,
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   },
+   {
+    "confidence": 0.9,
+    "linkedin_url": "https://www.linkedin.com/in/john-roe",
+    "name": "John Roe",
+    "title": "  Engineer  "
+   },
+   {
+    "evidence_url": "https://www.linkedin.com/in/pat-poe",
+    "name": "Pat Poe",
+    "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   {
+    "name": "",
+    "title": "ghost"
+   },
+   {
+    "full_name": "José Núñez",
+    "name": "José Núñez"
+   },
+   {
+    "confidence": 0.6,
+    "linkedin_url": "https://www.linkedin.com/in/kim-koe",
+    "name": "Kim Koe"
+   },
+   "not a dict"
+  ],
+  "queries": [
+   [
+    "\"Jane Doe\" \"Stripe\" \"Partnerships\"",
+    8
+   ],
+   [
+    "\"John Roe\" \"Stripe\" \"Partnerships\"",
+    8
+   ]
+  ],
+  "result": {
+   "checked_at": "2026-10-28",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "Stripe",
+    "status": "resolved"
+   },
+   "count": 2,
+   "function": "Partnerships",
+   "methodology": "Fresh exact-name/company/function web searches. Independent pages can support a role; LinkedIn-only matches remain profile-level evidence.",
+   "ok": true,
+   "people": [
+    {
+     "checked_at": "2026-10-28",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "status": "resolved"
+     },
+     "confidence": 0.78,
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "title": "Head of Partnerships",
+     "verification_confidence": 0.85,
+     "verification_sources": [
+      {
+       "snippet": "Jane Doe leads partnerships at Stripe.",
+       "source_type": "linkedin_profile",
+       "title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+       "url": "https://www.linkedin.com/in/jane-doe/"
+      },
+      {
+       "snippet": "Stripe appointed Jane Doe as head of partnerships.",
+       "source_type": "independent_web",
+       "title": "Stripe names Jane Doe head of partnerships",
+       "url": "https://news.example.com/a"
+      }
+     ],
+     "verification_status": "independent_role_evidence"
+    },
+    {
+     "checked_at": "2026-10-28",
+     "confidence": 0.9,
+     "linkedin_url": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "person_id": "person_7199c1c6915b8ee789191534",
+     "title": "Engineer",
+     "verification_confidence": 0.9,
+     "verification_sources": [
+      {
+       "snippet": "x",
+       "source_type": "linkedin_profile",
+       "title": "John Roe - Partnerships at Stripe | LinkedIn",
+       "url": "https://www.linkedin.com/in/john-roe"
+      }
+     ],
+     "verification_status": "profile_reconfirmed"
+    }
+   ],
+   "result_set_id": "people_4411f94cf915b91ddc3f8ffc",
+   "summary": {
+    "independent_role_evidence": 1,
+    "not_corroborated": 0,
+    "profile_reconfirmed": 1,
+    "verification_timeout": 0
+   },
+   "warning": "Not corroborated does not prove a person is incorrect; it means fresh supporting evidence was not found."
+  }
+ },
+ {
+  "company": "Stripe",
+  "function": "Partnerships",
+  "hits": {
+   "\"Jane Doe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "Jane Doe leads partnerships at Stripe.",
+     "href": "https://www.linkedin.com/in/jane-doe/",
+     "title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn"
+    },
+    {
+     "body": "Stripe appointed Jane Doe as head of partnerships.",
+     "href": "https://news.example.com/a",
+     "title": "Stripe names Jane Doe head of partnerships"
+    },
+    {
+     "body": "Janet Doe at Stripe partnerships.",
+     "href": "https://news.example.com/b",
+     "title": "Unrelated"
+    }
+   ],
+   "\"John Roe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "x",
+     "href": "https://www.linkedin.com/in/john-roe",
+     "title": "John Roe - Partnerships at Stripe | LinkedIn"
+    },
+    {
+     "body": "John Roe works at Stripe in engineering.",
+     "href": "https://twitter.com/johnroe",
+     "title": "John Roe"
+    }
+   ],
+   "\"José Núñez\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "José Núñez joined Stripe to head partnerships.",
+     "href": "https://blog.example.org/x",
+     "title": "People"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/1",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/2",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/3",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/4",
+     "title": "t"
+    }
+   ],
+   "\"Kim Koe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "content": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+     "title": "Kim Koe - Partnerships | Stripe",
+     "url": "https://www.linkedin.com/in/kim-koe/"
+    },
+    {
+     "content": "",
+     "title": "Kim Koe - Partnerships | Stripe",
+     "url": ""
+    }
+   ],
+   "\"Pat Poe\" \"Stripe\" \"Partnerships\"": []
+  },
+  "max_people": 15,
+  "people": [],
+  "queries": [],
+  "result": {
+   "checked_at": "2026-10-28",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "",
+    "company": "Stripe",
+    "status": "unresolved"
+   },
+   "count": 0,
+   "function": "Partnerships",
+   "methodology": "Fresh exact-name/company/function web searches. Independent pages can support a role; LinkedIn-only matches remain profile-level evidence.",
+   "ok": true,
+   "people": [],
+   "result_set_id": "people_d6997cd472b06d944c771a7e",
+   "summary": {
+    "independent_role_evidence": 0,
+    "not_corroborated": 0,
+    "profile_reconfirmed": 0,
+    "verification_timeout": 0
+   },
+   "warning": "Not corroborated does not prove a person is incorrect; it means fresh supporting evidence was not found."
+  }
+ },
+ {
+  "company": "Stripe",
+  "function": "Partnerships",
+  "hits": {
+   "\"Jane Doe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "Jane Doe leads partnerships at Stripe.",
+     "href": "https://www.linkedin.com/in/jane-doe/",
+     "title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn"
+    },
+    {
+     "body": "Stripe appointed Jane Doe as head of partnerships.",
+     "href": "https://news.example.com/a",
+     "title": "Stripe names Jane Doe head of partnerships"
+    },
+    {
+     "body": "Janet Doe at Stripe partnerships.",
+     "href": "https://news.example.com/b",
+     "title": "Unrelated"
+    }
+   ],
+   "\"John Roe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "x",
+     "href": "https://www.linkedin.com/in/john-roe",
+     "title": "John Roe - Partnerships at Stripe | LinkedIn"
+    },
+    {
+     "body": "John Roe works at Stripe in engineering.",
+     "href": "https://twitter.com/johnroe",
+     "title": "John Roe"
+    }
+   ],
+   "\"José Núñez\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "José Núñez joined Stripe to head partnerships.",
+     "href": "https://blog.example.org/x",
+     "title": "People"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/1",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/2",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/3",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/4",
+     "title": "t"
+    }
+   ],
+   "\"Kim Koe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "content": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+     "title": "Kim Koe - Partnerships | Stripe",
+     "url": "https://www.linkedin.com/in/kim-koe/"
+    },
+    {
+     "content": "",
+     "title": "Kim Koe - Partnerships | Stripe",
+     "url": ""
+    }
+   ],
+   "\"Pat Poe\" \"Stripe\" \"Partnerships\"": []
+  },
+  "max_people": 15,
+  "people": [
+   {
+    "name": "",
+    "title": "ghost"
+   }
+  ],
+  "queries": [],
+  "result": {
+   "checked_at": "2026-10-28",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "",
+    "company": "Stripe",
+    "status": "unresolved"
+   },
+   "count": 1,
+   "function": "Partnerships",
+   "methodology": "Fresh exact-name/company/function web searches. Independent pages can support a role; LinkedIn-only matches remain profile-level evidence.",
+   "ok": true,
+   "people": [
+    {
+     "checked_at": "2026-10-28",
+     "name": "",
+     "person_id": "person_4b59ad4e5342a7c0176d6244",
+     "title": "ghost",
+     "verification_confidence": 0.0,
+     "verification_sources": [],
+     "verification_status": "not_corroborated"
+    }
+   ],
+   "result_set_id": "people_63d0a30a7f33402534819424",
+   "summary": {
+    "independent_role_evidence": 0,
+    "not_corroborated": 1,
+    "profile_reconfirmed": 0,
+    "verification_timeout": 0
+   },
+   "warning": "Not corroborated does not prove a person is incorrect; it means fresh supporting evidence was not found."
+  }
+ },
+ {
+  "company": "  Stripe ",
+  "function": " Partnerships  ",
+  "hits": {
+   "\"Jane Doe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "Jane Doe leads partnerships at Stripe.",
+     "href": "https://www.linkedin.com/in/jane-doe/",
+     "title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn"
+    },
+    {
+     "body": "Stripe appointed Jane Doe as head of partnerships.",
+     "href": "https://news.example.com/a",
+     "title": "Stripe names Jane Doe head of partnerships"
+    },
+    {
+     "body": "Janet Doe at Stripe partnerships.",
+     "href": "https://news.example.com/b",
+     "title": "Unrelated"
+    }
+   ],
+   "\"John Roe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "x",
+     "href": "https://www.linkedin.com/in/john-roe",
+     "title": "John Roe - Partnerships at Stripe | LinkedIn"
+    },
+    {
+     "body": "John Roe works at Stripe in engineering.",
+     "href": "https://twitter.com/johnroe",
+     "title": "John Roe"
+    }
+   ],
+   "\"José Núñez\" \"Stripe\" \"Partnerships\"": [
+    {
+     "body": "José Núñez joined Stripe to head partnerships.",
+     "href": "https://blog.example.org/x",
+     "title": "People"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/1",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/2",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/3",
+     "title": "t"
+    },
+    {
+     "body": "José Núñez - Partnerships at Stripe",
+     "href": "https://a.example.org/4",
+     "title": "t"
+    }
+   ],
+   "\"Kim Koe\" \"Stripe\" \"Partnerships\"": [
+    {
+     "content": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+     "title": "Kim Koe - Partnerships | Stripe",
+     "url": "https://www.linkedin.com/in/kim-koe/"
+    },
+    {
+     "content": "",
+     "title": "Kim Koe - Partnerships | Stripe",
+     "url": ""
+    }
+   ],
+   "\"Pat Poe\" \"Stripe\" \"Partnerships\"": []
+  },
+  "max_people": 15,
+  "people": [
+   {
+    "company_resolution": {
+     "canonical_domain": "stripe.com",
+     "company": "Stripe",
+     "status": "resolved"
+    },
+    "confidence": 0.78,
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   },
+   {
+    "confidence": 0.9,
+    "linkedin_url": "https://www.linkedin.com/in/john-roe",
+    "name": "John Roe",
+    "title": "  Engineer  "
+   }
+  ],
+  "queries": [
+   [
+    "\"Jane Doe\" \"Stripe\" \"Partnerships\"",
+    8
+   ],
+   [
+    "\"John Roe\" \"Stripe\" \"Partnerships\"",
+    8
+   ]
+  ],
+  "result": {
+   "checked_at": "2026-10-28",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "Stripe",
+    "status": "resolved"
+   },
+   "count": 2,
+   "function": "Partnerships",
+   "methodology": "Fresh exact-name/company/function web searches. Independent pages can support a role; LinkedIn-only matches remain profile-level evidence.",
+   "ok": true,
+   "people": [
+    {
+     "checked_at": "2026-10-28",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "status": "resolved"
+     },
+     "confidence": 0.78,
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "title": "Head of Partnerships",
+     "verification_confidence": 0.85,
+     "verification_sources": [
+      {
+       "snippet": "Jane Doe leads partnerships at Stripe.",
+       "source_type": "linkedin_profile",
+       "title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+       "url": "https://www.linkedin.com/in/jane-doe/"
+      },
+      {
+       "snippet": "Stripe appointed Jane Doe as head of partnerships.",
+       "source_type": "independent_web",
+       "title": "Stripe names Jane Doe head of partnerships",
+       "url": "https://news.example.com/a"
+      }
+     ],
+     "verification_status": "independent_role_evidence"
+    },
+    {
+     "checked_at": "2026-10-28",
+     "confidence": 0.9,
+     "linkedin_url": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "person_id": "person_7199c1c6915b8ee789191534",
+     "title": "Engineer",
+     "verification_confidence": 0.9,
+     "verification_sources": [
+      {
+       "snippet": "x",
+       "source_type": "linkedin_profile",
+       "title": "John Roe - Partnerships at Stripe | LinkedIn",
+       "url": "https://www.linkedin.com/in/john-roe"
+      }
+     ],
+     "verification_status": "profile_reconfirmed"
+    }
+   ],
+   "result_set_id": "people_4411f94cf915b91ddc3f8ffc",
+   "summary": {
+    "independent_role_evidence": 1,
+    "not_corroborated": 0,
+    "profile_reconfirmed": 1,
+    "verification_timeout": 0
+   },
+   "warning": "Not corroborated does not prove a person is incorrect; it means fresh supporting evidence was not found."
+  }
+ }
+]
