@@ -152,7 +152,7 @@
     },
     {
       "name": "find_people_at_company",
-      "executor": "python",
+      "executor": "go",
       "dangerous": false,
       "safe": true,
       "schema": {
@@ -199,7 +199,7 @@
     },
     {
       "name": "verify_people_at_company",
-      "executor": "python",
+      "executor": "go",
       "dangerous": false,
       "safe": true,
       "schema": {
@@ -252,7 +252,7 @@
     },
     {
       "name": "enrich_people_contacts",
-      "executor": "python",
+      "executor": "go",
       "dangerous": true,
       "safe": false,
       "schema": {
@@ -290,7 +290,7 @@
     },
     {
       "name": "create_people_workbook",
-      "executor": "python",
+      "executor": "go",
       "dangerous": true,
       "safe": false,
       "schema": {
@@ -429,7 +429,7 @@
     },
     {
       "name": "suggest_outreach",
-      "executor": "python",
+      "executor": "go",
       "dangerous": false,
       "safe": true,
       "schema": {
@@ -843,7 +843,7 @@
     },
     {
       "name": "draft_grounded_outreach",
-      "executor": "python",
+      "executor": "go",
       "dangerous": true,
       "safe": false,
       "schema": {
@@ -885,7 +885,7 @@
     },
     {
       "name": "draft_plan",
-      "executor": "python",
+      "executor": "go",
       "dangerous": false,
       "safe": true,
       "schema": {
@@ -914,7 +914,7 @@
     },
     {
       "name": "execute_plan",
-      "executor": "python",
+      "executor": "go",
       "dangerous": true,
       "safe": false,
       "schema": {
