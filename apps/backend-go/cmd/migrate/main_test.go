@@ -2,8 +2,11 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
 )
 
 func envOf(m map[string]string) func(string) string { return func(k string) string { return m[k] } }
@@ -63,7 +66,11 @@ func TestVersionCommandNeedsNoDatabase(t *testing.T) {
 	if err := run([]string{"version"}, envOf(map[string]string{}), &out); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(out.String(), "latest=1") || !strings.Contains(out.String(), "alembic_baseline=e7b2c4d6f8a0") {
+	latest, err := migrate.LatestVersion()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out.String(), fmt.Sprintf("latest=%d ", latest)) || !strings.Contains(out.String(), "alembic_baseline=e7b2c4d6f8a0") {
 		t.Fatalf("out = %q", out.String())
 	}
 }
