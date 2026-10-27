@@ -420,6 +420,43 @@ func TestLegacyOutreachActionHandsBack(t *testing.T) {
 	}
 }
 
+// C2 / R-dry: a dry run never hands back to Python (whose worker executes dry runs): rules with
+// legacy outreach actions or Python-only re_enrich columns are previewed in Go, nothing runs.
+func TestDryRunNeverHandsBack(t *testing.T) {
+	e := newEnv(t)
+	for i, acts := range []string{
+		`[` + actWH + `,{"type":"send_email","config":{}}]`,
+		`[{"type":"sequencer","config":{}}]`,
+		`[{"type":"re_enrich","config":{"column_ids":["ag"]}}]`,
+	} {
+		e.clean()
+		e.rowIDs = nil
+		e.defaultSeed(trig{Actions: acts})
+		e.workbook(ws1, "wbPy", `[{"id":"ag","name":"Agent","type":"agent"}]`)
+		rec := &recorder{}
+		e.d.Execute = rec.exec
+		c := e.claim(pl(fmt.Sprintf("fk-dry-%d", i), map[string]any{"dry_run": true}))
+		if err := Handle(e.ctx, e.d, c); err != nil {
+			t.Fatalf("%s: %v", acts, err)
+		}
+		if ex, _ := e.job(c.ID); ex == "python" {
+			t.Fatalf("%s: dry run handed back to python", acts)
+		}
+		if len(rec.calls) != 0 {
+			t.Fatalf("%s: dry run executed %d actions", acts, len(rec.calls))
+		}
+		runs := e.runs(ws1)
+		if len(runs) != 1 || runs[0].Status != "dry_run" {
+			t.Fatalf("%s: runs %+v", acts, runs)
+		}
+		for _, r := range e.results(ws1) {
+			if r.Status != "skipped" || r.Skip == nil || *r.Skip != "dry_run" {
+				t.Fatalf("%s: %+v", acts, r)
+			}
+		}
+	}
+}
+
 func TestPythonOnlyColumnReEnrichHandsBack(t *testing.T) {
 	e := newEnv(t)
 	cols := `[{"id":"ag","name":"Agent","type":"agent"},{"id":"ok","type":"waterfall","target_field":"description","waterfall":["research"]},
