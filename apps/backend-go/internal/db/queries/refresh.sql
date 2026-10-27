@@ -94,3 +94,8 @@ UPDATE jobs
 SET payload = (COALESCE(payload::jsonb, '{}'::jsonb)
                || jsonb_build_object('pre_max_id', sqlc.arg(pre_max_id)::int4, 'sources_enqueued', true))::json
 WHERE id = sqlc.arg(id)::int4 AND type = 'refresh_workbook';
+
+-- name: WorkbookWorkspaceByID :one
+-- Owning workspace of a workbook across tenants (SECURITY DEFINER, migration 00002). Only for the fallback that
+-- serves Python-enqueued refresh jobs whose jobs.workspace_id is NULL; removed at cutover.
+SELECT COALESCE(workbook_workspace_by_id(sqlc.arg(workbook_id)::text), '')::text AS workspace_id;

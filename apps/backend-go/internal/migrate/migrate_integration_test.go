@@ -87,6 +87,15 @@ func run(t *testing.T, dsn string) migrate.Result {
 	return res
 }
 
+func latest(t *testing.T) int64 {
+	t.Helper()
+	v, err := migrate.LatestVersion()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return v
+}
+
 func scalar[T any](t *testing.T, p *pgxpool.Pool, q string, args ...any) T {
 	t.Helper()
 	var v T
@@ -99,7 +108,7 @@ func scalar[T any](t *testing.T, p *pgxpool.Pool, q string, args ...any) T {
 func TestRunFreshAppliesBaseline(t *testing.T) {
 	dsn := scratchDB(t)
 	res := run(t, dsn)
-	if res.Adopted || res.From != 0 || res.To != migrate.BaselineVersion || !slices.Contains(res.Applied, migrate.BaselineVersion) {
+	if res.Adopted || res.From != 0 || res.To != latest(t) || !slices.Contains(res.Applied, migrate.BaselineVersion) {
 		t.Fatalf("result %+v", res)
 	}
 	p := openPool(t, dsn)
@@ -133,7 +142,7 @@ func TestRunIsIdempotent(t *testing.T) {
 	dsn := scratchDB(t)
 	run(t, dsn)
 	res := run(t, dsn)
-	if len(res.Applied) != 0 || res.Adopted || res.From != res.To || res.To != migrate.BaselineVersion {
+	if len(res.Applied) != 0 || res.Adopted || res.From != res.To || res.To != latest(t) {
 		t.Fatalf("second run %+v", res)
 	}
 	p := openPool(t, dsn)
@@ -163,7 +172,7 @@ func TestRunAdoptsAlembicHead(t *testing.T) {
 		t.Fatal(err)
 	}
 	res := run(t, dsn)
-	if !res.Adopted || res.To != migrate.BaselineVersion {
+	if !res.Adopted || res.To != latest(t) {
 		t.Fatalf("result %+v", res)
 	}
 	if v := scalar[string](t, p, `SELECT value FROM app_settings WHERE key = 'wp_mig_marker'`); v != "kept" {
@@ -234,8 +243,8 @@ func TestRunConcurrent(t *testing.T) {
 		}
 		total += applied[i]
 	}
-	if total != 1 {
-		t.Fatalf("baseline applied %d times across concurrent runs", total)
+	if want := int(latest(t)); total != want { // versions are consecutive from the baseline: each applied exactly once
+		t.Fatalf("%d migrations applied across concurrent runs, want %d", total, want)
 	}
 	p := openPool(t, dsn)
 	if c := scalar[int](t, p, `SELECT count(*) FROM goose_db_version WHERE version_id = $1`, migrate.BaselineVersion); c != 1 {
@@ -252,10 +261,10 @@ func TestCheckSchema(t *testing.T) {
 		t.Fatalf("unmigrated: err = %v", err)
 	}
 	run(t, dsn)
-	if err := migrate.CheckSchema(ctx, p, migrate.BaselineVersion); err != nil {
+	if err := migrate.CheckSchema(ctx, p, latest(t)); err != nil {
 		t.Fatalf("migrated: %v", err)
 	}
-	err = migrate.CheckSchema(ctx, p, migrate.BaselineVersion+1)
+	err = migrate.CheckSchema(ctx, p, latest(t)+1)
 	if err == nil || !strings.Contains(err.Error(), "below required") {
 		t.Fatalf("behind: err = %v", err)
 	}
