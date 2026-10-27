@@ -469,3 +469,13 @@ func TestSMTPTestLimiterKeysOnAuthenticatedWorkspace(t *testing.T) {
 		t.Fatalf("spoofed workspace header: %d %s", code, body)
 	}
 }
+
+// S-L15: the operator's global relay host and mailbox are not shown to workspace members.
+func TestStatusHidesPlatformHostAndEmail(t *testing.T) {
+	e := newOsmtpEnv(t, nil, nil)
+	osmtpEnvVars = map[string]string{"SMTP_HOST": "smtp.platform.example", "SMTP_EMAIL": "platform@x.co", "SMTP_PASSWORD": "platform-pw"}
+	_, got, body := e.as("alice", "", "GET", "/api/outreach/smtp/status", "")
+	if got["configured"] != true || got["host"] != nil || got["email"] != nil || got["source"] != "platform" || strings.Contains(body, "platform.example") || strings.Contains(body, "platform@x.co") {
+		t.Fatalf("status = %s", body)
+	}
+}

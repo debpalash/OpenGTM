@@ -26,6 +26,9 @@ type SMTP struct {
 	// credentials, or a workspace email or password without the full workspace bundle), or an invalid stored
 	// email; the credentials are withheld and Configured is false.
 	Mixed bool
+	// HostPlatform and EmailPlatform mark values that resolved from the global/env level; they are operator
+	// settings and are not shown to workspace members.
+	HostPlatform, EmailPlatform bool
 }
 
 // Configured mirrors is_smtp_configured.
@@ -121,11 +124,12 @@ func LoadSMTP(ctx context.Context, r *secrets.Resolver, workspaceID string) SMTP
 		email, pw = "", ""
 	}
 	c := SMTP{
-		Host:       host,
-		Port:       g.num("SMTP_PORT", "587"),
-		Email:      email,
-		Password:   config.Secret(pw),
-		Mixed:      mixed,
+		Host:         host,
+		Port:         g.num("SMTP_PORT", "587"),
+		Email:        email,
+		Password:     config.Secret(pw),
+		Mixed:        mixed,
+		HostPlatform: host != "" && !hostWS, EmailPlatform: email != "" && !emailWS,
 		FromName:   g.get("SMTP_FROM_NAME", "OpenGTM"),
 		UseTLS:     g.get("SMTP_USE_TLS", "1") == "1",
 		MaxPerHour: g.num("SMTP_MAX_PER_HOUR", "50"),

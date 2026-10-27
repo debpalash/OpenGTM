@@ -76,6 +76,8 @@ type smtpStatus struct {
 	Email      *string `json:"email"`
 	FromName   string  `json:"from_name"`
 	MaxPerHour int     `json:"max_per_hour"`
+	// Source is "platform" when the host or email is an operator setting that is withheld; absent otherwise.
+	Source string `json:"source,omitempty"`
 }
 
 func nilIfEmpty(s string) *string {
@@ -98,8 +100,15 @@ func (h smtpRoutes) status(w http.ResponseWriter, r *http.Request) {
 	if cfg.Port == 0 { // a failed lookup yields the zero config; Python's SMTPConfig() defaults apply
 		cfg.FromName, cfg.MaxPerHour = "OpenGTM", 50
 	}
-	httpx.WriteJSON(w, http.StatusOK, smtpStatus{Configured: cfg.Configured(), Host: nilIfEmpty(cfg.Host), Email: nilIfEmpty(cfg.Email),
-		FromName: cfg.FromName, MaxPerHour: cfg.MaxPerHour})
+	st := smtpStatus{Configured: cfg.Configured(), Host: nilIfEmpty(cfg.Host), Email: nilIfEmpty(cfg.Email),
+		FromName: cfg.FromName, MaxPerHour: cfg.MaxPerHour}
+	if cfg.HostPlatform { // the operator's relay host and mailbox are not shown to workspace members
+		st.Host, st.Source = nil, "platform"
+	}
+	if cfg.EmailPlatform {
+		st.Email, st.Source = nil, "platform"
+	}
+	httpx.WriteJSON(w, http.StatusOK, st)
 }
 
 func smtpHost(v any, loc []any) (string, *httpx.FieldError) {
