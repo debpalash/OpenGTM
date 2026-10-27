@@ -23,7 +23,7 @@ type EnqueueRunWorkbookJobParams struct {
 	WorkspaceID string
 }
 
-// POST /run: ONE run_workbook job with the planned executor ('go' or 'python'),
+// POST /run: ONE run_workbook job with the planned executor ('go' since the plan 15 cutover),
 // inserted in the same transaction as the debit and the status update.
 func (q *Queries) EnqueueRunWorkbookJob(ctx context.Context, arg EnqueueRunWorkbookJobParams) (int32, error) {
 	row := q.db.QueryRow(ctx, enqueueRunWorkbookJob, arg.Executor, arg.Payload, arg.WorkspaceID)

@@ -55,9 +55,9 @@ func (e *Engine) OnFailure(ctx context.Context, pool *pgxpool.Pool, c *queue.Cla
 	})
 }
 
-// Eligible reports whether the Go worker may run a destination type: it must be listed in
-// GO_DEST_TYPES and deliverable with the wired ports. The worker hands every other row back
-// to Python (queue.HandBack).
+// Eligible reports whether a destination type is listed in goTypes and deliverable with the wired ports.
+// Since the plan 15 cutover GO_DEST_TYPES is permanently every type and the worker checks ports.Supports
+// alone; a type without a port fails permanently.
 func Eligible(destType string, ports destdeliver.Ports, goTypes map[string]bool) bool {
 	return goTypes[destType] && ports.Supports(destType)
 }

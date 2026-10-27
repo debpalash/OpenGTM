@@ -1,5 +1,5 @@
 -- name: EnqueueRunWorkbookJob :one
--- POST /run: ONE run_workbook job with the planned executor ('go' or 'python'),
+-- POST /run: ONE run_workbook job with the planned executor ('go' since the plan 15 cutover),
 -- inserted in the same transaction as the debit and the status update.
 INSERT INTO jobs (executor, type, payload, workspace_id, priority, status,
                   created_at, next_run_at, max_retries, retry_count)

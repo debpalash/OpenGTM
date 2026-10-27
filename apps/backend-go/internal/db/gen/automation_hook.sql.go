@@ -9,23 +9,6 @@ import (
 	"context"
 )
 
-const insertTriggerEvalJob = `-- name: InsertTriggerEvalJob :exec
-INSERT INTO jobs (executor, type, payload, workspace_id, priority, status,
-                  created_at, next_run_at, max_retries, retry_count)
-VALUES ('python', 'trigger_eval', $1::json, $2::text, 1, 'pending',
-        (now() AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'), 3, 0)
-`
-
-type InsertTriggerEvalJobParams struct {
-	Payload     []byte
-	WorkspaceID string
-}
-
-func (q *Queries) InsertTriggerEvalJob(ctx context.Context, arg InsertTriggerEvalJobParams) error {
-	_, err := q.db.Exec(ctx, insertTriggerEvalJob, arg.Payload, arg.WorkspaceID)
-	return err
-}
-
 const listEnabledTriggersByType = `-- name: ListEnabledTriggersByType :many
 
 SELECT id, scope_workbook_ids
