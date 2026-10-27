@@ -75,9 +75,12 @@ type Deps struct {
 	Browser Browser
 	// StaffSpyEnabled is STAFFSPY_ENABLED (default off: LinkedIn ToS).
 	StaffSpyEnabled bool
-	// LinkedInCookies resolves the LinkedIn session for staffspy (li_at and
-	// JSESSIONID) from Go secrets; nil or no li_at leaves staffspy off.
-	LinkedInCookies func(ctx context.Context) ([]browserclient.Cookie, error)
+	// LinkedInCookies resolves the calling workspace's own LinkedIn session for
+	// staffspy (li_at and JSESSIONID) from its workspace secrets — never an
+	// operator / env value (credential rule). The session goes to the browser
+	// service for that one request and is never stored or returned. nil, no
+	// workspace or no li_at leaves staffspy off.
+	LinkedInCookies func(ctx context.Context, ws string) ([]browserclient.Cookie, error)
 	// Sleep is the legacy pacing sleep; nil sleeps for real (ctx-aware).
 	Sleep func(ctx context.Context, d time.Duration) error
 }

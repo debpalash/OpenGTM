@@ -11,6 +11,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/scrape"
+	secretstore "github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
 // Setup is the per-process wiring of the in-process providers.
@@ -56,18 +57,42 @@ func Configure(s Setup) (*Caller, error) {
 	if bc.Configured() {
 		d.Browser = bc
 	}
+	var session func(ctx context.Context, ws string) []string
 	if s.Secrets != nil {
 		sec := s.Secrets
-		d.LinkedInCookies = func(ctx context.Context) ([]browserclient.Cookie, error) {
-			liAt, _, err := sec.Get(ctx, "", "LINKEDIN_LI_AT_COOKIE")
+		// Credential rule: the LinkedIn session is the calling workspace's own secret, sent to
+		// the browser service for that one request; an operator / env / API-served value is
+		// never used (no workspace secret -> staffspy unavailable).
+		wsOnly := func(ctx context.Context, ws, key string) (string, error) {
+			if ws == "" {
+				return "", nil
+			}
+			v, src, err := sec.Get(ctx, ws, key)
+			if err != nil || src != secretstore.SourceWorkspace {
+				return "", err
+			}
+			return v, nil
+		}
+		d.LinkedInCookies = func(ctx context.Context, ws string) ([]browserclient.Cookie, error) {
+			liAt, err := wsOnly(ctx, ws, "LINKEDIN_LI_AT_COOKIE")
 			if err != nil || liAt == "" {
 				return nil, err
 			}
 			cs := []browserclient.Cookie{{Name: "li_at", Value: liAt, Domain: ".linkedin.com", Path: "/", Secure: true, HTTPOnly: true}}
-			if js, _, err := sec.Get(ctx, "", "LINKEDIN_JSESSIONID"); err == nil && js != "" {
+			if js, err := wsOnly(ctx, ws, "LINKEDIN_JSESSIONID"); err == nil && js != "" {
 				cs = append(cs, browserclient.Cookie{Name: "JSESSIONID", Value: js, Domain: ".www.linkedin.com", Path: "/", Secure: true})
 			}
 			return cs, nil
+		}
+		// Every provider-call output and error is scrubbed of the workspace's session values.
+		session = func(ctx context.Context, ws string) []string {
+			var out []string
+			for _, k := range []string{"LINKEDIN_LI_AT_COOKIE", "LINKEDIN_JSESSIONID"} {
+				if v, err := wsOnly(ctx, ws, k); err == nil && v != "" {
+					out = append(out, v)
+				}
+			}
+			return out
 		}
 	}
 	scrape.Configure(d)
@@ -78,5 +103,5 @@ func Configure(s Setup) (*Caller, error) {
 		s.Log.Info("in-process providers on (GO_LOCAL_PROVIDERS)", "browser_service", bc.Configured())
 	}
 	return New(Deps{Py: s.Py, Local: cfg.Local.Enabled, HTTP: egress.NewClientForEnv(s.AppEnv, s.EgressAllow),
-		Secrets: s.Secrets, Log: s.Log}), nil
+		Secrets: s.Secrets, Scrub: session, Log: s.Log}), nil
 }

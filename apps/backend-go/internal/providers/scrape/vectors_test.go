@@ -234,11 +234,11 @@ func runScenario(t *testing.T, sc scenario) (*providers.Obj, []any) {
 	t.Helper()
 	w := &fakeWorld{sc: sc}
 	Configure(Deps{Search: w, Fetch: w, Mail: w, Browser: w, StaffSpyEnabled: true, Sleep: noSleep,
-		LinkedInCookies: func(context.Context) ([]browserclient.Cookie, error) {
+		LinkedInCookies: func(context.Context, string) ([]browserclient.Cookie, error) {
 			return []browserclient.Cookie{{Name: "li_at", Value: "x", Domain: ".linkedin.com"}}, nil
 		}})
 	client := &http.Client{Transport: w}
-	ctx := context.Background()
+	ctx := providers.WithWorkspace(context.Background(), "ws-vectors") // staffspy needs the calling workspace
 	if rpc, ok := RPCs()[sc.Provider]; ok {
 		out, err := rpc(ctx, client, sc.Input)
 		if err != nil {

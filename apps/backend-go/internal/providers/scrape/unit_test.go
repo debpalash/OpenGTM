@@ -209,7 +209,7 @@ func TestStaffSpyOffWithoutOptIn(t *testing.T) {
 		t.Errorf("%q", out.Error)
 	}
 	Configure(Deps{Browser: &renderFake{}, StaffSpyEnabled: true,
-		LinkedInCookies: func(context.Context) ([]browserclient.Cookie, error) { return nil, nil }})
+		LinkedInCookies: func(context.Context, string) ([]browserclient.Cookie, error) { return nil, nil }})
 	if out, _ := (staffSpy{}).Enrich(context.Background(), nil, nil, in); out.Error != staffspyUnavailable {
 		t.Errorf("no li_at: %q", out.Error)
 	}

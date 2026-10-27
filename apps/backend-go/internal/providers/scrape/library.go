@@ -89,9 +89,15 @@ type staffSpy struct{ gated }
 func (staffSpy) Name() string { return "staffspy" }
 
 // staffspyUnavailable replaces the legacy message (STAFFSPY_SESSION_FILE and
-// pip install no longer apply: the session is a Go secret, the library runs
-// in the browser service).
-const staffspyUnavailable = "staffspy_unavailable (opt in: STAFFSPY_ENABLED=1 + LINKEDIN_LI_AT_COOKIE + BROWSER_STAFFSPY_ENABLED on the browser service; LinkedIn ToS applies)"
+// pip install no longer apply: the session is the workspace's own secret, the
+// library runs in the browser service).
+const staffspyUnavailable = "staffspy_unavailable (opt in: STAFFSPY_ENABLED=1 + the workspace's own LINKEDIN_LI_AT_COOKIE secret + BROWSER_STAFFSPY_ENABLED on the browser service; LinkedIn ToS applies)"
+
+// staffspyCodes are the browser service's staffspy result codes; anything else
+// (free text that could echo request data) reads as "failed".
+var staffspyCodes = map[string]bool{"login_failed": true, "rate_limited": true, "failed": true}
+
+var codeRe = regexp.MustCompile(`^[a-z0-9_]{1,40}$`)
 
 func (staffSpy) Enrich(ctx context.Context, _ *http.Client, _ func() (string, error), in providers.Input) (providers.Output, error) {
 	company := ls(in.Lead, "company")
@@ -99,21 +105,32 @@ func (staffSpy) Enrich(ctx context.Context, _ *http.Client, _ func() (string, er
 		return fail(in, "no_company"), nil
 	}
 	d := current()
-	if !d.StaffSpyEnabled || d.Browser == nil || d.LinkedInCookies == nil {
+	ws := providers.WorkspaceFrom(ctx)
+	if !d.StaffSpyEnabled || d.Browser == nil || d.LinkedInCookies == nil || ws == "" {
 		return fail(in, staffspyUnavailable), nil
 	}
-	cookies, err := d.LinkedInCookies(ctx)
+	cookies, err := d.LinkedInCookies(ctx, ws)
 	if err != nil {
-		return providers.Output{}, err
+		return providers.Output{}, errors.New("staffspy: linkedin session lookup failed")
 	}
 	hasLiAt := false
+	var session []string
 	for _, c := range cookies {
 		if c.Name == "li_at" && c.Value != "" {
 			hasLiAt = true
 		}
+		if len(c.Value) >= 4 {
+			session = append(session, c.Value)
+		}
 	}
 	if !hasLiAt {
 		return fail(in, staffspyUnavailable), nil
+	}
+	scrub := func(v string) string {
+		for _, sec := range session {
+			v = strings.ReplaceAll(v, sec, "[redacted]")
+		}
+		return v
 	}
 	const maxResults = 25
 	res, err := d.Browser.StaffSpy(ctx, browserclient.StaffSpyRequest{CompanyName: company,
@@ -122,15 +139,24 @@ func (staffSpy) Enrich(ctx context.Context, _ *http.Client, _ func() (string, er
 		if cerr := ctx.Err(); cerr != nil {
 			return providers.Output{}, cerr
 		}
-		return fail(in, "staffspy failed: "+browserCode(err)), nil
+		code := browserCode(err)
+		if !codeRe.MatchString(code) {
+			code = "unavailable"
+		}
+		return fail(in, "staffspy failed: "+code), nil
 	}
 	if res.Error != "" && res.Error != "no_staff_found" {
-		return fail(in, res.Error), nil
+		code := res.Error
+		if !staffspyCodes[code] {
+			code = "failed"
+		}
+		return fail(in, "staffspy failed: "+code), nil
 	}
 	var roster []browserclient.StaffRow
 	for _, r := range res.Staff {
 		if strings.TrimSpace(r.Name) != "" {
-			roster = append(roster, r)
+			roster = append(roster, browserclient.StaffRow{Name: scrub(r.Name), Title: scrub(r.Title),
+				LinkedIn: scrub(r.LinkedIn), Location: scrub(r.Location)})
 		}
 	}
 	if len(roster) == 0 {
