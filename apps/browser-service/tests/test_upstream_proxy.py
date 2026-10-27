@@ -33,7 +33,9 @@ def _auth(session):
 
 
 async def _proxy(table, allow=LOOPBACK):
-    p = EgressProxy(EgressPolicy(allow_cidrs=allow, resolver=_resolver(table)), header_timeout=2, idle_timeout=2)
+    p = EgressProxy(
+        EgressPolicy(allow_cidrs=allow, resolver=_resolver(table), ports=None), header_timeout=2, idle_timeout=2
+    )
     await p.start()
     return p
 
@@ -269,3 +271,16 @@ def test_session_repr_hides_upstream():
     s = EgressProxy(EgressPolicy()).open_session(10, upstream=parse_upstream("http://u:secretpw@1.2.3.4:8080"))
     assert "secretpw" not in repr(s)
     assert isinstance(s.upstream, UpstreamProxy)
+
+
+async def test_upstream_proxy_port_is_not_limited_to_web_ports():
+    up = await FakeUpstream("socks5").start()
+    p = EgressProxy(EgressPolicy(allow_cidrs=LOOPBACK, resolver=_resolver({"site.test": ["127.0.0.7"]})))
+    await p.start()
+    try:
+        s = p.open_session(1 << 20, upstream=parse_upstream(f"socks5://127.0.0.1:{up.port}"))
+        out = await _send(p, _connect(s, "site.test:443", b"ping"))
+        assert out.endswith(b"pong")
+    finally:
+        await p.close()
+        await up.close()

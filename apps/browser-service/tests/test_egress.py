@@ -112,7 +112,44 @@ def test_check_url_rejects(url):
 
 def test_check_url_accepts_public_names():
     assert EgressPolicy().check_url("https://Example.com/a?b=1") == ("example.com", 443)
-    assert EgressPolicy().check_url("http://example.com:8080/") == ("example.com", 8080)
+    assert EgressPolicy(ports=None).check_url("http://example.com:8080/") == ("example.com", 8080)
+
+
+# review L2: only web ports unless configured
+
+
+@pytest.mark.parametrize("url", ["http://example.com:8080/", "https://example.com:22/", "http://example.com:6379/"])
+def test_check_url_refuses_non_web_ports_by_default(url):
+    with pytest.raises(BlockedError):
+        EgressPolicy().check_url(url)
+    assert EgressPolicy(ports=frozenset({8080, 22, 6379})).check_url(url)[1] in (8080, 22, 6379)
+
+
+async def test_proxy_refuses_non_web_ports():
+    p = EgressProxy(EgressPolicy(allow_cidrs=LOOPBACK, resolver=_resolver({"site.test": ["127.0.0.5"]})))
+    await p.start()
+    try:
+        s = p.open_session(1 << 20)
+        for target in ("site.test:22", "site.test:6379", "site.test:8443"):
+            out = await _send(p, f"CONNECT {target} HTTP/1.1\r\nProxy-Authorization: {_auth(s)}\r\n\r\n".encode())
+            assert out.startswith(b"HTTP/1.1 403"), target
+        out = await _send(p, f"GET http://site.test:25/ HTTP/1.1\r\nProxy-Authorization: {_auth(s)}\r\n\r\n".encode())
+        assert out.startswith(b"HTTP/1.1 403")
+    finally:
+        await p.close()
+
+
+def test_egress_ports_setting():
+    from browser_service.config import ConfigError, Settings
+
+    tok = {"BROWSER_SERVICE_TOKEN": "t" * 40}
+    assert Settings.from_env(tok).egress_ports == frozenset({80, 443})
+    assert Settings.from_env({**tok, "BROWSER_EGRESS_PORTS": "80, 443,8443"}).egress_ports == frozenset({80, 443, 8443})
+    for bad in ("0", "x", "70000", ""):
+        if bad == "":
+            continue
+        with pytest.raises(ConfigError):
+            Settings.from_env({**tok, "BROWSER_EGRESS_PORTS": bad})
 
 
 def _resolver(table, calls=None):
@@ -183,7 +220,9 @@ def _auth(session):
 
 async def _proxy(table, calls=None):
     p = EgressProxy(
-        EgressPolicy(allow_cidrs=LOOPBACK, resolver=_resolver(table, calls)), header_timeout=2, idle_timeout=2
+        EgressPolicy(allow_cidrs=LOOPBACK, resolver=_resolver(table, calls), ports=None),
+        header_timeout=2,
+        idle_timeout=2,
     )
     await p.start()
     return p

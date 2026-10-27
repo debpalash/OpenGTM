@@ -111,7 +111,7 @@ async def client(servers):
     async def resolve(host, port):
         return table[host]
 
-    policy = EgressPolicy(allow_cidrs=[ipaddress.ip_network("127.0.0.1/32")], resolver=resolve)
+    policy = EgressPolicy(allow_cidrs=[ipaddress.ip_network("127.0.0.1/32")], resolver=resolve, ports=None)
     app = create_app(make_settings(max_timeout_s=60.0), policy=policy)
     cm = app.router.lifespan_context(app)
     await cm.__aenter__()
