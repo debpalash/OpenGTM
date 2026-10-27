@@ -1,0 +1,10084 @@
+[
+ {
+  "fn": "full",
+  "company": "",
+  "in": {},
+  "ok": false,
+  "reason": "empty_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "",
+  "in": {},
+  "ok": false,
+  "reason": "empty_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "empty_name",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "empty_name",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "empty_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "1234567890",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "empty_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "1234567890",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": " ",
+  "in": {},
+  "ok": false,
+  "reason": "empty_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": " ",
+  "in": {},
+  "ok": false,
+  "reason": "empty_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": " ",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "empty_name",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": " ",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "empty_name",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": " ",
+  "in": {},
+  "ok": false,
+  "reason": "empty_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": " ",
+  "in": {},
+  "ok": false,
+  "reason": "empty_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "A",
+  "in": {},
+  "ok": false,
+  "reason": "name_too_short",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "A",
+  "in": {},
+  "ok": false,
+  "reason": "name_too_short",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "A",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "name_too_short",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "A",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "name_too_short",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "A",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "name_too_short",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "A",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "name_too_short",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ab",
+  "in": {},
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ab",
+  "in": {},
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ab",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ab",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ab",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ab",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Acme",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Acme",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Acme",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Acme",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Acme",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Acme",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Acme Technologies Pvt Ltd",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Acme Technologies Pvt Ltd",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Acme Technologies Pvt Ltd",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Acme Technologies Pvt Ltd",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Acme Technologies Pvt Ltd",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Acme Technologies Pvt Ltd",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Top 10 Staffing Firms",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Top 10 Staffing Firms",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Top 10 Staffing Firms",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Top 10 Staffing Firms",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Top 10 Staffing Firms",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Top 10 Staffing Firms",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "best 5 agencies",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "best 5 agencies",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "best 5 agencies",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "best 5 agencies",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "best 5 agencies",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "best 5 agencies",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "20 Best Companies",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "20 Best Companies",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "20 Best Companies",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "20 Best Companies",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "20 Best Companies",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "20 Best Companies",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "The Ultimate Guide",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "The Ultimate Guide",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "The Ultimate Guide",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "The Ultimate Guide",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "The Ultimate Guide",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "The Ultimate Guide",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Updated 2024 list",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Updated 2024 list",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Updated 2024 list",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Updated 2024 list",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Updated 2024 list",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Updated 2024 list",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Firms 2026",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Firms 2026",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Firms 2026",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Firms 2026",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Firms 2026",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Firms 2026",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "How to hire",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "How to hire",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "How to hire",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "light",
+  "company": "How to hire",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "full",
+  "company": "How to hire",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "How to hire",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "What is RPO",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "What is RPO",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "What is RPO",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "What is RPO",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "What is RPO",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "What is RPO",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Discover the best",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Discover the best",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Discover the best",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Discover the best",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Discover the best",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Discover the best",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Complete list of vendors",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Complete list of vendors",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Complete list of vendors",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Complete list of vendors",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Complete list of vendors",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Complete list of vendors",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "List of firms",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "List of firms",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "List of firms",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "List of firms",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "List of firms",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "List of firms",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Companies that use SAP",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Companies that use SAP",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Companies that use SAP",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Companies that use SAP",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Companies that use SAP",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Companies that use SAP",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Websites using React",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Websites using React",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Websites using React",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Websites using React",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Websites using React",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Websites using React",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Customers of Workday",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Customers of Workday",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Customers of Workday",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Customers of Workday",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Customers of Workday",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Customers of Workday",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Working at Infosys",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Working at Infosys",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Working at Infosys",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Working at Infosys",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Working at Infosys",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "1234567890",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Working at Infosys",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "1234567890",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Jobs at TCS",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Jobs at TCS",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Jobs at TCS",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Jobs at TCS",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Jobs at TCS",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Jobs at TCS",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "results",
+  "in": {},
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "results",
+  "in": {},
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "results",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "1234567890",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "results",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "1234567890",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "results",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "results",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Contact Us",
+  "in": {},
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Contact Us",
+  "in": {},
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Contact Us",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Contact Us",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Contact Us",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Contact Us",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "staffing agency",
+  "in": {},
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "staffing agency",
+  "in": {},
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "staffing agency",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "staffing agency",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "staffing agency",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "staffing agency",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "IT Solutions",
+  "in": {},
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "IT Solutions",
+  "in": {},
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "IT Solutions",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "IT Solutions",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "IT Solutions",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "IT Solutions",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "placeholder_name",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Clutch",
+  "in": {},
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Clutch",
+  "in": {},
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Clutch",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Clutch",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Clutch",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Clutch",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Good Firms",
+  "in": {},
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Good Firms",
+  "in": {},
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Good Firms",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Good Firms",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Good Firms",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Good Firms",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "goodfirms",
+  "in": {},
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "goodfirms",
+  "in": {},
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "goodfirms",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "goodfirms",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "goodfirms",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "goodfirms",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "The Manifest",
+  "in": {},
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "The Manifest",
+  "in": {},
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "The Manifest",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "light",
+  "company": "The Manifest",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "full",
+  "company": "The Manifest",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "light",
+  "company": "The Manifest",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "full",
+  "company": "LinkedIn",
+  "in": {},
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "LinkedIn",
+  "in": {},
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "LinkedIn",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "LinkedIn",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "LinkedIn",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "LinkedIn",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "publisher_name",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "IT Services in Mumbai",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "IT Services in Mumbai",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "IT Services in Mumbai",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "IT Services in Mumbai",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "IT Services in Mumbai",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "IT Services in Mumbai",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Best HR firms in Pune",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Best HR firms in Pune",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Best HR firms in Pune",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Best HR firms in Pune",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Best HR firms in Pune",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Best HR firms in Pune",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Staffing companies in Delhi",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Staffing companies in Delhi",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Staffing companies in Delhi",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Staffing companies in Delhi",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Staffing companies in Delhi",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Staffing companies in Delhi",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Find HR Consultants",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Find HR Consultants",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Find HR Consultants",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Find HR Consultants",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Find HR Consultants",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Find HR Consultants",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Looking for staff",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Looking for staff",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Looking for staff",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Looking for staff",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Looking for staff",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Looking for staff",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Hire Top Developers",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Hire Top Developers",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Hire Top Developers",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Hire Top Developers",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Hire Top Developers",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Hire Top Developers",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Free Classifieds India",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Free Classifieds India",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Free Classifieds India",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Free Classifieds India",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Free Classifieds India",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Free Classifieds India",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ads in Mumbai",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ads in Mumbai",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ads in Mumbai",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ads in Mumbai",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ads in Mumbai",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ads in Mumbai",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "All Companies",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "All Companies",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "All Companies",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "1234567890",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "All Companies",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "1234567890",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "All Companies",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "All Companies",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Page 3",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Page 3",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Page 3",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Page 3",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Page 3",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Page 3",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Multi Recruit",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Multi Recruit",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Multi Recruit",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Multi Recruit",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Multi Recruit",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "1234567890",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Multi Recruit",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "1234567890",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Verified Suppliers",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Verified Suppliers",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Verified Suppliers",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Verified Suppliers",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Verified Suppliers",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Verified Suppliers",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "52 Bangalore Based Staffing Agency Companies",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "52 Bangalore Based Staffing Agency Companies",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "52 Bangalore Based Staffing Agency Companies",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "52 Bangalore Based Staffing Agency Companies",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "52 Bangalore Based Staffing Agency Companies",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "52 Bangalore Based Staffing Agency Companies",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Business directory",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Business directory",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Business directory",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Business directory",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Business directory",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Business directory",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR consulting service Mumbai",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR consulting service Mumbai",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR consulting service Mumbai",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR consulting service Mumbai",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR consulting service Mumbai",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR consulting service Mumbai",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "IT staffing & recruiting partners",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "IT staffing & recruiting partners",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "IT staffing & recruiting partners",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "light",
+  "company": "IT staffing & recruiting partners",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "full",
+  "company": "IT staffing & recruiting partners",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "IT staffing & recruiting partners",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "example.com/",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "example.com/",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "example.com/",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "example.com/",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "example.com/",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "example.com/",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "IT Staffing Companies/Agencies",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "IT Staffing Companies/Agencies",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "IT Staffing Companies/Agencies",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "IT Staffing Companies/Agencies",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "IT Staffing Companies/Agencies",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "IT Staffing Companies/Agencies",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR Outsourcing - SiteName",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR Outsourcing - SiteName",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR Outsourcing - SiteName",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR Outsourcing - SiteName",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR Outsourcing - SiteName",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR Outsourcing - SiteName",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR solutions india",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR solutions india",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR solutions india",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR solutions india",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR solutions india",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR solutions india",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Staffing agency in Pune",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Staffing agency in Pune",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Staffing agency in Pune",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Staffing agency in Pune",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Staffing agency in Pune",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Staffing agency in Pune",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Need a plumber",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Need a plumber",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Need a plumber",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Need a plumber",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Need a plumber",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Need a plumber",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Compare quotes",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Compare quotes",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Compare quotes",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Compare quotes",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Compare quotes",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Compare quotes",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Reviews of TCS",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Reviews of TCS",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Reviews of TCS",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Reviews of TCS",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Reviews of TCS",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Reviews of TCS",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Next",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Next",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Next",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Next",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Next",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Next",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "show more",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "show more",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "show more",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "1234567890",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "show more",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "1234567890",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "show more",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "show more",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "acme.com",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "acme.com",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "acme.com",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "acme.com",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "acme.com",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "acme.com",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Staffing in Bangalore",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Staffing in Bangalore",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Staffing in Bangalore",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Staffing in Bangalore",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Staffing in Bangalore",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Staffing in Bangalore",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR Consultancy in Mumbai",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR Consultancy in Mumbai",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR Consultancy in Mumbai",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR Consultancy in Mumbai",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR Consultancy in Mumbai",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR Consultancy in Mumbai",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Manpower services in Delhi",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Manpower services in Delhi",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Manpower services in Delhi",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Manpower services in Delhi",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Manpower services in Delhi",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Manpower services in Delhi",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR Consulting & Career Choice in Bangalore",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR Consulting & Career Choice in Bangalore",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR Consulting & Career Choice in Bangalore",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR Consulting & Career Choice in Bangalore",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HR Consulting & Career Choice in Bangalore",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HR Consulting & Career Choice in Bangalore",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Acme Corp |",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Acme Corp |",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Acme Corp |",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Acme Corp |",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Acme Corp |",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Acme Corp |",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Steel Manufacturers Suppliers",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Steel Manufacturers Suppliers",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Steel Manufacturers Suppliers",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Steel Manufacturers Suppliers",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Steel Manufacturers Suppliers",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Steel Manufacturers Suppliers",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Recruitment agency companies",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Recruitment agency companies",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Recruitment agency companies",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Recruitment agency companies",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Recruitment agency companies",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Recruitment agency companies",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Sales Executive",
+  "in": {},
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Sales Executive",
+  "in": {},
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Sales Executive",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Sales Executive",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Sales Executive",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Sales Executive",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Managing Director",
+  "in": {},
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Managing Director",
+  "in": {},
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Managing Director",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Managing Director",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Managing Director",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Managing Director",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Bing",
+  "in": {},
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Bing",
+  "in": {},
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Bing",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Bing",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "  https://B.co/path  ",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Bing",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Bing",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "G Mail",
+  "in": {},
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "G Mail",
+  "in": {},
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "G Mail",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "G Mail",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "G Mail",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "G Mail",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "16000000000000",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "gmail",
+  "in": {},
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "gmail",
+  "in": {},
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "gmail",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "gmail",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "sales@clutch.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "gmail",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "gmail",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "search_or_email_brand",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "12",
+  "in": {},
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "12",
+  "in": {},
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "12",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "12",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "logo@2x.png",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "12",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "12",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "1 2 3 ab",
+  "in": {},
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "1 2 3 ab",
+  "in": {},
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "1 2 3 ab",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "1 2 3 ab",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "1 2 3 ab",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "1 2 3 ab",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "insufficient_alpha_chars",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Big Bold Amazing Fantastic Wonderful Company Name Ltd",
+  "in": {},
+  "ok": false,
+  "reason": "likely_headline",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Big Bold Amazing Fantastic Wonderful Company Name Ltd",
+  "in": {},
+  "ok": false,
+  "reason": "likely_headline",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Big Bold Amazing Fantastic Wonderful Company Name Ltd",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "likely_headline",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Big Bold Amazing Fantastic Wonderful Company Name Ltd",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "likely_headline",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Big Bold Amazing Fantastic Wonderful Company Name Ltd",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "likely_headline",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Big Bold Amazing Fantastic Wonderful Company Name Ltd",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "likely_headline",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Big Bold Amazing Fantastic Wonderful",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Big Bold Amazing Fantastic Wonderful",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Big Bold Amazing Fantastic Wonderful",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Big Bold Amazing Fantastic Wonderful",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Big Bold Amazing Fantastic Wonderful",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Big Bold Amazing Fantastic Wonderful",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "in": {},
+  "ok": false,
+  "reason": "name_too_long_likely_headline",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "in": {},
+  "ok": false,
+  "reason": "name_too_long_likely_headline",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "name_too_long_likely_headline",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "name_too_long_likely_headline",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "name_too_long_likely_headline",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "name_too_long_likely_headline",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Café Société",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Café Société",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Café Société",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Café Société",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Café Société",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Café Société",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ünïcode Systems",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ünïcode Systems",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ünïcode Systems",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ünïcode Systems",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ünïcode Systems",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ünïcode Systems",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Teamlease",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Teamlease",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Teamlease",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Teamlease",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Teamlease",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "https://acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Teamlease",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "https://acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Quess",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Quess",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Quess",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Quess",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Quess",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Quess",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "ABC Consultants",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "ABC Consultants",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "ABC Consultants",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "ABC Consultants",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "ABC Consultants",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "ABC Consultants",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Top Notch Consulting",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Top Notch Consulting",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Top Notch Consulting",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Top Notch Consulting",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Top Notch Consulting",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "https://acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Top Notch Consulting",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "https://acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Desktop10",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Desktop10",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Desktop10",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://N",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Desktop10",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://N",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Desktop10",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Desktop10",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Café 2024",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Café 2024",
+  "in": {},
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Café 2024",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Café 2024",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Café 2024",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Café 2024",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "article_title_pattern",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "http://sub.linkedin.com/company/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "SAP Experts In India",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "SAP Experts In India",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "SAP Experts In India",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "SAP Experts In India",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io?x=1#y",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "SAP Experts In India",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "SAP Experts In India",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Mphasis",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Mphasis",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Mphasis",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://B.co",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Mphasis",
+  "in": {
+   "email": "a@b.co",
+   "website": "  https://B.co/path  "
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "a@b.co",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://B.co",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Mphasis",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Mphasis",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Infosys Ltd.",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Infosys Ltd.",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Infosys Ltd.",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Infosys Ltd.",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Infosys Ltd.",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Infosys Ltd.",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Zoho Corporation",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Zoho Corporation",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Zoho Corporation",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Zoho Corporation",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Zoho Corporation",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Zoho Corporation",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Freshworks Inc",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Freshworks Inc",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Freshworks Inc",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Freshworks Inc",
+  "in": {
+   "email": "logo@2x.png"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Freshworks Inc",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Freshworks Inc",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Head",
+  "in": {},
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Head",
+  "in": {},
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Head",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Head",
+  "in": {
+   "email": "hr@other.com",
+   "website": "acme.in"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "hr@other.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Head",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Head",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com/about/team",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Team Lead",
+  "in": {},
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Team Lead",
+  "in": {},
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Team Lead",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Team Lead",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Team Lead",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Team Lead",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": false,
+  "reason": "job_title_not_company",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "N/A",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Acme Lead Gen Co",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Acme Lead Gen Co",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Acme Lead Gen Co",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Acme Lead Gen Co",
+  "in": {
+   "phone": "1234567890"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Acme Lead Gen Co",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Acme Lead Gen Co",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "The Hindu",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "The Hindu",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "The Hindu",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "The Hindu",
+  "in": {
+   "phone": "+1 415 555 0100"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+1 415 555 0100",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "The Hindu",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "The Hindu",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "AI-driven HR",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "AI-driven HR",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "AI-driven HR",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "AI-driven HR",
+  "in": {
+   "phone": "+971 4 123 4567"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "+971 4 123 4567",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "AI-driven HR",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "AI-driven HR",
+  "in": {
+   "email": "owner@gmail.com",
+   "website": "https://acme.in"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "owner@gmail.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.in",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Tata Consultancy Services",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Tata Consultancy Services",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Tata Consultancy Services",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Tata Consultancy Services",
+  "in": {
+   "phone": "16000000000000"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Tata Consultancy Services",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "https://acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Tata Consultancy Services",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "https://acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Wipro;",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Wipro;",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Wipro;",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Wipro;",
+  "in": {
+   "phone": " 080 4123 4567 "
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": " 080 4123 4567 ",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Wipro;",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Wipro;",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HCL:",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HCL:",
+  "in": {},
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HCL:",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HCL:",
+  "in": {
+   "website": "https://www.glassdoor.co.in/Reviews/x"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.glassdoor.co.in/Reviews/x",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "HCL:",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "HCL:",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": false,
+  "reason": "generic_service_title",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Bharat Forge",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Bharat Forge",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Bharat Forge",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Bharat Forge",
+  "in": {
+   "website": "http://sub.linkedin.com/company/x"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Bharat Forge",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Bharat Forge",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ola Electric",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ola Electric",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ola Electric",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ola Electric",
+  "in": {
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": "https://www.linkedin.com/company/acme"
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ola Electric",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ola Electric",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Paytm (One97 Communications)",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Paytm (One97 Communications)",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Paytm (One97 Communications)",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://N",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Paytm (One97 Communications)",
+  "in": {
+   "website": "N/A"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://N",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Paytm (One97 Communications)",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Paytm (One97 Communications)",
+  "in": {
+   "email": "info@acme.com",
+   "website": "https://www.acme.com/about/team"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "info@acme.com",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://www.acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ninja Head Hunters",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ninja Head Hunters",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ninja Head Hunters",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "https://acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ninja Head Hunters",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "https://acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Ninja Head Hunters",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "https://acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Ninja Head Hunters",
+  "in": {
+   "email": "x@acme.com",
+   "website": "acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "x@acme.com",
+   "email_confidence": "pattern",
+   "email_provider": "hunter",
+   "phone": "",
+   "website": "https://acme.com",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Agency of Record",
+  "in": {},
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Agency of Record",
+  "in": {},
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Agency of Record",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Agency of Record",
+  "in": {
+   "email": "nobody",
+   "website": "https://acme.io?x=1#y"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "nobody",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "https://acme.io",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "full",
+  "company": "Agency of Record",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": false,
+  "reason": "no_contact_data",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ },
+ {
+  "fn": "light",
+  "company": "Agency of Record",
+  "in": {
+   "email": "sales@clutch.co"
+  },
+  "ok": true,
+  "reason": "",
+  "out": {
+   "email": "",
+   "email_confidence": "",
+   "email_provider": "",
+   "phone": "",
+   "website": "",
+   "linkedin_url": ""
+  }
+ }
+]
