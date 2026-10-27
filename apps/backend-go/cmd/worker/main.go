@@ -458,6 +458,7 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 	for typ, h := range leadgenHandlers(cfg, pool, log, pyRPC, leadgenOpts{}) {
 		handlers[typ] = h
 	}
+	registerSourcewb(handlers, pool, log, prog, emitter, localSecrets)
 	route := dispatch(handlers)
 	return func(ctx context.Context, c *queue.Claim) error {
 		if block > 0 {
