@@ -9,7 +9,21 @@ import { twentyCss } from "./config/twenty-css"
 const apiTarget = process.env.VITE_API_TARGET || "http://127.0.0.1:3000"
 
 export default defineConfig({
-  build: { manifest: true },
+  build: {
+    manifest: true,
+    rolldownOptions: {
+      output: {
+        // Long-lived vendor chunks: cached across app releases and each well under the 500 kB warning.
+        codeSplitting: {
+          groups: [
+            { name: "vendor-react", test: /node_modules[\\/](react|react-dom|scheduler|react-router|react-router-dom)[\\/]/, priority: 30 },
+            { name: "vendor-ui", test: /node_modules[\\/](@base-ui|@floating-ui|lucide-react|sonner|cmdk|class-variance-authority|tailwind-merge|clsx)[\\/]/, priority: 20 },
+            { name: "vendor-data", test: /node_modules[\\/]@tanstack[\\/]/, priority: 20 },
+          ],
+        },
+      },
+    },
+  },
   plugins: [react(), tailwindcss()],
   css: { postcss: { plugins: [twentyCss()] } },
   resolve: {
