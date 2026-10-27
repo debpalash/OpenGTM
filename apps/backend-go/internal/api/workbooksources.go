@@ -12,10 +12,11 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/runplan"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/sourcewb"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
@@ -29,10 +30,10 @@ const (
 )
 
 // registerWorkbookSources registers POST .../sources and POST .../sources/{col_id}/run
-// (routers/workbooks.py add_source_column and run_source_column), both require_editor.
-// GET .../sources/{col_id}/preview stays on FastAPI (decision D6); the scrapers run in
-// the Python worker, so the run route only enqueues a source_workbook job with
-// executor 'python'.
+// (routers/workbooks.py add_source_column and run_source_column), both require_editor,
+// and, with GO_SOURCE_PREVIEW_ENABLED, GET .../sources/{col_id}/preview
+// (preview_source_column, any workspace member). The run route enqueues a source_workbook
+// job; its executor is 'go' only for the GO_EXECUTOR_SOURCE_WORKBOOK cohort (plan 15).
 func registerWorkbookSources(r *httpx.Router, d Deps) {
 	if d.Pool == nil {
 		return
@@ -47,6 +48,9 @@ func registerWorkbookSources(r *httpx.Router, d Deps) {
 		run = append(run, d.Limiter.Limit("20/minute")) // @limiter.limit("20/minute"): after the auth dependencies
 	}
 	r.Handle("POST /api/workbooks/{workbook_id}/sources/{col_id}/run", http.HandlerFunc(h.run), run...)
+	if config.SourceWbFrom(d.getenv()).PreviewEnabled {
+		r.Handle("GET /api/workbooks/{workbook_id}/sources/{col_id}/preview", http.HandlerFunc(h.preview), authn, workspace)
+	}
 }
 
 type sourceRoutes struct {
@@ -165,16 +169,41 @@ func stringsToAny(in []string) []any {
 	return out
 }
 
-// sourceJobPayload is the source_workbook payload (Python's add_job argument, key order kept).
-type sourceJobPayload struct {
-	WorkbookID  string `json:"workbook_id"`
-	ColumnID    string `json:"column_id"`
-	WorkspaceID string `json:"workspace_id"`
+// sourceColumn finds the workbook's `source` column (404 "Source column not found").
+func sourceColumn(wb wbcrud.Workbook, colID string) (wbcrud.Column, error) {
+	for _, c := range wb.Columns {
+		if id, _ := c.Get("id").(string); id == colID {
+			if ty, _ := c.Get("type").(string); ty == "source" {
+				return c, nil
+			}
+		}
+	}
+	return wbcrud.Column{}, &wbcrud.GuardError{Status: http.StatusNotFound, Detail: "Source column not found"}
 }
 
-// run is run_source_column: find the `source` column (404 "Source column not found")
-// and enqueue source_workbook for the Python worker (executor 'python'; no debit and
-// no status change, as in Python).
+// preview is preview_source_column: the query that would run and the sources it would
+// hit (people_search: the companies/searches a run would use). No write, no network.
+func (h sourceRoutes) preview(w http.ResponseWriter, r *http.Request) {
+	wc, _ := identity.WorkspaceFrom(r.Context())
+	ws, wbID, colID := wc.WorkspaceID, r.PathValue("workbook_id"), r.PathValue("col_id")
+	var col wbcrud.Column
+	err := h.svc.WithTx(r.Context(), ws, func(tx pgx.Tx) error {
+		wb, err := h.svc.Owned(r.Context(), tx, ws, wbID, false)
+		if err != nil {
+			return err
+		}
+		col, err = sourceColumn(wb, colID)
+		return err
+	})
+	if err != nil {
+		h.fail(w, "preview", err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, sourcewb.Preview(col))
+}
+
+// run is run_source_column: find the `source` column and enqueue source_workbook (no
+// debit and no status change, as in Python); the executor follows the cohort flags.
 func (h sourceRoutes) run(w http.ResponseWriter, r *http.Request) {
 	wc, _ := identity.WorkspaceFrom(r.Context())
 	ws, wbID, colID := wc.WorkspaceID, r.PathValue("workbook_id"), r.PathValue("col_id")
@@ -183,20 +212,10 @@ func (h sourceRoutes) run(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return err
 		}
-		found := false
-		for _, c := range wb.Columns {
-			if id, _ := c.Get("id").(string); id == colID {
-				if ty, _ := c.Get("type").(string); ty == "source" {
-					found = true
-					break
-				}
-			}
+		if _, err := sourceColumn(wb, colID); err != nil {
+			return err
 		}
-		if !found {
-			return &wbcrud.GuardError{Status: http.StatusNotFound, Detail: "Source column not found"}
-		}
-		_, err = queue.Enqueue(r.Context(), tx, "source_workbook", ws,
-			sourceJobPayload{WorkbookID: wbID, ColumnID: colID, WorkspaceID: ws}, "")
+		_, err = sourcewb.Enqueue(r.Context(), tx, ws, wbID, colID, config.SourceWorkbookExecutor(h.d.getenv(), ws))
 		return err
 	})
 	if err != nil {
