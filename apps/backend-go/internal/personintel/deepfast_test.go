@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
 )
 
 func deepHTTP(t *testing.T, urls []string) *http.Client {
@@ -19,25 +19,25 @@ func deepHTTP(t *testing.T, urls []string) *http.Client {
 	return withPipelineStubs(t, func(rw http.ResponseWriter, r *http.Request) { _, _ = rw.Write([]byte(ddgHTMLFor(urls))) })
 }
 
-func okCaller() *fakeCaller {
-	return &fakeCaller{fn: func(context.Context, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
-		return okOutput("from python", []string{"py@acme.io"}, 2), nil
+func okRenderer() *fakeRenderer {
+	return &fakeRenderer{fn: func(context.Context, browserclient.RenderRequest) (browserclient.RenderResult, error) {
+		return renderedPage("<p>rendered by the browser br@acme.io</p>"), nil
 	}}
 }
 
-func TestDeepFastPathScrapesInGoWithoutPython(t *testing.T) {
+func TestDeepFastPathScrapesInGoWithoutBrowser(t *testing.T) {
 	fastDeep(t)
 	c := deepHTTP(t, manyURLs(3))
-	fc := okCaller()
+	fc := okRenderer()
 	fetch := func(context.Context, string) ([]byte, error) {
 		return []byte(`<html><head><title>x</title><script>var a="evil@bad.io"</script></head><body><h1>Jane Doe</h1><p>Mail jane@acme.io today</p><style>p{}</style></body></html>`), nil
 	}
-	p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: fetch}, "https://www.linkedin.com/in/jane-doe", true, nil)
+	p, err := Enrich(context.Background(), Deps{HTTP: c, Browser: fc, Fetch: fetch}, "https://www.linkedin.com/in/jane-doe", true, nil)
 	if err != nil || p.Status != "completed" {
 		t.Fatalf("%q %v", p.Status, err)
 	}
 	if len(fc.calls) != 0 {
-		t.Fatalf("python called %d times for fetchable pages", len(fc.calls))
+		t.Fatalf("browser called %d times for fetchable pages", len(fc.calls))
 	}
 	if !contains(p.Emails, "jane@acme.io") || contains(p.Emails, "evil@bad.io") {
 		t.Fatalf("emails %v", p.Emails)
@@ -56,47 +56,51 @@ func TestDeepFastPathScrapesInGoWithoutPython(t *testing.T) {
 	}
 }
 
-func TestDeepJSWallFallsBackToPythonOnlyForVettedURL(t *testing.T) {
+func TestDeepJSWallRendersInBrowserOnlyForVettedURL(t *testing.T) {
 	fastDeep(t)
 	c := deepHTTP(t, manyURLs(2))
-	fc := okCaller()
+	fc := okRenderer()
 	wall := func(context.Context, string) ([]byte, error) {
 		return []byte(`<html><body>Please enable JavaScript to continue</body></html>`), nil
 	}
-	if _, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: wall}, "https://www.linkedin.com/in/jane-doe", true, nil); err != nil {
+	p, err := Enrich(context.Background(), Deps{HTTP: c, Browser: fc, Fetch: wall}, "https://www.linkedin.com/in/jane-doe", true, nil)
+	if err != nil {
 		t.Fatal(err)
 	}
 	if len(fc.calls) != 2 {
-		t.Fatalf("js-wall pages should reach python, calls %d", len(fc.calls))
+		t.Fatalf("js-wall pages should reach the browser service, calls %d", len(fc.calls))
+	}
+	if !contains(p.Emails, "br@acme.io") || contains(p.Emails, "evil@bad.io") {
+		t.Fatalf("rendered page emails %v", p.Emails)
 	}
 }
 
-func TestDeepBlockedURLsNeverFetchedNorSentToPython(t *testing.T) {
+func TestDeepBlockedURLsNeverFetchedNorRendered(t *testing.T) {
 	fastDeep(t)
 	urls := []string{"http://169.254.169.254/latest", "http://127.0.0.1:8080/x", "https://user:pw@site.example.org/p", "https://site.example.org:6379/p", "http://[::1]/", "ftp://site.example.org/x"}
 	c := deepHTTP(t, urls)
-	fc := okCaller()
+	fc := okRenderer()
 	var fetched atomic.Int32
 	fetch := func(context.Context, string) ([]byte, error) {
 		fetched.Add(1)
 		return []byte(`<body>enable javascript</body>`), nil
 	}
 	r := &recorder{}
-	if _, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: fetch}, "https://www.linkedin.com/in/jane-doe", true, r.notify); err != nil {
+	if _, err := Enrich(context.Background(), Deps{HTTP: c, Browser: fc, Fetch: fetch}, "https://www.linkedin.com/in/jane-doe", true, r.notify); err != nil {
 		t.Fatal(err)
 	}
 	if len(fc.calls) != 0 || fetched.Load() != 0 {
-		t.Fatalf("blocked urls leaked: python %d fetch %d (calls %v)", len(fc.calls), fetched.Load(), fc.calls)
+		t.Fatalf("blocked urls leaked: browser %d fetch %d (calls %v)", len(fc.calls), fetched.Load(), fc.calls)
 	}
 }
 
-func TestDeepFetchErrorSkipsPageWithoutPython(t *testing.T) {
+func TestDeepFetchErrorSkipsPageWithoutBrowser(t *testing.T) {
 	fastDeep(t)
 	c := deepHTTP(t, manyURLs(2))
-	fc := okCaller()
+	fc := okRenderer()
 	fetch := func(context.Context, string) ([]byte, error) { return nil, errors.New("boom") }
 	r := &recorder{}
-	p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: fetch}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
+	p, err := Enrich(context.Background(), Deps{HTTP: c, Browser: fc, Fetch: fetch}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
 	if err != nil || p.Status != "completed" || len(fc.calls) != 0 {
 		t.Fatalf("%q %v calls %d", p.Status, err, len(fc.calls))
 	}

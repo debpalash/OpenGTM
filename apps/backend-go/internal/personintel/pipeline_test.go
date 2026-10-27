@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
 )
 
 type event struct {
@@ -196,22 +196,22 @@ func normJSON(t *testing.T, s string) string {
 	return b.String()
 }
 
-type fakeCaller struct {
+// fakeRenderer is the browser service's /v1/render.
+type fakeRenderer struct {
 	mu    sync.Mutex
-	calls []pyworker.ProviderCall
-	fn    func(ctx context.Context, c pyworker.ProviderCall) (pyworker.ProviderResult, error)
+	calls []browserclient.RenderRequest
+	fn    func(ctx context.Context, req browserclient.RenderRequest) (browserclient.RenderResult, error)
 }
 
-func (f *fakeCaller) Call(ctx context.Context, c pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+func (f *fakeRenderer) Render(ctx context.Context, req browserclient.RenderRequest) (browserclient.RenderResult, error) {
 	f.mu.Lock()
-	f.calls = append(f.calls, c)
+	f.calls = append(f.calls, req)
 	f.mu.Unlock()
-	return f.fn(ctx, c)
+	return f.fn(ctx, req)
 }
 
-func okOutput(preview string, emails []string, words int) pyworker.ProviderResult {
-	b, _ := json.Marshal(map[string]any{"success": true, "preview_text": preview, "extracted_emails": emails, "word_count": words, "error": nil})
-	return pyworker.ProviderResult{Status: "ok", Output: b}
+func renderedPage(body string) browserclient.RenderResult {
+	return browserclient.RenderResult{Status: 200, HTML: "<html><head><script>var x='evil@bad.io'</script></head><body>" + body + "</body></html>"}
 }
 
 func manyURLs(n int) []string {
@@ -229,15 +229,16 @@ func fastDeep(t *testing.T) {
 	t.Cleanup(func() { deepDelay = old })
 }
 
-// Without a worker the deep phase still runs in Go; only JavaScript-wall pages are skipped.
-func TestDeepWithoutPyWorkerSkipsOnlyJSWallPages(t *testing.T) {
+// Without a browser service the deep phase still runs in Go; only JavaScript-wall pages are skipped.
+func TestDeepWithoutBrowserSkipsOnlyJSWallPages(t *testing.T) {
 	html := recordedDDGHTML(t)
-	for name, w := range map[string]Caller{"nil interface": nil, "nil client": (*pyworker.Client)(nil)} {
+	for name, b := range map[string]Renderer{"nil interface": nil, "nil client": (*browserclient.Client)(nil),
+		"unconfigured client": browserclient.New("", "", nil)} {
 		t.Run(name, func(t *testing.T) {
 			fastDeep(t)
 			c := withPipelineStubs(t, func(rw http.ResponseWriter, r *http.Request) { _, _ = rw.Write([]byte(html)) })
 			r := &recorder{}
-			p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: w, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
+			p, err := Enrich(context.Background(), Deps{HTTP: c, Browser: b, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
 			if err != nil || p.Status != "completed" {
 				t.Fatalf("%q %v", p.Status, err)
 			}
@@ -248,18 +249,38 @@ func TestDeepWithoutPyWorkerSkipsOnlyJSWallPages(t *testing.T) {
 	}
 }
 
-func TestDeepUnavailableWhenWorkerRejects(t *testing.T) {
-	for _, e := range []error{pyworker.ErrUnavailable, pyworker.ErrUnknownProvider, pyworker.ErrUnauthorized} {
+// A browser service that is down or misconfigured ends the deep phase with deep_unavailable; a page it cannot
+// load is only skipped.
+func TestDeepUnavailableWhenBrowserRejects(t *testing.T) {
+	for _, e := range []error{browserclient.ErrUnavailable, browserclient.ErrUnauthorized, browserclient.ErrBrowserUnavailable,
+		browserclient.ErrEngineUnavailable} {
 		fastDeep(t)
 		c := withPipelineStubs(t, func(rw http.ResponseWriter, r *http.Request) { _, _ = rw.Write([]byte(ddgHTMLFor(manyURLs(5)))) })
-		fc := &fakeCaller{fn: func(context.Context, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
-			return pyworker.ProviderResult{}, e
+		fr := &fakeRenderer{fn: func(context.Context, browserclient.RenderRequest) (browserclient.RenderResult, error) {
+			return browserclient.RenderResult{}, e
 		}}
 		r := &recorder{}
-		p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
-		if err != nil || p.Status != "completed" || r.count("deep_unavailable") != 1 || len(fc.calls) != 1 {
-			t.Fatalf("%v: status %q err %v calls %d steps %v", e, p.Status, err, len(fc.calls), r.steps())
+		p, err := Enrich(context.Background(), Deps{HTTP: c, Browser: fr, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
+		if err != nil || p.Status != "completed" || r.count("deep_unavailable") != 1 || len(fr.calls) != 1 {
+			t.Fatalf("%v: status %q err %v calls %d steps %v", e, p.Status, err, len(fr.calls), r.steps())
 		}
+		for _, ev := range r.ev {
+			if ev.step == "deep_unavailable" && ev.data["message"] != "Deep scraping unavailable: browser service not reachable" {
+				t.Fatalf("message %v", ev.data)
+			}
+		}
+	}
+	fastDeep(t)
+	c := withPipelineStubs(t, func(rw http.ResponseWriter, r *http.Request) { _, _ = rw.Write([]byte(ddgHTMLFor(manyURLs(3)))) })
+	fr := &fakeRenderer{fn: func(context.Context, browserclient.RenderRequest) (browserclient.RenderResult, error) {
+		return browserclient.RenderResult{}, browserclient.ErrNavigation
+	}}
+	r := &recorder{}
+	if _, err := Enrich(context.Background(), Deps{HTTP: c, Browser: fr, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify); err != nil {
+		t.Fatal(err)
+	}
+	if r.count("deep_unavailable") != 0 || len(fr.calls) != 3 {
+		t.Fatalf("navigation failures skip pages: calls %d steps %v", len(fr.calls), r.steps())
 	}
 }
 
@@ -268,25 +289,21 @@ func TestDeepBoundedAndCancelled(t *testing.T) {
 		fastDeep(t)
 		urls := append([]string{"https://www.linkedin.com/in/x", "https://google.com/q", "https://duckduckgo.com/x"}, manyURLs(14)...)
 		c := withPipelineStubs(t, func(rw http.ResponseWriter, r *http.Request) { _, _ = rw.Write([]byte(ddgHTMLFor(urls))) })
-		fc := &fakeCaller{fn: func(_ context.Context, call pyworker.ProviderCall) (pyworker.ProviderResult, error) {
-			return okOutput(strings.Repeat("é", 1500), []string{"jane@acme.io", "not an email", "x@" + strings.Repeat("a", 400) + ".io"}, 7), nil
+		fr := &fakeRenderer{fn: func(context.Context, browserclient.RenderRequest) (browserclient.RenderResult, error) {
+			return renderedPage("<p>" + strings.Repeat("é", 1500) + "</p><p>jane@acme.io not an email x@" + strings.Repeat("a", 400) + ".io</p>"), nil
 		}}
 		r := &recorder{}
-		p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: jsWall, WorkspaceID: "ws1"}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
+		p, err := Enrich(context.Background(), Deps{HTTP: c, Browser: fr, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
 		if err != nil || p.Status != "completed" {
 			t.Fatalf("%q %v", p.Status, err)
 		}
-		if len(fc.calls) != 10 || r.count("scrape_progress") != 10 {
-			t.Fatalf("calls %d progress %d", len(fc.calls), r.count("scrape_progress"))
+		if len(fr.calls) != 10 || r.count("scrape_progress") != 10 {
+			t.Fatalf("calls %d progress %d", len(fr.calls), r.count("scrape_progress"))
 		}
 		seen := map[string]bool{}
-		for _, call := range fc.calls {
-			var in map[string]string
-			if err := json.Unmarshal(call.Input, &in); err != nil || len(in) != 1 {
-				t.Fatalf("input %s", call.Input)
-			}
-			u := in["url"]
-			if call.Provider != "person_intel_deep" || call.WorkspaceID != "ws1" || call.CallID == "" || seen[u] || strings.Contains(u, "linkedin.com") || strings.Contains(u, "google.com") || strings.Contains(u, "duckduckgo.com") {
+		for _, call := range fr.calls {
+			u := call.URL
+			if !call.IncludeHTML || call.MaxBytes <= 0 || call.Timeout <= 0 || seen[u] || strings.Contains(u, "linkedin.com") || strings.Contains(u, "google.com") || strings.Contains(u, "duckduckgo.com") {
 				t.Fatalf("bad call %+v", call)
 			}
 			seen[u] = true
@@ -298,7 +315,7 @@ func TestDeepBoundedAndCancelled(t *testing.T) {
 		for _, s := range p.RawSources {
 			if s.ScrapedText != "" {
 				scraped++
-				if n := len([]rune(s.ScrapedText)); n != 1000 || s.ScrapedWordCount != 7 || len(s.ScrapedEmails) != 1 {
+				if n := len([]rune(s.ScrapedText)); n != 1000 || s.ScrapedWordCount != 7 || len(s.ScrapedEmails) != 1 || strings.Contains(s.ScrapedText, "evil") {
 					t.Fatalf("scraped fields %d %d %v", n, s.ScrapedWordCount, s.ScrapedEmails)
 				}
 			}
@@ -325,15 +342,15 @@ func TestDeepBoundedAndCancelled(t *testing.T) {
 		deepBudget = 80 * time.Millisecond
 		t.Cleanup(func() { deepBudget = old })
 		c := withPipelineStubs(t, func(rw http.ResponseWriter, r *http.Request) { _, _ = rw.Write([]byte(ddgHTMLFor(manyURLs(6)))) })
-		fc := &fakeCaller{fn: func(ctx context.Context, _ pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+		fr := &fakeRenderer{fn: func(ctx context.Context, _ browserclient.RenderRequest) (browserclient.RenderResult, error) {
 			<-ctx.Done()
-			return pyworker.ProviderResult{}, ctx.Err()
+			return browserclient.RenderResult{}, ctx.Err()
 		}}
 		r := &recorder{}
 		start := time.Now()
-		p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
-		if err != nil || p.Status != "completed" || time.Since(start) > 5*time.Second || len(fc.calls) != 1 || r.count("completed") != 1 {
-			t.Fatalf("%q %v calls %d", p.Status, err, len(fc.calls))
+		p, err := Enrich(context.Background(), Deps{HTTP: c, Browser: fr, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
+		if err != nil || p.Status != "completed" || time.Since(start) > 5*time.Second || len(fr.calls) != 1 || r.count("completed") != 1 {
+			t.Fatalf("%q %v calls %d", p.Status, err, len(fr.calls))
 		}
 	})
 
@@ -342,15 +359,15 @@ func TestDeepBoundedAndCancelled(t *testing.T) {
 		c := withPipelineStubs(t, func(rw http.ResponseWriter, r *http.Request) { _, _ = rw.Write([]byte(ddgHTMLFor(manyURLs(6)))) })
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		fc := &fakeCaller{fn: func(ctx context.Context, _ pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+		fr := &fakeRenderer{fn: func(ctx context.Context, _ browserclient.RenderRequest) (browserclient.RenderResult, error) {
 			cancel()
 			<-ctx.Done()
-			return pyworker.ProviderResult{}, ctx.Err()
+			return browserclient.RenderResult{}, ctx.Err()
 		}}
 		r := &recorder{}
-		_, err := Enrich(ctx, Deps{HTTP: c, PyWorker: fc, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
-		if err == nil || ctx.Err() == nil || len(fc.calls) != 1 || r.count("completed") != 0 {
-			t.Fatalf("err %v calls %d steps %v", err, len(fc.calls), r.steps())
+		_, err := Enrich(ctx, Deps{HTTP: c, Browser: fr, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, r.notify)
+		if err == nil || ctx.Err() == nil || len(fr.calls) != 1 || r.count("completed") != 0 {
+			t.Fatalf("err %v calls %d steps %v", err, len(fr.calls), r.steps())
 		}
 	})
 }
@@ -410,35 +427,13 @@ func TestDeepKeepsPageFinishingAtBudgetExpiry(t *testing.T) {
 	deepBudget = 50 * time.Millisecond
 	t.Cleanup(func() { deepBudget = old })
 	c := withPipelineStubs(t, func(rw http.ResponseWriter, r *http.Request) { _, _ = rw.Write([]byte(ddgHTMLFor(manyURLs(3)))) })
-	fc := &fakeCaller{fn: func(ctx context.Context, _ pyworker.ProviderCall) (pyworker.ProviderResult, error) {
+	fc := &fakeRenderer{fn: func(ctx context.Context, _ browserclient.RenderRequest) (browserclient.RenderResult, error) {
 		<-ctx.Done() // the answer lands as the budget expires
-		return okOutput("late page", []string{"late@acme.io"}, 3), nil
+		return renderedPage("<p>late page late@acme.io</p>"), nil
 	}}
-	p, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, nil)
+	p, err := Enrich(context.Background(), Deps{HTTP: c, Browser: fc, Fetch: jsWall}, "https://www.linkedin.com/in/jane-doe", true, nil)
 	if err != nil || len(fc.calls) != 1 || !contains(p.Emails, "late@acme.io") {
 		t.Fatalf("err %v calls %d emails %v", err, len(fc.calls), p.Emails)
 	}
 }
 
-// The Python worker rejects an empty workspace_id with 422 (Field(min_length=1)), which silently skipped every
-// deep page: an unset Deps.WorkspaceID must still send a non-empty id, and a given one is sent as is.
-func TestDeepScrapeCarriesWorkspace(t *testing.T) {
-	for _, tc := range []struct{ in, want string }{{"", DefaultWorkspaceID}, {"ws-alpha", "ws-alpha"}} {
-		fastDeep(t)
-		c := withPipelineStubs(t, func(rw http.ResponseWriter, r *http.Request) { _, _ = rw.Write([]byte(ddgHTMLFor(manyURLs(2)))) })
-		fc := &fakeCaller{fn: func(context.Context, pyworker.ProviderCall) (pyworker.ProviderResult, error) {
-			return okOutput("t", nil, 1), nil
-		}}
-		if _, err := Enrich(context.Background(), Deps{HTTP: c, PyWorker: fc, Fetch: jsWall, WorkspaceID: tc.in}, "https://www.linkedin.com/in/jane-doe", true, nil); err != nil {
-			t.Fatal(err)
-		}
-		if len(fc.calls) == 0 {
-			t.Fatal("no deep calls")
-		}
-		for _, call := range fc.calls {
-			if call.WorkspaceID != tc.want || call.WorkspaceID == "" {
-				t.Errorf("workspace_id %q, want %q", call.WorkspaceID, tc.want)
-			}
-		}
-	}
-}
