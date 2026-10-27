@@ -6,7 +6,9 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5"
 
@@ -25,10 +27,9 @@ const maxAutoRunBody = 1 << 20
 var autoRunNow = func() time.Time { return time.Now().UTC() }
 
 // manualDryRun is the one place that decides what a manual run's dry_run request means
-// for the enqueued job. Python parity (a product decision is pending): the flag is
-// passed through, and the worker still executes the actions on a dry run while it
-// persists nothing. Flipping to a side-effect-free dry run is a change here (force the
-// flag on the payload) together with the single dry-run branch in autoengine.
+// for the enqueued job. A dry run is preview-only (S-H1): the flag goes on the payload
+// and the engine then executes, reserves, debits and sends nothing, writing only
+// skipped/dry_run result rows. Python executed the actions on a dry run; that was a bug.
 func manualDryRun(requested bool) bool { return requested }
 
 // registerAutomationsRun registers the automations preview, manual run and run
@@ -55,6 +56,10 @@ type autoRunRoutes struct {
 	d   Deps
 	svc *autosvc.Service
 }
+
+// badPathID reports an id Postgres cannot store (NUL, invalid UTF-8), which can match
+// no row: the route answers 404 before any query (F13) instead of a 500.
+func badPathID(id string) bool { return strings.ContainsRune(id, 0) || !utf8.ValidString(id) }
 
 // disabled answers 404 `automations disabled` (Python _require_enabled) after the
 // request has been validated.
@@ -162,6 +167,10 @@ func (h autoRunRoutes) readBody(w http.ResponseWriter, r *http.Request, preview 
 func (h autoRunRoutes) preview(w http.ResponseWriter, r *http.Request) {
 	wc, _ := identity.WorkspaceFrom(r.Context())
 	ws, id := wc.WorkspaceID, r.PathValue("trigger_id")
+	if badPathID(id) {
+		httpx.Detail(w, http.StatusNotFound, "trigger not found")
+		return
+	}
 	body, ok := h.readBody(w, r, true)
 	if !ok || h.disabled(w) {
 		return
@@ -187,8 +196,19 @@ func (h autoRunRoutes) preview(w http.ResponseWriter, r *http.Request) {
 func (h autoRunRoutes) run(w http.ResponseWriter, r *http.Request) {
 	wc, _ := identity.WorkspaceFrom(r.Context())
 	ws, id := wc.WorkspaceID, r.PathValue("trigger_id")
+	if badPathID(id) {
+		httpx.Detail(w, http.StatusNotFound, "trigger not found")
+		return
+	}
 	body, ok := h.readBody(w, r, false)
 	if !ok || h.disabled(w) {
+		return
+	}
+	// S-L4: explicit targets are bounded by the per-evaluation row cap.
+	if max := h.d.Flags.Automations.MaxRowsPerEval; max > 0 && len(body.rowIDs) > max {
+		httpx.ValidationError(w, httpx.FieldError{Type: "too_long", Loc: []any{"body", "row_ids"},
+			Msg:   fmt.Sprintf("List should have at most %d items after validation, not %d", max, len(body.rowIDs)),
+			Input: nil, Ctx: map[string]any{"field_type": "List", "max_length": max, "actual_length": len(body.rowIDs)}})
 		return
 	}
 	dry := manualDryRun(body.dryRun)
@@ -214,6 +234,10 @@ func (h autoRunRoutes) run(w http.ResponseWriter, r *http.Request) {
 func (h autoRunRoutes) runs(w http.ResponseWriter, r *http.Request) {
 	wc, _ := identity.WorkspaceFrom(r.Context())
 	ws, id := wc.WorkspaceID, r.PathValue("trigger_id")
+	if badPathID(id) {
+		httpx.Detail(w, http.StatusNotFound, "trigger not found")
+		return
+	}
 	def, le := int64(50), int64(200)
 	limit, ferr := wbcrud.QueryInt(r.URL.Query(), "limit", &def, nil, &le)
 	if ferr != nil {
@@ -234,6 +258,10 @@ func (h autoRunRoutes) runs(w http.ResponseWriter, r *http.Request) {
 // runDetail is GET /runs/{run_id}: the run and its action results by id.
 func (h autoRunRoutes) runDetail(w http.ResponseWriter, r *http.Request) {
 	wc, _ := identity.WorkspaceFrom(r.Context())
+	if badPathID(r.PathValue("run_id")) {
+		httpx.Detail(w, http.StatusNotFound, "run not found")
+		return
+	}
 	if h.disabled(w) {
 		return
 	}

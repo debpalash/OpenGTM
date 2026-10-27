@@ -167,7 +167,9 @@ func (e arunEnv) replay(t *testing.T, name string, opts ...contract.Option) {
 // arunPython500 are recorded Python crashes that Go answers as defined results (D4): non-numeric
 // row ids are dropped, a negative history limit is a 422. They have their own tests.
 var arunPython500 = map[string]bool{"preview_ids_nonnumeric": true, "preview_ids_mixed_nonnumeric": true,
-	"run_ids_nonnumeric": true, "runs_limit_negative": true}
+	"run_ids_nonnumeric": true, "runs_limit_negative": true,
+	// S-L4: Python previewed a row of a workbook outside the rule's scope; Go drops it.
+	"preview_ids_other_workbook": true}
 
 func arunNames(t *testing.T, prefixes ...string) []string {
 	t.Helper()
@@ -346,7 +348,14 @@ func TestPreviewForeignRowsDropped(t *testing.T) {
 
 func TestPreviewTemplateErrorShape(t *testing.T) {
 	e := newArunEnv(t, true, nil)
-	// wb-auto-2 has no `website` column: the webhook body of trg-a-01 cannot resolve there.
+	// wb-auto-2 has no `website` column: the webhook body of trg-a-01 cannot resolve there. The rule is
+	// scoped to wb-auto-1 (an out-of-scope target is dropped, S-L4), so widen the scope first.
+	if err := tenancy.InWorkspace(context.Background(), e.pool, "ws-alpha", func(tx pgx.Tx) error {
+		_, err := tx.Exec(context.Background(), `UPDATE triggers SET scope_workbook_ids='[]'::json WHERE id='trg-a-01'`)
+		return err
+	}); err != nil {
+		t.Fatal(err)
+	}
 	r := e.call("alice", "", "POST", "/api/automations/triggers/trg-a-01/preview", `{"row_ids":["3011"]}`)
 	_, sample := arunMatched(t, r)
 	if len(sample) != 1 {
@@ -550,5 +559,48 @@ func TestDisabledFlag404(t *testing.T) {
 	}
 	for _, n := range []string{"off_automations_preview", "off_automations_run", "off_automations_runs", "off_automations_run_detail", "off_automations_run_member_403_first"} {
 		e.replay(t, n)
+	}
+}
+
+// S-L4: more explicit targets than MaxRowsPerEval is a 422 too_long.
+func TestRunTargetsOverCapAre422(t *testing.T) {
+	e := newArunEnv(t, true, nil)
+	ids := make([]string, 501)
+	for i := range ids {
+		ids[i] = fmt.Sprint(i + 1)
+	}
+	b, _ := json.Marshal(map[string]any{"row_ids": ids})
+	r := e.call("alice", "", "POST", "/api/automations/triggers/trg-a-01/run", string(b))
+	if r.Status != 422 || !strings.Contains(string(r.Body), `"too_long"`) {
+		t.Fatalf("%d %s", r.Status, r.Body)
+	}
+	b, _ = json.Marshal(map[string]any{"row_ids": ids[:500]})
+	if r := e.call("alice", "", "POST", "/api/automations/triggers/trg-a-01/run", string(b)); r.Status != 200 {
+		t.Fatalf("%d %s", r.Status, r.Body)
+	}
+}
+
+// F13: a NUL or invalid UTF-8 id is a 404, never a 500.
+func TestRunRoutesNULIDs404(t *testing.T) {
+	e := newArunEnv(t, true, nil)
+	for _, c := range []struct{ method, path, body string }{
+		{"POST", "/api/automations/triggers/a%00b/preview", `{}`},
+		{"POST", "/api/automations/triggers/a%00b/run", `{}`},
+		{"GET", "/api/automations/triggers/a%00b/runs", ""},
+		{"GET", "/api/automations/runs/a%00b", ""},
+		{"GET", "/api/automations/runs/a%ffb", ""},
+	} {
+		if r := e.call("alice", "", c.method, c.path, c.body); r.Status != 404 {
+			t.Errorf("%s %s: %d %s", c.method, c.path, r.Status, r.Body)
+		}
+	}
+}
+
+// S-L4: a target outside the rule's scope_workbook_ids is not previewed (and so never run).
+func TestPreviewTargetOutsideScopeDropped(t *testing.T) {
+	e := newArunEnv(t, true, nil)
+	r := e.call("alice", "", "POST", "/api/automations/triggers/trg-a-01/preview", `{"row_ids":["3011"]}`)
+	if m, sample := arunMatched(t, r); m != 0 || len(sample) != 0 {
+		t.Fatalf("%s", r.Body)
 	}
 }
