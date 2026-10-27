@@ -1,0 +1,41 @@
+{
+ "method": "GET",
+ "path": "/v1/stats",
+ "request": null,
+ "response": {
+  "active": 0,
+  "capacity": 4,
+  "egress": {
+   "blocked": 0,
+   "sessions": 3,
+   "upstream_failed": 0
+  },
+  "ops": {
+   "extract": {
+    "calls": 2,
+    "errors": {},
+    "ok": 2
+   },
+   "holehe": {
+    "calls": 1,
+    "errors": {},
+    "ok": 1
+   },
+   "search": {
+    "calls": 2,
+    "errors": {},
+    "ok": 2
+   },
+   "staffspy": {
+    "calls": 1,
+    "errors": {},
+    "ok": 1
+   }
+  },
+  "searches": {
+   "rate_limited": 1
+  },
+  "version": "0.1.0"
+ },
+ "status": 200
+}

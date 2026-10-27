@@ -1,0 +1,33 @@
+{
+ "method": "POST",
+ "path": "/v1/holehe",
+ "request": {
+  "email": "jane@acme.example"
+ },
+ "response": {
+  "email": "jane@acme.example",
+  "errors": 0,
+  "exists_on": [
+   "twitter"
+  ],
+  "partial": false,
+  "sites": [
+   {
+    "domain": "twitter.com",
+    "exists": true,
+    "method": "register",
+    "name": "twitter",
+    "rate_limited": false
+   },
+   {
+    "domain": "spotify.com",
+    "exists": false,
+    "method": "register",
+    "name": "spotify",
+    "rate_limited": true
+   }
+  ],
+  "total_checked": 2
+ },
+ "status": 200
+}
