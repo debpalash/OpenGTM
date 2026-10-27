@@ -37,7 +37,8 @@ import secrets
 import socket
 from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass, field
-from urllib.parse import urlsplit
+import struct
+from urllib.parse import unquote, urlsplit
 
 logger = logging.getLogger("browser_service.egress")
 
@@ -208,6 +209,47 @@ async def _system_resolve(host: str, port: int) -> list[str]:
     return [str(info[4][0]) for info in infos]
 
 
+@dataclass(frozen=True, eq=False)
+class UpstreamProxy:
+    """An upstream proxy the caller (Go) chose for one request (PROXY_LIST /
+    proxy manager). Held only in the request's session; never logged."""
+
+    scheme: str  # "http" | "socks5" | "socks4"
+    host: str
+    port: int
+    username: str | None = None
+    password: str | None = None
+
+    def __repr__(self) -> str:  # never print the credentials
+        return f"UpstreamProxy(scheme={self.scheme!r}, auth={'yes' if self.username else 'no'})"
+
+    __str__ = __repr__
+
+
+_UPSTREAM_SCHEMES = {"http": "http", "socks5": "socks5", "socks5h": "socks5", "socks4": "socks4", "socks4a": "socks4"}
+
+
+def parse_upstream(url: str) -> UpstreamProxy:
+    """Parse ``scheme://[user:pass@]host:port``. Raises ValueError (the message
+    never contains the URL)."""
+    try:
+        parts = urlsplit((url or "").strip())
+        port = parts.port
+    except ValueError as e:
+        raise ValueError("invalid upstream proxy") from e
+    scheme = _UPSTREAM_SCHEMES.get((parts.scheme or "").lower())
+    host = parts.hostname or ""
+    if scheme is None or not host or not port or parts.path not in ("", "/") or parts.query:
+        raise ValueError("invalid upstream proxy")
+    user = unquote(parts.username) if parts.username else None
+    pw = unquote(parts.password) if parts.password is not None else None
+    return UpstreamProxy(scheme=scheme, host=host, port=port, username=user, password=pw)
+
+
+class UpstreamError(Exception):
+    """The upstream proxy refused or failed the handshake."""
+
+
 @dataclass(eq=False)
 class EgressSession:
     """Proxy credentials and accounting for one API request."""
@@ -219,13 +261,15 @@ class EgressSession:
     bytes_in: int = 0
     over_limit: bool = False
     closed: bool = False
+    upstream: UpstreamProxy | None = field(default=None, repr=False)
+    upstream_failed: bool = False
     _tasks: set[asyncio.Task] = field(default_factory=set, repr=False)
 
     def record_blocked(self, host: str) -> None:
         if len(self.blocked) < 50:
             self.blocked.append(host)
 
-    def __repr__(self) -> str:  # never print the secret
+    def __repr__(self) -> str:  # never print the secret or the upstream credentials
         return f"EgressSession(sid={self.sid!r}, blocked={len(self.blocked)}, bytes_in={self.bytes_in})"
 
 
@@ -284,8 +328,10 @@ class EgressProxy:
         """Loopback URL with the session's credentials (in-process clients)."""
         return f"http://{session.sid}:{session.secret}@{self._local_host()}:{self.port}"
 
-    def open_session(self, max_bytes: int) -> EgressSession:
-        s = EgressSession(sid="s" + secrets.token_hex(8), secret=secrets.token_urlsafe(24), max_bytes=max_bytes)
+    def open_session(self, max_bytes: int, upstream: UpstreamProxy | None = None) -> EgressSession:
+        s = EgressSession(
+            sid="s" + secrets.token_hex(8), secret=secrets.token_urlsafe(24), max_bytes=max_bytes, upstream=upstream
+        )
         self._sessions[s.sid] = s
         return s
 
@@ -399,12 +445,49 @@ class EgressProxy:
         except ResolveError:
             await _reply(writer, 502, "Bad Gateway", extra=[(EGRESS_HEADER, "unresolved")])
             return None
+        if session.upstream is not None:
+            return await self._dial_upstream(session, writer, session.upstream, ips, port)
         for ip in ips:  # pinned: connect to the vetted addresses only
             try:
                 return await asyncio.wait_for(asyncio.open_connection(ip, port), self.connect_timeout)
             except (OSError, TimeoutError):
                 continue
         await _reply(writer, 502, "Bad Gateway", extra=[(EGRESS_HEADER, "unreachable")])
+        return None
+
+    async def _dial_upstream(
+        self, session: EgressSession, writer: asyncio.StreamWriter, up: UpstreamProxy, ips: list[str], port: int
+    ):
+        """Tunnel to one of the vetted target IPs through the caller's upstream
+        proxy. The upstream itself is vetted by the same policy (a private or
+        metadata proxy address is refused) and is asked for the pinned IP, never
+        the name, so DNS rebinding cannot happen on the far side either."""
+        try:
+            up_ips = await self.policy.resolve(up.host, up.port)
+        except (BlockedError, ResolveError) as e:
+            session.upstream_failed = True
+            logger.info("upstream proxy refused reason=%s", type(e).__name__)
+            await _reply(writer, 502, "Bad Gateway", extra=[(EGRESS_HEADER, "upstream_blocked")])
+            return None
+        targets = [ip for ip in ips if ipaddress.ip_address(ip).version == 4] + [
+            ip for ip in ips if ipaddress.ip_address(ip).version == 6
+        ]
+        if up.scheme == "socks4":
+            targets = [ip for ip in targets if ipaddress.ip_address(ip).version == 4]
+        for ip in targets[:2]:
+            for uip in up_ips[:2]:
+                conn = None
+                try:
+                    conn = await asyncio.wait_for(asyncio.open_connection(uip, up.port), self.connect_timeout)
+                    await asyncio.wait_for(_handshake(up, conn[0], conn[1], ip, port), self.connect_timeout)
+                    return conn
+                except (OSError, TimeoutError, UpstreamError, asyncio.IncompleteReadError, asyncio.LimitOverrunError):
+                    if conn is not None:
+                        _close(conn[1])
+                    continue
+        session.upstream_failed = True
+        logger.info("upstream proxy handshake failed scheme=%s", up.scheme)
+        await _reply(writer, 502, "Bad Gateway", extra=[(EGRESS_HEADER, "upstream_failed")])
         return None
 
     async def _splice(self, session, c_reader, c_writer, u_reader, u_writer) -> None:
@@ -433,6 +516,64 @@ class EgressProxy:
                 t.cancel()
             await asyncio.gather(up, down, return_exceptions=True)
             _close(u_writer)
+
+
+async def _handshake(
+    up: UpstreamProxy, reader: asyncio.StreamReader, writer: asyncio.StreamWriter, ip: str, port: int
+) -> None:
+    """Open a tunnel to ip:port on an upstream proxy. Raises UpstreamError."""
+    addr = ipaddress.ip_address(ip)
+    if up.scheme == "http":
+        hostport = f"[{ip}]:{port}" if addr.version == 6 else f"{ip}:{port}"
+        lines = [f"CONNECT {hostport} HTTP/1.1", f"Host: {hostport}"]
+        if up.username is not None:
+            cred = base64.b64encode(f"{up.username}:{up.password or ''}".encode()).decode()
+            lines.append(f"Proxy-Authorization: Basic {cred}")
+        writer.write(("\r\n".join(lines) + "\r\n\r\n").encode("latin-1"))
+        await writer.drain()
+        head = await reader.readuntil(b"\r\n\r\n")
+        status = head.split(b"\r\n", 1)[0].split(b" ")
+        if len(status) < 2 or status[1] != b"200":
+            raise UpstreamError("connect refused")
+        return
+    if up.scheme == "socks5":
+        auth = up.username is not None
+        writer.write(b"\x05\x02\x00\x02" if auth else b"\x05\x01\x00")
+        await writer.drain()
+        ver, method = await reader.readexactly(2)
+        if ver != 5 or method not in ((0, 2) if auth else (0,)):
+            raise UpstreamError("socks5 method refused")
+        if method == 2:
+            u = (up.username or "").encode()[:255]
+            p = (up.password or "").encode()[:255]
+            writer.write(bytes([1, len(u)]) + u + bytes([len(p)]) + p)
+            await writer.drain()
+            _v, st = await reader.readexactly(2)
+            if st != 0:
+                raise UpstreamError("socks5 auth refused")
+        atyp = b"\x01" if addr.version == 4 else b"\x04"
+        writer.write(b"\x05\x01\x00" + atyp + addr.packed + struct.pack(">H", port))
+        await writer.drain()
+        ver, rep, _rsv, ratyp = await reader.readexactly(4)
+        if ver != 5 or rep != 0:
+            raise UpstreamError("socks5 connect refused")
+        skip = {1: 4, 4: 16}.get(ratyp)
+        if skip is None:
+            skip = (await reader.readexactly(1))[0]
+        await reader.readexactly(skip + 2)
+        return
+    if up.scheme == "socks4":
+        if addr.version != 4:
+            raise UpstreamError("socks4 needs ipv4")
+        user = (up.username or "").encode()[:255]
+        writer.write(b"\x04\x01" + struct.pack(">H", port) + addr.packed + user + b"\x00")
+        await writer.drain()
+        _vn, cd = await reader.readexactly(2)
+        await reader.readexactly(6)
+        if cd != 0x5A:
+            raise UpstreamError("socks4 connect refused")
+        return
+    raise UpstreamError("unsupported scheme")
 
 
 def _split_hostport(target: str) -> tuple[str | None, int]:
