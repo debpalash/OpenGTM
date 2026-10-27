@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"os"
 	"sort"
 	"time"
 
@@ -44,7 +43,7 @@ type Deps struct {
 	// SourcePoll is the poll interval while waiting (default 2s).
 	SourcePoll time.Duration
 	// SourceExecutorFor picks the executor of the source_workbook jobs a cycle enqueues;
-	// nil: config.SourceWorkbookExecutor over the process environment ("python" unless
+	// nil: config.SourceWorkbookExecutor over config.Getenv (GO_ALL_NATIVE applies) ("python" unless
 	// the GO_EXECUTOR_SOURCE_WORKBOOK cohort covers the workspace).
 	SourceExecutorFor func(workspaceID string) string
 }
@@ -56,7 +55,7 @@ func (d Deps) sourceExecutor(ws string) string {
 		}
 		return "python"
 	}
-	return config.SourceWorkbookExecutor(os.Getenv, ws)
+	return config.SourceWorkbookExecutor(config.Getenv, ws)
 }
 
 func (d Deps) now() time.Time {

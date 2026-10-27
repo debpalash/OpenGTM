@@ -54,7 +54,7 @@ func SourceWbFrom(get func(string) string) SourceWbSettings {
 // GO_EXECUTOR_SOURCE_WORKBOOK is on; otherwise "python" (today's behaviour).
 func SourceWorkbookExecutor(get func(string) string, workspaceID string) string {
 	e := ExecutorCohortFrom(get)
-	if e.Enabled && e.Workspaces[workspaceID] && pyBool(get("GO_EXECUTOR_SOURCE_WORKBOOK")) {
+	if e.Enabled && InCohort(e.Workspaces, workspaceID) && pyBool(get("GO_EXECUTOR_SOURCE_WORKBOOK")) {
 		return "go"
 	}
 	return "python"

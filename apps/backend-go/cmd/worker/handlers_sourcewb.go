@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -59,7 +58,7 @@ func sourcewbHandlers(pool *pgxpool.Pool, log *slog.Logger, prog progress.Publis
 	queue.AllowJobType(sourcewb.JobType)
 	get := o.getenv
 	if get == nil {
-		get = os.Getenv
+		get = config.Getenv // GO_ALL_NATIVE applies
 	}
 	s, err := config.LoadSourceWb(get)
 	if err != nil {
