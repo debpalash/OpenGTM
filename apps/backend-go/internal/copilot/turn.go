@@ -2,6 +2,7 @@ package copilot
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -50,6 +51,9 @@ type Deps struct {
 	Pool     *pgxpool.Pool
 	PY       *pyworker.Client
 	Settings Settings // nil: defaults
+	// Engine, when set, runs the llm rounds, pre-routes, descriptions and the tools ported to Go in-process
+	// (GO_COPILOT_NATIVE); nil keeps them on the Python worker.
+	Engine *Engine
 	// Native overrides how native tools run (tests); nil runs ExecNative inside tenancy.InWorkspace(Pool).
 	Native NativeFunc
 	// NewTicker overrides the keepalive clock (tests); nil uses time.NewTicker.
@@ -78,6 +82,9 @@ type Turn struct {
 	OpenFault func() bool
 	// OnEvent, when set, receives the exact JSON of every data frame just before it is written (persistence).
 	OnEvent func(raw []byte)
+	// anthropicRaw keeps a native Anthropic tool-use turn's content blocks by first tool-call id, so the next
+	// round replays them unchanged (thinking blocks must come back as produced).
+	anthropicRaw map[string][]json.RawMessage
 }
 
 // errBadFrame marks a frame whose JSON could not be re-serialised.
