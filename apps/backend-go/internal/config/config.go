@@ -349,10 +349,8 @@ type APIConfig struct {
 	StripeWebhookSecret string
 	StripeAPIBase       string // STRIPE_API_BASE; honoured only when APP_ENV is "test"
 
-	// Enrichment jobs (plan 06). PyWorkerToken is a secret: redacted, never logged.
-	PyWorkerURL       string // PY_WORKER_URL
-	PyWorkerToken     string // PY_WORKER_TOKEN
-	WSMaxMessageBytes int    // WS_MAX_MESSAGE_BYTES (default 65536)
+	// Enrichment jobs (plan 06).
+	WSMaxMessageBytes int // WS_MAX_MESSAGE_BYTES (default 65536)
 
 	// Workbook CRUD (plan 04).
 	Flags   Flags
@@ -587,11 +585,6 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	if c.Flags.GoRunRoutesEnabled, err = boolVar(get, "GO_RUN_ROUTES_ENABLED", false); err != nil {
 		return APIConfig{}, err
 	}
-	c.PyWorkerURL = strings.TrimSpace(get("PY_WORKER_URL"))
-	c.PyWorkerToken = strings.TrimSpace(get("PY_WORKER_TOKEN"))
-	if c.PyWorkerToken == "" { // the Python endpoint authenticates with INTERNAL_SERVICE_TOKEN
-		c.PyWorkerToken = strings.TrimSpace(get("INTERNAL_SERVICE_TOKEN"))
-	}
 	if c.WSMaxMessageBytes, err = intVar(get, "WS_MAX_MESSAGE_BYTES", 65536, 1, 1<<30); err != nil {
 		return APIConfig{}, err
 	}
@@ -623,9 +616,6 @@ func (c APIConfig) redacted() APIConfig {
 	}
 	if c.SecretKey != "" {
 		c.SecretKey = "[redacted]"
-	}
-	if c.PyWorkerToken != "" {
-		c.PyWorkerToken = "[redacted]"
 	}
 	return c
 }

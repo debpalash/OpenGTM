@@ -6,7 +6,7 @@
 //	SEED_WORKSPACE_SLUG   workspace to seed (default main); SEED_WORKSPACE_ID selects by id instead
 //	SEED_START_RUN        0 seeds the workbook only (default 1: start the run through the API)
 //	SEED_FORCE_RUN        1 starts a run even when the demo workbook already exists
-//	SEED_API_URL          API base for the run (default INTERNAL_API_URL, else http://127.0.0.1:8000)
+//	SEED_API_URL          API base for the run (default http://127.0.0.1:8000)
 //	SEED_WAIT_SECONDS     wait this long for first-run setup to finish (default 0)
 //
 // SEED_ADMIN_USERNAME / SEED_ADMIN_PASSWORD of the Python seed are ignored (and reported).
@@ -100,9 +100,6 @@ func seed(ctx context.Context, pool *pgxpool.Pool, cfg config.APIConfig, getenv 
 	opts := demoseed.Options{WorkspaceID: getenv("SEED_WORKSPACE_ID"), WorkspaceSlug: getenv("SEED_WORKSPACE_SLUG"), Force: truthy(getenv("SEED_FORCE_RUN"))}
 	if v := getenv("SEED_START_RUN"); v == "" || truthy(v) {
 		base := getenv("SEED_API_URL")
-		if base == "" {
-			base = getenv("INTERNAL_API_URL")
-		}
 		if base == "" {
 			base = "http://127.0.0.1:8000"
 		}
