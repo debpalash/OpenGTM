@@ -86,6 +86,7 @@ const (
 func Load() (Config, error) { return load(os.Getenv) }
 
 func load(get func(string) string) (Config, error) {
+	get = AllNative(get)
 	c := Config{
 		DatabaseURL:          get("DATABASE_URL"),
 		RedisURL:             get("REDIS_URL"),
@@ -425,6 +426,7 @@ const DefaultStripeAPIBase = "https://api.stripe.com"
 func LoadAPI() (APIConfig, error) { return loadAPI(os.Getenv) }
 
 func loadAPI(get func(string) string) (APIConfig, error) {
+	get = AllNative(get)
 	c := APIConfig{
 		DatabaseURL: get("DATABASE_URL"),
 		Addr:        get("API_ADDR"),

@@ -75,7 +75,7 @@ func loadExecutor(get func(string) string, serviceToken string) (ExecutorSetting
 // RefreshExecutor is go_executor.refresh_executor: "go" only when enabled and
 // the workspace is in the cohort.
 func (e ExecutorSettings) RefreshExecutor(workspaceID string) string {
-	if e.Enabled && e.Workspaces[workspaceID] {
+	if e.Enabled && InCohort(e.Workspaces, workspaceID) {
 		return "go"
 	}
 	return "python"
@@ -103,7 +103,7 @@ func (e ExecutorSettings) OutreachExecutor(o OutreachSettings, jobType, workspac
 	default:
 		return "", fmt.Errorf("config: not an outreach executor job type: %q", jobType)
 	}
-	if e.Enabled && flag && e.Workspaces[workspaceID] {
+	if e.Enabled && flag && InCohort(e.Workspaces, workspaceID) {
 		return "go", nil
 	}
 	return "python", nil
