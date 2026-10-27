@@ -12,8 +12,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
 
-// legacyOutreach are the actions that need the outreach store and SMTP (D2):
-// the Go worker never runs them.
+// legacyOutreach are the actions that need the outreach store and SMTP (D2): the
+// Go worker runs them only with GO_EXECUTOR_LEGACY_OUTREACH_ACTIONS (D5).
 var legacyOutreach = map[string]bool{"sequencer": true, "send_email": true}
 
 // handBackReason decides, before any write, whether Python must run this eval
@@ -27,7 +27,7 @@ func (e *engine) handBackReason(ctx context.Context, ws string, actions []map[st
 			continue
 		}
 		t, _ := a["type"].(string)
-		if legacyOutreach[t] {
+		if legacyOutreach[t] && !e.d.LegacyOutreach {
 			return "legacy_outreach_action: " + t, nil
 		}
 		if t == "re_enrich" {

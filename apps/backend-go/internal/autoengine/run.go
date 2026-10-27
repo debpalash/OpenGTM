@@ -66,6 +66,9 @@ type Deps struct {
 	// re_enrich of ai_formula/research columns can run in Go. Agent columns and
 	// every other non-Go type are handed back to Python.
 	PyColumns bool
+	// LegacyOutreach (GO_EXECUTOR_LEGACY_OUTREACH_ACTIONS): sequencer and send_email
+	// run in Go (Actions.LegacyOutreach is set with it) and no longer hand back.
+	LegacyOutreach bool
 	// CheckEvery throttles the lease heartbeat and cancel probe between actions
 	// (default 2s; negative probes before every action).
 	CheckEvery time.Duration

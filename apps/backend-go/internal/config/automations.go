@@ -16,6 +16,9 @@ type AutomationsSettings struct {
 	GoRoutesEnabled       bool // GO_AUTOMATION_ROUTES_ENABLED
 	GoExecutorTriggerEval bool // GO_EXECUTOR_TRIGGER_EVAL
 	GoExecutorWatchPoll   bool // GO_EXECUTOR_WATCH_POLL
+	// GoExecutorLegacyOutreachActions (GO_EXECUTOR_LEGACY_OUTREACH_ACTIONS) lets Go run
+	// the sequencer and send_email trigger actions instead of handing the eval back.
+	GoExecutorLegacyOutreachActions bool
 
 	GlobalDailyUSD         float64  // AUTOMATIONS_GLOBAL_DAILY_USD (0 = unlimited)
 	MaxRulesPerWS          int      // AUTOMATIONS_MAX_RULES_PER_WS
@@ -54,6 +57,7 @@ func loadAutomations(get func(string) string) (AutomationsSettings, error) {
 		{&a.GoRoutesEnabled, "GO_AUTOMATION_ROUTES_ENABLED"},
 		{&a.GoExecutorTriggerEval, "GO_EXECUTOR_TRIGGER_EVAL"},
 		{&a.GoExecutorWatchPoll, "GO_EXECUTOR_WATCH_POLL"},
+		{&a.GoExecutorLegacyOutreachActions, "GO_EXECUTOR_LEGACY_OUTREACH_ACTIONS"},
 		{&a.PollerBackfill, "INTENT_POLLER_BACKFILL"},
 		{&a.TechStackWebsiteFetchEnabled, "TECH_STACK_WEBSITE_FETCH_ENABLED"},
 	} {

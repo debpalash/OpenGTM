@@ -15,6 +15,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/crm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/crmpush"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachsend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/poller"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
@@ -130,8 +131,10 @@ func buildAutomations(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, w
 	evalDeps := autoengine.Deps{Pool: pool, Log: log, Enabled: cfg.Flags.AutomationsEnabled, BillingEnabled: cfg.BillingEnabled,
 		MaxRowsPerEval: a.MaxRowsPerEval, GlobalDailyUSD: a.GlobalDailyUSD,
 		Actions: autoactions.Deps{Webhook: autoactions.NewWebhookDeps(cfg.AppEnv, cfg.EgressAllowHosts, a, sec, log),
-			CRM: crmDeps, Push: crmPushGuard(local, a.GoExecutorTriggerEval, log), RunRows: autoactions.WorkbookRowRunner(wbDeps)},
-		ExecFor: triggerEvalExecutor(cfg), Emitter: emitter, PyColumns: pyRPC != nil}
+			CRM: crmDeps, Push: crmPushGuard(local, a.GoExecutorTriggerEval, log), RunRows: autoactions.WorkbookRowRunner(wbDeps),
+			LegacyOutreach: a.GoExecutorLegacyOutreachActions, Pool: pool,
+			SendExecutor: func(ws string) string { return outreachsend.ExecutorFor(cfg.Executor, cfg.Flags.Outreach, ws) }},
+		ExecFor: triggerEvalExecutor(cfg), Emitter: emitter, PyColumns: pyRPC != nil, LegacyOutreach: a.GoExecutorLegacyOutreachActions}
 
 	handlers := map[string]runner{
 		jobTriggerEval: handBackInert(pool, "GO_EXECUTOR_TRIGGER_EVAL is off"),
