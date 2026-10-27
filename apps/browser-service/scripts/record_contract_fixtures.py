@@ -34,7 +34,7 @@ ARTICLE = (
 class Page:
     url = "https://acme.example/final"
 
-    async def goto(self, url, wait_until=None, timeout=None):
+    async def goto(self, url, wait_until=None, timeout=None):  # noqa: ASYNC109 - playwright's signature
         class R:
             status = 200
             headers: dict = {}
@@ -78,7 +78,6 @@ async def fake_search(deps, method, search, max_results, deadline, **opts):
 
 
 async def main(out: Path) -> None:
-    out.mkdir(parents=True, exist_ok=True)
 
     async def fn(email, client, o, _n="twitter"):
         o.append({"name": _n, "domain": "twitter.com", "method": "register", "rateLimit": False, "exists": True})
@@ -141,4 +140,6 @@ async def main(out: Path) -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main(Path(sys.argv[1])))
+    target = Path(sys.argv[1])
+    target.mkdir(parents=True, exist_ok=True)
+    asyncio.run(main(target))
