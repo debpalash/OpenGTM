@@ -230,6 +230,27 @@ type payload struct {
 	PreMaxID        int32 `json:"pre_max_id"`
 }
 
+// workbookTenant resolves the tenant of a refresh job whose jobs.workspace_id is empty from the database: the
+// workbook's own workspace_id (a narrow cross-tenant lookup, since workbooks is FORCE RLS), never the payload's.
+// A payload workspace_id that is present and differs, or a workbook that does not exist, is a PermanentError.
+//
+// This fallback exists ONLY for refresh jobs enqueued by Python (refresh.py _enqueue_next and _enqueue_next_now
+// put workspace_id in the payload but not in the jobs column) during the canary. It is removed at cutover, when
+// Handle and OnFailure take the tenant from the claim alone (progress.md, CUTOVER).
+func workbookTenant(ctx context.Context, d Deps, p payload) (string, error) {
+	ws, err := gen.New(d.Pool).WorkbookWorkspaceByID(ctx, p.WorkbookID)
+	if err != nil {
+		return "", fmt.Errorf("refresh: workbook tenant lookup: %w", err)
+	}
+	if ws == "" {
+		return "", &queue.PermanentError{Err: errors.New("refresh: job workspace missing and the workbook does not exist")}
+	}
+	if p.WorkspaceID != "" && p.WorkspaceID != ws {
+		return "", &queue.PermanentError{Err: errors.New("refresh: payload workspace_id does not match the workbook's workspace")}
+	}
+	return ws, nil
+}
+
 // Handle mirrors handle_refresh_workbook. It reads the workbook inside the
 // tenant, then in one transaction: queues one source_workbook (executor per
 // SourceExecutorFor, Python by default) per source column, queues one run_workbook (Python executor) for
@@ -245,13 +266,15 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 	if p.WorkbookID == "" {
 		return errors.New("refresh: payload has no workbook_id")
 	}
-	// The tenant is the job's workspace_id column only (same rule as sourcewb): the payload is data the enqueuer
-	// controls. An empty claim workspace is refused rather than run under the payload's.
+	// The tenant is the job's workspace_id column; the payload is data the enqueuer controls, so a non-empty claim
+	// workspace is strict (a differing payload workspace is refused).
 	ws := c.WorkspaceID
 	if ws == "" {
-		return &queue.PermanentError{Err: errors.New("refresh: job workspace missing (jobs.workspace_id is required)")}
-	}
-	if p.WorkspaceID != "" && p.WorkspaceID != ws {
+		var err error
+		if ws, err = workbookTenant(ctx, d, p); err != nil {
+			return err
+		}
+	} else if p.WorkspaceID != "" && p.WorkspaceID != ws {
 		return &queue.PermanentError{Err: errors.New("refresh: payload workspace_id does not match the job's workspace")}
 	}
 	reason := p.Reason
@@ -523,7 +546,16 @@ func OnFailure(ctx context.Context, d Deps, n queue.FailureNotice) error {
 		return nil
 	}
 	ws := n.WorkspaceID
-	if ws == "" || (p.WorkspaceID != "" && p.WorkspaceID != ws) {
+	if ws == "" {
+		var err error
+		if ws, err = workbookTenant(ctx, d, p); err != nil {
+			var perm *queue.PermanentError
+			if errors.As(err, &perm) {
+				return nil // unknown or inconsistent tenant: no re-seed
+			}
+			return err
+		}
+	} else if p.WorkspaceID != "" && p.WorkspaceID != ws {
 		return nil
 	}
 	exec := d.executor()
