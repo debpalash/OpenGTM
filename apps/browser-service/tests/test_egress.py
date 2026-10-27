@@ -42,6 +42,11 @@ LOOPBACK = (ipaddress.ip_network("127.0.0.0/8"),)
         "2002:7f00:1::1",
         "2001:0:4136:e378::1",
         "ff02::1",
+        # review L1: "global" per Python's ipaddress but not internet destinations
+        "fec0::1",
+        "192.88.99.1",
+        "2001:20::1",
+        "5f00::1",
     ],
 )
 def test_blocked_addresses(addr):
