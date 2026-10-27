@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"slices"
 	"strings"
@@ -351,7 +352,7 @@ func TestBaselineMatchesAlembicDatabase(t *testing.T) {
 	if v := scalar[string](t, alembic, `SELECT version_num FROM alembic_version`); v != migrate.BaselineAlembicRevision {
 		t.Fatalf("alembic database at %q", v)
 	}
-	diffFingerprints(t, "alembic", fingerprint(t, alembic, appRole), "go", fingerprint(t, openPool(t, dsn), appRole))
+	diffFingerprints(t, "alembic", deparseNormalized(fingerprint(t, alembic, appRole)), "go", deparseNormalized(fingerprint(t, openPool(t, dsn), appRole)))
 }
 
 func diffFingerprints(t *testing.T, an string, a []string, bn string, b []string) {
@@ -366,6 +367,28 @@ func diffFingerprints(t *testing.T, an string, a []string, bn string, b []string
 	if len(a) < 500 {
 		t.Errorf("fingerprint suspiciously small: %d entries", len(a))
 	}
+}
+
+var varcharArrayCast = regexp.MustCompile(`\(\(ARRAY\[([^\]]*)\]\)::text\[\]\)`)
+
+// deparseNormalized rewrites the form Postgres keeps for an expression created
+// from SQLAlchemy source, ANY ((ARRAY['a'::character varying])::text[]), into
+// the form it deparses after a pg_dump reload, ANY (ARRAY[('a'::character
+// varying)::text]). The two are equivalent; only Alembic-built databases have
+// the first one.
+func deparseNormalized(in []string) []string {
+	out := make([]string, len(in))
+	for i, s := range in {
+		out[i] = varcharArrayCast.ReplaceAllStringFunc(s, func(m string) string {
+			elems := strings.Split(varcharArrayCast.FindStringSubmatch(m)[1], ", ")
+			for j, e := range elems {
+				elems[j] = "(" + e + ")::text"
+			}
+			return "(ARRAY[" + strings.Join(elems, ", ") + "])"
+		})
+	}
+	slices.Sort(out)
+	return out
 }
 
 func minus(a, b []string) []string {

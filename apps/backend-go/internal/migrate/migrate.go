@@ -142,7 +142,11 @@ func Run(ctx context.Context, db *sql.DB, o Options) (Result, error) {
 	}
 	for _, r := range results {
 		res.Applied = append(res.Applied, r.Source.Version)
-		log.Info("migrate: applied", "version", r.Source.Version, "path", r.Source.Path, "duration", r.Duration)
+		name := r.Source.Path
+		if name == "" {
+			name = "baseline"
+		}
+		log.Info("migrate: applied", "version", r.Source.Version, "name", name, "duration", r.Duration)
 	}
 	if res.To, err = prov.GetDBVersion(ctx); err != nil {
 		return res, fmt.Errorf("migrate: read version: %w", err)
