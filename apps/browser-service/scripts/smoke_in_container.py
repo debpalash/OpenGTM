@@ -8,7 +8,6 @@ SMOKE_CHROMIUM_UID, and the service process is not readable by other
 processes (non-dumpable)."""
 
 import glob
-
 import http.server
 import json
 import os
