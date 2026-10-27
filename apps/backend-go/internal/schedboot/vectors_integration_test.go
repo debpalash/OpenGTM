@@ -292,6 +292,11 @@ func (c recordedCase) jobsCanon() []string { return canonJobs(c.Jobs) }
 func canonJobs(js []recordedJob) []string {
 	var out []string
 	for _, j := range js {
+		// Python recorded its own executor; since the plan 15 cutover every job is "go", so the executor is
+		// compared as one value.
+		if j.Executor == "python" {
+			j.Executor = "go"
+		}
 		b, _ := json.Marshal(j)
 		out = append(out, string(b))
 	}
