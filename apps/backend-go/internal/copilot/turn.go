@@ -38,6 +38,10 @@ const (
 	unarySlack         = 5 * time.Second // the worker's own 408 must arrive before the client deadline
 )
 
+// maxTurnToolBytes is the aggregate size of the tool results one turn may feed back to the model (variable so
+// tests can lower it): CHAT_MAX_TOOL_ROUNDS has no upper bound, so the per-result cap alone does not bound the prompt.
+var maxTurnToolBytes = 4 << 20
+
 // Settings is the app-settings getter (settings.App satisfies it).
 type Settings interface {
 	Get(ctx context.Context, key, def string) (string, error)
@@ -85,6 +89,8 @@ type Turn struct {
 	// anthropicRaw keeps a native Anthropic tool-use turn's content blocks by first tool-call id, so the next
 	// round replays them unchanged (thinking blocks must come back as produced).
 	anthropicRaw map[string][]json.RawMessage
+	// toolBytes is the running size of the tool results sent to the model this turn (see maxTurnToolBytes).
+	toolBytes int
 }
 
 // errBadFrame marks a frame whose JSON could not be re-serialised.

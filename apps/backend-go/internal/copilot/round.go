@@ -221,12 +221,23 @@ func (t *Turn) runSafe(ctx context.Context, w *ssestream.Writer, calls []parsedC
 			}
 			t.Seen[key] = result
 		}
+		result = t.budgetResult(result)
 		if err := t.emit(w, []byte(`{"tool_result": {"name": `+jstr(c.Name)+`, "result": `+string(toolResultValue(result))+`}}`)); err != nil {
 			return nil, err
 		}
 		msgs = append(msgs, map[string]any{"role": "tool", "tool_call_id": c.ID, "name": c.Name, "content": result})
 	}
 	return msgs, nil
+}
+
+// budgetResult charges result against the turn's aggregate tool-result budget; once it is spent the model gets a
+// short marker instead (a cached duplicate costs again, since it goes into the prompt again).
+func (t *Turn) budgetResult(result string) string {
+	if t.toolBytes+len(result) > maxTurnToolBytes {
+		return `{"error": "tool results for this turn exceed the size limit; answer from what you already have"}`
+	}
+	t.toolBytes += len(result)
+	return result
 }
 
 type toolOutcome struct {
