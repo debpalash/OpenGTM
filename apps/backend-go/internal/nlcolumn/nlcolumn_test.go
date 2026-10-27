@@ -139,6 +139,12 @@ func TestVectors(t *testing.T) {
 				}
 			} else if err != nil {
 				t.Fatal(err)
+			} else if res.Dropped {
+				// Deliberate deviation from Python (plan 15 review M6): the recorded http_full answer carries an
+				// Authorization header, which a generated column may no longer set.
+				if c.Name != "http_full" || res.Kind != c.Result.Kind || len(res.Warnings) == 0 {
+					t.Errorf("unexpected dropped column in %s: %+v", c.Name, res)
+				}
 			} else {
 				got, _ := json.Marshal(res.Column)
 				if !jsonEqual(t, got, c.Result.Column, c.Name) {

@@ -38,6 +38,10 @@ type Result struct {
 	Column      wbcrud.Column
 	Kind        string
 	Explanation string
+	// Dropped is set when the model's http column failed validation: Column is then the zero value and Warnings says
+	// why (without echoing the model's text). The route returns column null plus the warnings.
+	Dropped  bool
+	Warnings []string
 }
 
 var kinds = map[string]bool{"formula": true, "ai_formula": true, "http": true}
@@ -534,6 +538,12 @@ func Generate(ctx context.Context, l LLM, instruction string, cols []wbcrud.Colu
 	}
 	if explanation == "" {
 		explanation = "Adds a " + kind + " column for: " + instruction
+	}
+	if kind == "http" {
+		if why := httpColumnProblem(column); why != "" {
+			return Result{Kind: kind, Explanation: explanation, Dropped: true,
+				Warnings: []string{"The generated HTTP column was discarded because " + why + ". Describe the request again or configure the HTTP column by hand."}}, nil
+		}
 	}
 	return Result{Column: column, Kind: kind, Explanation: explanation}, nil
 }
