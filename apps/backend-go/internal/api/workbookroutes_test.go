@@ -218,6 +218,15 @@ func replayWorkbooks(t *testing.T, check map[string]bool) {
 				return
 			}
 			want := fx.Response
+			if st.name == "from_jobs_merge_again" || st.name == "list_after" || st.name == "list_final" {
+				// F3: Python lost the merge (non-empty stored filter); Go persists the union.
+				var m any
+				if err := json.Unmarshal(want.Body, &m); err != nil {
+					t.Fatal(err)
+				}
+				mergedJobIDs(m)
+				want.Body, _ = json.Marshal(m)
+			}
 			got.Body, want.Body = normBody(got.Body), normBody(want.Body)
 			contract.AssertEqual(t, got, want)
 		})
@@ -289,5 +298,24 @@ func TestOtherWorkspaceWorkbookIs404(t *testing.T) {
 	})
 	if n != 1 {
 		t.Fatal("foreign workbook was modified or deleted")
+	}
+}
+
+// mergedJobIDs rewrites recorded filter_criteria.job_ids ["job-1","job-2"] to the union Go persists.
+func mergedJobIDs(v any) {
+	switch t := v.(type) {
+	case map[string]any:
+		if fc, ok := t["filter_criteria"].(map[string]any); ok {
+			if ids, ok := fc["job_ids"].([]any); ok && len(ids) == 2 && ids[0] == "job-1" && ids[1] == "job-2" {
+				fc["job_ids"] = []any{"job-1", "job-2", "job-3"}
+			}
+		}
+		for _, e := range t {
+			mergedJobIDs(e)
+		}
+	case []any:
+		for _, e := range t {
+			mergedJobIDs(e)
+		}
 	}
 }
