@@ -172,8 +172,19 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 	var timedOut atomic.Bool
 	timer := time.AfterFunc(c.o.StreamTimeout, func() { timedOut.Store(true); cancel() })
 	defer timer.Stop()
-	// Progress resets the idle timer (httpx timeouts are per operation, not total).
+	// Progress resets the idle timer (httpx timeouts are per operation, not total). Only a data frame is progress:
+	// a provider that sends nothing but keep-alive comments or blank lines is stalled and must still time out.
 	touch := func() { timer.Reset(c.o.StreamTimeout) }
+	// The stream as a whole is bounded as well (wall clock, raw lines, raw bytes and accumulated tool-call bytes):
+	// a faulty or hostile provider cannot grow memory or hold the round open by trickling data.
+	var overWall atomic.Bool
+	wall := time.AfterFunc(maxStreamDuration, func() { overWall.Store(true); cancel() })
+	defer wall.Stop()
+	lines, rawBytes := 0, 0
+	limit := func(send func(Frame) bool) (*Cursor, *Cursor) {
+		send(Frame{Kind: FrameError, Text: "AI provider stream limit exceeded"})
+		return nil, nil
+	}
 
 	hreq, err := http.NewRequestWithContext(rctx, http.MethodPost, strings.TrimRight(prov.BaseURL, "/")+"/chat/completions", bytes.NewReader(body))
 	if err != nil {
@@ -185,6 +196,9 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 
 	resp, err := c.o.HTTP.Do(hreq)
 	if err != nil {
+		if overWall.Load() {
+			return limit(send)
+		}
 		return c.streamTransportError(ctx, err, timedOut.Load(), cursor, send)
 	}
 	defer resp.Body.Close()
@@ -222,11 +236,19 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 	acc := map[int]*ToolCall{}
 	sc := bufio.NewScanner(resp.Body)
 	sc.Buffer(make([]byte, 0, min(64<<10, maxStreamLine)), maxStreamLine)
+	touch() // headers arrived
 	for {
-		touch()
 		more := sc.Scan()
 		line := sc.Text()
+		if more {
+			lines++
+			rawBytes += len(line) + 1
+			if lines > maxStreamLines || rawBytes > maxStreamBytes || accBytes(acc) > maxStreamBytes {
+				return limit(send)
+			}
+		}
 		if data, ok := strings.CutPrefix(strings.TrimRight(line, "\r\n"), "data: "); ok && more {
+			touch()
 			if data == "[DONE]" {
 				send(Frame{Kind: FrameDone})
 				return nil, &cursor
@@ -241,6 +263,9 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 			}
 		}
 		if !more {
+			if overWall.Load() {
+				return limit(send)
+			}
 			rerr := sc.Err()
 			if rerr == nil {
 				return nil, nil // EOF
@@ -259,7 +284,22 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 var (
 	maxStreamLine = 4 << 20
 	maxBatchLine  = 16 << 20
+	// maxStreamLines, maxStreamBytes and maxStreamDuration bound one provider stream (the copilot's
+	// MAX_STREAM_FRAMES / MAX_STREAM_BYTES / MAX_STREAM_SECONDS). The byte cap counts every raw line and, separately,
+	// the tool-call arguments accumulated so far.
+	maxStreamLines    = 20000
+	maxStreamBytes    = 8 << 20
+	maxStreamDuration = 300 * time.Second
 )
+
+// accBytes is the size of the tool calls accumulated so far.
+func accBytes(acc map[int]*ToolCall) int {
+	n := 0
+	for _, c := range acc {
+		n += len(c.ID) + len(c.Function.Name) + len(c.Function.Arguments)
+	}
+	return n
+}
 
 // parseChunk folds one SSE data payload into the tool-call accumulator. content
 // is the text delta; done reports finish_reason == "tool_calls" with calls
