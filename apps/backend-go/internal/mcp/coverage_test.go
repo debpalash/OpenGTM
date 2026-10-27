@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"context"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"go/parser"
 	"go/token"
 	"os"
@@ -16,7 +17,7 @@ import (
 // may be absent (CI), in which case the test skips.
 func pythonFile(t *testing.T, rel string) string {
 	t.Helper()
-	b, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "legacy", "python", rel))
+	b, err := os.ReadFile(testutil.LegacyPath(t, rel))
 	if err != nil {
 		t.Skipf("legacy python tree not available: %v", err)
 	}

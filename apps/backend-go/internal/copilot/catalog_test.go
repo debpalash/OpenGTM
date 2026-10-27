@@ -5,9 +5,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -121,11 +121,7 @@ func legacyDir(t *testing.T) string {
 	if _, err := exec.LookPath("uv"); err != nil {
 		t.Skip("uv not installed")
 	}
-	d, _ := filepath.Abs("../../../../legacy/python")
-	if _, err := os.Stat(d); err != nil {
-		t.Skip("legacy python tree not present")
-	}
-	return d
+	return testutil.LegacyPythonDir(t)
 }
 
 // Drift guard: catalog.json must match the committed hash, and (when python is available) the generator's --check.

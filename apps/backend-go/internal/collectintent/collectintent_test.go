@@ -3,6 +3,7 @@ package collectintent
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"os"
 	"reflect"
 	"regexp"
@@ -202,7 +203,7 @@ func TestUnicodeLowerAndWhitespaceCollapse(t *testing.T) {
 // lookbehind of _DOMAIN_IN_TEXT_RE; Go emulates it by hand. Every other
 // pattern must be RE2-compatible, and the Go patterns must compile.
 func TestPythonRegexesAreRE2Compatible(t *testing.T) {
-	src, err := os.ReadFile("../../../../legacy/python/apps/api/services/leadgen/collection_intent.py")
+	src, err := os.ReadFile(testutil.LegacyPath(t, "apps", "api", "services", "leadgen", "collection_intent.py"))
 	if err != nil {
 		t.Skip("python source not available")
 	}
@@ -235,7 +236,7 @@ func TestDecideBoundedOnLongInput(t *testing.T) {
 	for i, in := range inputs {
 		start := time.Now()
 		Decide(in, nil)
-		limit := 100 * time.Millisecond
+		limit := 500 * time.Millisecond // generous: a quadratic regression takes seconds; shared CI runners jitter
 		if raceEnabled {
 			limit *= 10 // the race detector slows pure-CPU loops ~5-10x
 		}

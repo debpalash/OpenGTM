@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"os"
 	"regexp"
 	"testing"
@@ -9,7 +10,7 @@ import (
 // Keeps the Go and Python schema-revision constants in lockstep. Skips when the
 // legacy Python tree is not present.
 func TestRequiredSchemaRevisionMatchesPython(t *testing.T) {
-	b, err := os.ReadFile("../../../../legacy/python/apps/api/services/go_executor.py")
+	b, err := os.ReadFile(testutil.LegacyPath(t, "apps", "api", "services", "go_executor.py"))
 	if err != nil {
 		t.Skipf("python go_executor.py not available: %v", err)
 	}

@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"io"
 	"log/slog"
 	"os"
@@ -64,7 +65,7 @@ func readRetainedGovernance(t *testing.T) map[string]bool {
 
 func legacyAPIFile(t *testing.T, rel ...string) string {
 	t.Helper()
-	p := filepath.Join(append([]string{"..", "..", "..", "..", "legacy", "python", "apps", "api"}, rel...)...)
+	p := testutil.LegacyPath(t, append([]string{"apps", "api"}, rel...)...)
 	b, err := os.ReadFile(p)
 	if err != nil {
 		t.Skipf("legacy Python tree not present (%v)", err)
@@ -207,7 +208,7 @@ func TestRetentionTargetsCoverEveryOrmModelInPython(t *testing.T) {
 		t.Fatalf("want 8 Python _targets rows, parsed %d", len(rows))
 	}
 	tables := map[string]string{}
-	filepath.WalkDir(filepath.Join("..", "..", "..", "..", "legacy", "python", "apps", "api", "services"),
+	filepath.WalkDir(testutil.LegacyPath(t, "apps", "api", "services"),
 		func(p string, de os.DirEntry, err error) error {
 			if err != nil || de.IsDir() || !strings.HasSuffix(p, ".py") || strings.HasSuffix(p, "_test.py") {
 				return nil

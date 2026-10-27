@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"io"
 	"log/slog"
 	"os"
@@ -80,7 +81,7 @@ func pythonConnectorRoutes(t *testing.T) []string {
 	t.Helper()
 	var routes []string
 	for _, name := range []string{"connectors.py", "hubspot.py", "ambitionbox.py", "crm.py"} {
-		p := filepath.Join("..", "..", "..", "..", "legacy", "python", "apps", "api", "routers", name)
+		p := testutil.LegacyPath(t, "apps", "api", "routers", name)
 		b, err := os.ReadFile(p)
 		if err != nil {
 			t.Skipf("legacy Python tree not present (%v)", err)

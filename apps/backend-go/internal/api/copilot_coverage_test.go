@@ -2,10 +2,10 @@ package api
 
 import (
 	"context"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"io"
 	"log/slog"
 	"os"
-	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -76,7 +76,7 @@ func readRetainedCopilot(t *testing.T) map[string]bool {
 func pythonCopilotRoutes(t *testing.T) (copilotKit, personIntel []string) {
 	t.Helper()
 	parse := func(name string) []string {
-		b, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "legacy", "python", "apps", "api", "routers", name))
+		b, err := os.ReadFile(testutil.LegacyPath(t, "apps", "api", "routers", name))
 		if err != nil {
 			t.Skipf("legacy Python tree not present (%v)", err)
 		}

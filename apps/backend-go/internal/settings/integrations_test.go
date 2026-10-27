@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -246,7 +247,7 @@ func TestPythonReadsGoWrittenSecret(t *testing.T) {
 	}
 	in, _ := json.Marshal(cases)
 	cmd := exec.Command("uv", "run", "python", "scripts/gen_secret_vectors.py", "--verify")
-	cmd.Dir = "../../../../legacy/python"
+	cmd.Dir = testutil.LegacyPythonDir(t)
 	cmd.Stdin = bytes.NewReader(in)
 	out, err := cmd.CombinedOutput()
 	t.Logf("python --verify output: %s", out)

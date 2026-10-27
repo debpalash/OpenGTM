@@ -2,6 +2,7 @@ package api
 
 import (
 	"bufio"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -57,7 +58,7 @@ func pythonEnrichmentRoutes(t *testing.T) []string {
 	t.Helper()
 	var routes []string
 	for _, name := range []string{"workbooks.py", "ingest.py", "meta.py", "signals.py"} {
-		p := filepath.Join("..", "..", "..", "..", "legacy", "python", "apps", "api", "routers", name)
+		p := testutil.LegacyPath(t, "apps", "api", "routers", name)
 		b, err := os.ReadFile(p)
 		if err != nil {
 			t.Skipf("legacy Python tree not present (%v)", err)
@@ -214,7 +215,7 @@ func goJobTypes(t *testing.T) map[string]bool {
 }
 
 func TestEveryJobTypeHandledOrPython(t *testing.T) {
-	b, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "legacy", "python", "apps", "api", "services", "job_registry.py"))
+	b, err := os.ReadFile(testutil.LegacyPath(t, "apps", "api", "services", "job_registry.py"))
 	if err != nil {
 		t.Skipf("legacy Python tree not present (%v)", err)
 	}

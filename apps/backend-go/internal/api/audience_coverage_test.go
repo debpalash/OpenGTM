@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"io"
 	"log/slog"
 	"net/http"
@@ -94,7 +95,7 @@ func readRetainedAudiences(t *testing.T) map[string]bool {
 
 func pythonAPIFile(t *testing.T, parts ...string) string {
 	t.Helper()
-	b, err := os.ReadFile(filepath.Join(append([]string{"..", "..", "..", "..", "legacy", "python", "apps", "api"}, parts...)...))
+	b, err := os.ReadFile(testutil.LegacyPath(t, append([]string{"apps", "api"}, parts...)...))
 	if err != nil {
 		t.Skipf("legacy Python tree not present (%v)", err)
 	}

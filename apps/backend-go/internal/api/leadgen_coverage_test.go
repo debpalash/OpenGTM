@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"go/parser"
 	"go/token"
 	"os"
@@ -26,7 +27,7 @@ var leadgenUtilityPaths = map[string]bool{
 // utilities, the retained enrich and search_router routes) and the /sources* routes of settings.py.
 func pythonLeadgenRoutes(t *testing.T) []string {
 	t.Helper()
-	root := filepath.Join("..", "..", "..", "..", "legacy", "python", "apps", "api", "routers")
+	root := testutil.LegacyPath(t, "apps", "api", "routers")
 	var routes []string
 	for _, name := range []string{"leads.py", "settings.py"} {
 		b, err := os.ReadFile(filepath.Join(root, name))

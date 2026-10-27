@@ -3,10 +3,10 @@ package api
 import (
 	"bufio"
 	"context"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"io"
 	"log/slog"
 	"os"
-	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -71,7 +71,7 @@ func pythonLeadSignalRoutes(t *testing.T) []string {
 	t.Helper()
 	var routes []string
 	for _, name := range []string{"leads.py", "signals.py"} {
-		p := filepath.Join("..", "..", "..", "..", "legacy", "python", "apps", "api", "routers", name)
+		p := testutil.LegacyPath(t, "apps", "api", "routers", name)
 		b, err := os.ReadFile(p)
 		if err != nil {
 			t.Skipf("legacy Python tree not present (%v)", err)

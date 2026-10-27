@@ -280,7 +280,7 @@ func TestCheckoutTimeoutIs15s(t *testing.T) {
 }
 
 func TestStripeModuleImportedOnlyByBilling(t *testing.T) {
-	out, err := exec.Command("go", "list", "-tags", "integration", "-f",
+	out, err := exec.Command("go", "list", "-buildvcs=false", "-tags", "integration", "-f",
 		`{{.ImportPath}}|{{join .Imports " "}} {{join .TestImports " "}} {{join .XTestImports " "}}`, "../../...").Output()
 	if err != nil {
 		t.Fatalf("go list: %v", err)

@@ -58,7 +58,7 @@ func buildBinary(t *testing.T) string {
 			return
 		}
 		binPath = filepath.Join(binDir, "opengtm-mcp")
-		out, err := exec.Command("go", "build", "-o", binPath, ".").CombinedOutput()
+		out, err := exec.Command("go", "build", "-buildvcs=false", "-o", binPath, ".").CombinedOutput()
 		if err != nil {
 			binErr = fmt.Errorf("go build: %v\n%s", err, out)
 		}

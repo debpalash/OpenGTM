@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"io"
 	"log/slog"
 	"net/http"
@@ -49,7 +50,7 @@ func sysDo(h http.Handler, method, target string) (*httptest.ResponseRecorder, c
 func legacyTree(t *testing.T) string {
 	t.Helper()
 	data := filepath.Join(t.TempDir(), "data")
-	script, _ := filepath.Abs("../../../../legacy/python/scripts/contract_system_tree.sh")
+	script, _ := filepath.Abs(testutil.LegacyPath(t, "scripts", "contract_system_tree.sh"))
 	if _, err := os.Stat(script); err != nil {
 		t.Skipf("legacy tree script not available: %v", err)
 	}

@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testutil"
 	"io"
 	"log/slog"
 	"os"
@@ -62,7 +63,7 @@ func pythonOutreachRoutes(t *testing.T) []string {
 	t.Helper()
 	var routes []string
 	for _, name := range []string{"outreach.py", "campaigns.py"} {
-		b, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "legacy", "python", "apps", "api", "routers", name))
+		b, err := os.ReadFile(testutil.LegacyPath(t, "apps", "api", "routers", name))
 		if err != nil {
 			t.Skipf("legacy Python tree not present (%v)", err)
 		}
@@ -148,7 +149,7 @@ func TestEveryOutreachRouteHasFixtureOrIsRetained(t *testing.T) {
 // `send` and `outreach_inbound_poll` are the only outreach job types the Go worker dispatches; Python registers
 // both, and no other Python job type may be claimed by the outreach wiring.
 func TestEveryOutreachJobTypeHandledOrPython(t *testing.T) {
-	reg, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "legacy", "python", "apps", "api", "services", "job_registry.py"))
+	reg, err := os.ReadFile(testutil.LegacyPath(t, "apps", "api", "services", "job_registry.py"))
 	if err != nil {
 		t.Skipf("legacy Python tree not present (%v)", err)
 	}
