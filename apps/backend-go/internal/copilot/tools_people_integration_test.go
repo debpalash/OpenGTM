@@ -19,6 +19,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/autopilot"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/chathistory"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/entities"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadpeople"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
@@ -558,5 +559,78 @@ func TestPeoplePreRoutesMatchPython(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// TestPeopleWorkbookResolvesPersonsLikePython runs the workbook cases with the real entities.ResolvePerson and
+// compares the person graph with the one Python wrote.
+func TestPeopleWorkbookResolvesPersonsLikePython(t *testing.T) {
+	var f struct {
+		Research  map[string]any `json:"research_result"`
+		Verify    map[string]any `json:"verify_result"`
+		Workbooks []toolCase     `json:"workbooks"`
+		DB        struct {
+			Identifiers [][]any `json:"person_identifiers"`
+			Entities    [][]any `json:"person_entities"`
+			Employments [][]any `json:"person_employments"`
+		} `json:"db"`
+	}
+	loadTools(t, "tools_people.json", &f)
+	e := toolsSetup(t)
+	ctx := context.Background()
+	clean := func() {
+		for _, tb := range []string{"person_employments", "person_identifiers", "person_entities"} {
+			_, _ = e.owner.Exec(ctx, `DELETE FROM `+tb+` WHERE workspace_id = $1`, e.ws)
+		}
+	}
+	clean()
+	t.Cleanup(clean)
+	eng := &Engine{People: &fakePeople{research: f.Research, verify: f.Verify},
+		ResolvePerson: func(ctx context.Context, tx pgx.Tx, ws string, o PersonObservation) (string, error) {
+			id, _, err := entities.ResolvePerson(ctx, tx, ws, entities.PersonObservation{Name: o.Name, Company: o.Company,
+				Source: o.Source, Title: o.Title, CompanyDomain: o.CompanyDomain, LinkedInURL: o.LinkedInURL, Email: o.Email,
+				EvidenceURL: o.EvidenceURL, LegacyIDs: o.LegacyIDs})
+			return id, err
+		}}
+	for _, c := range f.Workbooks {
+		got, handled, err := e.run(t, c, eng)
+		checkResult(t, e, c, got, handled, err)
+	}
+	rows := func(sql string) string {
+		var s string
+		if err := e.owner.QueryRow(ctx, `SELECT coalesce(json_agg(x), '[]')::text FROM (`+sql+`) r(x)`, e.ws).Scan(&s); err != nil {
+			t.Fatal(err)
+		}
+		return s
+	}
+	want := func(v [][]any) string {
+		var out []string
+		for _, r := range v {
+			b, _ := json.Marshal(r)
+			out = append(out, string(b))
+		}
+		sort.Strings(out)
+		return strings.Join(out, "\n")
+	}
+	got := func(s string) string {
+		var l [][]any
+		_ = json.Unmarshal([]byte(s), &l)
+		for _, r := range l {
+			for i, x := range r {
+				r[i] = semantic(x)
+			}
+		}
+		return want(l)
+	}
+	if g, w := got(rows(`SELECT json_build_array(kind, value) FROM person_identifiers WHERE workspace_id = $1`)), want(f.DB.Identifiers); g != w {
+		t.Fatalf("identifiers:\n got %s\nwant %s", g, w)
+	}
+	if g, w := got(rows(`SELECT json_build_array(company_key, company_name, company_domain, title, source, evidence_url, is_current)
+		FROM person_employments WHERE workspace_id = $1`)), want(f.DB.Employments); g != w {
+		t.Fatalf("employments:\n got %s\nwant %s", g, w)
+	}
+	if g, w := got(rows(`SELECT json_build_array(full_name, identity_keys, fields, corroboration_count) FROM person_entities WHERE workspace_id = $1`)),
+		want(f.DB.Entities); g != w {
+		t.Fatalf("entities:\n got %s\nwant %s", g, w)
 	}
 }
