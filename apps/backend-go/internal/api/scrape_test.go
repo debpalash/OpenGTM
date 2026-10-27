@@ -292,14 +292,14 @@ func TestScrapeServiceBlockedRedirectIsNotRetried(t *testing.T) {
 	}
 }
 
-func TestScrapeLinkedInCookieOnlyForLinkedInHostsAndBrowserEngine(t *testing.T) {
+func TestScrapeNeverSendsTheOperatorLinkedInCookie(t *testing.T) {
 	v := loadScrapeVectors(t)[0]
 	for _, c := range []struct {
 		url        string
 		wantCookie bool
 	}{
-		{"https://www.linkedin.com/in/someone", true},
-		{"https://linkedin.com/company/x", true},
+		{"https://www.linkedin.com/in/someone", false},
+		{"https://linkedin.com/company/x", false},
 		{"https://evil.example/?next=linkedin.com", false},
 		{"https://notlinkedin.com/", false},
 		{"https://linkedin.com.evil.example/", false},
