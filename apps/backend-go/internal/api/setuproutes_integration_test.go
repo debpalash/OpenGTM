@@ -18,36 +18,21 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
 const goodPW = "correct-horse-battery"
 
-// setupEnv is a router over a database emptied of users/workspaces (setup needs an empty users table;
-// run against a private clone, never a shared dev database).
+// setupEnv is a router over private, empty identity tables (setup needs an empty users table); see
+// newIsolatedIdentityPool. The shared tables are never touched.
 type setupEnv struct {
 	h    http.Handler
 	pool *pgxpool.Pool
 	st   *identity.Store
 }
 
-func wipeIdentity(t *testing.T, pool *pgxpool.Pool) {
-	t.Helper()
-	for _, q := range []string{
-		`DELETE FROM user_active_workspace`, `DELETE FROM workspace_members`, `DELETE FROM workspaces`,
-		`DELETE FROM users`, `DELETE FROM app_settings WHERE key = 'setup_complete'`,
-	} {
-		if _, err := pool.Exec(context.Background(), q); err != nil {
-			t.Fatalf("wipe %q: %v", q, err)
-		}
-	}
-}
-
 func newSetupEnv(t *testing.T, token string, lim *ratelimit.Limiter) setupEnv {
 	t.Helper()
-	pool := testpg.NewAppPool(t, 16)
-	wipeIdentity(t, pool)
-	t.Cleanup(func() { wipeIdentity(t, pool) })
+	pool := newIsolatedIdentityPool(t, 16)
 	st := identity.NewStore(pool)
 	r := httpx.NewRouter()
 	RegisterAuth(r, Deps{Pool: pool, Signer: testSigner, Identity: st, SetupToken: token, Limiter: lim})
