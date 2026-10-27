@@ -119,7 +119,7 @@ func TestMessageInitializeListCallMatchFixtures(t *testing.T) {
 		t.Fatalf("%s", w.Body.String())
 	}
 	w = post(h, "Bearer good-a", `{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"nope","arguments":{}}}`)
-	if w.Code != 200 || !strings.Contains(w.Body.String(), `"isError":false`) && !strings.Contains(w.Body.String(), `"isError": false`) {
+	if w.Code != 200 || !strings.Contains(w.Body.String(), `"isError":true`) && !strings.Contains(w.Body.String(), `"isError": true`) {
 		t.Fatalf("%d %s", w.Code, w.Body.String())
 	}
 }

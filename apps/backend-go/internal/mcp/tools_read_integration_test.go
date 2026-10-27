@@ -155,7 +155,7 @@ func (e *readEnv) call(t *testing.T, c Ctx, name string, args map[string]any) st
 			IsError bool `json:"isError"`
 		}
 	}
-	if err := json.Unmarshal(resp, &r); err != nil || len(r.Result.Content) != 1 || r.Result.IsError {
+	if err := json.Unmarshal(resp, &r); err != nil || len(r.Result.Content) != 1 || r.Result.IsError != strings.HasPrefix(r.Result.Content[0].Text, `{"error"`) {
 		t.Fatalf("resp %s err %v", resp, err)
 	}
 	return r.Result.Content[0].Text

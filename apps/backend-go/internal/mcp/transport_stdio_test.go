@@ -126,8 +126,12 @@ func TestStdioInitializeListCallRoundTrip(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%s: %v", name, err)
 		}
-		if got != fx.Response.Stdout {
-			t.Errorf("%s:\n got %q\nwant %q", name, got, fx.Response.Stdout)
+		want := fx.Response.Stdout
+		if name == "read__capability_denied.json" { // F7: tool errors set isError (Python recorded false)
+			want = strings.Replace(strings.Replace(want, `"isError": false`, `"isError": true`, 1), "Content-Length: 171", "Content-Length: 170", 1)
+		}
+		if got != want {
+			t.Errorf("%s:\n got %q\nwant %q", name, got, want)
 		}
 		if e.nCalls() != 1 || e.calls[0] != stdioSecret {
 			t.Errorf("%s: resolver calls %v", name, e.calls)

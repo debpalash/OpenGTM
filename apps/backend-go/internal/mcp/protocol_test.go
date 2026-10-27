@@ -338,8 +338,12 @@ func TestToolCallEnvelopeMatchesFixture(t *testing.T) {
 		c, cfg := idx.ctxFor(rpcFixture{Profile: f.Profile, Token: f.Token})
 		s := NewServer(Deps{Cfg: cfg}, Registry{})
 		got, ok := handle(s, c, string(f.Request.Body))
-		if !ok || got != pyBytes(t, f.Response.Body) {
-			t.Errorf("%s:\n got: %s\nwant: %s", rel, got, pyBytes(t, f.Response.Body))
+		want := pyBytes(t, f.Response.Body)
+		if strings.Contains(want, `"text": "{\"error\"`) { // F7: Python recorded isError false for tool errors
+			want = strings.Replace(want, `"isError": false`, `"isError": true`, 1)
+		}
+		if !ok || got != want {
+			t.Errorf("%s:\n got: %s\nwant: %s", rel, got, want)
 		}
 	}
 	// a read tool through the registry: the text is echoed inside the envelope
@@ -435,7 +439,7 @@ func TestToolTimeoutReturnsErrorText(t *testing.T) {
 		if !ok || time.Since(start) > time.Second {
 			t.Fatalf("%s: took %v", tool, time.Since(start))
 		}
-		if !strings.Contains(got, `"isError": false`) || !strings.Contains(got, `{\"error\": \"tool timed out after 50ms\"}`) {
+		if !strings.Contains(got, `"isError": true`) || !strings.Contains(got, `{\"error\": \"tool timed out after 50ms\"}`) {
 			t.Errorf("%s -> %s", tool, got)
 		}
 	}
@@ -443,5 +447,23 @@ func TestToolTimeoutReturnsErrorText(t *testing.T) {
 	case <-sawCancel:
 	case <-time.After(time.Second):
 		t.Error("handler context was not cancelled")
+	}
+}
+
+func TestToolErrorResultSetsIsError(t *testing.T) {
+	reg := NewRegistry([]Tool{
+		{Name: "get_pipeline_stats", Capability: CapLeadsRead, Handler: func(context.Context, Ctx, Args) (string, error) {
+			return `{"total": 1}`, nil
+		}},
+		{Name: "find_leads", Capability: CapLeadsRead, Handler: func(context.Context, Ctx, Args) (string, error) {
+			return `{"error": "city must be a string"}`, nil
+		}},
+	}, nil)
+	s := NewServer(Deps{}, reg)
+	for tool, want := range map[string]string{"get_pipeline_stats": `"isError": false`, "find_leads": `"isError": true`} {
+		got, ok := handle(s, Ctx{Capabilities: ReadCaps}, `{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"`+tool+`","arguments":{}}}`)
+		if !ok || !strings.Contains(got, want) {
+			t.Errorf("%s -> %s", tool, got)
+		}
 	}
 }
