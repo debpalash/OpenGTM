@@ -25,7 +25,7 @@ func (c *countWebhook) Send(context.Context, WebhookRequest) (Result, error) {
 func TestSlackIgnoresNonWorkspaceSecret(t *testing.T) {
 	for _, src := range []string{"global", "default", "api", ""} {
 		w := &countWebhook{}
-		d := New(Ports{Secrets: srcResolver{src}, Webhook: w}, time.Second)
+		d := New(Ports{Outbound: testOutbound, SlackPrefixes: testSlackPrefixes, Secrets: srcResolver{src}, Webhook: w}, time.Second)
 		r := d.Deliver(context.Background(), Destination{ID: "d", WorkspaceID: "w", Type: "slack",
 			Config: map[string]any{"webhook_secret_ref": "ANY"}}, 1, nil, "i")
 		if r.Success || r.Error != "Slack webhook secret not found" || w.n != 0 {
@@ -33,7 +33,7 @@ func TestSlackIgnoresNonWorkspaceSecret(t *testing.T) {
 		}
 	}
 	w := &countWebhook{}
-	d := New(Ports{Secrets: srcResolver{"workspace"}, Webhook: w}, time.Second)
+	d := New(Ports{Outbound: testOutbound, SlackPrefixes: testSlackPrefixes, Secrets: srcResolver{"workspace"}, Webhook: w}, time.Second)
 	if r := d.Deliver(context.Background(), Destination{ID: "d", WorkspaceID: "w", Type: "slack",
 		Config: map[string]any{"webhook_secret_ref": "ANY"}}, 1, nil, "i"); !r.Success || w.n != 1 {
 		t.Errorf("workspace: %+v", r)

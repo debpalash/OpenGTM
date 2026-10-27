@@ -18,6 +18,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/crmpush"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destvalidate"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
 const vecWS = "ws-vec"
@@ -162,13 +163,20 @@ func (p crmPort) Push(_ context.Context, ws string, cfg, lead map[string]any, wb
 	return crmpush.Result{Success: truthy(s["success"]), Value: strOf(s["summary"]), Error: strOf(s["error"])}
 }
 
+// The recorded vectors use bare secret names; the production policy (WEBHOOK_/SLACK_/... prefixes) is
+// exercised in outbound_test.go.
+var (
+	testOutbound      = secrets.OutboundPolicy{Prefixes: []string{"S", "ANY"}}
+	testSlackPrefixes = []string{"S", "ANY"}
+)
+
 func newRig(script map[string]any) (*Deliverer, *recorder) {
 	rec := &recorder{script: script}
 	rec.secrets = map[string]string{}
 	for k, v := range asMap(script["secrets"]) {
 		rec.secrets[k] = v.(string)
 	}
-	d := New(Ports{Secrets: rec, Webhook: rec, CRM: crmPort{rec}, Instantly: instantlyPort{rec},
+	d := New(Ports{Outbound: testOutbound, SlackPrefixes: testSlackPrefixes, Secrets: rec, Webhook: rec, CRM: crmPort{rec}, Instantly: instantlyPort{rec},
 		Smartlead: smartleadPort{rec}, Sheets: sheetsPort{rec}, Airtable: airtablePort{rec}}, 5*time.Second)
 	return d, rec
 }
@@ -280,7 +288,13 @@ func TestDeliverCasesFromPython(t *testing.T) {
 				case "get_secret":
 					continue // Go never asks for a blank secret ref; hits are covered below
 				case "_act_webhook":
-					wantCalls = append(wantCalls, map[string]any{"config": x["config"], "lead_data": x["lead_data"]})
+					lead := x["lead_data"]
+					if strOf(asMap(c["destination"])["type"]) == "webhook" {
+						// F17: Python resolved webhook templates against the unmapped snapshot; Go uses the mapped payload.
+						dd := destOf(asMap(c["destination"]))
+						lead = MapPayloadOrdered(asMap(c["snapshot"]), dd.FieldMap, nil)
+					}
+					wantCalls = append(wantCalls, map[string]any{"config": x["config"], "lead_data": lead})
 				case "_act_push_crm":
 					wantCalls = append(wantCalls, map[string]any{"config": x["config"], "lead_data": x["lead_data"], "lead_id": x["lead_id"]})
 				default:

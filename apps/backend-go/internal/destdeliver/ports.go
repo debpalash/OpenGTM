@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/crmpush"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
 // Result is the typed form of the Python return map {"success", "summary", "error"}.
@@ -102,13 +103,17 @@ type (
 
 // Ports are the delivery seams; a nil port means that destination type is unsupported in Go.
 type Ports struct {
-	Secrets   SecretResolver // webhook_secret_ref, ad platform tokens
-	Webhook   WebhookSender
-	CRM       CRMPusher
-	Instantly CampaignAdder
-	Smartlead CampaignAdder
-	Sheets    SheetsUpserter
-	Airtable  AirtableUpserter
+	Secrets SecretResolver // webhook_secret_ref, ad platform tokens
+	// Outbound is the secret-ref policy re-checked at delivery for Slack (S-M2); the zero value is
+	// the default prefixes with no registry deny-list. SlackPrefixes nil means DefaultSlackRefPrefixes.
+	Outbound      secrets.OutboundPolicy
+	SlackPrefixes []string
+	Webhook       WebhookSender
+	CRM           CRMPusher
+	Instantly     CampaignAdder
+	Smartlead     CampaignAdder
+	Sheets        SheetsUpserter
+	Airtable      AirtableUpserter
 }
 
 // Supports reports whether Go can deliver destinationType with these ports. Ads and

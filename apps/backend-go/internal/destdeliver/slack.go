@@ -17,6 +17,10 @@ func (d *Deliverer) slack(ctx context.Context, dest Destination, leadID int, sna
 	if ref == "" || d.ports.Secrets == nil {
 		return Result{Error: notFound}
 	}
+	// A stored ref outside the outbound namespace fails closed like a missing one (S-M2).
+	if CheckRef("slack", ref, d.ports.Outbound, d.ports.SlackPrefixes) != nil {
+		return Result{Error: notFound}
+	}
 	webhookURL, src, err := d.ports.Secrets.Get(ctx, dest.WorkspaceID, ref)
 	if err != nil {
 		return Result{Error: "Slack webhook secret lookup failed"}

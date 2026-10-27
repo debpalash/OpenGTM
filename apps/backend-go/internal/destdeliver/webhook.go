@@ -44,7 +44,9 @@ func containsAny(s, chars string) bool {
 }
 
 // webhook posts the audience.member.upsert envelope. The port owns URL guarding, header secret
-// resolution, signing and the HTTP exchange.
+// resolution, signing and the HTTP exchange. Templates in the config (url, headers, body) resolve
+// against the field_map-mapped payload, the same names the receiver sees under "data" (F17;
+// Python resolved them against the unmapped snapshot).
 func (d *Deliverer) webhook(ctx context.Context, dest Destination, leadID int, snapshot, mapped map[string]any, idem string, sec *secretSet) Result {
 	cfg := copyMap(dest.Config)
 	headers, err := webhookHeaders(cfg["headers"])
@@ -62,7 +64,7 @@ func (d *Deliverer) webhook(ctx context.Context, dest Destination, leadID int, s
 	}
 	res, err := d.ports.Webhook.Send(ctx, WebhookRequest{
 		WorkspaceID: dest.WorkspaceID, DestinationType: "webhook", Config: cfg,
-		Payload: snapshot, LeadID: int64(leadID), IdempotencyKey: idem,
+		Payload: mapped, LeadID: int64(leadID), IdempotencyKey: idem,
 	})
 	return finish(res, err, sec)
 }
