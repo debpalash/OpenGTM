@@ -22,10 +22,9 @@ import (
 )
 
 // This file ports services/copilot/preroute.py under GO_COPILOT_NATIVE. The branches are evaluated in
-// Python's order. The company-team clarification, signal tracking and account discovery answer in Go; the
-// people research / verification / contacts / workbook and grounded-draft branches belong to tools that are
-// still Python (WP-COPILOT-TOOLS), so when one of them is the first match the whole pre-route is delegated to
-// the worker, which re-evaluates the same order and answers it.
+// Python's order and all answer in Go (preroute_people.go has the people and grounded-draft branches). Only
+// when the engine has no People (internal/leadpeople) are the explicit people research and verification
+// branches delegated to the worker, which re-evaluates the same order and answers them.
 
 // preDecision names the first matching branch.
 type preDecision int
@@ -36,6 +35,11 @@ const (
 	preDelegate
 	preTrack
 	preAccounts
+	prePeople
+	preContacts
+	preVerify
+	preWorkbook
+	preDraft
 )
 
 // Python's follow-up regexes (fullmatch / search, IGNORECASE; "." does not cross newlines).
@@ -66,6 +70,9 @@ type preState struct {
 	tracking *TrackingRequest
 	brief    *wbcrud.Obj
 	history  []chathistory.Message
+	people   *collectintent.CompanyTeamRequest
+	prior    *wbcrud.Obj // the latest people research / verification result
+	text     string      // the stripped message
 }
 
 // decidePreRoute evaluates the branches in Python's order.
@@ -80,8 +87,11 @@ func (t *Turn) decidePreRoute(ctx context.Context, msg string, approved bool) (p
 			return preClarify, st, nil
 		}
 	}
-	if collectintent.ExtractExplicitPeopleRequest(msg) != nil {
-		return preDelegate, st, nil
+	if st.people = collectintent.ExtractExplicitPeopleRequest(msg); st.people != nil {
+		if t.Engine.People == nil {
+			return preDelegate, st, nil
+		}
+		return prePeople, st, nil
 	}
 	err := t.inTx(ctx, func(tx pgx.Tx) error {
 		var err error
@@ -92,13 +102,23 @@ func (t *Turn) decidePreRoute(ctx context.Context, msg string, approved bool) (p
 		return preNone, st, err
 	}
 	stripped := strings.TrimFunc(msg, isPySpaceRune)
-	if _, _, prior := LatestToolResult(st.history, "verify_people_at_company", "find_people_at_company"); prior {
-		if contactFollowupRE.MatchString(stripped) || verifyFollowupRE.MatchString(stripped) || workbookFollowupRE.MatchString(stripped) {
-			return preDelegate, st, nil
+	st.text = stripped
+	if _, prior, ok := latestOrdered(st.history, "verify_people_at_company", "find_people_at_company"); ok {
+		st.prior = prior
+		switch {
+		case contactFollowupRE.MatchString(stripped):
+			return preContacts, st, nil
+		case verifyFollowupRE.MatchString(stripped):
+			if t.Engine.People == nil {
+				return preDelegate, st, nil
+			}
+			return preVerify, st, nil
+		case workbookFollowupRE.MatchString(stripped):
+			return preWorkbook, st, nil
 		}
 	}
 	if groundedDraftRE.MatchString(stripped) && draftNoSendRE.MatchString(stripped) {
-		return preDelegate, st, nil
+		return preDraft, st, nil
 	}
 	if st.tracking = ExtractTrackingRequest(msg); st.tracking != nil {
 		return preTrack, st, nil
@@ -249,6 +269,14 @@ func (t *Turn) nativePreRoute(ctx context.Context, w *ssestream.Writer, msg stri
 		err = t.preTrack(p, st)
 	case preAccounts:
 		err = t.preAccounts(p, st.brief)
+	case prePeople:
+		err = t.prePeopleResearch(p, st.people)
+	case preContacts, preWorkbook:
+		err = t.prePeopleProposal(p, st.prior, dec == preWorkbook)
+	case preVerify:
+		err = t.preVerifyPeople(p, st.prior)
+	case preDraft:
+		err = t.preDraft(p, st)
 	}
 	if err != nil {
 		var te *turnErr

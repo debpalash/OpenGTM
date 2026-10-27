@@ -3,6 +3,8 @@ package copilot
 import (
 	"context"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/autopilot"
+
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadprogress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 )
@@ -35,6 +37,20 @@ type Engine struct {
 	CollectionLedgerPG bool
 	// Progress receives start_collection's job_created event (nil: none).
 	Progress ProgressEmitter
+
+	// People runs people research, verification and contact enrichment (internal/leadpeople, LeadPeople).
+	// nil sends the people tools and the people pre-route branches to the worker.
+	People PeopleTools
+	// ResolvePerson is entities.resolve_person; create_people_workbook needs it (nil: that tool goes to the
+	// worker).
+	ResolvePerson PersonResolver
+	// Plans is the autopilot plan store (RedisPlanStore when the API has Redis); nil uses one in-process
+	// store, which only works with a single API process.
+	Plans autopilot.PlanStore
+	// Memory is the autopilot run memory; nil uses an in-process one.
+	Memory autopilot.Memory
+	// NewDraftID overrides the outreach draft id (tests).
+	NewDraftID func() string
 }
 
 // ProgressEmitter is the leadgen progress bus (*leadprogress.Bus).

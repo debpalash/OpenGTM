@@ -109,6 +109,9 @@ func displayCall(c parsedCall, approvalID string) ([]byte, error) {
 // describe is the confirmation card text: the worker's describe_action, or Python's own fallback
 // "label\nreason" when the worker cannot answer (a card must still be shown; the gate never depends on it).
 func (t *Turn) describe(ctx context.Context, c parsedCall) string {
+	if t.Engine != nil && c.Name == "execute_plan" {
+		return t.describePlan(ctx, c.Args)
+	}
 	if t.Engine != nil {
 		if d, ok := DescribeAction(c.Name, c.Args); ok {
 			return d

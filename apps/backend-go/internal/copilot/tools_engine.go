@@ -17,15 +17,17 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
-// engineTools are the catalog tools GO_COPILOT_NATIVE executes in Go (plan 15 WP-COPILOT-CORE). The
-// remaining tools (enrich_lead and the WP-COPILOT-TOOLS set) still go to
-// /internal/copilot/tool. Arguments Go cannot answer exactly like Python (a type Python would coerce or
+// engineTools are the catalog tools GO_COPILOT_NATIVE executes in Go (plan 15 WP-COPILOT-CORE and
+// WP-COPILOT-TOOLS). enrich_lead still goes to /internal/copilot/tool, and so do the people tools while the
+// engine has no People (create_people_workbook: no ResolvePerson). Arguments Go cannot answer exactly like Python (a type Python would coerce or
 // raise on in a way not mirrored here) also fall through to the worker.
 var engineTools = []string{
 	"start_collection", "find_similar_leads", "get_enrichment_gaps", "compare_leads",
 	"ambitionbox_search", "ambitionbox_jobs", "import_ambitionbox_to_workbook",
 	"create_source_workbook", "set_workbook_refresh", "add_agent_column", "add_signal_trigger",
 	"track_account_signals",
+	"find_people_at_company", "verify_people_at_company", "enrich_people_contacts", "create_people_workbook",
+	"suggest_outreach", "draft_grounded_outreach", "draft_plan", "execute_plan",
 }
 
 // EngineToolNames lists the tools the native engine implements.
@@ -89,6 +91,30 @@ func (t *Turn) engineTool(ctx context.Context, c parsedCall) (string, bool, erro
 		return t.importAmbitionbox(ctx, a)
 	case "track_account_signals":
 		return t.trackAccountSignals(ctx, a)
+	case "find_people_at_company", "verify_people_at_company", "enrich_people_contacts":
+		if t.Engine.People == nil {
+			return "", false, nil
+		}
+		switch c.Name {
+		case "find_people_at_company":
+			return t.findPeople(ctx, a)
+		case "verify_people_at_company":
+			return t.verifyPeople(ctx, a)
+		}
+		return t.enrichContacts(ctx, a)
+	case "create_people_workbook":
+		if t.Engine.ResolvePerson == nil {
+			return "", false, nil
+		}
+		return t.createPeopleWorkbook(ctx, a)
+	case "suggest_outreach":
+		return t.suggestOutreach(ctx, a)
+	case "draft_grounded_outreach":
+		return t.draftGroundedOutreach(ctx, a)
+	case "draft_plan":
+		return t.draftPlan(ctx, a)
+	case "execute_plan":
+		return t.executePlan(ctx, a)
 	}
 	return "", false, nil
 }
