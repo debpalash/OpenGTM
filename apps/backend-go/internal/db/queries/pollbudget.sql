@@ -24,13 +24,13 @@ LIMIT 1;
 
 -- name: PollInsertWatchJob :one
 -- Same row as engine._enqueue_poll_if_absent (priority 1, max_retries 3); the
--- payload is final at insert (poll_now included). The timestamptz-to-naive cast
--- uses the session TimeZone exactly as Python's aware-datetime bind does.
+-- payload is final at insert (poll_now included). next_run_at is the
+-- instant as naive UTC whatever the session TimeZone (R-tz).
 INSERT INTO jobs (executor, type, payload, workspace_id, priority, fire_key, status,
                   created_at, next_run_at, max_retries, retry_count)
 VALUES (sqlc.arg(executor)::text, 'watch_poll', sqlc.arg(payload)::json,
         NULLIF(sqlc.arg(workspace_id)::text, ''), 1, sqlc.arg(fire_key)::text, 'pending',
-        (now() AT TIME ZONE 'UTC'), (sqlc.arg(next_run_at)::timestamptz)::timestamp, 3, 0)
+        (now() AT TIME ZONE 'UTC'), (sqlc.arg(next_run_at)::timestamptz AT TIME ZONE 'UTC'), 3, 0)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id;
 

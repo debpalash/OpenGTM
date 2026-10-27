@@ -3,9 +3,10 @@
 package autoschedule_test
 
 import (
-	"fmt"
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -434,7 +435,8 @@ func TestFireKeyIsUTCWhateverSessionTimeZone(t *testing.T) {
 		keys[j.FireKey] = true
 		// jobs.next_run_at is naive UTC (the claim compares it with now() AT TIME ZONE 'UTC'):
 		// it must be the key's instant, not the session-local wall time.
-		if !j.NextRunAt.Equal(time.Date(2026, 8, 29, 9, 0, 0, 0, time.UTC)) {
+		at, err := time.Parse(time.RFC3339, j.FireKey[strings.LastIndex(j.FireKey, ":2026")+1:])
+		if err != nil || !j.NextRunAt.Equal(at) {
 			t.Errorf("%s: next_run_at %v", j.FireKey, j.NextRunAt)
 		}
 	}

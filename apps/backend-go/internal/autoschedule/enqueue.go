@@ -57,27 +57,14 @@ func intervalOf(cfg string) string {
 
 // next is compute_next_run(schedule_anchor or now). With no anchor Python reads
 // the clock a second time inside compute_next_run, so the result is one
-// interval ahead (never "due now", which would spin the schedule). loc is the
-// Postgres session zone the anchor was read in.
-func (t Trigger) next(now time.Time, loc *time.Location) time.Time {
+// interval ahead (never "due now", which would spin the schedule). Absolute
+// time and UTC fire keys: the Postgres session TimeZone is never read (R-tz; a
+// UTC session is a documented canary precondition so Python's keys match).
+func (t Trigger) next(now time.Time) time.Time {
 	if t.Anchor == nil {
 		return now.UTC().Add(IntervalDelta(t.Interval))
 	}
-	return NextRunIn(*t.Anchor, t.Interval, now, loc)
-}
-
-// SessionLocation loads the Postgres session TimeZone. A name Go cannot load
-// refuses to schedule rather than risk a fire key that differs from Python's.
-func SessionLocation(ctx context.Context, tx pgx.Tx) (*time.Location, error) {
-	var tzName string
-	if err := tx.QueryRow(ctx, `SHOW TimeZone`).Scan(&tzName); err != nil {
-		return nil, fmt.Errorf("autoschedule: session timezone: %w", err)
-	}
-	loc, err := time.LoadLocation(tzName)
-	if err != nil {
-		return nil, fmt.Errorf("autoschedule: unsupported session TimeZone %q (refusing to schedule): %w", tzName, err)
-	}
-	return loc, nil
+	return NextRun(*t.Anchor, t.Interval, now)
 }
 
 type schedulePayload struct {
@@ -97,11 +84,7 @@ func EnqueueScheduleIfAbsent(ctx context.Context, tx pgx.Tx, t Trigger, next tim
 		return false, fmt.Errorf("autoschedule: executor %q must be go or python", executor)
 	}
 	next = next.UTC()
-	loc, err := SessionLocation(ctx, tx)
-	if err != nil {
-		return false, err
-	}
-	key := FireKeyIn(t.ID, next, loc)
+	key := FireKey(t.ID, next)
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)
@@ -117,7 +100,7 @@ func EnqueueScheduleIfAbsent(ctx context.Context, tx pgx.Tx, t Trigger, next tim
 	} else if !errors.Is(err, pgx.ErrNoRows) {
 		return false, fmt.Errorf("autoschedule: look up: %w", err)
 	}
-	_, err = q.InsertScheduleJob(ctx, gen.InsertScheduleJobParams{
+	_, err := q.InsertScheduleJob(ctx, gen.InsertScheduleJobParams{
 		Executor: executor, Payload: bytes.TrimRight(buf.Bytes(), "\n"), WorkspaceID: t.WorkspaceID, FireKey: key,
 		NextRunAt: tstz(next),
 	})

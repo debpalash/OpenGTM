@@ -18,11 +18,7 @@ import (
 // computed instant whether or not a job was created. tx must be inside
 // tenancy.InWorkspace.
 func BootstrapForTrigger(ctx context.Context, tx pgx.Tx, t Trigger, now time.Time, executor string) (time.Time, error) {
-	loc, err := SessionLocation(ctx, tx)
-	if err != nil {
-		return time.Time{}, err
-	}
-	next := t.next(now, loc)
+	next := t.next(now)
 	if _, err := EnqueueScheduleIfAbsent(ctx, tx, t, next, executor); err != nil {
 		return time.Time{}, err
 	}
@@ -52,11 +48,7 @@ func BootstrapSchedules(ctx context.Context, pool *pgxpool.Pool, now time.Time, 
 			if err != nil || !ok || !t.Enabled || t.Type != "on_schedule" {
 				return err
 			}
-			loc, err := SessionLocation(ctx, tx)
-			if err != nil {
-				return err
-			}
-			created, err = EnqueueScheduleIfAbsent(ctx, tx, t, t.next(now, loc), executor)
+			created, err = EnqueueScheduleIfAbsent(ctx, tx, t, t.next(now), executor)
 			return err
 		})
 		if err != nil {

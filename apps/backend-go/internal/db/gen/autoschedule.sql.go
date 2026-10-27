@@ -95,7 +95,7 @@ INSERT INTO jobs (executor, type, payload, workspace_id, priority, fire_key, sta
                   created_at, next_run_at, max_retries, retry_count)
 VALUES ($1::text, 'trigger_eval', $2::json,
         NULLIF($3::text, ''), 1, $4::text, 'pending',
-        (now() AT TIME ZONE 'UTC'), ($5::timestamptz)::timestamp, 3, 0)
+        (now() AT TIME ZONE 'UTC'), ($5::timestamptz AT TIME ZONE 'UTC'), 3, 0)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id
 `
@@ -109,8 +109,8 @@ type InsertScheduleJobParams struct {
 }
 
 // Same row as job_scheduling.enqueue_job_once for a trigger_eval, with the
-// Python next_run_at (the scheduled instant; the timestamptz-to-naive cast uses
-// the session TimeZone exactly as Python's aware-datetime bind does).
+// scheduled instant as naive UTC next_run_at whatever the session TimeZone (the
+// claim compares it with now() AT TIME ZONE 'UTC'; R-tz).
 func (q *Queries) InsertScheduleJob(ctx context.Context, arg InsertScheduleJobParams) (int32, error) {
 	row := q.db.QueryRow(ctx, insertScheduleJob,
 		arg.Executor,

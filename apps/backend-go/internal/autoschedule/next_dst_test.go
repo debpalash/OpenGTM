@@ -50,7 +50,7 @@ func TestNextRunInAbsoluteInstantsAcrossDST(t *testing.T) {
 func TestTriggerNextNilAnchorWaitsOneInterval(t *testing.T) {
 	now := time.Date(2026, 8, 29, 9, 30, 0, 0, time.UTC)
 	for iv, d := range map[string]time.Duration{"hourly": time.Hour, "daily": 24 * time.Hour, "weekly": 7 * 24 * time.Hour} {
-		got := Trigger{Interval: iv}.next(now, time.UTC)
+		got := Trigger{Interval: iv}.next(now)
 		if want := now.Add(d); !got.Equal(want) {
 			t.Errorf("%s: got %s want %s", iv, got, want)
 		}
