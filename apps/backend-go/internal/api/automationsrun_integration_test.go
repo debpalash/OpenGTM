@@ -103,6 +103,7 @@ func (e arunEnv) seedAutomations(t *testing.T) {
 			for _, tbl := range []string{"workbooks", "workbook_rows", "triggers", "trigger_runs", "trigger_action_results"} {
 				d := tables[tbl]
 				cols := strings.Join(d.Columns, ", ")
+				freeSeedIDs(t, tbl, d.Columns, d.Rows)
 				if _, err := tx.Exec(ctx, fmt.Sprintf(`INSERT INTO %[1]s (%[2]s) SELECT %[2]s FROM json_populate_recordset(null::%[1]s, $1::json)`, tbl, cols), string(d.Rows)); err != nil {
 					return fmt.Errorf("%s %s: %w", ws, tbl, err)
 				}
@@ -112,6 +113,9 @@ func (e arunEnv) seedAutomations(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+	for _, tbl := range []string{"workbook_rows", "triggers", "trigger_runs", "trigger_action_results"} {
+		advanceSeedSeq(t, tbl)
 	}
 }
 

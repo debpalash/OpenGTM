@@ -603,6 +603,37 @@ func TestListLatestRunShape(t *testing.T) {
 	}
 }
 
+// audSeedDestinationIDs lists the destination ids the recorded seed loads, so a count can be scoped to them while
+// other tests leave their own destinations in the shared database.
+func audSeedDestinationIDs(t *testing.T) []string {
+	t.Helper()
+	raw, err := os.ReadFile("../../testdata/audiences/seed.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var seed struct {
+		Tables map[string]map[string]json.RawMessage `json:"tables"`
+	}
+	if err := json.Unmarshal(raw, &seed); err != nil {
+		t.Fatal(err)
+	}
+	var ids []string
+	for _, tables := range seed.Tables {
+		var td struct {
+			Rows []struct {
+				ID string `json:"id"`
+			} `json:"rows"`
+		}
+		if err := json.Unmarshal(tables["audience_destinations"], &td); err != nil {
+			t.Fatal(err)
+		}
+		for _, r := range td.Rows {
+			ids = append(ids, r.ID)
+		}
+	}
+	return ids
+}
+
 func TestDeleteCascades(t *testing.T) {
 	e := newDestEnv(t)
 	for _, q := range []string{
@@ -635,7 +666,12 @@ func TestDeleteCascades(t *testing.T) {
 		t.Errorf("revoked token rows: %d", n)
 	}
 	// Other destinations and the foreign workspace are untouched.
-	if n := destOwnerInt(t, `SELECT count(*) FROM audience_destinations`); n != 16 {
+	seeded := audSeedDestinationIDs(t)
+	var left int
+	if err := audOwner(t).QueryRow(context.Background(), `SELECT count(*) FROM audience_destinations WHERE id = ANY($1)`, seeded).Scan(&left); err != nil {
+		t.Fatal(err)
+	}
+	if n := left; n != len(seeded)-1 {
 		t.Errorf("destinations left: %d", n)
 	}
 	// Deleting the audience cascades its destinations (list after the audience delete).
