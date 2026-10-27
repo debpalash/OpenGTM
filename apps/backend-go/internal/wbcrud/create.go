@@ -805,12 +805,9 @@ func fromJobsColumns() []Column {
 // workbook (body.WorkbookID) or creates a job_results workbook, then snapshots
 // the matching leads that are not yet rows. Errors: ErrNotFound.
 //
-// Faithful Python quirks, pinned by the recorded fixtures:
-//   - Merging mutates the loaded filter_criteria dict in place and reassigns
-//     it, which SQLAlchemy sees as "no change": the merged job ids are only
-//     persisted when the stored filter was empty/NULL. A non-empty filter is
-//     left as is (and so is the lead snapshot), but updated_at is always
-//     stamped because Python assigns it explicitly.
+// Merging always persists the union of job ids into the stored filter and keeps its other keys
+// (Python lost the merge unless the stored filter was empty; F3). Faithful Python quirks, pinned
+// by the recorded fixtures:
 //   - A new workbook's auto name cannot consult jobs (they lived in the
 //     per-workspace SQLite file; Go is Postgres-only), so it is always
 //     "Task Workbook (N jobs)".
@@ -829,34 +826,32 @@ func (s *Service) FromJobs(ctx context.Context, ws string, body FromJobsBody) (W
 				return err
 			}
 			existing, _ := cur.FilterCriteria.(*Obj)
-			if existing.Len() == 0 {
-				set := map[string]struct{}{}
-				if v, ok := existing.Get("job_ids"); ok {
-					arr, _ := v.([]any)
-					for _, e := range arr {
-						set[pyStr(e)] = struct{}{}
-					}
+			if existing == nil {
+				existing = NewObj()
+			}
+			set := map[string]struct{}{}
+			if v, ok := existing.Get("job_ids"); ok {
+				arr, _ := v.([]any)
+				for _, e := range arr {
+					set[pyStr(e)] = struct{}{}
 				}
-				for _, id := range body.JobIDs {
-					set[id] = struct{}{}
-				}
-				merged := make([]string, 0, len(set))
-				for id := range set {
-					merged = append(merged, id)
-				}
-				sortStrings(merged)
-				fc := NewObj()
-				fc.Set("job_ids", merged)
-				raw, err := json.Marshal(fc)
-				if err != nil {
-					return err
-				}
-				if _, err := q.UpdateWorkbookMeta(ctx, gen.UpdateWorkbookMetaParams{
-					WorkbookID: cur.ID, WorkspaceID: ws, SetFilterCriteria: true, FilterCriteria: raw,
-				}); err != nil {
-					return err
-				}
-			} else if err := q.TouchWorkbook(ctx, gen.TouchWorkbookParams{WorkbookID: cur.ID, WorkspaceID: ws}); err != nil {
+			}
+			for _, id := range body.JobIDs {
+				set[id] = struct{}{}
+			}
+			merged := make([]string, 0, len(set))
+			for id := range set {
+				merged = append(merged, id)
+			}
+			sortStrings(merged)
+			existing.Set("job_ids", merged) // other filter keys are kept
+			raw, err := json.Marshal(existing)
+			if err != nil {
+				return err
+			}
+			if _, err := q.UpdateWorkbookMeta(ctx, gen.UpdateWorkbookMetaParams{
+				WorkbookID: cur.ID, WorkspaceID: ws, SetFilterCriteria: true, FilterCriteria: raw,
+			}); err != nil {
 				return err
 			}
 			if w, err = s.Owned(ctx, tx, ws, cur.ID, false); err != nil {

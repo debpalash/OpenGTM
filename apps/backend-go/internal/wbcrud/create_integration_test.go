@@ -416,7 +416,7 @@ func TestFromJobsCreateSnapshotAndNames(t *testing.T) {
 	}
 }
 
-func TestFromJobsMergeKeepsPythonPersistenceQuirk(t *testing.T) {
+func TestFromJobsMergePersistsUnion(t *testing.T) {
 	s, ctx := setup(t)
 	seedLeads(t, s, ctx, wsA, 2, "X", "job-1")
 	seedLeads(t, s, ctx, wsA, 1, "Y", "job-2")
@@ -429,9 +429,8 @@ func TestFromJobsMergeKeepsPythonPersistenceQuirk(t *testing.T) {
 	if got := scalar[string](t, s, ctx, wsA, `SELECT filter_criteria::text FROM workbooks WHERE id=$1`, empty); got != `{"job_ids":["job-1","job-2"]}` || wb.TotalRows != 3 {
 		t.Fatalf("%s %+v", got, wb)
 	}
-	// non-empty stored filter: FastAPI mutates the loaded dict in place, SQLAlchemy sees no
-	// change and persists nothing; updated_at is still stamped and no new rows appear.
-	kept := insert(t, s, ctx, wsA, "Kept", "job_results", `{}`, `{"job_ids":["job-1"]}`)
+	// non-empty stored filter: the union is persisted too (F3), other keys are kept, rows are snapshotted.
+	kept := insert(t, s, ctx, wsA, "Kept", "job_results", `{}`, `{"job_ids":["job-1"],"keep":1}`)
 	err = s.WithTx(ctx, wsA, func(tx pgx.Tx) error {
 		_, err := tx.Exec(ctx, `UPDATE workbooks SET updated_at='2026-01-01 00:00:00' WHERE id=$1`, kept)
 		return err
@@ -443,7 +442,7 @@ func TestFromJobsMergeKeepsPythonPersistenceQuirk(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := scalar[string](t, s, ctx, wsA, `SELECT filter_criteria::text FROM workbooks WHERE id=$1`, kept); got != `{"job_ids":["job-1"]}` || wb.TotalRows != 2 {
+	if got := scalar[string](t, s, ctx, wsA, `SELECT filter_criteria::jsonb::text FROM workbooks WHERE id=$1`, kept); got != `{"keep": 1, "job_ids": ["job-1", "job-2"]}` || wb.TotalRows != 3 {
 		t.Fatalf("%s %+v", got, wb)
 	}
 	if !scalar[time.Time](t, s, ctx, wsA, `SELECT updated_at FROM workbooks WHERE id=$1`, kept).After(time.Date(2026, 1, 2, 0, 0, 0, 0, time.UTC)) {
@@ -453,7 +452,7 @@ func TestFromJobsMergeKeepsPythonPersistenceQuirk(t *testing.T) {
 	if _, err := s.FromJobs(ctx, wsA, wbcrud.FromJobsBody{JobIDs: []string{"job-1"}, WorkbookID: &kept}); err != nil {
 		t.Fatal(err)
 	}
-	if n := scalar[int](t, s, ctx, wsA, `SELECT count(*) FROM workbook_rows WHERE workbook_id=$1`, kept); n != 2 {
+	if n := scalar[int](t, s, ctx, wsA, `SELECT count(*) FROM workbook_rows WHERE workbook_id=$1`, kept); n != 3 {
 		t.Fatalf("dedup by lead_id: %d", n)
 	}
 	// unknown or foreign workbook -> not found
