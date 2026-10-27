@@ -85,6 +85,9 @@ type Deps struct {
 	// read by cmd/api at startup via LoadCollectionLedgerBackend. Leadgen routes register only
 	// when it is exactly "postgres" (the cutover migrated the SQLite ledger).
 	CollectionLedgerBackend string
+
+	// SetupToken is the first-admin setup token (ResolveSetupToken at API start). Empty: setup needs no token.
+	SetupToken string
 }
 
 func (d Deps) getenv() func(string) string {

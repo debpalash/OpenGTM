@@ -126,3 +126,24 @@ DELETE FROM workspace_members WHERE workspace_id = sqlc.arg(workspace_id)::text;
 DELETE FROM user_active_workspace WHERE workspace_id = sqlc.arg(workspace_id)::text;
 -- name: DeleteWorkspaceRow :exec
 DELETE FROM workspaces WHERE id = sqlc.arg(workspace_id)::text;
+
+-- First-admin setup (POST /auth/setup). All identity-plane.
+
+-- name: LockFirstAdminSetup :exec
+SELECT pg_advisory_xact_lock(hashtext('opengtm:first-admin-setup'));
+
+-- name: AnyUser :one
+SELECT EXISTS (SELECT 1 FROM users);
+
+-- name: MainWorkspaceID :one
+SELECT id FROM workspaces WHERE slug = 'main';
+
+-- ensure_tenancy_backfill, step 1: ownerless workspaces belong to the first admin.
+-- name: ClaimOwnerlessWorkspaces :exec
+UPDATE workspaces SET owner_id = sqlc.arg(owner_id)::int WHERE owner_id IS NULL;
+
+-- ensure_tenancy_backfill, step 2: the first admin owns every existing workspace.
+-- name: AddOwnerToAllWorkspaces :exec
+INSERT INTO workspace_members (workspace_id, user_id, role, created_at)
+SELECT id, sqlc.arg(user_id)::int, 'owner', sqlc.arg(now)::float8 FROM workspaces
+ON CONFLICT (workspace_id, user_id) DO NOTHING;

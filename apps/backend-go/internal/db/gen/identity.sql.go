@@ -22,6 +22,44 @@ func (q *Queries) ActiveWorkspace(ctx context.Context, userID int32) (string, er
 	return workspace_id, err
 }
 
+const addOwnerToAllWorkspaces = `-- name: AddOwnerToAllWorkspaces :exec
+INSERT INTO workspace_members (workspace_id, user_id, role, created_at)
+SELECT id, $1::int, 'owner', $2::float8 FROM workspaces
+ON CONFLICT (workspace_id, user_id) DO NOTHING
+`
+
+type AddOwnerToAllWorkspacesParams struct {
+	UserID int32
+	Now    float64
+}
+
+// ensure_tenancy_backfill, step 2: the first admin owns every existing workspace.
+func (q *Queries) AddOwnerToAllWorkspaces(ctx context.Context, arg AddOwnerToAllWorkspacesParams) error {
+	_, err := q.db.Exec(ctx, addOwnerToAllWorkspaces, arg.UserID, arg.Now)
+	return err
+}
+
+const anyUser = `-- name: AnyUser :one
+SELECT EXISTS (SELECT 1 FROM users)
+`
+
+func (q *Queries) AnyUser(ctx context.Context) (bool, error) {
+	row := q.db.QueryRow(ctx, anyUser)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const claimOwnerlessWorkspaces = `-- name: ClaimOwnerlessWorkspaces :exec
+UPDATE workspaces SET owner_id = $1::int WHERE owner_id IS NULL
+`
+
+// ensure_tenancy_backfill, step 1: ownerless workspaces belong to the first admin.
+func (q *Queries) ClaimOwnerlessWorkspaces(ctx context.Context, ownerID int32) error {
+	_, err := q.db.Exec(ctx, claimOwnerlessWorkspaces, ownerID)
+	return err
+}
+
 const countLeads = `-- name: CountLeads :one
 SELECT count(*)::bigint FROM leads
 `
@@ -330,6 +368,28 @@ func (q *Queries) ListWorkspacesForUser(ctx context.Context, userID int32) ([]Wo
 		return nil, err
 	}
 	return items, nil
+}
+
+const lockFirstAdminSetup = `-- name: LockFirstAdminSetup :exec
+
+SELECT pg_advisory_xact_lock(hashtext('opengtm:first-admin-setup'))
+`
+
+// First-admin setup (POST /auth/setup). All identity-plane.
+func (q *Queries) LockFirstAdminSetup(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, lockFirstAdminSetup)
+	return err
+}
+
+const mainWorkspaceID = `-- name: MainWorkspaceID :one
+SELECT id FROM workspaces WHERE slug = 'main'
+`
+
+func (q *Queries) MainWorkspaceID(ctx context.Context) (string, error) {
+	row := q.db.QueryRow(ctx, mainWorkspaceID)
+	var id string
+	err := row.Scan(&id)
+	return id, err
 }
 
 const memberPermissions = `-- name: MemberPermissions :many
