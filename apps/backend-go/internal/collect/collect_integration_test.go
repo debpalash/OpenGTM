@@ -98,9 +98,9 @@ func jobNamed(t *testing.T, name string) (jobVector, any) {
 }
 
 type pgStage struct {
-	Stage, Status                           string
+	Stage, Status                          string
 	InputCount, OutputCount, RejectedCount int32
-	Details                                 any
+	Details                                any
 }
 
 func readJob(t *testing.T, ctx context.Context, pool *pgxpool.Pool, ws, id string) (*collectledger.JobDetail, []pgStage) {
