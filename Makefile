@@ -3,7 +3,7 @@
 #   make build   clean, build the web UI, build bin/opengtm-{api,worker,mcp} + bin/suppressnorm
 #   make run     build, then start api + worker in the background (pids/logs in .run/)
 #   make dev     vite dev server for apps/web (pid in .run/web.pid; proxies to VITE_API_TARGET)
-#   make kill    stop what run/dev started (by pid file; never by port)
+#   make kill    stop what run/dev started (pid file, verified against /proc; never by port or name)
 #   make up/down docker compose stack
 #   make test    go vet + go test, web lint + build
 #
@@ -34,34 +34,29 @@ web:
 clean:
 	rm -rf $(BIN) $(WEB_DIR)/dist $(UI_DIST)
 
-run: build
+run:
 	@mkdir -p $(RUN)
 	@for s in api worker; do \
-		if [ -f $(RUN)/$$s.pid ] && kill -0 $$(cat $(RUN)/$$s.pid) 2>/dev/null; then \
+		if scripts/runctl.sh alive $$s; then \
 			echo "$$s already running (pid $$(cat $(RUN)/$$s.pid)); run 'make kill' first" >&2; exit 1; fi; \
 	done
+	@$(MAKE) --no-print-directory build
 	@nohup $(BIN)/opengtm-api    >$(RUN)/api.log    2>&1 & echo $$! >$(RUN)/api.pid
 	@nohup $(BIN)/opengtm-worker >$(RUN)/worker.log 2>&1 & echo $$! >$(RUN)/worker.pid
 	@echo "started api (pid $$(cat $(RUN)/api.pid)) and worker (pid $$(cat $(RUN)/worker.pid)); logs in $(RUN)/"
 
+# vite is started under setsid so its pid is a process-group leader: `make kill` verifies it and stops the whole group.
 dev:
 	@mkdir -p $(RUN)
-	@if [ -f $(RUN)/web.pid ] && kill -0 $$(cat $(RUN)/web.pid) 2>/dev/null; then \
+	@if scripts/runctl.sh alive web; then \
 		echo "vite already running (pid $$(cat $(RUN)/web.pid)); run 'make kill' first" >&2; exit 1; fi
 	@cd $(WEB_DIR) && (bun install --frozen-lockfile >/dev/null) && \
-		(nohup bun run dev:app >$(RUN)/web.log 2>&1 & echo $$! >$(RUN)/web.pid)
+		(setsid nohup bun run dev:app >$(RUN)/web.log 2>&1 </dev/null & echo $$! >$(RUN)/web.pid)
 	@echo "vite started (pid $$(cat $(RUN)/web.pid)); log $(RUN)/web.log; proxy target $${VITE_API_TARGET:-http://127.0.0.1:3000}"
 
+# Signals only pids whose /proc entry proves they belong to this repo (see scripts/runctl.sh); stale/foreign pids are skipped.
 kill:
-	@pids=""; for f in $(RUN)/*.pid; do [ -f "$$f" ] || continue; p=$$(cat $$f); \
-		if kill -0 $$p 2>/dev/null; then kill -TERM $$p 2>/dev/null; pids="$$pids $$p"; fi; done; \
-	for i in 1 2 3 4 5 6 7 8 9 10; do \
-		alive=""; for p in $$pids; do kill -0 $$p 2>/dev/null && alive="$$alive $$p"; done; \
-		[ -z "$$alive" ] && break; sleep 0.5; pids="$$alive"; done; \
-	for p in $$pids; do kill -0 $$p 2>/dev/null && { echo "KILL $$p"; kill -KILL $$p 2>/dev/null; }; done; true
-	@rm -f $(RUN)/*.pid
-	@pkill -TERM -f '$(CURDIR)/bin/[o]pengtm-' 2>/dev/null || true
-	@echo "stopped"
+	@scripts/runctl.sh kill
 
 up:
 	docker compose up -d --build
