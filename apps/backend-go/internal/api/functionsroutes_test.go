@@ -5,6 +5,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -349,14 +350,17 @@ func TestApplyNoChangeKeepsUpdatedAtAndNullConfig(t *testing.T) {
 	}
 }
 
-func TestApplyDoesNotValidateCycles(t *testing.T) {
+func TestApplyRejectsNewCycles(t *testing.T) {
 	e := newFnEnv(t)
 	h := e.user(t, "t15-ws10", "t15-u10", "editor", false)
 	e.workbookIn(t, "t15-ws10", "t15-wb4", `[{"id":"a","type":"ai_formula","prompt":"{B}","input_columns":["b"],"name":"A"}]`)
 	e.fn(t, "t15-f3", "t15 f3", "t15-f", 0, `[{"id":"b","type":"ai_formula","prompt":"{A}","input_columns":["a"],"name":"B"}]`)
 	code, out := e.call("POST", "/api/functions/t15-f3/apply", `{"workbook_id":"t15-wb4"}`, h)
-	if code != 200 || out["columns_added"] != float64(1) {
-		t.Fatalf("parity: apply must not run cycle validation: %d %v", code, out)
+	if code != 422 || !strings.Contains(fmt.Sprint(out["detail"]), "circular dependencies") {
+		t.Fatalf("apply must reject a new cycle: %d %v", code, out)
+	}
+	if cols, _ := e.wbCols(t, "t15-ws10", "t15-wb4"); strings.Contains(cols, `"id":"b"`) || e.usage(t, "t15-f3") != 0 {
+		t.Fatalf("nothing may be written: %s", cols)
 	}
 }
 
