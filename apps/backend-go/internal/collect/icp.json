@@ -1,0 +1,79 @@
+{
+ "ICP": {
+  "target_industries": [
+   "HR Services",
+   "IT Staffing",
+   "Recruitment",
+   "Workforce Solutions",
+   "Payroll",
+   "Recruitment Process Outsourcing",
+   "Contract Staffing",
+   "Executive Search",
+   "Talent Acquisition",
+   "HR Consultancy",
+   "Manpower Services",
+   "Staffing & Payroll",
+   "HR Outsourcing"
+  ],
+  "target_cities": [
+   "Bangalore",
+   "Mumbai",
+   "Delhi",
+   "Hyderabad",
+   "Pune",
+   "Chennai",
+   "Noida",
+   "Gurgaon",
+   "Kolkata",
+   "Ahmedabad"
+  ],
+  "tier1_cities": [
+   "Bangalore",
+   "Mumbai",
+   "Delhi",
+   "Hyderabad",
+   "Pune"
+  ],
+  "preferred_specializations": [
+   "IT Staffing",
+   "Workforce Management",
+   "Recruitment Process Outsourcing",
+   "HR SaaS",
+   "Staffing & Payroll",
+   "Talent Acquisition",
+   "Leadership Hiring"
+  ],
+  "min_company_size": 10,
+  "value_proposition": "Yupcha Superadmin Console — Unified multi-database CRM for candidate tracking, attendance, client management, and automated reporting"
+ },
+ "SCORING_WEIGHTS": {
+  "has_website": 10,
+  "has_email": 10,
+  "has_phone": 10,
+  "has_linkedin": 5,
+  "company_size_large": 15,
+  "specialization_match": 20,
+  "tier1_city": 10,
+  "decision_maker_found": 15,
+  "multiple_contacts": 5
+ },
+ "SCORE_TIERS": {
+  "hot": [
+   75,
+   100
+  ],
+  "warm": [
+   50,
+   74
+  ],
+  "cold": [
+   25,
+   49
+  ],
+  "unqualified": [
+   0,
+   24
+  ]
+ },
+ "RELIABILITY_SWING": 8.0
+}
