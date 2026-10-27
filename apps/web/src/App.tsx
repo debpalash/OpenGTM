@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTitle, PopoverTrigger } from "@/compone
 import { NotificationRow } from "@/components/notifications/notification-row"
 import { useNotifications } from "@/lib/notifications"
 import LoginPage from "@/pages/login"
+import SetupPage from "@/pages/setup"
 
 // Pages
 const ChatPage = lazy(() => import("@/pages/chat"))
@@ -227,12 +228,21 @@ function Shell() {
 }
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { user, loading, activeWorkspaceId } = useAuth()
+  const { user, loading, activeWorkspaceId, setupRequired } = useAuth()
   const location = useLocation()
   if (loading) return <FullScreenSpinner />
+  if (!user && setupRequired) return <Navigate to="/setup" replace />
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search + location.hash }} />
   if (!activeWorkspaceId) return <FullScreenSpinner label="Loading workspace…" />
   return <Fragment key={activeWorkspaceId}>{children}</Fragment>
+}
+
+/** An empty instance has no one to sign in: send visitors to first-run setup. */
+function LoginRoute() {
+  const { loading, setupRequired } = useAuth()
+  if (loading) return <FullScreenSpinner />
+  if (setupRequired) return <Navigate to="/setup" replace />
+  return <LoginPage />
 }
 
 export default function App() {
@@ -241,7 +251,8 @@ export default function App() {
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/login" element={<LoginRoute />} />
+            <Route path="/setup" element={<SetupPage />} />
             <Route path="/*" element={<RequireAuth><Shell /></RequireAuth>} />
           </Routes>
           <Toaster />

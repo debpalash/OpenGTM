@@ -1,13 +1,13 @@
 import { useEffect, useLayoutEffect, useState, type ReactNode } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { ArrowLeft, Building2, Eye, EyeOff, KeyRound, LockKeyhole, LogIn, User, UserPlus } from "lucide-react"
+import { ArrowLeft, Building2, Eye, EyeOff, KeyRound, LockKeyhole, LogIn, ShieldCheck, User } from "lucide-react"
 
 import { LoginScene } from "@/components/login-scene/login-scene"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 import "./login.css"
 
-type AuthMode = "login" | "signup" | "reset"
+type AuthMode = "login" | "setup" | "reset"
 
 const COPY: Record<AuthMode, { icon: typeof LogIn; title: string; subtitle: string; submit: string }> = {
   login: {
@@ -16,11 +16,11 @@ const COPY: Record<AuthMode, { icon: typeof LogIn; title: string; subtitle: stri
     subtitle: "Find, enrich and act on the accounts that matter. Your data stays on this deployment.",
     submit: "Sign in",
   },
-  signup: {
-    icon: UserPlus,
-    title: "Request an account",
-    subtitle: "Accounts on this self-hosted deployment are created by your workspace administrator.",
-    submit: "Request account",
+  setup: {
+    icon: ShieldCheck,
+    title: "Create the admin account",
+    subtitle: "Welcome to OpenGTM. The first account becomes the administrator of this deployment.",
+    submit: "Create admin account",
   },
   reset: {
     icon: KeyRound,
@@ -122,13 +122,14 @@ const fieldClass =
   "outline-none transition-[background-color,box-shadow] placeholder:text-[var(--t-font-color-tertiary)] " +
   "hover:bg-[#e8edf2] focus-visible:bg-background focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] "
 
-export default function LoginPage() {
+/** `setup` renders the first-run admin form (the /setup route); otherwise the sign-in page. */
+export default function LoginPage({ setup = false }: { setup?: boolean }) {
   useForceLightTheme()
   const stars = useGitHubStars(GITHUB_REPO)
-  const { login } = useAuth()
+  const { login, completeSetup, setupRequired, setupTokenRequired } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const [mode, setMode] = useState<AuthMode>("login")
+  const [mode, setMode] = useState<AuthMode>(setup ? "setup" : "login")
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -137,6 +138,8 @@ export default function LoginPage() {
   const [notice, setNotice] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [workspaceSlug, setWorkspaceSlug] = useState("")
+  const [workspaceName, setWorkspaceName] = useState("")
+  const [setupToken, setSetupToken] = useState("")
 
   const from = (location.state as { from?: string } | null)?.from ?? "/chat"
   const copy = COPY[mode]
@@ -156,12 +159,22 @@ export default function LoginPage() {
     setError(null)
     setNotice(null)
 
-    if (mode === "signup") {
+    if (mode === "setup") {
       if (password !== confirmPassword) {
         setError("Passwords do not match.")
         return
       }
-      setNotice("Accounts are created by your OpenGTM workspace administrator on this self-hosted deployment.")
+      setBusy(true)
+      try {
+        await completeSetup({ username: username.trim(), password, workspaceName: workspaceName.trim(), setupToken: setupToken.trim() })
+        navigate("/chat", { replace: true })
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Setup failed")
+        // 409: another visitor finished setup first; hand over to the sign-in page.
+        if (err instanceof Error && err.message === "Setup already completed") navigate("/login", { replace: true })
+      } finally {
+        setBusy(false)
+      }
       return
     }
 
@@ -245,19 +258,32 @@ export default function LoginPage() {
                     <Field id="password" label="Password" icon={<LockKeyhole />} trailing={passwordToggle}>
                       <input id="password" type={showPassword ? "text" : "password"} required
                         autoComplete={mode === "login" ? "current-password" : "new-password"}
-                        minLength={mode === "signup" ? 8 : undefined} value={password}
+                        minLength={mode === "setup" ? 12 : undefined} maxLength={mode === "setup" ? 72 : undefined} value={password}
                         onChange={event => setPassword(event.target.value)} placeholder="Password"
                         className={cn(fieldClass, "pr-11")} />
                     </Field>
                   )}
 
-                  {mode === "signup" && (
-                    <Field id="confirm-password" label="Confirm password" icon={<LockKeyhole />}>
-                      <input id="confirm-password" type={showPassword ? "text" : "password"} required minLength={8}
-                        autoComplete="new-password" value={confirmPassword}
-                        onChange={event => setConfirmPassword(event.target.value)} placeholder="Confirm password"
-                        className={fieldClass} />
-                    </Field>
+                  {mode === "setup" && (
+                    <>
+                      <Field id="confirm-password" label="Confirm password" icon={<LockKeyhole />}>
+                        <input id="confirm-password" type={showPassword ? "text" : "password"} required minLength={12} maxLength={72}
+                          autoComplete="new-password" value={confirmPassword}
+                          onChange={event => setConfirmPassword(event.target.value)} placeholder="Confirm password (12+ characters)"
+                          className={fieldClass} />
+                      </Field>
+                      <Field id="workspace-name" label="Workspace name (optional)" icon={<Building2 />}>
+                        <input id="workspace-name" value={workspaceName} onChange={event => setWorkspaceName(event.target.value)}
+                          placeholder="Workspace name (optional)" autoComplete="organization" className={fieldClass} />
+                      </Field>
+                      {setupTokenRequired && (
+                        <Field id="setup-token" label="Setup token" icon={<KeyRound />}>
+                          <input id="setup-token" required autoComplete="off" spellCheck={false} value={setupToken}
+                            onChange={event => setSetupToken(event.target.value)} placeholder="Setup token from the API log"
+                            className={fieldClass} />
+                        </Field>
+                      )}
+                    </>
                   )}
 
                   {mode === "login" && (
@@ -274,7 +300,7 @@ export default function LoginPage() {
 
                   <button type="submit" disabled={busy}
                     className="mt-1 h-11 w-full rounded-xl bg-[linear-gradient(to_bottom,#3a3a3e,#161618)] text-[15px] font-medium text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_1px_2px_rgb(0_0_0/0.25),0_6px_16px_rgb(0_0_0/0.14)] outline-none transition-[filter,box-shadow] hover:brightness-125 focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] active:brightness-95 disabled:opacity-60">
-                    {busy ? "Signing in…" : copy.submit}
+                    {busy ? (mode === "setup" ? "Creating account…" : "Signing in…") : copy.submit}
                   </button>
                 </form>
 
@@ -304,8 +330,9 @@ export default function LoginPage() {
                 )}
 
                 <p className="mt-6 text-center text-[13px] text-muted-foreground">
-                  {mode === "login" && <>New to OpenGTM? <button type="button" onClick={() => changeMode("signup")} className="font-medium text-foreground hover:underline">Request an account</button></>}
-                  {mode === "signup" && <>Already have an account? <button type="button" onClick={() => changeMode("login")} className="font-medium text-foreground hover:underline">Sign in</button></>}
+                  {mode === "login" && (setupRequired
+                    ? <>New to OpenGTM? <button type="button" onClick={() => navigate("/setup")} className="font-medium text-foreground hover:underline">Create the admin account</button></>
+                    : <>Accounts are created by your OpenGTM workspace administrator.</>)}
                   {mode === "reset" && <button type="button" onClick={() => changeMode("login")} className="inline-flex items-center gap-1.5 font-medium text-foreground hover:underline"><ArrowLeft className="size-3.5" aria-hidden="true" />Back to sign in</button>}
                 </p>
               </div>
