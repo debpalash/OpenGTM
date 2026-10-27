@@ -1,0 +1,603 @@
+[
+ {
+  "calls": [
+   {
+    "action": "wbsearchentities",
+    "format": "json",
+    "language": "en",
+    "limit": 7,
+    "search": "Stripe",
+    "type": "item"
+   },
+   {
+    "action": "wbgetentities",
+    "format": "json",
+    "ids": "Q1",
+    "languages": "en",
+    "props": "claims|descriptions"
+   }
+  ],
+  "company": "Stripe",
+  "entity": {
+   "claims": {
+    "P856": [
+     {
+      "mainsnak": {
+       "datavalue": {
+        "value": "https://www.Stripe.com/"
+       }
+      }
+     }
+    ]
+   },
+   "descriptions": {
+    "en": {
+     "value": "company"
+    }
+   }
+  },
+  "result": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "evidence_url": "https://www.wikidata.org/wiki/Q1",
+   "observed_at": "2026-10-28",
+   "source": "wikidata",
+   "source_license": "CC0-1.0",
+   "status": "resolved",
+   "website": "https://www.Stripe.com/"
+  },
+  "search_hits": [
+   {
+    "description": "American payments company",
+    "id": "Q1",
+    "label": "Stripe"
+   }
+  ]
+ },
+ {
+  "calls": [
+   {
+    "action": "wbsearchentities",
+    "format": "json",
+    "language": "en",
+    "limit": 7,
+    "search": "Stripe, Inc.",
+    "type": "item"
+   },
+   {
+    "action": "wbgetentities",
+    "format": "json",
+    "ids": "Q1",
+    "languages": "en",
+    "props": "claims|descriptions"
+   }
+  ],
+  "company": "Stripe, Inc.",
+  "entity": {
+   "claims": {
+    "P856": [
+     {
+      "mainsnak": {
+       "datavalue": {
+        "value": "https://stripe.com"
+       }
+      }
+     }
+    ]
+   },
+   "descriptions": {
+    "en": {
+     "value": "company"
+    }
+   }
+  },
+  "result": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe, Inc.",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "evidence_url": "https://www.wikidata.org/wiki/Q1",
+   "observed_at": "2026-10-28",
+   "source": "wikidata",
+   "source_license": "CC0-1.0",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  },
+  "search_hits": [
+   {
+    "description": "payments company",
+    "id": "Q1",
+    "label": "Stripe"
+   }
+  ]
+ },
+ {
+  "calls": [
+   {
+    "action": "wbsearchentities",
+    "format": "json",
+    "language": "en",
+    "limit": 7,
+    "search": "Stripe",
+    "type": "item"
+   }
+  ],
+  "company": "Stripe",
+  "entity": {
+   "claims": {
+    "P856": [
+     {
+      "mainsnak": {
+       "datavalue": {
+        "value": "https://x.com"
+       }
+      }
+     }
+    ]
+   },
+   "descriptions": {
+    "en": {
+     "value": "company"
+    }
+   }
+  },
+  "result": {
+   "canonical_domain": "",
+   "status": "ambiguous"
+  },
+  "search_hits": [
+   {
+    "description": "payments company",
+    "id": "Q1",
+    "label": "Stripe"
+   },
+   {
+    "description": "software company",
+    "id": "Q2",
+    "label": "Stripe"
+   }
+  ]
+ },
+ {
+  "calls": [
+   {
+    "action": "wbsearchentities",
+    "format": "json",
+    "language": "en",
+    "limit": 7,
+    "search": "Stripe",
+    "type": "item"
+   },
+   {
+    "action": "wbgetentities",
+    "format": "json",
+    "ids": "Q1",
+    "languages": "en",
+    "props": "claims|descriptions"
+   }
+  ],
+  "company": "Stripe",
+  "entity": {
+   "claims": {
+    "P856": [
+     {
+      "mainsnak": {
+       "datavalue": {
+        "value": "https://stripe.com"
+       }
+      }
+     }
+    ]
+   },
+   "descriptions": {
+    "en": {
+     "value": "company"
+    }
+   }
+  },
+  "result": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "evidence_url": "https://www.wikidata.org/wiki/Q1",
+   "observed_at": "2026-10-28",
+   "source": "wikidata",
+   "source_license": "CC0-1.0",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  },
+  "search_hits": [
+   {
+    "description": "payments company",
+    "id": "Q1",
+    "label": "Stripe"
+   },
+   {
+    "description": "payments company",
+    "id": "Q1",
+    "label": "Stripe"
+   }
+  ]
+ },
+ {
+  "calls": [
+   {
+    "action": "wbsearchentities",
+    "format": "json",
+    "language": "en",
+    "limit": 7,
+    "search": "Stripe",
+    "type": "item"
+   }
+  ],
+  "company": "Stripe",
+  "entity": null,
+  "result": {
+   "canonical_domain": "",
+   "status": "not_found"
+  },
+  "search_hits": [
+   {
+    "description": "a given name",
+    "id": "Q3",
+    "label": "Stripe"
+   }
+  ]
+ },
+ {
+  "calls": [
+   {
+    "action": "wbsearchentities",
+    "format": "json",
+    "language": "en",
+    "limit": 7,
+    "search": "Stripe",
+    "type": "item"
+   }
+  ],
+  "company": "Stripe",
+  "entity": null,
+  "result": {
+   "canonical_domain": "",
+   "status": "not_found"
+  },
+  "search_hits": [
+   {
+    "description": "a river",
+    "id": "Q4",
+    "label": "Stripe"
+   }
+  ]
+ },
+ {
+  "calls": [
+   {
+    "action": "wbsearchentities",
+    "format": "json",
+    "language": "en",
+    "limit": 7,
+    "search": "Stripe",
+    "type": "item"
+   }
+  ],
+  "company": "Stripe",
+  "entity": null,
+  "result": {
+   "canonical_domain": "",
+   "status": "not_found"
+  },
+  "search_hits": [
+   {
+    "description": "company",
+    "id": "Q5",
+    "label": "Striped"
+   }
+  ]
+ },
+ {
+  "calls": [
+   {
+    "action": "wbsearchentities",
+    "format": "json",
+    "language": "en",
+    "limit": 7,
+    "search": "Stripe",
+    "type": "item"
+   }
+  ],
+  "company": "Stripe",
+  "entity": null,
+  "result": {
+   "canonical_domain": "",
+   "status": "not_found"
+  },
+  "search_hits": []
+ },
+ {
+  "calls": [
+   {
+    "action": "wbsearchentities",
+    "format": "json",
+    "language": "en",
+    "limit": 7,
+    "search": "Acme Corp",
+    "type": "item"
+   },
+   {
+    "action": "wbgetentities",
+    "format": "json",
+    "ids": "Q6",
+    "languages": "en",
+    "props": "claims|descriptions"
+   }
+  ],
+  "company": "Acme Corp",
+  "entity": {
+   "claims": {},
+   "descriptions": {
+    "en": {
+     "value": "company"
+    }
+   }
+  },
+  "result": {
+   "canonical_domain": "",
+   "entity_id": "Q6",
+   "evidence_url": "https://www.wikidata.org/wiki/Q6",
+   "status": "website_missing"
+  },
+  "search_hits": [
+   {
+    "description": "manufacturer",
+    "id": "Q6",
+    "label": "Acme Corporation"
+   }
+  ]
+ },
+ {
+  "calls": [
+   {
+    "action": "wbsearchentities",
+    "format": "json",
+    "language": "en",
+    "limit": 7,
+    "search": "Acme Corporation",
+    "type": "item"
+   },
+   {
+    "action": "wbgetentities",
+    "format": "json",
+    "ids": "Q6",
+    "languages": "en",
+    "props": "claims|descriptions"
+   }
+  ],
+  "company": "Acme Corporation",
+  "entity": {
+   "claims": {
+    "P856": [
+     {
+      "mainsnak": {
+       "datavalue": {
+        "value": "acme.example.org/home"
+       }
+      }
+     }
+    ]
+   },
+   "descriptions": {
+    "en": {
+     "value": "company"
+    }
+   }
+  },
+  "result": {
+   "canonical_domain": "example.org",
+   "company": "Acme Corporation",
+   "confidence": 0.9,
+   "entity_id": "Q6",
+   "evidence_url": "https://www.wikidata.org/wiki/Q6",
+   "observed_at": "2026-10-28",
+   "source": "wikidata",
+   "source_license": "CC0-1.0",
+   "status": "resolved",
+   "website": "acme.example.org/home"
+  },
+  "search_hits": [
+   {
+    "description": "manufacturer",
+    "id": "Q6",
+    "label": "ACME CORP"
+   }
+  ]
+ },
+ {
+  "calls": [
+   {
+    "action": "wbsearchentities",
+    "format": "json",
+    "language": "en",
+    "limit": 7,
+    "search": "Microcorp",
+    "type": "item"
+   },
+   {
+    "action": "wbgetentities",
+    "format": "json",
+    "ids": "Q8",
+    "languages": "en",
+    "props": "claims|descriptions"
+   }
+  ],
+  "company": "Microcorp",
+  "entity": {
+   "claims": {
+    "P856": [
+     {
+      "mainsnak": {
+       "datavalue": {
+        "value": "http://micro.io"
+       }
+      }
+     }
+    ]
+   },
+   "descriptions": {
+    "en": {
+     "value": "company"
+    }
+   }
+  },
+  "result": {
+   "canonical_domain": "micro.io",
+   "company": "Microcorp",
+   "confidence": 0.9,
+   "entity_id": "Q8",
+   "evidence_url": "https://www.wikidata.org/wiki/Q8",
+   "observed_at": "2026-10-28",
+   "source": "wikidata",
+   "source_license": "CC0-1.0",
+   "status": "resolved",
+   "website": "http://micro.io"
+  },
+  "search_hits": [
+   {
+    "description": "company",
+    "id": "Q7",
+    "label": "Micro"
+   },
+   {
+    "description": "company",
+    "id": "Q8",
+    "label": "Microcorp"
+   }
+  ]
+ },
+ {
+  "calls": [
+   {
+    "action": "wbsearchentities",
+    "format": "json",
+    "language": "en",
+    "limit": 7,
+    "search": "Foo  Ltd.",
+    "type": "item"
+   },
+   {
+    "action": "wbgetentities",
+    "format": "json",
+    "ids": "Q9",
+    "languages": "en",
+    "props": "claims|descriptions"
+   }
+  ],
+  "company": "  Foo  Ltd. ",
+  "entity": {
+   "claims": {
+    "P856": [
+     {
+      "mainsnak": {
+       "datavalue": {
+        "value": "https://foo.dev"
+       }
+      }
+     }
+    ]
+   },
+   "descriptions": {
+    "en": {
+     "value": "company"
+    }
+   }
+  },
+  "result": {
+   "canonical_domain": "foo.dev",
+   "company": "Foo  Ltd.",
+   "confidence": 0.9,
+   "entity_id": "Q9",
+   "evidence_url": "https://www.wikidata.org/wiki/Q9",
+   "observed_at": "2026-10-28",
+   "source": "wikidata",
+   "source_license": "CC0-1.0",
+   "status": "resolved",
+   "website": "https://foo.dev"
+  },
+  "search_hits": [
+   {
+    "description": "Business enterprise",
+    "id": "Q9",
+    "label": "Foo"
+   }
+  ]
+ },
+ {
+  "calls": [],
+  "company": "",
+  "entity": null,
+  "result": {
+   "canonical_domain": "",
+   "status": "not_found"
+  },
+  "search_hits": []
+ },
+ {
+  "calls": [
+   {
+    "action": "wbsearchentities",
+    "format": "json",
+    "language": "en",
+    "limit": 7,
+    "search": "Café Münch GmbH",
+    "type": "item"
+   },
+   {
+    "action": "wbgetentities",
+    "format": "json",
+    "ids": "Q10",
+    "languages": "en",
+    "props": "claims|descriptions"
+   }
+  ],
+  "company": "Café Münch GmbH",
+  "entity": {
+   "claims": {
+    "P856": [
+     {
+      "mainsnak": {
+       "datavalue": {
+        "value": "https://cafe-muench.de"
+       }
+      }
+     }
+    ]
+   },
+   "descriptions": {
+    "en": {
+     "value": "company"
+    }
+   }
+  },
+  "result": {
+   "canonical_domain": "cafe-muench.de",
+   "company": "Café Münch GmbH",
+   "confidence": 0.9,
+   "entity_id": "Q10",
+   "evidence_url": "https://www.wikidata.org/wiki/Q10",
+   "observed_at": "2026-10-28",
+   "source": "wikidata",
+   "source_license": "CC0-1.0",
+   "status": "resolved",
+   "website": "https://cafe-muench.de"
+  },
+  "search_hits": [
+   {
+    "description": "firm",
+    "id": "Q10",
+    "label": "Café Münch GmbH"
+   }
+  ]
+ }
+]
