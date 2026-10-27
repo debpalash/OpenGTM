@@ -86,8 +86,8 @@ func TestMergeFieldProvenanceVectors(t *testing.T) {
 	for _, c := range v.Licenses.Merge {
 		upd := map[string]any{}
 		for k, raw := range c.Updates {
-			var x any
-			if err := json.Unmarshal(raw, &x); err != nil {
+			x, err := decodeNumber(raw) // Python ints stay ints
+			if err != nil {
 				t.Fatal(err)
 			}
 			upd[k] = x
