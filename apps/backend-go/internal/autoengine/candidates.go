@@ -214,7 +214,15 @@ func resolveCandidates(ctx context.Context, tx pgx.Tx, ws string, scope []string
 			sc   []safecond.Column
 		}{}
 		var out []candidate
+		inScope := map[string]bool{}
+		for _, id := range scope {
+			inScope[id] = true
+		}
 		for _, t := range refs {
+			// S-L4: a rule scoped to workbooks only runs targets inside that scope.
+			if len(inScope) > 0 && !inScope[t.workbookID] {
+				continue
+			}
 			row, err := q.AutoRunRowByID(ctx, gen.AutoRunRowByIDParams{ID: t.rowID, WorkspaceID: ws})
 			if errors.Is(err, pgx.ErrNoRows) {
 				continue

@@ -2329,16 +2329,59 @@
      "job_id": 100,
      "trigger_name_snapshot": "rule",
      "matched_rows": 3,
-     "actions_attempted": 3,
+     "actions_attempted": 0,
      "actions_succeeded": 0,
-     "actions_skipped": 0,
+     "actions_skipped": 3,
      "actions_failed": 0,
      "total_charged_usd": 0.0,
      "error": null,
      "finished": true
     }
    ],
-   "results": [],
+   "results": [
+    {
+     "row": 0,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "webhook",
+     "lead_id": null,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:1:0:fk1",
+     "pre_existing": false
+    },
+    {
+     "row": 1,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "webhook",
+     "lead_id": null,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:2:0:fk1",
+     "pre_existing": false
+    },
+    {
+     "row": 2,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "webhook",
+     "lead_id": 7,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:3:0:fk1",
+     "pre_existing": false
+    }
+   ],
    "reservations": [],
    "balance_usd": 10.0,
    "ledger": [],
@@ -2346,53 +2389,11 @@
     {
      "workbook_id": "wbA",
      "kind": "automation",
-     "message": "automation 'rule' dry_run: 3 matched, 0 ok, 0 skipped, 0 failed, $0.0"
+     "message": "automation 'rule' dry_run: 3 matched, 0 ok, 3 skipped, 0 failed, $0.0"
     }
    ],
    "last_fired_set": false,
-   "execute_calls": [
-    {
-     "row": 0,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": null,
-     "lead_data": {
-      "company": "Acme",
-      "email": "a@acme.com",
-      "score": "90",
-      "id": 1
-     },
-     "idem": "trig:ws-1:trg-1:wbA:1:0:fk1"
-    },
-    {
-     "row": 1,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": null,
-     "lead_data": {
-      "company": "Beta",
-      "email": "",
-      "score": "20",
-      "id": 2
-     },
-     "idem": "trig:ws-1:trg-1:wbA:2:0:fk1"
-    },
-    {
-     "row": 2,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": 7,
-     "lead_data": {
-      "company": "Gamma",
-      "email": "g@gamma.com",
-      "score": "70",
-      "free": "g2@gamma.com",
-      "id": 7,
-      "lead_id": 7
-     },
-     "idem": "trig:ws-1:trg-1:wbA:3:0:fk1"
-    }
-   ],
+   "execute_calls": [],
    "reschedule_calls": [],
    "row_ids": {
     "0": 1,
@@ -2429,16 +2430,59 @@
      "job_id": 100,
      "trigger_name_snapshot": "rule",
      "matched_rows": 3,
-     "actions_attempted": 3,
+     "actions_attempted": 0,
      "actions_succeeded": 0,
-     "actions_skipped": 0,
+     "actions_skipped": 3,
      "actions_failed": 0,
      "total_charged_usd": 0.0,
      "error": null,
      "finished": true
     }
    ],
-   "results": [],
+   "results": [
+    {
+     "row": 0,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "re_enrich",
+     "lead_id": null,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:1:0:fk1",
+     "pre_existing": false
+    },
+    {
+     "row": 1,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "re_enrich",
+     "lead_id": null,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:2:0:fk1",
+     "pre_existing": false
+    },
+    {
+     "row": 2,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "re_enrich",
+     "lead_id": 7,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:3:0:fk1",
+     "pre_existing": false
+    }
+   ],
    "reservations": [],
    "balance_usd": 10.0,
    "ledger": [],
@@ -2446,53 +2490,11 @@
     {
      "workbook_id": "wbA",
      "kind": "automation",
-     "message": "automation 'rule' dry_run: 3 matched, 0 ok, 0 skipped, 0 failed, $0.0"
+     "message": "automation 'rule' dry_run: 3 matched, 0 ok, 3 skipped, 0 failed, $0.0"
     }
    ],
    "last_fired_set": false,
-   "execute_calls": [
-    {
-     "row": 0,
-     "action_type": "re_enrich",
-     "workbook_id": "wbA",
-     "lead_id": null,
-     "lead_data": {
-      "company": "Acme",
-      "email": "a@acme.com",
-      "score": "90",
-      "id": 1
-     },
-     "idem": "trig:ws-1:trg-1:wbA:1:0:fk1"
-    },
-    {
-     "row": 1,
-     "action_type": "re_enrich",
-     "workbook_id": "wbA",
-     "lead_id": null,
-     "lead_data": {
-      "company": "Beta",
-      "email": "",
-      "score": "20",
-      "id": 2
-     },
-     "idem": "trig:ws-1:trg-1:wbA:2:0:fk1"
-    },
-    {
-     "row": 2,
-     "action_type": "re_enrich",
-     "workbook_id": "wbA",
-     "lead_id": 7,
-     "lead_data": {
-      "company": "Gamma",
-      "email": "g@gamma.com",
-      "score": "70",
-      "free": "g2@gamma.com",
-      "id": 7,
-      "lead_id": 7
-     },
-     "idem": "trig:ws-1:trg-1:wbA:3:0:fk1"
-    }
-   ],
+   "execute_calls": [],
    "reschedule_calls": [],
    "row_ids": {
     "0": 1,
@@ -2517,16 +2519,59 @@
      "job_id": 100,
      "trigger_name_snapshot": "rule",
      "matched_rows": 3,
-     "actions_attempted": 3,
+     "actions_attempted": 0,
      "actions_succeeded": 0,
-     "actions_skipped": 0,
+     "actions_skipped": 3,
      "actions_failed": 0,
      "total_charged_usd": 0.0,
      "error": null,
      "finished": true
     }
    ],
-   "results": [],
+   "results": [
+    {
+     "row": 0,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "webhook",
+     "lead_id": null,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:1:0:fk1",
+     "pre_existing": false
+    },
+    {
+     "row": 1,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "webhook",
+     "lead_id": null,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:2:0:fk1",
+     "pre_existing": false
+    },
+    {
+     "row": 2,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "webhook",
+     "lead_id": 7,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:3:0:fk1",
+     "pre_existing": false
+    }
+   ],
    "reservations": [],
    "balance_usd": 10.0,
    "ledger": [],
@@ -2534,53 +2579,11 @@
     {
      "workbook_id": "wbA",
      "kind": "automation",
-     "message": "automation 'rule' dry_run: 3 matched, 0 ok, 0 skipped, 0 failed, $0.0"
+     "message": "automation 'rule' dry_run: 3 matched, 0 ok, 3 skipped, 0 failed, $0.0"
     }
    ],
    "last_fired_set": false,
-   "execute_calls": [
-    {
-     "row": 0,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": null,
-     "lead_data": {
-      "company": "Acme",
-      "email": "a@acme.com",
-      "score": "90",
-      "id": 1
-     },
-     "idem": "trig:ws-1:trg-1:wbA:1:0:fk1"
-    },
-    {
-     "row": 1,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": null,
-     "lead_data": {
-      "company": "Beta",
-      "email": "",
-      "score": "20",
-      "id": 2
-     },
-     "idem": "trig:ws-1:trg-1:wbA:2:0:fk1"
-    },
-    {
-     "row": 2,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": 7,
-     "lead_data": {
-      "company": "Gamma",
-      "email": "g@gamma.com",
-      "score": "70",
-      "free": "g2@gamma.com",
-      "id": 7,
-      "lead_id": 7
-     },
-     "idem": "trig:ws-1:trg-1:wbA:3:0:fk1"
-    }
-   ],
+   "execute_calls": [],
    "reschedule_calls": [],
    "row_ids": {
     "0": 1,
@@ -2611,16 +2614,59 @@
      "job_id": 100,
      "trigger_name_snapshot": "rule",
      "matched_rows": 3,
-     "actions_attempted": 3,
+     "actions_attempted": 0,
      "actions_succeeded": 0,
-     "actions_skipped": 0,
+     "actions_skipped": 3,
      "actions_failed": 0,
      "total_charged_usd": 0.0,
      "error": null,
      "finished": true
     }
    ],
-   "results": [],
+   "results": [
+    {
+     "row": 0,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "webhook",
+     "lead_id": null,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:1:0:fk1",
+     "pre_existing": false
+    },
+    {
+     "row": 1,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "webhook",
+     "lead_id": null,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:2:0:fk1",
+     "pre_existing": false
+    },
+    {
+     "row": 2,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "webhook",
+     "lead_id": 7,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:3:0:fk1",
+     "pre_existing": false
+    }
+   ],
    "reservations": [],
    "balance_usd": 10.0,
    "ledger": [],
@@ -2628,53 +2674,11 @@
     {
      "workbook_id": "wbA",
      "kind": "automation",
-     "message": "automation 'rule' dry_run: 3 matched, 0 ok, 0 skipped, 0 failed, $0.0"
+     "message": "automation 'rule' dry_run: 3 matched, 0 ok, 3 skipped, 0 failed, $0.0"
     }
    ],
    "last_fired_set": false,
-   "execute_calls": [
-    {
-     "row": 0,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": null,
-     "lead_data": {
-      "company": "Acme",
-      "email": "a@acme.com",
-      "score": "90",
-      "id": 1
-     },
-     "idem": "trig:ws-1:trg-1:wbA:1:0:fk1"
-    },
-    {
-     "row": 1,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": null,
-     "lead_data": {
-      "company": "Beta",
-      "email": "",
-      "score": "20",
-      "id": 2
-     },
-     "idem": "trig:ws-1:trg-1:wbA:2:0:fk1"
-    },
-    {
-     "row": 2,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": 7,
-     "lead_data": {
-      "company": "Gamma",
-      "email": "g@gamma.com",
-      "score": "70",
-      "free": "g2@gamma.com",
-      "id": 7,
-      "lead_id": 7
-     },
-     "idem": "trig:ws-1:trg-1:wbA:3:0:fk1"
-    }
-   ],
+   "execute_calls": [],
    "reschedule_calls": [],
    "row_ids": {
     "0": 1,
@@ -7788,7 +7792,7 @@
    }
   },
   {
-   "name": "free_actions_ignore_caps_except_action_cap_is_paid_only",
+   "name": "free_actions_count_against_action_cap",
    "spec": {
     "payload": {
      "fire_source": "row_added",
@@ -7815,8 +7819,8 @@
      "trigger_name_snapshot": "rule",
      "matched_rows": 3,
      "actions_attempted": 3,
-     "actions_succeeded": 3,
-     "actions_skipped": 0,
+     "actions_succeeded": 1,
+     "actions_skipped": 2,
      "actions_failed": 0,
      "total_charged_usd": 0.0,
      "error": null,
@@ -7844,10 +7848,10 @@
      "action_index": 0,
      "action_type": "webhook",
      "lead_id": null,
-     "status": "success",
-     "skip_reason": null,
+     "status": "skipped",
+     "skip_reason": "cap",
      "charged_usd": 0.0,
-     "result_summary": "ok",
+     "result_summary": "daily cap reached",
      "error": null,
      "idempotency_key": "trig:ws-1:trg-1:wbA:2:0:fk1",
      "pre_existing": false
@@ -7858,23 +7862,32 @@
      "action_index": 0,
      "action_type": "webhook",
      "lead_id": 7,
-     "status": "success",
-     "skip_reason": null,
+     "status": "skipped",
+     "skip_reason": "cap",
      "charged_usd": 0.0,
-     "result_summary": "ok",
+     "result_summary": "daily cap reached",
      "error": null,
      "idempotency_key": "trig:ws-1:trg-1:wbA:3:0:fk1",
      "pre_existing": false
     }
    ],
-   "reservations": [],
+   "reservations": [
+    {
+     "trigger_id": "trg-1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:1:0:fk1",
+     "state": "settled"
+    }
+   ],
    "balance_usd": 10.0,
    "ledger": [],
    "activity": [
     {
      "workbook_id": "wbA",
      "kind": "automation",
-     "message": "automation 'rule' completed: 3 matched, 3 ok, 0 skipped, 0 failed, $0.0"
+     "message": "automation 'rule' completed: 3 matched, 1 ok, 2 skipped, 0 failed, $0.0"
     }
    ],
    "last_fired_set": true,
@@ -7891,34 +7904,6 @@
       "id": 1
      },
      "idem": "trig:ws-1:trg-1:wbA:1:0:fk1"
-    },
-    {
-     "row": 1,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": null,
-     "lead_data": {
-      "company": "Beta",
-      "email": "",
-      "score": "20",
-      "id": 2
-     },
-     "idem": "trig:ws-1:trg-1:wbA:2:0:fk1"
-    },
-    {
-     "row": 2,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": 7,
-     "lead_data": {
-      "company": "Gamma",
-      "email": "g@gamma.com",
-      "score": "70",
-      "free": "g2@gamma.com",
-      "id": 7,
-      "lead_id": 7
-     },
-     "idem": "trig:ws-1:trg-1:wbA:3:0:fk1"
     }
    ],
    "reschedule_calls": [],
@@ -9086,16 +9071,59 @@
      "job_id": 100,
      "trigger_name_snapshot": "rule",
      "matched_rows": 3,
-     "actions_attempted": 3,
+     "actions_attempted": 0,
      "actions_succeeded": 0,
-     "actions_skipped": 0,
+     "actions_skipped": 3,
      "actions_failed": 0,
      "total_charged_usd": 0.0,
      "error": null,
      "finished": true
     }
    ],
-   "results": [],
+   "results": [
+    {
+     "row": 0,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "webhook",
+     "lead_id": null,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:1:0:fk1",
+     "pre_existing": false
+    },
+    {
+     "row": 1,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "webhook",
+     "lead_id": null,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:2:0:fk1",
+     "pre_existing": false
+    },
+    {
+     "row": 2,
+     "workbook_id": "wbA",
+     "action_index": 0,
+     "action_type": "webhook",
+     "lead_id": 7,
+     "status": "skipped",
+     "skip_reason": "dry_run",
+     "charged_usd": 0.0,
+     "result_summary": "dry run: not executed",
+     "error": null,
+     "idempotency_key": "trig:ws-1:trg-1:wbA:3:0:fk1",
+     "pre_existing": false
+    }
+   ],
    "reservations": [],
    "balance_usd": 10.0,
    "ledger": [],
@@ -9103,53 +9131,11 @@
     {
      "workbook_id": "wbA",
      "kind": "automation",
-     "message": "automation 'rule' dry_run: 3 matched, 0 ok, 0 skipped, 0 failed, $0.0"
+     "message": "automation 'rule' dry_run: 3 matched, 0 ok, 3 skipped, 0 failed, $0.0"
     }
    ],
    "last_fired_set": false,
-   "execute_calls": [
-    {
-     "row": 0,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": null,
-     "lead_data": {
-      "company": "Acme",
-      "email": "a@acme.com",
-      "score": "90",
-      "id": 1
-     },
-     "idem": "trig:ws-1:trg-1:wbA:1:0:fk1"
-    },
-    {
-     "row": 1,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": null,
-     "lead_data": {
-      "company": "Beta",
-      "email": "",
-      "score": "20",
-      "id": 2
-     },
-     "idem": "trig:ws-1:trg-1:wbA:2:0:fk1"
-    },
-    {
-     "row": 2,
-     "action_type": "webhook",
-     "workbook_id": "wbA",
-     "lead_id": 7,
-     "lead_data": {
-      "company": "Gamma",
-      "email": "g@gamma.com",
-      "score": "70",
-      "free": "g2@gamma.com",
-      "id": 7,
-      "lead_id": 7
-     },
-     "idem": "trig:ws-1:trg-1:wbA:3:0:fk1"
-    }
-   ],
+   "execute_calls": [],
    "reschedule_calls": [],
    "row_ids": {
     "0": 1,
@@ -9475,8 +9461,8 @@
     "rows": [
      {
       "data": {
-       "company": "Éco Solutions Pvt Ltd",
-       "email": "é@x.com"
+       "company": "\u00c9co Solutions Pvt Ltd",
+       "email": "\u00e9@x.com"
       }
      }
     ]
@@ -9532,8 +9518,8 @@
      "workbook_id": "wbA",
      "lead_id": null,
      "lead_data": {
-      "company": "Éco Solutions Pvt Ltd",
-      "email": "é@x.com",
+      "company": "\u00c9co Solutions Pvt Ltd",
+      "email": "\u00e9@x.com",
       "id": 1
      },
      "idem": "trig:ws-1:trg-1:wbA:1:0:fk1"

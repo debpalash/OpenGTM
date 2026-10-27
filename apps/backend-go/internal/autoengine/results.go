@@ -106,7 +106,10 @@ func (e *engine) prepare(ctx context.Context, tx pgx.Tx, a actionIn, existing *g
 		pr.existingID = existing.ID
 	}
 
-	if paid && !a.dry {
+	// S-L2: max_actions_per_day counts every live action, so a free action
+	// reserves against the count axis at $0; only the USD axes and the debit
+	// are paid-only.
+	if !a.dry && (paid || a.run.Caps.MaxActionsPerDay != nil) {
 		resv, err := autocaps.TryReserve(ctx, tx, a.run.Caps, ws, cost, a.idem, e.d.GlobalDailyUSD)
 		if err != nil {
 			return err
@@ -117,37 +120,36 @@ func (e *engine) prepare(ctx context.Context, tx pgx.Tx, a actionIn, existing *g
 			return err
 		}
 		pr.reservation = resv
-		res, err := billing.CheckAndDebit(ctx, tx, e.d.BillingEnabled, ws, cost, a.idem, "automation_"+a.atype)
-		var ins *billing.InsufficientCreditsError
-		if errors.As(err, &ins) {
-			// The reservation dies with this transaction (nothing was written
-			// for the debit); the refusal is recorded in a fresh one.
-			pr.credits = true
-			return errRollback
-		}
-		if err != nil {
-			return err
-		}
-		if res.IdempotentReplay {
-			// Keep what the first attempt charged so the ledger and the
-			// result row agree (Python recorded 0 here).
-			pr.cost = 0
-			if existing != nil {
-				pr.cost = existing.ChargedUsd
+		if paid {
+			res, err := billing.CheckAndDebit(ctx, tx, e.d.BillingEnabled, ws, cost, a.idem, "automation_"+a.atype)
+			var ins *billing.InsufficientCreditsError
+			if errors.As(err, &ins) {
+				// The reservation dies with this transaction (nothing was written
+				// for the debit); the refusal is recorded in a fresh one.
+				pr.credits = true
+				return errRollback
 			}
-		} else {
-			pr.cost = res.ChargedUSD
-		}
-		if e.afterDebit != nil {
-			if err := e.afterDebit(); err != nil {
+			if err != nil {
 				return err
+			}
+			if res.IdempotentReplay {
+				// Keep what the first attempt charged so the ledger and the
+				// result row agree (Python recorded 0 here).
+				pr.cost = 0
+				if existing != nil {
+					pr.cost = existing.ChargedUsd
+				}
+			} else {
+				pr.cost = res.ChargedUSD
+			}
+			if e.afterDebit != nil {
+				if err := e.afterDebit(); err != nil {
+					return err
+				}
 			}
 		}
 	}
 
-	if a.dry {
-		return nil
-	}
 	if existing != nil {
 		pr.markerID = existing.ID
 		return q.AutoRunReuseMarker(ctx, gen.AutoRunReuseMarkerParams{ChargedUsd: pr.cost, ID: existing.ID, WorkspaceID: ws})
@@ -164,10 +166,30 @@ func (e *engine) prepare(ctx context.Context, tx pgx.Tx, a actionIn, existing *g
 	return nil
 }
 
+// recordDry is the whole of a dry-run action (S-H1): the run is preview-only, so
+// nothing is executed, reserved, debited or marked in_flight. Only a skipped/dry_run
+// result row is written (summary "dry run: not executed"), which the run detail
+// shows. A fresh manual fire key per run means it never blocks a later live run.
+func (e *engine) recordDry(ctx context.Context, a actionIn, st *stats) error {
+	const summary = "dry run: not executed"
+	err := tenancy.InWorkspace(ctx, e.d.Pool, a.run.WorkspaceID, func(tx pgx.Tx) error {
+		_, _, err := persistInsert(ctx, gen.New(tx), a, "skipped", "dry_run", summary, "", true, 0)
+		return err
+	})
+	if err != nil {
+		return err
+	}
+	st.skipped++
+	return nil
+}
+
 // runOne is _run_one_action. A returned error counts as a failed action (the
 // run goes on); errAborted stops the whole run.
 func (e *engine) runOne(ctx context.Context, a actionIn, st *stats) error {
 	ws := a.run.WorkspaceID
+	if a.dry {
+		return e.recordDry(ctx, a, st)
+	}
 	var pr prep
 	for attempt := 0; ; attempt++ {
 		pr = prep{}
@@ -253,9 +275,6 @@ func (e *engine) executeAndSettle(ctx context.Context, a actionIn, pr prep, st *
 	res, err := e.execute(ctx, a)
 	if err != nil {
 		return err // a crash after the marker leaves it (and the reservation) as Python does
-	}
-	if a.dry {
-		return nil // nothing is persisted or charged in a dry run
 	}
 	cerr := ctx.Err()
 	if cerr != nil && res.Status != "success" {
