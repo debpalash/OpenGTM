@@ -28,6 +28,29 @@ func (q *Queries) SWCountRows(ctx context.Context, arg SWCountRowsParams) (int64
 	return column_1, err
 }
 
+const sWEnqueueJob = `-- name: SWEnqueueJob :one
+INSERT INTO jobs (executor, type, payload, workspace_id, priority, status,
+                  created_at, next_run_at, max_retries, retry_count)
+VALUES ($1::text, 'source_workbook', $2::json, $3::text, 1, 'pending',
+        (now() AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'), 3, 0)
+RETURNING id
+`
+
+type SWEnqueueJobParams struct {
+	Executor    string
+	Payload     []byte
+	WorkspaceID string
+}
+
+// source_workbook insert with an explicit executor (queue_service.add_job shape otherwise:
+// priority 1, max_retries 3, no fire key).
+func (q *Queries) SWEnqueueJob(ctx context.Context, arg SWEnqueueJobParams) (int32, error) {
+	row := q.db.QueryRow(ctx, sWEnqueueJob, arg.Executor, arg.Payload, arg.WorkspaceID)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
 const sWEntityIDs = `-- name: SWEntityIDs :many
 SELECT DISTINCT canonical_entity_id::text FROM workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text

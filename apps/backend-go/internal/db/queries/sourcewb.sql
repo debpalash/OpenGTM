@@ -51,3 +51,12 @@ VALUES (sqlc.arg(workbook_id)::text, sqlc.arg(workspace_id)::text, sqlc.arg(posi
   sqlc.narg(source_provider)::text, sqlc.narg(source_record_id)::text,
   (now() at time zone 'utc'), (now() at time zone 'utc'))
 RETURNING id;
+
+-- name: SWEnqueueJob :one
+-- source_workbook insert with an explicit executor (queue_service.add_job shape otherwise:
+-- priority 1, max_retries 3, no fire key).
+INSERT INTO jobs (executor, type, payload, workspace_id, priority, status,
+                  created_at, next_run_at, max_retries, retry_count)
+VALUES (sqlc.arg(executor)::text, 'source_workbook', sqlc.arg(payload)::json, sqlc.arg(workspace_id)::text, 1, 'pending',
+        (now() AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'), 3, 0)
+RETURNING id;
