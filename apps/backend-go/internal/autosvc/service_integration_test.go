@@ -71,7 +71,8 @@ func setup(t *testing.T) *env {
 	e.svc = &autosvc.Service{Pool: pool, Now: func() time.Time { return fixedNow },
 		ExecFor: func(ws string) string { return "go" },
 		Cfg: autosvc.Config{MaxRulesPerWS: 50, MaxActionsPerRule: 10,
-			Secrets: secrets.NewResolver(nil, secrets.NewPgStore(pool), os.Getenv)}}
+			Secrets:  secrets.NewResolver(nil, secrets.NewPgStore(pool), os.Getenv),
+			Outbound: secrets.OutboundPolicy{Prefixes: []string{"HOOK", "P08_"}}}}
 	return e
 }
 
@@ -499,7 +500,8 @@ func TestValidateSecretLookupReusesTransaction(t *testing.T) {
 	})
 	svc := &autosvc.Service{Pool: pool, Now: func() time.Time { return fixedNow },
 		Cfg: autosvc.Config{MaxRulesPerWS: 50, MaxActionsPerRule: 10,
-			Secrets: secrets.NewResolver(nil, secrets.NewPgStore(pool), os.Getenv)}}
+			Secrets:  secrets.NewResolver(nil, secrets.NewPgStore(pool), os.Getenv),
+			Outbound: secrets.OutboundPolicy{Prefixes: []string{"P08_"}}}}
 	tt := "on_row_added"
 	in := autosvc.RuleInput{Name: "r", TriggerType: &tt, Enabled: true}
 	a, err := autosvc.ParseJSON([]byte(`[{"type":"webhook","config":{"url":"https://hooks.example.com/x","header_secret_ref":"P08_M5_KEY"}}]`))

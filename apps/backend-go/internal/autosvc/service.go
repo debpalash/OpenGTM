@@ -177,6 +177,10 @@ func (s *Service) createTx(ctx context.Context, ws string, in RuleInput) (Trigge
 		if max <= 0 {
 			max = 50
 		}
+		// F21: serialise cap check + insert per workspace (held to commit).
+		if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended('auto_rules:' || $1::text, 0))`, ws); err != nil {
+			return err
+		}
 		n, err := s.CountRules(ctx, tx, ws)
 		if err != nil {
 			return err

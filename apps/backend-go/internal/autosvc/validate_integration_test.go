@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/autosvc"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
 type vecFile struct {
@@ -94,6 +95,8 @@ func TestValidateRuleVectors(t *testing.T) {
 				in.ScopeWorkbookIDs = append(in.ScopeWorkbookIDs, wbID(id))
 			}
 			cfg := e.svc.Cfg
+			// The recorded vectors use bare refs; the outbound namespace has its own tests.
+			cfg.Outbound = secrets.OutboundPolicy{Prefixes: []string{"HOOK", "EMPTY", "NOPE", "OTHER"}}
 			cfg.MaxActionsPerRule = v.MaxActions
 			cfg.AllowLegacyOutreach = v.AllowLegacy
 			var verr error
@@ -173,7 +176,7 @@ func TestValidateWebhookAllowlist(t *testing.T) {
 		})
 		return verr
 	}
-	for _, ok := range []string{"https://hooks.example.com/x", "https://HOOKS.example.com:8443/x", "https://a.corp.example.org/x", "https://{host}/x", "https://hooks.example.com/{x}"} {
+	for _, ok := range []string{"https://hooks.example.com/x", "https://HOOKS.example.com:8443/x", "https://a.corp.example.org/x", "https://hooks.example.com/{x}"} {
 		if err := check(ok); err != nil {
 			t.Errorf("%s: %v", ok, err)
 		}

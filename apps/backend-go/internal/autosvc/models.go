@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -383,4 +384,91 @@ func (c Created) MarshalJSON() ([]byte, error) {
 	o.Set("automation", c.Automation.Obj())
 	o.Set("automation_id", c.Automation.ID)
 	return o.MarshalJSON()
+}
+
+// maskedValue replaces secret-bearing webhook config for callers without
+// automations.manage (S-L3).
+const maskedValue = "***"
+
+// Masked returns a copy of t for a caller who may read rules but not manage them:
+// webhook action config.headers values become "***", and the url keeps only scheme
+// and host (the path and query often carry the secret, e.g. a Slack hook). Key names,
+// header_secret_ref and everything else stay visible. t is not modified.
+func (t Trigger) Masked() Trigger {
+	acts, ok := t.Actions.([]any)
+	if !ok {
+		return t
+	}
+	out := make([]any, len(acts))
+	for i, a := range acts {
+		out[i] = maskAction(a)
+	}
+	t.Actions = out
+	return t
+}
+
+func maskAction(a any) any {
+	act, ok := a.(*wbcrud.Obj)
+	if !ok {
+		return a
+	}
+	if typ, _ := act.Get("type"); typ != "webhook" {
+		return a
+	}
+	cv, _ := act.Get("config")
+	cfg, ok := cv.(*wbcrud.Obj)
+	if !ok {
+		return a
+	}
+	nc := wbcrud.NewObj()
+	for _, k := range cfg.Keys() {
+		v, _ := cfg.Get(k)
+		switch k {
+		case "url":
+			if s, ok := v.(string); ok {
+				v = maskURL(s)
+			}
+		case "headers":
+			if h, ok := v.(*wbcrud.Obj); ok {
+				nh := wbcrud.NewObj()
+				for _, hk := range h.Keys() {
+					nh.Set(hk, maskedValue)
+				}
+				v = nh
+			} else if v != nil {
+				v = maskedValue
+			}
+		}
+		nc.Set(k, v)
+	}
+	na := wbcrud.NewObj()
+	for _, k := range act.Keys() {
+		v, _ := act.Get(k)
+		if k == "config" {
+			v = nc
+		}
+		na.Set(k, v)
+	}
+	return na
+}
+
+// maskURL keeps scheme://authority (userinfo dropped) and hides any path, query or fragment.
+func maskURL(u string) string {
+	sep := strings.Index(u, "://")
+	if sep < 0 {
+		return maskedValue
+	}
+	rest := u[sep+3:]
+	end := len(rest)
+	if j := strings.IndexAny(rest, "/?#"); j >= 0 {
+		end = j
+	}
+	auth := rest[:end]
+	if at := strings.LastIndexByte(auth, '@'); at >= 0 {
+		auth = auth[at+1:]
+	}
+	if end == len(rest) {
+		return u[:sep+3] + auth
+	}
+	return u[:sep+3] + auth + "/" + maskedValue
 }

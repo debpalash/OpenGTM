@@ -20,6 +20,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/poller"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
@@ -29,6 +30,8 @@ type Service struct {
 	Pool    *pgxpool.Pool
 	Cfg     Config
 	Secrets autosvc.SecretChecker
+	// Outbound is the webhook_secret_ref policy (zero value: default prefixes, no registry deny-list).
+	Outbound secrets.OutboundPolicy
 	// ExecFor is go_executor.watch_poll_executor (nil: python).
 	ExecFor func(ws string) string
 	Now     func() time.Time
@@ -131,7 +134,8 @@ func (s *Service) maybeWebhookRule(ctx context.Context, ws string, in CreateInpu
 	cfg.Set("method", "POST")
 	if in.WebhookSecretRef != nil && *in.WebhookSecretRef != "" {
 		found := false
-		if s.Secrets != nil {
+		// Same outbound-namespace policy as automation rules; not-allowed reads as not found.
+		if s.Secrets != nil && secrets.CheckOutboundRef(*in.WebhookSecretRef, s.Outbound) == nil {
 			var err error
 			if found, err = s.Secrets.Has(ctx, ws, *in.WebhookSecretRef); err != nil {
 				return nil, fmt.Errorf("watchsvc: secret lookup: %w", err)
@@ -260,6 +264,10 @@ func (s *Service) Create(ctx context.Context, ws string, in CreateInput) (Create
 		return nil
 	}
 	checkCount := func(tx pgx.Tx) error {
+		// F21: serialise cap check + insert per workspace (held to commit).
+		if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended('watches:' || $1::text, 0))`, ws); err != nil {
+			return err
+		}
 		n, err := gen.New(tx).WatchSvcCount(ctx, ws)
 		if err != nil {
 			return err

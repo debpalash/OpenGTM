@@ -11,7 +11,10 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/jackc/pgx/v5"
+
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/autosvc"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
@@ -43,6 +46,10 @@ type autoCRUD struct {
 
 func newAutoCRUD(d Deps) autoCRUD {
 	a := d.Flags.Automations
+	var registered func(string) bool
+	if d.Registry != nil {
+		registered = d.Registry.SecretSet()
+	}
 	return autoCRUD{d: d, svc: &autosvc.Service{
 		Pool: d.Pool,
 		Cfg: autosvc.Config{
@@ -51,6 +58,7 @@ func newAutoCRUD(d Deps) autoCRUD {
 			AllowLegacyOutreach: d.Flags.AutomationsAllowLegacyOutreach,
 			WebhookAllowlist:    a.WebhookDomainAllowlist,
 			Secrets:             secrets.NewResolver(d.Envelope, secrets.NewPgStore(d.Pool), d.getenv()),
+			Outbound:            secrets.OutboundPolicy{Prefixes: config.OutboundSecretRefPrefixes(d.getenv()), Registered: registered},
 		},
 		ExecFor: d.automationExecutor(),
 		Log:     d.Log,
@@ -105,6 +113,22 @@ func (h autoCRUD) ruleID(w http.ResponseWriter, r *http.Request) (string, bool) 
 	return id, true
 }
 
+// canManage reports whether the caller holds automations.manage (the gate of the mutating routes). Readers
+// without it get webhook headers and URL paths masked (S-L3). On a lookup error it answers 500 itself.
+func (h autoCRUD) canManage(w http.ResponseWriter, r *http.Request) (manage, ok bool) {
+	wc := h.ws(r)
+	err := wc.Tx(r.Context(), func(tx pgx.Tx) error {
+		var err error
+		manage, err = identity.HasPermissionTx(r.Context(), tx, wc.WorkspaceID, wc.User.ID, "automations.manage", "admin")
+		return err
+	})
+	if err != nil {
+		h.fail(w, "permission lookup", err)
+		return false, false
+	}
+	return manage, true
+}
+
 func (h autoCRUD) create(w http.ResponseWriter, r *http.Request) {
 	raw, ok := h.body(w, r)
 	if !ok {
@@ -155,6 +179,13 @@ func (h autoCRUD) list(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, "list", err)
 		return
 	}
+	if manage, ok := h.canManage(w, r); !ok {
+		return
+	} else if !manage {
+		for i := range out {
+			out[i] = out[i].Masked()
+		}
+	}
 	httpx.WriteJSON(w, http.StatusOK, out)
 }
 
@@ -170,6 +201,11 @@ func (h autoCRUD) get(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.fail(w, "get", err)
 		return
+	}
+	if manage, ok := h.canManage(w, r); !ok {
+		return
+	} else if !manage {
+		out.Trigger = out.Trigger.Masked()
 	}
 	httpx.WriteJSON(w, http.StatusOK, out)
 }

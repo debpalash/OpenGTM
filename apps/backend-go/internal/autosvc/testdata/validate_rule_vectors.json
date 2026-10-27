@@ -1881,8 +1881,11 @@
    "scope_workbook_ids": [],
    "allow_legacy": false,
    "max_actions": 10,
-   "ok": true,
-   "error": null
+   "ok": false,
+   "error": {
+    "status": 422,
+    "detail": "webhook action 0: url scheme and host must be literal"
+   }
   },
   {
    "name": "webhook_url_templated_with_creds_skips_checks",
@@ -1901,8 +1904,11 @@
    "scope_workbook_ids": [],
    "allow_legacy": false,
    "max_actions": 10,
-   "ok": true,
-   "error": null
+   "ok": false,
+   "error": {
+    "status": 422,
+    "detail": "webhook action 0: url scheme and host must be literal"
+   }
   },
   {
    "name": "webhook_url_brace_in_path_skips_checks",
@@ -1921,8 +1927,11 @@
    "scope_workbook_ids": [],
    "allow_legacy": false,
    "max_actions": 10,
-   "ok": true,
-   "error": null
+   "ok": false,
+   "error": {
+    "status": 422,
+    "detail": "webhook action 0: only http/https allowed"
+   }
   },
   {
    "name": "webhook_url_schemeless_template",
@@ -1941,8 +1950,11 @@
    "scope_workbook_ids": [],
    "allow_legacy": false,
    "max_actions": 10,
-   "ok": true,
-   "error": null
+   "ok": false,
+   "error": {
+    "status": 422,
+    "detail": "webhook action 0: url scheme and host must be literal"
+   }
   },
   {
    "name": "webhook_url_trimmed_ok",
@@ -2109,7 +2121,7 @@
    "ok": false,
    "error": {
     "status": 422,
-    "detail": "webhook action 0: header_secret_ref 'NOPE' not found"
+    "detail": "header_secret_ref is not an available webhook secret"
    }
   },
   {
@@ -2133,7 +2145,7 @@
    "ok": false,
    "error": {
     "status": 422,
-    "detail": "webhook action 0: header_secret_ref 'EMPTY' not found"
+    "detail": "header_secret_ref is not an available webhook secret"
    }
   },
   {
@@ -2157,7 +2169,7 @@
    "ok": false,
    "error": {
     "status": 422,
-    "detail": "webhook action 0: header_secret_ref 'OTHER' not found"
+    "detail": "header_secret_ref is not an available webhook secret"
    }
   },
   {
@@ -2247,7 +2259,7 @@
    "ok": false,
    "error": {
     "status": 422,
-    "detail": "webhook action 0: header_secret_ref 'HOOK_MISSING_2' not found"
+    "detail": "header_secret_ref is not an available webhook secret"
    }
   },
   {

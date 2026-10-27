@@ -39,6 +39,13 @@ var autoDeviations = map[string]bool{
 	"create_action_config_list":   true, // Python 500
 	"patch_name_long_db_error":    true, // Python 500 (varchar(200) overflow)
 	"create_negative_spend_cap":   true, // Python stores -1.0; Go 422 (D4)
+	// WP1b: Python bugs fixed in Go (automationscrud_outbound_test.go covers the new behaviour).
+	"create_webhook_templated_url":               true, // S-L1: templated authority refused
+	"create_webhook_templated_bad_scheme_passes": true, // S-L1: scheme checked on the literal head
+	"create_webhook_secret_ref_missing":          true, // S-M1: one shared 422 text
+	"create_webhook_secret_ref_foreign_ws":       true, // S-M1: one shared 422 text
+	"list_member_bob_alpha":                      true, // S-L3: members without automations.manage see masked webhook config
+	"list_editor_erin":                           true, // S-L3
 }
 
 // autoClockValues are wall-clock values the recorder did not normalise: the next run of a seeded schedule rule after a
@@ -314,7 +321,7 @@ func TestAutoCreateValidationStrings(t *testing.T) {
 		}
 		return ok
 	})
-	if n < 50 {
+	if n < 46 { // 50 minus the two secret-ref fixtures deviated in WP1b (S-M1)
 		t.Fatalf("only %d create validation fixtures replayed", n)
 	}
 }

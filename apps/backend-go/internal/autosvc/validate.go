@@ -13,6 +13,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/safecond"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
@@ -50,6 +51,9 @@ type Config struct {
 	// ".suffix"; empty means no create-time host restriction.
 	WebhookAllowlist []string
 	Secrets          SecretChecker
+	// Outbound is the S-M1 policy for header_secret_ref (prefix namespace plus the
+	// registered-credential deny-list); the zero value uses the default prefixes.
+	Outbound secrets.OutboundPolicy
 }
 
 // RuleInput is one rule as submitted. JSON-typed fields are ordered decoded
@@ -293,28 +297,41 @@ func validateWebhookAction(ctx context.Context, tx pgx.Tx, ws string, i int, c *
 	if url == "" {
 		return herr(422, "webhook action %d: url required", i)
 	}
-	if !strings.Contains(url, "{") {
-		p, ok := urlparse(url)
-		if !ok {
-			return herr(422, "webhook action %d: invalid url", i)
+	// S-L1: scheme and authority must be literal. Placeholders stay allowed in the
+	// path, query and fragment; the checks below run on the literal head.
+	checkURL := url
+	if strings.Contains(url, "{") {
+		sep := strings.Index(url, "://")
+		if sep < 0 {
+			return herr(422, "webhook action %d: url scheme and host must be literal", i)
 		}
-		if p.scheme != "http" && p.scheme != "https" {
-			return herr(422, "webhook action %d: only http/https allowed", i)
+		end := len(url)
+		if j := strings.IndexAny(url[sep+3:], "/?#"); j >= 0 {
+			end = sep + 3 + j
 		}
-		if p.username != "" || p.password != "" {
-			return herr(422, "webhook action %d: credentials in url not allowed", i)
+		checkURL = url[:end]
+		if strings.Contains(checkURL, "{") {
+			return herr(422, "webhook action %d: url scheme and host must be literal", i)
 		}
 	}
-	if len(cfg.WebhookAllowlist) > 0 {
-		// A templated path or query does not exempt a literal host.
-		if p, ok := urlparse(url); ok && p.hostname != "" && !strings.Contains(p.hostname, "{") && !AllowlistMatch(p.hostname, cfg.WebhookAllowlist) {
-			return herr(422, "webhook action %d: host '%s' not in webhook domain allowlist", i, p.hostname)
-		}
+	p, ok := urlparse(checkURL)
+	if !ok {
+		return herr(422, "webhook action %d: invalid url", i)
+	}
+	if p.scheme != "http" && p.scheme != "https" {
+		return herr(422, "webhook action %d: only http/https allowed", i)
+	}
+	if p.username != "" || p.password != "" {
+		return herr(422, "webhook action %d: credentials in url not allowed", i)
+	}
+	if len(cfg.WebhookAllowlist) > 0 && p.hostname != "" && !AllowlistMatch(p.hostname, cfg.WebhookAllowlist) {
+		return herr(422, "webhook action %d: host '%s' not in webhook domain allowlist", i, p.hostname)
 	}
 	rv, _ := c.Get("header_secret_ref")
 	if truthy(rv) {
 		found := false
-		if ref, ok := rv.(string); ok && cfg.Secrets != nil {
+		// Not-allowed and not-found share one text (R2): no oracle for which keys exist.
+		if ref, ok := rv.(string); ok && cfg.Secrets != nil && secrets.CheckOutboundRef(ref, cfg.Outbound) == nil {
 			var err error
 			if tc, ok := cfg.Secrets.(txSecretChecker); ok && tx != nil {
 				found, err = tc.HasTx(ctx, tx, ws, ref)
@@ -326,7 +343,7 @@ func validateWebhookAction(ctx context.Context, tx pgx.Tx, ws string, i int, c *
 			}
 		}
 		if !found {
-			return herr(422, "webhook action %d: header_secret_ref '%s' not found", i, pyStr(rv))
+			return herr(422, "%s", secrets.OutboundRefMessage)
 		}
 	}
 	return nil

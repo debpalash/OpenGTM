@@ -73,8 +73,9 @@ func setup(t *testing.T) *env {
 	clean()
 	t.Cleanup(clean)
 	e.svc = &watchsvc.Service{Pool: pool, Cfg: baseCfg(), Now: func() time.Time { return fixedNow },
-		ExecFor: func(string) string { return "go" },
-		Secrets: secrets.NewResolver(nil, secrets.NewPgStore(pool), os.Getenv)}
+		ExecFor:  func(string) string { return "go" },
+		Secrets:  secrets.NewResolver(nil, secrets.NewPgStore(pool), os.Getenv),
+		Outbound: secrets.OutboundPolicy{Prefixes: []string{"HOOK"}}}
 	return e
 }
 
