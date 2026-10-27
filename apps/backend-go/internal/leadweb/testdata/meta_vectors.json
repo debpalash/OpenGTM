@@ -1,0 +1,170 @@
+{
+ "assets": [
+  "Acme",
+  ""
+ ],
+ "base_links": [
+  "Links",
+  ""
+ ],
+ "cdata": [
+  "Acme",
+  ""
+ ],
+ "challenge_cf": [
+  "Just a moment...",
+  ""
+ ],
+ "challenge_datadome": [
+  "",
+  ""
+ ],
+ "challenge_denied": [
+  "Access Denied",
+  ""
+ ],
+ "challenge_js": [
+  "",
+  ""
+ ],
+ "challenge_tiny": [
+  "",
+  ""
+ ],
+ "comments": [
+  "Acme",
+  ""
+ ],
+ "contact_india": [
+  "Acme",
+  "Acme Staffing - HR and recruitment in Pune"
+ ],
+ "data_urls": [
+  "Acme",
+  ""
+ ],
+ "dup_case": [
+  "Acme",
+  ""
+ ],
+ "email_in_url": [
+  "Acme",
+  ""
+ ],
+ "empty": [
+  "",
+  ""
+ ],
+ "entities": [
+  "Acme",
+  ""
+ ],
+ "fake_numbers": [
+  "Acme",
+  ""
+ ],
+ "footer_only_phones": [
+  "Acme",
+  ""
+ ],
+ "foreign_phones": [
+  "Acme",
+  ""
+ ],
+ "iframes": [
+  "Acme",
+  ""
+ ],
+ "india_0_prefix": [
+  "Acme",
+  ""
+ ],
+ "jsonld": [
+  "Acme",
+  ""
+ ],
+ "junk_emails": [
+  "Acme",
+  ""
+ ],
+ "long_ids": [
+  "Acme",
+  ""
+ ],
+ "mailto_links": [
+  "Acme",
+  ""
+ ],
+ "malformed": [
+  "Acme",
+  ""
+ ],
+ "many": [
+  "Acme",
+  ""
+ ],
+ "meta_both": [
+  "Acme",
+  "Name desc"
+ ],
+ "meta_long": [
+  "T & C <Ltd>",
+  "Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description "
+ ],
+ "meta_none": [
+  "Spaced\n   Title",
+  ""
+ ],
+ "meta_og_only": [
+  "Acme",
+  "Only OG & more"
+ ],
+ "nbsp_phones": [
+  "Acme",
+  ""
+ ],
+ "non_ascii": [
+  "Acme",
+  ""
+ ],
+ "phone_formats": [
+  "Acme",
+  ""
+ ],
+ "plus_sub": [
+  "Acme",
+  ""
+ ],
+ "publishers": [
+  "Acme",
+  ""
+ ],
+ "script_style": [
+  "Acme",
+  ""
+ ],
+ "social": [
+  "Acme",
+  ""
+ ],
+ "tel_links": [
+  "Acme",
+  ""
+ ],
+ "tel_markers": [
+  "Acme",
+  ""
+ ],
+ "text_only": [
+  "",
+  ""
+ ],
+ "trailing_punct": [
+  "Acme",
+  ""
+ ],
+ "unicode_emails": [
+  "Acme",
+  ""
+ ]
+}

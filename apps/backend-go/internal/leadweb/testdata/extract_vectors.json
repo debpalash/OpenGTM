@@ -1,0 +1,1701 @@
+{
+ "is_junk_url": {
+  "": true,
+  "HTTPS://ACME.IN/IMG.JPEG": true,
+  "https://acme.in/": false,
+  "https://acme.in/a.js#x": true,
+  "https://acme.in/ads/banner": true,
+  "https://acme.in/advertisement-x": true,
+  "https://acme.in/cdn-cgi/l/email-protection": true,
+  "https://acme.in/feed.xml": true,
+  "https://acme.in/logo.PNG": true,
+  "https://acme.in/page.html": false,
+  "https://acme.in/path.svg/more": false,
+  "https://acme.in/socialmedia.html": true,
+  "https://acme.in/wp-content/uploads/2020/a": true,
+  "https://acme.in/x.WOFF2": false,
+  "https://acme.in/x.woff": true,
+  "https://ad.doubleclick.net/x": true,
+  "https://adservice.google.com/": true,
+  "https://media.acme.in/x": true,
+  "https://x.com/a.pdf?x=1": true,
+  "https://x.com/file.swf": true
+ },
+ "is_publisher_email": {
+  "@g2.com": true,
+  "a@CLUTCH.CO": true,
+  "a@acme.in": false,
+  "a@clutch.co": true,
+  "a@sub.clutch.co": false,
+  "noat": true,
+  "x@trustpilot.com": true
+ },
+ "is_skip_domain": {
+  "": false,
+  "YOUTUBE.COM": false,
+  "acme-hr.co.in": false,
+  "acme.in": false,
+  "apollo.io": true,
+  "clutch.co": true,
+  "clutch.com": true,
+  "crunchbase.com": true,
+  "en.wikipedia.org": true,
+  "g2.com": true,
+  "g2.company.in": true,
+  "glassdoor.co.in": true,
+  "hunter.io": true,
+  "in.linkedin.com": true,
+  "justdial.com": true,
+  "linkedin.com": true,
+  "medium.com": true,
+  "mynaukri.com.au": true,
+  "notindiamart.com": true,
+  "tracxn.com": true
+ },
+ "is_valid_phone": {
+  "(022) 2345-6789": true,
+  "+1 415 555 0100": false,
+  "+33 1 42 68 53 00": false,
+  "+44 20 7946 0958": false,
+  "+49 30 901820": false,
+  "+61 2 9374 4000": false,
+  "+91 98765 43210": true,
+  "+911234567890": true,
+  "0000000000": false,
+  "080-41234567": true,
+  "1-800-123-4567": true,
+  "123456": false,
+  "1234567890": false,
+  "12345678901234": false,
+  "9999999999": false
+ },
+ "pages": {
+  "assets": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "bg@3x.gif",
+    "f@a.woff",
+    "icon@2x.svg",
+    "p@q.webp",
+    "real@acme.in"
+   ],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [
+    "real@acme.in"
+   ],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "real@acme.in",
+     "icon@2x.svg",
+     "bg@3x.gif",
+     "f@a.woff",
+     "p@q.webp"
+    ],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "base_links": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "x@acme.in"
+   ],
+   "fetch_phones": [],
+   "links": [
+    "https://acme.in/sub/contact",
+    "https://acme.in/about",
+    "https://other.example/x?y=1#f",
+    "https://cdn.example/z",
+    "https://acme.in/sub/page#top",
+    "https://acme.in/sub/spaced.html ",
+    "https://acme.in/up",
+    "https://acme.in/sub/page"
+   ],
+   "runner_emails": [
+    "x@acme.in"
+   ],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "x@acme.in"
+    ],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "cdata": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "cdata@acme.in",
+    "svg@acme.in"
+   ],
+   "fetch_phones": [
+    "9876598765"
+   ],
+   "links": [],
+   "runner_emails": [
+    "cdata@acme.in",
+    "svg@acme.in"
+   ],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "cdata@acme.in",
+     "svg@acme.in"
+    ],
+    "phones": [
+     "9876598765"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "challenge_cf": {
+   "challenge": {
+    "200": true,
+    "301": true,
+    "403": true,
+    "404": true,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "challenge_datadome": {
+   "challenge": {
+    "200": true,
+    "301": true,
+    "403": true,
+    "404": true,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "challenge_denied": {
+   "challenge": {
+    "200": true,
+    "301": true,
+    "403": true,
+    "404": true,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "challenge_js": {
+   "challenge": {
+    "200": true,
+    "301": true,
+    "403": true,
+    "404": true,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "challenge_tiny": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "comments": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "ie@acme.in",
+    "legacy@acme.in",
+    "new@acme.in"
+   ],
+   "fetch_phones": [
+    "+91 90000 00001"
+   ],
+   "links": [],
+   "runner_emails": [
+    "legacy@acme.in",
+    "new@acme.in",
+    "ie@acme.in"
+   ],
+   "runner_phones": [
+    "+91 90000 00001"
+   ],
+   "site": {
+    "description": "",
+    "emails": [
+     "new@acme.in"
+    ],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "contact_india": {
+   "challenge": {
+    "200": false,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "careers@acme.in",
+    "hello@acme.in",
+    "sales@acme.in"
+   ],
+   "fetch_phones": [
+    "+91 98765 43210",
+    "+91-9876543210",
+    "+919876543210",
+    "1800-123-4567",
+    "9876543210"
+   ],
+   "links": [],
+   "runner_emails": [
+    "hello@acme.in",
+    "careers@acme.in",
+    "sales@acme.in"
+   ],
+   "runner_phones": [
+    "+91 98765 43210",
+    "1800-123-4567",
+    "080-41234567",
+    "0124 4567890",
+    "020-26123456"
+   ],
+   "site": {
+    "description": "Acme Staffing - HR and recruitment in Pune",
+    "emails": [
+     "hello@acme.in",
+     "careers@acme.in",
+     "sales@acme.in"
+    ],
+    "phones": [
+     "+91 98765 43210",
+     "+91-9876543210",
+     "1800-123-4567",
+     "080-41234567",
+     "0124 4567890"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "data_urls": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "x@y.in",
+    "z@acme.in"
+   ],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [
+    "x@y.in",
+    "z@acme.in"
+   ],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "z@acme.in"
+    ],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "dup_case": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "INFO@acme.in",
+    "Info@Acme.in",
+    "Sales@Acme.In",
+    "info@acme.in"
+   ],
+   "fetch_phones": [
+    "+91 98765 43210",
+    "+91-98765-43210",
+    "+919876543210"
+   ],
+   "links": [],
+   "runner_emails": [
+    "Info@Acme.in",
+    "Sales@Acme.In"
+   ],
+   "runner_phones": [
+    "+91 98765 43210"
+   ],
+   "site": {
+    "description": "",
+    "emails": [
+     "Info@Acme.in",
+     "INFO@acme.in",
+     "info@acme.in",
+     "Sales@Acme.In"
+    ],
+    "phones": [
+     "+91 98765 43210",
+     "+91-98765-43210",
+     "+919876543210"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "email_in_url": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "lead@acme.in"
+   ],
+   "fetch_phones": [],
+   "links": [
+    "https://track.example.net/?email=lead@acme.in&u=1"
+   ],
+   "runner_emails": [
+    "lead@acme.in"
+   ],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "lead@acme.in"
+    ],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "empty": {
+   "challenge": {
+    "200": false,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "entities": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "hello@acme.in",
+     "sales@acme.in",
+     "info@acme.in",
+     "ceo@acme.in"
+    ],
+    "phones": [
+     "+91 98765 43210"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "fake_numbers": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [
+    "1234567890",
+    "0000000000",
+    "9999999999",
+    "9876501234"
+   ],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [
+     "0000000000",
+     "1234567890",
+     "9999999999",
+     "9876501234"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "footer_only_phones": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [
+    "+914428123457"
+   ],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [
+    "+914428123457",
+    "044-28123456"
+   ],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [
+     "044-28123456",
+     "+914428123457"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "foreign_phones": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [
+    "+919811112222"
+   ],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [
+    "+919811112222",
+    "079460958"
+   ],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [
+     "079460958",
+     "+14155550100",
+     "+442079460958",
+     "+919811112222"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "iframes": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "iframe@acme.in",
+    "object@acme.in",
+    "ok@acme.in"
+   ],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [
+    "iframe@acme.in",
+    "object@acme.in",
+    "ok@acme.in"
+   ],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "iframe@acme.in",
+     "object@acme.in",
+     "ok@acme.in"
+    ],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "india_0_prefix": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [
+    "022-23456789",
+    "0484 2345678",
+    "07940123456"
+   ],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [
+     "022-23456789",
+     "0484 2345678",
+     "07940123456"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "jsonld": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "ld@acme.in"
+   ],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [
+    "ld@acme.in"
+   ],
+   "runner_phones": [
+    "080 41234567"
+   ],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [
+     "080 41234567"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "junk_emails": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "f@googleapis.com",
+    "font@1.woff",
+    "g@gravatar.com",
+    "hero@3x.webp",
+    "info@realco.com",
+    "me@email.com",
+    "s@schema.org",
+    "u@w3.org",
+    "w@wordpress.org"
+   ],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [
+    "info@realco.com",
+    "errors@o123.ingest.sentry.io"
+   ],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "info@realco.com",
+     "errors@o123.ingest.sentry.io",
+     "bob@sentry.io",
+     "x@wixpress.com",
+     "u@w3.org"
+    ],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "long_ids": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [
+    "1700000000"
+   ],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [
+    "0231031123456"
+   ],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [
+     "0231031123456",
+     "1700000000"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "mailto_links": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "a@acme.in",
+    "b@acme.in",
+    "c@acme.in",
+    "d@acme.in",
+    "e@acme.in"
+   ],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [
+    "a@acme.in",
+    "b@acme.in",
+    "c@acme.in",
+    "d@acme.in",
+    "e@acme.in"
+   ],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "a@acme.in",
+     "b@acme.in",
+     "d@acme.in,e@acme.in"
+    ],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "malformed": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "bold-italic@acme.in",
+    "info@broken.in"
+   ],
+   "fetch_phones": [
+    "+919800000001"
+   ],
+   "links": [],
+   "runner_emails": [
+    "info@broken.in",
+    "bold-italic@acme.in"
+   ],
+   "runner_phones": [
+    "+919800000001"
+   ],
+   "site": {
+    "description": "",
+    "emails": [
+     "info@broken.in",
+     "bold-italic@acme.in"
+    ],
+    "phones": [
+     "+919800000001"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "many": {
+   "challenge": {
+    "200": false,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "person0@bigco.in",
+    "person10@bigco.in",
+    "person11@bigco.in",
+    "person12@bigco.in",
+    "person13@bigco.in",
+    "person1@bigco.in",
+    "person2@bigco.in",
+    "person3@bigco.in",
+    "person4@bigco.in",
+    "person5@bigco.in",
+    "person6@bigco.in",
+    "person7@bigco.in",
+    "person8@bigco.in",
+    "person9@bigco.in"
+   ],
+   "fetch_phones": [
+    "+91 98000 10000",
+    "+91 98001 10001",
+    "+91 98002 10002",
+    "+91 98003 10003",
+    "+91 98004 10004",
+    "+91 98005 10005",
+    "+91 98006 10006",
+    "+91 98007 10007",
+    "+91 98008 10008",
+    "+91 98009 10009"
+   ],
+   "links": [],
+   "runner_emails": [
+    "person0@bigco.in",
+    "person1@bigco.in",
+    "person2@bigco.in",
+    "person3@bigco.in",
+    "person4@bigco.in"
+   ],
+   "runner_phones": [
+    "+91 98000 10000",
+    "+91 98001 10001",
+    "+91 98002 10002",
+    "+91 98003 10003",
+    "+91 98004 10004"
+   ],
+   "site": {
+    "description": "",
+    "emails": [
+     "person0@bigco.in",
+     "person1@bigco.in",
+     "person2@bigco.in",
+     "person3@bigco.in",
+     "person4@bigco.in"
+    ],
+    "phones": [
+     "+91 98000 10000",
+     "+91 98001 10001",
+     "+91 98002 10002",
+     "+91 98003 10003",
+     "+91 98004 10004"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "meta_both": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [],
+   "site": {
+    "description": "Name desc",
+    "emails": [],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "meta_long": {
+   "challenge": {
+    "200": false,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [],
+   "site": {
+    "description": "Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long description Long descri",
+    "emails": [],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "meta_none": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "meta_og_only": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "nbsp_phones": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [
+    "+91 98765 43210",
+    "+91 98765 43210"
+   ],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [
+    "+91 98765 43210",
+    "080 41234567"
+   ],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [
+     "+91 98765 43210",
+     "+91 98765 43210",
+     "080 41234567"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "non_ascii": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "arabic@acme.ae",
+    "emoji@acme.in",
+    "hindi@acme.in"
+   ],
+   "fetch_phones": [
+    "+91 98111 22233",
+    "٠٥٠١٢٣٤٥٦٧",
+    "९८७६५४३२१०"
+   ],
+   "links": [],
+   "runner_emails": [
+    "arabic@acme.ae",
+    "hindi@acme.in",
+    "emoji@acme.in"
+   ],
+   "runner_phones": [
+    "+91 98111 22233"
+   ],
+   "site": {
+    "description": "",
+    "emails": [
+     "arabic@acme.ae",
+     "hindi@acme.in",
+     "emoji@acme.in"
+    ],
+    "phones": [
+     "+91 98111 22233",
+     "٠٥٠١٢٣٤٥٦٧",
+     "९८७६५४३२१०"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "phone_formats": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [
+    "+91 98200 12345",
+    "91-9820012345",
+    "+919820012345",
+    "1800 22 4444",
+    "1800-123-456789",
+    "9820012345"
+   ],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [
+    "+91 98200 12345",
+    "1800 22 4444",
+    "1800-123-456789",
+    "011 23456789",
+    "04023456789"
+   ],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [
+     "+91 98200 12345",
+     "91-9820012345",
+     "+919820012345",
+     "1800 22 4444",
+     "1800-123-456789"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "plus_sub": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "first.last+tag@mail.sub.acme.co.uk",
+    "x_y-z@acme-hr.in"
+   ],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [
+    "first.last+tag@mail.sub.acme.co.uk",
+    "x_y-z@acme-hr.in",
+    "123@456.78"
+   ],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "first.last+tag@mail.sub.acme.co.uk",
+     "x_y-z@acme-hr.in",
+     "123@456.78"
+    ],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "publishers": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "care@capterra.com",
+    "hello@goodfirms.co",
+    "r@rankexdigital.com",
+    "real@acmehr.com",
+    "s@softwaresuggest.com",
+    "support@g2.com",
+    "t@trustpilot.com",
+    "team@clutch.co",
+    "x@ambitionbox.com",
+    "y@glassdoor.com",
+    "z@mordorintelligence.com"
+   ],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [
+    "real@acmehr.com"
+   ],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "team@clutch.co",
+     "hello@goodfirms.co",
+     "support@g2.com",
+     "care@capterra.com",
+     "x@ambitionbox.com"
+    ],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "script_style": {
+   "challenge": {
+    "200": true,
+    "301": true,
+    "403": true,
+    "404": true,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "noscript@acme.in",
+    "script@hidden.com",
+    "style@hidden.com",
+    "template@acme.in",
+    "visible@acme.in"
+   ],
+   "fetch_phones": [
+    "+91 99999 11111",
+    "9876512345",
+    "9123456789"
+   ],
+   "links": [],
+   "runner_emails": [
+    "script@hidden.com",
+    "style@hidden.com",
+    "visible@acme.in",
+    "noscript@acme.in",
+    "template@acme.in"
+   ],
+   "runner_phones": [
+    "+91 99999 11111"
+   ],
+   "site": {
+    "description": "",
+    "emails": [
+     "visible@acme.in",
+     "noscript@acme.in"
+    ],
+    "phones": [
+     "9123456789"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "social": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [],
+   "links": [
+    "https://www.linkedin.com/company/acme/",
+    "https://twitter.com/acme",
+    "https://x.com/acme_in",
+    "https://facebook.com/acmeHR",
+    "https://www.instagram.com/acme.hr/",
+    "https://in.linkedin.com/in/jane-doe",
+    "https://acme.in/about",
+    "https://www.LinkedIn.com/Company/AcmeUpper"
+   ],
+   "runner_emails": [],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [],
+    "social": {
+     "facebook": "https://facebook.com/acmeHR",
+     "instagram": "https://www.instagram.com/acme.hr/",
+     "linkedin": "https://www.LinkedIn.com/Company/AcmeUpper",
+     "twitter": "https://x.com/acme_in"
+    }
+   }
+  },
+  "tel_links": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [
+    "+91-98450-12345",
+    "+919845012346",
+    "919845012347",
+    "9845012348"
+   ],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [
+    "+91-98450-12345",
+    "+919845012346",
+    "919845012347",
+    "+91-98450-1234"
+   ],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [
+     "+91 80 4123-4567",
+     "08041234568",
+     "+91-98450-12345",
+     "2919845012347"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "tel_markers": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [],
+   "fetch_phones": [
+    "+91-98765-11111",
+    "+91 99887 76655"
+   ],
+   "links": [],
+   "runner_emails": [],
+   "runner_phones": [
+    "+91-98765-11111",
+    "+91 99887 76655",
+    "040-23456780"
+   ],
+   "site": {
+    "description": "",
+    "emails": [],
+    "phones": [
+     "+91-98765-11111",
+     "+91 99887 76655",
+     "040-23456780"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "text_only": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "plain@acme.in"
+   ],
+   "fetch_phones": [
+    "9876543210"
+   ],
+   "links": [],
+   "runner_emails": [
+    "plain@acme.in"
+   ],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "plain@acme.in"
+    ],
+    "phones": [
+     "9876543210"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "trailing_punct": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "ceo@acme.io",
+    "cto@acme.dev",
+    "hr@acme.org",
+    "info@acme.co.in",
+    "sales@acme.com"
+   ],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [
+    "info@acme.co.in",
+    "sales@acme.com",
+    "hr@acme.org",
+    "ceo@acme.io",
+    "cto@acme.dev"
+   ],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "info@acme.co.in",
+     "sales@acme.com",
+     "hr@acme.org",
+     "ceo@acme.io",
+     "cto@acme.dev"
+    ],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  "unicode_emails": {
+   "challenge": {
+    "200": true,
+    "301": false,
+    "403": true,
+    "404": false,
+    "503": true
+   },
+   "fetch_emails_sorted": [
+    "info@example.gr",
+    "plain@ascii.io"
+   ],
+   "fetch_phones": [],
+   "links": [],
+   "runner_emails": [
+    "jürgen@müller-gmbh.de",
+    "用户@例子.公司",
+    "ivan@почта.рф",
+    "plain@ascii.io",
+    "info@example.gr"
+   ],
+   "runner_phones": [],
+   "site": {
+    "description": "",
+    "emails": [
+     "jürgen@müller-gmbh.de",
+     "用户@例子.公司",
+     "ivan@почта.рф",
+     "plain@ascii.io",
+     "info@example.gr"
+    ],
+    "phones": [],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  }
+ },
+ "site_combos": [
+  {
+   "contact_us": "footer_only_phones",
+   "fetched": [
+    "https://acme.in",
+    "https://acme.in/contact",
+    "https://acme.in/contact-us",
+    "https://acme.in/about"
+   ],
+   "main": "contact_india",
+   "site": {
+    "description": "Acme Staffing - HR and recruitment in Pune",
+    "emails": [
+     "hello@acme.in",
+     "careers@acme.in",
+     "sales@acme.in"
+    ],
+    "phones": [
+     "+91 98765 43210",
+     "+91-9876543210",
+     "1800-123-4567",
+     "080-41234567",
+     "0124 4567890"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  },
+  {
+   "contact_us": "many",
+   "fetched": [
+    "https://acme.in",
+    "https://acme.in/contact",
+    "https://acme.in/contact-us",
+    "https://acme.in/about"
+   ],
+   "main": "social",
+   "site": {
+    "description": "",
+    "emails": [
+     "person0@bigco.in",
+     "person1@bigco.in",
+     "person2@bigco.in",
+     "person3@bigco.in",
+     "person4@bigco.in"
+    ],
+    "phones": [
+     "+91 98000 10000",
+     "+91 98001 10001",
+     "+91 98002 10002",
+     "+91 98003 10003",
+     "+91 98004 10004"
+    ],
+    "social": {
+     "facebook": "https://facebook.com/acmeHR",
+     "instagram": "https://www.instagram.com/acme.hr/",
+     "linkedin": "https://www.LinkedIn.com/Company/AcmeUpper",
+     "twitter": "https://x.com/acme_in"
+    }
+   }
+  },
+  {
+   "contact_us": "contact_india",
+   "fetched": [
+    "https://acme.in",
+    "https://acme.in/contact",
+    "https://acme.in/contact-us",
+    "https://acme.in/about"
+   ],
+   "main": "entities",
+   "site": {
+    "description": "",
+    "emails": [
+     "hello@acme.in",
+     "sales@acme.in",
+     "info@acme.in",
+     "ceo@acme.in",
+     "careers@acme.in"
+    ],
+    "phones": [
+     "+91 98765 43210",
+     "+91 98765 43210",
+     "+91-9876543210",
+     "1800-123-4567",
+     "080-41234567"
+    ],
+    "social": {
+     "facebook": "",
+     "instagram": "",
+     "linkedin": "",
+     "twitter": ""
+    }
+   }
+  }
+ ]
+}
