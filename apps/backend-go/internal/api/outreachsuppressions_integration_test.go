@@ -74,11 +74,14 @@ func suppRows(t *testing.T, raw []byte) []string {
 }
 
 // suppDeviations: Go refuses what Python stored (an empty key); see the report.
-var suppDeviations = map[string]int{"suppress_add_empty_email": 422}
+var suppDeviations = map[string]int{"suppress_add_empty_email": 422, "suppress_add_no_at": 422} // F25: a value without "@" is refused
 
 // suppCollapsed: Go stores gmail addresses in the collapsed form, so the recorded dotted row is the seeded patlee@gmail.com
 // (added:false) and does not appear in the lists.
 const suppDottedRow = "p.a.t.lee+news@gmail.com|manual|manual|-"
+
+// suppNoAtRow was stored by Python from suppress_add_no_at and is now refused (F25).
+const suppNoAtRow = "not-an-email|manual|manual|-"
 
 func TestSuppressionRoutesMatchFixtures(t *testing.T) {
 	e := newSuppEnv(t)
@@ -114,7 +117,7 @@ func TestSuppressionRoutesMatchFixtures(t *testing.T) {
 				}
 				got, want := suppRows(t, rec.Body.Bytes()), []string{}
 				for _, row := range suppRows(t, fx.Response.Body) {
-					if row != suppDottedRow {
+					if row != suppDottedRow && row != suppNoAtRow {
 						want = append(want, row)
 					}
 				}

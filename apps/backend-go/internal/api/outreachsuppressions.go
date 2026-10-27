@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -72,7 +73,16 @@ func parseSuppressionAdd(raw []byte) (string, []httpx.FieldError) {
 	if emailnorm.Normalize(s) == "" {
 		return "", []httpx.FieldError{seqFE("value_error", "Value error, email must not be blank", loc, v, nil)}
 	}
+	if !validSuppressionAddress(emailnorm.Normalize(s)) {
+		return "", []httpx.FieldError{seqFE("value_error", "Value error, email must be an email address", loc, v, nil)}
+	}
 	return s, nil
+}
+
+// validSuppressionAddress: exactly one "@" with a non-empty local part and domain (the normalised value).
+func validSuppressionAddress(n string) bool {
+	local, domain, ok := strings.Cut(n, "@")
+	return ok && local != "" && domain != "" && !strings.Contains(domain, "@")
 }
 
 func (h suppRoutes) add(w http.ResponseWriter, r *http.Request) {
