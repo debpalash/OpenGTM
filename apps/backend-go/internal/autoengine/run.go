@@ -72,6 +72,19 @@ type Deps struct {
 	Now        func() time.Time
 }
 
+// DefaultMaxRowsPerEval is the AUTOMATIONS_MAX_ROWS_PER_EVAL default.
+const DefaultMaxRowsPerEval = 500
+
+// MaxRowsPerEval is the effective per-evaluation row cap for a configured value
+// (unset or < 1: the default). The run API refuses more explicit targets than this
+// with a 422 (R-targets), so the engine's targets[:max_rows] cut never drops any.
+func MaxRowsPerEval(configured int) int {
+	if configured < 1 {
+		return DefaultMaxRowsPerEval
+	}
+	return configured
+}
+
 func (d Deps) log() *slog.Logger {
 	if d.Log != nil {
 		return d.Log
@@ -141,10 +154,7 @@ func (e *engine) handle(ctx context.Context, c *queue.Claim) error {
 	if fireKey == "" {
 		fireKey = fmt.Sprintf("job:%d", jobID)
 	}
-	maxRows := d.MaxRowsPerEval
-	if maxRows < 1 {
-		maxRows = 500
-	}
+	maxRows := MaxRowsPerEval(d.MaxRowsPerEval)
 
 	var trig *gen.Trigger
 	if err := tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {

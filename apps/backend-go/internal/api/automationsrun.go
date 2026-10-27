@@ -212,8 +212,9 @@ func (h autoRunRoutes) run(w http.ResponseWriter, r *http.Request) {
 	if !ok || h.disabled(w) {
 		return
 	}
-	// S-L4: explicit targets are bounded by the per-evaluation row cap.
-	if max := h.d.Flags.Automations.MaxRowsPerEval; max > 0 && len(body.rowIDs) > max {
+	// S-L4 / R-targets: explicit targets are bounded by the per-evaluation row cap (the engine's
+	// effective cap, default 500), refused rather than truncated.
+	if max := autoengine.MaxRowsPerEval(h.d.Flags.Automations.MaxRowsPerEval); len(body.rowIDs) > max {
 		httpx.ValidationError(w, httpx.FieldError{Type: "too_long", Loc: []any{"body", "row_ids"},
 			Msg:   fmt.Sprintf("List should have at most %d items after validation, not %d", max, len(body.rowIDs)),
 			Input: nil, Ctx: map[string]any{"field_type": "List", "max_length": max, "actual_length": len(body.rowIDs)}})
