@@ -144,6 +144,9 @@ func (s *Service) UpdateColumnSettings(ctx context.Context, ws, wbID, colID stri
 		if g := ValidateNewCycles(w.Columns, replacement); g != nil {
 			return g
 		}
+		if g := ValidateOutputColumns(w.Columns, replacement); g != nil {
+			return g
+		}
 		if _, _, err := s.UpdateIfChanged(ctx, tx, ws, w, UpdatePatch{Columns: &replacement}); err != nil {
 			return err
 		}
@@ -251,6 +254,9 @@ func (s *Service) AddColumn(ctx context.Context, ws, wbID string, col Column) (W
 		}
 		cols := append(cloneAll(w.Columns), col)
 		if g := ValidateNewCycles(w.Columns, cols); g != nil {
+			return g
+		}
+		if g := ValidateOutputColumns(w.Columns, cols); g != nil {
 			return g
 		}
 		out, _, err = s.UpdateIfChanged(ctx, tx, ws, w, UpdatePatch{Columns: &cols})

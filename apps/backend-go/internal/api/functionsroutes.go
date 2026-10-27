@@ -288,7 +288,7 @@ func (f fnRoutes) apply(w http.ResponseWriter, r *http.Request) {
 }
 
 // noNewCycles is the wbfunctions.Validator for apply: columns newly sitting in a dependency cycle
-// are refused. Unparseable stored or merged config is left to the usual path (no guard error).
+// are refused, and so is a changed output column whose webhook URL has a placeholder in its authority. Unparseable stored or merged config is left to the usual path (no guard error).
 func noNewCycles(before, after []byte) error {
 	b, err := wbcrud.ParseColumns(before)
 	if err != nil {
@@ -299,6 +299,9 @@ func noNewCycles(before, after []byte) error {
 		return nil
 	}
 	if g := wbcrud.ValidateNewCycles(b, a); g != nil {
+		return g
+	}
+	if g := wbcrud.ValidateOutputColumns(b, a); g != nil {
 		return g
 	}
 	return nil

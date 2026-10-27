@@ -521,6 +521,9 @@ func (s *Service) Create(ctx context.Context, ws string, body CreateBody) (Workb
 	if g := ValidateNewCycles(nil, body.Columns); g != nil {
 		return Workbook{}, g
 	}
+	if g := ValidateOutputColumns(nil, body.Columns); g != nil {
+		return Workbook{}, g
+	}
 
 	source := body.Source
 	if source == "" {
@@ -707,6 +710,9 @@ func (s *Service) checkReplacement(ctx context.Context, tx pgx.Tx, ws string, w 
 		return g
 	}
 	if g := ValidateNewCycles(w.Columns, repl); g != nil {
+		return g
+	}
+	if g := ValidateOutputColumns(w.Columns, repl); g != nil {
 		return g
 	}
 	var removed []Column

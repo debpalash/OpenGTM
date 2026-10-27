@@ -7,7 +7,7 @@ import (
 
 func outCol(t *testing.T, id, dest, cfg string) Column {
 	t.Helper()
-	c, errs := NormalizeRequestColumn([]byte(`{"id":"`+id+`","name":"`+id+`","type":"output","destination":"`+dest+`","destination_config":`+cfg+`}`))
+	c, errs := NormalizeRequestColumn([]byte(`{"id":"` + id + `","name":"` + id + `","type":"output","destination":"` + dest + `","destination_config":` + cfg + `}`))
 	if len(errs) > 0 {
 		t.Fatalf("%+v", errs)
 	}

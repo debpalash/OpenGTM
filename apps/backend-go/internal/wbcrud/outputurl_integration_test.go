@@ -35,14 +35,14 @@ func TestOutputWebhookURLRuleAtSave(t *testing.T) {
 	_, err = s.Update(ctx, wsA, wb.ID, updateBody(t, `{"columns_config":[`+base+`,`+outBad+`]}`))
 	wantOutputGuard(t, err)
 
-	col, errs := wbcrud.ParseAddBody([]byte(outBad))
+	col, errs := wbcrud.ParseAddBody([]byte(`{"column":` + outBad + `}`))
 	if len(errs) > 0 {
 		t.Fatalf("%+v", errs)
 	}
 	_, err = s.AddColumn(ctx, wsA, wb.ID, col)
 	wantOutputGuard(t, err)
 
-	good, errs := wbcrud.ParseAddBody([]byte(outOK))
+	good, errs := wbcrud.ParseAddBody([]byte(`{"column":` + outOK + `}`))
 	if len(errs) > 0 {
 		t.Fatalf("%+v", errs)
 	}
