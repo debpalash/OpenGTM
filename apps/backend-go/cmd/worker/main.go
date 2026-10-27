@@ -387,7 +387,7 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 	if localSecrets != nil {
 		provSec = localSecrets
 	}
-	provRPC, err := providerRPC(cfg, log, pyRPC, provSec)
+	provRPC, err := providerRPC(cfg, log, pyRPC, provSec, deps.Runner)
 	if err != nil {
 		return nil, nil, err
 	}

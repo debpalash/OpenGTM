@@ -24,8 +24,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/mcp"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rpclocal"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rpclocal"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
@@ -134,7 +134,7 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 	resolver := secrets.NewResolver(envelope, secrets.NewPgStore(pool), get)
 	// Provider calls: names GO_LOCAL_PROVIDERS lists run in process (plan 15 WP-PROVIDERS), the rest on the worker.
 	rpc, err := rpclocal.Configure(rpclocal.Setup{Getenv: config.AllNative(get), AppEnv: get("APP_ENV"),
-		EgressAllow: splitHosts(get("EGRESS_ALLOW_HOSTS")), Py: py, Secrets: resolver})
+		EgressAllow: splitHosts(get("EGRESS_ALLOW_HOSTS")), Py: py, Secrets: resolver, Pool: pool})
 	if err != nil {
 		return nil, err
 	}
