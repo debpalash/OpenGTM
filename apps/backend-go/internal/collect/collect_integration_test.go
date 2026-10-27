@@ -375,8 +375,9 @@ func TestUpsertAndSourceStats(t *testing.T) {
 	_ = tenancy.InWorkspace(ctx, pool, itWS, func(tx pgx.Tx) error {
 		return tx.QueryRow(ctx, `SELECT email, phone, created_at, score FROM leads WHERE id = $1`, a.ID).Scan(&email, &phone, &created, &score)
 	})
-	if email != "" || phone != "123" || created != "2020-01-01T00:00:00+00:00" || score != 70 {
-		t.Errorf("overwrite: %q %q %q %d", email, phone, created, score)
+	// A re-found company fills empty columns only; the score is user-owned (review 3a L1).
+	if email != "a@acme.com" || phone != "123" || created != "2020-01-01T00:00:00+00:00" || score != 50 {
+		t.Errorf("upsert: %q %q %q %d", email, phone, created, score)
 	}
 	names, err := s.ExistingCompanies(ctx)
 	if err != nil || !names["acme"] || len(names) != 1 {

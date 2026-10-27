@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"math"
 	"sort"
 	"strings"
@@ -98,6 +99,9 @@ func (j *job) emit(typ string, fields ...any) {
 
 // ErrCancelled is returned when the job was cancelled (ledger status or context).
 var ErrCancelled = errors.New("collect: job cancelled")
+
+// dedupReadError is the dedup stage's note when the workspace's companies could not be read.
+const dedupReadError = "existing companies could not be read; cross-job dedup skipped"
 
 // ErrNotPending is Ledger.MarkRunning's answer for a row that is not pending (running elsewhere,
 // done, failed, cancelled or missing): the run must not start.
@@ -293,9 +297,12 @@ func (j *job) run(ctx context.Context) error {
 		return err
 	}
 	unique := Dedupe(valid, DedupThreshold)
-	existing, err := j.store.ExistingCompanies(ctx)
-	if err != nil {
-		existing = nil // legacy swallowed the read error (no cross-job dedup)
+	existing, existErr := j.store.ExistingCompanies(ctx)
+	if existErr != nil {
+		// Fix: legacy swallowed the read error. Surface it on the stage and in progress; the run
+		// continues (a re-found company no longer overwrites the stored lead, see PgStore.Upsert).
+		slog.Warn("collect: existing companies read failed", "job_id", j.id, "err", existErr)
+		existing = nil
 	}
 	crossRemoved := 0
 	var dedupRemoved []string
@@ -324,9 +331,13 @@ func (j *job) run(ctx context.Context) error {
 	for _, n := range dedupRemoved {
 		dedupRejected = append(dedupRejected, n)
 	}
+	dedupDetails := dict{{"cross_job_removed", crossRemoved}, {"rejected_names", orEmpty(slice2(dedupRejected, 20))}}
+	if existErr != nil {
+		dedupDetails = append(dedupDetails, kv{"existing_error", dedupReadError})
+		j.progress("dedup", "⚠️ "+strings.ToUpper(dedupReadError[:1])+dedupReadError[1:])
+	}
 	if err := j.completeStage(ctx, did, StageResult{InputCount: len(valid), OutputCount: len(unique),
-		RejectedCount: len(valid) - len(unique), Details: pyDumps(dict{{"cross_job_removed", crossRemoved},
-			{"rejected_names", orEmpty(slice2(dedupRejected, 20))}})}); err != nil {
+		RejectedCount: len(valid) - len(unique), Details: pyDumps(dedupDetails)}); err != nil {
 		return err
 	}
 	j.progress("dedup", fmt.Sprintf("🔄 %d → %d after dedup (%d already in DB)", len(valid), len(unique), crossRemoved))

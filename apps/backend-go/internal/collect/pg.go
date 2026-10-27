@@ -146,17 +146,25 @@ var upsertSQL = func() string {
 	for i, c := range leadColumns {
 		ph = append(ph, fmt.Sprintf("$%d", i+1))
 		switch c {
-		case "company", "city", "created_at":
-		default:
+		case "company", "city", "created_at", "status", "notes", "score", "score_tier":
+			// The conflict key, and what the user owns: a re-found company never resets them.
+		case "updated_at":
 			sets = append(sets, c+" = EXCLUDED."+c)
+		case "employee_count_exact", "enrichment_attempts":
+			sets = append(sets, c+" = COALESCE(NULLIF(leads."+c+", 0), EXCLUDED."+c+")")
+		default:
+			// Collection only fills what is still empty; known values (and the owning job) stay.
+			sets = append(sets, c+" = COALESCE(NULLIF(leads."+c+", ''), EXCLUDED."+c+")")
 		}
 	}
 	return "INSERT INTO leads (workspace_id, " + strings.Join(leadColumns, ", ") + ") VALUES (" + strings.Join(ph, ", ") +
 		") ON CONFLICT (workspace_id, company, city) DO UPDATE SET " + strings.Join(sets, ", ") + " RETURNING id"
 }()
 
-// Upsert is upsert_lead: insert, or overwrite every column of the (workspace, company, city) row
-// but created_at. One statement (legacy read-then-write raced with a concurrent insert).
+// Upsert is upsert_lead: insert, or update the (workspace, company, city) row in one statement
+// (legacy read-then-write raced with a concurrent insert). Fix: legacy overwrote every column of
+// a re-found company; here status, notes, score and score_tier (user-owned) are never touched and
+// every other column is only filled when empty.
 func (s PgStore) Upsert(ctx context.Context, l *Lead) error {
 	l.UpdatedAt = isoformat(time.Now().UTC())
 	m := l.Map()
