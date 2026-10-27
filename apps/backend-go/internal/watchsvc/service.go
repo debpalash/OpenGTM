@@ -88,12 +88,8 @@ func (s *Service) bootstrap(ctx context.Context, tx pgx.Tx, id, ws, interval str
 	now := s.now()
 	iv := interval
 	pw := poller.Watch{ID: id, WorkspaceID: ws, Interval: iv, Anchor: anchor, Enabled: enabled}
-	loc, err := poller.SessionLocation(ctx, tx)
-	if err != nil {
-		return time.Time{}, err
-	}
-	next := poller.NextPollForIn(pw, now, s.pcfg(), loc)
-	if _, err := poller.EnqueuePollIfAbsent(ctx, tx, poller.ScheduledFireKeyIn(id, next, loc), ws, id, next, false, s.executor(ws)); err != nil {
+	next := poller.NextPollFor(pw, now, s.pcfg())
+	if _, err := poller.EnqueuePollIfAbsent(ctx, tx, poller.ScheduledFireKey(id, next), ws, id, next, false, s.executor(ws)); err != nil {
 		return next, err
 	}
 	if err := poller.MirrorSet(ctx, tx, id, ws, &next, enabled); err != nil {

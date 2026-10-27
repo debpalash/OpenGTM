@@ -38,12 +38,8 @@ func BootstrapWatchSchedules(ctx context.Context, pool *pgxpool.Pool, now time.T
 			if err != nil || !ok || !w.Enabled {
 				return err
 			}
-			loc, err := SessionLocation(ctx, tx)
-			if err != nil {
-				return err
-			}
-			next := NextPollForIn(w, now, cfg, loc)
-			created, err = EnqueuePollIfAbsent(ctx, tx, ScheduledFireKeyIn(w.ID, next, loc), w.WorkspaceID, w.ID, next, false, executor)
+			next := NextPollFor(w, now, cfg)
+			created, err = EnqueuePollIfAbsent(ctx, tx, ScheduledFireKey(w.ID, next), w.WorkspaceID, w.ID, next, false, executor)
 			if err != nil || !created {
 				return err
 			}

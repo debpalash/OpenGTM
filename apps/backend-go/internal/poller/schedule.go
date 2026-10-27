@@ -197,19 +197,6 @@ func ScheduledFireKey(watchID string, next time.Time) string {
 	return "watch:" + watchID + ":" + isoformat(next)
 }
 
-// ScheduledFireKeyIn is ScheduledFireKey; the zone argument is ignored (UTC
-// keys under every session TimeZone, audit F1).
-func ScheduledFireKeyIn(watchID string, next time.Time, _ *time.Location) string {
-	return "watch:" + watchID + ":" + isoformat(next)
-}
-
-// SessionLocation is retained for callers; scheduling no longer depends on the
-// Postgres session TimeZone (audit F1), so it always returns UTC and never
-// refuses a zone name Go cannot load.
-func SessionLocation(_ context.Context, _ pgx.Tx) (*time.Location, error) {
-	return time.UTC, nil
-}
-
 type pollPayload struct {
 	WatchID     string `json:"watch_id"`
 	WorkspaceID string `json:"workspace_id"`
@@ -291,15 +278,11 @@ func (c Config) interval(w Watch) string {
 	return c.DefaultInterval
 }
 
-// NextPollFor is NextPollForIn for a UTC session zone.
+// NextPollFor is the aligned next poll instant for a watch:
+// anchor + n*interval on absolute instants, independent of the Postgres session
+// TimeZone (audit F1). A NULL anchor means "now" and Python re-reads the clock,
+// so the result is one interval ahead.
 func NextPollFor(w Watch, now time.Time, c Config) time.Time {
-	return NextPollForIn(w, now, c, time.UTC)
-}
-
-// NextPollForIn is the aligned next poll instant for a watch:
-// anchor + n*interval on absolute instants; loc is ignored (audit F1). A NULL anchor means
-// "now" and Python re-reads the clock, so the result is one interval ahead.
-func NextPollForIn(w Watch, now time.Time, c Config, _ *time.Location) time.Time {
 	if w.Anchor == nil {
 		return now.UTC().Add(autoschedule.IntervalDelta(c.interval(w)))
 	}
@@ -316,11 +299,7 @@ func NextPollForIn(w Watch, now time.Time, c Config, _ *time.Location) time.Time
 func RescheduleWatch(ctx context.Context, tx pgx.Tx, w Watch, failed bool, now time.Time, cfg Config, executor string) (Watch, error) {
 	now = now.UTC().Truncate(time.Microsecond)
 	interval := cfg.interval(w)
-	loc, err := SessionLocation(ctx, tx)
-	if err != nil {
-		return w, err
-	}
-	next := NextPollForIn(w, now, cfg, loc)
+	next := NextPollFor(w, now, cfg)
 	if failed {
 		w.ConsecutiveFailures++
 		if w.ConsecutiveFailures >= cfg.MaxConsecutiveFailures {
@@ -341,7 +320,7 @@ func RescheduleWatch(ctx context.Context, tx pgx.Tx, w Watch, failed bool, now t
 	}
 	w.NextPollAt = &next
 	if w.Enabled {
-		if _, err := EnqueuePollIfAbsent(ctx, tx, ScheduledFireKeyIn(w.ID, next, loc), w.WorkspaceID, w.ID, next, false, executor); err != nil {
+		if _, err := EnqueuePollIfAbsent(ctx, tx, ScheduledFireKey(w.ID, next), w.WorkspaceID, w.ID, next, false, executor); err != nil {
 			return w, err
 		}
 		if err := MirrorSet(ctx, tx, w.ID, w.WorkspaceID, &next, true); err != nil {

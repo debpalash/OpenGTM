@@ -9,7 +9,7 @@ import (
 
 // Same vectors as autoschedule: the watch poll time is absolute-instant
 // arithmetic under a non-UTC session TimeZone (audit F1).
-func TestNextPollForInAbsoluteAcrossDST(t *testing.T) {
+func TestNextPollForAbsoluteAcrossDST(t *testing.T) {
 	raw, err := os.ReadFile("../autoschedule/testdata/next_run_dst_vectors.json")
 	if err != nil {
 		t.Fatal(err)
@@ -20,8 +20,7 @@ func TestNextPollForInAbsoluteAcrossDST(t *testing.T) {
 	if err := json.Unmarshal(raw, &f); err != nil {
 		t.Fatal(err)
 	}
-	loc, err := time.LoadLocation(f.Zone)
-	if err != nil {
+	if _, err := time.LoadLocation(f.Zone); err != nil {
 		t.Fatal(err)
 	}
 	var vs struct {
@@ -39,7 +38,7 @@ func TestNextPollForInAbsoluteAcrossDST(t *testing.T) {
 		a, _ := time.Parse(time.RFC3339, c.Anchor)
 		now, _ := time.Parse(time.RFC3339, c.Now)
 		want, _ := time.Parse(time.RFC3339, c.NextUTC)
-		got := NextPollForIn(Watch{Anchor: &a, Interval: c.Interval}, now, Config{DefaultInterval: "daily"}, loc)
+		got := NextPollFor(Watch{Anchor: &a, Interval: c.Interval}, now, Config{DefaultInterval: "daily"})
 		if !got.Equal(want) {
 			t.Errorf("%s anchor=%s now=%s: got %s want %s", c.Interval, c.Anchor, c.Now, got.UTC().Format(time.RFC3339), want.UTC().Format(time.RFC3339))
 		}
@@ -54,14 +53,14 @@ func TestNextPollForNilAnchorWaitsOneInterval(t *testing.T) {
 	}
 }
 
-func TestScheduledFireKeyInRendersUTC(t *testing.T) {
+func TestScheduledFireKeyRendersUTC(t *testing.T) {
 	loc, _ := time.LoadLocation("America/New_York")
 	next := time.Date(2026, 11, 2, 12, 0, 0, 0, time.UTC)
 	want := "watch:w1:2026-11-02T12:00:00+00:00"
-	if got := ScheduledFireKeyIn("w1", next, loc); got != want {
-		t.Errorf("In: got %q want %q", got, want)
+	if got := ScheduledFireKey("w1", next); got != want {
+		t.Errorf("UTC: got %q want %q", got, want)
 	}
 	if got := ScheduledFireKey("w1", next.In(loc)); got != want {
-		t.Errorf("plain: got %q want %q", got, want)
+		t.Errorf("zoned: got %q want %q", got, want)
 	}
 }
