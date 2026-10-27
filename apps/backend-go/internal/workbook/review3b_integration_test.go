@@ -105,3 +105,64 @@ func TestNativeBatchRetryAfterPartialWrite(t *testing.T) {
 		t.Fatalf("retry 2 paid again or lost the result: %d %d %q", len(f.batches), len(f.prompts), cell(ids[0]))
 	}
 }
+
+// M1: a native ai_formula call is a spend-ledger attempt: reserved, dispatched and settled
+// (at the hold when the client reports no usage), and the workbook spend grows.
+func TestNativeAIFormulaLLMSpendLedgered(t *testing.T) {
+	e := setup(t, wsA)
+	e.seed(wsA, "wb-nail", `[{"id":"company","type":"lead_field","name":"Company"},{"id":"a1","type":"ai_formula","name":"A1","prompt":"Describe {company}"}]`, 1, 10)
+	f := &fakeLLM{complete: func(string) string { return "fine" }}
+	if res, err := workbook.Run(e.ctx, nativeDeps(e, f), e.claim(wsA, payloadNoManifests(wsA, "wb-nail", nil, nil))); err != nil || res.Completed != 1 {
+		t.Fatalf("%+v %v", res, err)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_spend_attempts WHERE workbook_id='wb-nail' AND provider LIKE 'llm:ai_formula:%' AND status='settled' AND settled_microusd > 0`); n != 1 {
+		t.Fatalf("%d settled llm attempts", n)
+	}
+	if s := e.str(wsA, `SELECT (budget_spent_usd > 0)::text FROM workbooks WHERE id='wb-nail'`); s != "true" {
+		t.Fatalf("workbook spend not charged")
+	}
+}
+
+// M1: a workbook budget too small for the call's hold refuses it before the LLM is called.
+func TestNativeAIFormulaWorkbookBudgetRefusesLLM(t *testing.T) {
+	e := setup(t, wsA)
+	e.seed(wsA, "wb-naib", `[{"id":"company","type":"lead_field","name":"Company"},{"id":"a1","type":"ai_formula","name":"A1","prompt":"Describe {company}"}]`, 1, 0.000001)
+	f := &fakeLLM{complete: func(string) string { return "fine" }}
+	if _, err := workbook.Run(e.ctx, nativeDeps(e, f), e.claim(wsA, payloadNoManifests(wsA, "wb-naib", nil, nil))); err != nil {
+		t.Fatal(err)
+	}
+	if len(f.prompts) != 0 {
+		t.Fatalf("llm called %d times", len(f.prompts))
+	}
+	if got := overlay(e, "wb-naib", "a1", "error"); got != "llm_spend_refused: workbook_budget" {
+		t.Fatalf("error %q", got)
+	}
+}
+
+// M1: the native batch is one ledger attempt of the job, settled once.
+func TestNativeBatchLLMSpendLedgered(t *testing.T) {
+	e := setup(t, wsA)
+	e.seed(wsA, "wb-nbl", `[{"id":"company","type":"lead_field","name":"Company"},{"id":"a1","type":"ai_formula","name":"A1","prompt":"Pitch {company}"}]`, 3, 10)
+	f := &fakeLLM{}
+	f.batch = func(reqs []llm.BatchRequest, o llm.BatchOptions) (map[string]string, error) {
+		if o.OnSubmitted != nil {
+			o.OnSubmitted("msgbatch_l")
+		}
+		out := map[string]string{}
+		for _, r := range reqs {
+			out[r.CustomID] = "p"
+		}
+		return out, nil
+	}
+	d := nativeDeps(e, f)
+	d.AIBatch = workbook.BatchConfig{Enabled: true, MinRows: 2}
+	if res, err := workbook.Run(e.ctx, d, e.claim(wsA, payloadNoManifests(wsA, "wb-nbl", nil, nil))); err != nil || res.Completed != 3 {
+		t.Fatalf("%+v %v", res, err)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_spend_attempts WHERE workbook_id='wb-nbl' AND provider LIKE 'llm:batch:%' AND status='settled'`); n != 1 {
+		t.Fatalf("%d settled batch attempts", n)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_spend_attempts WHERE workbook_id='wb-nbl'`); n != 1 {
+		t.Fatalf("%d attempts", n)
+	}
+}
