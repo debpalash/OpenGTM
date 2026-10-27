@@ -245,15 +245,14 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 	if p.WorkbookID == "" {
 		return errors.New("refresh: payload has no workbook_id")
 	}
-	ws := p.WorkspaceID
+	// The tenant is the job's workspace_id column only (same rule as sourcewb): the payload is data the enqueuer
+	// controls. An empty claim workspace is refused rather than run under the payload's.
+	ws := c.WorkspaceID
 	if ws == "" {
-		ws = c.WorkspaceID
+		return &queue.PermanentError{Err: errors.New("refresh: job workspace missing (jobs.workspace_id is required)")}
 	}
-	if ws == "" {
-		return errors.New("refresh: workspace_id is required (empty would yield zero rows under RLS and mask the bug)")
-	}
-	if c.WorkspaceID != "" && c.WorkspaceID != ws {
-		return errors.New("refresh: payload workspace_id does not match the job's workspace")
+	if p.WorkspaceID != "" && p.WorkspaceID != ws {
+		return &queue.PermanentError{Err: errors.New("refresh: payload workspace_id does not match the job's workspace")}
 	}
 	reason := p.Reason
 	if reason == "" {
@@ -523,11 +522,8 @@ func OnFailure(ctx context.Context, d Deps, n queue.FailureNotice) error {
 	if err := json.Unmarshal(n.Payload, &p); err != nil || p.WorkbookID == "" {
 		return nil
 	}
-	ws := p.WorkspaceID
-	if ws == "" {
-		ws = n.WorkspaceID
-	}
-	if ws == "" || (n.WorkspaceID != "" && n.WorkspaceID != ws) {
+	ws := n.WorkspaceID
+	if ws == "" || (p.WorkspaceID != "" && p.WorkspaceID != ws) {
 		return nil
 	}
 	exec := d.executor()
