@@ -189,8 +189,31 @@ func TestHardBounceClassificationMatchesVectors(t *testing.T) {
 		if c.Error != nil {
 			s = *c.Error
 		}
-		if got := IsHardBounce(s); got != c.Expected {
-			t.Errorf("IsHardBounce(%q) = %v, want %v", s, got, c.Expected)
+		want := c.Expected
+		if w, ok := hardBounceDeviations[s]; ok {
+			want = w
+		}
+		if got := IsHardBounce(s); got != want {
+			t.Errorf("IsHardBounce(%q) = %v, want %v", s, got, want)
+		}
+	}
+}
+
+// hardBounceDeviations are recorded Python vectors Go deliberately answers differently: Python matched the
+// bare codes 550/551/553/554 as substrings, so ports, IPs and longer numbers (35539, 5500) read as hard bounces.
+var hardBounceDeviations = map[string]bool{"5500": false, "a550b": false}
+
+func TestHardBounceCodesMustStandAlone(t *testing.T) {
+	for s, want := range map[string]bool{
+		"dial tcp 127.0.0.1:35539: operation was canceled": false,
+		"queued as 5541A2B3":     false,
+		"(550, b'')":             true,
+		"550 5.1.1 user unknown": true,
+		"code 550 x":             true,
+		"rejected:554":           true,
+	} {
+		if got := IsHardBounce(s); got != want {
+			t.Errorf("IsHardBounce(%q) = %v, want %v", s, got, want)
 		}
 	}
 }
