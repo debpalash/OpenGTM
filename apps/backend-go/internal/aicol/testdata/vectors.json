@@ -6412,6 +6412,576 @@
    "error": "batch_unavailable"
   }
  ],
+ "agent": [
+  {
+   "name": "found_second",
+   "column": {
+    "id": "ag",
+    "type": "agent",
+    "target_field": "email",
+    "tools": [
+     "free_a",
+     "free_b"
+    ]
+   },
+   "providers": {
+    "free_a": {
+     "fields": {}
+    },
+    "free_b": {
+     "fields": {
+      "email": "ceo@acme.io"
+     }
+    }
+   },
+   "calls": [
+    "free_a",
+    "free_b"
+   ],
+   "result": {
+    "value": "ceo@acme.io",
+    "provider": "free_b",
+    "error": null,
+    "trace": {
+     "goal": "Find email",
+     "steps": [
+      {
+       "step": 1,
+       "provider": "free_a",
+       "success": false,
+       "reason": "no_value"
+      },
+      {
+       "step": 2,
+       "provider": "free_b",
+       "success": true,
+       "value": "ceo@acme.io",
+       "cost": 0.0,
+       "reason": "goal_met"
+      }
+     ],
+     "outcome": "found",
+     "spent": 0.0
+    }
+   },
+   "trace": {
+    "goal": "Find email",
+    "steps": [
+     {
+      "step": 1,
+      "provider": "free_a",
+      "success": false,
+      "reason": "no_value"
+     },
+     {
+      "step": 2,
+      "provider": "free_b",
+      "success": true,
+      "value": "ceo@acme.io",
+      "cost": 0.0,
+      "reason": "goal_met"
+     }
+    ],
+    "outcome": "found",
+    "total_cost_usd": {
+     "spent": 0.0
+    }
+   }
+  },
+  {
+   "name": "not_registered_then_found",
+   "column": {
+    "id": "ag",
+    "type": "agent",
+    "goal": "Find the CEO email",
+    "tools": [
+     "ghost",
+     "free_a"
+    ]
+   },
+   "providers": {
+    "free_a": {
+     "fields": {
+      "email": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+     }
+    }
+   },
+   "calls": [
+    "free_a"
+   ],
+   "result": {
+    "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "provider": "free_a",
+    "error": null,
+    "trace": {
+     "goal": "Find the CEO email",
+     "steps": [
+      {
+       "step": 1,
+       "provider": "ghost",
+       "success": false,
+       "reason": "provider_not_registered"
+      },
+      {
+       "step": 2,
+       "provider": "free_a",
+       "success": true,
+       "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+       "cost": 0.0,
+       "reason": "goal_met"
+      }
+     ],
+     "outcome": "found",
+     "spent": 0.0
+    }
+   },
+   "trace": {
+    "goal": "Find the CEO email",
+    "steps": [
+     {
+      "step": 1,
+      "provider": "ghost",
+      "success": false,
+      "reason": "provider_not_registered"
+     },
+     {
+      "step": 2,
+      "provider": "free_a",
+      "success": true,
+      "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "cost": 0.0,
+      "reason": "goal_met"
+     }
+    ],
+    "outcome": "found",
+    "total_cost_usd": {
+     "spent": 0.0
+    }
+   }
+  },
+  {
+   "name": "errors_exhausted",
+   "column": {
+    "id": "ag",
+    "type": "agent",
+    "lead_field": "phone",
+    "tools": [
+     "rl",
+     "to",
+     "boom",
+     "free_a"
+    ]
+   },
+   "providers": {
+    "rl": {
+     "raise": "429 Too Many Requests"
+    },
+    "to": {
+     "timeout": true
+    },
+    "boom": {
+     "raise": "kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput "
+    },
+    "free_a": {
+     "fields": {
+      "email": "not the target"
+     }
+    }
+   },
+   "calls": [
+    "rl",
+    "to",
+    "boom",
+    "free_a"
+   ],
+   "result": {
+    "value": null,
+    "provider": null,
+    "error": "agent_exhausted",
+    "trace": {
+     "goal": "Find phone",
+     "steps": [
+      {
+       "step": 1,
+       "provider": "rl",
+       "success": false,
+       "reason": "rate_limited→reroute"
+      },
+      {
+       "step": 2,
+       "provider": "to",
+       "success": false,
+       "reason": "timeout"
+      },
+      {
+       "step": 3,
+       "provider": "boom",
+       "success": false,
+       "reason": "error: kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kapu"
+      },
+      {
+       "step": 4,
+       "provider": "free_a",
+       "success": false,
+       "reason": "no_value"
+      }
+     ],
+     "outcome": "exhausted",
+     "spent": 0.0
+    }
+   },
+   "trace": {
+    "goal": "Find phone",
+    "steps": [
+     {
+      "step": 1,
+      "provider": "rl",
+      "success": false,
+      "reason": "rate_limited→reroute"
+     },
+     {
+      "step": 2,
+      "provider": "to",
+      "success": false,
+      "reason": "timeout"
+     },
+     {
+      "step": 3,
+      "provider": "boom",
+      "success": false,
+      "reason": "error: kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kaput kapu"
+     },
+     {
+      "step": 4,
+      "provider": "free_a",
+      "success": false,
+      "reason": "no_value"
+     }
+    ],
+    "outcome": "exhausted",
+    "total_cost_usd": {
+     "spent": 0.0
+    }
+   }
+  },
+  {
+   "name": "budget_blocked",
+   "column": {
+    "id": "ag",
+    "type": "agent",
+    "tools": [
+     "paid_x",
+     "free_a"
+    ],
+    "policy": {
+     "max_cost_usd": 0.1
+    }
+   },
+   "costs": {
+    "paid_x": 0.2
+   },
+   "providers": {
+    "paid_x": {
+     "fields": {
+      "email": "p@x.io"
+     }
+    },
+    "free_a": {
+     "fields": {}
+    }
+   },
+   "calls": [
+    "free_a"
+   ],
+   "result": {
+    "value": null,
+    "provider": null,
+    "error": "agent_budget",
+    "trace": {
+     "goal": "Find email",
+     "steps": [
+      {
+       "step": 1,
+       "provider": "free_a",
+       "success": false,
+       "reason": "no_value"
+      }
+     ],
+     "outcome": "budget",
+     "spent": 0.0
+    }
+   },
+   "trace": {
+    "goal": "Find email",
+    "steps": [
+     {
+      "step": 1,
+      "provider": "free_a",
+      "success": false,
+      "reason": "no_value"
+     }
+    ],
+    "outcome": "budget",
+    "total_cost_usd": {
+     "spent": 0.0
+    }
+   }
+  },
+  {
+   "name": "max_steps_one",
+   "column": {
+    "id": "ag",
+    "type": "agent",
+    "tools": [
+     "free_a",
+     "free_b"
+    ],
+    "policy": {
+     "max_steps": 1
+    }
+   },
+   "providers": {
+    "free_a": {
+     "fields": {}
+    },
+    "free_b": {
+     "fields": {
+      "email": "b@x.io"
+     }
+    }
+   },
+   "calls": [
+    "free_a"
+   ],
+   "result": {
+    "value": null,
+    "provider": null,
+    "error": "agent_exhausted",
+    "trace": {
+     "goal": "Find email",
+     "steps": [
+      {
+       "step": 1,
+       "provider": "free_a",
+       "success": false,
+       "reason": "no_value"
+      }
+     ],
+     "outcome": "exhausted",
+     "spent": 0.0
+    }
+   },
+   "trace": {
+    "goal": "Find email",
+    "steps": [
+     {
+      "step": 1,
+      "provider": "free_a",
+      "success": false,
+      "reason": "no_value"
+     }
+    ],
+    "outcome": "exhausted",
+    "total_cost_usd": {
+     "spent": 0.0
+    }
+   }
+  },
+  {
+   "name": "empty_tools",
+   "column": {
+    "id": "ag",
+    "type": "agent",
+    "tools": []
+   },
+   "providers": {},
+   "calls": [],
+   "result": {
+    "value": null,
+    "provider": null,
+    "error": "agent_exhausted",
+    "trace": {
+     "goal": "Find email",
+     "steps": [],
+     "outcome": "exhausted",
+     "spent": 0.0
+    }
+   },
+   "trace": {
+    "goal": "Find email",
+    "steps": [],
+    "outcome": "exhausted",
+    "total_cost_usd": {
+     "spent": 0.0
+    }
+   }
+  },
+  {
+   "name": "default_chain_unregistered",
+   "column": {
+    "id": "ag",
+    "type": "agent",
+    "target_field": "linkedin_url"
+   },
+   "providers": {},
+   "calls": [],
+   "result": {
+    "value": null,
+    "provider": null,
+    "error": "agent_exhausted",
+    "trace": {
+     "goal": "Find linkedin_url",
+     "steps": [
+      {
+       "step": 1,
+       "provider": "jsonld_firmographics",
+       "success": false,
+       "reason": "provider_not_registered"
+      },
+      {
+       "step": 2,
+       "provider": "deep_scraper",
+       "success": false,
+       "reason": "provider_not_registered"
+      },
+      {
+       "step": 3,
+       "provider": "website_scraper",
+       "success": false,
+       "reason": "provider_not_registered"
+      },
+      {
+       "step": 4,
+       "provider": "social_finder",
+       "success": false,
+       "reason": "provider_not_registered"
+      },
+      {
+       "step": 5,
+       "provider": "wikidata",
+       "success": false,
+       "reason": "provider_not_registered"
+      }
+     ],
+     "outcome": "exhausted",
+     "spent": 0.0
+    }
+   },
+   "trace": {
+    "goal": "Find linkedin_url",
+    "steps": [
+     {
+      "step": 1,
+      "provider": "jsonld_firmographics",
+      "success": false,
+      "reason": "provider_not_registered"
+     },
+     {
+      "step": 2,
+      "provider": "deep_scraper",
+      "success": false,
+      "reason": "provider_not_registered"
+     },
+     {
+      "step": 3,
+      "provider": "website_scraper",
+      "success": false,
+      "reason": "provider_not_registered"
+     },
+     {
+      "step": 4,
+      "provider": "social_finder",
+      "success": false,
+      "reason": "provider_not_registered"
+     },
+     {
+      "step": 5,
+      "provider": "wikidata",
+      "success": false,
+      "reason": "provider_not_registered"
+     }
+    ],
+    "outcome": "exhausted",
+    "total_cost_usd": {
+     "spent": 0.0
+    }
+   }
+  },
+  {
+   "name": "falsy_value",
+   "column": {
+    "id": "ag",
+    "type": "agent",
+    "tools": [
+     "free_a",
+     "free_b"
+    ]
+   },
+   "providers": {
+    "free_a": {
+     "fields": {
+      "email": ""
+     },
+     "success": true
+    },
+    "free_b": {
+     "success": false,
+     "fields": {
+      "email": "x@y.z"
+     }
+    }
+   },
+   "calls": [
+    "free_a",
+    "free_b"
+   ],
+   "result": {
+    "value": null,
+    "provider": null,
+    "error": "agent_exhausted",
+    "trace": {
+     "goal": "Find email",
+     "steps": [
+      {
+       "step": 1,
+       "provider": "free_a",
+       "success": false,
+       "reason": "no_value"
+      },
+      {
+       "step": 2,
+       "provider": "free_b",
+       "success": false,
+       "reason": "no_value"
+      }
+     ],
+     "outcome": "exhausted",
+     "spent": 0.0
+    }
+   },
+   "trace": {
+    "goal": "Find email",
+    "steps": [
+     {
+      "step": 1,
+      "provider": "free_a",
+      "success": false,
+      "reason": "no_value"
+     },
+     {
+      "step": 2,
+      "provider": "free_b",
+      "success": false,
+      "reason": "no_value"
+     }
+    ],
+    "outcome": "exhausted",
+    "total_cost_usd": {
+     "spent": 0.0
+    }
+   }
+  }
+ ],
  "constants": {
   "native_system": "You are a web-research agent answering ONE question about a company/lead.\nYou have two tools: `search` (web search) and `fetch` (read one page).\n- Prefer 1-2 searches, then answer. Only `fetch` a page when snippets are insufficient.\n- Be concise and factual. When you have enough information, stop calling tools and\n  reply with your final answer in plain text; a separate step records citations.\n- If unsure, give your best inference and say it's uncertain.",
   "react_system": "You are a web-research agent answering ONE question about a company/lead.\nYou work in steps. At each step reply with a SINGLE JSON object choosing ONE action:\n  {\"action\":\"search\",\"query\":\"<concise web search query>\"}   - search the web\n  {\"action\":\"fetch\",\"url\":\"<a url from a previous search result>\"}  - read a page\n  {\"action\":\"answer\",\"final\":\"<concise answer, cite a source url if relevant>\"}  - finish\nRules:\n- Prefer 1-2 searches, then answer. Only fetch a page when snippets are insufficient.\n- Be concise and factual. If unsure, give your best inference and say it's uncertain.\n- Output ONLY the JSON object — no prose, no markdown.",

@@ -426,9 +426,81 @@ def record_batch():
     return out
 
 
+# ── 7. agent column (run_agent_cell, no queue identity: free tools + budget planning) ──────
+def record_agent():
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.pool import StaticPool
+    from apps.api.core.tenancy import current_workspace_var
+    from apps.api.services.workbook import agent_column as AGC
+    from apps.api.services.workbook import planner as PL
+    from apps.api.services.workbook.models import Workbook
+    from apps.api.services.workbook.planner_models import ProviderStat
+    from apps.api.services.workbook.trace_models import CellTrace
+
+    engine = create_engine("sqlite://", poolclass=StaticPool, connect_args={"check_same_thread": False})
+    for t in (Workbook, ProviderStat, CellTrace):
+        t.__table__.create(engine)
+    Session = sessionmaker(bind=engine)
+    current_workspace_var.set("ws-agent")
+    cases = [
+        {"name": "found_second", "column": {"id": "ag", "type": "agent", "target_field": "email",
+                                            "tools": ["free_a", "free_b"]},
+         "providers": {"free_a": {"fields": {}}, "free_b": {"fields": {"email": "ceo@acme.io"}}}},
+        {"name": "not_registered_then_found", "column": {"id": "ag", "type": "agent", "goal": "Find the CEO email",
+                                                         "tools": ["ghost", "free_a"]},
+         "providers": {"free_a": {"fields": {"email": "x" * 100}}}},
+        {"name": "errors_exhausted", "column": {"id": "ag", "type": "agent", "lead_field": "phone",
+                                                "tools": ["rl", "to", "boom", "free_a"]},
+         "providers": {"rl": {"raise": "429 Too Many Requests"}, "to": {"timeout": True},
+                       "boom": {"raise": "kaput " * 40}, "free_a": {"fields": {"email": "not the target"}}}},
+        {"name": "budget_blocked", "column": {"id": "ag", "type": "agent", "tools": ["paid_x", "free_a"],
+                                              "policy": {"max_cost_usd": 0.1}},
+         "costs": {"paid_x": 0.2}, "providers": {"paid_x": {"fields": {"email": "p@x.io"}}, "free_a": {"fields": {}}}},
+        {"name": "max_steps_one", "column": {"id": "ag", "type": "agent", "tools": ["free_a", "free_b"],
+                                             "policy": {"max_steps": 1}},
+         "providers": {"free_a": {"fields": {}}, "free_b": {"fields": {"email": "b@x.io"}}}},
+        {"name": "empty_tools", "column": {"id": "ag", "type": "agent", "tools": []}, "providers": {}},
+        {"name": "default_chain_unregistered", "column": {"id": "ag", "type": "agent", "target_field": "linkedin_url"},
+         "providers": {}},
+        {"name": "falsy_value", "column": {"id": "ag", "type": "agent", "tools": ["free_a", "free_b"]},
+         "providers": {"free_a": {"fields": {"email": ""}, "success": True}, "free_b": {"success": False, "fields": {"email": "x@y.z"}}}},
+    ]
+    out = []
+    for c in cases:
+        costs = c.get("costs", {})
+        PL.provider_cost = lambda n, costs=costs: costs.get(n, 0.0)
+        PL.is_paid = lambda n, costs=costs: costs.get(n, 0.0) > 0
+        calls = []
+        provs = c["providers"]
+
+        async def fake_run(name, lead, timeout=10.0, provs=provs, calls=calls):
+            calls.append(name)
+            r = provs[name]
+            if r.get("timeout"):
+                raise asyncio.TimeoutError()
+            if "raise" in r:
+                raise RuntimeError(r["raise"])
+            return {"provider": name, "success": r.get("success", True), "fields": dict(r["fields"]),
+                    "confidence": 0.9, "error": None}
+
+        AGC.run_provider = fake_run
+        AGC.get_provider = lambda n, provs=provs: SimpleNamespace(name=n, default_confidence=0.5) if n in provs else None
+        with Session() as db:
+            db.add(Workbook(id="wb-ag-" + c["name"], name="wb", workspace_id="ws-agent", budget_max_usd=0, budget_spent_usd=0))
+            db.commit()
+            res = run(AGC.run_agent_cell(db, "wb-ag-" + c["name"], 7, c["column"], {"company": "Acme", "__row_id": 7}))
+            db.commit()
+            tr = db.query(CellTrace).filter(CellTrace.workbook_id == "wb-ag-" + c["name"]).one()
+            trace = {"goal": tr.goal, "steps": tr.steps, "outcome": tr.outcome, "total_cost_usd": tr.total_cost_usd}
+        res.pop("_provider_attempts", None)
+        out.append({**c, "calls": calls, "result": res, "trace": trace})
+    return out
+
+
 def main():
     vectors = {"guard": record_guard(), "prompts": record_prompts(), "ai": record_ai(),
-               "research": record_research(), "rpc": record_rpc(), "batch": record_batch(),
+               "research": record_research(), "rpc": record_rpc(), "batch": record_batch(), "agent": record_agent(),
                "constants": {"native_system": RC._NATIVE_SYSTEM, "react_system": RC._REACT_SYSTEM,
                              "notice": PG.UNTRUSTED_DATA_NOTICE, "search_tool": RC.SEARCH_TOOL_DEF,
                              "fetch_tool": RC.FETCH_TOOL_DEF, "schema": RC._RESEARCH_SCHEMA,
