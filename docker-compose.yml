@@ -343,7 +343,7 @@ services:
       - SETUP_TOKEN_DISABLED=${SETUP_TOKEN_DISABLED:-}
       # Must equal the Python api's SECRET_KEY so tokens cross over. Required, >= 32 bytes: the Go process
       # refuses to start otherwise (only APP_ENV=test relaxes this; APP_ENV=dev does not).
-      - SECRET_KEY=${SECRET_KEY:?set SECRET_KEY to at least 32 bytes (see .env.example)}
+      - SECRET_KEY=${SECRET_KEY:-}  # services refuse to start without a >=32-byte key (see .env.example)
       - SECRETS_PROVIDER=${SECRETS_PROVIDER:-}
       - SECRETS_MASTER_KEY=${SECRETS_MASTER_KEY:-}
       - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
@@ -415,7 +415,7 @@ services:
       - PY_WORKER_URL=${PY_WORKER_URL:-http://api:8000}
       - PY_WORKER_TOKEN=${PY_WORKER_TOKEN:-}
       - APP_ENV=${APP_ENV:-dev}
-      - SECRET_KEY=${SECRET_KEY:?set SECRET_KEY to at least 32 bytes (see .env.example)}
+      - SECRET_KEY=${SECRET_KEY:-}  # services refuse to start without a >=32-byte key (see .env.example)
       - SECRETS_PROVIDER=${SECRETS_PROVIDER:-}
       - SECRETS_MASTER_KEY=${SECRETS_MASTER_KEY:-}
       - PG_LEAD_STORE=${PG_LEAD_STORE:-true}
@@ -458,7 +458,7 @@ services:
       - DATABASE_URL=${GO_DATABASE_URL:-postgresql://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
       - OPENGTM_MCP_SSE_HOST=0.0.0.0
       - APP_ENV=${APP_ENV:-dev}
-      - SECRET_KEY=${SECRET_KEY:?set SECRET_KEY to at least 32 bytes (see .env.example)}
+      - SECRET_KEY=${SECRET_KEY:-}  # services refuse to start without a >=32-byte key (see .env.example)
       - SECRETS_PROVIDER=${SECRETS_PROVIDER:-}
       - SECRETS_MASTER_KEY=${SECRETS_MASTER_KEY:-}
       - PY_WORKER_URL=${PY_WORKER_URL:-http://api:8000}
