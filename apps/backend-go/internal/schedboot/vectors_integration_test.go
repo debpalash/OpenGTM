@@ -149,6 +149,7 @@ var (
 	dateRE = regexp.MustCompile(`(?:^|:)(\d{4}-\d{2}-\d{2})$`)
 )
 
+// relOffset rounds v - now to the nearest 10 s, like the recorder.
 func relOffset(v time.Time) int {
 	s := v.Sub(now).Seconds() / 10
 	r := int(s + 0.5)
@@ -185,9 +186,43 @@ func normPayload(p map[string]any) map[string]any {
 	return out
 }
 
-func dumpJobs(t *testing.T, own *pgxpool.Pool) []recordedJob {
+// jobIDs is the set of job ids currently in the table (the rows seeded before a bootstrap pass).
+func jobIDs(t *testing.T, own *pgxpool.Pool) map[int64]bool {
 	t.Helper()
-	rows, err := own.Query(context.Background(), `SELECT type, executor, status, payload::text, priority, max_retries, retry_count,
+	rows, err := own.Query(context.Background(), `SELECT id FROM jobs`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rows.Close()
+	ids := map[int64]bool{}
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			t.Fatal(err)
+		}
+		ids[id] = true
+	}
+	return ids
+}
+
+// dbClock is the database's wall clock, as a naive UTC time like the jobs timestamps.
+func dbClock(t *testing.T, own *pgxpool.Pool) time.Time {
+	t.Helper()
+	var c time.Time
+	if err := own.QueryRow(context.Background(), `SELECT clock_timestamp() AT TIME ZONE 'UTC'`).Scan(&c); err != nil {
+		t.Fatal(err)
+	}
+	return c
+}
+
+// dumpJobs normalises next_run_at to the recorder's offsets from the test's fixed clock. A row the pass enqueued
+// (not in seeded) is either stamped from that fixed clock (the Deps clock) or by the database at the moment of
+// the pass (queue.EnqueueOnce: now()). The latter falls in [passStart, the dump's database time]: it is the pass's
+// own clock, so it is normalised to offset 0 whatever the wall time between process start and the pass.
+func dumpJobs(t *testing.T, own *pgxpool.Pool, seeded map[int64]bool, passStart time.Time) []recordedJob {
+	t.Helper()
+	passEnd := dbClock(t, own)
+	rows, err := own.Query(context.Background(), `SELECT id, type, executor, status, payload::text, priority, max_retries, retry_count,
 		next_run_at AT TIME ZONE 'UTC', fire_key, workspace_id FROM jobs ORDER BY type, fire_key`)
 	if err != nil {
 		t.Fatal(err)
@@ -198,7 +233,8 @@ func dumpJobs(t *testing.T, own *pgxpool.Pool) []recordedJob {
 		var j recordedJob
 		var payload string
 		var next *time.Time
-		if err := rows.Scan(&j.Type, &j.Executor, &j.Status, &payload, &j.Priority, &j.MaxRetries, &j.RetryCount, &next, &j.FireKey, &j.WorkspaceID); err != nil {
+		var id int64
+		if err := rows.Scan(&id, &j.Type, &j.Executor, &j.Status, &payload, &j.Priority, &j.MaxRetries, &j.RetryCount, &next, &j.FireKey, &j.WorkspaceID); err != nil {
 			t.Fatal(err)
 		}
 		if err := json.Unmarshal([]byte(payload), &j.Payload); err != nil {
@@ -206,7 +242,11 @@ func dumpJobs(t *testing.T, own *pgxpool.Pool) []recordedJob {
 		}
 		j.Payload = normPayload(j.Payload)
 		if next != nil {
-			j.NextRunAt = ip(relOffset(*next))
+			if !seeded[id] && !next.Before(passStart) && !next.After(passEnd) {
+				j.NextRunAt = ip(0)
+			} else {
+				j.NextRunAt = ip(relOffset(*next))
+			}
 		}
 		if j.FireKey != nil {
 			k := normKey(*j.FireKey)
@@ -483,12 +523,14 @@ func TestBootstrapsMatchPythonRecordings(t *testing.T) {
 			}
 			t.Run(cfgName+"/"+sc.key, func(t *testing.T) {
 				seed(t, own, sc.seed...)
+				seeded := jobIDs(t, own)
+				passStart := dbClock(t, own)
 				d := deps(pool, cfgName)
 				first, err := sc.run(d, ctx)
 				if err != nil {
 					t.Fatalf("first run: %v", err)
 				}
-				jobs1 := dumpJobs(t, own)
+				jobs1 := dumpJobs(t, own, seeded, passStart)
 				mir1 := map[string][]map[string]any{}
 				for _, tb := range sc.tables {
 					mir1[tb[0]] = dumpMirror(t, own, tb[0], tb[1], tb[2])
@@ -497,7 +539,7 @@ func TestBootstrapsMatchPythonRecordings(t *testing.T) {
 				if err != nil {
 					t.Fatalf("second run: %v", err)
 				}
-				jobs2 := dumpJobs(t, own)
+				jobs2 := dumpJobs(t, own, seeded, passStart)
 
 				want := rec
 				adjustWorkspace(&want)
