@@ -1,0 +1,394 @@
+{
+ "steps": [
+  {
+   "name": "first",
+   "request_url": "https://a.example/",
+   "scrape": {
+    "status": "success",
+    "url": "https://a.example/",
+    "title": "A",
+    "description": "d",
+    "method": "fast",
+    "extracted_emails": [
+     "x@a.example",
+     "y@a.example"
+    ],
+    "word_count": 12,
+    "preview_text": "p",
+    "html_content": "<html/>"
+   },
+   "response": {
+    "status": "success",
+    "url": "https://a.example/",
+    "title": "A",
+    "description": "d",
+    "method": "fast",
+    "extracted_emails": [
+     "x@a.example",
+     "y@a.example"
+    ],
+    "word_count": 12,
+    "preview_text": "p",
+    "html_content": "<html/>"
+   },
+   "history": [
+    {
+     "url": "https://a.example/",
+     "title": "A",
+     "method": "fast",
+     "word_count": 12,
+     "email_count": 2
+    }
+   ],
+   "links": [
+    {
+     "url": "https://a.example/",
+     "status": "Completed",
+     "source": "Scraper V2"
+    }
+   ],
+   "emails": [
+    {
+     "name": "",
+     "email": "x@a.example",
+     "source_link_id": 1
+    },
+    {
+     "name": "",
+     "email": "y@a.example",
+     "source_link_id": 1
+    }
+   ]
+  },
+  {
+   "name": "same_url_again_same_emails",
+   "request_url": "https://a.example/",
+   "scrape": {
+    "status": "success",
+    "url": "https://a.example/",
+    "title": "A2",
+    "description": "d",
+    "method": "robust",
+    "extracted_emails": [
+     "x@a.example",
+     "z@a.example"
+    ],
+    "word_count": 3,
+    "preview_text": "p",
+    "html_content": "<html/>"
+   },
+   "response": {
+    "status": "success",
+    "url": "https://a.example/",
+    "title": "A2",
+    "description": "d",
+    "method": "robust",
+    "extracted_emails": [
+     "x@a.example",
+     "z@a.example"
+    ],
+    "word_count": 3,
+    "preview_text": "p",
+    "html_content": "<html/>"
+   },
+   "history": [
+    {
+     "url": "https://a.example/",
+     "title": "A",
+     "method": "fast",
+     "word_count": 12,
+     "email_count": 2
+    },
+    {
+     "url": "https://a.example/",
+     "title": "A2",
+     "method": "robust",
+     "word_count": 3,
+     "email_count": 2
+    }
+   ],
+   "links": [
+    {
+     "url": "https://a.example/",
+     "status": "Completed",
+     "source": "Scraper V2"
+    }
+   ],
+   "emails": [
+    {
+     "name": "",
+     "email": "x@a.example",
+     "source_link_id": 1
+    },
+    {
+     "name": "",
+     "email": "y@a.example",
+     "source_link_id": 1
+    },
+    {
+     "name": "",
+     "email": "z@a.example",
+     "source_link_id": 1
+    }
+   ]
+  },
+  {
+   "name": "redirected_final_url",
+   "request_url": "https://b.example/start",
+   "scrape": {
+    "status": "success",
+    "url": "https://b.example/final",
+    "title": "B",
+    "description": "d",
+    "method": "fast",
+    "extracted_emails": [],
+    "word_count": 0,
+    "preview_text": "p",
+    "html_content": "<html/>"
+   },
+   "response": {
+    "status": "success",
+    "url": "https://b.example/final",
+    "title": "B",
+    "description": "d",
+    "method": "fast",
+    "extracted_emails": [],
+    "word_count": 0,
+    "preview_text": "p",
+    "html_content": "<html/>"
+   },
+   "history": [
+    {
+     "url": "https://a.example/",
+     "title": "A",
+     "method": "fast",
+     "word_count": 12,
+     "email_count": 2
+    },
+    {
+     "url": "https://a.example/",
+     "title": "A2",
+     "method": "robust",
+     "word_count": 3,
+     "email_count": 2
+    },
+    {
+     "url": "https://b.example/final",
+     "title": "B",
+     "method": "fast",
+     "word_count": 0,
+     "email_count": 0
+    }
+   ],
+   "links": [
+    {
+     "url": "https://a.example/",
+     "status": "Completed",
+     "source": "Scraper V2"
+    },
+    {
+     "url": "https://b.example/start",
+     "status": "Completed",
+     "source": "Scraper V2"
+    }
+   ],
+   "emails": [
+    {
+     "name": "",
+     "email": "x@a.example",
+     "source_link_id": 1
+    },
+    {
+     "name": "",
+     "email": "y@a.example",
+     "source_link_id": 1
+    },
+    {
+     "name": "",
+     "email": "z@a.example",
+     "source_link_id": 1
+    }
+   ]
+  },
+  {
+   "name": "title_missing_uses_url",
+   "request_url": "https://c.example/",
+   "scrape": {
+    "status": "success",
+    "url": "https://c.example/",
+    "title": "https://c.example/",
+    "description": "d",
+    "method": "fast",
+    "extracted_emails": [
+     "c@c.example"
+    ],
+    "word_count": 12,
+    "preview_text": "p",
+    "html_content": "<html/>"
+   },
+   "response": {
+    "status": "success",
+    "url": "https://c.example/",
+    "title": "https://c.example/",
+    "description": "d",
+    "method": "fast",
+    "extracted_emails": [
+     "c@c.example"
+    ],
+    "word_count": 12,
+    "preview_text": "p",
+    "html_content": "<html/>"
+   },
+   "history": [
+    {
+     "url": "https://a.example/",
+     "title": "A",
+     "method": "fast",
+     "word_count": 12,
+     "email_count": 2
+    },
+    {
+     "url": "https://a.example/",
+     "title": "A2",
+     "method": "robust",
+     "word_count": 3,
+     "email_count": 2
+    },
+    {
+     "url": "https://b.example/final",
+     "title": "B",
+     "method": "fast",
+     "word_count": 0,
+     "email_count": 0
+    },
+    {
+     "url": "https://c.example/",
+     "title": "https://c.example/",
+     "method": "fast",
+     "word_count": 12,
+     "email_count": 1
+    }
+   ],
+   "links": [
+    {
+     "url": "https://a.example/",
+     "status": "Completed",
+     "source": "Scraper V2"
+    },
+    {
+     "url": "https://b.example/start",
+     "status": "Completed",
+     "source": "Scraper V2"
+    },
+    {
+     "url": "https://c.example/",
+     "status": "Completed",
+     "source": "Scraper V2"
+    }
+   ],
+   "emails": [
+    {
+     "name": "",
+     "email": "x@a.example",
+     "source_link_id": 1
+    },
+    {
+     "name": "",
+     "email": "y@a.example",
+     "source_link_id": 1
+    },
+    {
+     "name": "",
+     "email": "z@a.example",
+     "source_link_id": 1
+    },
+    {
+     "name": "",
+     "email": "c@c.example",
+     "source_link_id": 3
+    }
+   ]
+  }
+ ],
+ "listing": {
+  "0_50": [
+   {
+    "id": 4,
+    "url": "https://c.example/",
+    "title": "https://c.example/",
+    "method": "fast",
+    "word_count": 12,
+    "email_count": 1,
+    "created_at_shape": 19
+   },
+   {
+    "id": 3,
+    "url": "https://b.example/final",
+    "title": "B",
+    "method": "fast",
+    "word_count": 0,
+    "email_count": 0,
+    "created_at_shape": 19
+   },
+   {
+    "id": 2,
+    "url": "https://a.example/",
+    "title": "A2",
+    "method": "robust",
+    "word_count": 3,
+    "email_count": 2,
+    "created_at_shape": 19
+   },
+   {
+    "id": 1,
+    "url": "https://a.example/",
+    "title": "A",
+    "method": "fast",
+    "word_count": 12,
+    "email_count": 2,
+    "created_at_shape": 19
+   }
+  ],
+  "0_2": [
+   {
+    "id": 4,
+    "url": "https://c.example/",
+    "title": "https://c.example/",
+    "method": "fast",
+    "word_count": 12,
+    "email_count": 1,
+    "created_at_shape": 19
+   },
+   {
+    "id": 3,
+    "url": "https://b.example/final",
+    "title": "B",
+    "method": "fast",
+    "word_count": 0,
+    "email_count": 0,
+    "created_at_shape": 19
+   }
+  ],
+  "1_2": [
+   {
+    "id": 3,
+    "url": "https://b.example/final",
+    "title": "B",
+    "method": "fast",
+    "word_count": 0,
+    "email_count": 0,
+    "created_at_shape": 19
+   },
+   {
+    "id": 2,
+    "url": "https://a.example/",
+    "title": "A2",
+    "method": "robust",
+    "word_count": 3,
+    "email_count": 2,
+    "created_at_shape": 19
+   }
+  ],
+  "10_5": []
+ }
+}

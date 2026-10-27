@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
@@ -37,38 +38,48 @@ func (h *scrapeRoutes) unified(w http.ResponseWriter, r *http.Request) {
 	if _, set := r.URL.Query()["sort"]; !set {
 		sortBy = "relevance"
 	}
-	h.limited(unifiedRate, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if q == "" {
-			writePy(w, unifiedAnswer{Query: "", Total: 0, Results: []unifiedResult{}})
-			return
+	args := unifiedArgs{q: q, sources: sources, sortBy: sortBy, fileType: fileType, limit: limit}
+	h.unifiedLim.get(h.d, unifiedRate, http.HandlerFunc(h.unifiedRun)).ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), scrapeCtxKey{}, args)))
+}
+
+type unifiedArgs struct {
+	q, sources, sortBy, fileType string
+	limit                        int
+}
+
+func (h *scrapeRoutes) unifiedRun(w http.ResponseWriter, r *http.Request) {
+	a, _ := r.Context().Value(scrapeCtxKey{}).(unifiedArgs)
+	q, sources, sortBy, fileType, limit := a.q, a.sources, a.sortBy, a.fileType, a.limit
+	if q == "" {
+		writePy(w, unifiedAnswer{Query: "", Total: 0, Results: []unifiedResult{}})
+		return
+	}
+	var names []string
+	for _, s := range strings.Split(sources, ",") {
+		if s = pyStripSpace(s); s != "" {
+			names = append(names, s)
 		}
-		var names []string
-		for _, s := range strings.Split(sources, ",") {
-			if s = pyStripSpace(s); s != "" {
-				names = append(names, s)
-			}
-		}
-		n := len(names)
-		if n == 0 {
-			n = 1
-		}
-		per := limit / n
-		if limit < 0 {
-			per = -((-limit + n - 1) / n) // floor division, like Python
-		}
-		if per < 5 {
-			per = 5
-		}
-		if per > unifiedMaxPerSrc {
-			per = unifiedMaxPerSrc
-		}
-		res := h.search.SearchUnified(r.Context(), q, names, per, sortBy, fileType)
-		out := unifiedAnswer{Query: q, Total: res.Total, Results: make([]unifiedResult, 0, len(res.Results))}
-		for _, x := range res.Results {
-			out.Results = append(out.Results, unifiedResult{Result: x, Description: x.Snippet})
-		}
-		writePy(w, out)
-	})).ServeHTTP(w, r)
+	}
+	n := len(names)
+	if n == 0 {
+		n = 1
+	}
+	per := limit / n
+	if limit < 0 {
+		per = -((-limit + n - 1) / n) // floor division, like Python
+	}
+	if per < 5 {
+		per = 5
+	}
+	if per > unifiedMaxPerSrc {
+		per = unifiedMaxPerSrc
+	}
+	res := h.search.SearchUnified(r.Context(), q, names, per, sortBy, fileType)
+	out := unifiedAnswer{Query: q, Total: res.Total, Results: make([]unifiedResult, 0, len(res.Results))}
+	for _, x := range res.Results {
+		out.Results = append(out.Results, unifiedResult{Result: x, Description: x.Snippet})
+	}
+	writePy(w, out)
 }
 
 func pyStripSpace(s string) string { return strings.TrimSpace(s) }

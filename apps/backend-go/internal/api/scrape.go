@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 	"unicode/utf8"
@@ -20,7 +21,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/unisearch"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
@@ -68,9 +68,29 @@ type scrapeRoutes struct {
 	guard  urlGuard
 	search unifiedSearcher
 	store  scrapeStore
-	web    *leadweb.Web
 	liAt   string
+
+	// one limiter pool per route, built on first use (Limiter.Limit makes a fresh budget on every call)
+	publicLim, adminLim, unifiedLim limitedOnce
 }
+
+// limitedOnce wraps inner with d.Limiter.Limit(spec) exactly once.
+type limitedOnce struct {
+	once sync.Once
+	h    http.Handler
+}
+
+func (l *limitedOnce) get(d Deps, spec string, inner http.Handler) http.Handler {
+	l.once.Do(func() {
+		l.h = inner
+		if d.Limiter != nil {
+			l.h = d.Limiter.Limit(spec)(inner)
+		}
+	})
+	return l.h
+}
+
+type scrapeCtxKey struct{}
 
 // RegisterScrapeRoutes registers the four routes behind GO_SCRAPE_ROUTES_ENABLED.
 func RegisterScrapeRoutes(r *httpx.Router, d Deps) {
@@ -106,13 +126,6 @@ func newScrapeRoutes(d Deps) *scrapeRoutes {
 	h.search = unisearch.NewRegistry(unisearch.Config{GoogleAPIKey: cfg.GoogleAPIKey.Reveal(), GoogleCSEID: cfg.GoogleCSEID.Reveal(),
 		GoogleBooksKey: cfg.GoogleBooksKey.Reveal()}, hc, unisearch.URLs{})
 	return h
-}
-
-func (h *scrapeRoutes) limited(spec string, inner http.Handler) http.Handler {
-	if h.d.Limiter != nil {
-		return h.d.Limiter.Limit(spec)(inner)
-	}
-	return inner
 }
 
 func (h *scrapeRoutes) register(r *httpx.Router) {
@@ -356,25 +369,28 @@ func (h *scrapeRoutes) publicScrape(w http.ResponseWriter, r *http.Request) {
 			pageURL = strings.TrimSpace(s)
 		}
 	}
-	h.limited(scrapeRate, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if pageURL == "" {
-			httpx.Detail(w, http.StatusBadRequest, "url is required")
+	h.publicLim.get(h.d, scrapeRate, http.HandlerFunc(h.publicRun)).ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), scrapeCtxKey{}, pageURL)))
+}
+
+func (h *scrapeRoutes) publicRun(w http.ResponseWriter, r *http.Request) {
+	pageURL, _ := r.Context().Value(scrapeCtxKey{}).(string)
+	if pageURL == "" {
+		httpx.Detail(w, http.StatusBadRequest, "url is required")
+		return
+	}
+	res, err := h.scrape(r.Context(), pageURL)
+	if err != nil {
+		status, msg := failure(err)
+		if errors.Is(err, errURLBlocked) {
+			httpx.Detail(w, http.StatusBadRequest, "url not allowed: "+blockedDetail(err))
 			return
 		}
-		res, err := h.scrape(r.Context(), pageURL)
-		if err != nil {
-			status, msg := failure(err)
-			if errors.Is(err, errURLBlocked) {
-				httpx.Detail(w, http.StatusBadRequest, "url not allowed: "+blockedDetail(err))
-				return
-			}
-			h.log.Warn("scraper/scrape failed", "status", status)
-			// Python answers 200 with an error body for every other failure
-			writePy(w, errorScrape{URL: pageURL, Status: "error", Error: msg})
-			return
-		}
-		writePy(w, publicScrapeJSON(res))
-	})).ServeHTTP(w, r)
+		h.log.Warn("scraper/scrape failed", "status", status)
+		// Python answers 200 with an error body for every other failure
+		writePy(w, errorScrape{URL: pageURL, Status: "error", Error: msg})
+		return
+	}
+	writePy(w, publicScrapeJSON(res))
 }
 
 type errorScrape struct {
@@ -445,23 +461,26 @@ func (h *scrapeRoutes) adminScrape(w http.ResponseWriter, r *http.Request) {
 		httpx.ValidationError(w, httpx.FieldError{Type: "string_type", Loc: []any{"body", "url"}, Msg: "Input should be a valid string", Input: v})
 		return
 	}
-	h.limited(scrapeRate, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		res, err := h.scrape(r.Context(), reqURL)
-		if err != nil {
-			status, msg := failure(err)
-			if errors.Is(err, errURLBlocked) {
-				msg = "URL not allowed: " + blockedDetail(err)
-			} else {
-				h.log.Warn("v2/scrape failed", "status", status)
-			}
-			httpx.Detail(w, status, msg)
-			return
+	h.adminLim.get(h.d, scrapeRate, http.HandlerFunc(h.adminRun)).ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), scrapeCtxKey{}, reqURL)))
+}
+
+func (h *scrapeRoutes) adminRun(w http.ResponseWriter, r *http.Request) {
+	reqURL, _ := r.Context().Value(scrapeCtxKey{}).(string)
+	res, err := h.scrape(r.Context(), reqURL)
+	if err != nil {
+		status, msg := failure(err)
+		if errors.Is(err, errURLBlocked) {
+			msg = "URL not allowed: " + blockedDetail(err)
+		} else {
+			h.log.Warn("v2/scrape failed", "status", status)
 		}
-		if err := h.store.Save(r.Context(), reqURL, res); err != nil {
-			h.log.Error("v2/scrape: saving history failed", "err_type", errTypeName(err))
-			httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		}
-		writePy(w, scrapeResponseJSON(res))
-	})).ServeHTTP(w, r)
+		httpx.Detail(w, status, msg)
+		return
+	}
+	if err := h.store.Save(r.Context(), reqURL, res); err != nil {
+		h.log.Error("v2/scrape: saving history failed", "err_type", errTypeName(err))
+		httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+	writePy(w, scrapeResponseJSON(res))
 }
