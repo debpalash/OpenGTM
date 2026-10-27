@@ -27,6 +27,22 @@ type Collector interface {
 	Submit(ctx context.Context, workspaceID, query string) (jobID string, err error)
 }
 
+// KeyedCollector is a Collector that can make Submit idempotent: the same key in the same workspace returns
+// the collection an earlier attempt already ran instead of starting (and paying for) a new one.
+type KeyedCollector interface {
+	Collector
+	SubmitKeyed(ctx context.Context, workspaceID, query, key string) (jobID string, err error)
+}
+
+type jobKeyCtx struct{}
+
+// WithJobKey tags ctx with the idempotency key of the queue job being run (Handle sets it from the claim id).
+func WithJobKey(ctx context.Context, key string) context.Context {
+	return context.WithValue(ctx, jobKeyCtx{}, key)
+}
+
+func jobKey(ctx context.Context) string { k, _ := ctx.Value(jobKeyCtx{}).(string); return k }
+
 // LeadGate is the pre-materialization lead check: lead_validator.validate_lead_light and
 // account_discovery.evaluate_account_fit. lead is the Lead dataclass as an ordered object
 // (asdict field order). AccountFit returns the fit dict (accepted, canonical_domain,
@@ -219,6 +235,19 @@ func nonEmptyJSON(b []byte) []byte {
 // summary ({"error": ...}); a returned error is a database/infrastructure failure
 // (the queue retries the job) or ErrUnsupported.
 func Materialize(ctx context.Context, d Deps, ws, wbID, colID string) (*wbcrud.Obj, error) {
+	res, err := materialize(ctx, d, ws, wbID, colID)
+	if err != nil && ctx.Err() != nil && !errors.Is(err, ErrUnsupported) {
+		// A cancelled run (user cancel, lease loss, shutdown) must not leave the workbook "running". The
+		// terminal state is written on a context that outlives the cancellation; a retry sets running again.
+		_ = d.setStatus(context.WithoutCancel(ctx), ws, wbID, StatusCancelled)
+	}
+	return res, err
+}
+
+// StatusCancelled is the workbook status of a run that was cancelled mid-flight.
+const StatusCancelled = "cancelled"
+
+func materialize(ctx context.Context, d Deps, ws, wbID, colID string) (*wbcrud.Obj, error) {
 	if ws == "" {
 		return nil, errors.New("sourcewb: workspace_id is required (empty would yield zero rows under RLS and mask the bug)")
 	}

@@ -46,7 +46,7 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 	if p.WorkbookID == "" || p.ColumnID == "" {
 		return &queue.PermanentError{Err: errors.New("source_workbook: workbook_id and column_id are required")}
 	}
-	res, err := Materialize(ctx, d, ws, p.WorkbookID, p.ColumnID)
+	res, err := Materialize(WithJobKey(ctx, fmt.Sprintf("source_workbook:%d", c.ID)), d, ws, p.WorkbookID, p.ColumnID)
 	if err != nil {
 		return err
 	}

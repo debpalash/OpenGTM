@@ -135,7 +135,14 @@ func (d Deps) materializeCollection(ctx context.Context, ws, wbID, colID string,
 	}
 
 	var stages []collectledger.Stage
-	jobID, err := d.Collector.Submit(ctx, ws, query)
+	var jobID string
+	var err error
+	if kc, ok := d.Collector.(KeyedCollector); ok && jobKey(ctx) != "" {
+		// Every attempt of this queue job submits under one key, so a retry reuses the collection already paid for.
+		jobID, err = kc.SubmitKeyed(ctx, ws, query, jobKey(ctx))
+	} else {
+		jobID, err = d.Collector.Submit(ctx, ws, query)
+	}
 	if err == nil {
 		err = tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) (e error) {
 			stages, e = collectledger.Stages(ctx, tx, jobID)

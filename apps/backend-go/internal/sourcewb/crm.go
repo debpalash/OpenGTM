@@ -129,6 +129,9 @@ func (d Deps) materializeCRM(ctx context.Context, ws, wbID, colID string, cfg ma
 		return nil, err
 	}
 	res := d.fetchCRM(ctx, ws, cfg)
+	if !res.Success && ctx.Err() != nil { // a cancelled fetch is not a failed import (L3)
+		return nil, ctx.Err()
+	}
 	if !res.Success {
 		if err := d.setStatus(ctx, ws, wbID, "draft"); err != nil {
 			return nil, err

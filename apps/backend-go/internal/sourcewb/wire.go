@@ -2,7 +2,10 @@ package sourcewb
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collect"
@@ -105,6 +108,35 @@ type CollectCollector struct{ Deps *collect.Deps }
 // Submit runs the collection inline and returns its job id.
 func (c CollectCollector) Submit(ctx context.Context, ws, query string) (string, error) {
 	return collect.Submitter{Pool: c.Deps.Pool, Runner: c.Deps.For(ws), Emit: c.Deps.Emit}.Submit(ctx, ws, query)
+}
+
+// ErrCollectionInFlight means an earlier attempt's collection under the same key has not finished (a crashed
+// worker). Starting another would pay twice, so the attempt fails and the queue's retry budget decides.
+var ErrCollectionInFlight = errors.New("sourcewb: the collection of an earlier attempt has not finished")
+
+// KeyedJobID is the collection job id of an idempotency key: stable per (workspace, key).
+func KeyedJobID(ws, key string) string {
+	sum := sha256.Sum256([]byte(ws + "\x00" + key))
+	return "sw" + hex.EncodeToString(sum[:15])
+}
+
+// SubmitKeyed is Submit made idempotent. A ledger row that already exists under the key's job id and is
+// terminal (done, failed or cancelled) is returned as it is, with no new run; otherwise the run uses
+// that id (Submitter.NewID), so the next attempt finds it.
+func (c CollectCollector) SubmitKeyed(ctx context.Context, ws, query, key string) (string, error) {
+	id := KeyedJobID(ws, key)
+	st, err := collect.PgLedger{Pool: c.Deps.Pool, WS: ws}.Status(ctx, id)
+	if err != nil {
+		return "", err
+	}
+	switch st {
+	case "":
+	case "done", "completed", "failed", "cancelled":
+		return id, nil
+	default:
+		return "", ErrCollectionInFlight
+	}
+	return collect.Submitter{Pool: c.Deps.Pool, Runner: c.Deps.For(ws), Emit: c.Deps.Emit, NewID: func() string { return id }}.Submit(ctx, ws, query)
 }
 
 // Available: the collect pipeline is wired.

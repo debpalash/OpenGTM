@@ -10,6 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collect"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
@@ -112,5 +113,35 @@ func TestRetryUsesTheSameCollectionKeyPerJob(t *testing.T) {
 	}
 	if len(col.keys) != 2 || col.keys[0] != col.keys[1] || col.keys[0] == "" {
 		t.Fatalf("submit keys = %v, want the same non-empty key twice", col.keys)
+	}
+}
+
+// The production collector returns a finished collection of the same key without starting a run (Deps.For is
+// nil here: touching the runner would panic), and refuses one that is still in flight.
+func TestCollectCollectorSubmitKeyedReusesFinishedCollection(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	owner := ownerPool(t)
+	ws, _ := seedCollectWorkbook(t, owner)
+	ctx := context.Background()
+	id := KeyedJobID(ws, "source_workbook:9")
+	if id == KeyedJobID(ws, "source_workbook:10") || id == KeyedJobID("other", "source_workbook:9") {
+		t.Fatal("keyed ids collide")
+	}
+	ins := func(status string) {
+		_, err := owner.Exec(ctx, `INSERT INTO collection_jobs (id, workspace_id, query, intent, intent_details, status, created_at)
+			VALUES ($1,$2,'q','market_search','{}',$3,'2026-09-01T10:00:00+00:00') ON CONFLICT (id) DO UPDATE SET status = $3`, id, ws, status)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	c := CollectCollector{Deps: &collect.Deps{Pool: pool, For: func(string) *collect.Runner { t.Fatal("runner touched"); return nil }}}
+	ins("done")
+	got, err := c.SubmitKeyed(ctx, ws, "q", "source_workbook:9")
+	if err != nil || got != id {
+		t.Fatalf("SubmitKeyed = %q, %v; want the earlier collection %q", got, err, id)
+	}
+	ins("running")
+	if _, err := c.SubmitKeyed(ctx, ws, "q", "source_workbook:9"); !errors.Is(err, ErrCollectionInFlight) {
+		t.Fatalf("in-flight err = %v", err)
 	}
 }
