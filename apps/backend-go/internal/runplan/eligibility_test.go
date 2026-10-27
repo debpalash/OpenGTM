@@ -217,3 +217,39 @@ func TestGoBlockSkipsChainlessColumns(t *testing.T) {
 		t.Fatalf("go block %s", b)
 	}
 }
+
+// Every workbook recorded for WP-WBEXEC (../workbook/testdata/wbexec_vectors.json) runs on Go
+// with the flag on; their providers are Python registry providers, which
+// GO_RUN_NATIVE_PROVIDERS routes through providerrun.
+func TestEligibilityFullRunRecordedWorkbooks(t *testing.T) {
+	raw, err := os.ReadFile("../workbook/testdata/wbexec_vectors.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var v struct {
+		Scenarios []struct {
+			Name    string          `json:"name"`
+			Columns json.RawMessage `json:"columns"`
+		} `json:"scenarios"`
+	}
+	if err := json.Unmarshal(raw, &v); err != nil {
+		t.Fatal(err)
+	}
+	cfg := Config{WorkspaceID: "w", GoExecutorEnabled: true, GoCohort: map[string]bool{"w": true}, FullRun: true,
+		NativeProviders: true, ProvenanceTracking: true, AutomationsEnabled: true}
+	for _, sc := range v.Scenarios {
+		cols, err := colgraph.ParseCols(sc.Columns)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var run []colgraph.Col
+		for _, c := range cols {
+			if colType(c) != "lead_field" {
+				run = append(run, c)
+			}
+		}
+		if ok, why := Eligible(run, nil, cfg); !ok {
+			t.Errorf("%s: %s", sc.Name, why)
+		}
+	}
+}
