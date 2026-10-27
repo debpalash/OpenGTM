@@ -37,3 +37,28 @@ func TestCheckOutboundRef(t *testing.T) {
 		t.Fatal("text")
 	}
 }
+
+// Final review L9/L10: the fixed deny-list covers the server's own secret families whatever the
+// prefix list allows, and a policy built without a credential registry fails closed.
+func TestOutboundDenyListAndNilRegistry(t *testing.T) {
+	wide := OutboundPolicy{Prefixes: []string{"O", "S", "J", "D", "R", "I", "A"}, Registered: func(string) bool { return false }}
+	for _, n := range []string{"OIDC_CLIENT_SECRET", "STRIPE_SECRET_KEY", "SECRET_KEY", "JWT_SECRET", "DATABASE_URL",
+		"REDIS_URL", "INSTANTLY_API_KEY", "SMARTLEAD_API_KEY", "AIRTABLE_TOKEN"} {
+		if err := CheckOutboundRef(n, wide); !errors.Is(err, ErrOutboundRefNotAllowed) {
+			t.Errorf("%s allowed", n)
+		}
+	}
+	none := NewOutboundPolicy(nil, nil)
+	for _, n := range []string{"WEBHOOK_TOKEN", "SLACK_HOOK"} {
+		if err := CheckOutboundRef(n, none); !errors.Is(err, ErrOutboundRefNotAllowed) {
+			t.Errorf("%s allowed without a registry", n)
+		}
+	}
+	reg := NewOutboundPolicy([]string{"HOOK_"}, func(n string) bool { return n == "HOOK_REG" })
+	if CheckOutboundRef("HOOK_OK", reg) != nil || CheckOutboundRef("HOOK_REG", reg) == nil || CheckOutboundRef("WEBHOOK_X", reg) == nil {
+		t.Error("registry policy")
+	}
+	if p := NewOutboundPolicy(nil, func(string) bool { return false }); CheckOutboundRef("WEBHOOK_X", p) != nil {
+		t.Error("default prefixes")
+	}
+}
