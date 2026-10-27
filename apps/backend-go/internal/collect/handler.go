@@ -125,7 +125,9 @@ func HandleCollect(ctx context.Context, d Deps, c *queue.Claim) error {
 // persisted a failed attempt (crash, timeout, error) the ledger row follows it (requeued with
 // "Queue retry scheduled: ..." or failed with "Final failure: ..."); missing and cancelled jobs
 // are left alone.
-func RegisterFailureHook(pool *pgxpool.Pool) { queue.RegisterFailureHook(JobTypeCollect, failureHook(pool)) }
+func RegisterFailureHook(pool *pgxpool.Pool) {
+	queue.RegisterFailureHook(JobTypeCollect, failureHook(pool))
+}
 
 // failureHook is the hook; the tenant is the failed row's workspace_id only (a row without one
 // is left alone, a payload naming another workspace is an error).

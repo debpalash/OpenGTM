@@ -147,7 +147,9 @@ func (e LiveEnrich) Provider(ctx context.Context, ws, name string, l *Lead) (Pro
 	return ProviderResult{Success: out.Success, Fields: out.Fields}, nil
 }
 
-func (e LiveEnrich) HasMX(ctx context.Context, domain string) bool { return emailverify.HasMX(ctx, e.Mail, domain) }
+func (e LiveEnrich) HasMX(ctx context.Context, domain string) bool {
+	return emailverify.HasMX(ctx, e.Mail, domain)
+}
 
 func (e LiveEnrich) PickBestEmail(ctx context.Context, cands []string) (string, string, *bool) {
 	r, err := emailverify.PickBestEmail(ctx, e.Mail, cands)

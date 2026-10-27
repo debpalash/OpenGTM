@@ -295,7 +295,7 @@ type fakeSources struct {
 	health  map[string]bool
 }
 
-func (s fakeSources) Enabled(_ context.Context, id string) bool         { return s.enabled[id] }
+func (s fakeSources) Enabled(_ context.Context, id string) bool      { return s.enabled[id] }
 func (s fakeSources) HealthDisabled(context.Context) map[string]bool { return s.health }
 
 func noSleep(context.Context, time.Duration) error { return nil }
