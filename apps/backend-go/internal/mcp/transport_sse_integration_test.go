@@ -152,6 +152,7 @@ func TestSSEFixturesReplay(t *testing.T) {
 			if err := json.Unmarshal(w.Body.Bytes(), &got); err != nil {
 				t.Fatalf("body %q: %v", w.Body.String(), err)
 			}
+			markToolError(want)
 			if !reflect.DeepEqual(got, want) {
 				t.Fatalf("body\n got %s\nwant %s", w.Body.String(), fx.Response.Body)
 			}

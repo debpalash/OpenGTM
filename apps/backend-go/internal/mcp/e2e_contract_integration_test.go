@@ -356,6 +356,11 @@ func TestEveryRecordedFixtureReplaysByteForByte(t *testing.T) {
 					}
 					setEnvelopeText(got, gt)
 					setEnvelopeText(fx.Response, wt)
+					if _, isErr := resultError(wt); isErr { // F7: Python recorded isError false for tool errors
+						if res, ok := fx.Response["result"].(map[string]any); ok {
+							res["isError"] = true
+						}
+					}
 				}
 				if !reflect.DeepEqual(got, fx.Response) {
 					t.Errorf("%s:\n got %v\nwant %v", c, got, fx.Response)
@@ -472,9 +477,26 @@ func TestSSEEndToEndAgainstFixtures(t *testing.T) {
 					setEnvelopeText(wm, mask(wt))
 				}
 			}
+			markToolError(want)
 			if !reflect.DeepEqual(got, want) {
 				t.Fatalf("body\n got %v\nwant %v", got, want)
 			}
 		})
+	}
+}
+
+// markToolError sets result.isError on a recorded tools/call envelope whose text is an error
+// object: Python recorded false, Go follows the MCP spec (F7).
+func markToolError(v any) {
+	m, ok := v.(map[string]any)
+	if !ok {
+		return
+	}
+	if txt, ok := envelopeText(m); ok {
+		if _, isErr := resultError(txt); isErr {
+			if res, ok := m["result"].(map[string]any); ok {
+				res["isError"] = true
+			}
+		}
 	}
 }
