@@ -2,6 +2,7 @@ package collect
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -14,11 +15,11 @@ import (
 )
 
 type bulkPayload struct {
-	JobID       string  `json:"job_id"`
-	IDs         []int64 `json:"ids"`
-	Action      string  `json:"action"`
-	WorkspaceID string  `json:"workspace_id"`
-	Slug        string  `json:"slug"`
+	JobID       string        `json:"job_id"`
+	IDs         []json.Number `json:"ids"`
+	Action      string        `json:"action"`
+	WorkspaceID string        `json:"workspace_id"`
+	Slug        string        `json:"slug"`
 }
 
 // bulkFields are the columns scrape_website may write (handle_bulk_enrich).
@@ -139,10 +140,15 @@ func sleepCtx(ctx context.Context, s func(context.Context, time.Duration) error,
 
 // bulkLeads loads the requested leads of the workspace in request order (missing ids skipped).
 func bulkLeads(ctx context.Context, d Deps, p bulkPayload) ([]*Lead, error) {
+	// ids are arbitrary-precision integers in the payload (pydantic int); one outside the int4 key
+	// range names no lead (legacy get_lead returned None).
+	var want []int64
 	ids := make([]int32, 0, len(p.IDs))
-	for _, id := range p.IDs {
-		if id > 0 && id <= 1<<31-1 {
+	for _, n := range p.IDs {
+		id, err := n.Int64()
+		if err == nil && id > 0 && id <= 1<<31-1 {
 			ids = append(ids, int32(id))
+			want = append(want, id)
 		}
 	}
 	byID := map[int64]*Lead{}
@@ -160,7 +166,7 @@ func bulkLeads(ctx context.Context, d Deps, p bulkPayload) ([]*Lead, error) {
 		return nil, err
 	}
 	var out []*Lead
-	for _, id := range p.IDs {
+	for _, id := range want {
 		if l, ok := byID[id]; ok {
 			out = append(out, l)
 		}
