@@ -287,7 +287,7 @@ func TestScoreInlineWrongTypes422(t *testing.T) {
 
 func TestVerifyEmailValidation400(t *testing.T) {
 	e := newUtilsEnv(t)
-	for _, em := range []string{"", "   ", "not-an-email", "a b@example.com", "a@b c", "\\u00a0\\u00a0"} {
+	for _, em := range []string{"", "   ", "not-an-email", "a b@example.com", "a@b c", "\\u00a0\\u00a0", "a\\tb@x.com", "a\\nb@x.com", "a@x.com\\r\\nb", "a\\u2003b@x.com", "a\\u0000b@x.com", "a@b@x.com"} {
 		rec := e.post("alice", "", "/api/leads/verify-email", fmt.Sprintf(`{"email":"%s"}`, em))
 		if rec.Code != 400 || rec.Body.String() != `{"detail":"email must be a single address"}` {
 			t.Errorf("%q: %d %s", em, rec.Code, rec.Body.String())
@@ -490,6 +490,23 @@ func (f fakeTech) Enrich(ctx context.Context, _ *http.Client, _ func() (string, 
 func useFakeTech(t *testing.T, f fakeTech) {
 	leadUtilsTechProvider = func() providers.Provider { return f }
 	t.Cleanup(func() { leadUtilsTechProvider, leadUtilsTechTimeout = nil, 0 })
+}
+
+// S-L10: guard and transport detail never reach the viewer; the response carries a fixed code.
+func TestTechStackErrorsAreFixedCodes(t *testing.T) {
+	e := newUtilsEnv(t)
+	for in, want := range map[string]string{
+		"blocked_url: host resolves to private ip 10.1.2.3":                          "blocked_url",
+		`Get "https://x.test/": dial tcp 10.0.0.5:22: connect: connection refused`:   "fetch_failed",
+		`Get "https://x.test/": context deadline exceeded (Client.Timeout exceeded)`: "timeout",
+		"No technologies detected": "No technologies detected",
+	} {
+		useFakeTech(t, fakeTech{out: providers.Output{Error: in}})
+		rec := e.post("alice", "", "/api/leads/tech-stack", `{"domain":"acme.com"}`)
+		if m := jsonBody(t, rec); rec.Code != 200 || m["error"] != want || strings.Contains(rec.Body.String(), "10.") {
+			t.Errorf("%q: %d %s", in, rec.Code, rec.Body.String())
+		}
+	}
 }
 
 // Success shape: tech_stack_endpoint returns {"domain","success","technologies","fields","error"}; technologies is

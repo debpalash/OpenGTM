@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
@@ -156,7 +157,7 @@ func (h *leadUtils) verifyDeps() emailverify.Deps {
 // authenticated workspace (never one named in the body).
 func (h *leadUtils) verifyEmail(w http.ResponseWriter, r *http.Request, raw string) {
 	email := providers.PyStrip(raw)
-	if !strings.Contains(email, "@") || strings.Contains(email, " ") {
+	if !validVerifyAddress(email) {
 		httpx.Detail(w, http.StatusBadRequest, "email must be a single address")
 		return
 	}
@@ -178,6 +179,19 @@ func (h *leadUtils) verifyEmail(w http.ResponseWriter, r *http.Request, raw stri
 	out.Set("source", vr.Source)
 	out.Set("detail", vr.Detail)
 	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// validVerifyAddress: exactly one "@" and no Unicode whitespace or control character anywhere (audit F11).
+func validVerifyAddress(email string) bool {
+	if strings.Count(email, "@") != 1 {
+		return false
+	}
+	for _, r := range email {
+		if unicode.IsSpace(r) || unicode.IsControl(r) {
+			return false
+		}
+	}
+	return true
 }
 
 func (h *leadUtils) techClient() *http.Client {
@@ -266,7 +280,24 @@ func (h *leadUtils) techStack(w http.ResponseWriter, r *http.Request, raw string
 	if out.Error == "" {
 		body.Set("error", nil)
 	} else {
-		body.Set("error", out.Error)
+		body.Set("error", techStackPublicError(out.Error))
 	}
 	httpx.WriteJSON(w, http.StatusOK, body)
+}
+
+// techStackPublicError maps the provider's error text to a fixed code, so a viewer cannot read guard or transport
+// detail (resolved private addresses, dial errors: a DNS and port oracle; audit S-L10). The detail stays out of the
+// response; the provider already truncated it.
+func techStackPublicError(e string) string {
+	switch {
+	case e == "No technologies detected", e == "No website URL available", e == "robots_disallowed":
+		return e
+	case strings.HasPrefix(e, "blocked_url"):
+		return "blocked_url"
+	}
+	l := strings.ToLower(e)
+	if strings.Contains(l, "timeout") || strings.Contains(l, "deadline exceeded") || strings.Contains(l, "timed out") {
+		return "timeout"
+	}
+	return "fetch_failed"
 }
