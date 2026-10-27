@@ -1,0 +1,1619 @@
+{
+ "base": "http://127.0.0.1:37443/v1",
+ "cases": [
+  {
+   "name": "web_research_ok",
+   "lead_id": 1,
+   "action": null,
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"web_research\", \"message\": \"Researching Acme Corp...\"}\n\ndata: {\"step\": \"token\", \"content\": \"Hello \"}\n\ndata: {\"step\": \"token\", \"content\": \"w\\u00f6rld \\u2603 \\\"q\\\"\"}\n\ndata: {\"step\": \"saved\", \"message\": \"Research saved to lead\"}\n\ndata: {\"step\": \"done\", \"action\": \"web_research\"}\n\n",
+   "updates": [
+    {
+     "id": 1,
+     "fields": {
+      "description": "Hello wörld ☃ \"q\"",
+      "last_enriched_at": "now"
+     }
+    }
+   ],
+   "llm_requests": [
+    {
+     "path": "/v1/chat/completions",
+     "authorization": "Bearer sk-test",
+     "content_type": "application/json",
+     "body": {
+      "model": "m-1",
+      "messages": [
+       {
+        "role": "system",
+        "content": "You are a business analyst who researches companies for sales intelligence. Be concise and specific."
+       },
+       {
+        "role": "user",
+        "content": "Research this company and provide a comprehensive analysis:\n\nCompany: Acme Corp\nCity: Pune\nWebsite: https://acme.test\nSpecialization: IT\nCurrent description: old\n\nProvide:\n1. **Company Overview** (2-3 sentences about what they do)\n2. **Key Services/Products** they offer\n3. **Company Size** estimate if possible\n4. **Industry/Niche** they operate in\n5. **Potential Needs** — what problems they likely face\n6. **Outreach Angle** — best way to approach them as a lead\n\nFormat as clean text with section headers. Be specific and actionable."
+       }
+      ],
+      "stream": true,
+      "temperature": 0.5
+     }
+    }
+   ],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": {
+     "sse": [
+      "data: {\"choices\": [{\"delta\": {\"content\": \"Hello \"}}]}",
+      "",
+      "data: {\"choices\": [{\"delta\": {}}]}",
+      "",
+      "data: {\"choices\": [{\"delta\": {\"content\": \"w\\u00f6rld \\u2603 \\\"q\\\"\"}}]}",
+      "",
+      "data: not json",
+      "",
+      "data: {\"choices\": [{\"delta\": {\"content\": \"\"}}]}",
+      "",
+      "data: [DONE]",
+      ""
+     ]
+    },
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   },
+   "email_delay": null
+  },
+  {
+   "name": "web_research_default_action",
+   "lead_id": 3,
+   "action": null,
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"web_research\", \"message\": \"Researching Gr\\u00fc\\u00dfe GmbH...\"}\n\ndata: {\"step\": \"token\", \"content\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}\n\ndata: {\"step\": \"saved\", \"message\": \"Research saved to lead\"}\n\ndata: {\"step\": \"done\", \"action\": \"web_research\"}\n\n",
+   "updates": [
+    {
+     "id": 3,
+     "fields": {
+      "description": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "last_enriched_at": "now"
+     }
+    }
+   ],
+   "llm_requests": [
+    {
+     "path": "/v1/chat/completions",
+     "authorization": "Bearer sk-test",
+     "content_type": "application/json",
+     "body": {
+      "model": "m-1",
+      "messages": [
+       {
+        "role": "system",
+        "content": "You are a business analyst who researches companies for sales intelligence. Be concise and specific."
+       },
+       {
+        "role": "user",
+        "content": "Research this company and provide a comprehensive analysis:\n\nCompany: Grüße GmbH\nCity: Zürich\nWebsite: https://g.test\nSpecialization: Unknown\nCurrent description: None\n\nProvide:\n1. **Company Overview** (2-3 sentences about what they do)\n2. **Key Services/Products** they offer\n3. **Company Size** estimate if possible\n4. **Industry/Niche** they operate in\n5. **Potential Needs** — what problems they likely face\n6. **Outreach Angle** — best way to approach them as a lead\n\nFormat as clean text with section headers. Be specific and actionable."
+       }
+      ],
+      "stream": true,
+      "temperature": 0.5
+     }
+    }
+   ],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": {
+     "sse": [
+      "data: {\"choices\": [{\"delta\": {\"content\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}}]}",
+      "",
+      "data: [DONE]",
+      ""
+     ]
+    },
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   },
+   "email_delay": null
+  },
+  {
+   "name": "web_research_no_content_no_save",
+   "lead_id": 1,
+   "action": "web_research",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"web_research\", \"message\": \"Researching Acme Corp...\"}\n\ndata: {\"step\": \"done\", \"action\": \"web_research\"}\n\n",
+   "updates": [],
+   "llm_requests": [
+    {
+     "path": "/v1/chat/completions",
+     "authorization": "Bearer sk-test",
+     "content_type": "application/json",
+     "body": {
+      "model": "m-1",
+      "messages": [
+       {
+        "role": "system",
+        "content": "You are a business analyst who researches companies for sales intelligence. Be concise and specific."
+       },
+       {
+        "role": "user",
+        "content": "Research this company and provide a comprehensive analysis:\n\nCompany: Acme Corp\nCity: Pune\nWebsite: https://acme.test\nSpecialization: IT\nCurrent description: old\n\nProvide:\n1. **Company Overview** (2-3 sentences about what they do)\n2. **Key Services/Products** they offer\n3. **Company Size** estimate if possible\n4. **Industry/Niche** they operate in\n5. **Potential Needs** — what problems they likely face\n6. **Outreach Angle** — best way to approach them as a lead\n\nFormat as clean text with section headers. Be specific and actionable."
+       }
+      ],
+      "stream": true,
+      "temperature": 0.5
+     }
+    }
+   ],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": {
+     "sse": [
+      "data: {\"choices\": [{\"delta\": {\"role\": \"assistant\"}}]}",
+      "",
+      "data: [DONE]",
+      ""
+     ]
+    },
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "web_research_no_done",
+   "lead_id": 1,
+   "action": "web_research",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"web_research\", \"message\": \"Researching Acme Corp...\"}\n\ndata: {\"step\": \"token\", \"content\": \"abc\"}\n\ndata: {\"step\": \"saved\", \"message\": \"Research saved to lead\"}\n\ndata: {\"step\": \"done\", \"action\": \"web_research\"}\n\n",
+   "updates": [
+    {
+     "id": 1,
+     "fields": {
+      "description": "abc",
+      "last_enriched_at": "now"
+     }
+    }
+   ],
+   "llm_requests": [
+    {
+     "path": "/v1/chat/completions",
+     "authorization": "Bearer sk-test",
+     "content_type": "application/json",
+     "body": {
+      "model": "m-1",
+      "messages": [
+       {
+        "role": "system",
+        "content": "You are a business analyst who researches companies for sales intelligence. Be concise and specific."
+       },
+       {
+        "role": "user",
+        "content": "Research this company and provide a comprehensive analysis:\n\nCompany: Acme Corp\nCity: Pune\nWebsite: https://acme.test\nSpecialization: IT\nCurrent description: old\n\nProvide:\n1. **Company Overview** (2-3 sentences about what they do)\n2. **Key Services/Products** they offer\n3. **Company Size** estimate if possible\n4. **Industry/Niche** they operate in\n5. **Potential Needs** — what problems they likely face\n6. **Outreach Angle** — best way to approach them as a lead\n\nFormat as clean text with section headers. Be specific and actionable."
+       }
+      ],
+      "stream": true,
+      "temperature": 0.5
+     }
+    }
+   ],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": {
+     "sse": [
+      "data: {\"choices\": [{\"delta\": {\"content\": \"abc\"}}]}",
+      ""
+     ]
+    },
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "web_research_http_error",
+   "lead_id": 1,
+   "action": "web_research",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"web_research\", \"message\": \"Researching Acme Corp...\"}\n\ndata: {\"step\": \"error\", \"message\": \"LLM error: rate limited zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz\"}\n\n",
+   "updates": [],
+   "llm_requests": [
+    {
+     "path": "/v1/chat/completions",
+     "authorization": "Bearer sk-test",
+     "content_type": "application/json",
+     "body": {
+      "model": "m-1",
+      "messages": [
+       {
+        "role": "system",
+        "content": "You are a business analyst who researches companies for sales intelligence. Be concise and specific."
+       },
+       {
+        "role": "user",
+        "content": "Research this company and provide a comprehensive analysis:\n\nCompany: Acme Corp\nCity: Pune\nWebsite: https://acme.test\nSpecialization: IT\nCurrent description: old\n\nProvide:\n1. **Company Overview** (2-3 sentences about what they do)\n2. **Key Services/Products** they offer\n3. **Company Size** estimate if possible\n4. **Industry/Niche** they operate in\n5. **Potential Needs** — what problems they likely face\n6. **Outreach Angle** — best way to approach them as a lead\n\nFormat as clean text with section headers. Be specific and actionable."
+       }
+      ],
+      "stream": true,
+      "temperature": 0.5
+     }
+    }
+   ],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": {
+     "status": 429,
+     "text": "rate limited zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+    },
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "web_research_no_provider",
+   "lead_id": 1,
+   "action": "web_research",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"web_research\", \"message\": \"Researching Acme Corp...\"}\n\ndata: {\"step\": \"error\", \"message\": \"No AI provider configured. Go to Settings.\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "web_research_trailing_slash_base",
+   "lead_id": 2,
+   "action": "web_research",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"web_research\", \"message\": \"Researching NoSite...\"}\n\ndata: {\"step\": \"token\", \"content\": \"ok\"}\n\ndata: {\"step\": \"saved\", \"message\": \"Research saved to lead\"}\n\ndata: {\"step\": \"done\", \"action\": \"web_research\"}\n\n",
+   "updates": [
+    {
+     "id": 2,
+     "fields": {
+      "description": "ok",
+      "last_enriched_at": "now"
+     }
+    }
+   ],
+   "llm_requests": [
+    {
+     "path": "/v1/chat/completions",
+     "authorization": "Bearer sk-test",
+     "content_type": "application/json",
+     "body": {
+      "model": "m-1",
+      "messages": [
+       {
+        "role": "system",
+        "content": "You are a business analyst who researches companies for sales intelligence. Be concise and specific."
+       },
+       {
+        "role": "user",
+        "content": "Research this company and provide a comprehensive analysis:\n\nCompany: NoSite\nCity: Unknown\nWebsite: Unknown\nSpecialization: Unknown\nCurrent description: None\n\nProvide:\n1. **Company Overview** (2-3 sentences about what they do)\n2. **Key Services/Products** they offer\n3. **Company Size** estimate if possible\n4. **Industry/Niche** they operate in\n5. **Potential Needs** — what problems they likely face\n6. **Outreach Angle** — best way to approach them as a lead\n\nFormat as clean text with section headers. Be specific and actionable."
+       }
+      ],
+      "stream": true,
+      "temperature": 0.5
+     }
+    }
+   ],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": {
+     "sse": [
+      "data: {\"choices\": [{\"delta\": {\"content\": \"ok\"}}]}",
+      "",
+      "data: [DONE]",
+      ""
+     ]
+    },
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "lead_not_found",
+   "lead_id": 99,
+   "action": "web_research",
+   "status": 404,
+   "content_type": "application/json",
+   "cache_control": null,
+   "x_accel": null,
+   "body": "{\"detail\":\"Lead not found\"}",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "lead_not_found_bad_action",
+   "lead_id": 99,
+   "action": "nope",
+   "status": 404,
+   "content_type": "application/json",
+   "cache_control": null,
+   "x_accel": null,
+   "body": "{\"detail\":\"Lead not found\"}",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "unknown_action",
+   "lead_id": 1,
+   "action": "nope",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"error\", \"message\": \"Unknown action: nope\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_emails_found",
+   "lead_id": 1,
+   "action": "find_emails",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_emails\", \"message\": \"Finding emails...\"}\n\ndata: {\"step\": \"result\", \"email\": \"found@acme.test\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_emails\"}\n\n",
+   "updates": [
+    {
+     "id": 1,
+     "fields": {
+      "email": "found@acme.test",
+      "last_enriched_at": "now"
+     }
+    }
+   ],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "found@acme.test",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   },
+   "email_delay": 0.5
+  },
+  {
+   "name": "find_emails_none",
+   "lead_id": 1,
+   "action": "find_emails",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_emails\", \"message\": \"Finding emails...\"}\n\ndata: {\"step\": \"result\", \"message\": \"No email found\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_emails\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   },
+   "email_delay": 0.5
+  },
+  {
+   "name": "scrape_no_website",
+   "lead_id": 2,
+   "action": "scrape_website",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"error\", \"message\": \"No website URL on this lead\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "scrape_found",
+   "lead_id": 1,
+   "action": "scrape_website",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"scrape_website\", \"message\": \"Scraping https://acme.test...\"}\n\ndata: {\"step\": \"result\", \"message\": \"No new data found\"}\n\ndata: {\"step\": \"done\", \"action\": \"scrape_website\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": {
+     "email": "s@acme.test",
+     "phone": "+91 98765 43210",
+     "description": "new desc",
+     "contact_person": "Jane"
+    },
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "scrape_found_copy",
+   "lead_id": 1,
+   "action": "scrape_website",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"scrape_website\", \"message\": \"Scraping https://acme.test...\"}\n\ndata: {\"step\": \"result\", \"fields_updated\": [\"email\", \"phone\", \"description\", \"contact_person\", \"last_enriched_at\"]}\n\ndata: {\"step\": \"done\", \"action\": \"scrape_website\"}\n\n",
+   "updates": [
+    {
+     "id": 1,
+     "fields": {
+      "email": "s@acme.test",
+      "phone": "+91 98765 43210",
+      "description": "new desc",
+      "contact_person": "Jane",
+      "last_enriched_at": "now"
+     }
+    }
+   ],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": {
+     "email": "s@acme.test",
+     "phone": "+91 98765 43210",
+     "description": "new desc",
+     "contact_person": "Jane"
+    },
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": true
+   }
+  },
+  {
+   "name": "scrape_phone_only_copy",
+   "lead_id": 1,
+   "action": "scrape_website",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"scrape_website\", \"message\": \"Scraping https://acme.test...\"}\n\ndata: {\"step\": \"result\", \"fields_updated\": [\"phone\", \"last_enriched_at\"]}\n\ndata: {\"step\": \"done\", \"action\": \"scrape_website\"}\n\n",
+   "updates": [
+    {
+     "id": 1,
+     "fields": {
+      "phone": "123",
+      "last_enriched_at": "now"
+     }
+    }
+   ],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": {
+     "phone": "123"
+    },
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": true
+   }
+  },
+  {
+   "name": "scrape_same_values_copy",
+   "lead_id": 1,
+   "action": "scrape_website",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"scrape_website\", \"message\": \"Scraping https://acme.test...\"}\n\ndata: {\"step\": \"result\", \"message\": \"No new data found\"}\n\ndata: {\"step\": \"done\", \"action\": \"scrape_website\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": {
+     "description": "old"
+    },
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": true
+   }
+  },
+  {
+   "name": "scrape_same_values",
+   "lead_id": 1,
+   "action": "scrape_website",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"scrape_website\", \"message\": \"Scraping https://acme.test...\"}\n\ndata: {\"step\": \"result\", \"message\": \"No new data found\"}\n\ndata: {\"step\": \"done\", \"action\": \"scrape_website\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": {
+     "description": "old"
+    },
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "scrape_no_new",
+   "lead_id": 1,
+   "action": "scrape_website",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"scrape_website\", \"message\": \"Scraping https://acme.test...\"}\n\ndata: {\"step\": \"result\", \"message\": \"No new data found\"}\n\ndata: {\"step\": \"done\", \"action\": \"scrape_website\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": {},
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "scrape_empty_result",
+   "lead_id": 1,
+   "action": "scrape_website",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"scrape_website\", \"message\": \"Scraping https://acme.test...\"}\n\ndata: {\"step\": \"done\", \"action\": \"scrape_website\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": true,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "scrape_raises",
+   "lead_id": 1,
+   "action": "scrape_website",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"scrape_website\", \"message\": \"Scraping https://acme.test...\"}\n\ndata: {\"step\": \"error\", \"message\": \"scraper exploded\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": "scraper exploded",
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_phone_found_first",
+   "lead_id": 1,
+   "action": "find_phone",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_phone\", \"message\": \"Searching phone for Acme Corp...\"}\n\ndata: {\"step\": \"result\", \"message\": \"Phone found: +91 98765-43210\", \"phone\": \"+91 98765-43210\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_phone\"}\n\n",
+   "updates": [
+    {
+     "id": 1,
+     "fields": {
+      "phone": "+91 98765-43210",
+      "last_enriched_at": "now"
+     }
+    }
+   ],
+   "llm_requests": [],
+   "ddg_queries": [
+    [
+     "Acme Corp Pune contact number phone",
+     5
+    ]
+   ],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {
+     "Acme Corp Pune contact number phone": [
+      {
+       "title": "Acme",
+       "body": "call us on +91 98765-43210 today"
+      }
+     ]
+    },
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_phone_second_query",
+   "lead_id": 1,
+   "action": "find_phone",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_phone\", \"message\": \"Searching phone for Acme Corp...\"}\n\ndata: {\"step\": \"result\", \"message\": \"Phone found: 022 2345678\", \"phone\": \"022 2345678\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_phone\"}\n\n",
+   "updates": [
+    {
+     "id": 1,
+     "fields": {
+      "phone": "022 2345678",
+      "last_enriched_at": "now"
+     }
+    }
+   ],
+   "llm_requests": [],
+   "ddg_queries": [
+    [
+     "Acme Corp Pune contact number phone",
+     5
+    ],
+    [
+     "Acme Corp Pune office phone number",
+     5
+    ]
+   ],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {
+     "Acme Corp Pune contact number phone": [
+      {
+       "title": "x",
+       "body": "nothing"
+      }
+     ],
+     "Acme Corp Pune office phone number": [
+      {
+       "title": "y",
+       "body": "Office 022 2345678 open"
+      }
+     ]
+    },
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_phone_pattern_order",
+   "lead_id": 1,
+   "action": "find_phone",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_phone\", \"message\": \"Searching phone for Acme Corp...\"}\n\ndata: {\"step\": \"result\", \"message\": \"Phone found: 1800 123 4567\", \"phone\": \"1800 123 4567\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_phone\"}\n\n",
+   "updates": [
+    {
+     "id": 1,
+     "fields": {
+      "phone": "1800 123 4567",
+      "last_enriched_at": "now"
+     }
+    }
+   ],
+   "llm_requests": [],
+   "ddg_queries": [
+    [
+     "Acme Corp Pune contact number phone",
+     5
+    ]
+   ],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {
+     "Acme Corp Pune contact number phone": [
+      {
+       "title": "a 9876543210",
+       "body": "1800 123 4567"
+      }
+     ]
+    },
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_phone_none",
+   "lead_id": 1,
+   "action": "find_phone",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_phone\", \"message\": \"Searching phone for Acme Corp...\"}\n\ndata: {\"step\": \"result\", \"message\": \"No phone number found\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_phone\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [
+    [
+     "Acme Corp Pune contact number phone",
+     5
+    ],
+    [
+     "Acme Corp Pune office phone number",
+     5
+    ]
+   ],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {
+     "*": [
+      {
+       "title": "a",
+       "body": "b"
+      }
+     ]
+    },
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_phone_ddg_raises",
+   "lead_id": 1,
+   "action": "find_phone",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_phone\", \"message\": \"Searching phone for Acme Corp...\"}\n\ndata: {\"step\": \"result\", \"message\": \"No phone number found\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_phone\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [
+    [
+     "Acme Corp Pune contact number phone",
+     5
+    ],
+    [
+     "Acme Corp Pune office phone number",
+     5
+    ]
+   ],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [
+     "*"
+    ],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_phone_no_city",
+   "lead_id": 2,
+   "action": "find_phone",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_phone\", \"message\": \"Searching phone for NoSite...\"}\n\ndata: {\"step\": \"result\", \"message\": \"Phone found: +919876543210\", \"phone\": \"+919876543210\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_phone\"}\n\n",
+   "updates": [
+    {
+     "id": 2,
+     "fields": {
+      "phone": "+919876543210",
+      "last_enriched_at": "now"
+     }
+    }
+   ],
+   "llm_requests": [],
+   "ddg_queries": [
+    [
+     "NoSite  contact number phone",
+     5
+    ]
+   ],
+   "osm_calls": [],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {
+     "*": [
+      {
+       "title": "t",
+       "body": "+919876543210"
+      }
+     ]
+    },
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_address_osm",
+   "lead_id": 1,
+   "action": "find_address",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_address\", \"message\": \"Looking up address for Acme Corp...\"}\n\ndata: {\"step\": \"result\", \"message\": \"OSM: Acme Corp, Baner Road, Pune, Maharashtra, 411045, India\", \"source\": \"openstreetmap\"}\n\ndata: {\"step\": \"saved\", \"message\": \"Address saved\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_address\"}\n\n",
+   "updates": [
+    {
+     "id": 1,
+     "fields": {
+      "last_enriched_at": "now",
+      "notes": "n1\n\n📍 Address: Acme Corp, Baner Road, Pune, Maharashtra, 411045, India\n🗺️ Map: https://www.openstreetmap.org/?mlat=18.5&mlon=73.8#map=16/18.5/73.8",
+      "state": "Maharashtra"
+     }
+    }
+   ],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [
+    {
+     "url": "https://nominatim.openstreetmap.org/search",
+     "params": {
+      "q": "Acme Corp, Pune",
+      "format": "json",
+      "limit": 3,
+      "addressdetails": 1
+     },
+     "headers": {
+      "User-Agent": "LeadEngine/1.0"
+     }
+    }
+   ],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": {
+     "status": 200,
+     "data": [
+      {
+       "display_name": "Acme Corp, Baner Road, Pune, Maharashtra, 411045, India",
+       "lat": "18.5",
+       "lon": 73.8
+      }
+     ]
+    },
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_address_osm_state_present",
+   "lead_id": 3,
+   "action": "find_address",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_address\", \"message\": \"Looking up address for Gr\\u00fc\\u00dfe GmbH...\"}\n\ndata: {\"step\": \"result\", \"message\": \"OSM: Acme Corp, Baner Road, Pune, Maharashtra, 411045, India\", \"source\": \"openstreetmap\"}\n\ndata: {\"step\": \"saved\", \"message\": \"Address saved\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_address\"}\n\n",
+   "updates": [
+    {
+     "id": 3,
+     "fields": {
+      "last_enriched_at": "now",
+      "notes": "\n\n📍 Address: Acme Corp, Baner Road, Pune, Maharashtra, 411045, India\n🗺️ Map: https://www.openstreetmap.org/?mlat=18.5&mlon=73.8#map=16/18.5/73.8"
+     }
+    }
+   ],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [
+    {
+     "url": "https://nominatim.openstreetmap.org/search",
+     "params": {
+      "q": "Grüße GmbH, Zürich",
+      "format": "json",
+      "limit": 3,
+      "addressdetails": 1
+     },
+     "headers": {
+      "User-Agent": "LeadEngine/1.0"
+     }
+    }
+   ],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": {
+     "status": 200,
+     "data": [
+      {
+       "display_name": "Acme Corp, Baner Road, Pune, Maharashtra, 411045, India",
+       "lat": "18.5",
+       "lon": 73.8
+      }
+     ]
+    },
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_address_osm_long",
+   "lead_id": 1,
+   "action": "find_address",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_address\", \"message\": \"Looking up address for Acme Corp...\"}\n\ndata: {\"step\": \"result\", \"message\": \"OSM: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\", \"source\": \"openstreetmap\"}\n\ndata: {\"step\": \"saved\", \"message\": \"Address saved\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_address\"}\n\n",
+   "updates": [
+    {
+     "id": 1,
+     "fields": {
+      "last_enriched_at": "now",
+      "notes": "n1\n\n📍 Address: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n🗺️ Map: https://www.openstreetmap.org/?mlat=1&mlon=2#map=16/1/2"
+     }
+    }
+   ],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [
+    {
+     "url": "https://nominatim.openstreetmap.org/search",
+     "params": {
+      "q": "Acme Corp, Pune",
+      "format": "json",
+      "limit": 3,
+      "addressdetails": 1
+     },
+     "headers": {
+      "User-Agent": "LeadEngine/1.0"
+     }
+    }
+   ],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": {
+     "status": 200,
+     "data": [
+      {
+       "display_name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+       "lat": 1,
+       "lon": 2
+      }
+     ]
+    },
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_address_osm_no_latlon",
+   "lead_id": 1,
+   "action": "find_address",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_address\", \"message\": \"Looking up address for Acme Corp...\"}\n\ndata: {\"step\": \"result\", \"message\": \"OSM: Somewhere, Kerala\", \"source\": \"openstreetmap\"}\n\ndata: {\"step\": \"saved\", \"message\": \"Address saved\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_address\"}\n\n",
+   "updates": [
+    {
+     "id": 1,
+     "fields": {
+      "last_enriched_at": "now",
+      "notes": "n1\n\n📍 Address: Somewhere, Kerala",
+      "state": "Kerala"
+     }
+    }
+   ],
+   "llm_requests": [],
+   "ddg_queries": [],
+   "osm_calls": [
+    {
+     "url": "https://nominatim.openstreetmap.org/search",
+     "params": {
+      "q": "Acme Corp, Pune",
+      "format": "json",
+      "limit": 3,
+      "addressdetails": 1
+     },
+     "headers": {
+      "User-Agent": "LeadEngine/1.0"
+     }
+    }
+   ],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": {
+     "status": 200,
+     "data": [
+      {
+       "display_name": "Somewhere, Kerala"
+      }
+     ]
+    },
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_address_osm_empty_ddg_found",
+   "lead_id": 1,
+   "action": "find_address",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_address\", \"message\": \"Looking up address for Acme Corp...\"}\n\ndata: {\"step\": \"result\", \"message\": \"Search: is Located: 5 MG Road, Bengaluru, Karnataka\", \"source\": \"web_search\"}\n\ndata: {\"step\": \"saved\", \"message\": \"Address saved\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_address\"}\n\n",
+   "updates": [
+    {
+     "id": 1,
+     "fields": {
+      "last_enriched_at": "now",
+      "notes": "n1\n\n📍 Address: is Located: 5 MG Road, Bengaluru, Karnataka",
+      "state": "Karnataka"
+     }
+    }
+   ],
+   "llm_requests": [],
+   "ddg_queries": [
+    [
+     "Acme Corp Pune office address location",
+     5
+    ]
+   ],
+   "osm_calls": [
+    {
+     "url": "https://nominatim.openstreetmap.org/search",
+     "params": {
+      "q": "Acme Corp, Pune",
+      "format": "json",
+      "limit": 3,
+      "addressdetails": 1
+     },
+     "headers": {
+      "User-Agent": "LeadEngine/1.0"
+     }
+    }
+   ],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {
+     "Acme Corp Pune office address location": [
+      {
+       "body": "Our office is Located: 5 MG Road, Bengaluru, Karnataka. More text"
+      }
+     ]
+    },
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_address_osm_fail_ddg_none",
+   "lead_id": 1,
+   "action": "find_address",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_address\", \"message\": \"Looking up address for Acme Corp...\"}\n\ndata: {\"step\": \"result\", \"message\": \"OSM lookup failed: connection refused qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\"}\n\ndata: {\"step\": \"result\", \"message\": \"No address found\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_address\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [
+    [
+     "Acme Corp Pune office address location",
+     5
+    ]
+   ],
+   "osm_calls": [
+    {
+     "url": "https://nominatim.openstreetmap.org/search",
+     "params": {
+      "q": "Acme Corp, Pune",
+      "format": "json",
+      "limit": 3,
+      "addressdetails": 1
+     },
+     "headers": {
+      "User-Agent": "LeadEngine/1.0"
+     }
+    }
+   ],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {
+     "*": [
+      {
+       "body": "nothing here"
+      }
+     ]
+    },
+    "ddg_raise": [],
+    "osm": {
+     "raise": "connection refused qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
+    },
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_address_osm_http500",
+   "lead_id": 1,
+   "action": "find_address",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_address\", \"message\": \"Looking up address for Acme Corp...\"}\n\ndata: {\"step\": \"result\", \"message\": \"No address found\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_address\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [
+    [
+     "Acme Corp Pune office address location",
+     5
+    ]
+   ],
+   "osm_calls": [
+    {
+     "url": "https://nominatim.openstreetmap.org/search",
+     "params": {
+      "q": "Acme Corp, Pune",
+      "format": "json",
+      "limit": 3,
+      "addressdetails": 1
+     },
+     "headers": {
+      "User-Agent": "LeadEngine/1.0"
+     }
+    }
+   ],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [
+     "*"
+    ],
+    "osm": {
+     "status": 500,
+     "data": {}
+    },
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_address_none",
+   "lead_id": 1,
+   "action": "find_address",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_address\", \"message\": \"Looking up address for Acme Corp...\"}\n\ndata: {\"step\": \"result\", \"message\": \"No address found\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_address\"}\n\n",
+   "updates": [],
+   "llm_requests": [],
+   "ddg_queries": [
+    [
+     "Acme Corp Pune office address location",
+     5
+    ]
+   ],
+   "osm_calls": [
+    {
+     "url": "https://nominatim.openstreetmap.org/search",
+     "params": {
+      "q": "Acme Corp, Pune",
+      "format": "json",
+      "limit": 3,
+      "addressdetails": 1
+     },
+     "headers": {
+      "User-Agent": "LeadEngine/1.0"
+     }
+    }
+   ],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {},
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "find_address_ddg_first_match_wins",
+   "lead_id": 1,
+   "action": "find_address",
+   "status": 200,
+   "content_type": "text/event-stream; charset=utf-8",
+   "cache_control": "no-cache",
+   "x_accel": "no",
+   "body": "data: {\"step\": \"start\", \"action\": \"find_address\", \"message\": \"Looking up address for Acme Corp...\"}\n\ndata: {\"step\": \"result\", \"message\": \"Search: 1 First St\", \"source\": \"web_search\"}\n\ndata: {\"step\": \"saved\", \"message\": \"Address saved\"}\n\ndata: {\"step\": \"done\", \"action\": \"find_address\"}\n\n",
+   "updates": [
+    {
+     "id": 1,
+     "fields": {
+      "last_enriched_at": "now",
+      "notes": "n1\n\n📍 Address: 1 First St"
+     }
+    }
+   ],
+   "llm_requests": [],
+   "ddg_queries": [
+    [
+     "Acme Corp Pune office address location",
+     5
+    ]
+   ],
+   "osm_calls": [
+    {
+     "url": "https://nominatim.openstreetmap.org/search",
+     "params": {
+      "q": "Acme Corp, Pune",
+      "format": "json",
+      "limit": 3,
+      "addressdetails": 1
+     },
+     "headers": {
+      "User-Agent": "LeadEngine/1.0"
+     }
+    }
+   ],
+   "inputs": {
+    "script": null,
+    "prov_api_key": "sk-test",
+    "ddg": {
+     "Acme Corp Pune office address location": [
+      {
+       "body": "no match"
+      },
+      {
+       "body": "Address: 1 First St. x"
+      },
+      {
+       "body": "office: 2 Second St"
+      }
+     ]
+    },
+    "ddg_raise": [],
+    "osm": null,
+    "email": "",
+    "scrape": null,
+    "scrape_empty": false,
+    "scrape_raise": null,
+    "scrape_copy": false
+   }
+  },
+  {
+   "name": "rate_limit_30_per_minute",
+   "codes": [
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    429,
+    429
+   ]
+  },
+  {
+   "name": "bad_lead_id",
+   "status": 422,
+   "json": {
+    "detail": [
+     {
+      "type": "int_parsing",
+      "loc": [
+       "path",
+       "lead_id"
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": "abc"
+     }
+    ]
+   }
+  }
+ ]
+}

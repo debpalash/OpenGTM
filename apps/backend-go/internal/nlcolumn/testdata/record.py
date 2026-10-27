@@ -31,7 +31,7 @@ class FakeLLM:
         self.script = list(script)
         self.calls = []
 
-    async def extract_json(self, prompt, system="", max_tokens=2048, **kw):
+    async def extract_json(self, prompt, system="", max_tokens=1024, **kw):
         self.calls.append({"prompt": prompt, "system": system, "max_tokens": max_tokens})
         if not self.script:
             return {}
