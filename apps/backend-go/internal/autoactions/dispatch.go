@@ -20,24 +20,18 @@ type Deps struct {
 	Push    PushFunc
 	RunRows RowRunner
 
-	// LegacyOutreach (GO_EXECUTOR_LEGACY_OUTREACH_ACTIONS) makes sequencer and
-	// send_email executable in Go; they need Pool. They never send mail: send_email
-	// enqueues a `send` job for the outreachsend handler. SendExecutor names that
-	// job's executor ("go"/"python"; nil or anything else: python).
-	LegacyOutreach bool
-	Pool           *pgxpool.Pool
-	SendExecutor   func(ws string) string
-	Now            func() time.Time
+	// Pool backs sequencer and send_email (always executable in Go since the plan 15 cutover). They
+	// never send mail: send_email enqueues a `send` job (executor go) for the outreachsend handler.
+	Pool *pgxpool.Pool
+	Now  func() time.Time
 }
 
 // Execute is execute_action: run one action against one row. It does no
 // billing. leadData must be decoded with UseNumber and ordered objects
 // (field_map) as colgraph.Col or *wbcrud.Obj so the CRM field order survives.
 //
-// sequencer and send_email are executable only with Deps.LegacyOutreach; without
-// it the worker hands such a run to Python before it starts (Task 14), so
-// reaching them here answers the same failed/not_connected result as an unknown
-// type. A crash inside an
+// sequencer and send_email run in Go (plan 15 cutover); an unknown type answers
+// failed/not_connected. A crash inside an
 // action is a failed result, never a panic.
 func Execute(ctx context.Context, d Deps, ws string, action map[string]any, workbookID, rowID string,
 	leadID *int64, leadData map[string]any, cols []Column, idem string) (res Result) {
@@ -60,13 +54,9 @@ func Execute(ctx context.Context, d Deps, ws string, action map[string]any, work
 	case "re_enrich":
 		return ReEnrich(ctx, d, ws, workbookID, rowID, cfg, cols)
 	case "sequencer":
-		if d.LegacyOutreach {
-			return legacySequencer(ctx, d, ws, cfg, leadID, leadData)
-		}
+		return legacySequencer(ctx, d, ws, cfg, leadID, leadData)
 	case "send_email":
-		if d.LegacyOutreach {
-			return legacySendEmail(ctx, d, ws, cfg, leadID, leadData, idem)
-		}
+		return legacySendEmail(ctx, d, ws, cfg, leadID, leadData, idem)
 	}
 	r := failed("action type '" + rowtmpl.PyStr(action["type"]) + "' not supported")
 	r.SkipReason = "not_connected"

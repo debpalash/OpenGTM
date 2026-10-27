@@ -187,7 +187,7 @@ func legacySendEmail(ctx context.Context, d Deps, ws string, cfg map[string]any,
 			}
 		}
 		job.IdempotencyKey = key
-		queued, err := enqueueIfAbsent(ctx, tx, ws, job, sendExecutor(d, ws))
+		queued, err := enqueueIfAbsent(ctx, tx, ws, job)
 		if err != nil {
 			return err
 		}
@@ -224,7 +224,7 @@ func existingEnrollment(ctx context.Context, tx pgx.Tx, ws, seq string, leadID i
 
 // enqueueIfAbsent is _enqueue_if_absent (outreachsend.EnqueueSend with a payload
 // that can carry null ids).
-func enqueueIfAbsent(ctx context.Context, tx pgx.Tx, ws string, job sendJob, executor string) (bool, error) {
+func enqueueIfAbsent(ctx context.Context, tx pgx.Tx, ws string, job sendJob) (bool, error) {
 	var pending bool
 	if err := tx.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM jobs WHERE type='send' AND status IN ('pending','processing')
 	   AND payload->>'idempotency_key' = $1)`, job.IdempotencyKey).Scan(&pending); err != nil {
@@ -240,17 +240,8 @@ func enqueueIfAbsent(ctx context.Context, tx pgx.Tx, ws string, job sendJob, exe
 	if existing != nil {
 		return false, nil
 	}
-	_, created, err := queue.EnqueueOnce(ctx, tx, "send", ws, job, job.IdempotencyKey, executor)
+	_, created, err := queue.EnqueueOnce(ctx, tx, "send", ws, job, job.IdempotencyKey, "go")
 	return created, err
-}
-
-func sendExecutor(d Deps, ws string) string {
-	if d.SendExecutor != nil {
-		if v := d.SendExecutor(ws); v == "go" || v == "python" {
-			return v
-		}
-	}
-	return "python"
 }
 
 func now(d Deps) time.Time {

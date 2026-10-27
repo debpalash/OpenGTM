@@ -494,7 +494,7 @@ func TestReEnrichErrorTruncatedTo200(t *testing.T) {
 // ---- dispatcher ------------------------------------------------------------
 
 func TestDispatcherUnsupportedType(t *testing.T) {
-	for _, act := range []map[string]any{{"type": "carrier_pigeon"}, {"type": ""}, {"type": nil}, {}, {"type": "sequencer"}, {"type": "send_email", "config": map[string]any{}}} {
+	for _, act := range []map[string]any{{"type": "carrier_pigeon"}, {"type": ""}, {"type": nil}, {}} {
 		res := Execute(context.Background(), Deps{}, "ws", act, "wb", "1", nil, nil, nil, "i")
 		name := "None"
 		if s, ok := act["type"].(string); ok {

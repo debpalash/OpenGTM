@@ -205,8 +205,9 @@ func TestLegacyOutreachVectors(t *testing.T) {
 					if v.Idem == nil || strings.HasPrefix(fmt.Sprint(wp["idempotency_key"]), "seq:") {
 						wantS = strings.ReplaceAll(wantS, ":ws-1:", ":"+loWS+":") // keys Go derives; an engine key passes through
 					}
-					if ex != w.Executor || normJSON(t, string(gj)) != normJSON(t, wantS) {
-						t.Fatalf("job %d: executor %s payload %s\nwant %s %s", jobs, ex, gj, w.Executor, wantS)
+					// The vector's executor is Python's; since the plan 15 cutover every send job is "go".
+					if ex != "go" || normJSON(t, string(gj)) != normJSON(t, wantS) {
+						t.Fatalf("job %d: executor %s payload %s\nwant go %s", jobs, ex, gj, wantS)
 					}
 					jobs++
 				}
@@ -283,7 +284,7 @@ func ptr(i int64) *int64 { return &i }
 // job, and concurrent identical calls each yield exactly one job and never a send.
 func TestLegacySendEmailAtMostOnce(t *testing.T) {
 	ctx := context.Background()
-	d := Deps{Pool: testpg.NewAppPool(t, 16), SendExecutor: func(string) string { return "go" }}
+	d := Deps{Pool: testpg.NewAppPool(t, 16)}
 	loClean(t, ctx, d)
 	act := map[string]any{"type": "send_email", "config": map[string]any{"subject": "s", "body_html": "<p>{{name}}</p>"}}
 	lead := map[string]any{"email": "a@x.com", "name": "<b>A</b>"}

@@ -56,19 +56,12 @@ type Deps struct {
 
 	Actions autoactions.Deps
 	Execute ExecuteFunc
-	// ExecFor names the executor of a rescheduled eval ("go" or "python").
+	// ExecFor names the executor of a rescheduled eval (nil: "go", the only executor since the cutover).
 	ExecFor func(ws string) string
 	// Emitter is the automation event emitter. The handler itself emits
 	// nothing (Python's engine does not); re_enrich's run-end flush belongs to
 	// the workbook run. The worker wiring shares one emitter through Deps.
 	Emitter automationhook.Emitter
-	// PyColumns reports that the worker has the Python column RPC, so a
-	// re_enrich of ai_formula/research columns can run in Go. Agent columns and
-	// every other non-Go type are handed back to Python.
-	PyColumns bool
-	// LegacyOutreach (GO_EXECUTOR_LEGACY_OUTREACH_ACTIONS): sequencer and send_email
-	// run in Go (Actions.LegacyOutreach is set with it) and no longer hand back.
-	LegacyOutreach bool
 	// CheckEvery throttles the lease heartbeat and cancel probe between actions
 	// (default 2s; negative probes before every action).
 	CheckEvery time.Duration
@@ -139,7 +132,11 @@ func (e *engine) handle(ctx context.Context, c *queue.Claim) error {
 		d.log().Warn("trigger_eval missing workspace_id/trigger_id")
 		return nil
 	}
-	if c != nil && c.WorkspaceID != "" && c.WorkspaceID != ws {
+	if c != nil && c.WorkspaceID == "" {
+		// The tenant comes from the job row only (plan 15 cutover); a job without one is refused.
+		return &queue.PermanentError{Err: errors.New("trigger_eval: the job has no workspace_id")}
+	}
+	if c != nil && c.WorkspaceID != ws {
 		// A job queued under one workspace must not run inside another tenant.
 		d.log().Error("trigger_eval payload workspace does not match the job's workspace; refusing", "job_id", c.ID)
 		return nil
@@ -176,18 +173,6 @@ func (e *engine) handle(ctx context.Context, c *queue.Claim) error {
 	if trig != nil {
 		actions = parseActions(trig.Actions)
 		scope = parseScope(trig.ScopeWorkbookIds)
-		// Eligibility guard: decided before any write (D2, D8). A dry run never hands back
-		// (C2 / R-dry): the Python worker executes the actions of a dry run, while Go only
-		// records skipped/dry_run rows, so it previews legacy actions too.
-		if !dry {
-			reason, err := e.handBackReason(ctx, ws, actions, scope, pl["targets"], maxRows)
-			if err != nil {
-				return err
-			}
-			if reason != "" {
-				return e.handBack(ctx, c, reason)
-			}
-		}
 	}
 
 	if trig == nil || !trig.Enabled {
@@ -442,21 +427,4 @@ func (g *guard) check(ctx context.Context) (stop bool, err error) {
 		return false, workbook.ErrLeaseLost
 	}
 	return false, nil
-}
-
-// handBack returns the job to Python (before any write) and reports it with the
-// error the worker already understands.
-func (e *engine) handBack(ctx context.Context, c *queue.Claim, reason string) error {
-	if c == nil {
-		return errors.New("autoengine: hand back needs a claim")
-	}
-	handed, err := queue.HandBack(ctx, e.d.Pool, c, reason)
-	if err != nil {
-		return err
-	}
-	if !handed {
-		return workbook.ErrLeaseLost
-	}
-	e.d.log().Warn("trigger_eval handed back to python", "reason", reason)
-	return fmt.Errorf("%w: %s", workbook.ErrHandedBack, reason)
 }
