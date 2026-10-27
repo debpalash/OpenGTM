@@ -24,6 +24,7 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/pressly/goose/v3"
 )
@@ -190,13 +191,60 @@ func LatestVersion() (int64, error) {
 	return latest, nil
 }
 
-// Status reports, for every embedded version, whether it is applied.
-func Status(ctx context.Context, db *sql.DB) ([]*goose.MigrationStatus, error) {
-	p, err := newProvider(db, DefaultAppRole)
+// VersionStatus is one embedded migration and whether the database has it.
+type VersionStatus struct {
+	Version   int64
+	Name      string
+	Applied   bool
+	AppliedAt time.Time
+}
+
+// Status lists the embedded migrations with their applied state. Read only:
+// unlike goose's own Status it never creates the version table.
+func Status(ctx context.Context, db *sql.DB) ([]VersionStatus, error) {
+	out := []VersionStatus{{Version: BaselineVersion, Name: "baseline (Alembic " + BaselineAlembicRevision + ")"}}
+	entries, err := fs.ReadDir(migrationsFS, "migrations")
 	if err != nil {
 		return nil, err
 	}
-	return p.Status(ctx)
+	for _, e := range entries {
+		if e.IsDir() || path.Ext(e.Name()) != ".sql" {
+			continue
+		}
+		v, err := goose.NumericComponent(e.Name())
+		if err != nil {
+			return nil, fmt.Errorf("migrate: %s: %w", e.Name(), err)
+		}
+		out = append(out, VersionStatus{Version: v, Name: e.Name()})
+	}
+	var exists bool
+	if err := db.QueryRowContext(ctx, `SELECT to_regclass('public.`+VersionTable+`') IS NOT NULL`).Scan(&exists); err != nil {
+		return nil, fmt.Errorf("migrate: status: %w", err)
+	}
+	if !exists {
+		return out, nil
+	}
+	rows, err := db.QueryContext(ctx, `SELECT version_id, max(tstamp) FROM public.`+VersionTable+` WHERE version_id > 0 GROUP BY 1`)
+	if err != nil {
+		return nil, fmt.Errorf("migrate: status: %w", err)
+	}
+	defer rows.Close()
+	applied := map[int64]time.Time{}
+	for rows.Next() {
+		var v int64
+		var ts time.Time
+		if err := rows.Scan(&v, &ts); err != nil {
+			return nil, err
+		}
+		applied[v] = ts
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	for i := range out {
+		out[i].AppliedAt, out[i].Applied = applied[out[i].Version]
+	}
+	return out, nil
 }
 
 type plan int
