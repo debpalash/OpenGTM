@@ -113,7 +113,8 @@ func CheckSetRole(ctx context.Context, tx pgx.Tx, ws string, actor, target int32
 	return nil
 }
 
-// CheckRemove authorizes DELETE /members/{id}.
+// CheckRemove authorizes DELETE /members/{id}. Removal drops the target's overrides, so a non-admin actor may
+// not remove a member who carries any deny: remove and re-add would wipe an admin-set deny (S-L21).
 func CheckRemove(ctx context.Context, tx pgx.Tx, ws string, actor, target int32) error {
 	actorRole, targetRole, err := Authorize(ctx, tx, ws, actor, target)
 	if err != nil {
@@ -121,6 +122,16 @@ func CheckRemove(ctx context.Context, tx pgx.Tx, ws string, actor, target int32)
 	}
 	if !canManage(actorRole, targetRole) {
 		return ErrEscalation
+	}
+	if actorRole != "admin" && actorRole != "owner" && targetRole != "" && targetRole != "owner" {
+		var denied bool
+		if err := tx.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM workspace_member_permissions
+			WHERE workspace_id = $1 AND user_id = $2 AND effect = 'deny')`, ws, target).Scan(&denied); err != nil {
+			return err
+		}
+		if denied {
+			return ErrEscalation
+		}
 	}
 	return nil
 }
