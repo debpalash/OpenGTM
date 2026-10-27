@@ -246,3 +246,25 @@ func TestNativeBatchDurableClaim(t *testing.T) {
 		t.Fatalf("reconcile state dispatched a batch")
 	}
 }
+
+// Cancelling the job while a paid agent tool is in flight leaves its attempt uncertain (it
+// may have reached the vendor) and unwinds the run; nothing settles twice.
+func TestNativeAgentCancelMidCallIsUncertain(t *testing.T) {
+	e := setup(t, wsA)
+	e.seed(wsA, "wb-nagc", `[{"id":"ag","type":"agent","name":"Agent","target_field":"email","tools":["paidtool"]}]`, 1, 10)
+	ctx, cancel := context.WithCancel(e.ctx)
+	defer cancel()
+	fr := &fakeRunner{fn: func(c context.Context, _ string, _ providers.Input) (providers.Output, error) {
+		cancel()
+		<-c.Done()
+		return providers.Output{}, c.Err()
+	}}
+	d := nativeDeps(e, &fakeLLM{})
+	d.Runner = fr
+	if _, err := workbook.Run(ctx, d, e.claim(wsA, payloadNoManifests(wsA, "wb-nagc", map[string]float64{"paidtool": 0.01}, nil))); err == nil {
+		t.Fatal("a cancelled run must unwind")
+	}
+	if st := e.str(wsA, `SELECT status FROM workbook_spend_attempts`); st != "uncertain" {
+		t.Fatalf("attempt %q", st)
+	}
+}
