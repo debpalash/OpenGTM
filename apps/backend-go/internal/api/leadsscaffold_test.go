@@ -29,7 +29,7 @@ var goOnlyEventsPatterns = map[string]bool{"POST /api/events/ticket": true}
 // retained stay on FastAPI (constraints.md); they must never be registered here.
 var retainedLeadsRoutes = []string{
 	"POST /api/lead/{lead_id}/enrich", "POST /api/collect", "GET /api/jobs", "GET /api/jobs/{job_id}",
-	"GET /api/system-stats", "POST /api/v2/scraper/scrape", "GET /api/v2/search/unified",
+	"GET /api/system-stats",
 	"POST /api/leads/verify-email", "POST /api/leads/score", "POST /api/leads/tech-stack",
 	"POST /api/leads/domain-intel", "GET /api/signals/sources",
 }

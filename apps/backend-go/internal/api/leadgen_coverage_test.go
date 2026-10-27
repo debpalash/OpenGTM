@@ -96,8 +96,14 @@ func TestEveryLeadgenRouteIsPortedOrRetained(t *testing.T) {
 			ported[normRoute(p)] = true
 		}
 	}
-	if len(ported) != 20 || len(retainedList) != 2 {
-		t.Errorf("want 20 ported + 2 retained leadgen routes, got %d + %d", len(ported), len(retainedList))
+	// GET /api/v2/search/unified and POST /api/v2/scraper/scrape moved to scrape.go (WP-ROUTES-B, GO_SCRAPE_ROUTES_ENABLED).
+	for p := range scrapeRoutePatterns(t) {
+		if strings.Contains(p, "/api/v2/search/unified") || strings.Contains(p, "/api/v2/scraper/scrape") {
+			ported[normRoute(p)] = true
+		}
+	}
+	if len(ported) != 22 || len(retainedList) != 0 {
+		t.Errorf("want 22 ported + 0 retained leadgen routes, got %d + %d", len(ported), len(retainedList))
 	}
 	if len(routes) != 22 {
 		t.Errorf("want 22 Python route decorators in scope, parsed %d: %v", len(routes), routes)

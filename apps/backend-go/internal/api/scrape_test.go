@@ -15,7 +15,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/unisearch"
 )
@@ -564,5 +568,54 @@ func TestUnifiedRateLimit(t *testing.T) {
 	}
 	if last != http.StatusTooManyRequests {
 		t.Errorf("61st request: %d, want 429", last)
+	}
+}
+
+// scrapeRoutePatterns is every route of the scrape group (registered regardless of the flag).
+func scrapeRoutePatterns(t *testing.T) map[string]bool {
+	t.Helper()
+	pool, err := pgxpool.New(context.Background(), "postgres://coverage@127.0.0.1:1/coverage")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(pool.Close)
+	r := httpx.NewRouter()
+	newScrapeRoutes(Deps{Pool: pool, Identity: identity.NewStore(pool)}).register(r)
+	out := map[string]bool{}
+	for _, p := range r.Patterns() {
+		out[p] = true
+	}
+	return out
+}
+
+func TestScrapeRoutesRegisterOnlyBehindTheFlag(t *testing.T) {
+	pool, err := pgxpool.New(context.Background(), "postgres://coverage@127.0.0.1:1/coverage")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(pool.Close)
+	patterns := func(env map[string]string) []string {
+		r := httpx.NewRouter()
+		RegisterScrapeRoutes(r, Deps{Pool: pool, Identity: identity.NewStore(pool), Getenv: func(k string) string { return env[k] }})
+		return r.Patterns()
+	}
+	for _, env := range []map[string]string{nil, {"GO_SCRAPE_ROUTES_ENABLED": "false"}, {"GO_SCRAPE_ROUTES_ENABLED": "garbage"}} {
+		if got := patterns(env); len(got) != 0 {
+			t.Errorf("%v: registered %v with the flag off", env, got)
+		}
+	}
+	got := patterns(map[string]string{"GO_SCRAPE_ROUTES_ENABLED": "true"})
+	sort.Strings(got)
+	want := []string{"GET /api/v2/scrapes", "GET /api/v2/search/unified", "POST /api/v2/scrape", "POST /api/v2/scraper/scrape"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("patterns %v, want %v", got, want)
+	}
+	// controller ruling D4: these two are dropped and stay unrouted
+	for _, dropped := range []string{"GET /api/sources", "GET /api/trending"} {
+		for _, p := range got {
+			if p == dropped {
+				t.Errorf("%s must not be ported", dropped)
+			}
+		}
 	}
 }

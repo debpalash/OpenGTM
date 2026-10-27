@@ -1,6 +1,7 @@
 # Lead and signal routes that stay on FastAPI (plan 05, decision D1 + constraints.md). One "METHOD /path/{param}" per line.
 # Go must not register them; infra/nginx/go-routes.conf keeps them on api_backend at every canary percentage.
-# 6 routes (enrich moved to internal/api/leadenrich.go in plan 15 WP-LLMROUTES): search/unified and scraper/scrape (plan 14 keeps them on Python too, retained_leadgen_routes.txt),
+# 4 routes (enrich moved to internal/api/leadenrich.go in plan 15 WP-LLMROUTES; GET /api/v2/search/unified and POST /api/v2/scraper/scrape
+# moved to internal/api/{unifiedsearch,scrape}.go in plan 15 WP-ROUTES-B, behind GO_SCRAPE_ROUTES_ENABLED):
 # the 3 legacy workspace_router routes (NOT mounted by main.py: the canonical /api/workspaces is ws_manager_router,
 # served by plan 02) and the signal source registry.
 # The 14 routes this file originally listed for the Python SQLite job ledger and @limiter helpers (POST /api/collect,
@@ -9,6 +10,4 @@
 GET /api/workspaces
 POST /api/workspaces
 DELETE /api/workspaces/{ws_id}
-GET /api/v2/search/unified
-POST /api/v2/scraper/scrape
 GET /api/signals/sources
