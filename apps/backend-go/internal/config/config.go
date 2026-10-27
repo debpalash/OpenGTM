@@ -13,8 +13,17 @@ import (
 	"time"
 )
 
-// RequiredGoSchemaRevision is the Alembic revision the Go worker requires.
-// It must equal REQUIRED_GO_SCHEMA_REVISION in the Python go_executor module.
+// RequiredGoSchemaVersion is the goose migration version (internal/migrate) the
+// Go api/worker/mcp require at startup: goose_db_version must be at least this.
+// Bump it together with a migration the Go code depends on.
+const RequiredGoSchemaVersion int64 = 1
+
+// RequiredGoSchemaRevision is the Alembic revision the Go baseline (migration 1)
+// reproduces. The Go runner stamps it into alembic_version and adopts databases
+// at it; Go binaries no longer read alembic_version. It must equal
+// REQUIRED_GO_SCHEMA_REVISION in the Python go_executor module, which still
+// checks alembic_version during the canary. Frozen: later schema changes are Go
+// migrations and do not touch alembic_version.
 const RequiredGoSchemaRevision = "e7b2c4d6f8a0"
 
 const (

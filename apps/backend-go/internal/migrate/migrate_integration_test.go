@@ -393,17 +393,17 @@ func fingerprint(t *testing.T, p *pgxpool.Pool, role string) []string {
 	const notExt = `NOT EXISTS (SELECT 1 FROM pg_depend d WHERE d.objid = %s AND d.deptype = 'e')`
 	const skip = `'goose_db_version', 'goose_db_version_id_seq'`
 	queries := map[string]string{
-		"rel": `SELECT c.relname || '|' || c.relkind || '|' || c.relrowsecurity || '|' || c.relforcerowsecurity || '|' || c.relpersistence
+		"rel": `SELECT c.relname || '|' || c.relkind::text || '|' || c.relrowsecurity || '|' || c.relforcerowsecurity || '|' || c.relpersistence::text
 			FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
 			WHERE ` + pub + ` AND c.relkind IN ('r','p','v','m','S','f') AND c.relname NOT IN (` + skip + `) AND ` + fmt.Sprintf(notExt, "c.oid"),
 		"col": `SELECT c.relname || '.' || a.attname || '|' || row_number() OVER (PARTITION BY c.oid ORDER BY a.attnum) || '|' ||
 				format_type(a.atttypid, a.atttypmod) || '|' || a.attnotnull || '|' || coalesce(pg_get_expr(ad.adbin, ad.adrelid), '') || '|' ||
-				a.attidentity || '|' || a.attgenerated || '|' || coalesce(co.collname, '')
+				a.attidentity::text || '|' || a.attgenerated::text || '|' || coalesce(co.collname, '')
 			FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid JOIN pg_namespace n ON n.oid = c.relnamespace
 			LEFT JOIN pg_attrdef ad ON ad.adrelid = a.attrelid AND ad.adnum = a.attnum
 			LEFT JOIN pg_collation co ON co.oid = a.attcollation AND a.attcollation <> 0 AND co.collname <> 'default'
 			WHERE ` + pub + ` AND a.attnum > 0 AND NOT a.attisdropped AND c.relkind IN ('r','p','v','m','f') AND c.relname NOT IN (` + skip + `)`,
-		"con": `SELECT c.relname || '|' || k.conname || '|' || k.contype || '|' || pg_get_constraintdef(k.oid)
+		"con": `SELECT c.relname || '|' || k.conname || '|' || k.contype::text || '|' || pg_get_constraintdef(k.oid)
 			FROM pg_constraint k JOIN pg_class c ON c.oid = k.conrelid JOIN pg_namespace n ON n.oid = c.relnamespace
 			WHERE ` + pub + ` AND c.relname NOT IN (` + skip + `)`,
 		"idx": `SELECT indexdef FROM pg_indexes WHERE schemaname = 'public' AND tablename NOT IN (` + skip + `)`,
@@ -422,7 +422,7 @@ func fingerprint(t *testing.T, p *pgxpool.Pool, role string) []string {
 			LEFT JOIN pg_depend d ON d.objid = s.oid AND d.classid = 'pg_class'::regclass AND d.refclassid = 'pg_class'::regclass AND d.deptype IN ('a','i')
 			LEFT JOIN pg_class t ON t.oid = d.refobjid LEFT JOIN pg_attribute a ON a.attrelid = d.refobjid AND a.attnum = d.refobjsubid
 			WHERE ` + pub + ` AND s.relkind = 'S' AND s.relname NOT IN (` + skip + `)`,
-		"type": `SELECT t.typname || '|' || t.typtype || '|' || coalesce((SELECT string_agg(e.enumlabel, ',' ORDER BY e.enumsortorder) FROM pg_enum e WHERE e.enumtypid = t.oid), '') ||
+		"type": `SELECT t.typname || '|' || t.typtype::text || '|' || coalesce((SELECT string_agg(e.enumlabel, ',' ORDER BY e.enumsortorder) FROM pg_enum e WHERE e.enumtypid = t.oid), '') ||
 				'|' || coalesce(format_type(t.typbasetype, t.typtypmod), '')
 			FROM pg_type t JOIN pg_namespace n ON n.oid = t.typnamespace
 			WHERE ` + pub + ` AND (t.typtype IN ('e','d') OR (t.typtype = 'c' AND (SELECT relkind FROM pg_class WHERE oid = t.typrelid) = 'c')) AND ` + fmt.Sprintf(notExt, "t.oid"),
@@ -439,7 +439,7 @@ func fingerprint(t *testing.T, p *pgxpool.Pool, role string) []string {
 			JOIN pg_namespace n ON n.oid = p.pronamespace, aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) x
 			WHERE ` + pub + ` AND (x.grantee = 0 OR x.grantee = ` + r + `) AND ` + fmt.Sprintf(notExt, "p.oid")
 		queries["acl_schema"] = `SELECT x.privilege_type FROM pg_namespace n, aclexplode(n.nspacl) x WHERE ` + pub + ` AND x.grantee = ` + r
-		queries["acl_default"] = `SELECT d.defaclobjtype || '|' || x.privilege_type FROM pg_default_acl d JOIN pg_namespace n ON n.oid = d.defaclnamespace,
+		queries["acl_default"] = `SELECT d.defaclobjtype::text || '|' || x.privilege_type FROM pg_default_acl d JOIN pg_namespace n ON n.oid = d.defaclnamespace,
 			aclexplode(d.defaclacl) x WHERE ` + pub + ` AND x.grantee = ` + r
 	}
 	var out []string
