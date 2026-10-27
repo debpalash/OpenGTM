@@ -1,53 +1,76 @@
 #!/usr/bin/env bash
-# Regenerate apps/backend-go/internal/db/schema.sql from the Alembic migrations.
-# Requires: uv, docker, a running Postgres 18 (SCHEMA_DUMP_CONTAINER) reachable at DATABASE_URL.
-#   ALEMBIC_DATABASE_URL  SQLAlchemy URL of the scratch DB (default: local test container)
-#   PG_DUMP_URL           libpq URL of the same DB (default: local test container)
-#   SCHEMA_DUMP_CONTAINER container whose pg_dump (v18) is used (default: opengtm-go-test-pg)
+# Regenerate apps/backend-go/internal/db/schema.sql (the sqlc input) from the Go migrations:
+# run opengtm-migrate (go run ./cmd/migrate) on a scratch database, pg_dump it, normalize.
+#   scripts/go_schema_dump.sh           rewrite schema.sql
+#   scripts/go_schema_dump.sh --check   exit 1 if schema.sql differs from the migrations
+# Requires: go, docker, a running Postgres 18 container (pg_dump runs inside it so client
+# and server versions match). No Python, no Alembic.
+#   SCHEMA_DUMP_CONTAINER  container (default: opengtm-go-test-pg)
+#   SCHEMA_DUMP_PORT       its published host port (default: 55480)
+#   SCHEMA_DUMP_HOST       host address (default: 127.0.0.1)
+# The superuser password is read from the container's POSTGRES_PASSWORD and never printed.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
-alembic_url="${ALEMBIC_DATABASE_URL:-postgresql+psycopg://postgres:postgres@127.0.0.1:55480/opengtm_test}"
-dump_url="${PG_DUMP_URL:-postgres://postgres:postgres@127.0.0.1:5432/opengtm_test}"
 container="${SCHEMA_DUMP_CONTAINER:-opengtm-go-test-pg}"
+port="${SCHEMA_DUMP_PORT:-55480}"
+host="${SCHEMA_DUMP_HOST:-127.0.0.1}"
 out="$root/apps/backend-go/internal/db/schema.sql"
-tmp="$(mktemp)"
+check=0
+[[ "${1:-}" == "--check" ]] && check=1
 
-(cd "$root/legacy/python" && DATABASE_URL="$alembic_url" uv run alembic upgrade head >&2)
-# pg_dump runs inside the server container so client and server versions match.
-docker exec "$container" pg_dump "$dump_url" --schema-only --no-owner --no-privileges \
+db="opengtm_schema_dump_$$"
+tmp="$(mktemp)"
+gen="$(mktemp)"
+cleanup() {
+  docker exec "$container" dropdb -U postgres --if-exists "$db" >/dev/null 2>&1 || true
+  rm -f "$tmp" "$gen"
+}
+trap cleanup EXIT
+docker exec "$container" createdb -U postgres "$db"
+
+PGPASSWORD="$(docker exec "$container" printenv POSTGRES_PASSWORD)" \
+DATABASE_URL="postgres://postgres@${host}:${port}/${db}" \
+  bash -c 'cd "$1/apps/backend-go" && go run ./cmd/migrate up' _ "$root" >&2
+
+docker exec "$container" pg_dump -U postgres -d "$db" --schema-only --no-owner --no-privileges \
+    --exclude-table=goose_db_version \
   | grep -Ev '^(\\restrict|\\unrestrict) ' \
   | grep -Ev '^SET (statement_timeout|lock_timeout|idle_in_transaction_session_timeout|transaction_timeout|client_encoding|standard_conforming_strings|check_function_bodies|xmloption|client_min_messages|row_security) ' \
   | grep -Ev "^SELECT pg_catalog.set_config\('search_path'" \
   | cat -s > "$tmp"
+
 # --no-privileges drops every ACL, but outreach_send_by_message_id (SECURITY DEFINER lookup used by
 # the inbound webhooks) must not be executable by PUBLIC. Re-append that REVOKE/GRANT right after the
 # function body, byte-identical on every run; fail if the function is missing from the dump.
-python3 - "$tmp" "$out" <<'PY'
-import re, sys
-src, dst = sys.argv[1:3]
-lines = open(src).read().split("\n")
-fn = "public.outreach_send_by_message_id(p_message_id text)"
-extra = f"""
-REVOKE ALL ON FUNCTION {fn} FROM PUBLIC;
+fn='public.outreach_send_by_message_id(p_message_id text)'
+awk -v fn="$fn" '
+  { lines[++n] = $0 }
+  state == 0 && index($0, "CREATE FUNCTION public.outreach_send_by_message_id(") == 1 { state = 1; next }
+  state == 1 && $0 ~ /^[ \t]*\$\$;$/ {
+    lines[++n] = ""
+    lines[++n] = "REVOKE ALL ON FUNCTION " fn " FROM PUBLIC;"
+    lines[++n] = ""
+    lines[++n] = "DO $$"
+    lines[++n] = "BEGIN"
+    lines[++n] = "    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '\''yupcha_app'\'') THEN"
+    lines[++n] = "        GRANT EXECUTE ON FUNCTION " fn " TO yupcha_app;"
+    lines[++n] = "    END IF;"
+    lines[++n] = "END"
+    lines[++n] = "$$;"
+    state = 2
+  }
+  END {
+    if (state != 2) { print "outreach_send_by_message_id not found in dump" > "/dev/stderr"; exit 1 }
+    for (i = 1; i <= n; i++) print lines[i]
+  }' "$tmp" > "$gen"
 
-DO $$
-BEGIN
-    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'yupcha_app') THEN
-        GRANT EXECUTE ON FUNCTION {fn} TO yupcha_app;
-    END IF;
-END
-$$;""".split("\n")
-out, state = [], 0
-for ln in lines:
-    out.append(ln)
-    if state == 0 and ln.startswith("CREATE FUNCTION public.outreach_send_by_message_id("):
-        state = 1
-    elif state == 1 and re.fullmatch(r"\s*\$\$;", ln):
-        out.extend(extra)
-        state = 2
-if state != 2:
-    sys.exit("outreach_send_by_message_id not found in dump")
-open(dst, "w").write("\n".join(out))
-PY
-rm -f "$tmp"
-echo "wrote $out" >&2
+if [[ $check == 1 ]]; then
+  if ! diff -u "$out" "$gen" >&2; then
+    echo "schema.sql is out of date with the Go migrations: run make schema" >&2
+    exit 1
+  fi
+  echo "schema.sql matches the Go migrations" >&2
+else
+  cp "$gen" "$out"
+  echo "wrote $out" >&2
+fi

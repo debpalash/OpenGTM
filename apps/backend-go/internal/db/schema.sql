@@ -2163,7 +2163,7 @@ CREATE TABLE public.workbook_spend_attempts (
     result json,
     CONSTRAINT ck_workbook_spend_nonnegative CHECK ((reserved_microusd >= 0)),
     CONSTRAINT ck_workbook_spend_settlement_nonnegative CHECK (((settled_microusd IS NULL) OR (settled_microusd >= 0))),
-    CONSTRAINT ck_workbook_spend_status CHECK (((status)::text = ANY ((ARRAY['reserved'::character varying, 'dispatched'::character varying, 'settled'::character varying, 'released'::character varying, 'uncertain'::character varying])::text[])))
+    CONSTRAINT ck_workbook_spend_status CHECK (((status)::text = ANY (ARRAY[('reserved'::character varying)::text, ('dispatched'::character varying)::text, ('settled'::character varying)::text, ('released'::character varying)::text, ('uncertain'::character varying)::text])))
 );
 
 ALTER TABLE ONLY public.workbook_spend_attempts FORCE ROW LEVEL SECURITY;
@@ -4625,13 +4625,13 @@ CREATE INDEX ix_workbooks_workspace_id ON public.workbooks USING btree (workspac
 -- Name: uq_connector_runs_active; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX uq_connector_runs_active ON public.connector_runs USING btree (workbook_id, connector) WHERE ((status)::text = ANY ((ARRAY['pending'::character varying, 'running'::character varying, 'retrying'::character varying])::text[]));
+CREATE UNIQUE INDEX uq_connector_runs_active ON public.connector_runs USING btree (workbook_id, connector) WHERE ((status)::text = ANY (ARRAY[('pending'::character varying)::text, ('running'::character varying)::text, ('retrying'::character varying)::text]));
 
 --
 -- Name: uq_jobs_fire_key_active; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX uq_jobs_fire_key_active ON public.jobs USING btree (fire_key) WHERE ((status)::text = ANY ((ARRAY['pending'::character varying, 'processing'::character varying])::text[]));
+CREATE UNIQUE INDEX uq_jobs_fire_key_active ON public.jobs USING btree (fire_key) WHERE ((status)::text = ANY (ARRAY[('pending'::character varying)::text, ('processing'::character varying)::text]));
 
 --
 -- Name: leads leads_search_tsv_update; Type: TRIGGER; Schema: public; Owner: -
