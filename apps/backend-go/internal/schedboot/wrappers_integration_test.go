@@ -3,6 +3,8 @@
 package schedboot_test
 
 import (
+	"sync"
+	"time"
 	"context"
 	"testing"
 
@@ -49,4 +51,38 @@ func TestAutomationsAndPollerBootstrapsOffByFlag(t *testing.T) {
 	if n, err := d.IntentPoller(ctx); err != nil || n != 0 {
 		t.Fatalf("poller: %d %v", n, err)
 	}
+}
+
+// M3: two reconcilers racing on signal_scan enqueue exactly one job (pending check and insert are one
+// transaction under an advisory lock; the fire key is time-based so the unique index alone cannot stop it).
+func TestSignalScanConcurrentPassesEnqueueOnce(t *testing.T) {
+	pool := testpg.NewAppPool(t, 16)
+	own := owner(t)
+	ctx := context.Background()
+	for round := 0; round < 5; round++ {
+		if _, err := own.Exec(ctx, `DELETE FROM jobs WHERE type = 'signal_scan'`); err != nil {
+			t.Fatal(err)
+		}
+		var wg sync.WaitGroup
+		for i := 0; i < 8; i++ {
+			wg.Add(1)
+			go func(i int) {
+				defer wg.Done()
+				d := deps(pool, "python")
+				d.Now = func() time.Time { return time.Date(2026, 1, 1, 0, 0, i, 0, time.UTC) }
+				if _, err := d.SignalScan(ctx); err != nil {
+					t.Error(err)
+				}
+			}(i)
+		}
+		wg.Wait()
+		var n int
+		if err := own.QueryRow(ctx, `SELECT count(*) FROM jobs WHERE type = 'signal_scan'`).Scan(&n); err != nil {
+			t.Fatal(err)
+		}
+		if n != 1 {
+			t.Fatalf("round %d: %d signal_scan jobs, want 1", round, n)
+		}
+	}
+	_, _ = own.Exec(ctx, `DELETE FROM jobs WHERE type = 'signal_scan'`)
 }

@@ -106,3 +106,48 @@ func TestRunLoopReconcilesUntilCancelledAndOnlyWhenLeader(t *testing.T) {
 		t.Fatal("Run did not stop on cancel")
 	}
 }
+
+// M3: the lease is re-checked between subsystems; a pass stops as soon as it is lost.
+func TestRunStopsPassWhenLeaseLostBetweenSubsystems(t *testing.T) {
+	var ran []string
+	var holds atomic.Int32
+	subs := []schedboot.Subsystem{
+		{Name: "a", Run: func(context.Context) (any, error) { ran = append(ran, "a"); return 0, nil }},
+		{Name: "b", Run: func(context.Context) (any, error) { ran = append(ran, "b"); return 0, nil }},
+		{Name: "c", Run: func(context.Context) (any, error) { ran = append(ran, "c"); return 0, nil }},
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	hold := func(context.Context) (bool, error) {
+		// 1st call: start of the pass; 2nd: before b (still held); 3rd: before c (lost) -> cancel after the pass
+		n := holds.Add(1)
+		if n >= 3 {
+			cancel()
+		}
+		return n < 3, nil
+	}
+	_ = schedboot.Run(ctx, schedboot.RunConfig{Interval: time.Hour, SubsystemTimeout: time.Second, Log: quiet, Subsystems: subs, Hold: hold})
+	if strings.Join(ran, ",") != "a,b" {
+		t.Fatalf("a pass must stop when the lease is lost between subsystems, ran %v", ran)
+	}
+}
+
+func TestRunStopsPassWhenLeaseCheckErrors(t *testing.T) {
+	var ran []string
+	var holds atomic.Int32
+	subs := []schedboot.Subsystem{
+		{Name: "a", Run: func(context.Context) (any, error) { ran = append(ran, "a"); return 0, nil }},
+		{Name: "b", Run: func(context.Context) (any, error) { ran = append(ran, "b"); return 0, nil }},
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	hold := func(context.Context) (bool, error) {
+		if holds.Add(1) >= 2 {
+			cancel()
+			return false, errors.New("conn reset")
+		}
+		return true, nil
+	}
+	_ = schedboot.Run(ctx, schedboot.RunConfig{Interval: time.Hour, SubsystemTimeout: time.Second, Log: quiet, Subsystems: subs, Hold: hold})
+	if strings.Join(ran, ",") != "a" {
+		t.Fatalf("an unverifiable lease must stop the pass, ran %v", ran)
+	}
+}

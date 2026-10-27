@@ -65,3 +65,19 @@ func TestSeedExitsNotReadyBeforeSetupAndNeverCreatesAdmin(t *testing.T) {
 		t.Fatalf("%d rows after rerun", n)
 	}
 }
+
+func TestRunRoleCheckRefusesSuperuser(t *testing.T) {
+	own, err := pgxpool.New(context.Background(), os.Getenv("TEST_DATABASE_URL"))
+	if err != nil {
+		t.Skip("TEST_DATABASE_URL not set")
+	}
+	defer own.Close()
+	log := slog.New(slog.NewTextHandler(io.Discard, nil))
+	var su bool
+	if err := own.QueryRow(context.Background(), `SELECT rolsuper FROM pg_roles WHERE rolname = current_user`).Scan(&su); err != nil || !su {
+		t.Skip("owner role is not a superuser")
+	}
+	if err := checkRole(context.Background(), own, true, log); err == nil {
+		t.Fatal("a superuser role must be refused when strict")
+	}
+}
