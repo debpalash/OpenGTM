@@ -16,12 +16,13 @@ import (
 
 // wireFullRun applies GO_EXECUTOR_FULL_RUN (plan 15 WP-WBEXEC) to the run_workbook executor:
 // conditions, email verification, per-fact provenance and output columns run here instead of
-// being handed back. Output clients resolve credentials through local (nil: environment only);
-// the verify cascade is the one the API's verify-email route uses. A malformed flag is fatal.
+// being handed back. Output clients resolve the workspace's own credentials through local (nil:
+// none resolve); the verify cascade is the one the API's verify-email route uses. A malformed
+// flag reads as off and is logged; it never stops the worker.
 func wireFullRun(d *workbook.Deps, cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, local *secrets.Resolver) error {
-	wx, err := config.LoadWbExec(config.Getenv)
-	if err != nil {
-		return err
+	wx := config.LoadWbExec(config.Getenv)
+	for _, p := range wx.Problems {
+		log.Error("run_workbook full run: "+p, "env", "GO_EXECUTOR_FULL_RUN/PROVENANCE_TRACKING_ENABLED")
 	}
 	if !wx.FullRun {
 		return nil

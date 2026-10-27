@@ -290,10 +290,9 @@ func cellDeps(d Deps, log *slog.Logger) workbook.Deps {
 	if d.PyWorker != nil {
 		deps.Py = d.PyWorker
 	}
-	wx, err := config.LoadWbExec(d.getenv())
-	if err != nil {
-		log.Error("cell run: GO_EXECUTOR_FULL_RUN / PROVENANCE_TRACKING_ENABLED unreadable; full run stays off", "err", err)
-		return deps
+	wx := config.LoadWbExec(d.getenv())
+	for _, p := range wx.Problems {
+		log.Error("cell run: " + p)
 	}
 	if !wx.FullRun {
 		return deps

@@ -11,17 +11,25 @@ package config
 type WbExecSettings struct {
 	FullRun            bool // GO_EXECUTOR_FULL_RUN
 	ProvenanceTracking bool // PROVENANCE_TRACKING_ENABLED
+	// Problems lists malformed values (each one read as off); log them, do not fail on them.
+	Problems []string
 }
 
-// LoadWbExec reads the WP-WBEXEC switches; a malformed value is a startup error.
-func LoadWbExec(get func(string) string) (WbExecSettings, error) {
+// LoadWbExec reads the WP-WBEXEC switches for every process that routes or runs a workbook
+// (API planner, worker executor, single-cell route). It never fails: a malformed value reads as
+// off and is listed in Problems for the caller to log loudly, so all processes agree on what a
+// bad value means and a typo in an inactive flag cannot stop a worker (plan 15 review L1/L2).
+func LoadWbExec(get func(string) string) WbExecSettings {
 	var w WbExecSettings
-	var err error
-	if w.FullRun, err = boolVar(get, "GO_EXECUTOR_FULL_RUN", false); err != nil {
-		return w, err
+	read := func(key string) bool {
+		v, err := boolVar(get, key, false)
+		if err != nil {
+			w.Problems = append(w.Problems, key+" is not a boolean; reading it as off")
+			return false
+		}
+		return v
 	}
-	if w.ProvenanceTracking, err = boolVar(get, "PROVENANCE_TRACKING_ENABLED", false); err != nil {
-		return w, err
-	}
-	return w, nil
+	w.FullRun = read("GO_EXECUTOR_FULL_RUN")
+	w.ProvenanceTracking = read("PROVENANCE_TRACKING_ENABLED")
+	return w
 }

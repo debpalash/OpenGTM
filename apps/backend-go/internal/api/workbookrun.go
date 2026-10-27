@@ -17,6 +17,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/billing"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
@@ -223,6 +224,7 @@ type executorConfig struct {
 	Concurrency int             // WORKBOOK_RUN_CONCURRENCY (default 12)
 	NativeProv  bool            // GO_RUN_NATIVE_PROVIDERS (Go-only, default off)
 	FullRun     bool            // GO_EXECUTOR_FULL_RUN (plan 15, Go-only, default off)
+	Problems    []string        // malformed switches (read as off)
 }
 
 // goExtraTypes are the column types GO_EXECUTOR_COLUMN_TYPES may add; anything
@@ -240,10 +242,12 @@ func executorSettings(getenv func(string) string) executorConfig {
 		}
 		return false
 	}
-	c := executorConfig{Enabled: truthy("GO_EXECUTOR_ENABLED"), Provenance: truthy("PROVENANCE_TRACKING_ENABLED"),
+	wx := config.LoadWbExec(getenv) // one parser for API, worker and single-cell route; malformed reads as off
+	c := executorConfig{Enabled: truthy("GO_EXECUTOR_ENABLED"), Provenance: wx.ProvenanceTracking,
 		Cohort: map[string]bool{}, ExtraTypes: map[string]bool{}, Concurrency: 12}
 	c.NativeProv = truthy("GO_RUN_NATIVE_PROVIDERS")
-	c.FullRun = truthy("GO_EXECUTOR_FULL_RUN")
+	c.FullRun = wx.FullRun
+	c.Problems = wx.Problems
 	for _, w := range strings.Split(getenv("GO_EXECUTOR_WORKSPACES"), ",") {
 		if w = strings.TrimSpace(w); w != "" {
 			c.Cohort[w] = true
@@ -263,6 +267,9 @@ func executorSettings(getenv func(string) string) executorConfig {
 // config assembles runplan.Config for one request.
 func (h *runRoutes) config(ctx context.Context, ws string) runplan.Config {
 	ex := executorSettings(h.d.getenv())
+	for _, p := range ex.Problems {
+		slog.Default().Error("workbook run planner: " + p)
+	}
 	perf := wbcrud.DefaultPerf
 	if h.perf != nil {
 		if p, err := h.perf.Get(ctx); err == nil {

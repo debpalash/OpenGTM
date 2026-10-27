@@ -26,3 +26,14 @@ func TestExecutorSettingsFullRun(t *testing.T) {
 		t.Fatal("runplan.Config.FullRun must follow the flag")
 	}
 }
+
+// Review L1/L2: the API reads a malformed switch the way the worker does (off), whatever the other says.
+func TestExecutorSettingsMalformedFlags(t *testing.T) {
+	env := func(m map[string]string) func(string) string { return func(k string) string { return m[k] } }
+	if s := executorSettings(env(map[string]string{"GO_EXECUTOR_FULL_RUN": "maybe", "PROVENANCE_TRACKING_ENABLED": "yes"})); s.FullRun || !s.Provenance {
+		t.Fatalf("%+v", s)
+	}
+	if s := executorSettings(env(map[string]string{"GO_EXECUTOR_FULL_RUN": "on", "PROVENANCE_TRACKING_ENABLED": "maybe"})); !s.FullRun || s.Provenance {
+		t.Fatalf("%+v", s)
+	}
+}
