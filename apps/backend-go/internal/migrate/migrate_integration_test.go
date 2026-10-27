@@ -22,6 +22,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
 )
 
@@ -490,4 +491,21 @@ func fingerprint(t *testing.T, p *pgxpool.Pool, role string) []string {
 	}
 	slices.Sort(out)
 	return out
+}
+
+// Plan 15 cutover (migration 3): a fresh install carries the collection ledger marker the Go leadgen routes
+// require (Python's migrate_collection_ledger.py wrote it), and the refresh tenant fallback function is gone.
+func TestCutoverMigration(t *testing.T) {
+	dsn := scratchDB(t)
+	run(t, dsn)
+	p := openPool(t, dsn)
+	if v := scalar[string](t, p, `SELECT value FROM app_settings WHERE key = '__collection_ledger_backend'`); v != "postgres" {
+		t.Fatalf("ledger marker %q", v)
+	}
+	if scalar[bool](t, p, `SELECT to_regprocedure('public.workbook_workspace_by_id(text)') IS NOT NULL`) {
+		t.Fatal("workbook_workspace_by_id still exists")
+	}
+	if err := migrate.CheckSchema(context.Background(), p, config.RequiredGoSchemaVersion); err != nil {
+		t.Fatalf("CheckSchema at the required version: %v", err)
+	}
 }
