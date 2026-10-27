@@ -489,9 +489,16 @@ services:
       - /home/browser
     shm_size: "1gb"
     mem_limit: ${BROWSER_MEM_LIMIT:-2g}
+    # split mode: the entrypoint starts as root with only SETUID/SETGID, runs Chromium as uid 10002 and the
+    # service as uid 10001, then every process drops all capabilities (docs/go-port/runbooks/browser-service.md)
+    user: "0"
     cap_drop: [ALL]
+    cap_add: [SETUID, SETGID]
+    # Chromium's own sandbox needs namespace syscalls (seccomp profile) and the uid_map write (AppArmor)
     security_opt:
       - no-new-privileges:true
+      - seccomp=./apps/browser-service/seccomp-chromium.json
+      - apparmor=unconfined
     restart: unless-stopped
     networks:
       - browser_net
