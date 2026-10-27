@@ -103,9 +103,15 @@ func (t *usageTracker) add(prompt, completion int, provider string, cacheWrite, 
 	}
 }
 
+// maxUsageErrors bounds the retained error texts of a long-lived client that is never reset.
+const maxUsageErrors = 5
+
 func (t *usageTracker) addError(s string) {
 	t.mu.Lock()
 	t.u.Errors = append(t.u.Errors, s)
+	if n := len(t.u.Errors); n > maxUsageErrors {
+		t.u.Errors = append([]string(nil), t.u.Errors[n-maxUsageErrors:]...)
+	}
 	t.mu.Unlock()
 }
 

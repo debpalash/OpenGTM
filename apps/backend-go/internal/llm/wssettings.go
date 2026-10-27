@@ -26,3 +26,16 @@ func (w WorkspaceSettings) Get(ctx context.Context, key, def string) (string, er
 	}
 	return v, nil
 }
+
+// GetSource implements SourcedSettings: the value and the level it came from
+// ("workspace", "global" or "default" when unset).
+func (w WorkspaceSettings) GetSource(ctx context.Context, key, def string) (string, string, error) {
+	v, src, err := w.Resolver.Get(ctx, w.WorkspaceID, key)
+	if err != nil {
+		return "", "", err
+	}
+	if v == "" {
+		return def, secrets.SourceDefault, nil
+	}
+	return v, src, nil
+}

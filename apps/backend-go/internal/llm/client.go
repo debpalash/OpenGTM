@@ -113,19 +113,40 @@ func (c *Client) get(ctx context.Context, key, def string) string {
 	return v
 }
 
+// getSource is get plus the level the value came from; the source is "" when Settings does not report one.
+func (c *Client) getSource(ctx context.Context, key, def string) (string, string) {
+	ss, ok := c.o.Settings.(SourcedSettings)
+	if !ok || key == "" {
+		return c.get(ctx, key, def), ""
+	}
+	v, src, err := ss.GetSource(ctx, key, def)
+	if err != nil {
+		c.o.Log.Warn("llm: setting unreadable", "key", key)
+		return def, ""
+	}
+	return v, src
+}
+
 func (c *Client) providerConfig(ctx context.Context, id string) (Provider, bool) {
 	spec, ok := providerSpecs[id]
 	if !ok {
 		return Provider{}, false
 	}
-	key := c.get(ctx, spec.EnvKey, "")
+	key, keySrc := c.getSource(ctx, spec.EnvKey, "")
 	if key == "" {
 		return Provider{}, false
+	}
+	baseURL, urlSrc := c.getSource(ctx, spec.EnvURL, spec.DefaultURL)
+	if keySrc != "" && urlSrc != "" && urlSrc != keySrc && baseURL != spec.DefaultURL {
+		// The URL was set at another level than the key (a workspace URL beside the global key, or the
+		// reverse): never send this key there. The provider default is used instead.
+		c.o.Log.Warn("llm: base URL ignored, it is not set at the same level as the API key", "provider", id)
+		baseURL = spec.DefaultURL
 	}
 	return Provider{
 		ID:         id,
 		APIKey:     key,
-		BaseURL:    c.get(ctx, spec.EnvURL, spec.DefaultURL),
+		BaseURL:    baseURL,
 		Model:      c.get(ctx, spec.EnvModel, spec.DefaultModel),
 		TokenParam: spec.TokenParam,
 		Native:     spec.Native,
@@ -199,6 +220,12 @@ type CompleteRequest struct {
 	Temperature *float64
 }
 
+// MaxAttemptsPerComplete caps the outer requests of one Complete call across all providers (rate-limit
+// retries included; the Anthropic SDK-style retries inside one provider call come on top, at most 3
+// requests). Python allowed 4 per provider (12), and ExtractJSON doubled that. Every configured provider
+// (up to three) still gets at least one attempt.
+const MaxAttemptsPerComplete = 6
+
 // Complete sends a chat completion with failover: up to the first three
 // configured providers, each retried with backoff (0.5s, 1.37s, 2.74s) while
 // the error looks like a rate limit. It returns the trimmed text.
@@ -223,8 +250,11 @@ func (c *Client) Complete(ctx context.Context, req CompleteRequest) (string, err
 		providers = providers[:3]
 	}
 	var lastErr error
-	for _, prov := range providers {
+	used := 0 // requests made by this call, across providers
+	for pi, prov := range providers {
+		remaining := len(providers) - pi - 1 // later providers keep one attempt each
 		for attempt := 0; attempt < 4; attempt++ {
+			used++
 			text, err := c.callProvider(ctx, prov, req, temp)
 			if err == nil {
 				if text != "" {
@@ -237,7 +267,9 @@ func (c *Client) Complete(ctx context.Context, req CompleteRequest) (string, err
 			}
 			lastErr = fmt.Errorf("%s: %w", prov.ID, err)
 			c.usage.addError(prov.ID + ": " + truncRunes(err.Error(), 100))
-			if isRateLimited(err) && attempt < 3 {
+			// The native (Anthropic) client already retried with the SDK policy, so only OpenAI-style
+			// providers are retried here; MaxAttemptsPerComplete bounds the total.
+			if isRateLimited(err) && !prov.Native && attempt < 3 && used+remaining < MaxAttemptsPerComplete {
 				// 0.5*2^n seconds plus a deterministic 0.37s*n stagger (no RNG), as in Python.
 				d := 0.5*math.Pow(2, float64(attempt)) + float64(attempt)*0.37
 				if serr := c.o.Sleep(ctx, time.Duration(d*float64(time.Second))); serr != nil {
@@ -285,8 +317,12 @@ func (c *Client) ExtractJSON(ctx context.Context, prompt, system string, maxToke
 			if ctx.Err() != nil {
 				return nil, ctx.Err()
 			}
-			lastErr = err
-			continue
+			if errors.Is(err, ErrEmptyResponse) {
+				lastErr = err
+				continue
+			}
+			// Every provider failed (or none is configured): asking again would only repeat the storm.
+			return nil, err
 		}
 		if obj, ok := ParseObject(text); ok {
 			return obj, nil

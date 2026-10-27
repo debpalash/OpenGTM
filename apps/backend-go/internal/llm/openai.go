@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -74,7 +75,7 @@ func (c *Client) callOpenAI(ctx context.Context, p Provider, req CompleteRequest
 	defer cancel()
 	hreq, err := http.NewRequestWithContext(cctx, http.MethodPost, p.BaseURL+"/chat/completions", bytes.NewReader(body))
 	if err != nil {
-		return "", err
+		return "", stripURL(err)
 	}
 	hreq.Header.Set("Authorization", "Bearer "+p.APIKey)
 	hreq.Header.Set("Content-Type", "application/json")
@@ -157,7 +158,30 @@ func (c *Client) wrapTransportErr(parent, req context.Context, err error) error 
 	if parent.Err() == nil && errors.Is(req.Err(), context.DeadlineExceeded) {
 		return &timeoutError{c.o.Config.HTTPTimeout}
 	}
-	return err
+	return stripURL(err)
+}
+
+// urlFreeError is a transport error whose request URL has been reduced to its host: the path, query and
+// userinfo of an operator-set base URL must not end up in usage errors or logs.
+type urlFreeError struct {
+	op, host string
+	err      error
+}
+
+func (e *urlFreeError) Error() string { return e.op + " " + e.host + ": " + e.err.Error() }
+func (e *urlFreeError) Unwrap() error { return e.err }
+
+// stripURL replaces the *url.Error of a failed request with host-only text (errors.Is/As still reach the cause).
+func stripURL(err error) error {
+	var ue *url.Error
+	if !errors.As(err, &ue) {
+		return err
+	}
+	host := "invalid-url"
+	if u, perr := url.Parse(ue.URL); perr == nil && u.Host != "" {
+		host = u.Host
+	}
+	return &urlFreeError{op: ue.Op, host: host, err: ue.Err}
 }
 
 func headerStr(h http.Header, names ...string) string {

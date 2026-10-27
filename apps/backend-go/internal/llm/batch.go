@@ -139,10 +139,10 @@ func (c *Client) readBatchResults(ctx context.Context, p Provider, path string, 
 		return err
 	}
 	defer rc.Close()
-	br := bufio.NewReaderSize(rc, 1<<20)
-	for {
-		line, rerr := br.ReadBytes('\n')
-		if s := strings.TrimSpace(string(line)); s != "" {
+	sc := bufio.NewScanner(rc)
+	sc.Buffer(make([]byte, 0, min(1<<20, maxBatchLine)), maxBatchLine)
+	for sc.Scan() {
+		if s := strings.TrimSpace(sc.Text()); s != "" {
 			var item struct {
 				CustomID string `json:"custom_id"`
 				Result   struct {
@@ -167,13 +167,14 @@ func (c *Client) readBatchResults(ctx context.Context, p Provider, path string, 
 				}
 			}
 		}
-		if rerr != nil {
-			if errors.Is(rerr, io.EOF) {
-				return nil
-			}
-			return rerr
-		}
 	}
+	if err := sc.Err(); err != nil {
+		if errors.Is(err, bufio.ErrTooLong) {
+			return errors.New("batch result line too long")
+		}
+		return err
+	}
+	return nil
 }
 
 // anthropicJSON is a Messages-API request whose JSON answer is decoded into out (nil: discard).

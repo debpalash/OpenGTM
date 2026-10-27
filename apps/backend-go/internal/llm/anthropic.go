@@ -193,7 +193,7 @@ func (c *Client) anthropicAttempt(ctx context.Context, p Provider, method, url s
 	req, err := http.NewRequestWithContext(rctx, method, url, rdr)
 	if err != nil {
 		stop()
-		return nil, h, err
+		return nil, h, stripURL(err)
 	}
 	req.Header.Set("x-api-key", p.APIKey)
 	req.Header.Set("anthropic-version", anthropicVersion)
@@ -207,7 +207,7 @@ func (c *Client) anthropicAttempt(ctx context.Context, p Provider, method, url s
 		if timedOut.Load() {
 			return errors.New("Request timed out.")
 		}
-		return fmt.Errorf("Connection error: %w", err)
+		return fmt.Errorf("Connection error: %w", stripURL(err))
 	}
 	if err != nil {
 		return nil, h, transportErr(err)

@@ -177,3 +177,13 @@ func TestBatchResultLineOverflowIsAnError(t *testing.T) {
 		t.Fatalf("err = %v, want a line-too-long error", err)
 	}
 }
+
+func TestUsageErrorsAreBounded(t *testing.T) {
+	var u usageTracker
+	for i := 0; i < 100; i++ {
+		u.addError("e")
+	}
+	if n := len(u.allErrors()); n > maxUsageErrors {
+		t.Fatalf("%d retained errors, want <= %d", n, maxUsageErrors)
+	}
+}

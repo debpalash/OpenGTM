@@ -13,6 +13,15 @@ type Settings interface {
 	Get(ctx context.Context, key, def string) (string, error)
 }
 
+// SourcedSettings is an optional Settings extension that also reports which level a value came from
+// (secrets.SourceWorkspace, secrets.SourceGlobal or "default" when unset). With it the client pairs a
+// provider's base URL only with a key of the same level: a workspace-chosen URL never receives the
+// platform's (global) key. WorkspaceSettings implements it.
+type SourcedSettings interface {
+	Settings
+	GetSource(ctx context.Context, key, def string) (value, source string, err error)
+}
+
 // providerSpec is one entry of leadgen/llm.py PROVIDER_CONFIG.
 type providerSpec struct {
 	ID           string

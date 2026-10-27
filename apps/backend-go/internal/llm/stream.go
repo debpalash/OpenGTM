@@ -177,7 +177,7 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 
 	hreq, err := http.NewRequestWithContext(rctx, http.MethodPost, strings.TrimRight(prov.BaseURL, "/")+"/chat/completions", bytes.NewReader(body))
 	if err != nil {
-		send(Frame{Kind: FrameError, Text: "AI provider error: " + truncRunes(err.Error(), 200)})
+		send(Frame{Kind: FrameError, Text: "AI provider error: " + truncRunes(stripURL(err).Error(), 200)})
 		return nil, nil
 	}
 	hreq.Header.Set("Authorization", "Bearer "+prov.APIKey)
@@ -220,11 +220,13 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 	}
 
 	acc := map[int]*ToolCall{}
-	br := bufio.NewReaderSize(resp.Body, 64<<10)
+	sc := bufio.NewScanner(resp.Body)
+	sc.Buffer(make([]byte, 0, min(64<<10, maxStreamLine)), maxStreamLine)
 	for {
 		touch()
-		line, rerr := br.ReadString('\n')
-		if data, ok := strings.CutPrefix(strings.TrimRight(line, "\r\n"), "data: "); ok {
+		more := sc.Scan()
+		line := sc.Text()
+		if data, ok := strings.CutPrefix(strings.TrimRight(line, "\r\n"), "data: "); ok && more {
 			if data == "[DONE]" {
 				send(Frame{Kind: FrameDone})
 				return nil, &cursor
@@ -238,14 +240,26 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 				return nil, &cursor
 			}
 		}
-		if rerr != nil {
-			if errors.Is(rerr, io.EOF) {
+		if !more {
+			rerr := sc.Err()
+			if rerr == nil {
+				return nil, nil // EOF
+			}
+			if errors.Is(rerr, bufio.ErrTooLong) {
+				send(Frame{Kind: FrameError, Text: "AI provider error: stream line too long"})
 				return nil, nil
 			}
 			return c.streamTransportError(ctx, rerr, timedOut.Load(), cursor, send)
 		}
 	}
 }
+
+// maxStreamLine caps one SSE line of a chat stream and maxBatchLine one line of a batch results file; a
+// longer line is an error instead of unbounded memory (variables so tests can lower them).
+var (
+	maxStreamLine = 4 << 20
+	maxBatchLine  = 16 << 20
+)
 
 // parseChunk folds one SSE data payload into the tool-call accumulator. content
 // is the text delta; done reports finish_reason == "tool_calls" with calls
@@ -342,6 +356,6 @@ func (c *Client) streamTransportError(ctx context.Context, err error, timedOut b
 		}
 		return nil, nil
 	}
-	send(Frame{Kind: FrameError, Text: "AI provider error: " + truncRunes(err.Error(), 200)})
+	send(Frame{Kind: FrameError, Text: "AI provider error: " + truncRunes(stripURL(err).Error(), 200)})
 	return nil, nil
 }
