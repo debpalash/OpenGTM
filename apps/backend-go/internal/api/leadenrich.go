@@ -59,6 +59,15 @@ const (
 	enrichBodyCap     = 1 << 20
 )
 
+// The web_research stream is bounded overall, not only by idleness: a provider (or a hostile base URL) that keeps
+// the connection busy must not hold the request, memory or the SSE response open for ever. Variables so tests can
+// lower them.
+var (
+	enrichStreamTotal    = 5 * time.Minute
+	enrichStreamMaxBytes = 4 << 20 // raw bytes read from the provider, SSE framing included
+	enrichTextMax        = 256 << 10
+)
+
 type enrichCtxKey struct{}
 
 type enrichTarget struct {
@@ -290,7 +299,7 @@ func (e *enrichRun) webResearch() {
 		"stream":      true,
 		"temperature": 0.5,
 	})
-	rctx, cancel := context.WithCancel(e.ctx)
+	rctx, cancel := context.WithTimeout(e.ctx, enrichStreamTotal)
 	defer cancel()
 	var timedOut atomic.Bool
 	timer := time.AfterFunc(enrichStreamIdle, func() { timedOut.Store(true); cancel() })
@@ -304,7 +313,7 @@ func (e *enrichRun) webResearch() {
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := e.h.httpc.Do(req)
 	if err != nil {
-		e.streamErr(err, timedOut.Load())
+		e.streamErr(err, timedOut.Load() || rctx.Err() == context.DeadlineExceeded)
 		return
 	}
 	defer resp.Body.Close()
@@ -314,11 +323,17 @@ func (e *enrichRun) webResearch() {
 		return
 	}
 	var full strings.Builder
-	br := bufio.NewReaderSize(resp.Body, 64<<10)
+	limited := &io.LimitedReader{R: resp.Body, N: int64(enrichStreamMaxBytes) + 1}
+	br := bufio.NewReaderSize(limited, 64<<10)
 	for {
-		timer.Reset(enrichStreamIdle)
 		line, rerr := br.ReadString('\n')
+		if limited.N <= 0 {
+			e.out.event("step", "error", "message", "LLM response too large")
+			return
+		}
 		if data, ok := strings.CutPrefix(strings.TrimRight(line, "\r\n"), "data: "); ok {
+			// Only a data frame is progress: comments and blank keep-alives do not reset the idle timer.
+			timer.Reset(enrichStreamIdle)
 			if data == "[DONE]" {
 				break
 			}
@@ -331,6 +346,10 @@ func (e *enrichRun) webResearch() {
 			}
 			if json.Unmarshal([]byte(data), &chunk) == nil && len(chunk.Choices) > 0 {
 				if tok := chunk.Choices[0].Delta.Content; tok != "" {
+					if full.Len()+len(tok) > enrichTextMax {
+						e.out.event("step", "error", "message", "LLM response too large")
+						return
+					}
 					full.WriteString(tok)
 					e.out.event("step", "token", "content", tok)
 				}
@@ -338,7 +357,7 @@ func (e *enrichRun) webResearch() {
 		}
 		if rerr != nil {
 			if !errors.Is(rerr, io.EOF) {
-				e.streamErr(rerr, timedOut.Load())
+				e.streamErr(rerr, timedOut.Load() || rctx.Err() == context.DeadlineExceeded)
 				return
 			}
 			break
