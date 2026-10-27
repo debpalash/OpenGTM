@@ -401,6 +401,7 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 	if err := wireFullRun(&deps, cfg, pool, log, localSecrets); err != nil {
 		return nil, nil, err
 	}
+	aiResearcher := wireAICols(&deps, cfg, pool, log) // GO_NATIVE_AI_COLUMNS (plan 15 WP-AICOLS)
 	handle := workbook.Handler(deps)
 	// ambitionbox_import: the client is built on the SSRF-guarded egress client;
 	// the failure hook reconciles run and workbook after a persisted failure.
@@ -448,7 +449,7 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 	for typ, h := range buildOutreach(cfg, pool, log, localSecrets, outreachOpts{}) {
 		handlers[typ] = h
 	}
-	for typ, h := range governanceHandlers(cfg, pool, log, pyRPC, governanceOpts{}) {
+	for typ, h := range governanceHandlers(cfg, pool, log, pyRPC, governanceOpts{researcher: aiResearcher}) {
 		handlers[typ] = h
 	}
 	for typ, h := range audienceHandlers(cfg, pool, log, sec, emitter, audienceOpts{}) {
