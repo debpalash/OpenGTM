@@ -119,26 +119,29 @@ func TestEventsQueryTokenRefusedAfterWindow(t *testing.T) {
 		until string
 		want  int
 	}{{"2000-01-01", 401}, {"2999-01-01T00:00:00Z", 200}, {"not-a-date", 401}} {
-		e := newEventsEnv(t, func(d *Deps) {
-			d.Getenv = func(k string) string {
-				if k == "SSE_QUERY_TOKEN_UNTIL" {
-					return c.until
+		// one env per subtest: testpg holds its cross-package lock until the (sub)test ends.
+		t.Run(c.until, func(t *testing.T) {
+			e := newEventsEnv(t, func(d *Deps) {
+				d.Getenv = func(k string) string {
+					if k == "SSE_QUERY_TOKEN_UNTIL" {
+						return c.until
+					}
+					return ""
 				}
-				return ""
+			})
+			ws := e.seedWS(t, "t23q")
+			tok := e.tokenQuery(t, "t23q-alice", []string{"pwd"})
+			if c.want == 401 {
+				rec := e.get("/api/events?token=" + tok + "&workspace_id=" + ws)
+				if rec.Code != 401 || !strings.Contains(rec.Body.String(), "/api/events/ticket") {
+					t.Errorf("%s: %d %s", c.until, rec.Code, rec.Body)
+				}
+				return
+			}
+			resp, _, _ := openStream(t, e, "/api/events?token="+tok+"&workspace_id="+ws, nil)
+			if resp.StatusCode != 200 {
+				t.Errorf("%s: %d", c.until, resp.StatusCode)
 			}
 		})
-		ws := e.seedWS(t, "t23q")
-		tok := e.tokenQuery(t, "t23q-alice", []string{"pwd"})
-		if c.want == 401 {
-			rec := e.get("/api/events?token=" + tok + "&workspace_id=" + ws)
-			if rec.Code != 401 || !strings.Contains(rec.Body.String(), "/api/events/ticket") {
-				t.Errorf("%s: %d %s", c.until, rec.Code, rec.Body)
-			}
-			continue
-		}
-		resp, _, _ := openStream(t, e, "/api/events?token="+tok+"&workspace_id="+ws, nil)
-		if resp.StatusCode != 200 {
-			t.Errorf("%s: %d", c.until, resp.StatusCode)
-		}
 	}
 }

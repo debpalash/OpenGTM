@@ -3,7 +3,9 @@ package api
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
+	"net/url"
 	"slices"
 	"sync"
 	"time"
@@ -26,10 +28,11 @@ const (
 // A variable so tests can shorten it.
 var sseHeartbeat = 15 * time.Second
 
-// registerEvents mounts GET /api/events. It deliberately has no Authenticate or
-// Workspace middleware: EventSource cannot send headers, so the access token
-// rides in ?token= (identity.AuthenticateQueryTokenCtx). The handler never logs
-// the raw query. Redis may be nil (heartbeats only; decision D3).
+// registerEvents mounts GET /api/events and POST /api/events/ticket. GET deliberately has no
+// Authenticate or Workspace middleware: EventSource cannot send headers, so it authenticates
+// with ?ticket= (eventsticket.go, S-L23) or, until SSE_QUERY_TOKEN_UNTIL, the deprecated
+// ?token= access token (identity.AuthenticateQueryTokenCtx). The handler never logs the raw
+// query. Redis may be nil (heartbeats only; decision D3).
 func registerEvents(r *httpx.Router, d Deps) {
 	max := d.SSEMaxStreams
 	if max <= 0 {
@@ -41,14 +44,26 @@ func registerEvents(r *httpx.Router, d Deps) {
 	}
 	h := &eventsRoute{d: d, sem: sem, relay: leadevents.NewRelay(d.Redis, sseHeartbeat),
 		perUser: orDefault(d.SSEMaxPerUser, defaultSSEPerUser), perWS: orDefault(d.SSEMaxPerWorkspace, defaultSSEPerWS),
-		byUser: map[int32]int{}, byWS: map[string]int{}}
+		byUser: map[int32]int{}, byWS: map[string]int{}, tickets: newTicketer(d.Signer.Secret, d.Redis)}
+	var ok bool
+	if h.tokenUntil, ok = queryTokenUntil(d.getenv()("SSE_QUERY_TOKEN_UNTIL")); !ok {
+		log := d.Log
+		if log == nil {
+			log = slog.Default()
+		}
+		log.Error("SSE_QUERY_TOKEN_UNTIL is not RFC 3339 or YYYY-MM-DD: ?token= on /api/events is refused")
+	}
 	r.Handle("GET /api/events", http.HandlerFunc(h.serve))
+	r.Handle("POST /api/events/ticket", http.HandlerFunc(h.ticket), identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity))
 }
 
 type eventsRoute struct {
 	d     Deps
 	sem   chan struct{} // process-wide stream slots
 	relay *leadevents.Relay
+
+	tickets    *ticketer
+	tokenUntil time.Time // ?token= is accepted before this instant (zero: never)
 
 	perUser, perWS int
 	mu             sync.Mutex
@@ -98,18 +113,11 @@ func (h *eventsRoute) acquire(uid int32, ws string) (release func(), refusal str
 func (h *eventsRoute) serve(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	q := r.URL.Query()
-	p, err := identity.AuthenticateQueryTokenCtx(ctx, h.d.Signer, h.d.Identity, q.Get("token"), false)
-	if err != nil {
-		var qe *identity.QueryTokenError
-		if errors.As(err, &qe) {
-			httpx.Detail(w, qe.Status, qe.Detail)
-			return
-		}
-		httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
+	uid, ws, amr, ok := h.authenticate(w, r, q)
+	if !ok {
 		return
 	}
-	uid := p.User.ID
-	ws := q.Get("workspace_id")
+	var err error
 	if ws == "" {
 		if ws, err = h.d.Identity.ActiveWorkspaceID(ctx, uid); err != nil {
 			httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
@@ -137,7 +145,7 @@ func (h *eventsRoute) serve(w http.ResponseWriter, r *http.Request) {
 		httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
-	if enforce && role != "owner" && !slices.Contains(p.Claims.AMR, "sso") {
+	if enforce && role != "owner" && !slices.Contains(amr, "sso") {
 		httpx.Detail(w, http.StatusForbidden, ssoRequiredDetail)
 		return
 	}
@@ -180,6 +188,54 @@ func (h *eventsRoute) serve(w http.ResponseWriter, r *http.Request) {
 	flush := func() { deadline(); _ = rc.Flush() }
 	flush()
 	_ = h.relay.Stream(ctx, ws, deadlineWriter{w: w, set: deadline}, flush)
+}
+
+// authenticate resolves the caller of GET /api/events from ?ticket= (bound workspace; a different
+// workspace_id is 403) or, inside the deprecation window, ?token= (workspace_id or the active one).
+// It writes the refusal itself and reports ok=false.
+func (h *eventsRoute) authenticate(w http.ResponseWriter, r *http.Request, q url.Values) (uid int32, ws string, amr []string, ok bool) {
+	ctx := r.Context()
+	if tk := q.Get("ticket"); tk != "" {
+		c, err := h.tickets.redeem(ctx, tk)
+		if errors.Is(err, errBadTicket) {
+			httpx.Detail(w, http.StatusUnauthorized, invalidTicketDetail)
+			return 0, "", nil, false
+		}
+		if err != nil {
+			httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
+			return 0, "", nil, false
+		}
+		if want := q.Get("workspace_id"); want != "" && want != c.WS {
+			httpx.Detail(w, http.StatusForbidden, "Workspace access denied")
+			return 0, "", nil, false
+		}
+		u, err := h.d.Identity.ByID(ctx, c.UID)
+		if errors.Is(err, identity.ErrNotFound) || (err == nil && !u.IsActive) {
+			httpx.Detail(w, http.StatusUnauthorized, invalidTicketDetail)
+			return 0, "", nil, false
+		}
+		if err != nil {
+			httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
+			return 0, "", nil, false
+		}
+		return u.ID, c.WS, c.AMR, true
+	}
+	tok := q.Get("token")
+	if tok != "" && !ticketNow().Before(h.tokenUntil) {
+		httpx.Detail(w, http.StatusUnauthorized, queryTokenGoneDetail)
+		return 0, "", nil, false
+	}
+	p, err := identity.AuthenticateQueryTokenCtx(ctx, h.d.Signer, h.d.Identity, tok, false)
+	if err != nil {
+		var qe *identity.QueryTokenError
+		if errors.As(err, &qe) {
+			httpx.Detail(w, qe.Status, qe.Detail)
+			return 0, "", nil, false
+		}
+		httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
+		return 0, "", nil, false
+	}
+	return p.User.ID, q.Get("workspace_id"), p.Claims.AMR, true
 }
 
 // deadlineWriter arms a fresh write deadline before every frame so a client
