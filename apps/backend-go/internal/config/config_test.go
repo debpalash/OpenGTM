@@ -234,6 +234,8 @@ func TestAPIConfigEgressAllowHosts(t *testing.T) {
 			return " 127.0.0.1:11434, ollama.internal ,,"
 		case "DATABASE_URL":
 			return "postgres://x"
+		case "APP_ENV":
+			return "test"
 		}
 		return ""
 	})
