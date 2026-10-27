@@ -176,7 +176,7 @@ func (s strictResolver) LookupNetIP(ctx context.Context, network, host string) (
 		if ctx.Err() != nil { // cancelled or timed out mid-lookup: not a blocked url
 			return nil, ctx.Err()
 		}
-		return nil, blockedErr("cannot resolve host: %v", err)
+		return nil, blockedErr("cannot resolve host: %s", dnsText(err))
 	}
 	if len(ips) == 0 {
 		return nil, blockedErr("no public address resolved for host")
@@ -334,7 +334,7 @@ func Webhook(ctx context.Context, d WebhookDeps, ws string, cfg map[string]any, 
 	}
 	cleaned := strings.NewReplacer("\t", "", "\r", "", "\n", "").Replace(strings.TrimSpace(resolved))
 	if err := checkWebhookURL(d, cleaned); err != nil {
-		return blockedResult(d, err)
+		return blockedResult(d, err, false)
 	}
 	u, _ := url.Parse(cleaned)
 
@@ -436,7 +436,7 @@ func Webhook(ctx context.Context, d WebhookDeps, ws string, cfg map[string]any, 
 	if err != nil {
 		var be *egress.BlockedError
 		if errors.As(err, &be) {
-			return blockedResult(d, be)
+			return blockedResult(d, be, true)
 		}
 		return failed(sanitizeErr(err, u, redact, ctx))
 	}
@@ -457,7 +457,14 @@ func Webhook(ctx context.Context, d WebhookDeps, ws string, cfg map[string]any, 
 	return Result{Status: "failed", Summary: summary, Error: "HTTP " + strconv.Itoa(resp.StatusCode) + ": " + text}
 }
 
-func blockedResult(d WebhookDeps, err error) Result {
+// privateAddress is the stored reason for a host that resolved (or was dialed) to a blocked
+// address: the address itself is logged, never stored (final review L8).
+const privateAddress = "host resolves to a private address"
+
+// blockedResult is the blocked_url failure. dialTime marks a refusal from the request itself
+// (resolve or dial), whose addresses come from DNS, not from the URL the caller wrote: those are
+// replaced by a fixed text so a stored result is not a DNS / internal-address oracle.
+func blockedResult(d WebhookDeps, err error, dialTime bool) Result {
 	var be *egress.BlockedError
 	reason := err.Error()
 	if errors.As(err, &be) {
@@ -466,7 +473,21 @@ func blockedResult(d WebhookDeps, err error) Result {
 	if d.Log != nil {
 		d.Log.Warn("webhook blocked", "reason", truncRunes(reason, 60))
 	}
+	if strings.HasPrefix(reason, "host resolves to private ip ") || (dialTime && strings.HasPrefix(reason, "ip '")) {
+		reason = privateAddress
+	}
 	return Result{Status: "failed", SkipReason: "blocked_url", Error: truncRunes("blocked url: "+reason, errCap)}
+}
+
+// dnsText is a resolver error without the resolver's own address ("lookup x on 10.0.0.2:53: ...").
+func dnsText(err error) string {
+	var de *net.DNSError
+	if errors.As(err, &de) {
+		c := *de
+		c.Server = ""
+		return c.Error()
+	}
+	return err.Error()
 }
 
 func headerPairs(h any) (keys []string, vals []any, ok bool) {
@@ -545,6 +566,15 @@ func sanitizeErr(err error, u *url.URL, redact []string, parent context.Context)
 	var ue *url.Error
 	if errors.As(err, &ue) {
 		err = ue.Err
+	}
+	// A dial error names the vetted IP it dialed: keep only the cause (final review L8).
+	var oe *net.OpError
+	if errors.As(err, &oe) && oe.Err != nil {
+		err = oe.Err
+		var de *net.DNSError
+		if errors.As(err, &de) {
+			err = errors.New(dnsText(de))
+		}
 	}
 	msg := err.Error()
 	for _, r := range redact {
