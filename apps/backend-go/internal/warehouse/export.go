@@ -14,10 +14,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rowtmpl"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
 const (
@@ -43,6 +43,14 @@ type Client struct {
 	http     *http.Client
 	appEnv   string
 	allowSet []string
+	outbound secrets.OutboundPolicy
+}
+
+// WithOutbound sets the policy for header_secret_ref (R2). The zero policy is the default prefixes
+// with no registry deny-list, so a client that is never configured still refuses CRM/provider names.
+func (c Client) WithOutbound(p secrets.OutboundPolicy) Client {
+	c.outbound = p
+	return c
 }
 
 // NewClient builds a client whose every connection is vetted by egress.NewDialContext.
@@ -91,6 +99,10 @@ func Sync(ctx context.Context, c Client, wsID string, dest DestRef, b *Buffer, g
 	}
 	ref := cfgText(dest.Config, "header_secret_ref")
 	secret := ""
+	if ref != "" && secrets.CheckOutboundRef(ref, c.outbound) != nil {
+		// A stored ref outside the outbound namespace reads as missing: nothing is looked up or sent (S-M2).
+		return Result{Error: "warehouse authentication secret is missing"}, nil
+	}
 	if ref != "" {
 		if get == nil {
 			return Result{}, errors.New("workspace secret lookup failed")
@@ -167,9 +179,11 @@ func sendError(err error, secret string) error {
 }
 
 // classify turns the response into the shared outcome (Summary is filled by Sync).
-func classify(status int, hdr http.Header, body []byte, secrets ...string) Result {
+func classify(status int, hdr http.Header, body []byte, secretValues ...string) Result {
 	if status < 200 || status > 299 {
-		return Result{Error: fmt.Sprintf("warehouse HTTP %d: %s", status, errText(body, secrets))}
+		// The receiver's body is never echoed: a hostile receiver can return the credential in an
+		// encoding no redaction list anticipates (URL-encoded, base64, split) (S-L27).
+		return Result{Error: fmt.Sprintf("warehouse HTTP %d", status)}
 	}
 	id := hdr.Get("x-job-id")
 	if id == "" {
@@ -178,7 +192,7 @@ func classify(status int, hdr http.Header, body []byte, secrets ...string) Resul
 	if id == "" {
 		id = bodyJobID(body)
 	}
-	return Result{Success: true, ExternalID: redact(id, secrets)}
+	return Result{Success: true, ExternalID: redact(id, secretValues)}
 }
 
 // secretForms is the secret plus the spellings a receiver may echo: the value after a leading auth scheme word
@@ -213,24 +227,6 @@ func redact(text string, secrets []string) string {
 		}
 	}
 	return text
-}
-
-// errText is the body with secrets redacted and control characters removed, cut to 300
-// characters. Redaction runs before the cut (a cut can never leave a partial secret) and again
-// after stripping (control characters cannot be used to split a secret past the first pass).
-func errText(body []byte, secrets []string) string {
-	text := redact(strings.ToValidUTF8(string(body), "\uFFFD"), secrets) // httpx's text decode replaces bad bytes
-	var sb strings.Builder
-	for _, c := range text {
-		if !unicode.IsControl(c) {
-			sb.WriteRune(c)
-		}
-	}
-	r := []rune(redact(sb.String(), secrets))
-	if len(r) > errTextChars {
-		r = r[:errTextChars]
-	}
-	return string(r)
 }
 
 // bodyJobID is str(parsed.get("job_id") or parsed.get("id") or "") for a JSON object body;

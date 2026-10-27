@@ -5,18 +5,22 @@ import (
 	"context"
 	"crypto/sha256"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
 func decodeNum(t testing.TB, raw []byte, v any) {
@@ -398,7 +402,8 @@ func getter(m map[string]string, calls *int32) SecretGetter {
 func tlsClient(srv *httptest.Server) Client {
 	pool := x509.NewCertPool()
 	pool.AddCert(srv.Certificate())
-	return newClient("test", []string{"127.0.0.1"}, pool)
+	// The recorded vectors use bare secret names; the production namespace is tested in outbound_test.go.
+	return newClient("test", []string{"127.0.0.1"}, pool).WithOutbound(secrets.OutboundPolicy{Prefixes: []string{"WAREHOUSE_AUTH", "K"}})
 }
 
 func caseBuffer(t testing.TB, c transcriptCase) (*Buffer, DestRef) {
@@ -492,7 +497,13 @@ func TestSyncRequestMatchesTranscript(t *testing.T) {
 			if res.Success != want.Success || res.Summary != want.Summary {
 				t.Errorf("result %+v want %+v", res, want)
 			}
-			if wantErr := deref(want.Error); res.Error != wantErr {
+			wantErr := deref(want.Error)
+			if rest, ok := strings.CutPrefix(wantErr, "warehouse HTTP "); ok {
+				// S-L27: Python appended the receiver's body; Go stores the status alone.
+				code, _, _ := strings.Cut(rest, ":")
+				wantErr = "warehouse HTTP " + code
+			}
+			if res.Error != wantErr {
 				t.Errorf("error %q want %q", res.Error, wantErr)
 			}
 			if wantID := deref(want.ExternalID); res.ExternalID != wantID {
@@ -557,7 +568,7 @@ func TestSyncMissingSecret(t *testing.T) {
 
 func TestSyncNon2xxTruncatedBody(t *testing.T) {
 	// 199 cannot be a final status on a real server; classify is the shared decision.
-	if r := classify(199, http.Header{}, []byte("early")); r.Success || r.Error != "warehouse HTTP 199: early" {
+	if r := classify(199, http.Header{}, []byte("early")); r.Success || r.Error != "warehouse HTTP 199" {
 		t.Fatalf("199: %+v", r)
 	}
 	for _, code := range []int{300, 302, 400, 401, 500, 503} {
@@ -573,30 +584,24 @@ func TestSyncNon2xxTruncatedBody(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		want := "warehouse HTTP " + itoa(code) + ": " + strings.Repeat("é", 300)
+		want := "warehouse HTTP " + itoa(code)
 		if res.Success || res.Error != want || res.ExternalID != "" || res.Summary != "" {
 			t.Fatalf("%d: %+v", code, res)
 		}
 	}
-	// Control characters are stripped before truncation; an unbounded body is capped.
-	r := classify(500, http.Header{}, []byte("a\x00b\r\nc\x1b[0m\x7fd"))
-	if r.Error != "warehouse HTTP 500: abc[0md" {
-		t.Fatalf("strip: %q", r.Error)
-	}
+	// The receiver's body is never read into the error, however large.
 	huge := bytes.Repeat([]byte("z"), 5<<20)
-	var s seen
 	srv := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = io.Copy(io.Discard, r.Body)
 		w.WriteHeader(502)
 		_, _ = w.Write(huge)
 	}))
 	defer srv.Close()
-	_ = s
 	b := NewBuffer("run-9", "ws-vec", DestRef{}, 0)
 	defer b.Close()
 	res, err := Sync(context.Background(), tlsClient(srv), "ws-vec", DestRef{Config: map[string]any{"url": srv.URL, "header_secret_ref": "K"}}, b, getter(map[string]string{"K": "v"}, nil))
-	if err != nil || len(res.Error) != len("warehouse HTTP 502: ")+300 {
-		t.Fatalf("huge body: %v %d", err, len(res.Error))
+	if err != nil || res.Error != "warehouse HTTP 502" {
+		t.Fatalf("huge body: %v %q", err, res.Error)
 	}
 }
 
@@ -765,6 +770,9 @@ func TestErrorTextNeverLeaksSecret(t *testing.T) {
 		"ctl_split": secret[:12] + "\x00\n" + secret[12:],
 		"twice":     secret + secret,
 		"cap_cut":   strings.Repeat("z", maxBody-12) + secret,
+		"urlenc":    "bad " + url.QueryEscape(secret),
+		"base64":    "bad " + base64.StdEncoding.EncodeToString([]byte(secret)),
+		"base64url": "bad " + base64.RawURLEncoding.EncodeToString([]byte("Bearer "+secret)),
 	}
 	for name, body := range bodies {
 		var s seen
@@ -778,7 +786,7 @@ func TestErrorTextNeverLeaksSecret(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if res.Success || !strings.HasPrefix(res.Error, "warehouse HTTP 401: ") {
+		if res.Success || res.Error != "warehouse HTTP 401" {
 			t.Fatalf("%s: %+v", name, res)
 		}
 		check(t, name, res.Error)
@@ -808,6 +816,26 @@ func TestRedactsSchemeStrippedAndEscapedSecretForms(t *testing.T) {
 		r := classify(401, http.Header{}, []byte(body), secretForms(secret)...)
 		if strings.Contains(r.Error, "sk_live_abcdef0123456789") {
 			t.Errorf("%s: %q", name, r.Error)
+		}
+	}
+}
+
+// S-M2: a stored header_secret_ref outside the outbound namespace reads as missing and nothing is sent
+// or looked up, even when the workspace holds a secret of that name.
+func TestSyncRefOutsideNamespaceNotSent(t *testing.T) {
+	var s seen
+	srv := recorder(200, nil, "{}", &s)
+	defer srv.Close()
+	for _, ref := range []string{"HUBSPOT_API_KEY", "SMTP_PASSWORD", "WRONGPREFIX_TOKEN", " DEST_X"} {
+		calls := 0
+		get := func(context.Context, string, string) (string, error) { calls++; return "super-secret", nil }
+		b := NewBuffer("run-9", "ws-vec", DestRef{ID: "d"}, 0)
+		_ = b.Append(1, map[string]any{"a": 1})
+		c := newClient("test", []string{"127.0.0.1"}, nil).WithOutbound(secrets.OutboundPolicy{})
+		res, err := Sync(context.Background(), c, "ws-vec", DestRef{ID: "d", Config: map[string]any{"url": srv.URL, "header_secret_ref": ref}}, b, get)
+		b.Close()
+		if err != nil || res.Success || res.Error != "warehouse authentication secret is missing" || calls != 0 || s.n != 0 {
+			t.Errorf("%q: %+v err=%v lookups=%d requests=%d", ref, res, err, calls, s.n)
 		}
 	}
 }
