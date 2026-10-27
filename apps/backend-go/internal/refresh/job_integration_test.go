@@ -156,11 +156,13 @@ func TestRefreshEnqueuesRunForStaleOnly(t *testing.T) {
 	}
 	js := jobs(t, ctx, pool, wsA)
 	src := ofType(js, "source_workbook")
-	if len(src) != 1 || src[0].Executor != "python" || src[0].Payload["column_id"] != "src" || src[0].Payload["workbook_id"] != "w1" {
+	if len(src) != 1 || src[0].Executor != "go" || src[0].Payload["column_id"] != "src" || src[0].Payload["workbook_id"] != "w1" ||
+		src[0].Payload["workspace_id"] != wsA {
 		t.Errorf("source job: %+v", src)
 	}
 	run := ofType(js, "run_workbook")
-	if len(run) != 1 || run[0].Executor != "python" {
+	// executor go; the Go worker plans the go block at claim (the refresh payload keeps Python's shape).
+	if len(run) != 1 || run[0].Executor != "go" || run[0].Payload["go"] != nil {
 		t.Fatalf("run job: %+v", run)
 	}
 	p := run[0].Payload
