@@ -95,9 +95,15 @@ check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
     expect "$r X-Seen-Uri" "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
     expect "$r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
   done
-  # Always Python, at any percentage
-  expect "GET /auth/sso/x X-Stub" "$(hdr GET /auth/sso/x X-Stub)" py
-  expect "GET /auth/sso/x X-Upstream (unset)" "$(hdr GET /auth/sso/x X-Upstream)" ""
+  # Workspace SSO login (S-M5): always Go at any percentage, URI (with query) forwarded unchanged.
+  for r in "GET /auth/sso/x" "GET /auth/sso/x/login" "GET /auth/sso/x/callback?code=c&state=s"; do
+    set -- $r
+    expect "$r X-Stub" "$(hdr "$1" "$2" X-Stub)" go
+    expect "$r X-Seen-Uri" "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+    expect "$r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
+  done
+  # Prefix boundary: /auth/ssox is not an SSO route and stays on Python.
+  expect "GET /auth/ssox X-Stub" "$(hdr GET /auth/ssox X-Stub)" py
   # Retained lead/signal routes (testdata/contract/retained_leads_routes.txt): always Python at any percentage.
   # The plan 14 routes that list used to include (collect, jobs*, system-stats, lead utilities) are ported now and
   # follow the bucket (check_leadgen_matrix); only enrich, unified search and scraper stay here.
