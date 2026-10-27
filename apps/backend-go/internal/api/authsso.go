@@ -316,7 +316,9 @@ func (h *ssoLogin) callback(w http.ResponseWriter, r *http.Request) {
 		ssoFail(w, r, govidp.MsgSSOInactive)
 		return
 	}
-	access, err := h.d.Signer.Access(u.Username, []string{"sso"})
+	// The session is scoped to this workspace (sso_ws): the workspace's IdP vouches for this
+	// workspace only, so the token is refused for any other one (identity.Authenticate/Workspace).
+	access, err := h.d.Signer.AccessFor(u.Username, []string{"sso"}, ws.ID)
 	if err == nil {
 		err = h.d.Identity.TouchLastLogin(ctx, uid)
 	}

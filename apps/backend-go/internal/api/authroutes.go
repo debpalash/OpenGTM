@@ -43,10 +43,15 @@ func (a authRoutes) log() *slog.Logger {
 }
 
 func (a authRoutes) mint(w http.ResponseWriter, sub string, amr []string) (tokenResponse, bool) {
-	acc, err := a.d.Signer.Access(sub, amr)
+	return a.mintFor(w, sub, amr, "")
+}
+
+// mintFor issues an access + refresh pair scoped to the SSO workspace ws (sso_ws); "" is unscoped.
+func (a authRoutes) mintFor(w http.ResponseWriter, sub string, amr []string, ws string) (tokenResponse, bool) {
+	acc, err := a.d.Signer.AccessFor(sub, amr, ws)
 	if err == nil {
 		var ref string
-		if ref, err = a.d.Signer.Refresh(sub, amr); err == nil {
+		if ref, err = a.d.Signer.RefreshFor(sub, amr, ws); err == nil {
 			return tokenResponse{acc, "bearer", ref}, true
 		}
 	}
@@ -175,7 +180,8 @@ func (a authRoutes) refresh(w http.ResponseWriter, r *http.Request) {
 	if len(amr) == 0 {
 		amr = []string{"pwd"}
 	}
-	if resp, ok := a.mint(w, claims.Sub, amr); ok {
+	// A workspace-scoped (SSO) session stays scoped across refreshes.
+	if resp, ok := a.mintFor(w, claims.Sub, amr, claims.Workspace); ok {
 		noStore(w)
 		httpx.WriteJSON(w, http.StatusOK, resp)
 	}

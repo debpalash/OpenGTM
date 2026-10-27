@@ -47,7 +47,10 @@ func bearerToken(r *http.Request) (string, bool) {
 func BearerToken(r *http.Request) (string, bool) { return bearerToken(r) }
 
 // Authenticate validates the bearer access token, loads the user and stores a
-// Principal in the request context.
+// Principal in the request context. A workspace-scoped (SSO, sso_ws) token is
+// refused (403) when the request names another workspace by X-Workspace-Id or
+// by a {ws_id} / {workspace_id} path value; without the header, the header is
+// set to the scope so every later workspace resolution sees it.
 func Authenticate(signer auth.Signer, st *Store) httpx.Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -74,9 +77,39 @@ func Authenticate(signer auth.Signer, st *Store) httpx.Middleware {
 				httpx.Detail(w, http.StatusBadRequest, "Inactive user")
 				return
 			}
+			if !scopeAllowsRequest(r, claims) {
+				httpx.Detail(w, http.StatusForbidden, workspaceDenied)
+				return
+			}
 			next.ServeHTTP(w, r.WithContext(WithPrincipal(r.Context(), Principal{User: u, Claims: claims})))
 		})
 	}
+}
+
+const workspaceDenied = "Workspace access denied"
+
+// scopePathKeys are the route path values that name a workspace.
+var scopePathKeys = []string{"ws_id", "workspace_id"}
+
+// scopeAllowsRequest enforces a scoped token's workspace on what the request names up front and
+// pins an absent X-Workspace-Id to the scope. Unscoped tokens pass untouched.
+func scopeAllowsRequest(r *http.Request, c auth.Claims) bool {
+	if c.Workspace == "" {
+		return true
+	}
+	h := r.Header.Get("X-Workspace-Id")
+	if h != "" && h != c.Workspace {
+		return false
+	}
+	for _, k := range scopePathKeys {
+		if v := r.PathValue(k); v != "" && v != c.Workspace {
+			return false
+		}
+	}
+	if h == "" {
+		r.Header.Set("X-Workspace-Id", c.Workspace)
+	}
+	return true
 }
 
 // IsGlobalAdmin reports the legacy admin test: is_admin or role admin/superadmin.
@@ -84,12 +117,13 @@ func (u User) IsGlobalAdmin() bool {
 	return u.IsAdmin || u.Role == "admin" || u.Role == "superadmin"
 }
 
-// RequireGlobalAdmin must run after Authenticate.
+// RequireGlobalAdmin must run after Authenticate. A workspace-scoped (SSO)
+// session is never a global admin session.
 func RequireGlobalAdmin() httpx.Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			p, ok := PrincipalFrom(r.Context())
-			if !ok || !p.User.IsGlobalAdmin() {
+			if !ok || !p.User.IsGlobalAdmin() || p.Claims.Workspace != "" {
 				httpx.Detail(w, http.StatusForbidden, "Not authorized")
 				return
 			}
@@ -113,8 +147,21 @@ func AuthenticateQueryToken(signer auth.Signer, st *Store, token string, require
 	return AuthenticateQueryTokenCtx(context.Background(), signer, st, token, requireAdmin)
 }
 
-// AuthenticateQueryTokenCtx is AuthenticateQueryToken with a caller context.
+// AuthenticateQueryTokenCtx is AuthenticateQueryToken with a caller context. It
+// does not know the workspace, so a workspace-scoped (SSO) token is refused as
+// invalid (fail closed); use AuthenticateQueryTokenForWorkspace.
 func AuthenticateQueryTokenCtx(ctx context.Context, signer auth.Signer, st *Store, token string, requireAdmin bool) (Principal, error) {
+	return authenticateQueryToken(ctx, signer, st, token, requireAdmin, nil)
+}
+
+// AuthenticateQueryTokenForWorkspace is AuthenticateQueryTokenCtx for a caller
+// that acts in workspaceID: a scoped token for another (or no) workspace is 403
+// "Workspace access denied". Membership is still the caller's check.
+func AuthenticateQueryTokenForWorkspace(ctx context.Context, signer auth.Signer, st *Store, token string, requireAdmin bool, workspaceID string) (Principal, error) {
+	return authenticateQueryToken(ctx, signer, st, token, requireAdmin, &workspaceID)
+}
+
+func authenticateQueryToken(ctx context.Context, signer auth.Signer, st *Store, token string, requireAdmin bool, workspaceID *string) (Principal, error) {
 	invalid := &QueryTokenError{http.StatusUnauthorized, "Invalid token"}
 	if token == "" {
 		return Principal{}, &QueryTokenError{http.StatusUnauthorized, "Missing token"}
@@ -122,6 +169,14 @@ func AuthenticateQueryTokenCtx(ctx context.Context, signer auth.Signer, st *Stor
 	claims, err := signer.ParseAccess(token)
 	if err != nil {
 		return Principal{}, invalid
+	}
+	if claims.Workspace != "" {
+		if workspaceID == nil {
+			return Principal{}, invalid
+		}
+		if !claims.AllowsWorkspace(*workspaceID) {
+			return Principal{}, &QueryTokenError{http.StatusForbidden, workspaceDenied}
+		}
 	}
 	u, err := st.ByUsername(ctx, claims.Sub)
 	if errors.Is(err, ErrNotFound) || (err == nil && !u.IsActive) {

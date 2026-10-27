@@ -73,7 +73,12 @@ func Workspace(st *Store) httpx.Middleware {
 			}
 			uid := p.User.ID
 
+			// A workspace-scoped (SSO) session acts only in its own workspace: it
+			// replaces the stored active workspace, and any other one is refused.
 			wsID := r.Header.Get("X-Workspace-Id")
+			if wsID == "" {
+				wsID = p.Claims.Workspace
+			}
 			if wsID == "" {
 				var err error
 				if wsID, err = st.activeOrFirst(ctx, uid); err != nil {
@@ -83,6 +88,10 @@ func Workspace(st *Store) httpx.Middleware {
 			}
 			if wsID == "" {
 				httpx.Detail(w, http.StatusForbidden, "No accessible workspace. Ask an admin to add you to one.")
+				return
+			}
+			if !p.Claims.AllowsWorkspace(wsID) {
+				httpx.Detail(w, http.StatusForbidden, workspaceDenied)
 				return
 			}
 
