@@ -20,6 +20,7 @@ type WbExecSettings struct {
 // off and is listed in Problems for the caller to log loudly, so all processes agree on what a
 // bad value means and a typo in an inactive flag cannot stop a worker (plan 15 review L1/L2).
 func LoadWbExec(get func(string) string) WbExecSettings {
+	get = AllNative(get) // GO_EXECUTOR_FULL_RUN is retired: always on
 	var w WbExecSettings
 	read := func(key string) bool {
 		v, err := boolVar(get, key, false)

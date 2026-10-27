@@ -2,15 +2,12 @@ package config
 
 import "testing"
 
+// GO_NATIVE_AI_COLUMNS is retired (WP-CUTOVER): AI columns always run in process, whatever the value.
 func TestLoadAICols(t *testing.T) {
 	env := func(m map[string]string) func(string) string { return func(k string) string { return m[k] } }
-	if a := LoadAICols(env(nil)); a.Native || len(a.Problems) != 0 {
-		t.Fatalf("default: %+v", a)
-	}
-	if a := LoadAICols(env(map[string]string{"GO_NATIVE_AI_COLUMNS": "true"})); !a.Native {
-		t.Fatalf("on: %+v", a)
-	}
-	if a := LoadAICols(env(map[string]string{"GO_NATIVE_AI_COLUMNS": "maybe"})); a.Native || len(a.Problems) != 1 {
-		t.Fatalf("malformed: %+v", a)
+	for _, m := range []map[string]string{nil, {"GO_NATIVE_AI_COLUMNS": "false"}, {"GO_NATIVE_AI_COLUMNS": "maybe"}} {
+		if a := LoadAICols(env(m)); !a.Native || len(a.Problems) != 0 {
+			t.Fatalf("%v: %+v", m, a)
+		}
 	}
 }

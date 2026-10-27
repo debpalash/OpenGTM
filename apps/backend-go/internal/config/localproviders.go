@@ -36,6 +36,7 @@ var providerNameRe = regexp.MustCompile(`^[a-z0-9_.]{1,200}$`)
 // LocalProvidersFrom reads the settings. A malformed GO_LOCAL_PROVIDERS is an
 // error, like every GO_* flag.
 func LocalProvidersFrom(get func(string) string) (LocalProvidersSettings, error) {
+	get = AllNative(get) // GO_LOCAL_PROVIDERS is retired: always "all"
 	s := LocalProvidersSettings{BrowserURL: strings.TrimSpace(get("BROWSER_SERVICE_URL")),
 		BrowserToken: Secret(strings.TrimSpace(get("BROWSER_SERVICE_TOKEN")))}
 	switch strings.ToLower(strings.TrimSpace(get("STAFFSPY_ENABLED"))) {

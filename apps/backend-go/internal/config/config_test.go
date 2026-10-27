@@ -11,7 +11,25 @@ import (
 
 const goodTok = "0123456789abcdef0123456789abcdef"
 
-func env(m map[string]string) func(string) string { return func(k string) string { return m[k] } }
+// env serves m; DATABASE_URL, SECRET_KEY and OUTREACH_PUBLIC_BASE_URL default to placeholders unless m names them
+// (even as ""): the only credentials source ("local") requires the first two, the permanently-on outreach sender
+// the third outside development.
+func env(m map[string]string) func(string) string {
+	return func(k string) string {
+		if v, ok := m[k]; ok {
+			return v
+		}
+		switch k {
+		case "DATABASE_URL":
+			return "postgres://x/y"
+		case "SECRET_KEY":
+			return "k"
+		case "OUTREACH_PUBLIC_BASE_URL": // outreach sending is permanently on: required outside dev
+			return "https://outreach.example.com"
+		}
+		return ""
+	}
+}
 
 func TestDefaults(t *testing.T) {
 	c, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok}))
@@ -152,16 +170,18 @@ func TestConfigCredentialsSourceValidation(t *testing.T) {
 		return m
 	}
 	c, err := load(env(base))
-	if err != nil || c.CredentialsSource != "http" {
-		t.Fatalf("default must be http, got %q, %v", c.CredentialsSource, err)
+	if err != nil || c.CredentialsSource != "local" {
+		t.Fatalf("default must be local, got %q, %v", c.CredentialsSource, err)
 	}
-	if c, err = load(env(with("CREDENTIALS_SOURCE", " HTTP "))); err != nil || c.CredentialsSource != "http" {
+	if c, err = load(env(with("CREDENTIALS_SOURCE", " LOCAL "))); err != nil || c.CredentialsSource != "local" {
 		t.Fatalf("got %q, %v", c.CredentialsSource, err)
 	}
 	for name, m := range map[string]map[string]string{
 		"bogus":           with("CREDENTIALS_SOURCE", "redis"),
-		"local no db":     with("CREDENTIALS_SOURCE", "local", "SECRET_KEY", "k"),
-		"local no secret": with("CREDENTIALS_SOURCE", "local", "DATABASE_URL", "postgres://x/y"),
+		"http removed":    with("CREDENTIALS_SOURCE", "http"),
+		"default no db":   with("DATABASE_URL", ""),
+		"local no db":     with("CREDENTIALS_SOURCE", "local", "SECRET_KEY", "k", "DATABASE_URL", ""),
+		"local no secret": with("CREDENTIALS_SOURCE", "local", "DATABASE_URL", "postgres://x/y", "SECRET_KEY", ""),
 		"local bad prov":  with("CREDENTIALS_SOURCE", "local", "DATABASE_URL", "postgres://x/y", "SECRET_KEY", "k", "SECRETS_PROVIDER", "kms"),
 		"vault no addr":   with("CREDENTIALS_SOURCE", "local", "DATABASE_URL", "postgres://x/y", "SECRET_KEY", "k", "SECRETS_PROVIDER", "vault_transit"),
 	} {
@@ -207,19 +227,18 @@ func TestExecutorSettings(t *testing.T) {
 		t.Fatal(err)
 	}
 	e := c.Executor
-	if e.Enabled || e.RefreshExecutor("w") != "python" || e.SignalScanExecutor() != "python" ||
-		e.SignalHotLeads != 50 || e.SignalWarmLeads != 30 || e.SignalPerWorkspace != 20 || e.SignalGlobal != 500 ||
-		e.PyWorkerURL != "" || e.PyWorkerToken != goodTok {
+	if !e.Enabled || e.RefreshExecutor("w") != "go" || e.SignalScanExecutor() != "go" ||
+		e.SignalHotLeads != 50 || e.SignalWarmLeads != 30 || e.SignalPerWorkspace != 20 || e.SignalGlobal != 500 {
 		t.Fatalf("defaults: %+v", e)
 	}
-	c, err = load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "GO_EXECUTOR_ENABLED": "True", "GO_EXECUTOR_WORKSPACES": " a, b ,",
-		"GO_EXECUTOR_SIGNAL_SCAN": "1", "SIGNAL_SCAN_MAX_HOT_LEADS": "7", "SIGNAL_SCAN_GLOBAL_MAX_LEADS": "0", "PY_WORKER_URL": " http://py ", "PY_WORKER_TOKEN": "tok"}))
+	c, err = load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "GO_EXECUTOR_ENABLED": "false", "GO_EXECUTOR_WORKSPACES": " a, b ,",
+		"GO_EXECUTOR_SIGNAL_SCAN": "0", "SIGNAL_SCAN_MAX_HOT_LEADS": "7", "SIGNAL_SCAN_GLOBAL_MAX_LEADS": "0"}))
 	if err != nil {
 		t.Fatal(err)
 	}
 	e = c.Executor
-	if e.RefreshExecutor("a") != "go" || e.RefreshExecutor("b") != "go" || e.RefreshExecutor("c") != "python" || e.RefreshExecutor("") != "python" ||
-		e.SignalScanExecutor() != "go" || e.SignalHotLeads != 7 || e.SignalGlobal != 0 || e.PyWorkerURL != "http://py" || e.PyWorkerToken != "tok" {
+	if e.RefreshExecutor("a") != "go" || e.RefreshExecutor("c") != "go" || e.RefreshExecutor("") != "go" ||
+		e.SignalScanExecutor() != "go" || e.SignalHotLeads != 7 || e.SignalGlobal != 0 {
 		t.Fatalf("set: %+v", e)
 	}
 	if _, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "SIGNAL_SCAN_MAX_HOT_LEADS": "x"})); err == nil {

@@ -34,6 +34,7 @@ type CollectSettings struct {
 
 // LoadCollect reads the settings strictly.
 func LoadCollect(get func(string) string) (CollectSettings, error) {
+	get = AllNative(get) // retired flags read as on
 	s := CollectSettings{RegistrySourceCap: 20, DMBudget: 15, EmailWaterfallBudget: 15, DeliverabilityBudget: 20,
 		SearchTimeout: 25 * time.Second}
 	for _, f := range []struct {
@@ -79,22 +80,8 @@ func LoadCollect(get func(string) string) (CollectSettings, error) {
 	return s, nil
 }
 
-// CollectExecutor is the executor of a new collect job: "go" only when GO_EXECUTOR_ENABLED,
-// GO_EXECUTOR_COLLECT and cohort membership (GO_EXECUTOR_WORKSPACES; "*" = all) all hold, else
-// "python" (today's behaviour). Lenient (pydantic bool) so request handlers can resolve it per call.
-func CollectExecutor(get func(string) string, workspaceID string) string {
-	return cohortExecutor(get, "GO_EXECUTOR_COLLECT", workspaceID)
-}
+// CollectExecutor is the executor of a new collect job: always "go" (GO_EXECUTOR_COLLECT is retired).
+func CollectExecutor(func(string) string, string) string { return ExecutorGo }
 
-// BulkEnrichExecutor is CollectExecutor for bulk_enrich (GO_EXECUTOR_BULK_ENRICH).
-func BulkEnrichExecutor(get func(string) string, workspaceID string) string {
-	return cohortExecutor(get, "GO_EXECUTOR_BULK_ENRICH", workspaceID)
-}
-
-func cohortExecutor(get func(string) string, kind, ws string) string {
-	e := ExecutorCohortFrom(get)
-	if e.Enabled && pyBool(get(kind)) && InCohort(e.Workspaces, ws) {
-		return "go"
-	}
-	return "python"
-}
+// BulkEnrichExecutor is the executor of a new bulk_enrich job: always "go" (GO_EXECUTOR_BULK_ENRICH is retired).
+func BulkEnrichExecutor(func(string) string, string) string { return ExecutorGo }

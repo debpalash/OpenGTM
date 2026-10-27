@@ -50,7 +50,6 @@ const (
 type Config struct {
 	DatabaseURL           string
 	RedisURL              string
-	InternalAPIURL        string
 	InternalServiceToken  string
 	WorkerConcurrency     int
 	MaxActivePerWorkspace int
@@ -66,21 +65,19 @@ type Config struct {
 	Flags Flags
 	// BillingEnabled is BILLING_ENABLED: the automation and poller debits are no-ops without it.
 	BillingEnabled bool
-	// Executor carries the go_executor cohort flags, scan caps and the Python worker RPC endpoint.
+	// Executor carries the signal scan caps (job routing is permanently Go since the cutover).
 	Executor ExecutorSettings
 
-	// CredentialsSource is "http" (Python internal endpoint, default) or
-	// "local" (resolve in-process from PostgreSQL via internal/secrets).
+	// CredentialsSource is always "local" (resolve in-process from PostgreSQL via internal/secrets). The
+	// former "http" mode read credentials from the Python API, which no longer exists (plan 15 WP-CUTOVER).
 	CredentialsSource string
-	// Secrets envelope settings, used only when CredentialsSource is "local".
+	// Secrets envelope settings.
 	SecretKey, SecretsProvider, SecretsMasterKey                                        string
 	VaultAddr, VaultToken, VaultTokenFile, VaultTransitKey, VaultNamespace, VaultCACert string
 }
 
-const (
-	CredentialsSourceHTTP  = "http"
-	CredentialsSourceLocal = "local"
-)
+// CredentialsSourceLocal is the only credentials source.
+const CredentialsSourceLocal = "local"
 
 // Load reads configuration from the environment and validates it.
 func Load() (Config, error) { return load(os.Getenv) }
@@ -90,14 +87,13 @@ func load(get func(string) string) (Config, error) {
 	c := Config{
 		DatabaseURL:          get("DATABASE_URL"),
 		RedisURL:             get("REDIS_URL"),
-		InternalAPIURL:       get("INTERNAL_API_URL"),
 		InternalServiceToken: get("INTERNAL_SERVICE_TOKEN"),
 		AppEnv:               get("APP_ENV"),
 		DebugAddr:            get("GO_WORKER_DEBUG_ADDR"),
 	}
 	c.CredentialsSource = strings.ToLower(strings.TrimSpace(get("CREDENTIALS_SOURCE")))
 	if c.CredentialsSource == "" {
-		c.CredentialsSource = CredentialsSourceHTTP
+		c.CredentialsSource = CredentialsSourceLocal
 	}
 	c.SecretKey = get("SECRET_KEY")
 	c.SecretsProvider = strings.ToLower(strings.TrimSpace(get("SECRETS_PROVIDER")))
@@ -166,7 +162,7 @@ func load(get func(string) string) (Config, error) {
 	if c.BillingEnabled, err = boolVar(get, "BILLING_ENABLED", false); err != nil {
 		return Config{}, err
 	}
-	if c.Executor, err = loadExecutor(get, c.InternalServiceToken); err != nil {
+	if c.Executor, err = loadExecutor(get); err != nil {
 		return Config{}, err
 	}
 	if c.InternalServiceToken == "" {
@@ -189,11 +185,11 @@ func load(get func(string) string) (Config, error) {
 // never echoed into errors.
 func (c Config) validateCredentialsSource() error {
 	switch c.CredentialsSource {
-	case CredentialsSourceHTTP:
-		return nil
 	case CredentialsSourceLocal:
+	case "http":
+		return errors.New(`config: CREDENTIALS_SOURCE=http was removed with the Python API; unset it or set "local"`)
 	default:
-		return fmt.Errorf("config: CREDENTIALS_SOURCE must be %q or %q", CredentialsSourceHTTP, CredentialsSourceLocal)
+		return fmt.Errorf("config: CREDENTIALS_SOURCE must be %q", CredentialsSourceLocal)
 	}
 	if c.DatabaseURL == "" {
 		return errors.New("config: CREDENTIALS_SOURCE=local requires DATABASE_URL")
@@ -268,7 +264,7 @@ func (c Config) redacted() Config {
 	if c.InternalServiceToken != "" {
 		c.InternalServiceToken = "[redacted]"
 	}
-	for _, p := range []*string{&c.Executor.PyWorkerToken, &c.SecretKey, &c.SecretsMasterKey, &c.VaultToken} {
+	for _, p := range []*string{&c.SecretKey, &c.SecretsMasterKey, &c.VaultToken} {
 		if *p != "" {
 			*p = "[redacted]"
 		}
@@ -287,7 +283,6 @@ func (c Config) LogValue() slog.Value {
 	return slog.GroupValue(
 		slog.String("database_url", r.DatabaseURL),
 		slog.String("redis_url", r.RedisURL),
-		slog.String("internal_api_url", r.InternalAPIURL),
 		slog.String("internal_service_token", r.InternalServiceToken),
 		slog.Int("worker_concurrency", r.WorkerConcurrency),
 		slog.Int("max_active_per_workspace", r.MaxActivePerWorkspace),

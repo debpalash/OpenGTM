@@ -15,7 +15,7 @@ func TestConnectorFlagsDefaultsAndEnv(t *testing.T) {
 		t.Fatal(err)
 	}
 	f := c.Flags
-	if f.GoConnectorRoutesEnabled || f.GoExecutorAmbitionBox || f.CRMImportEnabled ||
+	if f.GoConnectorRoutesEnabled || !f.GoExecutorAmbitionBox || f.CRMImportEnabled || // GO_EXECUTOR_AMBITIONBOX is retired
 		f.CertificationPath != "" || f.CertificationKey.Reveal() != "" || f.BuildSHA != "" {
 		t.Fatalf("defaults wrong: %+v", f)
 	}

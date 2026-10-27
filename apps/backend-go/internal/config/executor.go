@@ -2,52 +2,33 @@ package config
 
 import (
 	"fmt"
-	"strings"
 )
 
-// ExecutorSettings are the go_executor.py cohort flags and the scan caps the
-// worker reads for refresh_workbook and signal_scan, plus the Python worker RPC
-// endpoint. Names and defaults follow core/config.py.
+// ExecutorSettings are the scan caps the worker reads for refresh_workbook and signal_scan, plus the routing
+// fields of the former go_executor.py cohort. Since plan 15 WP-CUTOVER every job runs on the Go worker: the
+// routing flags (GO_EXECUTOR_ENABLED, GO_EXECUTOR_WORKSPACES, GO_EXECUTOR_SIGNAL_SCAN, GO_EXECUTOR_SOURCE_HEALTH)
+// are permanently on and no longer read, and every resolver below names "go".
 type ExecutorSettings struct {
-	Enabled      bool            // GO_EXECUTOR_ENABLED
-	Workspaces   map[string]bool // GO_EXECUTOR_WORKSPACES (comma separated)
-	SignalScan   bool            // GO_EXECUTOR_SIGNAL_SCAN
-	SourceHealth bool            // GO_EXECUTOR_SOURCE_HEALTH
+	Enabled      bool            // always true (GO_EXECUTOR_ENABLED is retired)
+	Workspaces   map[string]bool // always {"*"}: every workspace (GO_EXECUTOR_WORKSPACES is retired)
+	SignalScan   bool            // always true (GO_EXECUTOR_SIGNAL_SCAN is retired)
+	SourceHealth bool            // always true (GO_EXECUTOR_SOURCE_HEALTH is retired)
 
 	SignalHotLeads, SignalWarmLeads, SignalPerWorkspace, SignalGlobal int // SIGNAL_SCAN_MAX_HOT_LEADS, _MAX_WARM_LEADS, _MAX_LEADS_PER_WORKSPACE, _GLOBAL_MAX_LEADS
-
-	PyWorkerURL   string // PY_WORKER_URL (empty: Python-only columns are handed back)
-	PyWorkerToken string // PY_WORKER_TOKEN, default INTERNAL_SERVICE_TOKEN
 }
 
 // pyBool is pydantic's lenient bool for the Python-named flags.
-func pyBool(s string) bool {
-	switch strings.ToLower(strings.TrimSpace(s)) {
-	case "1", "true", "yes", "on", "t", "y":
-		return true
-	}
-	return false
+func pyBool(s string) bool { return truthyValue(s) }
+
+// ExecutorGo is the executor of every job since the cutover.
+const ExecutorGo = "go"
+
+// ExecutorCohortFrom returns the (permanently on) routing settings; get is no longer consulted.
+func ExecutorCohortFrom(func(string) string) ExecutorSettings {
+	return ExecutorSettings{Enabled: true, SignalScan: true, SourceHealth: true, Workspaces: map[string]bool{"*": true}}
 }
 
-// ExecutorCohortFrom reads only the routing flags (GO_EXECUTOR_ENABLED,
-// GO_EXECUTOR_WORKSPACES, GO_EXECUTOR_SIGNAL_SCAN); it cannot fail, so request
-// handlers can resolve a job's executor from the environment per call.
-func ExecutorCohortFrom(get func(string) string) ExecutorSettings {
-	e := ExecutorSettings{
-		Enabled:      pyBool(get("GO_EXECUTOR_ENABLED")),
-		SignalScan:   pyBool(get("GO_EXECUTOR_SIGNAL_SCAN")),
-		SourceHealth: pyBool(get("GO_EXECUTOR_SOURCE_HEALTH")),
-		Workspaces:   map[string]bool{},
-	}
-	for _, w := range strings.Split(get("GO_EXECUTOR_WORKSPACES"), ",") {
-		if w = strings.TrimSpace(w); w != "" {
-			e.Workspaces[w] = true
-		}
-	}
-	return e
-}
-
-func loadExecutor(get func(string) string, serviceToken string) (ExecutorSettings, error) {
+func loadExecutor(get func(string) string) (ExecutorSettings, error) {
 	e := ExecutorCohortFrom(get)
 	var err error
 	for _, n := range []struct {
@@ -64,56 +45,24 @@ func loadExecutor(get func(string) string, serviceToken string) (ExecutorSetting
 			return e, err
 		}
 	}
-	e.PyWorkerURL = strings.TrimSpace(get("PY_WORKER_URL"))
-	e.PyWorkerToken = strings.TrimSpace(get("PY_WORKER_TOKEN"))
-	if e.PyWorkerToken == "" { // the Python endpoint authenticates with INTERNAL_SERVICE_TOKEN
-		e.PyWorkerToken = serviceToken
-	}
 	return e, nil
 }
 
-// RefreshExecutor is go_executor.refresh_executor: "go" only when enabled and
-// the workspace is in the cohort.
-func (e ExecutorSettings) RefreshExecutor(workspaceID string) string {
-	if e.Enabled && InCohort(e.Workspaces, workspaceID) {
-		return "go"
-	}
-	return "python"
-}
+// RefreshExecutor is the executor of a refresh_workbook / signal_scan follow-up: always "go".
+func (e ExecutorSettings) RefreshExecutor(string) string { return ExecutorGo }
 
-// SignalScanExecutor is go_executor.signal_scan_executor (global, no cohort).
-func (e ExecutorSettings) SignalScanExecutor() string {
-	if e.Enabled && e.SignalScan {
-		return "go"
-	}
-	return "python"
-}
+// SignalScanExecutor is the executor of a signal_scan job: always "go".
+func (e ExecutorSettings) SignalScanExecutor() string { return ExecutorGo }
 
-// OutreachExecutor is go_executor.outreach_executor: "go" only when
-// GO_EXECUTOR_ENABLED, the workspace is in the cohort and the per-type flag
-// (send: GO_EXECUTOR_OUTREACH_SEND, outreach_inbound_poll:
-// GO_EXECUTOR_OUTREACH_INBOUND) is on. Other job types are an error, as in Python.
-func (e ExecutorSettings) OutreachExecutor(o OutreachSettings, jobType, workspaceID string) (string, error) {
-	var flag bool
+// OutreachExecutor is the executor of a send / outreach_inbound_poll job: always "go". Other job types are an
+// error, as in Python.
+func (e ExecutorSettings) OutreachExecutor(_ OutreachSettings, jobType, _ string) (string, error) {
 	switch jobType {
-	case "send":
-		flag = o.GoExecutorSend
-	case "outreach_inbound_poll":
-		flag = o.GoExecutorInbound
-	default:
-		return "", fmt.Errorf("config: not an outreach executor job type: %q", jobType)
+	case "send", "outreach_inbound_poll":
+		return ExecutorGo, nil
 	}
-	if e.Enabled && flag && InCohort(e.Workspaces, workspaceID) {
-		return "go", nil
-	}
-	return "python", nil
+	return "", fmt.Errorf("config: not an outreach executor job type: %q", jobType)
 }
 
-// SourceHealthExecutor is go_executor.source_health_executor: the job is global
-// (no workspace), so "go" needs GO_EXECUTOR_ENABLED and GO_EXECUTOR_SOURCE_HEALTH.
-func (e ExecutorSettings) SourceHealthExecutor() string {
-	if e.Enabled && e.SourceHealth {
-		return "go"
-	}
-	return "python"
-}
+// SourceHealthExecutor is the executor of a source_health_check job: always "go".
+func (e ExecutorSettings) SourceHealthExecutor() string { return ExecutorGo }

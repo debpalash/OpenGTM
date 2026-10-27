@@ -12,7 +12,7 @@ func TestConfigDefaultsMatchPython(t *testing.T) {
 	}
 	a := c.Flags.Automations
 	want := AutomationsSettings{
-		GoRoutesEnabled: false, GoExecutorTriggerEval: false, GoExecutorWatchPoll: false,
+		GoRoutesEnabled: false, GoExecutorTriggerEval: true, GoExecutorWatchPoll: true, GoExecutorLegacyOutreachActions: true, // retired: always on
 		GlobalDailyUSD: 0, MaxRulesPerWS: 50, MaxActionsPerRule: 10, MaxRowsPerEval: 500,
 		WebhookDomainAllowlist:            nil,
 		PollerDefaultInterval:             "daily",
@@ -67,7 +67,7 @@ func TestConfigRejectsBadInterval(t *testing.T) {
 	for _, e := range []map[string]string{
 		{"AUTOMATIONS_MAX_RULES_PER_WS": "abc"}, {"AUTOMATIONS_GLOBAL_DAILY_USD": "-1"},
 		{"AUTOMATIONS_GLOBAL_DAILY_USD": "NaN"}, {"POLLER_HIRING_COST_USD": "-0.5"},
-		{"INTENT_POLLER_BACKFILL": "maybe"}, {"GO_EXECUTOR_WATCH_POLL": "x"},
+		{"INTENT_POLLER_BACKFILL": "maybe"},
 	} {
 		e["APP_ENV"] = "test"
 		if _, err := loadAPI(apiEnv(e)); err == nil {
@@ -83,11 +83,11 @@ func TestWorkerLoadsAutomationSettings(t *testing.T) {
 		t.Fatal(err)
 	}
 	a := c.Flags.Automations
-	if a.MaxRowsPerEval != 500 || a.PollerDefaultInterval != "daily" || a.GoExecutorTriggerEval || a.GoExecutorWatchPoll ||
+	if a.MaxRowsPerEval != 500 || a.PollerDefaultInterval != "daily" || !a.GoExecutorTriggerEval || !a.GoExecutorWatchPoll ||
 		c.Flags.IntentPollerEnabled || !c.Flags.PGLeadStore || c.Flags.AutomationsAllowLegacyOutreach || c.BillingEnabled {
 		t.Fatalf("defaults: %+v billing=%v", c.Flags, c.BillingEnabled)
 	}
-	c, err = load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "GO_EXECUTOR_TRIGGER_EVAL": "true", "GO_EXECUTOR_WATCH_POLL": "1",
+	c, err = load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "GO_EXECUTOR_TRIGGER_EVAL": "false", "GO_EXECUTOR_WATCH_POLL": "0",
 		"AUTOMATIONS_MAX_ROWS_PER_EVAL": "7", "INTENT_POLLER_ENABLED": "true", "PG_LEAD_STORE": "false", "BILLING_ENABLED": "true",
 		"AUTOMATIONS_ALLOW_LEGACY_OUTREACH": "true"}))
 	if err != nil {
@@ -98,7 +98,7 @@ func TestWorkerLoadsAutomationSettings(t *testing.T) {
 		c.Flags.PGLeadStore || !c.BillingEnabled || !c.Flags.AutomationsAllowLegacyOutreach {
 		t.Fatalf("set: %+v", c.Flags)
 	}
-	for _, k := range []string{"GO_EXECUTOR_WATCH_POLL", "INTENT_POLLER_ENABLED", "BILLING_ENABLED", "AUTOMATIONS_MAX_ROWS_PER_EVAL"} {
+	for _, k := range []string{"INTENT_POLLER_ENABLED", "BILLING_ENABLED", "AUTOMATIONS_MAX_ROWS_PER_EVAL"} {
 		if _, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, k: "maybe"})); err == nil {
 			t.Errorf("%s: invalid value must be rejected", k)
 		}

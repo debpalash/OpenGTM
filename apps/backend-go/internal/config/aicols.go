@@ -15,6 +15,7 @@ type AIColsSettings struct {
 // LoadAICols reads the WP-AICOLS switches. Like LoadWbExec it never fails: a malformed value
 // reads as off and is reported in Problems.
 func LoadAICols(get func(string) string) AIColsSettings {
+	get = AllNative(get) // GO_NATIVE_AI_COLUMNS is retired: always on
 	var a AIColsSettings
 	v, err := boolVar(get, "GO_NATIVE_AI_COLUMNS", false)
 	if err != nil {

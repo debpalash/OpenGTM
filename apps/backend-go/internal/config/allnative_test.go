@@ -14,6 +14,9 @@ func TestAllNativeOffChangesNothing(t *testing.T) {
 	for _, m := range []map[string]string{{}, {"GO_ALL_NATIVE": "false"}, {"GO_ALL_NATIVE": "0", "GO_EXECUTOR_ENABLED": "true"}} {
 		get := AllNative(envOf(m))
 		for _, f := range NativeFlags() {
+			if isRetired(f.Key) {
+				continue // permanently on (TestRetiredFlagsArePermanentlyOn)
+			}
 			if got, want := get(f.Key), m[f.Key]; got != want {
 				t.Fatalf("%v: %s = %q, want %q", m, f.Key, got, want)
 			}
@@ -49,14 +52,10 @@ func TestAllNativeTurnsEverythingOn(t *testing.T) {
 
 func TestAllNativeExplicitValueWins(t *testing.T) {
 	get := AllNative(envOf(map[string]string{
-		"GO_ALL_NATIVE": "yes", "GO_EXECUTOR_FULL_RUN": "false", "GO_LLM_ROUTES_ENABLED": "0",
-		"GO_EXECUTOR_WORKSPACES": "ws1,ws2", "GO_LOCAL_PROVIDERS": "jobspy", "GO_DEST_TYPES": "webhook",
+		"GO_ALL_NATIVE": "yes", "GO_SCHEDULER_ENABLED": "false", "GO_LLM_ROUTES_ENABLED": "0",
 	}))
-	if get("GO_EXECUTOR_FULL_RUN") != "false" || get("GO_LLM_ROUTES_ENABLED") != "0" {
+	if get("GO_SCHEDULER_ENABLED") != "false" || get("GO_LLM_ROUTES_ENABLED") != "0" {
 		t.Error("explicit false must stay false")
-	}
-	if get("GO_EXECUTOR_WORKSPACES") != "ws1,ws2" || get("GO_LOCAL_PROVIDERS") != "jobspy" || get("GO_DEST_TYPES") != "webhook" {
-		t.Error("explicit lists must stay")
 	}
 	if get("GO_COPILOT_NATIVE") != "true" {
 		t.Error("unset flags still turn on")
@@ -72,7 +71,7 @@ func TestAllNativeSwitchSpellings(t *testing.T) {
 }
 
 func TestExistingReadersConsultTheResolver(t *testing.T) {
-	get := AllNative(envOf(map[string]string{"GO_ALL_NATIVE": "true", "GO_EXECUTOR_LEGACY_OUTREACH_ACTIONS": "false"}))
+	get := AllNative(envOf(map[string]string{"GO_ALL_NATIVE": "true", "GO_EXECUTOR_LEGACY_OUTREACH_ACTIONS": "false"})) // retired: stays on
 	if v, err := CapabilityRoutesFrom(get); err != nil || !v {
 		t.Fatal("capability routes", v, err)
 	}
@@ -87,7 +86,7 @@ func TestExistingReadersConsultTheResolver(t *testing.T) {
 		t.Fatalf("executor %+v", ex)
 	}
 	a, err := loadAutomations(get)
-	if err != nil || !a.GoExecutorTriggerEval || a.GoExecutorLegacyOutreachActions {
+	if err != nil || !a.GoExecutorTriggerEval || !a.GoExecutorLegacyOutreachActions {
 		t.Fatalf("automations %+v %v", a, err)
 	}
 }

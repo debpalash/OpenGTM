@@ -19,6 +19,7 @@ type SourceWbSettings struct {
 
 // LoadSourceWb reads the switches strictly; a malformed value is a startup error.
 func LoadSourceWb(get func(string) string) (SourceWbSettings, error) {
+	get = AllNative(get) // retired flags read as on
 	var s SourceWbSettings
 	for _, f := range []struct {
 		dst *bool
@@ -41,6 +42,7 @@ func LoadSourceWb(get func(string) string) (SourceWbSettings, error) {
 // SourceWbFrom reads the switches leniently (pydantic bool; malformed = off), for
 // request handlers that resolve them per call.
 func SourceWbFrom(get func(string) string) SourceWbSettings {
+	get = AllNative(get) // retired flags read as on
 	return SourceWbSettings{
 		GoExecutor:          pyBool(get("GO_EXECUTOR_SOURCE_WORKBOOK")),
 		PreviewEnabled:      pyBool(get("GO_SOURCE_PREVIEW_ENABLED")),
@@ -49,13 +51,6 @@ func SourceWbFrom(get func(string) string) SourceWbSettings {
 	}
 }
 
-// SourceWorkbookExecutor is the executor of a new source_workbook job: "go" only when
-// GO_EXECUTOR_ENABLED, the workspace is in GO_EXECUTOR_WORKSPACES and
-// GO_EXECUTOR_SOURCE_WORKBOOK is on; otherwise "python" (today's behaviour).
-func SourceWorkbookExecutor(get func(string) string, workspaceID string) string {
-	e := ExecutorCohortFrom(get)
-	if e.Enabled && InCohort(e.Workspaces, workspaceID) && pyBool(get("GO_EXECUTOR_SOURCE_WORKBOOK")) {
-		return "go"
-	}
-	return "python"
-}
+// SourceWorkbookExecutor is the executor of a new source_workbook job: always "go"
+// (GO_EXECUTOR_SOURCE_WORKBOOK is retired).
+func SourceWorkbookExecutor(func(string) string, string) string { return ExecutorGo }
