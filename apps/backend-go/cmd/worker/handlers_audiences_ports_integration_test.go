@@ -28,8 +28,8 @@ func (v *okVendor) RoundTrip(r *http.Request) (*http.Response, error) {
 		}
 	}
 	status := 201 // created (CRM, campaigns)
-	if r.Method == http.MethodGet || r.URL.Host == "sheets.googleapis.com" {
-		status = 200 // lookups and Sheets writes answer 200
+	if r.Method == http.MethodGet || r.URL.Host == "sheets.googleapis.com" || strings.HasSuffix(r.URL.Path, "/search") {
+		status = 200 // lookups (incl. HubSpot's POST search) and Sheets writes answer 200
 	}
 	return &http.Response{StatusCode: status, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(body)), Request: r}, nil
 }
