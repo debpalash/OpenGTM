@@ -118,7 +118,7 @@ func TestLegacyOutreachVectors(t *testing.T) {
 			}
 			idem := ""
 			if v.Idem != nil {
-				idem = *v.Idem
+				idem = strings.ReplaceAll(*v.Idem, "trig:ws-1:", "trig:"+loWS+":") // the engine's key carries its own workspace
 			}
 			for i, o := range v.Outcomes {
 				got := Execute(ctx, d, loWS, action, "wb", "1", v.LeadID, v.Lead, nil, idem)
@@ -202,8 +202,12 @@ func TestLegacyOutreachVectors(t *testing.T) {
 					}
 					wj, _ := json.Marshal(wp)
 					wantS := strings.ReplaceAll(strings.ReplaceAll(string(wj), "$SEQ", seq), `"ws-1"`, `"`+loWS+`"`)
-					if v.Idem == nil || strings.HasPrefix(fmt.Sprint(wp["idempotency_key"]), "seq:") {
+					if k := fmt.Sprint(wp["idempotency_key"]); v.Idem == nil || strings.HasPrefix(k, "seq:") || strings.HasPrefix(k, "trig:ws-1:") {
 						wantS = strings.ReplaceAll(wantS, ":ws-1:", ":"+loWS+":") // keys Go derives; an engine key passes through
+					}
+					if k := fmt.Sprint(wp["idempotency_key"]); v.Idem != nil && !strings.HasPrefix(k, "seq:") && !strings.HasPrefix(k, "trig:ws-1:") {
+						// a key that is not an engine key (trig:<ws>:...) is namespaced by workspace
+						wantS = strings.Replace(wantS, `"idempotency_key":"`+k+`"`, `"idempotency_key":"act:`+loWS+`:`+k+`"`, 1)
 					}
 					// The vector's executor is Python's; since the plan 15 cutover every send job is "go".
 					if ex != "go" || normJSON(t, string(gj)) != normJSON(t, wantS) {
@@ -291,7 +295,7 @@ func TestLegacySendEmailAtMostOnce(t *testing.T) {
 
 	// a send already in_flight for the key: the action must not queue another
 	loIn(t, ctx, d, func(tx pgx.Tx) error {
-		_, err := outreachstore.InsertInFlight(ctx, tx, outreachstore.SendIn{WorkspaceID: loWS, ToEmail: "a@x.com", IdempotencyKey: "k-inflight"})
+		_, err := outreachstore.InsertInFlight(ctx, tx, outreachstore.SendIn{WorkspaceID: loWS, ToEmail: "a@x.com", IdempotencyKey: "act:" + loWS + ":k-inflight"})
 		return err
 	})
 	if r := Execute(ctx, d, loWS, act, "wb", "1", ptr(7), lead, nil, "k-inflight"); r.Status != "success" || r.Summary != "already queued/sent" {

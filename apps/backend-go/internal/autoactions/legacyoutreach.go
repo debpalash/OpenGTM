@@ -139,68 +139,108 @@ func legacySendEmail(ctx context.Context, d Deps, ws string, cfg map[string]any,
 	}
 	var res Result
 	err = tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {
-		sup, err := outreachstore.IsSuppressed(ctx, tx, ws, email)
-		if err != nil {
-			return err
-		}
-		if sup {
-			res = Result{Status: "skipped", SkipReason: "suppressed", Summary: "suppressed"}
-			return nil
-		}
-		job := sendJob{WorkspaceID: ws, SequenceID: seqID, LeadID: leadID, StepNumber: step, ToEmail: email,
-			Subject: cfgOr(cfg, "subject"), BodyHTML: cfgOr(cfg, "body_html"), Variables: lead}
-		key := idem
-		if key == "" {
-			key = fmt.Sprintf("trig:%s:adhoc:%s:%d", ws, adhocWho(leadID, email), step)
-		}
-		if seqID != nil {
-			ok, err := outreachstore.SequenceExists(ctx, tx, ws, *seqID)
-			if err != nil {
-				return err
-			}
-			if !ok {
-				res = failed("sequence not found in workspace")
-				res.SkipReason = "not_connected"
-				return nil
-			}
-			eid, created, err := outreachstore.Enroll(ctx, tx, ws, *seqID, int(*leadID), email, "trigger_send", time.Time{})
-			if err != nil {
-				return err
-			}
-			if !created {
-				id, stored, found, err := existingEnrollment(ctx, tx, ws, *seqID, *leadID)
-				if err != nil {
-					return err
-				}
-				if found && stored != email {
-					res = failed(errEnrollmentEmail)
-					return nil
-				}
-				eid = 0
-				if found {
-					eid = id
-				}
-			}
-			if eid != 0 {
-				job.EnrollmentID = &eid
-				key = outreachsend.SequenceStepIdem(ws, *seqID, eid, step)
-			}
-		}
-		job.IdempotencyKey = key
-		queued, err := enqueueIfAbsent(ctx, tx, ws, job)
-		if err != nil {
-			return err
-		}
-		res = Result{Status: "success", Summary: "already queued/sent"}
-		if queued {
-			res.Summary = "send enqueued"
-		}
-		return nil
+		var err error
+		res, err = QueueSend(ctx, tx, ws, SendRequest{Email: email, SequenceID: seqID, LeadID: leadID, StepNumber: step,
+			Subject: cfgOr(cfg, "subject"), BodyHTML: cfgOr(cfg, "body_html"), Variables: lead, IdempotencyKey: scopeKey(ws, idem)})
+		return err
 	})
 	if err != nil {
 		return failed(truncErr(err))
 	}
 	return res
+}
+
+// SendRequest is one send_email enqueue (the automations action and the MCP
+// send_email tool share QueueSend). Email is already normalized. IdempotencyKey
+// is the final key, workspace-scoped by the caller (see scopeKey); empty means
+// the ad-hoc default trig:<ws>:adhoc:<lead>:<step>.
+type SendRequest struct {
+	Email          string
+	SequenceID     *string
+	LeadID         *int64
+	StepNumber     int
+	Subject        any
+	BodyHTML       any
+	Variables      map[string]any
+	IdempotencyKey string
+}
+
+// scopeKey makes an action's idempotency key unique to the workspace. Engine
+// keys (trig:<ws>:...) already are and pass through; any other key is
+// namespaced, since send keys are global (jobs.fire_key) and a key from
+// another tenant must neither block a send nor reveal that it exists.
+func scopeKey(ws, key string) string {
+	if key == "" || strings.HasPrefix(key, "trig:"+ws+":") {
+		return key
+	}
+	return "act:" + ws + ":" + key
+}
+
+// QueueSend is _act_send_email inside the caller's workspace transaction (never
+// sends): a suppressed address is skipped before any write; a sequence send
+// enrolls the lead and is keyed per (enrollment, step) so the ticker and this
+// call collapse to one send; a send already pending (in this workspace) or
+// recorded under the key is not queued again. Errors are database errors and
+// should roll the caller's transaction back.
+func QueueSend(ctx context.Context, tx pgx.Tx, ws string, r SendRequest) (Result, error) {
+	sup, err := outreachstore.IsSuppressed(ctx, tx, ws, r.Email)
+	if err != nil {
+		return Result{}, err
+	}
+	if sup {
+		return Result{Status: "skipped", SkipReason: "suppressed", Summary: "suppressed"}, nil
+	}
+	job := sendJob{WorkspaceID: ws, SequenceID: r.SequenceID, LeadID: r.LeadID, StepNumber: r.StepNumber, ToEmail: r.Email,
+		Subject: r.Subject, BodyHTML: r.BodyHTML, Variables: r.Variables}
+	key := r.IdempotencyKey
+	if key == "" {
+		key = fmt.Sprintf("trig:%s:adhoc:%s:%d", ws, adhocWho(r.LeadID, r.Email), r.StepNumber)
+	}
+	if r.SequenceID != nil {
+		seq := *r.SequenceID
+		if r.LeadID == nil {
+			return failed(errNoLeadID), nil
+		}
+		ok, err := outreachstore.SequenceExists(ctx, tx, ws, seq)
+		if err != nil {
+			return Result{}, err
+		}
+		if !ok || *r.LeadID < 1 || *r.LeadID > 1<<31-1 {
+			res := failed("sequence not found in workspace")
+			res.SkipReason = "not_connected"
+			return res, nil
+		}
+		eid, created, err := outreachstore.Enroll(ctx, tx, ws, seq, int(*r.LeadID), r.Email, "trigger_send", time.Time{})
+		if err != nil {
+			return Result{}, err
+		}
+		if !created {
+			id, stored, found, err := existingEnrollment(ctx, tx, ws, seq, *r.LeadID)
+			if err != nil {
+				return Result{}, err
+			}
+			if found && stored != r.Email {
+				return failed(errEnrollmentEmail), nil
+			}
+			eid = 0
+			if found {
+				eid = id
+			}
+		}
+		if eid != 0 {
+			job.EnrollmentID = &eid
+			key = outreachsend.SequenceStepIdem(ws, seq, eid, r.StepNumber)
+		}
+	}
+	job.IdempotencyKey = key
+	queued, err := enqueueIfAbsent(ctx, tx, ws, job)
+	if err != nil {
+		return Result{}, err
+	}
+	if queued {
+		return Result{Status: "success", Summary: "send enqueued"}, nil
+	}
+	return Result{Status: "success", Summary: "already queued/sent"}, nil
 }
 
 // Refusals that keep one recipient's data from reaching another (review wave2a M4).
@@ -227,7 +267,7 @@ func existingEnrollment(ctx context.Context, tx pgx.Tx, ws, seq string, leadID i
 func enqueueIfAbsent(ctx context.Context, tx pgx.Tx, ws string, job sendJob) (bool, error) {
 	var pending bool
 	if err := tx.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM jobs WHERE type='send' AND status IN ('pending','processing')
-	   AND payload->>'idempotency_key' = $1)`, job.IdempotencyKey).Scan(&pending); err != nil {
+	   AND workspace_id = $2 AND payload->>'idempotency_key' = $1)`, job.IdempotencyKey, ws).Scan(&pending); err != nil {
 		return false, err
 	}
 	if pending {
