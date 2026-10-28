@@ -589,7 +589,11 @@ func (s *Salesforce) PushLeadAsContact(ctx context.Context, ws string, lead Lead
 		if err != nil {
 			return fail(err)
 		}
-		if sr.status == 200 {
+		if sr.status != 200 {
+			// A failed search is not "not found": creating now would duplicate the Lead.
+			return SalesforcePushResult{Error: "Salesforce Lead search failed (retryable): " + sr.failText(160)}
+		}
+		{
 			data, err := parseJSON(sr.body)
 			if err != nil {
 				return fail(err)

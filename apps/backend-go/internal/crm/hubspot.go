@@ -436,7 +436,11 @@ func (h *HubSpot) PushLeadAsContact(ctx context.Context, ws string, lead Lead, f
 	if err != nil {
 		return fail(err)
 	}
-	if sr.status == 200 {
+	if sr.status != 200 {
+		// A failed search is not "not found": creating now would duplicate the contact.
+		return PushResult{Error: "HubSpot contact search failed (retryable): " + sr.failText(200)}
+	}
+	{
 		data, err := parseJSON(sr.body)
 		if err != nil {
 			return fail(err)

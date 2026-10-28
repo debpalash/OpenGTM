@@ -58,6 +58,7 @@ func loadSFTranscripts(t *testing.T) []*transcript {
 			t.Fatalf("%s: %v", f, err)
 		}
 		tr.file = filepath.Base(f)
+		searchFixDeviation(&tr)
 		for i := range tr.Exchanges { // resolve {{secret:...}} in recorded URLs
 			tr.Exchanges[i].Request.URL = tr.fresh(tr.Exchanges[i].Request.URL)
 		}

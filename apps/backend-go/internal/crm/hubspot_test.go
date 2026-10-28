@@ -256,6 +256,7 @@ func loadTranscripts(t *testing.T) []*transcript {
 			t.Fatalf("%s: %v", f, err)
 		}
 		tr.file = filepath.Base(f)
+		searchFixDeviation(&tr)
 		out = append(out, &tr)
 	}
 	return out
