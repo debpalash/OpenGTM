@@ -143,6 +143,8 @@ func (c PyCollectors) pcCall(ctx context.Context, w PyWatch, source string, n in
 	if err != nil {
 		return nil, &PyCallError{Msg: "invalid input"}
 	}
+	// Paid provider calls reserve in the workspace spend ledger, one scope per watch fire and source.
+	ctx = provcall.WithSpendScope(ctx, provcall.SpendScope{Run: "watch:" + w.ID + ":" + w.FireKey, Row: source})
 	res, err := c.Client.Call(ctx, provcall.Call{
 		CallID: pcCallID(w, source, n), Provider: provider, WorkspaceID: w.WorkspaceID,
 		Input: raw, Timeout: timeout,
