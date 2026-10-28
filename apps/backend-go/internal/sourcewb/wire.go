@@ -33,7 +33,8 @@ func (f CrossLinkedFinder) finder() leadpeople.CrossLinked {
 	if name == "" {
 		name = "crosslinked"
 	}
-	if p, ok := providers.Get(name); ok {
+	// A gated registry finder runs in process only when GO_LOCAL_PROVIDERS lists it (as people research does).
+	if p, ok := providers.Get(name); ok && providers.InProcess(p) {
 		if cl, ok := p.(leadpeople.CrossLinked); ok {
 			return cl
 		}
@@ -60,6 +61,9 @@ func (f CrossLinkedFinder) FindPeopleByTitles(ctx context.Context, q PeopleQuery
 		if q.Geo != "" {
 			geo += `" "` + q.Geo
 		}
+	}
+	if q.Workspace != "" {
+		ctx = providers.WithWorkspace(ctx, q.Workspace) // the search cache salt
 	}
 	res, err := cl.FindPeopleByTitles(ctx, leadpeople.PeopleQuery{Company: q.Company, Titles: q.Titles, Geo: geo,
 		MaxPeople: q.MaxPeople, MaxSearches: q.MaxSearches, ResultsPerSearch: 10, Delay: 200 * time.Millisecond})

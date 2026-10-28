@@ -249,7 +249,7 @@ func (d Deps) materializePeople(ctx context.Context, ws, wbID, colID string, col
 			break
 		}
 		res, err := d.People.FindPeopleByTitles(ctx, PeopleQuery{Company: company, Titles: cfg.Titles, Geo: cfg.Geo,
-			Seniority: cfg.Seniority, MaxPeople: int(cfg.MaxPerCompany), MaxSearches: budget - used})
+			Seniority: cfg.Seniority, MaxPeople: int(cfg.MaxPerCompany), MaxSearches: budget - used, Workspace: ws})
 		if err != nil {
 			if ctx.Err() != nil {
 				return nil, ctx.Err()

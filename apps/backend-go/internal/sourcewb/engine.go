@@ -60,6 +60,8 @@ type PeopleQuery struct {
 	Geo, Seniority string
 	MaxPeople      int
 	MaxSearches    int // remaining budget for this call
+	// Workspace salts the shared web search cache (as people research does).
+	Workspace string
 }
 
 // Person is one discovered profile ({name, title, linkedin[, evidence_url]}).
