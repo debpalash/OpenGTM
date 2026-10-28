@@ -71,6 +71,9 @@ func NewAppPool(t testing.TB, maxConns int32) *pgxpool.Pool {
 			t.Fatalf("setup %q: %v", s, err)
 		}
 	}
+	if err := raiseSeqFloor(ctx, owner); err != nil {
+		t.Fatalf("sequence floor: %v", err)
+	}
 	u, err := url.Parse(ownerURL)
 	if err != nil {
 		t.Fatalf("parse TEST_DATABASE_URL: %v", err)

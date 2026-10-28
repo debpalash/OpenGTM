@@ -42,8 +42,8 @@ func TestReserveIDsBlocksAreDisjointUnderConcurrency(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			base := ReserveIDs(t, tbl, perBlock)
-			if base < 5000 {
-				errs <- fmt.Errorf("block base %d below existing max id 5000", base)
+			if base < SeqFloor {
+				errs <- fmt.Errorf("block base %d below SeqFloor", base)
 				return
 			}
 			for k := int64(1); k <= perBlock; k++ {
@@ -81,5 +81,33 @@ func TestReserveIDsBlocksAreDisjointUnderConcurrency(t *testing.T) {
 	// After the reservations the sequence is past every row: a default insert succeeds.
 	if _, err := pool.Exec(ctx, `INSERT INTO `+tbl+` (src) VALUES ('after')`); err != nil {
 		t.Fatal(err)
+	}
+}
+
+// NewAppPool raises every public sequence to SeqFloor and never lowers one that is already past it.
+func TestNewAppPoolRaisesSequencesToFloor(t *testing.T) {
+	url := os.Getenv("TEST_DATABASE_URL")
+	if url == "" {
+		t.Skip("TEST_DATABASE_URL not set")
+	}
+	ctx := context.Background()
+	owner, err := pgxpool.New(ctx, url)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer owner.Close()
+	low, high := fmt.Sprintf("testpg_floor_low_%d", os.Getpid()), fmt.Sprintf("testpg_floor_high_%d", os.Getpid())
+	if _, err := owner.Exec(ctx, `DROP SEQUENCE IF EXISTS `+low+`, `+high+`; CREATE SEQUENCE `+low+`; CREATE SEQUENCE `+high+`;
+		SELECT setval('`+high+`', `+fmt.Sprint(5*SeqFloor)+`)`); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _, _ = owner.Exec(context.Background(), `DROP SEQUENCE IF EXISTS `+low+`, `+high) })
+	_ = NewAppPool(t, 1)
+	var l, h int64
+	if err := owner.QueryRow(ctx, `SELECT nextval('`+low+`'), nextval('`+high+`')`).Scan(&l, &h); err != nil {
+		t.Fatal(err)
+	}
+	if l != SeqFloor+1 || h != 5*SeqFloor+1 {
+		t.Fatalf("nextval low=%d high=%d, want %d and %d", l, h, SeqFloor+1, 5*SeqFloor+1)
 	}
 }
