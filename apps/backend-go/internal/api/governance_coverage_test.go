@@ -165,7 +165,7 @@ func TestEveryGovernancePlaybookRouteHasFixtureOrIsRetained(t *testing.T) {
 
 // The three ported job types are exactly the Python ones with a GO_EXECUTOR_* flag; since the plan 15 cutover the
 // flags are retired and Go claims them for every workspace.
-func TestEveryGovernanceJobTypeHandledOrPython(t *testing.T) {
+func TestGovernanceJobTypesAlwaysRouteToGo(t *testing.T) {
 	timeouts := legacyAPIFile(t, "services", "queue_service.py")
 	flags := legacyAPIFile(t, "services", "go_executor.py")
 	for typ, flag := range map[string]string{
@@ -200,7 +200,7 @@ var (
 	pyClassTable = regexp.MustCompile(`(?m)^class (\w+)\([^)]*\):[^\n]*\n(?:[ \t]+[^\n]*\n|\n)*?[ \t]+__tablename__\s*=\s*"(\w+)"`)
 )
 
-func TestRetentionTargetsCoverEveryOrmModelInPython(t *testing.T) {
+func TestRetentionTargetsCoverEveryLegacyOrmModel(t *testing.T) {
 	src := legacyAPIFile(t, "services", "governance", "retention.py")
 	start := strings.Index(src, "models = [")
 	end := strings.Index(src[start:], "]\n")

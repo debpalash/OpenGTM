@@ -222,39 +222,50 @@ func goJobTypes(t *testing.T) map[string]bool {
 	return out
 }
 
-func TestEveryJobTypeHandledOrPython(t *testing.T) {
-	b, err := os.ReadFile(testutil.LegacyPath(t, "apps", "api", "services", "job_registry.py"))
-	if err != nil {
-		t.Skipf("legacy Python tree not present (%v)", err)
-	}
-	var pyTypes []string
-	for _, m := range pyJobKey.FindAllStringSubmatch(string(b), -1) {
-		pyTypes = append(pyTypes, m[1])
-	}
-	if len(pyTypes) != 17 {
-		t.Fatalf("parsed %d Python job types, want 17: %v", len(pyTypes), pyTypes)
-	}
-	py := map[string]bool{}
-	for _, ty := range pyTypes {
-		py[ty] = true
+// committedWorkerJobTypes are the 17 job types the Go worker registers since the plan 15 cutover
+// (docs/go-port/runbooks/15-cutover.md). Each area's own coverage test checks its file's handler map; the enrichment
+// ones are checked against cmd/worker/main.go here.
+var committedWorkerJobTypes = []string{
+	"run_workbook", "ambitionbox_import", "refresh_workbook", "signal_scan", "source_workbook", "trigger_eval", "watch_poll",
+	"send", "outreach_inbound_poll", "retention_enforce", "research_playbook_run", "research_playbook_schedule",
+	"audience_refresh", "audience_destination_sync", "source_health_check", "collect", "bulk_enrich",
+}
+
+func TestEnrichmentJobTypesHaveAGoHandler(t *testing.T) {
+	known := map[string]bool{}
+	for _, ty := range committedWorkerJobTypes {
+		known[ty] = true
 	}
 	handled := goJobTypes(t)
-	for ty := range handled {
-		if !py[ty] {
-			t.Errorf("Go worker handles %q, which Python does not register", ty)
-		}
-	}
 	for _, ty := range []string{"run_workbook", "refresh_workbook", "signal_scan"} {
 		if !handled[ty] {
 			t.Errorf("plan 06 job type %s is not dispatched by the Go worker", ty)
 		}
 	}
-	// Python-only by decision: scrapers and the job ledger (D1, D6).
-	for _, ty := range []string{"source_workbook", "collect", "bulk_enrich"} {
-		if handled[ty] {
-			t.Errorf("job type %s must stay on the Python worker", ty)
+	for ty := range handled {
+		if !known[ty] {
+			t.Errorf("Go worker handles %q, which is not one of the 17 committed job types", ty)
 		}
 	}
+	// The recorded Python registry names the same 17 (skipped without the legacy tree).
+	t.Run("python registry", func(t *testing.T) {
+		b, err := os.ReadFile(testutil.LegacyPath(t, "apps", "api", "services", "job_registry.py"))
+		if err != nil {
+			t.Skip(err)
+		}
+		py := map[string]bool{}
+		for _, m := range pyJobKey.FindAllStringSubmatch(string(b), -1) {
+			py[m[1]] = true
+		}
+		if len(py) != len(known) {
+			t.Fatalf("Python registered %d job types, want %d", len(py), len(known))
+		}
+		for ty := range py {
+			if !known[ty] {
+				t.Errorf("Python registers %q, missing from committedWorkerJobTypes", ty)
+			}
+		}
+	})
 }
 
 // sourcePreviewPatterns are the routes registerWorkbookSources adds with GO_SOURCE_PREVIEW_ENABLED on

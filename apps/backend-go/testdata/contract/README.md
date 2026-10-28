@@ -743,8 +743,8 @@ Replayed against `testdata/transcripts/webhook` (fake secret `ctk_transcript_hoo
 - `internal/api/enrichment_coverage_test.go`: `TestEveryEnrichmentRouteIsPortedOrRetained` (every route decorator of
   `routers/{workbooks,ingest,meta,signals}.py` is registered in Go or listed in `retained_enrichment_routes.txt` /
   `retained_leads_routes.txt`; parameter names and trailing slashes are normalised), `TestRetainedEnrichmentRoutesNotRegisteredInGo`
-  and `TestEveryJobTypeHandledOrPython` (the Go worker dispatches `run_workbook`, `refresh_workbook`, `signal_scan`; `source_workbook`,
-  `collect`, `bulk_enrich` stay on Python; every handled type exists in `job_registry.py`). `TestEnrichRoutePatterns` now asserts
+  and `TestEnrichmentJobTypesHaveAGoHandler` (the Go worker dispatches `run_workbook`, `refresh_workbook`, `signal_scan`, and every handled type is one of the 17 committed job types; since the plan 15 cutover `source_workbook`,
+  `collect` and `bulk_enrich` run in Go too, and the Python registry is cross-checked only where the legacy tree is present). `TestEnrichRoutePatterns` now asserts
   equality with the 14-route table (it was vacuous: without a pool nothing registered). `TestEveryProviderPortedOrListed` derives
   from the Python module glob, each module's `name = "..."` attribute and `python_providers.txt`, not from the inventory JSON.
 - `TestFixturesCoverEveryGuardString` also reads the plan 06 fixture areas (`estimate run cellrun sources refresh migrate meta ingest ws`).
@@ -880,8 +880,7 @@ Coverage: `internal/api/leadgen_coverage_test.go` parses `routers/leads.py` (`jo
 `retained_leadgen_routes.txt` (3: `POST /api/lead/{id}/enrich`, `GET /api/v2/search/unified`, `POST /api/v2/scraper/scrape`; plan 06's `/sources/{col}/preview` stays in
 `retained_enrichment_routes.txt`). `TestEveryLeadgenRouteHasFixtureOrIsRetained` requires a recorded fixture per ported route (`collect/`, `jobs/`, `leadutils/`, `sources/srcsettings_*`),
 `TestRetainedLeadgenRoutesNotRegisteredInGo`, `TestNoGoHandlerImportsScraperDeps` (no HTML-scraping, browser or crawl library in the plan 14 packages, `cmd/api`, `cmd/worker`) and
-`TestLeadgenJobTypesHandledOrPython` (`collect`, `bulk_enrich`, `source_workbook` are never dispatched by the Go worker; `source_health_check` only when
-`GO_EXECUTOR_ENABLED` AND `GO_EXECUTOR_SOURCE_HEALTH`, a global job with no cohort). Cross-stack: `internal/api/leadgen_crossstack_integration_test.go` (the Go-enqueued queue and ledger rows
+`TestLeadgenJobTypesAlwaysRouteToGo` (since the plan 15 cutover `source_health_check` is a Go job whatever the retired flags say, and its handler hands nothing back). Cross-stack: `internal/api/leadgen_crossstack_integration_test.go` (the Go-enqueued queue and ledger rows
 satisfy Python's claim predicate and `handle_collect`'s payload; a job written with `PgJobLedger`'s SQL is served by Go in Python's key order, byte for byte; Go's cancel is what
 `_is_cancelled` polls) and `legacy/python/tests/test_go_enqueued_collect.py` (the real `handle_collect` and `_is_cancelled` against a Go-shaped row: `pending -> running -> done`,
 a Go cancel is seen, a job cancelled before the claim is not run). nginx: plan 14 section of `infra/nginx/go-routes.conf`, checked at 0%, 50% and 100% by `scripts/nginx-routing-check.sh`.
@@ -901,7 +900,7 @@ Runbook: `docs/go-port/runbooks/leadgen-cutover.md`.
   (detail adds `stages` last), stage rows `id, job_id, stage, status, input_count, output_count, rejected_count, details, started_at, completed_at`; `/jobs/{id}/leads` rows follow
   `Lead.to_dict()` (dataclass order, NOT the ledger order); the list route returns `intent_details` as the stored text, the detail route parses it. A job whose SQLite file was created before
   Python's `_migrate` had a different column order; the Postgres table fixes one order (the one above). The fixtures are recorded with `sort_keys`, so order is pinned by tests against the
-  literal strings (`TestPythonWrittenJobIsServedByGoInPythonKeyOrder`, `leadsread` tests), not by fixtures. U+2028 and U+2029 in stored text are emitted raw (no `\u2028` escaping), like Python.
+  literal strings (`TestLegacyShapedJobRowIsServedInRecordedKeyOrder`, `leadsread` tests), not by fixtures. U+2028 and U+2029 in stored text are emitted raw (no `\u2028` escaping), like Python.
 - **Events:** `/jobs/{id}/events` reads `progress.recent(500)` through the shared process-wide bus (`progressBus`); Python's fallback semantics are kept (an invalid Redis entry is skipped instead of triggering the fallback, F10; an empty list or a
   Redis error falls back to the local deque). An empty workspace id returns nothing (Python returns every tenant's local events). Each event is the **stored JSON text compacted Python-style**
   (`compactStoredEvent`): keys keep the stored order, non-ASCII is raw, number text is kept. Redis rows are exact; events of the no-Redis in-process deque are rendered by Go's `dumps` (Python

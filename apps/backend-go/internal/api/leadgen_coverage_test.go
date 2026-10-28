@@ -173,7 +173,7 @@ func TestEveryLeadgenRouteHasFixtureOrIsRetained(t *testing.T) {
 
 // Plan 15 cutover: every leadgen job type runs in the Go worker. source_health_check's executor is go whatever the
 // (retired) flags say, and its worker handler no longer hands anything back to Python.
-func TestLeadgenJobTypesHandledOrPython(t *testing.T) {
+func TestLeadgenJobTypesAlwaysRouteToGo(t *testing.T) {
 	b, err := os.ReadFile(filepath.Join("..", "..", "cmd", "worker", "handlers_leadgen.go"))
 	if err != nil {
 		t.Fatal(err)

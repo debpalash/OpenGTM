@@ -152,10 +152,10 @@ func TestGoEnqueuedCollectIsClaimableByGoWorker(t *testing.T) {
 	}
 }
 
-// TestPythonWrittenJobIsServedByGoInPythonKeyOrder: a job created, claimed, staged and completed with the SQL of
+// TestLegacyShapedJobRowIsServedInRecordedKeyOrder: a job created, claimed, staged and completed with the SQL of
 // PgJobLedger (text isoformat stamps, ” defaults) is listed, read and staged by Go as Python's own routes
 // serialise it: same keys in the same order, same compact bytes.
-func TestPythonWrittenJobIsServedByGoInPythonKeyOrder(t *testing.T) {
+func TestLegacyShapedJobRowIsServedInRecordedKeyOrder(t *testing.T) {
 	e := newCrossEnv(t)
 	const id = "d0de0000000040008000000000000001"
 	const created, started, stageStart, stageEnd, done = "2026-09-01T12:00:00.123456+00:00", "2026-09-01T12:00:01.000001+00:00",
@@ -203,10 +203,10 @@ func TestPythonWrittenJobIsServedByGoInPythonKeyOrder(t *testing.T) {
 	}
 }
 
-// TestGoCancelIsVisibleToPythonStatusRead: the cancel route writes the row the Python runner's
+// TestGoCancelWritesTheRowShapeTheLedgerReads: the cancel route writes the row the Python runner's
 // _is_cancelled polls (PgJobLedger.get_status), with Python's cancel text and the queue row
 // cancelled in the same transaction.
-func TestGoCancelIsVisibleToPythonStatusRead(t *testing.T) {
+func TestGoCancelWritesTheRowShapeTheLedgerReads(t *testing.T) {
 	e := newCrossEnv(t)
 	rec := e.post("alice", "", `{"query":"IT staffing Pune"}`)
 	if rec.Code != 200 {

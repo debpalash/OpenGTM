@@ -95,7 +95,7 @@ func capDeps(t *testing.T, enabled bool) (Deps, func()) {
 }
 
 // The handlers (behind auth in production) must produce FastAPI's exact bytes for every recorded catalog.
-func TestCapabilityBodiesByteEqualPython(t *testing.T) {
+func TestCapabilityBodiesByteEqualRecordedBodies(t *testing.T) {
 	f := loadCapFixtures(t)
 	d, restore := capDeps(t, true)
 	defer restore()
@@ -197,7 +197,7 @@ func TestCapabilityRoutesRegisteredAndAuthenticated(t *testing.T) {
 }
 
 // /health and /api are public (no auth dependency in FastAPI) and carry the recorded bodies; other methods 405.
-func TestHealthAndRootMatchPython(t *testing.T) {
+func TestHealthAndRootMatchRecordedBodies(t *testing.T) {
 	r, restore := capRouter(t, true)
 	defer restore()
 	for _, c := range loadCapFixtures(t).Root {
