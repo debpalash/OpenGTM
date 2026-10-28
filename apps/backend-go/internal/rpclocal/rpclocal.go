@@ -19,6 +19,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
@@ -34,6 +36,7 @@ import (
 )
 
 const (
+	spendTimeout   = 10 * time.Second
 	maxTimeout     = 120 * time.Second
 	defaultTimeout = 10 * time.Second
 	dedupeTTL      = 600 * time.Second
@@ -65,8 +68,10 @@ type Deps struct {
 	// Scrub lists extra secret values to remove from outputs (optional).
 	Scrub func(ctx context.Context, ws string) []string
 	Cost  func(provider string) float64 // default vendorcatalog.BaseCost
-	Log   *slog.Logger
-	Now   func() time.Time
+	// SpendPool is the workspace spend ledger for paid calls under a provcall.SpendScope; nil refuses them.
+	SpendPool *pgxpool.Pool
+	Log       *slog.Logger
+	Now       func() time.Time
 }
 
 // Caller routes provider calls. Safe for concurrent use.
@@ -140,7 +145,7 @@ func (c *Caller) Call(ctx context.Context, call provcall.Call) (provcall.Result,
 			return provcall.Result{}, ctx.Err()
 		}
 	}
-	f.res, f.err = c.execute(ctx, call)
+	f.res, f.err = c.executeLedgered(ctx, call)
 	if f.err != nil || f.res.Status != "ok" {
 		c.forget(dedupeKey{call.WorkspaceID, call.CallID}, f) // a retry must re-run
 	}

@@ -125,5 +125,5 @@ func Configure(s Setup) (*Caller, error) {
 		runner = providerrun.New(providerrun.Deps{Pool: s.Pool, HTTP: strict, Secrets: sec, Log: s.Log})
 	}
 	return New(Deps{Local: cfg.Local.Enabled, HTTP: strict, Runner: runner,
-		Secrets: s.Secrets, Scrub: session, Log: s.Log}), nil
+		Secrets: s.Secrets, Scrub: session, Log: s.Log, SpendPool: s.Pool}), nil
 }
