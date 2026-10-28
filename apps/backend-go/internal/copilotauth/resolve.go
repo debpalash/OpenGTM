@@ -1,6 +1,7 @@
 // Package copilotauth is _resolve_chat_workspace: the single tenant decision
 // point of the chat routes. It is deliberately not identity.Workspace (different
-// status codes for inactive users, no SSO enforcement, self-host mode).
+// status codes for inactive users, self-host mode); the enforce_sso policy is
+// applied like on every other workspace route.
 package copilotauth
 
 import (
@@ -69,8 +70,8 @@ func internal() *Err {
 	return &Err{Status: http.StatusInternalServerError, Detail: "Internal Server Error"}
 }
 
-// Resolve authorizes the request's workspace. SSO enforcement is not applied
-// (Python's chat resolver does not either; parity).
+// Resolve authorizes the request's workspace, including its enforce_sso policy
+// (Python's chat resolver skipped it; fixed, final security M5).
 func Resolve(r *http.Request, d Deps) (Resolved, *Err) {
 	ctx := r.Context()
 	q := gen.New(d.DB)
@@ -139,6 +140,14 @@ func Resolve(r *http.Request, d Deps) (Resolved, *Err) {
 	if !member {
 		// Same answer for a missing and a foreign workspace.
 		return Resolved{}, &Err{Status: http.StatusForbidden, Detail: "Workspace access denied"}
+	}
+	// The workspace's enforce_sso policy applies here as on every other workspace route (final security M5).
+	refused, err := d.Identity.SSORefused(ctx, ws, u.ID, claims.AMR)
+	if err != nil {
+		return Resolved{}, internal()
+	}
+	if refused {
+		return Resolved{}, &Err{Status: http.StatusForbidden, Detail: identity.SSORequiredDetail}
 	}
 	slug, err := q.McpAuthWorkspaceSlug(ctx, ws)
 	if errors.Is(err, pgx.ErrNoRows) || (err == nil && slug == "") {

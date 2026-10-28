@@ -140,6 +140,30 @@ func Workspace(st *Store) httpx.Middleware {
 	}
 }
 
+// SSORequiredDetail is the 403 detail of a session refused by the workspace's enforce_sso policy.
+const SSORequiredDetail = ssoRequired
+
+// SSORefused applies the workspace's enforce_sso policy outside Workspace (the copilot resolver): true when the
+// workspace enforces SSO and the session is a non-owner without the sso AMR. A store built without a pool fails
+// closed.
+func (s *Store) SSORefused(ctx context.Context, workspaceID string, uid int32, amr []string) (bool, error) {
+	if s.pool == nil {
+		return true, errors.New("identity: SSO policy needs a pool-backed store")
+	}
+	enforce, err := s.EnforceSSO(ctx, s.pool, workspaceID)
+	if err != nil || !enforce {
+		return err != nil, err
+	}
+	if hasAMR(amr, "sso") {
+		return false, nil
+	}
+	role, err := s.MemberRole(ctx, workspaceID, uid)
+	if err != nil {
+		return true, err
+	}
+	return role != "owner", nil
+}
+
 func hasAMR(amr []string, want string) bool {
 	for _, a := range amr {
 		if a == want {
