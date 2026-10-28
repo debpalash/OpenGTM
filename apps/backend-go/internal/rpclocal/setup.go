@@ -122,7 +122,8 @@ func Configure(s Setup) (*Caller, error) {
 		if s.Secrets != nil {
 			sec = s.Secrets
 		}
-		runner = providerrun.New(providerrun.Deps{Pool: s.Pool, HTTP: strict, Secrets: sec, Log: s.Log})
+		runner = providerrun.New(providerrun.Deps{Pool: s.Pool, HTTP: strict, Secrets: sec, Log: s.Log,
+			URLCheck: func(raw string) error { return egress.CheckURLFor(s.AppEnv, s.EgressAllow, raw, true) }})
 	}
 	return New(Deps{Local: cfg.Local.Enabled, HTTP: strict, Runner: runner,
 		Secrets: s.Secrets, Scrub: session, Log: s.Log, SpendPool: s.Pool}), nil

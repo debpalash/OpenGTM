@@ -57,6 +57,13 @@ type Runner interface {
 	RunLocal(ctx context.Context, workspaceID, provider string, in providers.Input, timeout time.Duration) (providers.Output, error)
 }
 
+// declarativeRunner is implemented by runners that also execute signature-verified declarative
+// manifests (providerrun.Runner): Serves names a manifest provider, ManifestEnv its credentials.
+type declarativeRunner interface {
+	Serves(provider string) bool
+	ManifestEnv(provider string) []string
+}
+
 // Deps wire a Caller.
 type Deps struct {
 	// Runner runs registered Go providers; nil builds a providerrun.Runner without a pool
@@ -124,8 +131,12 @@ func (c *Caller) Serves(name string) bool {
 		return true
 	}
 	// Reacher needs the operator client and settings: it stays on its own paths.
-	_, ok := providers.Get(name)
-	return ok && name != "reacher"
+	if _, ok := providers.Get(name); ok {
+		return name != "reacher"
+	}
+	// No Go provider: a signature-verified declarative manifest the runner executes.
+	dr, ok := c.d.Runner.(declarativeRunner)
+	return ok && dr.Serves(name)
 }
 
 // Call runs call in process; a name not served here is provcall.ErrUnavailable.
@@ -244,11 +255,18 @@ func (c *Caller) execute(ctx context.Context, call provcall.Call) (provcall.Resu
 		// Registered Go providers run through providerrun, exactly like every other Go
 		// caller: global operator settings, per-workspace keys, the enrichment cache, the
 		// provider_stats ledger and the worker semaphore.
-		p, _ := providers.Get(call.Provider)
+		p, native := providers.Get(call.Provider)
 		out, err := c.d.Runner.RunLocal(cctx, call.WorkspaceID, call.Provider, providers.Input{Lead: lead, Settings: settings}, effectiveTimeout(call.Timeout))
 		if k, ok := p.(providers.Keyed); ok && c.d.Secrets != nil {
 			// The key values providerrun resolved are scrubbed from everything returned.
 			for _, env := range k.KeyEnv() {
+				if v, _, kerr := c.d.Secrets.Get(context.WithoutCancel(cctx), call.WorkspaceID, env); kerr == nil {
+					addSecret(v)
+				}
+			}
+		}
+		if dr, ok := c.d.Runner.(declarativeRunner); ok && !native && c.d.Secrets != nil {
+			for _, env := range dr.ManifestEnv(call.Provider) {
 				if v, _, kerr := c.d.Secrets.Get(context.WithoutCancel(cctx), call.WorkspaceID, env); kerr == nil {
 					addSecret(v)
 				}
@@ -261,7 +279,11 @@ func (c *Caller) execute(ctx context.Context, call provcall.Call) (provcall.Resu
 		if out.Error == "timeout" {
 			o.timedOut = true
 		}
-		o.out = scrape.OutputDict(scrape.ResultProviderOf(p, out), out)
+		name := call.Provider
+		if native {
+			name = scrape.ResultProviderOf(p, out)
+		}
+		o.out = scrape.OutputDict(name, out)
 	}()
 	var o outcome
 	select {
