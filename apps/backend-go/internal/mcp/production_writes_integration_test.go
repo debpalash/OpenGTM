@@ -13,6 +13,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachsend"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
@@ -20,7 +21,9 @@ import (
 // (secrets.Resolver.Has in production).
 type fakeSecretChecker map[string]bool
 
-func (f fakeSecretChecker) Has(_ context.Context, _ string, key string) (bool, error) { return f[key], nil }
+func (f fakeSecretChecker) Has(_ context.Context, _ string, key string) (bool, error) {
+	return f[key], nil
+}
 
 // pwEnv is a workspace served by the PRODUCTION outreach and automation
 // adapters (NewProductionDeps) through BuildRegistry and the write pipeline.
@@ -380,13 +383,15 @@ func TestProdCreateAutomationValidation(t *testing.T) {
 		{"max_actions_per_day out of range", Args{"name": "x", "trigger_type": "on_signal", "max_actions_per_day": float64(1 << 40)},
 			`{"error": "max_actions_per_day must be at most 2147483647", "status_code": 422}`},
 	}
-	e2 := newPWEnv(t, func(_ *Config, w *WriteAdapters) { w.MaxActionsPerRule = 1 })
+	// Same pool (a second testpg pool in one test would wait on its own advisory lock).
+	d1 := NewProductionDeps(e.cfg, e.pool, nil, emailverify.NewDeps(), WriteAdapters{MaxActionsPerRule: 1})
+	one := NewServer(d1, BuildRegistry(d1))
 	for _, c := range cases {
-		env := e
+		s := e.srv
 		if c.name == "too many actions" {
-			env = e2
+			s = one
 		}
-		if got := env.call("create_automation", c.args); got != c.want {
+		if got := e.wEnv.call(s, "create_automation", c.args); got != c.want {
 			t.Errorf("%s: %s", c.name, got)
 		}
 	}
@@ -411,5 +416,25 @@ func TestProdCreateAutomationRuleCap(t *testing.T) {
 	e.one(t, e.other, `SELECT count(*) FROM triggers WHERE workspace_id=$1`, &other)
 	if other != 0 || e.n(t, `SELECT count(*) FROM triggers WHERE workspace_id=$1`) != 1 {
 		t.Fatal("rule stored outside the token workspace or past the cap")
+	}
+}
+
+// A caller's idempotency key is namespaced by workspace: another tenant's
+// pending send under the same raw key neither blocks nor reveals anything.
+func TestProdSendEmailCallerKeyIsWorkspaceScoped(t *testing.T) {
+	e := newPWEnv(t, nil)
+	if err := e.d.RunInWorkspace(context.Background(), e.other, func(tx pgx.Tx) error {
+		_, _, err := queue.EnqueueOnce(context.Background(), tx, "send", e.other,
+			map[string]any{"workspace_id": e.other, "idempotency_key": "k-x"}, "k-x", "go")
+		return err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	got := e.call("send_email", Args{"lead_id": float64(e.leads["Acme"]), "subject": "s", "idempotency_key": "k-x"})
+	if got != `{"status": "success", "summary": "send enqueued"}` {
+		t.Fatal(got)
+	}
+	if jobs := e.sendJobs(t); len(jobs) != 1 || jobs[0].FireKey != "mcp:"+e.ws+":k-x" {
+		t.Fatalf("jobs %+v", jobs)
 	}
 }

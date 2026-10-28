@@ -14,19 +14,42 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/autosvc"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadsread"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadswrite"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
+// WriteAdapters configures the outreach and automation adapters: the rule
+// validation settings of internal/autosvc that config.MCP does not carry.
+type WriteAdapters struct {
+	// Secrets answers whether a workspace secret exists (secrets.Resolver: a
+	// webhook header_secret_ref must name one). Nil: no ref is ever available.
+	Secrets autosvc.SecretChecker
+	// Outbound is the header_secret_ref policy (secrets.NewOutboundPolicy with
+	// OUTBOUND_SECRET_REF_PREFIXES and the settings registry's credential set).
+	Outbound          secrets.OutboundPolicy
+	MaxActionsPerRule int      // AUTOMATIONS_MAX_ACTIONS_PER_RULE (0: 10)
+	WebhookAllowlist  []string // AUTOMATIONS_WEBHOOK_DOMAIN_ALLOWLIST
+}
+
 // NewProductionDeps wires the production ports over pool (a runtime, non-superuser
-// role). Outreach and Automation stay nil until plans 08 (automations) and 09 (outreach) provide
-// adapters: their tools answer "not available in this build" (D9).
-func NewProductionDeps(cfg Config, pool *pgxpool.Pool, py ProviderCaller, verify emailverify.Deps) Deps {
+// role): leads, enrichment, workbooks, the outreach store and send queue
+// (enroll_leads, send_email) and the automations rule service (create_automation).
+func NewProductionDeps(cfg Config, pool *pgxpool.Pool, py ProviderCaller, verify emailverify.Deps, w WriteAdapters) Deps {
+	svc := &autosvc.Service{Pool: pool, Cfg: autosvc.Config{
+		MaxRulesPerWS:       cfg.AutomationsMaxRulesPerWS,
+		MaxActionsPerRule:   w.MaxActionsPerRule,
+		AllowLegacyOutreach: cfg.AutomationsAllowLegacyOutreach,
+		WebhookAllowlist:    w.WebhookAllowlist,
+		Secrets:             w.Secrets,
+		Outbound:            w.Outbound,
+	}}
 	return Deps{
 		InWorkspace: func(ctx context.Context, ws string, fn func(pgx.Tx) error) error {
 			return tenancy.InWorkspace(ctx, pool, ws, fn)
@@ -34,10 +57,12 @@ func NewProductionDeps(cfg Config, pool *pgxpool.Pool, py ProviderCaller, verify
 		IdentityTx: func(ctx context.Context, fn func(pgx.Tx) error) error {
 			return pgx.BeginFunc(ctx, pool, fn)
 		},
-		Cfg:       cfg,
-		Leads:     PGLeadPort{},
-		Enrich:    &PyEnrichPort{Verify: verify, Worker: py},
-		Workbooks: PGWorkbookPort{},
+		Cfg:        cfg,
+		Leads:      PGLeadPort{},
+		Enrich:     &PyEnrichPort{Verify: verify, Worker: py},
+		Workbooks:  PGWorkbookPort{},
+		Outreach:   PGOutreachPort{},
+		Automation: PGAutomationPort{Svc: svc},
 	}
 }
 

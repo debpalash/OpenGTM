@@ -208,8 +208,8 @@ func newE2E(t *testing.T, flags map[string]any) *e2eEnv {
 var (
 	createdByRe = regexp.MustCompile(`"created_by": "(\d+)"`)
 	uuidRe      = regexp.MustCompile(`[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}`)
-	keyRe   = regexp.MustCompile(`mcpw_[0-9a-f]{32}`)
-	e2eIDRe = regexp.MustCompile(`"(id|lead_id)": (\d+)`)
+	keyRe       = regexp.MustCompile(`mcpw_[0-9a-f]{32}`)
+	e2eIDRe     = regexp.MustCompile(`"(id|lead_id)": (\d+)`)
 )
 
 func mask(s string) string {
@@ -302,6 +302,41 @@ type e2eToolFixture struct {
 	Stubs     map[string]any `json:"stubs"`
 	Deviation string         `json:"deviation"`
 	Volatile  []string       `json:"volatile"`
+}
+
+// keepArgOrder puts the recorded bytes of the stored JSON arguments
+// (trigger_config, actions) back into a re-marshalled request: json.Marshal of
+// the decoded map sorts object keys, the client's order is what a rule stores.
+func keepArgOrder(t *testing.T, body, fixture []byte) []byte {
+	t.Helper()
+	var fx struct {
+		Request struct {
+			Params struct {
+				Arguments map[string]json.RawMessage `json:"arguments"`
+			} `json:"params"`
+		} `json:"request"`
+	}
+	if json.Unmarshal(fixture, &fx) != nil || fx.Request.Params.Arguments == nil {
+		return body
+	}
+	var req map[string]json.RawMessage
+	var params map[string]json.RawMessage
+	var args map[string]json.RawMessage
+	if json.Unmarshal(body, &req) != nil || json.Unmarshal(req["params"], &params) != nil || json.Unmarshal(params["arguments"], &args) != nil {
+		return body
+	}
+	for _, k := range []string{"trigger_config", "actions"} {
+		if v, ok := fx.Request.Params.Arguments[k]; ok {
+			args[k] = v
+		}
+	}
+	params["arguments"], _ = json.Marshal(args)
+	req["params"], _ = json.Marshal(params)
+	out, err := json.Marshal(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return out
 }
 
 func mustMap(t *testing.T, b []byte) map[string]any {
@@ -397,6 +432,7 @@ func TestEveryRecordedFixtureReplaysByteForByte(t *testing.T) {
 				}
 				e.fwd(fx.Request)
 				body, _ := json.Marshal(fx.Request)
+				body = keepArgOrder(t, body, raw)
 				resp, respond := e.srv.Handle(context.Background(), cx, body)
 				if replayOnly {
 					if gt, _ := envelopeText(mustMap(t, resp)); strings.Contains(gt, "not available") || strings.Contains(gt, `"error"`) {

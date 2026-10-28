@@ -191,7 +191,7 @@ func (s *Server) Handle(ctx context.Context, c Ctx, raw []byte) (resp []byte, re
 			}
 			args = m
 		}
-		text := s.callTool(ctx, c, name, args)
+		text := s.callTool(withRawArgs(ctx, req.RawArgs), c, name, args)
 		_, isErr := resultError(text) // MCP spec: a tool failure sets isError (F7)
 		return resultBytes(id, pyjson.NewObj(
 			"content", []any{pyjson.NewObj("type", "text", "text", text)},

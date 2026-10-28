@@ -5,6 +5,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -28,6 +29,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rpclocal"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/runplan"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 )
 
 const defaultSSEPort = 3100
@@ -142,7 +144,11 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 	// the API and the worker, so a paid one is reserved and settled like a Go provider.
 	runplan.Wire(runplan.WireDeps{Index: credentials.ConnectorIndex(os.LookupEnv, nil)})
 	verify := emailverify.NewLive(liveConfig(pool, get, rpc, resolver))
-	deps := mcp.NewProductionDeps(cfg, pool, rpc, verify)
+	wa, err := writeAdapters(get, resolver)
+	if err != nil {
+		return nil, err
+	}
+	deps := mcp.NewProductionDeps(cfg, pool, rpc, verify, wa)
 	var reg mcp.Registry
 	if err := func() (e error) {
 		defer func() {
@@ -156,6 +162,55 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 		return nil, err
 	}
 	return &runtime{deps: deps, srv: mcp.NewServer(deps, reg), close: pool.Close}, nil
+}
+
+// writeAdapters is the automations rule configuration of create_automation, read
+// as the API reads it: AUTOMATIONS_MAX_ACTIONS_PER_RULE (default 10, at least 1),
+// AUTOMATIONS_WEBHOOK_DOMAIN_ALLOWLIST (JSON array or comma list) and the
+// outbound header_secret_ref policy (OUTBOUND_SECRET_REF_PREFIXES plus the
+// settings registry's credential deny-list).
+func writeAdapters(get func(string) string, sec *secrets.Resolver) (mcp.WriteAdapters, error) {
+	reg, err := settings.Load()
+	if err != nil {
+		return mcp.WriteAdapters{}, fmt.Errorf("settings registry: %w", err)
+	}
+	maxActions := 10
+	if v := strings.TrimSpace(get("AUTOMATIONS_MAX_ACTIONS_PER_RULE")); v != "" {
+		n, err := strconv.Atoi(v)
+		if err != nil || n < 1 || n > 1<<30 {
+			return mcp.WriteAdapters{}, errors.New("config: AUTOMATIONS_MAX_ACTIONS_PER_RULE must be an integer in [1, 1073741824]")
+		}
+		maxActions = n
+	}
+	return mcp.WriteAdapters{
+		Secrets:           sec,
+		Outbound:          secrets.NewOutboundPolicy(config.OutboundSecretRefPrefixes(get), reg.SecretSet()),
+		MaxActionsPerRule: maxActions,
+		WebhookAllowlist:  stringList(get("AUTOMATIONS_WEBHOOK_DOMAIN_ALLOWLIST")),
+	}, nil
+}
+
+// stringList parses a JSON array or a comma list (config.parseStringList).
+func stringList(s string) []string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return nil
+	}
+	var raw []string
+	if strings.HasPrefix(s, "[") {
+		if json.Unmarshal([]byte(s), &raw) != nil {
+			raw = strings.Split(strings.Trim(s, "[]"), ",")
+		}
+	} else {
+		raw = strings.Split(s, ",")
+	}
+	var out []string
+	for _, v := range raw {
+		if v = strings.Trim(strings.TrimSpace(v), `"'`); v != "" {
+			out = append(out, v)
+		}
+	}
+	return out
 }
 
 func splitHosts(s string) []string {

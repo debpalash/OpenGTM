@@ -51,6 +51,14 @@ func createAutomation(ctx context.Context, tx pgx.Tx, d Deps, c Ctx, args Args) 
 		return errorText(msg), nil
 	}
 	in.CreatedBy = c.UserID
+	// The type checks above ran on the decoded map; store the client's bytes so
+	// object keys keep their order (non-empty values only: {} and [] are defaults).
+	if raw := orderedArg(ctx, "trigger_config"); raw != nil && len(in.TriggerConfig) > 2 {
+		in.TriggerConfig = raw
+	}
+	if raw := orderedArg(ctx, "actions"); raw != nil && len(in.Actions) > 2 {
+		in.Actions = raw
+	}
 
 	port := d.AutomationPort()
 	count, err := port.CountRules(ctx, tx, c.WorkspaceID)

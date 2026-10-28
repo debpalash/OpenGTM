@@ -42,6 +42,9 @@ type request struct {
 	Method    string
 	Params    map[string]any // nil when params is absent
 	HasParams bool
+	// RawArgs is params.arguments as sent (nil when absent): Params loses object
+	// key order, which a stored automation rule keeps (orderedArg).
+	RawArgs json.RawMessage
 }
 
 // idNull is the id of an answer to a request whose id could not be read.
@@ -90,6 +93,10 @@ func parseRequest(raw []byte) (req request, id string, perr *rpcError) {
 				return req, id, &rpcError{codeInvalidParams, "Invalid params"}
 			}
 			req.Params = m
+			var raw map[string]json.RawMessage
+			if json.Unmarshal(rawParams, &raw) == nil {
+				req.RawArgs = raw["arguments"]
+			}
 		}
 	}
 	return req, id, nil
