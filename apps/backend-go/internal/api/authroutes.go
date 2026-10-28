@@ -6,6 +6,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/auth"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -19,15 +20,42 @@ var wwwBearer = httpx.Header{Key: "WWW-Authenticate", Value: "Bearer"}
 // RegisterAuth registers /auth/token, /auth/refresh, /auth/me, the workspace SSO login routes
 // (/auth/sso/*, authsso.go) and the first-admin /auth/setup routes.
 func RegisterAuth(r *httpx.Router, d Deps) {
-	a := authRoutes{d}
-	r.Handle("POST /auth/token", http.HandlerFunc(a.token))
-	r.Handle("POST /auth/refresh", http.HandlerFunc(a.refresh))
+	a := authRoutes{d: d}
+	if d.Limiter != nil {
+		perMin, perHour := d.Limiter.Keyed(tokenUserRate), d.Limiter.Keyed(tokenUserHourRate)
+		a.userLimit = func(w http.ResponseWriter, key string) bool { return perMin(w, key) && perHour(w, key) }
+	}
+	var token http.Handler = http.HandlerFunc(a.token)
+	var refresh http.Handler = http.HandlerFunc(a.refresh)
+	if d.Limiter != nil {
+		// Online password guessing (final security M2): per client IP (X-Real-IP only from a trusted proxy) on both
+		// routes, and per username on /auth/token (userLimit, checked before the bcrypt verify). 429 carries Retry-After.
+		token = d.Limiter.Limit(tokenIPRate)(token)
+		refresh = d.Limiter.Limit(refreshIPRate)(refresh)
+	}
+	r.Handle("POST /auth/token", token)
+	r.Handle("POST /auth/refresh", refresh)
 	r.Handle("GET /auth/me", http.HandlerFunc(a.me), identity.Authenticate(d.Signer, d.Identity))
 	registerSSOLogin(r, d)
 	registerSetup(r, d)
 }
 
-type authRoutes struct{ d Deps }
+// Login throttles: a small burst per window, then 429 until it reopens.
+const (
+	tokenIPBurst      = 20
+	tokenUserBurst    = 5
+	refreshIPBurst    = 60
+	tokenIPRate       = "20/minute" // tokenIPBurst
+	tokenUserRate     = "5/minute"  // tokenUserBurst
+	tokenUserHourRate = "30/hour"
+	refreshIPRate     = "60/minute" // refreshIPBurst
+)
+
+type authRoutes struct {
+	d Deps
+	// userLimit throttles /auth/token per normalised username (nil: no limiter wired).
+	userLimit func(w http.ResponseWriter, key string) bool
+}
 
 type tokenResponse struct {
 	AccessToken  string `json:"access_token"`
@@ -92,6 +120,9 @@ func (a authRoutes) token(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(errs) > 0 {
 		httpx.ValidationError(w, errs...)
+		return
+	}
+	if a.userLimit != nil && !a.userLimit(w, "login:"+strings.ToLower(strings.TrimSpace(username))) {
 		return
 	}
 	bad := func() {

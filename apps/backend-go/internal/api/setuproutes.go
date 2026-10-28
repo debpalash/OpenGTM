@@ -44,7 +44,7 @@ var commonPasswords = map[string]bool{
 }
 
 func registerSetup(r *httpx.Router, d Deps) {
-	s := setupRoutes{authRoutes{d}}
+	s := setupRoutes{authRoutes{d: d}}
 	var post http.Handler = http.HandlerFunc(s.setup)
 	var status http.Handler = http.HandlerFunc(s.status)
 	if d.Limiter != nil {

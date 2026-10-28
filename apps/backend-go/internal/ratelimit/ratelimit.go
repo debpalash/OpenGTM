@@ -158,8 +158,8 @@ func (l *Limiter) Limit(spec string) httpx.Middleware {
 			if authed {
 				pool = authPool
 			}
-			if !pool.hit(k, n, period) {
-				httpx.WriteJSON(w, http.StatusTooManyRequests, body)
+			if ok, retry := pool.hitRetry(k, n, period); !ok {
+				deny(w, body, retry)
 				return
 			}
 			next.ServeHTTP(w, r)
@@ -167,11 +167,46 @@ func (l *Limiter) Limit(spec string) httpx.Middleware {
 	}
 }
 
+// Keyed returns a check of spec over keys the caller derived itself (a login username, a client IP from its own
+// logic). It has its own unauthenticated pool. A key over its limit gets the same 429 body as Limit, with
+// Retry-After, and the check returns false; the caller then stops.
+func (l *Limiter) Keyed(spec string) func(w http.ResponseWriter, key string) bool {
+	n, period, unit, err := parseSpec(spec)
+	if err != nil {
+		panic(err)
+	}
+	pool := l.newPool()
+	body := map[string]string{"error": fmt.Sprintf("Rate limit exceeded: %d per 1 %s", n, unit)}
+	return func(w http.ResponseWriter, key string) bool {
+		ok, retry := pool.hitRetry(key, n, period)
+		if !ok {
+			deny(w, body, retry)
+		}
+		return ok
+	}
+}
+
+// deny writes the 429 with Retry-After: whole seconds until the window reopens, at least 1.
+func deny(w http.ResponseWriter, body map[string]string, retry time.Duration) {
+	secs := int64((retry + time.Second - 1) / time.Second)
+	if secs < 1 {
+		secs = 1
+	}
+	w.Header().Set("Retry-After", strconv.FormatInt(secs, 10))
+	httpx.WriteJSON(w, http.StatusTooManyRequests, body)
+}
+
 func (l *Limiter) newPool() *Limiter {
 	return &Limiter{now: l.now, hits: map[string]*window{}, parent: l}
 }
 
 func (l *Limiter) hit(key string, limit int, period time.Duration) bool {
+	ok, _ := l.hitRetry(key, limit, period)
+	return ok
+}
+
+// hitRetry counts one request for key; when it is over limit it also returns the time until the window expires.
+func (l *Limiter) hitRetry(key string, limit int, period time.Duration) (bool, time.Duration) {
 	now := l.now()
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -190,7 +225,10 @@ func (l *Limiter) hit(key string, limit int, period time.Duration) bool {
 		heap.Push(&l.exp, win)
 	}
 	win.count++
-	return win.count <= limit
+	if win.count <= limit {
+		return true, 0
+	}
+	return false, win.expires.Sub(now)
 }
 
 // sweep drops the windows that have expired. Each window is popped once, so the cost is amortised
