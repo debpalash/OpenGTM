@@ -335,6 +335,9 @@ func applyDiff(ctx context.Context, tx pgx.Tx, ws, audienceID, refreshID string,
 	if err != nil {
 		return c, err
 	}
+	if filters["_record_type"] != nil {
+		return applyRecordDiff(ctx, tx, ws, audienceID, refreshID, now, filters)
+	}
 	for page := 1; ; page++ {
 		rows, total, err := deps.Leads(ctx, tx, filters, page, deps.PageSize)
 		if err != nil {
@@ -373,7 +376,7 @@ func applyDiff(ctx context.Context, tx pgx.Tx, ws, audienceID, refreshID string,
 				return c, fmt.Errorf("audiencerefresh: load members: %w", err)
 			}
 			for _, m := range ms {
-				existing[int64(m.LeadID)] = m
+				existing[int64(m.LeadID.Int32)] = m
 			}
 		}
 		for _, id := range order {
@@ -427,7 +430,7 @@ func applyDiff(ctx context.Context, tx pgx.Tx, ws, audienceID, refreshID string,
 		for i, m := range ms {
 			ids[i] = m.ID
 			if err := q.AudRefreshEventInsert(ctx, gen.AudRefreshEventInsertParams{WorkspaceID: ws, AudienceID: audienceID,
-				LeadID: m.LeadID, EventType: "exited", Snapshot: snapshotOrEmpty(m.Snapshot), RefreshID: refreshID}); err != nil {
+				LeadID: m.LeadID.Int32, EventType: "exited", Snapshot: snapshotOrEmpty(m.Snapshot), RefreshID: refreshID}); err != nil {
 				return c, fmt.Errorf("audiencerefresh: insert exit event: %w", err)
 			}
 			c.exited++

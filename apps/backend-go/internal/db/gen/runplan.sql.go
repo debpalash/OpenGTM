@@ -12,7 +12,7 @@ import (
 const runplanRowIDs = `-- name: RunplanRowIDs :many
 
 SELECT id::bigint AS id
-FROM workbook_rows
+FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
 ORDER BY coalesce("position", 0), id
 `
@@ -49,7 +49,7 @@ func (q *Queries) RunplanRowIDs(ctx context.Context, arg RunplanRowIDsParams) ([
 
 const runplanRowIDsByLeadIDs = `-- name: RunplanRowIDsByLeadIDs :many
 SELECT id::bigint AS id
-FROM workbook_rows
+FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
   AND lead_id = ANY($3::bigint[])
 ORDER BY coalesce("position", 0), id
@@ -83,7 +83,7 @@ func (q *Queries) RunplanRowIDsByLeadIDs(ctx context.Context, arg RunplanRowIDsB
 
 const runplanRowIDsByRowIDs = `-- name: RunplanRowIDsByRowIDs :many
 SELECT id::bigint AS id
-FROM workbook_rows
+FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
   AND id = ANY($3::bigint[])
 ORDER BY coalesce("position", 0), id

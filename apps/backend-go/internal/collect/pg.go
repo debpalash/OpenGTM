@@ -158,7 +158,7 @@ var upsertSQL = func() string {
 		}
 	}
 	return "INSERT INTO leads (workspace_id, " + strings.Join(leadColumns, ", ") + ") VALUES (" + strings.Join(ph, ", ") +
-		") ON CONFLICT (workspace_id, company, city) DO UPDATE SET " + strings.Join(sets, ", ") + " RETURNING id"
+		") ON CONFLICT (workspace_id, company, city) WHERE person_entity_id IS NULL DO UPDATE SET " + strings.Join(sets, ", ") + " RETURNING id"
 }()
 
 // Upsert is upsert_lead: insert, or update the (workspace, company, city) row in one statement
@@ -178,8 +178,15 @@ func (s PgStore) Upsert(ctx context.Context, l *Lead) error {
 		}
 	}
 	return tenancy.InWorkspace(ctx, s.Pool, s.WS, func(tx pgx.Tx) error {
+		if _, e := tx.Exec(ctx, `SELECT set_config('opengtm.record_source',$1,true)`, "provider:collect:"+l.Source); e != nil {
+			return e
+		}
+		query := upsertSQL
+		if l.ContactPerson != "" || strings.Contains(strings.ToLower(l.LinkedinURL), "linkedin.com/in/") {
+			query = strings.Replace(query, "ON CONFLICT (workspace_id, company, city) WHERE person_entity_id IS NULL", "ON CONFLICT (workspace_id, company, city,person_entity_id) WHERE person_entity_id IS NOT NULL", 1)
+		}
 		var id int32
-		if err := tx.QueryRow(ctx, upsertSQL, args...).Scan(&id); err != nil {
+		if err := tx.QueryRow(ctx, query, args...).Scan(&id); err != nil {
 			return fmt.Errorf("collect: upsert lead: %w", err)
 		}
 		l.ID = int64(id)

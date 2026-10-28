@@ -164,17 +164,21 @@ func audSnapshot(raw []byte) json.RawMessage {
 }
 
 type audMemberOut struct {
+	CompanyID  *string         `json:"company_id,omitempty"`
+	PersonID   *string         `json:"person_id,omitempty"`
 	ID         int32           `json:"id"`
-	LeadID     int32           `json:"lead_id"`
+	LeadID     *int32          `json:"lead_id"`
 	Snapshot   json.RawMessage `json:"snapshot"`
 	JoinedAt   string          `json:"joined_at"`
 	LastSeenAt string          `json:"last_seen_at"`
 }
 
 type audEventOut struct {
+	CompanyID  *string         `json:"company_id,omitempty"`
+	PersonID   *string         `json:"person_id,omitempty"`
 	ID         int32           `json:"id"`
 	AudienceID string          `json:"audience_id"`
-	LeadID     int32           `json:"lead_id"`
+	LeadID     *int32          `json:"lead_id"`
 	EventType  string          `json:"event_type"`
 	Snapshot   json.RawMessage `json:"snapshot"`
 	CreatedAt  string          `json:"created_at"`
@@ -223,7 +227,7 @@ func (h audRead) members(w http.ResponseWriter, r *http.Request) {
 			RowOffset: p.offset, RowLimit: p.limit})
 		out := make([]audMemberOut, 0, len(rows))
 		for _, m := range rows {
-			out = append(out, audMemberOut{ID: m.ID, LeadID: m.LeadID, Snapshot: audSnapshot(m.Snapshot),
+			out = append(out, audMemberOut{CompanyID: nullableText(m.CompanyEntityID), PersonID: nullableText(m.PersonEntityID), ID: m.ID, LeadID: nullableLeadID(m.LeadID), Snapshot: audSnapshot(m.Snapshot),
 				JoinedAt: audReadISO(m.JoinedAt), LastSeenAt: audReadISO(m.LastSeenAt)})
 		}
 		return out, err
@@ -235,9 +239,23 @@ func (h audRead) events(w http.ResponseWriter, r *http.Request) {
 		rows, err := q.AudReadEvents(r.Context(), gen.AudReadEventsParams{WorkspaceID: ws, AudienceID: id, BeforeID: p.before, RowLimit: p.limit})
 		out := make([]audEventOut, 0, len(rows))
 		for _, e := range rows {
-			out = append(out, audEventOut{ID: e.ID, AudienceID: e.AudienceID, LeadID: e.LeadID, EventType: e.EventType,
+			out = append(out, audEventOut{CompanyID: nullableText(e.CompanyEntityID), PersonID: nullableText(e.PersonEntityID), ID: e.ID, AudienceID: e.AudienceID, LeadID: nullableLeadID(e.LeadID), EventType: e.EventType,
 				Snapshot: audSnapshot(e.Snapshot), CreatedAt: audReadISO(e.CreatedAt)})
 		}
 		return out, err
 	})
+}
+
+func nullableLeadID(v pgtype.Int4) *int32 {
+	if !v.Valid {
+		return nil
+	}
+	return &v.Int32
+}
+
+func nullableText(v pgtype.Text) *string {
+	if !v.Valid {
+		return nil
+	}
+	return &v.String
 }

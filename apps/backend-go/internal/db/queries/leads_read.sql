@@ -4,7 +4,7 @@
 
 -- name: CountLeadsFiltered :one
 SELECT count(*)::bigint
-FROM leads
+FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND (NOT @has_lead_ids::bool OR id = ANY(@lead_ids::int4[]))
   AND (sqlc.narg('city')::text IS NULL OR city = sqlc.narg('city')::text)
@@ -36,7 +36,7 @@ WHERE workspace_id = current_setting('app.workspace_id', true)
 
 -- name: QueryLeadsPage :many
 SELECT id, company, website, email, email_confidence, email_provider, phone, phone_provider, contact_person, contact_title, city, state, address, specialization, company_size, employee_count_exact, description, revenue_range, founded_year, industry_tags, technologies, technographics, funding_stage, company_size_basis, linkedin_url, twitter_url, facebook_url, secondary_emails, secondary_phones, decision_makers, glassdoor_rating, hiring_signals, enrichment_attempts, enrichment_waterfall, field_provenance, source, source_url, collection_job_id, workspace_id, score, score_tier, status, yupcha_value_prop, company_need, notes, created_at, updated_at, last_enriched_at
-FROM leads
+FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND (NOT @has_lead_ids::bool OR id = ANY(@lead_ids::int4[]))
   AND (sqlc.narg('city')::text IS NULL OR city = sqlc.narg('city')::text)
@@ -70,7 +70,7 @@ LIMIT @page_limit::bigint OFFSET @page_offset::bigint;
 
 -- name: LeadsByIDs :many
 SELECT id, company, website, email, email_confidence, email_provider, phone, phone_provider, contact_person, contact_title, city, state, address, specialization, company_size, employee_count_exact, description, revenue_range, founded_year, industry_tags, technologies, technographics, funding_stage, company_size_basis, linkedin_url, twitter_url, facebook_url, secondary_emails, secondary_phones, decision_makers, glassdoor_rating, hiring_signals, enrichment_attempts, enrichment_waterfall, field_provenance, source, source_url, collection_job_id, workspace_id, score, score_tier, status, yupcha_value_prop, company_need, notes, created_at, updated_at, last_enriched_at
-FROM leads
+FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND id = ANY(@ids::int4[])
 ORDER BY id;
@@ -83,55 +83,55 @@ SELECT count(*)::bigint AS total,
   count(*) FILTER (WHERE linkedin_url IS NOT NULL AND linkedin_url <> '' AND linkedin_url <> 'N/A')::bigint AS with_linkedin,
   count(*) FILTER (WHERE contact_person IS NOT NULL AND contact_person <> '' AND contact_person <> 'N/A')::bigint AS with_contact,
   coalesce(avg(score), 0)::float8 AS avg_score
-FROM leads
+FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true);
 
 -- name: LeadCountsByStatus :many
-SELECT status AS key, count(*)::bigint AS n FROM leads
+SELECT status AS key, count(*)::bigint AS n FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
 GROUP BY status ORDER BY status;
 
 -- name: LeadCountsByTier :many
-SELECT score_tier AS key, count(*)::bigint AS n FROM leads
+SELECT score_tier AS key, count(*)::bigint AS n FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
 GROUP BY score_tier ORDER BY score_tier;
 
 -- name: LeadCountsBySource :many
-SELECT source AS key, count(*)::bigint AS n FROM leads
+SELECT source AS key, count(*)::bigint AS n FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
 GROUP BY source ORDER BY source;
 
 -- name: LeadCountsByCity :many
-SELECT city AS key, count(*)::bigint AS n FROM leads
+SELECT city AS key, count(*)::bigint AS n FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
 GROUP BY city ORDER BY count(*) DESC, city LIMIT 15;
 
 -- name: LeadDistinctCities :many
-SELECT DISTINCT city AS value FROM leads
+SELECT DISTINCT city AS value FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND city IS NOT NULL AND city <> ''
 ORDER BY city;
 
 -- name: LeadDistinctTiers :many
-SELECT DISTINCT score_tier AS value FROM leads
+SELECT DISTINCT score_tier AS value FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND score_tier IS NOT NULL AND score_tier <> ''
 ORDER BY score_tier;
 
 -- name: LeadDistinctSources :many
-SELECT DISTINCT source AS value FROM leads
+SELECT DISTINCT source AS value FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND source IS NOT NULL AND source <> ''
 ORDER BY source;
 
 -- name: LeadDistinctStatuses :many
-SELECT DISTINCT status AS value FROM leads
+SELECT DISTINCT status AS value FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND status IS NOT NULL AND status <> ''
 ORDER BY status;
 
 -- name: LeadDistinctSpecializations :many
-SELECT DISTINCT specialization AS value FROM leads
+SELECT DISTINCT specialization AS value FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND specialization IS NOT NULL AND specialization <> ''
 ORDER BY specialization LIMIT 50;

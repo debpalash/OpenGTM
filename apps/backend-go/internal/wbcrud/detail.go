@@ -170,6 +170,14 @@ func (s *Service) detailRows(ctx context.Context, tx pgx.Tx, ws string, wb Workb
 		row.Set("source_fetched_at", awareTime(r.fetchedAt))
 		row.Set("lead", data)
 		row.Set("data", data)
+		for _, key := range []string{"company_id", "person_id", "employment_id", "record_type"} {
+			if wb.SourceType != "records" {
+				continue
+			}
+			if value, ok := data.Get(key); ok {
+				row.Set(key, value)
+			}
+		}
 		row.Set("enrichments", overlaysOf(objOrEmpty(r.enr), r.cellKey(), receipts))
 		row.Set("canonical_entity_id", nullStr(r.canonical))
 		row.Set("corroboration_count", nullInt(r.corr))

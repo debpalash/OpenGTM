@@ -132,8 +132,8 @@ func (e *Engine) reconcileExits(ctx context.Context, rs *runState) (stop bool, e
 				continue
 			}
 			fp := destdeliver.Fingerprint(prior)
-			idem := destdeliver.IdempotencyKey(rs.dest.ID, int(row.LeadID), fp, true)
-			id, skip, err := e.queueRemoval(ctx, rs, int(row.LeadID), idem, fp, row.Payload)
+			idem := destdeliver.SubjectIdempotencyKey(rs.dest.ID, destdeliver.SubjectKey(int(row.LeadID.Int32), row.CompanyEntityID.String, row.PersonEntityID.String), fp, true)
+			id, skip, err := e.queueRemoval(ctx, rs, int(row.LeadID.Int32), idem, fp, row.Payload, row.CompanyEntityID.String, row.PersonEntityID.String)
 			if err != nil {
 				return true, err
 			}
@@ -158,7 +158,7 @@ func (e *Engine) reconcileExits(ctx context.Context, rs *runState) (stop bool, e
 
 // queueRemoval creates or revives the remove row (pending). skip=true: that removal already
 // succeeded.
-func (e *Engine) queueRemoval(ctx context.Context, rs *runState, lead int, idem, fp string, payload []byte) (id int32, skip bool, err error) {
+func (e *Engine) queueRemoval(ctx context.Context, rs *runState, lead int, idem, fp string, payload []byte, cid, pid string) (id int32, skip bool, err error) {
 	err = e.inTx(ctx, rs, func(tx pgx.Tx) error {
 		q := gen.New(tx)
 		prior, err := q.DestDeliveryByKey(ctx, gen.DestDeliveryByKeyParams{WorkspaceID: rs.ws, IdempotencyKey: idem})
@@ -172,7 +172,7 @@ func (e *Engine) queueRemoval(ctx context.Context, rs *runState, lead int, idem,
 			return q.DSDeliveryRequeue(ctx, gen.DSDeliveryRequeueParams{WorkspaceID: rs.ws, ID: prior.ID})
 		case errors.Is(err, pgx.ErrNoRows):
 			d, _, err := deststore.UpsertDelivery(ctx, tx, deststore.UpsertDeliveryInput{
-				RunID: rs.runID, DestinationID: rs.dest.ID, LeadID: lead, Operation: "remove", IdempotencyKey: idem,
+				CompanyID: cid, PersonID: pid, SubjectKey: destdeliver.SubjectKey(lead, cid, pid), RunID: rs.runID, DestinationID: rs.dest.ID, LeadID: lead, Operation: "remove", IdempotencyKey: idem,
 				Fingerprint: fp, Payload: json.RawMessage(payload), Status: "pending",
 			})
 			id = int32(d.ID)

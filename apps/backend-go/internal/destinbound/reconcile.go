@@ -97,7 +97,7 @@ func ParseInboundBody(raw []byte) (InboundBody, error) {
 	m := map[string]any{}
 	for _, f := range obj {
 		switch f.Key {
-		case "external_event_id", "external_record_id", "fields":
+		case "external_event_id", "external_record_id", "company_id", "person_id", "fields":
 			m[f.Key] = f.Value
 		case "lead_id":
 			switch v := f.Value.(type) {
@@ -162,6 +162,8 @@ func decodeObject(dec *json.Decoder) (OrderedFields, error) {
 
 // Receipt is the API shape of a destination_inbound_receipts row.
 type Receipt struct {
+	CompanyID        *string   `json:"company_id,omitempty"`
+	PersonID         *string   `json:"person_id,omitempty"`
 	ID               string    `json:"id"`
 	DestinationID    string    `json:"destination_id"`
 	Provider         string    `json:"provider"`
@@ -506,9 +508,15 @@ func fingerprint(b InboundBody) (string, error) {
 }
 
 func toReceipt(id, destID, provider, eventID string, recID pgtype.Text, leadID pgtype.Int4, status, policy string,
-	applied, ignored []byte, errText pgtype.Text, created pgtype.Timestamp) (Receipt, error) {
+	applied, ignored []byte, errText pgtype.Text, created pgtype.Timestamp, refs ...pgtype.Text) (Receipt, error) {
 	r := Receipt{ID: id, DestinationID: destID, Provider: provider, ExternalEventID: eventID, Status: status,
 		ConflictPolicy: policy, CreatedAt: created.Time}
+	if len(refs) > 0 && refs[0].Valid {
+		r.CompanyID = &refs[0].String
+	}
+	if len(refs) > 1 && refs[1].Valid {
+		r.PersonID = &refs[1].String
+	}
 	if recID.Valid {
 		r.ExternalRecordID = &recID.String
 	}
@@ -538,7 +546,7 @@ func priorReceipt(ctx context.Context, q *gen.Queries, ws, destID, eventID strin
 		return nil, fmt.Errorf("destinbound: load receipt: %w", err)
 	}
 	r, err := toReceipt(p.ID, p.DestinationID, p.Provider, p.ExternalEventID, p.ExternalRecordID, p.LeadID,
-		p.Status, p.ConflictPolicy, p.AppliedFields, p.IgnoredFields, p.Error, p.CreatedAt)
+		p.Status, p.ConflictPolicy, p.AppliedFields, p.IgnoredFields, p.Error, p.CreatedAt, p.CompanyEntityID, p.PersonEntityID)
 	if err != nil {
 		return nil, err
 	}
@@ -579,6 +587,9 @@ func Reconcile(ctx context.Context, tx pgx.Tx, dest Destination, body InboundBod
 	if err != nil {
 		return Receipt{}, false, err
 	}
+	if out, replayed, handled, e := reconcileRecords(ctx, tx, dest, body, eventID, extText); handled {
+		return out, replayed, e
+	}
 	externalID := pgtype.Text{String: extText, Valid: extText != ""}
 
 	fields, fieldsIsObj := fieldsOf(body.m["fields"])
@@ -599,8 +610,10 @@ func Reconcile(ctx context.Context, tx pgx.Tx, dest Destination, body InboundBod
 		id, err := q.DestInboundDeliveryLead(ctx, gen.DestInboundDeliveryLeadParams{
 			WorkspaceID: ws, DestinationID: dest.ID, ExternalID: externalID.String})
 		if err == nil {
-			v := int64(id)
-			leadID = &v
+			v := int64(id.Int32)
+			if id.Valid {
+				leadID = &v
+			}
 		} else if !errors.Is(err, pgx.ErrNoRows) {
 			return Receipt{}, false, fmt.Errorf("destinbound: delivery lookup: %w", err)
 		}
@@ -667,7 +680,7 @@ func Reconcile(ctx context.Context, tx pgx.Tx, dest Destination, body InboundBod
 	}
 	ints := map[string]int32{}
 	if v, ok := allowed["employee_count_exact"]; ok {
-		if n, ok := coerceInt(v); ok {
+		if n, ok := coerceInt(v); ok && n >= 0 && n <= 1000000000 {
 			ints["employee_count_exact"] = n
 		} else {
 			delete(allowed, "employee_count_exact")
@@ -763,6 +776,17 @@ func Reconcile(ctx context.Context, tx pgx.Tx, dest Destination, body InboundBod
 		_ = sp.Rollback(context.WithoutCancel(ctx))
 		return Receipt{}, false, err
 	}
+	var priorSource string
+	if err := sp.QueryRow(ctx, `SELECT coalesce(current_setting('opengtm.record_source',true),'')`).Scan(&priorSource); err != nil {
+		return fail(err)
+	}
+	source := "connector:" + dest.ID
+	if policy == "crm_wins" {
+		source = "connector:crm-wins:" + dest.ID
+	}
+	if _, err := sp.Exec(ctx, `SELECT set_config('opengtm.record_source',$1,true)`, source); err != nil {
+		return fail(err)
+	}
 	for _, w := range writes {
 		lw, ok := leadWriters[w.col]
 		if !ok || !AllowedFields[w.col] {
@@ -771,6 +795,9 @@ func Reconcile(ctx context.Context, tx pgx.Tx, dest Destination, body InboundBod
 		if err := lw.set(ctx, sq, ws, *leadID, w.s, w.n); err != nil {
 			return fail(fmt.Errorf("destinbound: update lead: %w", err))
 		}
+	}
+	if _, err := sp.Exec(ctx, `SELECT set_config('opengtm.record_source',$1,true)`, priorSource); err != nil {
+		return fail(err)
 	}
 	ins, err := sq.DestInboundReceiptInsert(ctx, gen.DestInboundReceiptInsertParams{
 		ID: newID(), WorkspaceID: ws, DestinationID: dest.ID, Provider: dest.DestinationType,
@@ -792,7 +819,7 @@ func Reconcile(ctx context.Context, tx pgx.Tx, dest Destination, body InboundBod
 		return Receipt{}, false, fmt.Errorf("destinbound: release savepoint: %w", err)
 	}
 	r, err := toReceipt(ins.ID, ins.DestinationID, ins.Provider, ins.ExternalEventID, ins.ExternalRecordID,
-		ins.LeadID, ins.Status, ins.ConflictPolicy, ins.AppliedFields, ins.IgnoredFields, ins.Error, ins.CreatedAt)
+		ins.LeadID, ins.Status, ins.ConflictPolicy, ins.AppliedFields, ins.IgnoredFields, ins.Error, ins.CreatedAt, ins.CompanyEntityID, ins.PersonEntityID)
 	if err != nil {
 		return Receipt{}, false, err
 	}

@@ -179,6 +179,11 @@ func splitTx(ctx context.Context, q *gen.Queries, ws string, logID int32) (Split
 			return SplitResult{}, err
 		}
 	}
+	if shared, ok := asObject(getOr(snap, "shared_records", nil)); ok && shared.Len() > 0 {
+		if e := q.RestoreSharedCompanyRecords(ctx, gen.RestoreSharedCompanyRecordsParams{WorkspaceID: ws, Undo: MarshalJSON(shared)}); e != nil {
+			return SplitResult{}, e
+		}
+	}
 	if err := q.MarkEntityMergeLogReverted(ctx, gen.MarkEntityMergeLogRevertedParams{ID: logID, WorkspaceID: ws}); err != nil {
 		return SplitResult{}, err
 	}

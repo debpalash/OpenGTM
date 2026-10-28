@@ -25,7 +25,7 @@ FOR UPDATE;
 -- name: SWFinishWorkbook :exec
 -- Sourcing done: total_rows recounted, status back to draft, optional source_config.
 UPDATE workbooks SET
-  total_rows = (SELECT count(*) FROM workbook_rows r
+  total_rows = (SELECT count(*) FROM record_workbook_rows r
                 WHERE r.workbook_id = sqlc.arg(id)::text AND r.workspace_id = sqlc.arg(workspace_id)::text),
   status = 'draft',
   source_config = coalesce(sqlc.narg(source_config)::json, source_config),
@@ -33,20 +33,20 @@ UPDATE workbooks SET
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: SWEntityIDs :many
-SELECT DISTINCT canonical_entity_id::text FROM workbook_rows
+SELECT DISTINCT canonical_entity_id::text FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text
   AND canonical_entity_id IS NOT NULL;
 
 -- name: SWRowStats :one
-SELECT count(*)::bigint AS n, coalesce(max(position), 0)::int AS max_pos FROM workbook_rows
+SELECT count(*)::bigint AS n, coalesce(max(position), 0)::int AS max_pos FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: SWCountRows :one
-SELECT count(*)::bigint FROM workbook_rows
+SELECT count(*)::bigint FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: SWRowsData :many
-SELECT id, lead_id, data, enrichments FROM workbook_rows
+SELECT id, lead_id, data, enrichments FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text
 ORDER BY position ASC NULLS LAST, id ASC;
 

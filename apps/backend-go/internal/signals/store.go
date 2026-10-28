@@ -17,6 +17,8 @@ import (
 // Signal mirrors SignalStore._signal_to_dict: every nullable column is a
 // pointer and renders null when NULL; Read is 1/0 like Python (NULL -> 0).
 type Signal struct {
+	CompanyID                                                  *string `json:"company_id,omitempty"`
+	PersonID                                                   *string `json:"person_id,omitempty"`
 	ID, WorkspaceID                                            string
 	LeadID                                                     *int64
 	Company, SignalType, Title, Description, Source, SourceURL *string
@@ -117,7 +119,7 @@ func txt(t pgtype.Text) *string {
 }
 
 func toSignal(r gen.Signal) Signal {
-	s := Signal{ID: r.ID, WorkspaceID: r.WorkspaceID, LeadID: i64p(r.LeadID), Company: txt(r.Company),
+	s := Signal{CompanyID: txt(r.CompanyEntityID), PersonID: txt(r.PersonEntityID), ID: r.ID, WorkspaceID: r.WorkspaceID, LeadID: i64p(r.LeadID), Company: txt(r.Company),
 		SignalType: txt(r.SignalType), Title: txt(r.Title), Description: txt(r.Description), Source: txt(r.Source),
 		SourceURL: txt(r.SourceUrl), Weight: i64p(r.Weight), Read: readInt(r.Read.Valid && r.Read.Bool)}
 	if r.CreatedAt.Valid {

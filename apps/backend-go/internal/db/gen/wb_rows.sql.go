@@ -88,7 +88,7 @@ func (q *Queries) DeleteWorkbookRowsByIDs(ctx context.Context, arg DeleteWorkboo
 }
 
 const existingWorkbookRowIDs = `-- name: ExistingWorkbookRowIDs :many
-SELECT id FROM workbook_rows
+SELECT id FROM record_workbook_rows
 WHERE workbook_id = $1::text AND id = ANY($2::bigint[])
 ORDER BY id
 `
@@ -119,7 +119,7 @@ func (q *Queries) ExistingWorkbookRowIDs(ctx context.Context, arg ExistingWorkbo
 }
 
 const lockWorkbookRows = `-- name: LockWorkbookRows :many
-SELECT id, data FROM workbook_rows
+SELECT id, data FROM record_workbook_rows
 WHERE workbook_id = $1::text AND id = ANY($2::bigint[])
 ORDER BY id
 FOR UPDATE
@@ -160,7 +160,7 @@ func (q *Queries) LockWorkbookRows(ctx context.Context, arg LockWorkbookRowsPara
 const maxWorkbookRowPosition = `-- name: MaxWorkbookRowPosition :one
 
 SELECT coalesce(max("position"), 0)::int AS max_position
-FROM workbook_rows
+FROM record_workbook_rows
 WHERE workbook_id = $1::text
 `
 
@@ -178,7 +178,7 @@ func (q *Queries) MaxWorkbookRowPosition(ctx context.Context, workbookID string)
 
 const patchWorkbookRowsData = `-- name: PatchWorkbookRowsData :execrows
 UPDATE workbook_rows AS r
-SET data = u.d::json, updated_at = (now() AT TIME ZONE 'utc')
+SET data = (coalesce(r.data::jsonb,'{}') || u.d::jsonb)::json, updated_at = (now() AT TIME ZONE 'utc')
 FROM (SELECT a.id, b.d FROM
         (SELECT v AS id, ord FROM unnest($2::bigint[]) WITH ORDINALITY AS x(v, ord)) AS a
         JOIN (SELECT v AS d, ord FROM unnest($3::text[]) WITH ORDINALITY AS y(v, ord)) AS b USING (ord)) AS u

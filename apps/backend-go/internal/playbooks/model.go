@@ -59,16 +59,17 @@ type Run struct {
 // Result mirrors PlaybookResult.to_api; the JSON key for Metadata is "metadata"
 // (the column is result_metadata).
 type Result struct {
-	ID        int64
-	RunID     string
-	LeadID    int
-	Status    string
-	Value     string
-	Metadata  json.RawMessage // any JSON; falsy (null, {}, [], 0, "", false) renders {}
-	Error     *string
-	Attempts  int
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CompanyID, PersonID string
+	ID                  int64
+	RunID               string
+	LeadID              int
+	Status              string
+	Value               string
+	Metadata            json.RawMessage // any JSON; falsy (null, {}, [], 0, "", false) renders {}
+	Error               *string
+	Attempts            int
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
 }
 
 // RunPage is the list_runs response body.
@@ -196,7 +197,17 @@ func (r Result) MarshalJSON() ([]byte, error) {
 	var o w
 	o.val("id", r.ID)
 	o.str("run_id", r.RunID)
-	o.int("lead_id", r.LeadID)
+	if r.LeadID != 0 {
+		o.int("lead_id", r.LeadID)
+	} else {
+		o.val("lead_id", nil)
+	}
+	if r.CompanyID != "" {
+		o.str("company_id", r.CompanyID)
+	}
+	if r.PersonID != "" {
+		o.str("person_id", r.PersonID)
+	}
 	o.str("status", r.Status)
 	o.str("value", r.Value)
 	o.key("metadata")

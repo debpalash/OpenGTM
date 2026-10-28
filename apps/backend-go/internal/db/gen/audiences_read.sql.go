@@ -12,7 +12,7 @@ import (
 )
 
 const audReadEvents = `-- name: AudReadEvents :many
-SELECT id, audience_id, lead_id, event_type, snapshot, created_at
+SELECT id, audience_id, company_entity_id,person_entity_id, lead_id, event_type, snapshot, created_at
 FROM audience_membership_events
 WHERE workspace_id = $1::text AND audience_id = $2::text
   AND ($3::bigint IS NULL OR id < $3::bigint)
@@ -28,12 +28,14 @@ type AudReadEventsParams struct {
 }
 
 type AudReadEventsRow struct {
-	ID         int32
-	AudienceID string
-	LeadID     int32
-	EventType  string
-	Snapshot   []byte
-	CreatedAt  pgtype.Timestamp
+	ID              int32
+	AudienceID      string
+	CompanyEntityID pgtype.Text
+	PersonEntityID  pgtype.Text
+	LeadID          pgtype.Int4
+	EventType       string
+	Snapshot        []byte
+	CreatedAt       pgtype.Timestamp
 }
 
 func (q *Queries) AudReadEvents(ctx context.Context, arg AudReadEventsParams) ([]AudReadEventsRow, error) {
@@ -53,6 +55,8 @@ func (q *Queries) AudReadEvents(ctx context.Context, arg AudReadEventsParams) ([
 		if err := rows.Scan(
 			&i.ID,
 			&i.AudienceID,
+			&i.CompanyEntityID,
+			&i.PersonEntityID,
 			&i.LeadID,
 			&i.EventType,
 			&i.Snapshot,
@@ -90,7 +94,7 @@ func (q *Queries) AudReadExists(ctx context.Context, arg AudReadExistsParams) (b
 }
 
 const audReadMembers = `-- name: AudReadMembers :many
-SELECT id, lead_id, snapshot, joined_at, last_seen_at
+SELECT id, company_entity_id,person_entity_id, lead_id, snapshot, joined_at, last_seen_at
 FROM audience_members
 WHERE workspace_id = $1::text AND audience_id = $2::text
   AND ($3::bigint IS NULL OR id < $3::bigint)
@@ -108,11 +112,13 @@ type AudReadMembersParams struct {
 }
 
 type AudReadMembersRow struct {
-	ID         int32
-	LeadID     int32
-	Snapshot   []byte
-	JoinedAt   pgtype.Timestamp
-	LastSeenAt pgtype.Timestamp
+	ID              int32
+	CompanyEntityID pgtype.Text
+	PersonEntityID  pgtype.Text
+	LeadID          pgtype.Int4
+	Snapshot        []byte
+	JoinedAt        pgtype.Timestamp
+	LastSeenAt      pgtype.Timestamp
 }
 
 func (q *Queries) AudReadMembers(ctx context.Context, arg AudReadMembersParams) ([]AudReadMembersRow, error) {
@@ -132,6 +138,8 @@ func (q *Queries) AudReadMembers(ctx context.Context, arg AudReadMembersParams) 
 		var i AudReadMembersRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.CompanyEntityID,
+			&i.PersonEntityID,
 			&i.LeadID,
 			&i.Snapshot,
 			&i.JoinedAt,

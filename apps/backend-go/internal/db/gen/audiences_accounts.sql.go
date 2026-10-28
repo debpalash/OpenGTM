@@ -68,7 +68,7 @@ type AudAccMembersPageParams struct {
 
 type AudAccMembersPageRow struct {
 	ID       int32
-	LeadID   int32
+	LeadID   pgtype.Int4
 	Snapshot []byte
 }
 

@@ -348,7 +348,7 @@ func (q *Queries) AutoSvcRecentRuns(ctx context.Context, arg AutoSvcRecentRunsPa
 }
 
 const autoSvcRowWorkbooks = `-- name: AutoSvcRowWorkbooks :many
-SELECT id::int4 AS row_id, workbook_id FROM workbook_rows
+SELECT id::int4 AS row_id, workbook_id FROM record_workbook_rows
 WHERE workspace_id = $1::text AND id = ANY($2::int4[])
 `
 

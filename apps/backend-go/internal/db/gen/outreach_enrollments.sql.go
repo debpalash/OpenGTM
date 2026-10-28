@@ -87,8 +87,7 @@ func (q *Queries) OutreachEnrollmentAdvance(ctx context.Context, arg OutreachEnr
 }
 
 const outreachEnrollmentGet = `-- name: OutreachEnrollmentGet :one
-SELECT id, workspace_id, sequence_id, lead_id, to_email_snapshot, consent_source, consent_at, current_step,
-       status, next_send_at, sent_count, soft_bounce_count, last_sent_at, error
+SELECT id, workspace_id, sequence_id, lead_id, to_email_snapshot, consent_source, consent_at, current_step, status, next_send_at, sent_count, soft_bounce_count, last_sent_at, error, person_entity_id, company_entity_id
 FROM outreach_enrollments
 WHERE workspace_id = current_setting('app.workspace_id', true) AND id = $1::int
 `
@@ -111,6 +110,8 @@ func (q *Queries) OutreachEnrollmentGet(ctx context.Context, id int32) (Outreach
 		&i.SoftBounceCount,
 		&i.LastSentAt,
 		&i.Error,
+		&i.PersonEntityID,
+		&i.CompanyEntityID,
 	)
 	return i, err
 }
@@ -146,8 +147,7 @@ func (q *Queries) OutreachEnrollmentReschedule(ctx context.Context, arg Outreach
 }
 
 const outreachEnrollmentsDue = `-- name: OutreachEnrollmentsDue :many
-SELECT e.id, e.workspace_id, e.sequence_id, e.lead_id, e.to_email_snapshot, e.consent_source, e.consent_at,
-       e.current_step, e.status, e.next_send_at, e.sent_count, e.soft_bounce_count, e.last_sent_at, e.error
+SELECT e.id, e.workspace_id, e.sequence_id, e.lead_id, e.to_email_snapshot, e.consent_source, e.consent_at, e.current_step, e.status, e.next_send_at, e.sent_count, e.soft_bounce_count, e.last_sent_at, e.error, e.person_entity_id, e.company_entity_id
 FROM outreach_enrollments e
 WHERE e.workspace_id = current_setting('app.workspace_id', true)
   AND e.sequence_id = $1::text
@@ -193,6 +193,8 @@ func (q *Queries) OutreachEnrollmentsDue(ctx context.Context, arg OutreachEnroll
 			&i.SoftBounceCount,
 			&i.LastSentAt,
 			&i.Error,
+			&i.PersonEntityID,
+			&i.CompanyEntityID,
 		); err != nil {
 			return nil, err
 		}

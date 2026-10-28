@@ -53,7 +53,7 @@ func (q *Queries) InsertWorkbookRows(ctx context.Context, arg InsertWorkbookRows
 }
 
 const listWorkbookRowLeadIDs = `-- name: ListWorkbookRowLeadIDs :many
-SELECT lead_id::int AS lead_id FROM workbook_rows
+SELECT lead_id::int AS lead_id FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text AND lead_id IS NOT NULL
 `
 

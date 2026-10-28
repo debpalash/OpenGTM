@@ -37,7 +37,7 @@ WHERE id = sqlc.arg(id)::text AND destination_id = sqlc.arg(destination_id)::tex
 RETURNING workspace_id;
 
 -- name: DestInboundReceiptByEvent :one
-SELECT id, destination_id, provider, external_event_id, external_record_id, lead_id, status,
+SELECT id, destination_id, provider, external_event_id, external_record_id, lead_id, company_entity_id,person_entity_id,status,
        conflict_policy, applied_fields, ignored_fields, error, created_at
 FROM destination_inbound_receipts
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND destination_id = sqlc.arg(destination_id)::text
@@ -50,7 +50,7 @@ VALUES (sqlc.arg(id)::text, sqlc.arg(workspace_id)::text, sqlc.arg(destination_i
   sqlc.arg(external_event_id)::text, sqlc.narg(external_record_id)::text, sqlc.narg(lead_id)::int,
   sqlc.arg(status)::text, sqlc.arg(conflict_policy)::text, sqlc.arg(applied_fields)::json,
   sqlc.arg(ignored_fields)::json, sqlc.arg(payload_fingerprint)::text, sqlc.narg(error)::text)
-RETURNING id, destination_id, provider, external_event_id, external_record_id, lead_id, status,
+RETURNING id, destination_id, provider, external_event_id, external_record_id, lead_id, company_entity_id,person_entity_id,status,
           conflict_policy, applied_fields, ignored_fields, error, created_at;
 
 -- Python (on PG) ordered delivered_at DESC with NULLs first; keep that, id breaks ties.
@@ -62,7 +62,7 @@ ORDER BY delivered_at DESC, id DESC
 LIMIT 1;
 
 -- name: DestInboundLeadsByEmail :many
-SELECT id FROM leads
+SELECT id FROM record_leads
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND email = sqlc.arg(email)::text
 ORDER BY id
 LIMIT 2;
@@ -72,7 +72,7 @@ SELECT company, website, email, phone, contact_person, contact_title, city, stat
        specialization, company_size, employee_count_exact, description, revenue_range, founded_year,
        industry_tags, technologies, funding_stage, linkedin_url, twitter_url, facebook_url,
        secondary_emails, secondary_phones, decision_makers, status, notes
-FROM leads
+FROM record_leads
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::bigint
 FOR UPDATE;
 

@@ -22,6 +22,7 @@ import (
 // Destination is the slice of a destination row that delivery needs (the store type lands in
 // plan 10 T7; this stays decoupled from it).
 type Destination struct {
+	SubjectKey  string
 	ID          string
 	WorkspaceID string
 	AudienceID  string
@@ -273,6 +274,11 @@ func IdempotencyKey(destID string, leadID int, fingerprint string, remove bool) 
 // values redacted and the text cut to 500 characters. Each call is bounded by the Deliverer's
 // timeout; a port that ignores its context is abandoned (its goroutine finishes on its own).
 func (d *Deliverer) Deliver(ctx context.Context, dest Destination, leadID int, snapshot map[string]any, idem string) Result {
+	if leadID == 0 {
+		cid, _ := snapshot["company_id"].(string)
+		pid, _ := snapshot["person_id"].(string)
+		dest.SubjectKey = SubjectKey(leadID, cid, pid)
+	}
 	ctx, cancel := context.WithTimeout(ctx, d.timeout)
 	defer cancel()
 	ch := make(chan Result, 1)
@@ -420,3 +426,28 @@ func copyMap(m map[string]any) map[string]any {
 }
 
 func rowKey(destID string, leadID int) string { return fmt.Sprintf("dest:%s:lead:%d", destID, leadID) }
+
+// SubjectKey retains historical lead keys for existing members and uses typed
+// identities for records that have never needed a legacy lead projection.
+func SubjectKey(leadID int, cid, pid string) string {
+	if leadID > 0 {
+		return fmt.Sprintf("lead:%d", leadID)
+	}
+	if pid != "" {
+		return "person:" + pid
+	}
+	return "company:" + cid
+}
+func SubjectIdempotencyKey(dest, subject, fp string, remove bool) string {
+	if remove {
+		return "dest:" + dest + ":" + subject + ":remove:" + fp
+	}
+	return "dest:" + dest + ":" + subject + ":" + fp
+}
+
+func destinationRowKey(d Destination, leadID int) string {
+	if d.SubjectKey != "" {
+		return "dest:" + d.ID + ":" + d.SubjectKey
+	}
+	return rowKey(d.ID, leadID)
+}

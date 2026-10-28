@@ -348,10 +348,7 @@ func Stats(ctx context.Context, diskPath, projectRoot, databaseURL string, lim .
 	if err := syscall.Statfs(diskPath, &sf); err != nil {
 		return s, err
 	}
-	bs := uint64(sf.Frsize)
-	if bs == 0 {
-		bs = uint64(sf.Bsize)
-	}
+	bs := statBlockSize(&sf)
 	s.DiskTotal = sf.Blocks * bs
 	s.DiskUsed = (sf.Blocks - sf.Bfree) * bs
 	s.DiskFree = sf.Bavail * bs

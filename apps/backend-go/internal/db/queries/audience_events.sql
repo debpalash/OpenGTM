@@ -7,7 +7,7 @@ VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(audience_id)::text, sqlc.arg(lead
 
 -- One refresh's events in stable keyset pages.
 -- name: AudRefreshEventsPage :many
-SELECT id, lead_id, event_type
+SELECT id, company_entity_id,person_entity_id, lead_id, event_type
 FROM audience_membership_events
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND audience_id = sqlc.arg(audience_id)::text
   AND refresh_id = sqlc.arg(refresh_id)::text AND id > sqlc.arg(after_id)::int

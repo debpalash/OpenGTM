@@ -14,6 +14,7 @@ import (
 
 // Watch is one watch_subscriptions row (the fields _to_api reads).
 type Watch struct {
+	CompanyID, PersonID           *string
 	ID, WorkspaceID, Kind, Target string
 	ResolvedCIK                   *string
 	LeadID                        *int32
@@ -31,6 +32,14 @@ type Watch struct {
 func toWatch(r gen.WatchSubscription) (Watch, error) {
 	w := Watch{ID: r.ID, WorkspaceID: r.WorkspaceID, Kind: r.Kind, Target: r.Target, Enabled: r.Enabled,
 		ConsecutiveFailures: r.ConsecutiveFailures.Int32}
+	if r.CompanyEntityID.Valid {
+		v := r.CompanyEntityID.String
+		w.CompanyID = &v
+	}
+	if r.PersonEntityID.Valid {
+		v := r.PersonEntityID.String
+		w.PersonID = &v
+	}
 	if r.ResolvedCik.Valid {
 		s := r.ResolvedCik.String
 		w.ResolvedCIK = &s
@@ -150,6 +159,12 @@ func (w Watch) Obj() *wbcrud.Obj {
 	o := wbcrud.NewObj()
 	o.Set("id", w.ID)
 	o.Set("workspace_id", w.WorkspaceID)
+	if w.CompanyID != nil {
+		o.Set("company_id", *w.CompanyID)
+	}
+	if w.PersonID != nil {
+		o.Set("person_id", *w.PersonID)
+	}
 	o.Set("kind", w.Kind)
 	o.Set("target", w.Target)
 	if w.ResolvedCIK == nil {

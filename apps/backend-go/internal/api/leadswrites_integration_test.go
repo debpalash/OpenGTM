@@ -5,6 +5,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http/httptest"
 	"strings"
 	"sync"
@@ -305,6 +306,16 @@ get_foreign_after_put delete_ok delete_again delete_foreign delete_bad_id delete
 		}
 		if name == "create_ok" {
 			createdID = strings.TrimSpace(strings.Split(strings.Split(rec.Body.String(), `"id":`)[1], "}")[0])
+		}
+		if name == "create_collision" {
+			t.Run(name, func(t *testing.T) {
+				var body map[string]any
+				_ = json.Unmarshal(rec.Body.Bytes(), &body)
+				if rec.Code != 200 || fmt.Sprint(body["id"]) == createdID {
+					t.Fatalf("second contact must have a separate lead identity: %d %s", rec.Code, rec.Body.String())
+				}
+			})
+			continue
 		}
 		opts := []contract.Option{}
 		if strings.HasPrefix(name, "create_") || name == "get_created" {

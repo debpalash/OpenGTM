@@ -34,6 +34,7 @@ type Audience struct {
 	RefreshHealth              string
 	LastRefreshError           pgtype.Text
 	ConsecutiveRefreshFailures int32
+	RecordType                 string
 }
 
 type AudienceDestination struct {
@@ -53,25 +54,29 @@ type AudienceDestination struct {
 }
 
 type AudienceMember struct {
-	ID           int32
-	WorkspaceID  string
-	AudienceID   string
-	LeadID       int32
-	Snapshot     []byte
-	JoinedAt     pgtype.Timestamp
-	LastSeenAt   pgtype.Timestamp
-	RefreshToken pgtype.Text
+	ID              int32
+	WorkspaceID     string
+	AudienceID      string
+	LeadID          pgtype.Int4
+	Snapshot        []byte
+	JoinedAt        pgtype.Timestamp
+	LastSeenAt      pgtype.Timestamp
+	RefreshToken    pgtype.Text
+	CompanyEntityID pgtype.Text
+	PersonEntityID  pgtype.Text
 }
 
 type AudienceMembershipEvent struct {
-	ID          int32
-	WorkspaceID string
-	AudienceID  string
-	LeadID      int32
-	EventType   string
-	Snapshot    []byte
-	CreatedAt   pgtype.Timestamp
-	RefreshID   pgtype.Text
+	ID              int32
+	WorkspaceID     string
+	AudienceID      string
+	LeadID          pgtype.Int4
+	EventType       string
+	Snapshot        []byte
+	CreatedAt       pgtype.Timestamp
+	RefreshID       pgtype.Text
+	CompanyEntityID pgtype.Text
+	PersonEntityID  pgtype.Text
 }
 
 type AudienceSchedule struct {
@@ -179,6 +184,9 @@ type CompanyEntity struct {
 	ObservationCount   pgtype.Int4
 	FirstSeen          pgtype.Timestamp
 	LastSeen           pgtype.Timestamp
+	AcceptedFields     []byte
+	RecordVersion      int64
+	RecordNameKey      string
 }
 
 type CompanyIdentifier struct {
@@ -240,7 +248,7 @@ type DestinationDelivery struct {
 	WorkspaceID        string
 	RunID              string
 	DestinationID      string
-	LeadID             int32
+	LeadID             pgtype.Int4
 	Operation          string
 	IdempotencyKey     string
 	PayloadFingerprint string
@@ -253,6 +261,9 @@ type DestinationDelivery struct {
 	CreatedAt          pgtype.Timestamp
 	UpdatedAt          pgtype.Timestamp
 	Payload            []byte
+	PersonEntityID     pgtype.Text
+	CompanyEntityID    pgtype.Text
+	SubjectKey         pgtype.Text
 }
 
 type DestinationInboundReceipt struct {
@@ -270,6 +281,8 @@ type DestinationInboundReceipt struct {
 	PayloadFingerprint string
 	Error              pgtype.Text
 	CreatedAt          pgtype.Timestamp
+	PersonEntityID     pgtype.Text
+	CompanyEntityID    pgtype.Text
 }
 
 type DestinationInboundToken struct {
@@ -456,6 +469,17 @@ type Lead struct {
 	Technographics      pgtype.Text
 	SourceUrl           pgtype.Text
 	CollectionJobID     pgtype.Text
+	CompanyEntityID     pgtype.Text
+	PersonEntityID      pgtype.Text
+	EmploymentID        pgtype.Int4
+}
+
+type LegacyRecordLink struct {
+	WorkspaceID  string
+	LeadID       int32
+	CompanyID    pgtype.Text
+	PersonID     pgtype.Text
+	EmploymentID pgtype.Int4
 }
 
 type Link struct {
@@ -541,7 +565,7 @@ type OutreachEnrollment struct {
 	ID              int32
 	WorkspaceID     string
 	SequenceID      string
-	LeadID          int32
+	LeadID          pgtype.Int4
 	ToEmailSnapshot string
 	ConsentSource   pgtype.Text
 	ConsentAt       pgtype.Timestamptz
@@ -552,6 +576,8 @@ type OutreachEnrollment struct {
 	SoftBounceCount pgtype.Int4
 	LastSentAt      pgtype.Timestamptz
 	Error           pgtype.Text
+	PersonEntityID  pgtype.Text
+	CompanyEntityID pgtype.Text
 }
 
 type OutreachInboundMessage struct {
@@ -587,27 +613,29 @@ type OutreachSchedule struct {
 }
 
 type OutreachSend struct {
-	ID             int32
-	WorkspaceID    string
-	SequenceID     pgtype.Text
-	EnrollmentID   pgtype.Int4
-	LeadID         pgtype.Int4
-	StepNumber     pgtype.Int4
-	ToEmail        string
-	Subject        pgtype.Text
-	Status         pgtype.Text
-	SkipReason     pgtype.Text
-	MessageID      pgtype.Text
-	IdempotencyKey string
-	ChargedUsd     pgtype.Float8
-	Migrated       pgtype.Bool
-	Error          pgtype.Text
-	SentAt         pgtype.Timestamptz
-	OpenedAt       pgtype.Timestamptz
-	RepliedAt      pgtype.Timestamptz
-	BouncedAt      pgtype.Timestamptz
-	CreatedAt      pgtype.Timestamptz
-	UpdatedAt      pgtype.Timestamptz
+	ID              int32
+	WorkspaceID     string
+	SequenceID      pgtype.Text
+	EnrollmentID    pgtype.Int4
+	LeadID          pgtype.Int4
+	StepNumber      pgtype.Int4
+	ToEmail         string
+	Subject         pgtype.Text
+	Status          pgtype.Text
+	SkipReason      pgtype.Text
+	MessageID       pgtype.Text
+	IdempotencyKey  string
+	ChargedUsd      pgtype.Float8
+	Migrated        pgtype.Bool
+	Error           pgtype.Text
+	SentAt          pgtype.Timestamptz
+	OpenedAt        pgtype.Timestamptz
+	RepliedAt       pgtype.Timestamptz
+	BouncedAt       pgtype.Timestamptz
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
+	PersonEntityID  pgtype.Text
+	CompanyEntityID pgtype.Text
 }
 
 type OutreachSequence struct {
@@ -654,6 +682,8 @@ type PersonEmployment struct {
 	FirstObservedAt pgtype.Timestamp
 	LastObservedAt  pgtype.Timestamp
 	IsCurrent       int32
+	AcceptedFields  []byte
+	EndedAt         pgtype.Timestamptz
 }
 
 type PersonEntity struct {
@@ -666,6 +696,8 @@ type PersonEntity struct {
 	FirstSeen          pgtype.Timestamp
 	LastSeen           pgtype.Timestamp
 	WorkspaceID        string
+	AcceptedFields     []byte
+	RecordVersion      int64
 }
 
 type PersonIdentifier struct {
@@ -699,17 +731,20 @@ type PersonIntel struct {
 }
 
 type PlaybookResult struct {
-	ID             int32
-	WorkspaceID    string
-	RunID          string
-	LeadID         int32
-	Status         string
-	Value          string
-	ResultMetadata []byte
-	Error          pgtype.Text
-	Attempts       int32
-	CreatedAt      pgtype.Timestamp
-	UpdatedAt      pgtype.Timestamp
+	ID              int32
+	WorkspaceID     string
+	RunID           string
+	LeadID          pgtype.Int4
+	Status          string
+	Value           string
+	ResultMetadata  []byte
+	Error           pgtype.Text
+	Attempts        int32
+	CreatedAt       pgtype.Timestamp
+	UpdatedAt       pgtype.Timestamp
+	CompanyEntityID pgtype.Text
+	PersonEntityID  pgtype.Text
+	SubjectKey      pgtype.Text
 }
 
 type PlaybookRun struct {
@@ -761,6 +796,140 @@ type ProviderStat struct {
 	AccuracyScore     pgtype.Float8
 	AccuracySamples   pgtype.Int4
 	AccuracyUpdatedAt pgtype.Timestamp
+}
+
+type RecordExternalIdentity struct {
+	WorkspaceID string
+	Source      string
+	RecordType  string
+	ExternalID  string
+	RecordID    string
+	CreatedAt   pgtype.Timestamptz
+}
+
+type RecordFieldOwner struct {
+	WorkspaceID string
+	RecordType  string
+	RecordID    string
+	FieldName   string
+	Source      string
+	Priority    int32
+	UpdatedAt   pgtype.Timestamptz
+}
+
+type RecordImport struct {
+	ID             pgtype.UUID
+	WorkspaceID    string
+	IdempotencyKey string
+	PayloadHash    string
+	Source         string
+	Result         []byte
+	CreatedAt      pgtype.Timestamptz
+}
+
+type RecordLead struct {
+	ID                  int32
+	WorkspaceID         string
+	Company             string
+	Website             pgtype.Text
+	Email               pgtype.Text
+	EmailConfidence     pgtype.Text
+	EmailProvider       pgtype.Text
+	Phone               pgtype.Text
+	PhoneProvider       pgtype.Text
+	ContactPerson       pgtype.Text
+	ContactTitle        pgtype.Text
+	City                pgtype.Text
+	State               pgtype.Text
+	Address             pgtype.Text
+	Specialization      pgtype.Text
+	CompanySize         pgtype.Text
+	EmployeeCountExact  pgtype.Int4
+	Description         pgtype.Text
+	RevenueRange        pgtype.Text
+	FoundedYear         pgtype.Text
+	FoundingYear        pgtype.Text
+	IndustryTags        pgtype.Text
+	Technologies        pgtype.Text
+	FundingStage        pgtype.Text
+	LinkedinUrl         pgtype.Text
+	TwitterUrl          pgtype.Text
+	FacebookUrl         pgtype.Text
+	SecondaryEmails     pgtype.Text
+	SecondaryPhones     pgtype.Text
+	DecisionMakers      pgtype.Text
+	GlassdoorRating     pgtype.Text
+	HiringSignals       pgtype.Text
+	EnrichmentAttempts  pgtype.Int4
+	EnrichmentWaterfall pgtype.Text
+	LastFundingAmount   pgtype.Text
+	Investors           pgtype.Text
+	RecentNews          pgtype.Text
+	GoogleRating        pgtype.Text
+	RevenueEstimate     pgtype.Text
+	EmailVerify         pgtype.Text
+	EmailPresence       pgtype.Text
+	Source              pgtype.Text
+	Score               pgtype.Int4
+	ScoreTier           pgtype.Text
+	Status              pgtype.Text
+	YupchaValueProp     pgtype.Text
+	CompanyNeed         pgtype.Text
+	Notes               pgtype.Text
+	CreatedAt           pgtype.Text
+	UpdatedAt           pgtype.Text
+	LastEnrichedAt      pgtype.Text
+	SearchTsv           interface{}
+	CompanySizeBasis    pgtype.Text
+	FieldProvenance     pgtype.Text
+	Technographics      pgtype.Text
+	SourceUrl           pgtype.Text
+	CollectionJobID     pgtype.Text
+	CompanyEntityID     pgtype.Text
+	PersonEntityID      pgtype.Text
+	EmploymentID        pgtype.Int4
+}
+
+type RecordObservation struct {
+	ID          int64
+	WorkspaceID string
+	RecordType  string
+	RecordID    string
+	FieldName   string
+	Value       []byte
+	Source      string
+	ObservedAt  pgtype.Timestamptz
+	Accepted    bool
+	Reason      string
+}
+
+type RecordWorkbookRow struct {
+	ID                 int32
+	WorkbookID         string
+	Position           pgtype.Int4
+	Data               []byte
+	Enrichments        []byte
+	LeadID             pgtype.Int4
+	CanonicalEntityID  pgtype.Text
+	CorroborationCount pgtype.Int4
+	CreatedAt          pgtype.Timestamp
+	UpdatedAt          pgtype.Timestamp
+	WorkspaceID        string
+	SourceProvider     pgtype.Text
+	SourceRecordID     pgtype.Text
+	SourceRank         pgtype.Int4
+	SourceFetchedAt    pgtype.Timestamptz
+	CompanyEntityID    pgtype.Text
+	PersonEntityID     pgtype.Text
+	EmploymentID       pgtype.Int4
+}
+
+type RecordWorkflow struct {
+	WorkspaceID   string
+	RecordType    string
+	Name          string
+	ColumnsConfig []byte
+	UpdatedAt     pgtype.Timestamptz
 }
 
 type ResearchPlaybook struct {
@@ -832,18 +1001,20 @@ type ScrapeHistory struct {
 }
 
 type Signal struct {
-	ID          string
-	WorkspaceID string
-	LeadID      pgtype.Int4
-	Company     pgtype.Text
-	SignalType  pgtype.Text
-	Title       pgtype.Text
-	Description pgtype.Text
-	Source      pgtype.Text
-	SourceUrl   pgtype.Text
-	Weight      pgtype.Int4
-	CreatedAt   pgtype.Float8
-	Read        pgtype.Bool
+	ID              string
+	WorkspaceID     string
+	LeadID          pgtype.Int4
+	Company         pgtype.Text
+	SignalType      pgtype.Text
+	Title           pgtype.Text
+	Description     pgtype.Text
+	Source          pgtype.Text
+	SourceUrl       pgtype.Text
+	Weight          pgtype.Int4
+	CreatedAt       pgtype.Float8
+	Read            pgtype.Bool
+	CompanyEntityID pgtype.Text
+	PersonEntityID  pgtype.Text
 }
 
 type SourceHealth struct {
@@ -994,6 +1165,8 @@ type WatchSubscription struct {
 	CreatedAt           pgtype.Timestamptz
 	UpdatedAt           pgtype.Timestamptz
 	Config              []byte
+	CompanyEntityID     pgtype.Text
+	PersonEntityID      pgtype.Text
 }
 
 type Workbook struct {
@@ -1016,6 +1189,7 @@ type Workbook struct {
 	UpdatedAt            pgtype.Timestamp
 	LastRunAt            pgtype.Timestamp
 	ActionIdempotencyKey pgtype.Text
+	RecordType           pgtype.Text
 }
 
 type WorkbookActivity struct {
@@ -1090,6 +1264,9 @@ type WorkbookRow struct {
 	SourceRecordID     pgtype.Text
 	SourceRank         pgtype.Int4
 	SourceFetchedAt    pgtype.Timestamptz
+	CompanyEntityID    pgtype.Text
+	PersonEntityID     pgtype.Text
+	EmploymentID       pgtype.Int4
 }
 
 type WorkbookSpendAttempt struct {

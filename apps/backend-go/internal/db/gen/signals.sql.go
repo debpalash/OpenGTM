@@ -13,8 +13,7 @@ import (
 
 const listSignals = `-- name: ListSignals :many
 
-SELECT id, workspace_id, lead_id, company, signal_type, title, description, source, source_url,
-       weight, created_at, read
+SELECT id, workspace_id, lead_id, company, signal_type, title, description, source, source_url, weight, created_at, read, company_entity_id, person_entity_id
 FROM signals
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND ($1::text IS NULL OR signal_type = $1::text)
@@ -61,6 +60,8 @@ func (q *Queries) ListSignals(ctx context.Context, arg ListSignalsParams) ([]Sig
 			&i.Weight,
 			&i.CreatedAt,
 			&i.Read,
+			&i.CompanyEntityID,
+			&i.PersonEntityID,
 		); err != nil {
 			return nil, err
 		}
@@ -84,8 +85,7 @@ func (q *Queries) MarkSignalsRead(ctx context.Context, ids []string) error {
 }
 
 const pageSignals = `-- name: PageSignals :many
-SELECT id, workspace_id, lead_id, company, signal_type, title, description, source, source_url,
-       weight, created_at, read
+SELECT id, workspace_id, lead_id, company, signal_type, title, description, source, source_url, weight, created_at, read, company_entity_id, person_entity_id
 FROM signals
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND ($1::text[] IS NULL OR signal_type = ANY($1::text[]))
@@ -133,6 +133,8 @@ func (q *Queries) PageSignals(ctx context.Context, arg PageSignalsParams) ([]Sig
 			&i.Weight,
 			&i.CreatedAt,
 			&i.Read,
+			&i.CompanyEntityID,
+			&i.PersonEntityID,
 		); err != nil {
 			return nil, err
 		}

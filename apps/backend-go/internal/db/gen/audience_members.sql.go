@@ -82,7 +82,7 @@ type AudRefreshMembersByLeadsParams struct {
 
 type AudRefreshMembersByLeadsRow struct {
 	ID       int32
-	LeadID   int32
+	LeadID   pgtype.Int4
 	Snapshot []byte
 }
 
@@ -144,7 +144,7 @@ type AudRefreshUnseenMembersParams struct {
 
 type AudRefreshUnseenMembersRow struct {
 	ID       int32
-	LeadID   int32
+	LeadID   pgtype.Int4
 	Snapshot []byte
 }
 

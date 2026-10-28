@@ -5,10 +5,10 @@
 SELECT count(*)::bigint AS n FROM watch_subscriptions WHERE workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: WatchSvcInsert :one
-INSERT INTO watch_subscriptions (id, workspace_id, kind, target, lead_id, signal_types, "interval", config,
+INSERT INTO watch_subscriptions (id, workspace_id, kind, target, lead_id, company_entity_id,person_entity_id, signal_types, "interval", config,
                                  schedule_anchor, next_poll_at, enabled, "cursor", consecutive_failures)
 VALUES (sqlc.arg(id)::text, sqlc.arg(workspace_id)::text, sqlc.arg(kind)::text, sqlc.arg(target)::text,
-        sqlc.narg(lead_id)::int4, sqlc.arg(signal_types)::json, sqlc.arg(poll_interval)::text,
+        sqlc.narg(lead_id)::int4,sqlc.narg(company_id)::text,sqlc.narg(person_id)::text, sqlc.arg(signal_types)::json, sqlc.arg(poll_interval)::text,
         sqlc.narg(config)::json, sqlc.arg(schedule_anchor)::timestamptz, sqlc.narg(next_poll_at)::timestamptz, true,
         sqlc.arg(poll_cursor)::json, 0)
 RETURNING *;
@@ -33,7 +33,7 @@ LIMIT sqlc.arg(row_limit)::int OFFSET sqlc.arg(row_offset)::int;
 -- object; updated_at has no onupdate on this model, so it is left alone).
 UPDATE watch_subscriptions
 SET "interval" = sqlc.narg(poll_interval)::text, config = sqlc.narg(config)::json,
-    signal_types = sqlc.narg(signal_types)::json, lead_id = sqlc.narg(lead_id)::int4,
+    signal_types = sqlc.narg(signal_types)::json, lead_id = sqlc.narg(lead_id)::int4,company_entity_id=sqlc.narg(company_id)::text,person_entity_id=sqlc.narg(person_id)::text,
     enabled = sqlc.arg(enabled)::boolean, next_poll_at = sqlc.narg(next_poll_at)::timestamptz,
     consecutive_failures = sqlc.arg(consecutive_failures)::int4, last_error = sqlc.narg(last_error)::text
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text
@@ -50,13 +50,12 @@ WHERE type = 'watch_poll' AND starts_with(fire_key, sqlc.arg(prefix)::text) AND 
 ORDER BY id;
 
 -- name: WatchSvcLeadExists :one
-SELECT EXISTS (SELECT 1 FROM leads WHERE id = sqlc.arg(id)::int4 AND workspace_id = sqlc.arg(workspace_id)::text) AS found;
+SELECT EXISTS (SELECT 1 FROM record_leads WHERE id = sqlc.arg(id)::int4 AND workspace_id = sqlc.arg(workspace_id)::text) AS found;
 
 -- name: WatchSvcSignalsPage :many
 -- SignalStore.get_signals_page with the account-group identity filter
 -- (lead ids OR lower(company)) on top of the plain type/lead filters.
-SELECT id, workspace_id, lead_id, company, signal_type, title, description, source, source_url,
-       weight, created_at, read
+SELECT *
 FROM signals
 WHERE workspace_id = sqlc.arg(workspace_id)::text
   AND (sqlc.narg(signal_types)::text[] IS NULL OR signal_type = ANY(sqlc.narg(signal_types)::text[]))
@@ -93,7 +92,7 @@ WHERE type = 'watch_poll' AND workspace_id = sqlc.arg(workspace_id)::text
 
 -- name: PollEngineGet :one
 -- Unlocked snapshot of the fields a poll reads (a fetch must not hold the row lock).
-SELECT id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, config, "cursor", enabled
+SELECT id, workspace_id, kind, target, resolved_cik, lead_id, company_entity_id,person_entity_id, signal_types, config, "cursor", enabled
 FROM watch_subscriptions
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
@@ -105,10 +104,10 @@ WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text
 FOR UPDATE;
 
 -- name: PollEngineLeadCompanies :many
-SELECT id, company FROM leads WHERE workspace_id = sqlc.arg(workspace_id)::text;
+SELECT id, company FROM record_leads WHERE workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: PollEngineLeadWebsite :one
-SELECT website FROM leads WHERE id = sqlc.arg(id)::int4 AND workspace_id = sqlc.arg(workspace_id)::text;
+SELECT website FROM record_leads WHERE id = sqlc.arg(id)::int4 AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: PollEngineSaveSource :exec
 -- One source's outcome: merged cursor, resolved_cik and last_error (all computed

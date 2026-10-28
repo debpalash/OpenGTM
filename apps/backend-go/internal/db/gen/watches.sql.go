@@ -13,7 +13,7 @@ import (
 
 const pollEngineGet = `-- name: PollEngineGet :one
 
-SELECT id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, config, "cursor", enabled
+SELECT id, workspace_id, kind, target, resolved_cik, lead_id, company_entity_id,person_entity_id, signal_types, config, "cursor", enabled
 FROM watch_subscriptions
 WHERE id = $1::text AND workspace_id = $2::text
 `
@@ -24,16 +24,18 @@ type PollEngineGetParams struct {
 }
 
 type PollEngineGetRow struct {
-	ID          string
-	WorkspaceID string
-	Kind        string
-	Target      string
-	ResolvedCik pgtype.Text
-	LeadID      pgtype.Int4
-	SignalTypes []byte
-	Config      []byte
-	Cursor      []byte
-	Enabled     bool
+	ID              string
+	WorkspaceID     string
+	Kind            string
+	Target          string
+	ResolvedCik     pgtype.Text
+	LeadID          pgtype.Int4
+	CompanyEntityID pgtype.Text
+	PersonEntityID  pgtype.Text
+	SignalTypes     []byte
+	Config          []byte
+	Cursor          []byte
+	Enabled         bool
 }
 
 // plan 08 task 15: watch_poll handler (internal/poller/engine.go). Tenant
@@ -49,6 +51,8 @@ func (q *Queries) PollEngineGet(ctx context.Context, arg PollEngineGetParams) (P
 		&i.Target,
 		&i.ResolvedCik,
 		&i.LeadID,
+		&i.CompanyEntityID,
+		&i.PersonEntityID,
 		&i.SignalTypes,
 		&i.Config,
 		&i.Cursor,
@@ -58,7 +62,7 @@ func (q *Queries) PollEngineGet(ctx context.Context, arg PollEngineGetParams) (P
 }
 
 const pollEngineLeadCompanies = `-- name: PollEngineLeadCompanies :many
-SELECT id, company FROM leads WHERE workspace_id = $1::text
+SELECT id, company FROM record_leads WHERE workspace_id = $1::text
 `
 
 type PollEngineLeadCompaniesRow struct {
@@ -87,7 +91,7 @@ func (q *Queries) PollEngineLeadCompanies(ctx context.Context, workspaceID strin
 }
 
 const pollEngineLeadWebsite = `-- name: PollEngineLeadWebsite :one
-SELECT website FROM leads WHERE id = $1::int4 AND workspace_id = $2::text
+SELECT website FROM record_leads WHERE id = $1::int4 AND workspace_id = $2::text
 `
 
 type PollEngineLeadWebsiteParams struct {
@@ -293,7 +297,7 @@ func (q *Queries) WatchSvcExists(ctx context.Context, arg WatchSvcExistsParams) 
 }
 
 const watchSvcGet = `-- name: WatchSvcGet :one
-SELECT id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, interval, schedule_anchor, enabled, next_poll_at, cursor, last_polled_at, last_error, consecutive_failures, created_at, updated_at, config FROM watch_subscriptions WHERE id = $1::text AND workspace_id = $2::text
+SELECT id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, interval, schedule_anchor, enabled, next_poll_at, cursor, last_polled_at, last_error, consecutive_failures, created_at, updated_at, config, company_entity_id, person_entity_id FROM watch_subscriptions WHERE id = $1::text AND workspace_id = $2::text
 `
 
 type WatchSvcGetParams struct {
@@ -323,18 +327,20 @@ func (q *Queries) WatchSvcGet(ctx context.Context, arg WatchSvcGetParams) (Watch
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Config,
+		&i.CompanyEntityID,
+		&i.PersonEntityID,
 	)
 	return i, err
 }
 
 const watchSvcInsert = `-- name: WatchSvcInsert :one
-INSERT INTO watch_subscriptions (id, workspace_id, kind, target, lead_id, signal_types, "interval", config,
+INSERT INTO watch_subscriptions (id, workspace_id, kind, target, lead_id, company_entity_id,person_entity_id, signal_types, "interval", config,
                                  schedule_anchor, next_poll_at, enabled, "cursor", consecutive_failures)
 VALUES ($1::text, $2::text, $3::text, $4::text,
-        $5::int4, $6::json, $7::text,
-        $8::json, $9::timestamptz, $10::timestamptz, true,
-        $11::json, 0)
-RETURNING id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, interval, schedule_anchor, enabled, next_poll_at, cursor, last_polled_at, last_error, consecutive_failures, created_at, updated_at, config
+        $5::int4,$6::text,$7::text, $8::json, $9::text,
+        $10::json, $11::timestamptz, $12::timestamptz, true,
+        $13::json, 0)
+RETURNING id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, interval, schedule_anchor, enabled, next_poll_at, cursor, last_polled_at, last_error, consecutive_failures, created_at, updated_at, config, company_entity_id, person_entity_id
 `
 
 type WatchSvcInsertParams struct {
@@ -343,6 +349,8 @@ type WatchSvcInsertParams struct {
 	Kind           string
 	Target         string
 	LeadID         pgtype.Int4
+	CompanyID      pgtype.Text
+	PersonID       pgtype.Text
 	SignalTypes    []byte
 	PollInterval   string
 	Config         []byte
@@ -358,6 +366,8 @@ func (q *Queries) WatchSvcInsert(ctx context.Context, arg WatchSvcInsertParams) 
 		arg.Kind,
 		arg.Target,
 		arg.LeadID,
+		arg.CompanyID,
+		arg.PersonID,
 		arg.SignalTypes,
 		arg.PollInterval,
 		arg.Config,
@@ -385,6 +395,8 @@ func (q *Queries) WatchSvcInsert(ctx context.Context, arg WatchSvcInsertParams) 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Config,
+		&i.CompanyEntityID,
+		&i.PersonEntityID,
 	)
 	return i, err
 }
@@ -418,7 +430,7 @@ func (q *Queries) WatchSvcInsertWebhookRule(ctx context.Context, arg WatchSvcIns
 }
 
 const watchSvcLeadExists = `-- name: WatchSvcLeadExists :one
-SELECT EXISTS (SELECT 1 FROM leads WHERE id = $1::int4 AND workspace_id = $2::text) AS found
+SELECT EXISTS (SELECT 1 FROM record_leads WHERE id = $1::int4 AND workspace_id = $2::text) AS found
 `
 
 type WatchSvcLeadExistsParams struct {
@@ -434,7 +446,7 @@ func (q *Queries) WatchSvcLeadExists(ctx context.Context, arg WatchSvcLeadExists
 }
 
 const watchSvcList = `-- name: WatchSvcList :many
-SELECT id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, interval, schedule_anchor, enabled, next_poll_at, cursor, last_polled_at, last_error, consecutive_failures, created_at, updated_at, config FROM watch_subscriptions
+SELECT id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, interval, schedule_anchor, enabled, next_poll_at, cursor, last_polled_at, last_error, consecutive_failures, created_at, updated_at, config, company_entity_id, person_entity_id FROM watch_subscriptions
 WHERE workspace_id = $1::text
   AND ($2::timestamptz IS NULL
        OR created_at < $2::timestamptz
@@ -485,6 +497,8 @@ func (q *Queries) WatchSvcList(ctx context.Context, arg WatchSvcListParams) ([]W
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Config,
+			&i.CompanyEntityID,
+			&i.PersonEntityID,
 		); err != nil {
 			return nil, err
 		}
@@ -497,7 +511,7 @@ func (q *Queries) WatchSvcList(ctx context.Context, arg WatchSvcListParams) ([]W
 }
 
 const watchSvcLock = `-- name: WatchSvcLock :one
-SELECT id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, interval, schedule_anchor, enabled, next_poll_at, cursor, last_polled_at, last_error, consecutive_failures, created_at, updated_at, config FROM watch_subscriptions WHERE id = $1::text AND workspace_id = $2::text FOR UPDATE
+SELECT id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, interval, schedule_anchor, enabled, next_poll_at, cursor, last_polled_at, last_error, consecutive_failures, created_at, updated_at, config, company_entity_id, person_entity_id FROM watch_subscriptions WHERE id = $1::text AND workspace_id = $2::text FOR UPDATE
 `
 
 type WatchSvcLockParams struct {
@@ -527,6 +541,8 @@ func (q *Queries) WatchSvcLock(ctx context.Context, arg WatchSvcLockParams) (Wat
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Config,
+		&i.CompanyEntityID,
+		&i.PersonEntityID,
 	)
 	return i, err
 }
@@ -555,11 +571,11 @@ func (q *Queries) WatchSvcPendingPollNow(ctx context.Context, arg WatchSvcPendin
 const watchSvcSave = `-- name: WatchSvcSave :one
 UPDATE watch_subscriptions
 SET "interval" = $1::text, config = $2::json,
-    signal_types = $3::json, lead_id = $4::int4,
-    enabled = $5::boolean, next_poll_at = $6::timestamptz,
-    consecutive_failures = $7::int4, last_error = $8::text
-WHERE id = $9::text AND workspace_id = $10::text
-RETURNING id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, interval, schedule_anchor, enabled, next_poll_at, cursor, last_polled_at, last_error, consecutive_failures, created_at, updated_at, config
+    signal_types = $3::json, lead_id = $4::int4,company_entity_id=$5::text,person_entity_id=$6::text,
+    enabled = $7::boolean, next_poll_at = $8::timestamptz,
+    consecutive_failures = $9::int4, last_error = $10::text
+WHERE id = $11::text AND workspace_id = $12::text
+RETURNING id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, interval, schedule_anchor, enabled, next_poll_at, cursor, last_polled_at, last_error, consecutive_failures, created_at, updated_at, config, company_entity_id, person_entity_id
 `
 
 type WatchSvcSaveParams struct {
@@ -567,6 +583,8 @@ type WatchSvcSaveParams struct {
 	Config              []byte
 	SignalTypes         []byte
 	LeadID              pgtype.Int4
+	CompanyID           pgtype.Text
+	PersonID            pgtype.Text
 	Enabled             bool
 	NextPollAt          pgtype.Timestamptz
 	ConsecutiveFailures int32
@@ -583,6 +601,8 @@ func (q *Queries) WatchSvcSave(ctx context.Context, arg WatchSvcSaveParams) (Wat
 		arg.Config,
 		arg.SignalTypes,
 		arg.LeadID,
+		arg.CompanyID,
+		arg.PersonID,
 		arg.Enabled,
 		arg.NextPollAt,
 		arg.ConsecutiveFailures,
@@ -610,13 +630,14 @@ func (q *Queries) WatchSvcSave(ctx context.Context, arg WatchSvcSaveParams) (Wat
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Config,
+		&i.CompanyEntityID,
+		&i.PersonEntityID,
 	)
 	return i, err
 }
 
 const watchSvcSignalsPage = `-- name: WatchSvcSignalsPage :many
-SELECT id, workspace_id, lead_id, company, signal_type, title, description, source, source_url,
-       weight, created_at, read
+SELECT id, workspace_id, lead_id, company, signal_type, title, description, source, source_url, weight, created_at, read, company_entity_id, person_entity_id
 FROM signals
 WHERE workspace_id = $1::text
   AND ($2::text[] IS NULL OR signal_type = ANY($2::text[]))
@@ -679,6 +700,8 @@ func (q *Queries) WatchSvcSignalsPage(ctx context.Context, arg WatchSvcSignalsPa
 			&i.Weight,
 			&i.CreatedAt,
 			&i.Read,
+			&i.CompanyEntityID,
+			&i.PersonEntityID,
 		); err != nil {
 			return nil, err
 		}

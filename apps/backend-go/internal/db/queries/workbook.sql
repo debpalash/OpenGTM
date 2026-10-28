@@ -11,18 +11,18 @@ SELECT status FROM workbooks
 WHERE id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: CountWorkbookRows :one
-SELECT COUNT(*)::bigint FROM workbook_rows
+SELECT COUNT(*)::bigint FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: ListWorkbookRows :many
-SELECT id, lead_id, data, enrichments FROM workbook_rows
+SELECT id, lead_id, data, enrichments FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text
   AND (NOT sqlc.arg(by_row_ids)::bool OR id = ANY(sqlc.arg(row_ids)::int[]))
   AND (NOT sqlc.arg(by_lead_ids)::bool OR lead_id = ANY(sqlc.arg(lead_ids)::int[]))
 ORDER BY id;
 
 -- name: ListRowEnrichments :many
-SELECT id, enrichments FROM workbook_rows
+SELECT id, enrichments FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text
   AND id = ANY(sqlc.arg(row_ids)::int[]);
 
@@ -65,7 +65,7 @@ ON CONFLICT (workbook_id, lead_id, column_id) DO UPDATE SET
 -- name: GetRowOverlayCell :one
 -- Prior overlay cell (enrichments[column_id]) as JSON text, 'null' when absent: the old value of
 -- an on_row_changed delta, read in the same transaction before MergeRowOverlay.
-SELECT COALESCE((enrichments::jsonb -> sqlc.arg(column_id)::text)::text, 'null')::text AS cell FROM workbook_rows
+SELECT COALESCE((enrichments::jsonb -> sqlc.arg(column_id)::text)::text, 'null')::text AS cell FROM record_workbook_rows
 WHERE id = sqlc.arg(row_id)::int AND workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: MergeRowOverlay :execrows

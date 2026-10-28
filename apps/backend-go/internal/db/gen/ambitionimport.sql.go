@@ -28,7 +28,7 @@ func (q *Queries) AIActiveRun(ctx context.Context, workbookID string) (string, e
 const aICountRows = `-- name: AICountRows :one
 SELECT count(*)::int AS total,
        count(*) FILTER (WHERE source_provider = 'ambitionbox')::int AS ambitionbox
-FROM workbook_rows
+FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
 `
 

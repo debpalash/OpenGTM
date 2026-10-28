@@ -331,7 +331,7 @@ func workbookAccountIDs(ctx context.Context, tx pgx.Tx, ws, wbID string) ([]stri
 	if err != nil {
 		return nil, err
 	}
-	rows, err := tx.Query(ctx, `SELECT data::text, canonical_entity_id FROM workbook_rows
+	rows, err := tx.Query(ctx, `SELECT data::text, canonical_entity_id FROM record_workbook_rows
 		WHERE workbook_id = $1 AND workspace_id = $2 ORDER BY position ASC, id ASC`, wbID, ws)
 	if err != nil {
 		return nil, err

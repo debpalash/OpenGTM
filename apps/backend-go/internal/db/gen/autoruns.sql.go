@@ -223,7 +223,7 @@ func (q *Queries) AutoRunReuseMarker(ctx context.Context, arg AutoRunReuseMarker
 }
 
 const autoRunRowByID = `-- name: AutoRunRowByID :one
-SELECT id, workbook_id, lead_id, data, enrichments FROM workbook_rows
+SELECT id, workbook_id, lead_id, data, enrichments FROM record_workbook_rows
 WHERE id = $1::int4 AND workspace_id = $2::text
 `
 
@@ -300,7 +300,7 @@ func (q *Queries) AutoRunSettleResult(ctx context.Context, arg AutoRunSettleResu
 }
 
 const autoRunSweepRows = `-- name: AutoRunSweepRows :many
-SELECT id, workbook_id, lead_id, data, enrichments FROM workbook_rows
+SELECT id, workbook_id, lead_id, data, enrichments FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
 ORDER BY created_at ASC, id ASC
 LIMIT $3::int4

@@ -66,7 +66,7 @@ func (q *Queries) GetWatchForRestore(ctx context.Context, arg GetWatchForRestore
 }
 
 const getWorkbookRowData = `-- name: GetWorkbookRowData :one
-SELECT data FROM workbook_rows
+SELECT data FROM record_workbook_rows
 WHERE id = $1::int AND workspace_id = $2::text
 FOR UPDATE
 `
@@ -208,7 +208,7 @@ func (q *Queries) ListAccountGroupWatches(ctx context.Context, workspaceID strin
 }
 
 const listAccountReferenceRows = `-- name: ListAccountReferenceRows :many
-SELECT id, data FROM workbook_rows
+SELECT id, data FROM record_workbook_rows
 WHERE workspace_id = $1::text AND strpos(data::text, $2::text) > 0
 ORDER BY id
 FOR UPDATE
@@ -374,7 +374,7 @@ func (q *Queries) ListEntityIdentifiers(ctx context.Context, arg ListEntityIdent
 }
 
 const listEntityRowIDs = `-- name: ListEntityRowIDs :many
-SELECT id FROM workbook_rows
+SELECT id FROM record_workbook_rows
 WHERE canonical_entity_id = $1::text AND workspace_id = $2::text
 ORDER BY id
 `
@@ -406,7 +406,7 @@ func (q *Queries) ListEntityRowIDs(ctx context.Context, arg ListEntityRowIDsPara
 
 const lockCompanyEntity = `-- name: LockCompanyEntity :one
 
-SELECT id, workspace_id, canonical_name, primary_domain, primary_phone, primary_email, primary_city, identity_keys, fields, sources, source_agreement, corroboration_count, observation_count, first_seen, last_seen FROM company_entities
+SELECT id, workspace_id, canonical_name, primary_domain, primary_phone, primary_email, primary_city, identity_keys, fields, sources, source_agreement, corroboration_count, observation_count, first_seen, last_seen, accepted_fields, record_version, record_name_key FROM company_entities
 WHERE id = $1::text AND workspace_id = $2::text
 FOR UPDATE
 `
@@ -439,6 +439,9 @@ func (q *Queries) LockCompanyEntity(ctx context.Context, arg LockCompanyEntityPa
 		&i.ObservationCount,
 		&i.FirstSeen,
 		&i.LastSeen,
+		&i.AcceptedFields,
+		&i.RecordVersion,
+		&i.RecordNameKey,
 	)
 	return i, err
 }
@@ -510,6 +513,23 @@ type MarkEntityMergeLogRevertedParams struct {
 func (q *Queries) MarkEntityMergeLogReverted(ctx context.Context, arg MarkEntityMergeLogRevertedParams) error {
 	_, err := q.db.Exec(ctx, markEntityMergeLogReverted, arg.ID, arg.WorkspaceID)
 	return err
+}
+
+const mergeSharedCompanyRecords = `-- name: MergeSharedCompanyRecords :one
+SELECT opengtm_record_merge_company($1::text,$2::text,$3::text)::jsonb
+`
+
+type MergeSharedCompanyRecordsParams struct {
+	WorkspaceID string
+	KeptID      string
+	MergedID    string
+}
+
+func (q *Queries) MergeSharedCompanyRecords(ctx context.Context, arg MergeSharedCompanyRecordsParams) ([]byte, error) {
+	row := q.db.QueryRow(ctx, mergeSharedCompanyRecords, arg.WorkspaceID, arg.KeptID, arg.MergedID)
+	var column_1 []byte
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const rebindWorkbookRow = `-- name: RebindWorkbookRow :exec
@@ -657,6 +677,20 @@ func (q *Queries) RestorePersonEntities(ctx context.Context, arg RestorePersonEn
 		arg.Ids,
 		arg.KeptID,
 	)
+	return err
+}
+
+const restoreSharedCompanyRecords = `-- name: RestoreSharedCompanyRecords :exec
+SELECT opengtm_record_restore_company($1::text,$2::jsonb)
+`
+
+type RestoreSharedCompanyRecordsParams struct {
+	WorkspaceID string
+	Undo        []byte
+}
+
+func (q *Queries) RestoreSharedCompanyRecords(ctx context.Context, arg RestoreSharedCompanyRecordsParams) error {
+	_, err := q.db.Exec(ctx, restoreSharedCompanyRecords, arg.WorkspaceID, arg.Undo)
 	return err
 }
 

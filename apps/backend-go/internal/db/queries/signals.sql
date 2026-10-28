@@ -4,8 +4,7 @@
 -- Raw columns: NULLs reach Go as nil so JSON emits null like store.py.
 
 -- name: ListSignals :many
-SELECT id, workspace_id, lead_id, company, signal_type, title, description, source, source_url,
-       weight, created_at, read
+SELECT *
 FROM signals
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND (sqlc.narg('signal_type')::text IS NULL OR signal_type = sqlc.narg('signal_type')::text)
@@ -14,8 +13,7 @@ ORDER BY created_at DESC, id DESC
 LIMIT @page_limit OFFSET @page_offset;
 
 -- name: PageSignals :many
-SELECT id, workspace_id, lead_id, company, signal_type, title, description, source, source_url,
-       weight, created_at, read
+SELECT *
 FROM signals
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND (sqlc.narg('signal_types')::text[] IS NULL OR signal_type = ANY(sqlc.narg('signal_types')::text[]))

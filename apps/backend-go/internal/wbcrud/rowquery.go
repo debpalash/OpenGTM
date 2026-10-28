@@ -165,13 +165,13 @@ func (q RowQuery) orderBy() string {
 }
 
 func (q *RowQuery) rebuild() {
-	q.SQL = "SELECT " + RowColumns + " FROM workbook_rows WHERE " + strings.Join(q.where, " AND ") +
+	q.SQL = "SELECT " + RowColumns + " FROM record_workbook_rows WHERE " + strings.Join(q.where, " AND ") +
 		" ORDER BY " + q.orderBy() + q.limit
 }
 
 // CountSQL counts the rows the query matches (cursor and limit excluded).
 func (q RowQuery) CountSQL() (string, []any) {
-	return "SELECT count(id) FROM workbook_rows WHERE " + strings.Join(q.where[:q.whereBase()], " AND "), q.Args[:q.whereArgs]
+	return "SELECT count(id) FROM record_workbook_rows WHERE " + strings.Join(q.where[:q.whereBase()], " AND "), q.Args[:q.whereArgs]
 }
 
 // whereBase is the number of non-cursor conditions.
@@ -268,7 +268,7 @@ func (q RowQuery) termSelect() (string, []any) {
 		exprs[i] = t.Expr
 	}
 	args := append([]any{}, q.Args[:q.baseArgs]...)
-	return "SELECT " + strings.Join(exprs, ", ") + " FROM workbook_rows WHERE " +
+	return "SELECT " + strings.Join(exprs, ", ") + " FROM record_workbook_rows WHERE " +
 		strings.Join(q.where[:n], " AND ") + " AND id = $" + strconv.Itoa(len(args)+1), args
 }
 

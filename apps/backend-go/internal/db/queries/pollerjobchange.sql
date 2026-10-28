@@ -4,5 +4,5 @@
 
 -- name: PollContactLead :one
 SELECT contact_person, company, linkedin_url
-FROM leads
+FROM record_leads
 WHERE id = $1 AND workspace_id = $2;

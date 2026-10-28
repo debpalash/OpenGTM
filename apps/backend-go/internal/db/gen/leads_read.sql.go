@@ -14,7 +14,7 @@ import (
 const countLeadsFiltered = `-- name: CountLeadsFiltered :one
 
 SELECT count(*)::bigint
-FROM leads
+FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND (NOT $1::bool OR id = ANY($2::int4[]))
   AND ($3::text IS NULL OR city = $3::text)
@@ -96,7 +96,7 @@ func (q *Queries) CountLeadsFiltered(ctx context.Context, arg CountLeadsFiltered
 }
 
 const leadCountsByCity = `-- name: LeadCountsByCity :many
-SELECT city AS key, count(*)::bigint AS n FROM leads
+SELECT city AS key, count(*)::bigint AS n FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
 GROUP BY city ORDER BY count(*) DESC, city LIMIT 15
 `
@@ -127,7 +127,7 @@ func (q *Queries) LeadCountsByCity(ctx context.Context) ([]LeadCountsByCityRow, 
 }
 
 const leadCountsBySource = `-- name: LeadCountsBySource :many
-SELECT source AS key, count(*)::bigint AS n FROM leads
+SELECT source AS key, count(*)::bigint AS n FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
 GROUP BY source ORDER BY source
 `
@@ -158,7 +158,7 @@ func (q *Queries) LeadCountsBySource(ctx context.Context) ([]LeadCountsBySourceR
 }
 
 const leadCountsByStatus = `-- name: LeadCountsByStatus :many
-SELECT status AS key, count(*)::bigint AS n FROM leads
+SELECT status AS key, count(*)::bigint AS n FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
 GROUP BY status ORDER BY status
 `
@@ -189,7 +189,7 @@ func (q *Queries) LeadCountsByStatus(ctx context.Context) ([]LeadCountsByStatusR
 }
 
 const leadCountsByTier = `-- name: LeadCountsByTier :many
-SELECT score_tier AS key, count(*)::bigint AS n FROM leads
+SELECT score_tier AS key, count(*)::bigint AS n FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
 GROUP BY score_tier ORDER BY score_tier
 `
@@ -220,7 +220,7 @@ func (q *Queries) LeadCountsByTier(ctx context.Context) ([]LeadCountsByTierRow, 
 }
 
 const leadDistinctCities = `-- name: LeadDistinctCities :many
-SELECT DISTINCT city AS value FROM leads
+SELECT DISTINCT city AS value FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND city IS NOT NULL AND city <> ''
 ORDER BY city
@@ -247,7 +247,7 @@ func (q *Queries) LeadDistinctCities(ctx context.Context) ([]pgtype.Text, error)
 }
 
 const leadDistinctSources = `-- name: LeadDistinctSources :many
-SELECT DISTINCT source AS value FROM leads
+SELECT DISTINCT source AS value FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND source IS NOT NULL AND source <> ''
 ORDER BY source
@@ -274,7 +274,7 @@ func (q *Queries) LeadDistinctSources(ctx context.Context) ([]pgtype.Text, error
 }
 
 const leadDistinctSpecializations = `-- name: LeadDistinctSpecializations :many
-SELECT DISTINCT specialization AS value FROM leads
+SELECT DISTINCT specialization AS value FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND specialization IS NOT NULL AND specialization <> ''
 ORDER BY specialization LIMIT 50
@@ -301,7 +301,7 @@ func (q *Queries) LeadDistinctSpecializations(ctx context.Context) ([]pgtype.Tex
 }
 
 const leadDistinctStatuses = `-- name: LeadDistinctStatuses :many
-SELECT DISTINCT status AS value FROM leads
+SELECT DISTINCT status AS value FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND status IS NOT NULL AND status <> ''
 ORDER BY status
@@ -328,7 +328,7 @@ func (q *Queries) LeadDistinctStatuses(ctx context.Context) ([]pgtype.Text, erro
 }
 
 const leadDistinctTiers = `-- name: LeadDistinctTiers :many
-SELECT DISTINCT score_tier AS value FROM leads
+SELECT DISTINCT score_tier AS value FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND score_tier IS NOT NULL AND score_tier <> ''
 ORDER BY score_tier
@@ -362,7 +362,7 @@ SELECT count(*)::bigint AS total,
   count(*) FILTER (WHERE linkedin_url IS NOT NULL AND linkedin_url <> '' AND linkedin_url <> 'N/A')::bigint AS with_linkedin,
   count(*) FILTER (WHERE contact_person IS NOT NULL AND contact_person <> '' AND contact_person <> 'N/A')::bigint AS with_contact,
   coalesce(avg(score), 0)::float8 AS avg_score
-FROM leads
+FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
 `
 
@@ -393,7 +393,7 @@ func (q *Queries) LeadStatsTotals(ctx context.Context) (LeadStatsTotalsRow, erro
 
 const leadsByIDs = `-- name: LeadsByIDs :many
 SELECT id, company, website, email, email_confidence, email_provider, phone, phone_provider, contact_person, contact_title, city, state, address, specialization, company_size, employee_count_exact, description, revenue_range, founded_year, industry_tags, technologies, technographics, funding_stage, company_size_basis, linkedin_url, twitter_url, facebook_url, secondary_emails, secondary_phones, decision_makers, glassdoor_rating, hiring_signals, enrichment_attempts, enrichment_waterfall, field_provenance, source, source_url, collection_job_id, workspace_id, score, score_tier, status, yupcha_value_prop, company_need, notes, created_at, updated_at, last_enriched_at
-FROM leads
+FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND id = ANY($1::int4[])
 ORDER BY id
@@ -521,7 +521,7 @@ func (q *Queries) LeadsByIDs(ctx context.Context, ids []int32) ([]LeadsByIDsRow,
 
 const queryLeadsPage = `-- name: QueryLeadsPage :many
 SELECT id, company, website, email, email_confidence, email_provider, phone, phone_provider, contact_person, contact_title, city, state, address, specialization, company_size, employee_count_exact, description, revenue_range, founded_year, industry_tags, technologies, technographics, funding_stage, company_size_basis, linkedin_url, twitter_url, facebook_url, secondary_emails, secondary_phones, decision_makers, glassdoor_rating, hiring_signals, enrichment_attempts, enrichment_waterfall, field_provenance, source, source_url, collection_job_id, workspace_id, score, score_tier, status, yupcha_value_prop, company_need, notes, created_at, updated_at, last_enriched_at
-FROM leads
+FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND (NOT $1::bool OR id = ANY($2::int4[]))
   AND ($3::text IS NULL OR city = $3::text)

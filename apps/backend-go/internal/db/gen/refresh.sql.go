@@ -93,7 +93,7 @@ func (q *Queries) InsertRefreshJobAt(ctx context.Context, arg InsertRefreshJobAt
 }
 
 const maxWorkbookRowID = `-- name: MaxWorkbookRowID :one
-SELECT COALESCE(max(id), 0)::int4 AS max_id FROM workbook_rows WHERE workbook_id = $1::text
+SELECT COALESCE(max(id), 0)::int4 AS max_id FROM record_workbook_rows WHERE workbook_id = $1::text
 `
 
 func (q *Queries) MaxWorkbookRowID(ctx context.Context, workbookID string) (int32, error) {
@@ -129,7 +129,7 @@ func (q *Queries) OtherActiveRefreshJob(ctx context.Context, arg OtherActiveRefr
 const refreshPageBounds = `-- name: RefreshPageBounds :one
 SELECT COALESCE(max(id), 0)::int4 AS hi, count(*)::int8 AS n
 FROM (
-    SELECT r.id FROM workbook_rows r
+    SELECT r.id FROM record_workbook_rows r
     WHERE r.workbook_id = $1::text
       AND r.id > $2::int4
     ORDER BY r.id
@@ -158,7 +158,7 @@ func (q *Queries) RefreshPageBounds(ctx context.Context, arg RefreshPageBoundsPa
 
 const refreshStalePairs = `-- name: RefreshStalePairs :many
 SELECT r.id::int4 AS row_id, c.cid::text AS column_id
-FROM workbook_rows r
+FROM record_workbook_rows r
 CROSS JOIN LATERAL (
     SELECT ($1::text[])[g] AS cid, g AS ord, ($2::timestamp[])[g] AS cutoff
     FROM generate_series(1, cardinality($1::text[])) AS g
@@ -282,7 +282,7 @@ func (q *Queries) StoreRefreshSourcing(ctx context.Context, arg StoreRefreshSour
 }
 
 const workbookRowsAfter = `-- name: WorkbookRowsAfter :many
-SELECT id FROM workbook_rows
+SELECT id FROM record_workbook_rows
 WHERE workbook_id = $1::text AND id > $2::int4
 ORDER BY id
 `

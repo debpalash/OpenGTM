@@ -7,7 +7,7 @@
 -- max(position) or -1 when there is none: new rows start at that value + 1,
 -- so an empty workbook starts at 0 (import_csv_leads: next_pos = 0 if max is None).
 SELECT coalesce(max("position"), -1)::int AS max_position
-FROM workbook_rows
+FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text;
 
 -- name: ImportAppendRows :many

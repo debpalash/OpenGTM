@@ -8,3 +8,246 @@ sql:
         package: gen
         out: internal/db/gen
         sql_package: pgx/v5
+        overrides:
+          - column: "public.record_leads.id"
+            go_type: "int32"
+          - column: "public.record_leads.workspace_id"
+            go_type: "string"
+          - column: "public.record_leads.company"
+            go_type: "string"
+          - column: "public.record_leads.website"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.email"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.email_confidence"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.email_provider"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.phone"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.phone_provider"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.contact_person"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.contact_title"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.city"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.state"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.address"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.specialization"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.company_size"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.employee_count_exact"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Int4"
+          - column: "public.record_leads.description"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.revenue_range"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.founded_year"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.founding_year"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.industry_tags"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.technologies"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.funding_stage"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.linkedin_url"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.twitter_url"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.facebook_url"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.secondary_emails"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.secondary_phones"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.decision_makers"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.glassdoor_rating"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.hiring_signals"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.enrichment_attempts"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Int4"
+          - column: "public.record_leads.enrichment_waterfall"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.last_funding_amount"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.investors"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.recent_news"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.google_rating"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.revenue_estimate"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.email_verify"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.email_presence"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.source"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.score"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Int4"
+          - column: "public.record_leads.score_tier"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.status"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.yupcha_value_prop"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.company_need"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.notes"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.created_at"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.updated_at"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.last_enriched_at"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.company_size_basis"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.field_provenance"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.technographics"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.source_url"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.collection_job_id"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.company_entity_id"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.person_entity_id"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_leads.employment_id"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Int4"
+          - column: "public.record_workbook_rows.company_entity_id"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_workbook_rows.person_entity_id"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Text"
+          - column: "public.record_workbook_rows.employment_id"
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Int4"

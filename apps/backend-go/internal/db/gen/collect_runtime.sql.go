@@ -113,7 +113,7 @@ func (q *Queries) CollectFailJob(ctx context.Context, arg CollectFailJobParams) 
 const collectLeadsForBulk = `-- name: CollectLeadsForBulk :many
 SELECT id, company, website, email, email_confidence, phone, contact_person, city, description, linkedin_url,
        twitter_url
-FROM leads
+FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true) AND id = ANY($1::int[])
 `
 
@@ -191,7 +191,7 @@ func (q *Queries) CollectMarkRunning(ctx context.Context, arg CollectMarkRunning
 }
 
 const collectWorkspaceCompanies = `-- name: CollectWorkspaceCompanies :many
-SELECT DISTINCT company FROM leads
+SELECT DISTINCT company FROM record_leads
 WHERE workspace_id = current_setting('app.workspace_id', true) AND company IS NOT NULL AND company <> ''
 `
 

@@ -304,7 +304,7 @@ func (s *Service) Create(ctx context.Context, ws string, in CreateInput) (Create
 		if err != nil {
 			return err
 		}
-		p := gen.WatchSvcInsertParams{ID: id, WorkspaceID: ws, Kind: v.Kind, Target: v.Target,
+		p := gen.WatchSvcInsertParams{CompanyID: recordPin(in.CompanyID), PersonID: recordPin(in.PersonID), ID: id, WorkspaceID: ws, Kind: v.Kind, Target: v.Target,
 			SignalTypes: mustJSON(v.SignalTypes), PollInterval: v.Interval, ScheduleAnchor: tstz(anchor),
 			NextPollAt: tstz(next), PollCursor: []byte(`{"bootstrapped":false}`)}
 		if in.LeadID != nil {
@@ -313,6 +313,9 @@ func (s *Service) Create(ctx context.Context, ws string, in CreateInput) (Create
 		if v.Config != nil {
 			b, _ := v.Config.MarshalJSON()
 			p.Config = b
+		}
+		if e := validateRecordPins(ctx, tx, ws, in.LeadID, in.CompanyID, in.PersonID); e != nil {
+			return e
 		}
 		row, err := gen.New(tx).WatchSvcInsert(ctx, p)
 		if isUnique(err) {
@@ -442,7 +445,7 @@ func (s *Service) Patch(ctx context.Context, ws, id string, in PatchInput) (Watc
 		if err != nil {
 			return err
 		}
-		p := gen.WatchSvcSaveParams{ID: id, WorkspaceID: ws, PollInterval: row.Interval, Config: row.Config,
+		p := gen.WatchSvcSaveParams{CompanyID: row.CompanyEntityID, PersonID: row.PersonEntityID, ID: id, WorkspaceID: ws, PollInterval: row.Interval, Config: row.Config,
 			SignalTypes: row.SignalTypes, LeadID: row.LeadID, Enabled: row.Enabled, NextPollAt: row.NextPollAt,
 			ConsecutiveFailures: row.ConsecutiveFailures.Int32, LastError: row.LastError}
 		if ch.Interval != nil {
@@ -460,6 +463,17 @@ func (s *Service) Patch(ctx context.Context, ws, id string, in PatchInput) (Watc
 				return err
 			}
 			p.LeadID = pgtype.Int4{Int32: *in.LeadID, Valid: true}
+			p.CompanyID = pgtype.Text{}
+			p.PersonID = pgtype.Text{}
+		}
+		if in.CompanyID != nil {
+			p.CompanyID = recordPin(in.CompanyID)
+		}
+		if in.PersonID != nil {
+			p.PersonID = recordPin(in.PersonID)
+		}
+		if e := validateRecordPins(ctx, tx, ws, in.LeadID, in.CompanyID, in.PersonID); e != nil {
+			return e
 		}
 		if in.Enabled != nil {
 			was := row.Enabled
@@ -510,4 +524,32 @@ func (s *Service) Delete(ctx context.Context, ws, id string) error {
 		_, err := q.WatchSvcDelete(ctx, gen.WatchSvcDeleteParams{ID: id, WorkspaceID: ws})
 		return err
 	})
+}
+
+func recordPin(v *string) pgtype.Text {
+	if v == nil || *v == "" {
+		return pgtype.Text{}
+	}
+	return pgtype.Text{String: *v, Valid: true}
+}
+func validateRecordPins(ctx context.Context, tx pgx.Tx, ws string, lead *int32, cid, pid *string) error {
+	if lead != nil && (cid != nil || pid != nil) {
+		return herr(422, "choose a legacy lead pin or explicit company/person pins")
+	}
+	for _, p := range []struct {
+		table string
+		id    *string
+	}{{"company_entities", cid}, {"person_entities", pid}} {
+		if p.id == nil || *p.id == "" {
+			continue
+		}
+		var exists bool
+		if e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM `+p.table+` WHERE workspace_id=$1 AND id=$2)`, ws, *p.id).Scan(&exists); e != nil {
+			return e
+		}
+		if !exists {
+			return herr(422, "record not found in this workspace")
+		}
+	}
+	return nil
 }

@@ -56,14 +56,15 @@ func ListDeliveries(ctx context.Context, tx pgx.Tx, runID, status string, afterI
 // Attempts is added to the row's count (1 for an immediate delivery, 0 for a batch
 // deferred to later or a skip); Summary is only written when non-nil.
 type UpsertDeliveryInput struct {
-	RunID, DestinationID      string
-	LeadID                    int
-	Operation, IdempotencyKey string
-	Fingerprint               string
-	Payload                   json.RawMessage
-	Status                    string
-	Attempts                  int
-	Summary                   *string
+	CompanyID, PersonID, SubjectKey string
+	RunID, DestinationID            string
+	LeadID                          int
+	Operation, IdempotencyKey       string
+	Fingerprint                     string
+	Payload                         json.RawMessage
+	Status                          string
+	Attempts                        int
+	Summary                         *string
 }
 
 // UpsertOutcome says what UpsertDelivery did.
@@ -93,8 +94,22 @@ func UpsertDelivery(ctx context.Context, tx pgx.Tx, in UpsertDeliveryInput) (Del
 		in.Payload = json.RawMessage(`{}`)
 	}
 	q := gen.New(tx)
+	if in.SubjectKey != "" {
+		if _, e := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended($1,0))`, ws+"|delivery|"+in.DestinationID+"|"+in.SubjectKey); e != nil {
+			return Delivery{}, 0, e
+		}
+		var oldKey string
+		e := tx.QueryRow(ctx, `SELECT idempotency_key FROM destination_deliveries WHERE workspace_id=$1 AND destination_id=$2 AND operation=$3 AND payload_fingerprint=$4 AND status='success' AND ((nullif($5,'') IS NOT NULL AND person_entity_id=$5) OR ($5='' AND nullif($6,'') IS NOT NULL AND person_entity_id IS NULL AND company_entity_id=$6)) ORDER BY id DESC LIMIT 1`, ws, in.DestinationID, in.Operation, in.Fingerprint, in.PersonID, in.CompanyID).Scan(&oldKey)
+		if e == nil {
+			old, e := q.DestDeliveryByKey(ctx, gen.DestDeliveryByKeyParams{WorkspaceID: ws, IdempotencyKey: oldKey})
+			return deliveryFrom(old), AlreadySucceeded, e
+		}
+		if !errors.Is(e, pgx.ErrNoRows) {
+			return Delivery{}, 0, e
+		}
+	}
 	row, err := q.DestDeliveryUpsert(ctx, gen.DestDeliveryUpsertParams{
-		WorkspaceID: ws, RunID: in.RunID, DestinationID: in.DestinationID, LeadID: int32(in.LeadID), Operation: in.Operation,
+		WorkspaceID: ws, RunID: in.RunID, DestinationID: in.DestinationID, LeadID: pgtype.Int4{Int32: int32(in.LeadID), Valid: in.LeadID > 0}, CompanyID: pgtype.Text{String: in.CompanyID, Valid: in.CompanyID != ""}, PersonID: pgtype.Text{String: in.PersonID, Valid: in.PersonID != ""}, SubjectKey: pgtype.Text{String: in.SubjectKey, Valid: in.SubjectKey != ""}, Operation: in.Operation,
 		IdempotencyKey: in.IdempotencyKey, PayloadFingerprint: in.Fingerprint, Payload: in.Payload, Status: in.Status,
 		Attempts: int32(in.Attempts), Summary: pgText(in.Summary),
 	})
@@ -109,7 +124,7 @@ func UpsertDelivery(ctx context.Context, tx pgx.Tx, in UpsertDeliveryInput) (Del
 		return Delivery{}, 0, fmt.Errorf("deststore: upsert delivery: %w", err)
 	}
 	d := deliveryFrom(gen.DestinationDelivery{
-		ID: row.ID, WorkspaceID: row.WorkspaceID, RunID: row.RunID, DestinationID: row.DestinationID, LeadID: row.LeadID,
+		CompanyEntityID: row.CompanyEntityID, PersonEntityID: row.PersonEntityID, SubjectKey: row.SubjectKey, ID: row.ID, WorkspaceID: row.WorkspaceID, RunID: row.RunID, DestinationID: row.DestinationID, LeadID: row.LeadID,
 		Operation: row.Operation, IdempotencyKey: row.IdempotencyKey, PayloadFingerprint: row.PayloadFingerprint,
 		Status: row.Status, Attempts: row.Attempts, ExternalID: row.ExternalID, Summary: row.Summary, Error: row.Error,
 		DeliveredAt: row.DeliveredAt, CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt, Payload: row.Payload,

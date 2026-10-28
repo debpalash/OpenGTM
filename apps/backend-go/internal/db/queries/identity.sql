@@ -103,7 +103,7 @@ VALUES (sqlc.arg(user_id)::int, sqlc.arg(workspace_id)::text)
 ON CONFLICT (user_id) DO UPDATE SET workspace_id = EXCLUDED.workspace_id;
 
 -- name: CountLeads :one
-SELECT count(*)::bigint FROM leads;
+SELECT count(*)::bigint FROM record_leads;
 
 -- Delete children in manager.delete_workspace order (RLS tables need the GUC).
 -- name: DeleteWorkspaceSettings :exec

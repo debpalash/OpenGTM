@@ -72,7 +72,7 @@ func (d *Deliverer) sheets(ctx context.Context, dest Destination, leadID int, ma
 		Config: map[string]any{
 			"spreadsheet_id": strOr(dest.Config["spreadsheet_id"], ""),
 			"row":            row,
-			"key":            rowKey(dest.ID, leadID),
+			"key":            destinationRowKey(dest, leadID),
 			"range":          strOr(dest.Config["range"], "Sheet1!A:ZZ"),
 		},
 	})
@@ -101,7 +101,7 @@ func (d *Deliverer) airtable(ctx context.Context, dest Destination, leadID int, 
 		Config: map[string]any{
 			"base_id":           strOr(dest.Config["base_id"], ""),
 			"table":             strOr(dest.Config["table"], ""),
-			"key":               rowKey(dest.ID, leadID),
+			"key":               destinationRowKey(dest, leadID),
 			"idempotency_field": strOr(dest.Config["idempotency_field"], "OpenGTM ID"),
 			"typecast":          typecast,
 		},

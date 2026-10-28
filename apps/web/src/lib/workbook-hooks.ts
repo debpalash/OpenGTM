@@ -63,8 +63,8 @@ export function useWorkbook(id: string, pageSize = 1000, page = 1, viewId?: stri
     // Poll while a run is active so cells and final status still advance when
     // the socket is connected in echo-only fallback mode.
     refetchInterval: query => {
-      const current = query.state.data as { workbook?: { status?: string } } | undefined
-      return current?.workbook?.status === "running" ? 1500 : false
+      const current = query.state.data as { workbook?: { status?: string; source_type?: string } } | undefined
+      return current?.workbook?.status === "running" ? 1500 : current?.workbook?.source_type === "records" ? 15_000 : false
     },
   })
 }

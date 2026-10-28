@@ -2,6 +2,7 @@ package entities
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -172,57 +173,43 @@ func ResolvePerson(ctx context.Context, tx pgx.Tx, ws string, o PersonObservatio
 		}
 	}
 
-	row, err := q.LockPersonEntity(ctx, gen.LockPersonEntityParams{ID: personID, WorkspaceID: ws})
-	if err != nil {
-		return "", false, fmt.Errorf("entities: lock person: %w", err)
+	company := map[string]any{}
+	if o.Company != "" {
+		company["name"] = o.Company
 	}
-	identity := objOr(row.IdentityKeys).Clone()
-	add := func(key, value string) {
-		if value == "" {
-			return
-		}
-		lst, _ := asList(getOr(identity, key, []any{}))
-		for _, e := range lst {
-			if e == value {
-				return
-			}
-		}
-		identity.Set(key, append(append([]any{}, lst...), value))
+	if o.CompanyDomain != "" {
+		company["domain"] = o.CompanyDomain
 	}
-	add("linkedin", li)
-	add("emails", em)
-	add("name_variants", pyStrip(o.Name))
-	fullName := row.FullName
-	if (fullName == "" || fullName == "(unknown)") && pyStrip(o.Name) != "" {
-		fullName = pyStrip(o.Name)
+	person := map[string]any{}
+	if o.Name != "" {
+		person["full_name"] = o.Name
 	}
-	fields := objOr(row.Fields).Clone()
-	sources, _ := asList(getOr(fields, "sources", []any{}))
-	if !truthy(getOr(fields, "sources", nil)) {
-		sources = []any{}
+	if em != "" {
+		person["email"] = em
 	}
-	sources = append([]any{}, sources...)
-	present := false
-	for _, s := range sources {
-		if s == o.Source {
-			present = true
-		}
+	if li != "" {
+		person["linkedin_url"] = "https://" + li
 	}
-	if o.Source != "" && !present {
-		sources = append(sources, o.Source)
+	employment := map[string]any{}
+	if o.Title != "" {
+		employment["title"] = o.Title
 	}
-	fields.Set("sources", sources)
-
-	companyEntity, err := recordEmployment(ctx, tx, ws, personID, o, observed)
-	if err != nil {
-		return "", false, err
+	if o.EvidenceURL != "" {
+		employment["evidence_url"] = o.EvidenceURL
 	}
-	if err := q.UpdatePersonEntity(ctx, gen.UpdatePersonEntityParams{FullName: fullName, IdentityKeys: MarshalJSON(identity),
-		Fields: MarshalJSON(fields), CorroborationCount: int32(len(sources)), CompanyEntityID: companyEntity,
-		ID: personID, WorkspaceID: ws}); err != nil {
-		return "", false, fmt.Errorf("entities: update person: %w", err)
+	payload := map[string]any{"company": company, "person": person, "employment": employment, "person_id": personID, "observed_at": observed.Format(time.RFC3339Nano)}
+	raw, e := json.Marshal(payload)
+	if e != nil {
+		return "", false, e
 	}
-	return personID, created, nil
+	var result []byte
+	e = tx.QueryRow(ctx, `SELECT opengtm_record_upsert($1,'person',$2::jsonb,$3,'',false)`, ws, raw, "provider:"+o.Source).Scan(&result)
+	if e != nil {
+		return "", false, e
+	}
+	// Keep the graph's source list as observations, independent of accepted facts.
+	_, e = tx.Exec(ctx, `UPDATE person_entities SET fields=jsonb_set(fields::jsonb,'{sources}',(SELECT coalesce(jsonb_agg(DISTINCT x),'[]') FROM jsonb_array_elements(coalesce(fields::jsonb->'sources','[]')||to_jsonb(ARRAY[$3::text])) x),true) WHERE id=$1 AND workspace_id=$2`, personID, ws, o.Source)
+	return personID, created, e
 }
 
 func checkEmailConflict(ctx context.Context, q *gen.Queries, ws, personID, li, name string) error {

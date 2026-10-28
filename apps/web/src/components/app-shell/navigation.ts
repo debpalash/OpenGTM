@@ -7,7 +7,9 @@ export const NAVIGATION_GROUPS = [
   { label: "Workspace", items: [
     { to: "/chat", key: "c", icon: MessageSquare, label: "Chat" },
     { to: "/workbooks", key: "w", icon: Table2, label: "Workbooks" },
-    { to: "/leads", key: "l", icon: Users, label: "Leads" },
+    { to: "/companies", key: "b", icon: Building2, label: "Companies" },
+    { to: "/people", key: "e", icon: Users, label: "People" },
+    { to: "/leads", key: "l", icon: Users, label: "Legacy leads" },
     { to: "/audiences", key: "a", icon: ListFilter, label: "Audiences" },
     { to: "/search", key: "f", icon: Search, label: "Search" },
   ] },

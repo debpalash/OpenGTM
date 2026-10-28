@@ -57,7 +57,7 @@ func (q *Queries) ImportAppendRows(ctx context.Context, arg ImportAppendRowsPara
 const importMaxRowPosition = `-- name: ImportMaxRowPosition :one
 
 SELECT coalesce(max("position"), -1)::int AS max_position
-FROM workbook_rows
+FROM record_workbook_rows
 WHERE workbook_id = $1::text
 `
 

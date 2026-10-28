@@ -72,7 +72,7 @@ ORDER BY id ASC;
 -- name: AutoSvcRowWorkbooks :many
 -- Workbook of each requested row id (PreviewTargets / manual run target
 -- resolution). Rows of other workspaces are invisible (RLS plus predicate).
-SELECT id::int4 AS row_id, workbook_id FROM workbook_rows
+SELECT id::int4 AS row_id, workbook_id FROM record_workbook_rows
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = ANY(sqlc.arg(ids)::int4[]);
 
 -- name: AutoSvcInsertEvalJob :one

@@ -62,6 +62,13 @@ func (d *Deliverer) webhook(ctx context.Context, dest Destination, leadID int, s
 		"lead_id":        int64(leadID),
 		"data":           mapped,
 	}
+	if leadID == 0 {
+		body := cfg["body"].(map[string]any)
+		body["lead_id"] = nil
+		body["company_id"] = snapshot["company_id"]
+		body["person_id"] = snapshot["person_id"]
+		body["record_type"] = snapshot["record_type"]
+	}
 	res, err := d.ports.Webhook.Send(ctx, WebhookRequest{
 		WorkspaceID: dest.WorkspaceID, DestinationType: "webhook", Config: cfg,
 		Payload: mapped, LeadID: int64(leadID), IdempotencyKey: idem,

@@ -14,16 +14,14 @@ ON CONFLICT ON CONSTRAINT uq_enroll_ws_seq_lead DO NOTHING
 RETURNING id;
 
 -- name: OutreachEnrollmentGet :one
-SELECT id, workspace_id, sequence_id, lead_id, to_email_snapshot, consent_source, consent_at, current_step,
-       status, next_send_at, sent_count, soft_bounce_count, last_sent_at, error
+SELECT *
 FROM outreach_enrollments
 WHERE workspace_id = current_setting('app.workspace_id', true) AND id = sqlc.arg(id)::int;
 
 -- name: OutreachEnrollmentsDue :many
 -- Due step: pending/scheduled, next_send_at <= now, no send row yet for the
 -- current step; ix_enroll_ws_due order (next_send_at asc, id as tiebreak).
-SELECT e.id, e.workspace_id, e.sequence_id, e.lead_id, e.to_email_snapshot, e.consent_source, e.consent_at,
-       e.current_step, e.status, e.next_send_at, e.sent_count, e.soft_bounce_count, e.last_sent_at, e.error
+SELECT e.*
 FROM outreach_enrollments e
 WHERE e.workspace_id = current_setting('app.workspace_id', true)
   AND e.sequence_id = sqlc.arg(sequence_id)::text

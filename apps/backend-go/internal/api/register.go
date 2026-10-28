@@ -150,6 +150,7 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterTemplates(r, d)
 	RegisterFunctions(r, d)
 	RegisterEntities(r, d)
+	RegisterRecords(r, d)
 	RegisterAnalytics(r, d)
 	RegisterSystem(r, d)
 	RegisterLeads(r, d)

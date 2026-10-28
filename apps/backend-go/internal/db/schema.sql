@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 18.6 (Debian 18.6-1.pgdg13+2)
--- Dumped by pg_dump version 18.6 (Debian 18.6-1.pgdg13+2)
+-- Dumped from database version 18.6 (Homebrew)
+-- Dumped by pg_dump version 18.6 (Homebrew)
 
 --
 -- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
@@ -29,6 +29,696 @@ CREATE FUNCTION public.leads_search_tsv_trigger() RETURNS trigger
             RETURN NEW;
         END
         $$;
+
+--
+-- Name: opengtm_record_accept(text, text, text, jsonb, text, boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_accept(ws text, kind text, rid text, changes jsonb, src text, replace_values boolean DEFAULT false) RETURNS jsonb
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE current_values jsonb; result jsonb; entry record; owner_priority integer; priority integer;
+ parent_person text; can_accept boolean; v jsonb; changed boolean:=false; owner_time timestamptz; obs timestamptz:=coalesce(nullif(current_setting('opengtm.record_observed_at',true),'')::timestamptz,now());
+BEGIN
+ PERFORM opengtm_record_workspace(ws);
+ IF jsonb_typeof(changes) IS DISTINCT FROM 'object' OR octet_length(changes::text)>262144 THEN
+  RAISE EXCEPTION 'record fields must be an object up to 256 KiB' USING ERRCODE='22023';
+ END IF;
+ IF kind='company' THEN
+  SELECT accepted_fields INTO current_values FROM company_entities WHERE id=rid AND workspace_id=ws FOR UPDATE;
+ ELSIF kind='person' THEN
+  SELECT accepted_fields INTO current_values FROM person_entities WHERE id=rid AND workspace_id=ws FOR UPDATE;
+ ELSIF kind='employment' THEN
+  SELECT person_id INTO parent_person FROM person_employments WHERE id::text=rid AND workspace_id=ws;
+  PERFORM 1 FROM person_entities WHERE id=parent_person AND workspace_id=ws FOR UPDATE;
+  SELECT accepted_fields INTO current_values FROM person_employments WHERE id::text=rid AND workspace_id=ws FOR UPDATE;
+ ELSE RAISE EXCEPTION 'unsupported record type' USING ERRCODE='22023'; END IF;
+ IF NOT FOUND THEN RAISE EXCEPTION 'record not found' USING ERRCODE='P0002'; END IF;
+ result:=coalesce(current_values,'{}');
+ priority:=opengtm_record_priority(src);
+ FOR entry IN SELECT * FROM jsonb_each(changes) LOOP
+  IF entry.key IN ('id','workspace_id','record_type','company_id','person_id','employment_id','record_version','__proto__','constructor','prototype') OR left(entry.key,1)='_' OR length(entry.key)>128 THEN
+   RAISE EXCEPTION 'reserved or oversized record field' USING ERRCODE='22023';
+  END IF;
+  v:=entry.value;
+  IF entry.key IN ('score','employee_count_exact') AND v='""'::jsonb THEN v:='null'::jsonb; END IF;
+  IF entry.key='employee_count_exact' AND v<>'null'::jsonb THEN
+   IF (v#>>'{}') !~ '^[0-9]{1,10}$' THEN RAISE EXCEPTION 'employee_count_exact must be a nonnegative integer' USING ERRCODE='22023'; END IF;
+   IF (v#>>'{}')::numeric>1000000000 THEN RAISE EXCEPTION 'employee_count_exact is too large' USING ERRCODE='22023'; END IF;
+  END IF;
+  IF entry.key='score' AND v<>'null'::jsonb AND (v#>>'{}') !~ '^([0-9]|[1-9][0-9]|100)$' THEN
+   RAISE EXCEPTION 'score must be between 0 and 100' USING ERRCODE='22023';
+  END IF;
+  SELECT f.priority,f.updated_at INTO owner_priority,owner_time FROM record_field_owners f WHERE f.workspace_id=ws AND f.record_type=kind AND f.record_id=rid AND f.field_name=entry.key;
+  can_accept:=replace_values OR NOT(result ? entry.key) OR result->entry.key IN ('null'::jsonb,'""'::jsonb,'"N/A"'::jsonb) OR (priority>=coalesce(owner_priority,0) AND obs>=coalesce(owner_time,obs));
+  IF NOT replace_values AND v IN ('null'::jsonb,'""'::jsonb) THEN can_accept:=false; END IF;
+  IF result->entry.key IS NOT DISTINCT FROM v THEN
+   IF can_accept AND (owner_priority IS NULL OR priority>=owner_priority) THEN
+    INSERT INTO record_field_owners(workspace_id,record_type,record_id,field_name,source,priority,updated_at) VALUES(ws,kind,rid,entry.key,src,priority,obs)
+    ON CONFLICT(workspace_id,record_type,record_id,field_name) DO UPDATE SET source=excluded.source,priority=excluded.priority,updated_at=excluded.updated_at;
+   END IF;
+   CONTINUE;
+  END IF;
+  INSERT INTO record_observations(workspace_id,record_type,record_id,field_name,value,source,observed_at,accepted,reason)
+   VALUES(ws,kind,rid,entry.key,v,src,obs,can_accept,CASE WHEN can_accept THEN '' ELSE 'accepted_value_protected' END);
+  IF can_accept THEN
+   result:=jsonb_set(result,ARRAY[entry.key],v,true); changed:=true;
+   INSERT INTO record_field_owners(workspace_id,record_type,record_id,field_name,source,priority,updated_at)
+    VALUES(ws,kind,rid,entry.key,src,priority,obs)
+    ON CONFLICT(workspace_id,record_type,record_id,field_name) DO UPDATE SET source=excluded.source,priority=excluded.priority,updated_at=excluded.updated_at;
+  END IF;
+ END LOOP;
+ IF changed THEN
+  IF kind='company' THEN
+   UPDATE company_entities SET accepted_fields=result,record_version=record_version+1,
+    canonical_name=coalesce(nullif(result->>'name',''),canonical_name),primary_domain=coalesce(nullif(result->>'domain',''),primary_domain),
+    primary_phone=CASE WHEN result?'phone' THEN result->>'phone' ELSE primary_phone END,
+    primary_email=CASE WHEN result?'email' THEN result->>'email' ELSE primary_email END,
+    primary_city=CASE WHEN result?'city' THEN result->>'city' ELSE primary_city END,last_seen=now() AT TIME ZONE 'UTC'
+    WHERE id=rid AND workspace_id=ws;
+  ELSIF kind='person' THEN
+   UPDATE person_entities SET accepted_fields=result,record_version=record_version+1,
+    full_name=coalesce(nullif(result->>'full_name',''),full_name),last_seen=now() AT TIME ZONE 'UTC' WHERE id=rid AND workspace_id=ws;
+  ELSE
+   UPDATE person_employments SET accepted_fields=result,title=CASE WHEN result?'title' THEN result->>'title' ELSE title END WHERE id::text=rid AND workspace_id=ws;
+   UPDATE person_entities SET record_version=record_version+1 WHERE workspace_id=ws AND id=parent_person;
+  END IF;
+ END IF;
+ RETURN result;
+END $_$;
+
+--
+-- Name: opengtm_record_cell_write(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_cell_write() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE r record;col jsonb;field text;typ text;target_id text;
+BEGIN
+ IF NEW.status<>'complete' OR NEW.value IS NULL THEN RETURN NEW; END IF;
+ IF NOT EXISTS(SELECT 1 FROM workbook_enrichments WHERE workspace_id=NEW.workspace_id AND workbook_id=NEW.workbook_id AND lead_id=NEW.lead_id AND column_id=NEW.column_id AND status='complete' AND value IS NOT DISTINCT FROM NEW.value) THEN RETURN NEW; END IF;
+ PERFORM opengtm_record_workspace(NEW.workspace_id);
+ SELECT elem INTO col FROM workbooks w,jsonb_array_elements(w.columns_config::jsonb) elem WHERE w.id=NEW.workbook_id AND w.workspace_id=NEW.workspace_id AND elem->>'id'=NEW.column_id LIMIT 1;
+ field:=col->>'target_field';
+ IF field IS NULL OR field='' OR coalesce(col->>'type','') NOT IN ('enrichment','waterfall','ai_formula','research','http','agent') THEN RETURN NEW; END IF;
+ SELECT * INTO r FROM record_workbook_rows WHERE workbook_id=NEW.workbook_id AND workspace_id=NEW.workspace_id AND coalesce(lead_id,id)=NEW.lead_id ORDER BY id LIMIT 1;
+ IF NOT FOUND THEN RETURN NEW; END IF;
+ IF field IN ('company','website','domain','description','city','state','country','address','industry','industry_tags','specialization','company_size','employee_count_exact','company_size_basis','revenue_range','founded_year','founding_year','technologies','funding_stage','funding_amount','funding_date','hiring_signals','company_linkedin_url','company_email','company_phone') OR r.person_entity_id IS NULL THEN
+  typ:='company';target_id:=r.company_entity_id;field:=CASE field WHEN 'company' THEN 'name' WHEN 'company_linkedin_url' THEN 'linkedin_url' WHEN 'company_email' THEN 'email' WHEN 'company_phone' THEN 'phone' ELSE field END;
+ ELSIF field IN ('contact_title','title','department','seniority') AND r.employment_id IS NOT NULL THEN typ:='employment';target_id:=r.employment_id::text;field:=CASE WHEN field='contact_title' THEN 'title' ELSE field END;
+ ELSE typ:='person';target_id:=r.person_entity_id;field:=CASE WHEN field='contact_person' THEN 'full_name' ELSE field END; END IF;
+ IF target_id IS NOT NULL THEN PERFORM opengtm_record_accept(NEW.workspace_id,typ,target_id,jsonb_build_object(field,NEW.value),'provider:'||coalesce(NEW.provider,'unknown'),false); END IF;RETURN NEW;
+END $$;
+
+--
+-- Name: opengtm_record_domain(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_domain(value text) RETURNS text
+    LANGUAGE sql IMMUTABLE PARALLEL SAFE
+    AS $$
+ SELECT lower(split_part(split_part(split_part(regexp_replace(regexp_replace(trim(coalesce(value,'')),'^https?://','','i'),'^www\.','','i'),'/',1),'?',1),'#',1))
+$$;
+
+--
+-- Name: opengtm_record_flat(text, text, text, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_flat(ws text, cid text, pid text, eid integer DEFAULT NULL::integer) RETURNS jsonb
+    LANGUAGE plpgsql STABLE
+    AS $$
+DECLARE result jsonb:='{}';c company_entities%ROWTYPE;p person_entities%ROWTYPE;e person_employments%ROWTYPE;
+BEGIN
+ IF ws IS DISTINCT FROM current_setting('app.workspace_id',true) THEN RETURN '{}'; END IF;
+ IF pid IS NOT NULL THEN SELECT * INTO p FROM person_entities WHERE workspace_id=ws AND id=pid; IF FOUND THEN cid:=p.company_entity_id; END IF; END IF;
+ IF cid IS NOT NULL THEN
+  SELECT * INTO c FROM company_entities WHERE workspace_id=ws AND id=cid;
+  IF FOUND THEN result:=(c.accepted_fields-'name'-'domain')||jsonb_build_object('company',coalesce(c.accepted_fields->>'name',c.canonical_name),'company_id',c.id,'company_entity_id',c.id,'account_id',c.id,'record_type','company','company_name',coalesce(c.accepted_fields->>'name',c.canonical_name),'domain',coalesce(c.accepted_fields->>'domain',c.primary_domain),'company_domain',coalesce(c.accepted_fields->>'domain',c.primary_domain),'website',coalesce(c.accepted_fields->>'website',CASE WHEN c.primary_domain IS NOT NULL THEN 'https://'||c.primary_domain ELSE '' END)); END IF;
+ END IF;
+ IF pid IS NOT NULL AND p.id IS NOT NULL THEN
+  IF cid IS NULL THEN result:=jsonb_build_object('company','','company_name','','company_domain','','domain','','website','','company_id',NULL,'company_entity_id',NULL,'city',NULL,'state',NULL,'address',NULL,'description',NULL,'industry',NULL,'specialization',NULL,'company_size',NULL,'employee_count_exact',NULL,'technologies',NULL,'funding_stage',NULL,'revenue_range',NULL); END IF;
+  result:=result-'email'-'phone'-'linkedin_url'-'score'-'score_tier';
+  result:=result||p.accepted_fields||jsonb_build_object('employment_id',NULL,'contact_title',NULL,'record_type','person','person_id',p.id,'canonical_person_id',p.id,'person_entity_id',p.id,'contact_person',coalesce(p.accepted_fields->>'full_name',p.full_name));
+  SELECT * INTO e FROM person_employments WHERE workspace_id=ws AND person_id=pid AND is_current<>0 ORDER BY last_observed_at DESC,id DESC LIMIT 1;
+  IF FOUND THEN result:=result||(e.accepted_fields-'title')||jsonb_build_object('contact_title',coalesce(e.accepted_fields->>'title',e.title),'employment_id',e.id); END IF;
+ END IF;
+ RETURN result;
+END $$;
+
+--
+-- Name: opengtm_record_graph_observation(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_graph_observation() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE item record;v jsonb;field text;src text;BEGIN
+ IF current_setting('opengtm.record_restoring',true)='true' THEN RETURN NEW; END IF;
+ IF TG_OP='UPDATE' THEN
+  IF NEW.accepted_fields IS DISTINCT FROM OLD.accepted_fields OR NEW.fields::jsonb IS NOT DISTINCT FROM OLD.fields::jsonb THEN RETURN NEW; END IF;
+ END IF;
+ PERFORM opengtm_record_workspace(NEW.workspace_id);
+ IF NOT(NEW.accepted_fields?'name') THEN PERFORM opengtm_record_accept(NEW.workspace_id,'company',NEW.id,jsonb_strip_nulls(jsonb_build_object('name',NEW.canonical_name,'domain',NEW.primary_domain,'city',NEW.primary_city)),'provider:entity_graph',false);END IF;
+ FOR item IN SELECT * FROM jsonb_each(coalesce(NEW.fields::jsonb,'{}')) LOOP
+  IF item.key NOT IN ('company','website','city','state','country','address','description','industry','company_size','employee_count_exact','specialization','technologies','funding_stage','revenue_range') OR jsonb_typeof(item.value)<>'array' OR jsonb_array_length(item.value)=0 THEN CONTINUE; END IF;
+  v:=item.value->-1;field:=CASE WHEN item.key='company' THEN 'name' ELSE item.key END;src:='provider:'||coalesce(v->>'source','entity_graph');
+  IF v?'value' THEN PERFORM opengtm_record_accept(NEW.workspace_id,'company',NEW.id,jsonb_build_object(field,v->'value'),src,false); END IF;
+ END LOOP;
+ RETURN NEW;
+END $$;
+
+--
+-- Name: opengtm_record_ingest_flat(text, text, jsonb, text, text, text, text, boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_ingest_flat(ws text, subject text, data jsonb, source text, external_key text DEFAULT ''::text, company_ref text DEFAULT NULL::text, person_ref text DEFAULT NULL::text, replace_values boolean DEFAULT false) RETURNS jsonb
+    LANGUAGE plpgsql
+    AS $$
+DECLARE cd jsonb:='{}';pd jsonb:='{}';ed jsonb:='{}';entry record;
+ personal text[]:=ARRAY['first_name','last_name','email','phone','linkedin_url','contact_person','full_name','personal_email','mobile_phone','email_confidence','email_provider','phone_provider','email_verify','email_verify_status'];
+ corporate text[]:=ARRAY['website','domain','description','city','state','country','address','industry','industry_tags','specialization','company_size','employee_count_exact','company_size_basis','revenue_range','founded_year','founding_year','technologies','funding_stage','funding_amount','funding_date','hiring_signals','glassdoor_rating'];
+BEGIN
+ PERFORM opengtm_record_workspace(ws);
+ IF jsonb_typeof(data) IS DISTINCT FROM 'object' THEN RAISE EXCEPTION 'row must be an object' USING ERRCODE='22023'; END IF;
+ IF subject IS NULL OR subject='' THEN subject:=CASE WHEN person_ref IS NOT NULL OR nullif(data->>'contact_person','') IS NOT NULL OR nullif(data->>'full_name','') IS NOT NULL OR nullif(data->>'first_name','') IS NOT NULL OR (data->>'linkedin_url') ~ 'linkedin\.com/in/' OR (nullif(data->>'email','') IS NOT NULL AND nullif(data->>'company','') IS NULL AND nullif(data->>'website','') IS NULL) THEN 'person' ELSE 'company' END; END IF;
+ FOR entry IN SELECT * FROM jsonb_each(data) LOOP
+  IF entry.key IN ('id','row_id','lead_id','workspace_id','company_id','person_id','company_entity_id','person_entity_id','employment_id','canonical_entity_id','canonical_person_id','account_id','corroboration_count','created_at','updated_at','last_enriched_at','source','source_url','collection_job_id','record_type','enrichment_attempts','enrichment_waterfall','field_provenance') OR left(entry.key,1)='_' THEN CONTINUE; END IF;
+  IF entry.key='company' THEN cd:=cd||jsonb_build_object('name',entry.value);
+  ELSIF subject='person' AND entry.key='linkedin_url' AND coalesce(entry.value#>>'{}','') !~ 'linkedin\.com/in/' THEN cd:=cd||jsonb_build_object('linkedin_url',entry.value);
+  ELSIF entry.key='company_linkedin_url' THEN cd:=cd||jsonb_build_object('linkedin_url',entry.value);
+  ELSIF entry.key='company_email' THEN cd:=cd||jsonb_build_object('email',entry.value);
+  ELSIF entry.key='company_phone' THEN cd:=cd||jsonb_build_object('phone',entry.value);
+  ELSIF subject='person' AND entry.key=ANY(ARRAY['contact_title','title','department','seniority']) THEN ed:=ed||jsonb_build_object(CASE WHEN entry.key='contact_title' THEN 'title' ELSE entry.key END,entry.value);
+  ELSIF subject='person' AND entry.key=ANY(personal) THEN pd:=pd||jsonb_build_object(CASE WHEN entry.key='contact_person' THEN 'full_name' ELSE entry.key END,entry.value);
+  ELSIF subject='company' OR entry.key=ANY(corporate) THEN cd:=cd||jsonb_build_object(entry.key,entry.value);
+  ELSE pd:=pd||jsonb_build_object(entry.key,entry.value); END IF;
+ END LOOP;
+ RETURN opengtm_record_upsert(ws,subject,jsonb_build_object('company',cd,'person',pd,'employment',ed,'company_id',company_ref,'person_id',person_ref),source,external_key,replace_values);
+END $$;
+
+--
+-- Name: opengtm_record_lead_link(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_lead_link() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN
+ INSERT INTO legacy_record_links(workspace_id,lead_id,company_id,person_id,employment_id) VALUES(NEW.workspace_id,NEW.id,NEW.company_entity_id,NEW.person_entity_id,NEW.employment_id)
+ ON CONFLICT(workspace_id,lead_id) DO UPDATE SET company_id=excluded.company_id,person_id=excluded.person_id,employment_id=excluded.employment_id;RETURN NEW;
+END $$;
+
+--
+-- Name: opengtm_record_lead_write(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_lead_write() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE links jsonb;changes jsonb;src text;subject text;
+BEGIN
+ PERFORM opengtm_record_workspace(NEW.workspace_id);IF current_setting('opengtm.record_repointing',true)='true' THEN RETURN NEW; END IF;changes:=to_jsonb(NEW);
+ IF TG_OP='INSERT' THEN
+  IF coalesce(NEW.score,0)=0 THEN changes:=changes-'score';IF coalesce(NEW.score_tier,'unqualified')='unqualified' THEN changes:=changes-'score_tier'; END IF;END IF;
+  IF coalesce(NEW.employee_count_exact,0)=0 THEN changes:=changes-'employee_count_exact';END IF;
+ END IF;
+ IF TG_OP='UPDATE' AND (NEW.company_entity_id IS NOT NULL OR NEW.person_entity_id IS NOT NULL) THEN
+  SELECT coalesce(jsonb_object_agg(n.key,n.value),'{}') INTO changes FROM jsonb_each(changes) n WHERE n.value IS DISTINCT FROM to_jsonb(OLD)->n.key;
+  IF NEW.person_entity_id IS NOT NULL THEN SELECT company_entity_id INTO NEW.company_entity_id FROM person_entities WHERE workspace_id=NEW.workspace_id AND id=NEW.person_entity_id; END IF;
+ END IF;
+ subject:=CASE WHEN NEW.person_entity_id IS NOT NULL OR nullif(NEW.contact_person,'') IS NOT NULL OR coalesce(NEW.linkedin_url,'') ~ 'linkedin\.com/in/' THEN 'person' ELSE 'company' END;
+ src:=coalesce(nullif(current_setting('opengtm.record_source',true),''),CASE WHEN TG_OP='INSERT' THEN 'import:legacy-leads' ELSE 'provider:legacy' END);
+ links:=opengtm_record_ingest_flat(NEW.workspace_id,subject,changes,src,'lead:'||NEW.id,NEW.company_entity_id,NEW.person_entity_id,src='manual' OR src LIKE 'connector:crm-wins:%');
+ NEW.company_entity_id:=links->>'company_id';NEW.person_entity_id:=links->>'person_id';NEW.employment_id:=(links->>'employment_id')::integer;RETURN NEW;
+END $$;
+
+--
+-- Name: opengtm_record_merge_company(text, text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_merge_company(ws text, kept text, merged text) RETURNS jsonb
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE undo jsonb:='{}';rows jsonb;missing jsonb;t text;current_fields jsonb;old_source text;old_repoint text;v bigint;aud record;new_filters jsonb;aud_undo jsonb:='[]';BEGIN
+ PERFORM opengtm_record_workspace(ws);
+ IF kept=merged OR NOT EXISTS(SELECT 1 FROM company_entities WHERE workspace_id=ws AND id=kept) OR NOT EXISTS(SELECT 1 FROM company_entities WHERE workspace_id=ws AND id=merged) THEN RAISE EXCEPTION 'company not found' USING ERRCODE='P0002'; END IF;
+ SELECT accepted_fields INTO current_fields FROM company_entities WHERE workspace_id=ws AND id=kept FOR UPDATE;
+ undo:=jsonb_build_object('kept',kept,'merged',merged,'kept_fields',current_fields,'merged_fields',(SELECT accepted_fields FROM company_entities WHERE workspace_id=ws AND id=merged),'merged_version',(SELECT record_version FROM company_entities WHERE workspace_id=ws AND id=merged));
+ SELECT coalesce(jsonb_agg(to_jsonb(o)),'[]') INTO rows FROM record_field_owners o WHERE workspace_id=ws AND record_type='company' AND record_id IN (kept,merged);undo:=undo||jsonb_build_object('owners',rows);
+ SELECT coalesce(jsonb_agg(id),'[]') INTO rows FROM record_observations WHERE workspace_id=ws AND record_type='company' AND record_id=merged;undo:=undo||jsonb_build_object('observations',rows);
+ SELECT coalesce(jsonb_agg(to_jsonb(x)),'[]') INTO rows FROM record_external_identities x WHERE workspace_id=ws AND record_type='company' AND record_id=merged;undo:=undo||jsonb_build_object('external_ids',rows);
+ FOREACH t IN ARRAY ARRAY['leads','person_entities','person_employments','workbook_rows','audience_members','audience_membership_events','watch_subscriptions','signals','outreach_enrollments','outreach_sends','destination_deliveries','destination_inbound_receipts','playbook_results'] LOOP
+  EXECUTE format('SELECT coalesce(jsonb_agg(to_jsonb(r)),''[]'') FROM %I r WHERE workspace_id=$1 AND company_entity_id=$2',t) INTO rows USING ws,merged;
+  undo:=undo||jsonb_build_object(t,rows);
+ END LOOP;
+ SELECT coalesce(jsonb_object_agg(key,value),'{}') INTO missing FROM company_entities,jsonb_each(accepted_fields) WHERE workspace_id=ws AND id=merged AND (NOT(current_fields?key) OR current_fields->key IN ('null'::jsonb,'""'::jsonb));
+ PERFORM opengtm_record_accept(ws,'company',kept,missing,'manual',true);
+ SELECT accepted_fields INTO current_fields FROM company_entities WHERE workspace_id=ws AND id=kept;
+ PERFORM opengtm_record_accept(ws,'company',kept,current_fields,'manual',true);
+ old_source:=current_setting('opengtm.record_source',true);old_repoint:=current_setting('opengtm.record_repointing',true);
+ PERFORM set_config('opengtm.record_repointing','true',true);
+ UPDATE company_identifiers SET entity_id=kept WHERE workspace_id=ws AND entity_id=merged;
+ UPDATE record_external_identities SET record_id=kept WHERE workspace_id=ws AND record_type='company' AND record_id=merged;
+ UPDATE record_observations SET record_id=kept WHERE workspace_id=ws AND record_type='company' AND record_id=merged;
+ DELETE FROM record_field_owners WHERE workspace_id=ws AND record_type='company' AND record_id=merged;
+ FOR aud IN SELECT id,filters::jsonb AS filters FROM audiences WHERE workspace_id=ws AND filters::jsonb->>'_record_type'='company' AND (filters::jsonb->'record_ids') ? merged LOOP
+  SELECT jsonb_set(aud.filters,'{record_ids}',coalesce(jsonb_agg(DISTINCT to_jsonb(CASE WHEN value=merged THEN kept ELSE value END)),'[]')) INTO new_filters FROM jsonb_array_elements_text(aud.filters->'record_ids');
+  aud_undo:=aud_undo||jsonb_build_array(jsonb_build_object('id',aud.id,'before',aud.filters,'after',new_filters));
+  UPDATE audiences SET filters=new_filters WHERE workspace_id=ws AND id=aud.id;
+ END LOOP;
+ undo:=undo||jsonb_build_object('audience_filters',aud_undo);
+ DELETE FROM audience_members a USING audience_members b WHERE a.workspace_id=ws AND b.workspace_id=ws AND a.audience_id=b.audience_id AND a.company_entity_id=merged AND b.company_entity_id=kept AND a.person_entity_id IS NULL AND b.person_entity_id IS NULL AND a.lead_id IS NULL AND b.lead_id IS NULL;
+ FOREACH t IN ARRAY ARRAY['leads','person_entities','person_employments','workbook_rows','audience_members','audience_membership_events','watch_subscriptions','signals','outreach_enrollments','outreach_sends','destination_deliveries','destination_inbound_receipts','playbook_results'] LOOP
+  EXECUTE format('UPDATE %I SET company_entity_id=$1 WHERE workspace_id=$2 AND company_entity_id=$3',t) USING kept,ws,merged;
+ END LOOP;
+ UPDATE workbook_rows SET canonical_entity_id=kept WHERE workspace_id=ws AND canonical_entity_id=merged;
+ UPDATE audiences a SET member_count=(SELECT count(*) FROM audience_members m WHERE m.workspace_id=ws AND m.audience_id=a.id) WHERE a.workspace_id=ws;
+ UPDATE company_entities SET record_version=record_version+1 WHERE workspace_id=ws AND id=kept RETURNING record_version INTO v;
+ PERFORM set_config('opengtm.record_repointing',coalesce(old_repoint,''),true);PERFORM set_config('opengtm.record_source',coalesce(old_source,''),true);
+ RETURN undo||jsonb_build_object('expected_kept_version',v);
+END $_$;
+
+--
+-- Name: opengtm_record_overlays(text, text, jsonb, jsonb); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_overlays(ws text, wb text, overlays jsonb, facts jsonb) RETURNS jsonb
+    LANGUAGE plpgsql STABLE
+    AS $$
+DECLARE result jsonb:=coalesce(overlays,'{}');col jsonb;key text;field text;cell jsonb;BEGIN
+ IF ws IS DISTINCT FROM current_setting('app.workspace_id',true) OR facts='{}'::jsonb THEN RETURN result; END IF;
+ FOR col IN SELECT jsonb_array_elements(coalesce(columns_config::jsonb,'[]')) FROM workbooks WHERE id=wb AND workspace_id=ws LOOP
+  key:=col->>'id';field:=col->>'target_field';
+  IF field IS NULL OR field='' OR NOT(facts?field) OR col->>'type' NOT IN ('enrichment','waterfall','ai_formula','research','http','agent') THEN CONTINUE; END IF;
+  cell:=result->key;
+  IF jsonb_typeof(cell)='object' THEN
+   cell:=cell||jsonb_build_object('observed_value',cell->'value','value',facts->field,'shared_record_value',true);
+  ELSE CONTINUE; END IF;
+  result:=jsonb_set(result,ARRAY[key],cell,true);
+ END LOOP;
+ RETURN result;
+END $$;
+
+--
+-- Name: opengtm_record_priority(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_priority(src text) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+ SELECT CASE WHEN src='manual' THEN 100 WHEN src LIKE 'import:%' THEN 50 WHEN src='migration:workbook' THEN 5 WHEN src LIKE 'migration%' THEN 10 ELSE 20 END
+$$;
+
+--
+-- Name: opengtm_record_restore_company(text, jsonb); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_restore_company(ws text, undo jsonb) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE kept text:=undo->>'kept';merged text:=undo->>'merged';t text;rows jsonb;r jsonb;v bigint;old_repoint text;BEGIN
+ PERFORM opengtm_record_workspace(ws);
+ SELECT record_version INTO v FROM company_entities WHERE workspace_id=ws AND id=kept FOR UPDATE;
+ IF v IS DISTINCT FROM (undo->>'expected_kept_version')::bigint THEN RAISE EXCEPTION 'accepted company facts changed after this merge; review before splitting' USING ERRCODE='40001'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM company_entities WHERE workspace_id=ws AND id=merged) THEN RAISE EXCEPTION 'restored company not found' USING ERRCODE='P0002'; END IF;
+ old_repoint:=current_setting('opengtm.record_repointing',true);PERFORM set_config('opengtm.record_repointing','true',true);
+ UPDATE company_entities SET accepted_fields=undo->'kept_fields',record_version=record_version+1 WHERE workspace_id=ws AND id=kept;
+ UPDATE company_entities SET accepted_fields=undo->'merged_fields',record_version=(undo->>'merged_version')::bigint+1 WHERE workspace_id=ws AND id=merged;
+ DELETE FROM record_field_owners WHERE workspace_id=ws AND record_type='company' AND record_id IN (kept,merged);
+ INSERT INTO record_field_owners SELECT * FROM jsonb_populate_recordset(NULL::record_field_owners,coalesce(undo->'owners','[]')) WHERE workspace_id=ws;
+ DELETE FROM record_observations WHERE workspace_id=ws AND record_type='company' AND record_id=merged;
+ UPDATE record_observations SET record_id=merged WHERE workspace_id=ws AND id IN (SELECT value::bigint FROM jsonb_array_elements_text(coalesce(undo->'observations','[]')));
+ FOR r IN SELECT * FROM jsonb_array_elements(coalesce(undo->'external_ids','[]')) LOOP
+  UPDATE record_external_identities SET record_id=merged WHERE workspace_id=ws AND source=r->>'source' AND record_type='company' AND external_id=r->>'external_id' AND record_id=kept;
+ END LOOP;
+ FOREACH t IN ARRAY ARRAY['leads','person_entities','person_employments','workbook_rows','audience_members','audience_membership_events','watch_subscriptions','signals','outreach_enrollments','outreach_sends','destination_deliveries','destination_inbound_receipts','playbook_results'] LOOP
+  rows:=coalesce(undo->t,'[]');
+  EXECUTE format('UPDATE %I SET company_entity_id=$1 WHERE workspace_id=$2 AND company_entity_id=$3 AND id::text IN (SELECT value->>''id'' FROM jsonb_array_elements($4))',t) USING merged,ws,kept,rows;
+  IF t='audience_members' THEN
+   FOR r IN SELECT * FROM jsonb_array_elements(rows) LOOP
+    IF NOT EXISTS(SELECT 1 FROM audience_members WHERE workspace_id=ws AND id=(r->>'id')::int) THEN
+     INSERT INTO audience_members SELECT (jsonb_populate_record(NULL::audience_members,r)).*;
+    END IF;
+   END LOOP;
+  END IF;
+ END LOOP;
+ FOR r IN SELECT * FROM jsonb_array_elements(coalesce(undo->'audience_filters','[]')) LOOP
+  UPDATE audiences SET filters=r->'before' WHERE workspace_id=ws AND id=r->>'id' AND filters::jsonb=r->'after';
+ END LOOP;
+ UPDATE audiences a SET member_count=(SELECT count(*) FROM audience_members m WHERE m.workspace_id=ws AND m.audience_id=a.id) WHERE a.workspace_id=ws;
+ PERFORM set_config('opengtm.record_repointing',coalesce(old_repoint,''),true);
+END $_$;
+
+--
+-- Name: opengtm_record_row_data(text, text, jsonb, text, text, integer, jsonb); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_row_data(ws text, wb text, original jsonb, cid text, pid text, eid integer, facts jsonb) RETURNS jsonb
+    LANGUAGE plpgsql STABLE
+    AS $$
+DECLARE result jsonb:=coalesce(original,'{}');keys text[];record_kind text;BEGIN
+ IF ws IS DISTINCT FROM current_setting('app.workspace_id',true) OR (cid IS NULL AND pid IS NULL) THEN RETURN result; END IF;
+ IF cid IS NOT NULL THEN
+  SELECT array_agg(key) INTO keys FROM company_entities c,jsonb_object_keys(c.accepted_fields) key WHERE c.workspace_id=ws AND c.id=cid;
+  result:=result-coalesce(keys,ARRAY[]::text[]);
+ END IF;
+ IF pid IS NOT NULL THEN
+  SELECT array_agg(key) INTO keys FROM person_entities p,jsonb_object_keys(p.accepted_fields) key WHERE p.workspace_id=ws AND p.id=pid;
+  result:=result-coalesce(keys,ARRAY[]::text[]);
+ END IF;
+ IF eid IS NOT NULL THEN
+  SELECT array_agg(key) INTO keys FROM person_employments e,jsonb_object_keys(e.accepted_fields) key WHERE e.workspace_id=ws AND e.id=eid;
+  result:=result-coalesce(keys,ARRAY[]::text[]);
+ END IF;
+ result:=result||facts;
+ SELECT record_type INTO record_kind FROM workbooks WHERE workspace_id=ws AND id=wb;
+ IF record_kind IS NULL THEN
+  SELECT coalesce(jsonb_object_agg(key,result->key),'{}') INTO result FROM jsonb_object_keys(coalesce(original,'{}')) key;
+ END IF;
+ RETURN result;
+END $$;
+
+--
+-- Name: opengtm_record_scope_enter(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_scope_enter() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE stack jsonb;BEGIN
+ IF TG_TABLE_NAME IN ('company_entities','person_entities') THEN NEW.accepted_fields:=coalesce(NEW.accepted_fields,'{}');NEW.record_version:=coalesce(NEW.record_version,1);ELSIF TG_TABLE_NAME='person_employments' THEN NEW.accepted_fields:=coalesce(NEW.accepted_fields,'{}');END IF;
+ IF TG_TABLE_NAME='company_entities' THEN NEW.record_name_key:=lower(trim(coalesce(NEW.accepted_fields->>'name',NEW.canonical_name))); END IF;
+ IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname=current_user AND (rolsuper OR rolbypassrls)) THEN RETURN NEW; END IF;
+ stack:=coalesce(nullif(current_setting('opengtm.record_scope_stack',true),'')::jsonb,'[]');
+ PERFORM set_config('opengtm.record_scope_stack',(stack||jsonb_build_array(coalesce(current_setting('app.workspace_id',true),'')))::text,true);
+ PERFORM set_config('app.workspace_id',NEW.workspace_id,true);RETURN NEW;
+END $$;
+
+--
+-- Name: opengtm_record_scope_exit(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_scope_exit() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE stack jsonb;BEGIN
+ IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname=current_user AND (rolsuper OR rolbypassrls)) THEN RETURN NEW; END IF;
+ stack:=coalesce(nullif(current_setting('opengtm.record_scope_stack',true),'')::jsonb,'[]');
+ IF jsonb_array_length(stack)>0 THEN
+  PERFORM set_config('app.workspace_id',stack->>-1,true);
+  PERFORM set_config('opengtm.record_scope_stack',(stack-(jsonb_array_length(stack)-1))::text,true);
+ END IF;RETURN NEW;
+END $$;
+
+--
+-- Name: opengtm_record_subject_write(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_subject_write() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE c text;p text;links jsonb;person_name text;BEGIN
+ PERFORM opengtm_record_workspace(NEW.workspace_id);
+ IF NEW.lead_id IS NOT NULL AND NEW.lead_id>0 THEN
+  SELECT company_entity_id,person_entity_id INTO c,p FROM leads WHERE workspace_id=NEW.workspace_id AND id=NEW.lead_id;
+  IF FOUND THEN NEW.company_entity_id:=coalesce(NEW.company_entity_id,c);NEW.person_entity_id:=coalesce(NEW.person_entity_id,p);END IF;
+ ELSIF NEW.company_entity_id IS NOT NULL OR NEW.person_entity_id IS NOT NULL THEN NEW.lead_id:=NULL;
+ END IF;
+ IF TG_TABLE_NAME='playbook_results' THEN
+  NEW.subject_key:=coalesce(NEW.subject_key,CASE WHEN NEW.lead_id IS NOT NULL THEN 'lead:'||NEW.lead_id WHEN NEW.person_entity_id IS NOT NULL THEN 'person:'||NEW.person_entity_id ELSE 'company:'||NEW.company_entity_id END);
+ END IF;
+ IF TG_TABLE_NAME='outreach_sends' THEN
+ IF NEW.enrollment_id IS NOT NULL THEN
+  SELECT company_entity_id,person_entity_id INTO c,p FROM outreach_enrollments WHERE workspace_id=NEW.workspace_id AND id=NEW.enrollment_id;
+  NEW.company_entity_id:=coalesce(NEW.company_entity_id,c);NEW.person_entity_id:=coalesce(NEW.person_entity_id,p);
+  IF NEW.lead_id=0 THEN NEW.lead_id:=NULL; END IF;
+ END IF;
+ END IF;
+ IF TG_TABLE_NAME='watch_subscriptions' THEN
+ IF NEW.company_entity_id IS NULL AND NEW.kind IN ('company','funding','hiring') THEN
+  SELECT id INTO c FROM company_entities WHERE workspace_id=NEW.workspace_id AND (lower(canonical_name)=lower(NEW.target) OR primary_domain=opengtm_record_domain(NEW.target)) ORDER BY id LIMIT 1;
+  IF c IS NULL THEN
+   links:=opengtm_record_upsert(NEW.workspace_id,'company',jsonb_build_object('company',CASE WHEN NEW.target ~ '^[A-Za-z0-9.-]+\.[A-Za-z]{2,}$' THEN jsonb_build_object('name',NEW.target,'domain',NEW.target) ELSE jsonb_build_object('name',NEW.target) END),'monitor','watch:'||NEW.id,false);c:=links->>'company_id';
+  END IF;
+  NEW.company_entity_id:=c;
+ END IF;
+ END IF;
+ IF NEW.company_entity_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM company_entities WHERE workspace_id=NEW.workspace_id AND id=NEW.company_entity_id) THEN RAISE EXCEPTION 'company not found' USING ERRCODE='P0002'; END IF;
+ IF NEW.person_entity_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM person_entities WHERE workspace_id=NEW.workspace_id AND id=NEW.person_entity_id) THEN RAISE EXCEPTION 'person not found' USING ERRCODE='P0002'; END IF;
+ RETURN NEW;
+END $_$;
+
+--
+-- Name: opengtm_record_upsert(text, text, jsonb, text, text, boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_upsert(ws text, kind text, payload jsonb, src text, external_key text DEFAULT ''::text, replace_values boolean DEFAULT false) RETURNS jsonb
+    LANGUAGE plpgsql
+    AS $_$
+#variable_conflict use_column
+DECLARE subject_type ALIAS FOR $2; company_data jsonb; person_data jsonb; employment_data jsonb; cid text; pid text; eid integer;
+ domain text; company_linkedin text; company_name text; person_name text; email text; linkedin text; identity_value text; identity_kind text;
+ owner_id text; explicit_company text; explicit_person text; company_source text; company_external text; old_current text;
+ result_fields jsonb; current_version bigint; candidate_count integer; relationship_priority integer; relationship_time timestamptz;prior_observed text; inherited_relationship boolean:=false; can_move boolean:=true; obs timestamptz:=now(); source_name text:=coalesce(nullif(src,''),'manual');
+BEGIN
+ PERFORM opengtm_record_workspace(ws);
+ IF subject_type NOT IN ('company','person') THEN RAISE EXCEPTION 'record type must be company or person' USING ERRCODE='22023'; END IF;
+ IF jsonb_typeof(payload) IS DISTINCT FROM 'object' THEN RAISE EXCEPTION 'record must be an object' USING ERRCODE='22023'; END IF;
+ prior_observed:=current_setting('opengtm.record_observed_at',true);obs:=coalesce(nullif(payload->>'observed_at','')::timestamptz,now());PERFORM set_config('opengtm.record_observed_at',obs::text,true);
+ company_data:=coalesce(payload->'company','{}');person_data:=coalesce(payload->'person','{}');employment_data:=coalesce(payload->'employment','{}');
+ IF jsonb_typeof(company_data)<>'object' OR jsonb_typeof(person_data)<>'object' OR jsonb_typeof(employment_data)<>'object' THEN RAISE EXCEPTION 'record fields must be objects' USING ERRCODE='22023'; END IF;
+ explicit_company:=nullif(payload->>'company_id','');explicit_person:=nullif(payload->>'person_id','');
+ company_name:=nullif(trim(company_data->>'name'),'');domain:=nullif(opengtm_record_domain(coalesce(company_data->>'domain',company_data->>'website')),'');
+ company_linkedin:=nullif(lower(regexp_replace(regexp_replace(trim(company_data->>'linkedin_url'),'^https?://(www\.)?','','i'),'[/?#]+$','')),'');
+ IF coalesce(company_linkedin,'') !~ '^linkedin\.com/(company|school|showcase)/[^/?#]+$' THEN company_linkedin:=NULL;END IF;
+ company_source:=coalesce(nullif(payload->>'company_source',''),source_name);company_external:=nullif(payload->>'company_external_id','');
+ IF company_external IS NOT NULL THEN
+  SELECT record_id INTO cid FROM record_external_identities WHERE workspace_id=ws AND record_type='company' AND source=company_source AND external_id=company_external;
+  IF cid IS NULL AND explicit_company IS NULL AND company_name IS NULL AND domain IS NULL THEN
+   RAISE EXCEPTION 'linked company external ID was not found' USING ERRCODE='P0002';
+  END IF;
+ END IF;
+ IF explicit_company IS NOT NULL THEN
+  IF cid IS NOT NULL AND cid<>explicit_company THEN RAISE EXCEPTION 'company identity conflict' USING ERRCODE='23505'; END IF;
+  SELECT id INTO cid FROM company_entities WHERE id=explicit_company AND workspace_id=ws;
+  IF NOT FOUND THEN RAISE EXCEPTION 'company not found' USING ERRCODE='P0002'; END IF;
+ END IF;
+ IF subject_type='company' AND external_key<>'' AND cid IS NULL THEN
+  SELECT record_id INTO cid FROM record_external_identities WHERE workspace_id=ws AND source=source_name AND record_type='company' AND external_id=external_key;
+ END IF;
+ IF cid IS NULL AND company_linkedin IS NOT NULL THEN
+  SELECT entity_id INTO cid FROM company_identifiers i WHERE workspace_id=ws AND i.kind='linkedin' AND value=company_linkedin;
+ END IF;
+ IF cid IS NULL AND (domain IS NOT NULL OR company_name IS NOT NULL OR company_linkedin IS NOT NULL OR (subject_type='company' AND external_key<>'')) THEN
+  identity_kind:=CASE WHEN domain IS NOT NULL THEN 'domain' WHEN company_linkedin IS NOT NULL THEN 'linkedin' WHEN company_name IS NOT NULL THEN 'record_name' ELSE 'external_record' END;
+  identity_value:=coalesce(domain,company_linkedin,encode(sha256(convert_to(CASE WHEN company_name IS NOT NULL THEN lower(company_name)||'|'||coalesce(company_data->>'city','') ELSE source_name||'|'||external_key END,'UTF8')),'hex'));
+  SELECT entity_id INTO cid FROM company_identifiers i WHERE workspace_id=ws AND i.kind=identity_kind AND value=identity_value;
+  IF cid IS NULL AND company_name IS NOT NULL THEN
+   SELECT min(id),count(*) INTO cid,candidate_count FROM company_entities WHERE workspace_id=ws AND record_name_key=lower(company_name) AND (nullif(company_data->>'city','') IS NULL OR lower(coalesce(accepted_fields->>'city',primary_city,''))=lower(company_data->>'city')) AND ((domain IS NULL AND company_linkedin IS NULL) OR (nullif(primary_domain,'') IS NULL AND NOT EXISTS(SELECT 1 FROM company_identifiers ci WHERE ci.workspace_id=ws AND ci.entity_id=company_entities.id AND ci.kind='linkedin')));
+   IF candidate_count>1 THEN RAISE EXCEPTION 'ambiguous company name: provide a domain or company ID' USING ERRCODE='23505'; END IF;
+  END IF;
+  IF cid IS NULL THEN
+   BEGIN
+   cid:=gen_random_uuid()::text;
+   INSERT INTO company_entities(id,workspace_id,canonical_name,primary_domain,identity_keys,fields,sources,source_agreement,corroboration_count,observation_count)
+    VALUES(cid,ws,coalesce(company_name,domain,company_linkedin,'(unknown)'),domain,'{}','{}','[]','{}',1,1);
+   INSERT INTO company_identifiers(workspace_id,kind,value,entity_id) VALUES(ws,identity_kind,identity_value,cid);
+   EXCEPTION WHEN unique_violation THEN
+    SELECT entity_id INTO cid FROM company_identifiers i WHERE workspace_id=ws AND i.kind=identity_kind AND value=identity_value;
+    IF cid IS NULL THEN RAISE; END IF;
+   END;
+  END IF;
+ END IF;
+ IF cid IS NOT NULL THEN
+  IF subject_type='company' AND payload ? 'expected_version' THEN
+   SELECT record_version INTO current_version FROM company_entities WHERE workspace_id=ws AND id=cid FOR UPDATE;
+   IF current_version IS DISTINCT FROM (payload->>'expected_version')::bigint THEN RAISE EXCEPTION 'record version conflict' USING ERRCODE='40001'; END IF;
+  END IF;
+  IF NOT EXISTS(SELECT 1 FROM company_entities WHERE workspace_id=ws AND id=cid) THEN RAISE EXCEPTION 'company not found' USING ERRCODE='P0002'; END IF;
+  IF domain IS NOT NULL THEN
+   SELECT entity_id INTO owner_id FROM company_identifiers i WHERE workspace_id=ws AND i.kind='domain' AND value=domain;
+   IF owner_id IS NOT NULL AND owner_id<>cid THEN RAISE EXCEPTION 'company domain belongs to another record' USING ERRCODE='23505'; END IF;
+   INSERT INTO company_identifiers(workspace_id,kind,value,entity_id) VALUES(ws,'domain',domain,cid) ON CONFLICT(workspace_id,kind,value) DO NOTHING;
+   SELECT entity_id INTO owner_id FROM company_identifiers i WHERE workspace_id=ws AND i.kind='domain' AND value=domain;
+   IF owner_id<>cid THEN RAISE EXCEPTION 'company domain belongs to another record' USING ERRCODE='23505'; END IF;
+   company_data:=company_data||jsonb_build_object('domain',domain);
+  END IF;
+  IF company_linkedin IS NOT NULL THEN
+   INSERT INTO company_identifiers(workspace_id,kind,value,entity_id) VALUES(ws,'linkedin',company_linkedin,cid) ON CONFLICT(workspace_id,kind,value) DO NOTHING;
+   SELECT entity_id INTO owner_id FROM company_identifiers i WHERE workspace_id=ws AND i.kind='linkedin' AND value=company_linkedin;
+   IF owner_id<>cid THEN RAISE EXCEPTION 'company LinkedIn belongs to another record' USING ERRCODE='23505'; END IF;
+  END IF;
+  result_fields:=opengtm_record_accept(ws,'company',cid,company_data,source_name,replace_values);
+  company_name:=coalesce(result_fields->>'name',company_name);domain:=coalesce(result_fields->>'domain',domain);
+  IF company_external IS NOT NULL THEN
+   INSERT INTO record_external_identities(workspace_id,source,record_type,external_id,record_id) VALUES(ws,company_source,'company',company_external,cid)
+    ON CONFLICT(workspace_id,source,record_type,external_id) DO UPDATE SET record_id=record_external_identities.record_id RETURNING record_id INTO owner_id;
+   IF owner_id<>cid THEN RAISE EXCEPTION 'company external identity conflict' USING ERRCODE='23505'; END IF;
+  END IF;
+ END IF;
+ IF subject_type='company' AND cid IS NULL THEN RAISE EXCEPTION 'a company needs a name, domain or existing ID' USING ERRCODE='22023'; END IF;
+ IF subject_type='person' THEN
+  person_name:=nullif(trim(coalesce(person_data->>'full_name',concat_ws(' ',person_data->>'first_name',person_data->>'last_name'))),'');
+  email:=nullif(lower(trim(person_data->>'email')),'');linkedin:=nullif(lower(regexp_replace(regexp_replace(trim(person_data->>'linkedin_url'),'^https?://(www\.)?','','i'),'[/?#]+$','')),'');
+  IF email IS NOT NULL AND email !~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$' THEN
+ IF source_name LIKE 'migration%' THEN email:=NULL; ELSE RAISE EXCEPTION 'invalid person email' USING ERRCODE='22023'; END IF;END IF;
+  IF explicit_person IS NOT NULL THEN
+   SELECT id INTO pid FROM person_entities WHERE workspace_id=ws AND id=explicit_person;
+   IF NOT FOUND THEN RAISE EXCEPTION 'person not found' USING ERRCODE='P0002'; END IF;
+  END IF;
+  IF external_key<>'' THEN
+   SELECT record_id INTO owner_id FROM record_external_identities WHERE workspace_id=ws AND source=source_name AND record_type='person' AND external_id=external_key;
+   IF pid IS NOT NULL AND owner_id IS NOT NULL AND pid<>owner_id THEN RAISE EXCEPTION 'person external identity conflict' USING ERRCODE='23505'; END IF;
+   pid:=coalesce(pid,owner_id);
+  END IF;
+  IF pid IS NULL THEN
+   IF linkedin IS NOT NULL THEN identity_kind:='linkedin';identity_value:=linkedin;
+   ELSIF email IS NOT NULL THEN identity_kind:='email';identity_value:=email;
+   ELSIF external_key<>'' THEN identity_kind:='legacy_id';identity_value:=source_name||':'||external_key;
+   ELSE RAISE EXCEPTION 'a person needs email, LinkedIn, external ID or existing ID' USING ERRCODE='22023'; END IF;
+   SELECT person_id INTO pid FROM person_identifiers i WHERE workspace_id=ws AND i.kind=identity_kind AND value=identity_value;
+   IF pid IS NULL AND email IS NOT NULL THEN SELECT person_id INTO pid FROM person_identifiers i WHERE workspace_id=ws AND i.kind='email' AND value=email; END IF;
+   IF pid IS NULL THEN
+    BEGIN
+    pid:=gen_random_uuid()::text;
+    INSERT INTO person_entities(id,workspace_id,full_name,company_entity_id,identity_keys,fields,corroboration_count)
+     VALUES(pid,ws,coalesce(person_name,'(unknown)'),cid,'{}','{}',1);
+    INSERT INTO person_identifiers(workspace_id,kind,value,person_id) VALUES(ws,identity_kind,identity_value,pid);
+    EXCEPTION WHEN unique_violation THEN
+     SELECT person_id INTO pid FROM person_identifiers i WHERE workspace_id=ws AND i.kind=identity_kind AND value=identity_value;
+     IF pid IS NULL THEN RAISE; END IF;
+    END;
+   END IF;
+  END IF;
+  IF payload ? 'expected_version' THEN
+   SELECT record_version INTO current_version FROM person_entities WHERE workspace_id=ws AND id=pid FOR UPDATE;
+   IF current_version IS DISTINCT FROM (payload->>'expected_version')::bigint THEN RAISE EXCEPTION 'record version conflict' USING ERRCODE='40001'; END IF;
+  END IF;
+  IF NOT EXISTS(SELECT 1 FROM person_entities WHERE workspace_id=ws AND id=pid) THEN RAISE EXCEPTION 'person not found' USING ERRCODE='P0002'; END IF;
+  FOR identity_kind,identity_value IN SELECT * FROM (VALUES ('linkedin',linkedin),('email',email)) AS ids(k,v) WHERE v IS NOT NULL LOOP
+   SELECT person_id INTO owner_id FROM person_identifiers i WHERE workspace_id=ws AND i.kind=identity_kind AND value=identity_value;
+   IF owner_id IS NOT NULL AND owner_id<>pid THEN RAISE EXCEPTION 'person identifier belongs to another record' USING ERRCODE='23505'; END IF;
+   IF identity_kind='linkedin' AND EXISTS(SELECT 1 FROM person_identifiers i WHERE workspace_id=ws AND i.kind='linkedin' AND person_id=pid AND value<>identity_value) THEN
+    RAISE EXCEPTION 'email owner has a different LinkedIn identity' USING ERRCODE='23505';
+   END IF;
+   INSERT INTO person_identifiers(workspace_id,kind,value,person_id) VALUES(ws,identity_kind,identity_value,pid) ON CONFLICT(workspace_id,kind,value) DO NOTHING;
+   SELECT person_id INTO owner_id FROM person_identifiers i WHERE workspace_id=ws AND i.kind=identity_kind AND value=identity_value;
+   IF owner_id<>pid THEN RAISE EXCEPTION 'person identifier belongs to another record' USING ERRCODE='23505'; END IF;
+  END LOOP;
+  IF person_name IS NOT NULL THEN person_data:=person_data||jsonb_build_object('full_name',person_name); END IF;
+  IF email IS NOT NULL THEN person_data:=person_data||jsonb_build_object('email',email); END IF;
+  result_fields:=opengtm_record_accept(ws,'person',pid,person_data,source_name,replace_values);
+  IF cid IS NULL AND NOT coalesce((payload->>'end_employment')::boolean,false) THEN
+   -- A person-only edit keeps the current relationship and can update the role
+   -- without reapplying an old employer observation.
+   inherited_relationship:=true;
+   SELECT company_entity_id INTO cid FROM person_entities WHERE workspace_id=ws AND id=pid;
+   SELECT id INTO eid FROM person_employments WHERE workspace_id=ws AND person_id=pid AND is_current<>0 ORDER BY last_observed_at DESC,id DESC LIMIT 1;
+   IF employment_data<>'{}'::jsonb THEN
+    IF eid IS NULL THEN
+     INSERT INTO person_employments(workspace_id,person_id,company_key,company_entity_id,company_name,titles,source,first_observed_at,last_observed_at,is_current)
+      VALUES(ws,pid,'unknown',NULL,'','[]',source_name,obs AT TIME ZONE 'UTC',obs AT TIME ZONE 'UTC',1)
+      ON CONFLICT(workspace_id,person_id,company_key) DO UPDATE SET is_current=1,last_observed_at=excluded.last_observed_at,ended_at=NULL RETURNING id INTO eid;
+    END IF;
+    PERFORM opengtm_record_accept(ws,'employment',eid::text,employment_data,source_name,replace_values);
+   END IF;
+  END IF;
+  IF coalesce((payload->>'end_employment')::boolean,false) THEN
+   IF cid IS NOT NULL OR NOT replace_values THEN RAISE EXCEPTION 'ending employment requires an explicit person edit without a new company' USING ERRCODE='22023'; END IF;
+   UPDATE person_employments SET is_current=0,ended_at=coalesce(ended_at,obs) WHERE workspace_id=ws AND person_id=pid AND is_current<>0;
+   UPDATE person_entities SET company_entity_id=NULL,record_version=record_version+1 WHERE workspace_id=ws AND id=pid;
+   INSERT INTO record_field_owners(workspace_id,record_type,record_id,field_name,source,priority,updated_at) VALUES(ws,'person',pid,'current_employment',source_name,100,obs) ON CONFLICT(workspace_id,record_type,record_id,field_name) DO UPDATE SET source=excluded.source,priority=excluded.priority,updated_at=excluded.updated_at;
+   INSERT INTO record_observations(workspace_id,record_type,record_id,field_name,value,source,observed_at,accepted,reason) VALUES(ws,'person',pid,'current_employment','null',source_name,obs,true,'employment_ended');
+  END IF;
+  IF cid IS NOT NULL AND NOT inherited_relationship THEN
+   SELECT company_entity_id INTO old_current FROM person_entities WHERE workspace_id=ws AND id=pid FOR UPDATE;
+   SELECT priority,updated_at INTO relationship_priority,relationship_time FROM record_field_owners WHERE workspace_id=ws AND record_type='person' AND record_id=pid AND field_name='current_employment';
+   can_move:=replace_values OR (old_current IS NULL AND relationship_priority IS NULL) OR old_current=cid OR (coalesce(relationship_priority,0)<=opengtm_record_priority(source_name) AND obs>=coalesce(relationship_time,obs));
+   INSERT INTO person_employments(workspace_id,person_id,company_key,company_entity_id,company_name,company_domain,title,titles,source,first_observed_at,last_observed_at,is_current)
+    VALUES(ws,pid,'record:'||cid,cid,company_name,domain,employment_data->>'title','[]',source_name,obs AT TIME ZONE 'UTC',obs AT TIME ZONE 'UTC',CASE WHEN can_move THEN 1 ELSE 0 END)
+    ON CONFLICT(workspace_id,person_id,company_key) DO UPDATE SET last_observed_at=greatest(person_employments.last_observed_at,excluded.last_observed_at),first_observed_at=least(person_employments.first_observed_at,excluded.first_observed_at),is_current=excluded.is_current,ended_at=CASE WHEN excluded.is_current=1 THEN NULL ELSE person_employments.ended_at END
+    RETURNING id INTO eid;
+   IF can_move THEN
+    UPDATE person_employments SET is_current=0,ended_at=coalesce(ended_at,obs) WHERE workspace_id=ws AND person_id=pid AND id<>eid AND is_current<>0;
+    UPDATE person_entities SET company_entity_id=cid,record_version=record_version+CASE WHEN old_current IS DISTINCT FROM cid THEN 1 ELSE 0 END WHERE workspace_id=ws AND id=pid;
+    IF replace_values OR old_current IS DISTINCT FROM cid OR opengtm_record_priority(source_name)>=coalesce(relationship_priority,0) THEN
+    INSERT INTO record_field_owners(workspace_id,record_type,record_id,field_name,source,priority,updated_at) VALUES(ws,'person',pid,'current_employment',source_name,opengtm_record_priority(source_name),obs) ON CONFLICT(workspace_id,record_type,record_id,field_name) DO UPDATE SET source=excluded.source,priority=excluded.priority,updated_at=excluded.updated_at;
+    END IF;
+   END IF;
+   IF employment_data<>'{}'::jsonb THEN PERFORM opengtm_record_accept(ws,'employment',eid::text,employment_data,source_name,replace_values); END IF;
+  END IF;
+ END IF;
+ IF external_key<>'' THEN
+  INSERT INTO record_external_identities(workspace_id,source,record_type,external_id,record_id) VALUES(ws,source_name,subject_type,external_key,CASE WHEN subject_type='company' THEN cid ELSE pid END)
+   ON CONFLICT(workspace_id,source,record_type,external_id) DO UPDATE SET record_id=record_external_identities.record_id RETURNING record_id INTO owner_id;
+   IF owner_id IS DISTINCT FROM (CASE WHEN subject_type='company' THEN cid ELSE pid END) THEN RAISE EXCEPTION 'external identity conflict' USING ERRCODE='23505'; END IF;
+ END IF;
+ IF subject_type='person' THEN
+  SELECT company_entity_id INTO cid FROM person_entities WHERE workspace_id=ws AND id=pid;
+  SELECT id INTO eid FROM person_employments WHERE workspace_id=ws AND person_id=pid AND is_current<>0 ORDER BY last_observed_at DESC,id DESC LIMIT 1;
+ END IF;
+ PERFORM set_config('opengtm.record_observed_at',coalesce(prior_observed,''),true);
+ RETURN jsonb_build_object('company_id',cid,'person_id',pid,'employment_id',eid,'fields',result_fields);
+END $_$;
+
+--
+-- Name: opengtm_record_workbook_write(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_workbook_write() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE links jsonb;d jsonb;src text;subject text;oldlead record;patch jsonb;
+BEGIN
+ PERFORM opengtm_record_workspace(NEW.workspace_id);IF current_setting('opengtm.record_repointing',true)='true' THEN RETURN NEW; END IF;d:=coalesce(NEW.data::jsonb,'{}');
+ SELECT record_type INTO subject FROM workbooks WHERE id=NEW.workbook_id AND workspace_id=NEW.workspace_id;
+ patch:=nullif(current_setting('opengtm.record_patches',true),'')::jsonb->NEW.id::text;
+ IF NEW.lead_id IS NOT NULL AND NEW.company_entity_id IS NULL AND NEW.person_entity_id IS NULL THEN
+  SELECT * INTO oldlead FROM leads WHERE id=NEW.lead_id AND workspace_id=NEW.workspace_id;
+  IF NOT FOUND AND coalesce(current_setting('opengtm.record_source',true),'') NOT LIKE 'migration%' AND NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname=current_user AND (rolsuper OR rolbypassrls)) THEN RAISE EXCEPTION 'linked lead not found' USING ERRCODE='P0002'; END IF;
+  NEW.company_entity_id:=coalesce(NEW.company_entity_id,oldlead.company_entity_id);NEW.person_entity_id:=coalesce(NEW.person_entity_id,oldlead.person_entity_id);
+ END IF;
+ IF NEW.person_entity_id IS NULL AND nullif(d->>'canonical_person_id','') IS NOT NULL THEN
+  SELECT id INTO NEW.person_entity_id FROM person_entities WHERE workspace_id=NEW.workspace_id AND id=d->>'canonical_person_id';
+ END IF;
+ IF NEW.company_entity_id IS NULL AND NEW.canonical_entity_id IS NOT NULL THEN
+  SELECT id INTO NEW.company_entity_id FROM company_entities WHERE workspace_id=NEW.workspace_id AND id=NEW.canonical_entity_id;
+ END IF;
+ IF TG_OP='INSERT' AND (NEW.company_entity_id IS NOT NULL OR NEW.person_entity_id IS NOT NULL) THEN
+  IF NEW.company_entity_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM company_entities WHERE workspace_id=NEW.workspace_id AND id=NEW.company_entity_id) THEN RAISE EXCEPTION 'company not found' USING ERRCODE='P0002'; END IF;
+  IF NEW.person_entity_id IS NOT NULL THEN
+   SELECT company_entity_id INTO NEW.company_entity_id FROM person_entities WHERE workspace_id=NEW.workspace_id AND id=NEW.person_entity_id;
+   IF NOT FOUND THEN RAISE EXCEPTION 'person not found' USING ERRCODE='P0002'; END IF;
+   SELECT id INTO NEW.employment_id FROM person_employments WHERE workspace_id=NEW.workspace_id AND person_id=NEW.person_entity_id AND is_current<>0 ORDER BY last_observed_at DESC,id DESC LIMIT 1;
+  END IF;
+  IF subject IS NOT NULL THEN NEW.canonical_entity_id:=coalesce(NEW.canonical_entity_id,NEW.company_entity_id); END IF;RETURN NEW;
+ END IF;
+ IF TG_OP='UPDATE' AND patch IS NULL AND (NEW.company_entity_id IS NOT NULL OR NEW.person_entity_id IS NOT NULL) AND NEW.data::jsonb IS NOT DISTINCT FROM OLD.data::jsonb AND NEW.company_entity_id IS NOT DISTINCT FROM OLD.company_entity_id AND NEW.person_entity_id IS NOT DISTINCT FROM OLD.person_entity_id THEN RETURN NEW; END IF;
+ IF TG_OP='UPDATE' AND (NEW.company_entity_id IS NOT NULL OR NEW.person_entity_id IS NOT NULL) THEN
+  IF patch IS NOT NULL THEN d:=patch; ELSE
+   SELECT coalesce(jsonb_object_agg(n.key,n.value),'{}') INTO d FROM jsonb_each(d) n WHERE n.value IS DISTINCT FROM coalesce(OLD.data::jsonb,'{}')->n.key;
+  END IF;
+  IF NEW.person_entity_id IS NOT NULL THEN SELECT company_entity_id INTO NEW.company_entity_id FROM person_entities WHERE workspace_id=NEW.workspace_id AND id=NEW.person_entity_id; END IF;
+ END IF;
+ IF subject IS NULL AND NEW.company_entity_id IS NULL AND NEW.person_entity_id IS NULL AND EXISTS(SELECT 1 FROM jsonb_each(d) e WHERE e.key IN ('company','website','contact_person','full_name','email') AND jsonb_typeof(e.value) NOT IN ('string','null')) THEN RETURN NEW; END IF;
+ IF NEW.company_entity_id IS NULL AND NEW.person_entity_id IS NULL AND nullif(d->>'company','') IS NULL AND nullif(d->>'website','') IS NULL AND nullif(d->>'contact_person','') IS NULL AND nullif(d->>'full_name','') IS NULL AND nullif(d->>'email','') IS NULL THEN RETURN NEW; END IF;
+ src:=coalesce(nullif(current_setting('opengtm.record_source',true),''),CASE WHEN TG_OP='INSERT' THEN 'import:workbook' WHEN patch IS NOT NULL THEN 'manual' ELSE 'provider:workbook' END);
+ links:=opengtm_record_ingest_flat(NEW.workspace_id,subject,d,src,'row:'||NEW.id,NEW.company_entity_id,NEW.person_entity_id,src='manual');
+ NEW.company_entity_id:=links->>'company_id';IF subject IS NOT NULL THEN NEW.canonical_entity_id:=coalesce(NEW.canonical_entity_id,NEW.company_entity_id); END IF;NEW.person_entity_id:=links->>'person_id';NEW.employment_id:=(links->>'employment_id')::integer;RETURN NEW;
+END $$;
+
+--
+-- Name: opengtm_record_workspace(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.opengtm_record_workspace(ws text) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+ IF ws IS NULL OR ws='' OR ws IS DISTINCT FROM current_setting('app.workspace_id',true) THEN
+  RAISE EXCEPTION 'record workspace does not match transaction' USING ERRCODE='42501';
+ END IF;
+END $$;
 
 --
 -- Name: outreach_send_by_message_id(text); Type: FUNCTION; Schema: public; Owner: -
@@ -108,11 +798,13 @@ CREATE TABLE public.audience_members (
     id integer NOT NULL,
     workspace_id character varying NOT NULL,
     audience_id character varying NOT NULL,
-    lead_id integer NOT NULL,
+    lead_id integer,
     snapshot json NOT NULL,
     joined_at timestamp without time zone DEFAULT now() NOT NULL,
     last_seen_at timestamp without time zone DEFAULT now() NOT NULL,
-    refresh_token character varying(36)
+    refresh_token character varying(36),
+    company_entity_id character varying,
+    person_entity_id character varying
 );
 
 ALTER TABLE ONLY public.audience_members FORCE ROW LEVEL SECURITY;
@@ -143,11 +835,13 @@ CREATE TABLE public.audience_membership_events (
     id integer NOT NULL,
     workspace_id character varying NOT NULL,
     audience_id character varying NOT NULL,
-    lead_id integer NOT NULL,
+    lead_id integer,
     event_type character varying(16) NOT NULL,
     snapshot json NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
-    refresh_id character varying(36)
+    refresh_id character varying(36),
+    company_entity_id character varying,
+    person_entity_id character varying
 );
 
 ALTER TABLE ONLY public.audience_membership_events FORCE ROW LEVEL SECURITY;
@@ -201,7 +895,9 @@ CREATE TABLE public.audiences (
     next_refresh_at timestamp without time zone,
     refresh_health character varying(20) DEFAULT 'unverified'::character varying NOT NULL,
     last_refresh_error text,
-    consecutive_refresh_failures integer DEFAULT 0 NOT NULL
+    consecutive_refresh_failures integer DEFAULT 0 NOT NULL,
+    record_type text DEFAULT 'company'::text NOT NULL,
+    CONSTRAINT audiences_record_type_check CHECK ((record_type = ANY (ARRAY['company'::text, 'person'::text])))
 );
 
 ALTER TABLE ONLY public.audiences FORCE ROW LEVEL SECURITY;
@@ -399,7 +1095,10 @@ CREATE TABLE public.company_entities (
     corroboration_count integer,
     observation_count integer,
     first_seen timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    last_seen timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    last_seen timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    accepted_fields jsonb DEFAULT '{}'::jsonb NOT NULL,
+    record_version bigint DEFAULT 1 NOT NULL,
+    record_name_key text DEFAULT ''::text NOT NULL
 );
 
 ALTER TABLE ONLY public.company_entities FORCE ROW LEVEL SECURITY;
@@ -525,7 +1224,7 @@ CREATE TABLE public.destination_deliveries (
     workspace_id character varying NOT NULL,
     run_id character varying NOT NULL,
     destination_id character varying NOT NULL,
-    lead_id integer NOT NULL,
+    lead_id integer,
     operation character varying(16) NOT NULL,
     idempotency_key character varying(255) NOT NULL,
     payload_fingerprint character varying(64) NOT NULL,
@@ -537,7 +1236,10 @@ CREATE TABLE public.destination_deliveries (
     delivered_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    payload json DEFAULT '{}'::json NOT NULL
+    payload json DEFAULT '{}'::json NOT NULL,
+    person_entity_id character varying,
+    company_entity_id character varying,
+    subject_key text
 );
 
 ALTER TABLE ONLY public.destination_deliveries FORCE ROW LEVEL SECURITY;
@@ -578,7 +1280,9 @@ CREATE TABLE public.destination_inbound_receipts (
     ignored_fields json NOT NULL,
     payload_fingerprint character varying(64) NOT NULL,
     error text,
-    created_at timestamp without time zone DEFAULT now() NOT NULL
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    person_entity_id character varying,
+    company_entity_id character varying
 );
 
 ALTER TABLE ONLY public.destination_inbound_receipts FORCE ROW LEVEL SECURITY;
@@ -915,7 +1619,10 @@ CREATE TABLE public.leads (
     field_provenance text,
     technographics text,
     source_url text,
-    collection_job_id character varying
+    collection_job_id character varying,
+    company_entity_id character varying,
+    person_entity_id character varying,
+    employment_id integer
 );
 
 ALTER TABLE ONLY public.leads FORCE ROW LEVEL SECURITY;
@@ -937,6 +1644,20 @@ CREATE SEQUENCE public.leads_id_seq
 --
 
 ALTER SEQUENCE public.leads_id_seq OWNED BY public.leads.id;
+
+--
+-- Name: legacy_record_links; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.legacy_record_links (
+    workspace_id character varying NOT NULL,
+    lead_id integer NOT NULL,
+    company_id character varying,
+    person_id character varying,
+    employment_id integer
+);
+
+ALTER TABLE ONLY public.legacy_record_links FORCE ROW LEVEL SECURITY;
 
 --
 -- Name: links; Type: TABLE; Schema: public; Owner: -
@@ -1087,7 +1808,7 @@ CREATE TABLE public.outreach_enrollments (
     id integer NOT NULL,
     workspace_id character varying(64) NOT NULL,
     sequence_id character varying(36) NOT NULL,
-    lead_id integer NOT NULL,
+    lead_id integer,
     to_email_snapshot character varying NOT NULL,
     consent_source character varying(120),
     consent_at timestamp with time zone,
@@ -1097,7 +1818,9 @@ CREATE TABLE public.outreach_enrollments (
     sent_count integer,
     soft_bounce_count integer,
     last_sent_at timestamp with time zone,
-    error text
+    error text,
+    person_entity_id character varying,
+    company_entity_id character varying
 );
 
 ALTER TABLE ONLY public.outreach_enrollments FORCE ROW LEVEL SECURITY;
@@ -1209,7 +1932,9 @@ CREATE TABLE public.outreach_sends (
     replied_at timestamp with time zone,
     bounced_at timestamp with time zone,
     created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now()
+    updated_at timestamp with time zone DEFAULT now(),
+    person_entity_id character varying,
+    company_entity_id character varying
 );
 
 ALTER TABLE ONLY public.outreach_sends FORCE ROW LEVEL SECURITY;
@@ -1305,11 +2030,13 @@ CREATE TABLE public.person_employments (
     company_domain character varying(255),
     title character varying(512),
     titles json,
-    source character varying(255),
+    source text,
     evidence_url character varying(1024),
     first_observed_at timestamp without time zone NOT NULL,
     last_observed_at timestamp without time zone NOT NULL,
-    is_current integer DEFAULT 1 NOT NULL
+    is_current integer DEFAULT 1 NOT NULL,
+    accepted_fields jsonb DEFAULT '{}'::jsonb NOT NULL,
+    ended_at timestamp with time zone
 );
 
 ALTER TABLE ONLY public.person_employments FORCE ROW LEVEL SECURITY;
@@ -1345,7 +2072,9 @@ CREATE TABLE public.person_entities (
     corroboration_count integer,
     first_seen timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     last_seen timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    workspace_id character varying NOT NULL
+    workspace_id character varying NOT NULL,
+    accepted_fields jsonb DEFAULT '{}'::jsonb NOT NULL,
+    record_version bigint DEFAULT 1 NOT NULL
 );
 
 ALTER TABLE ONLY public.person_entities FORCE ROW LEVEL SECURITY;
@@ -1434,14 +2163,17 @@ CREATE TABLE public.playbook_results (
     id integer NOT NULL,
     workspace_id character varying NOT NULL,
     run_id character varying NOT NULL,
-    lead_id integer NOT NULL,
+    lead_id integer,
     status character varying(20) NOT NULL,
     value text NOT NULL,
     result_metadata json NOT NULL,
     error text,
     attempts integer NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone DEFAULT now() NOT NULL
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    company_entity_id character varying,
+    person_entity_id character varying,
+    subject_key text
 );
 
 ALTER TABLE ONLY public.playbook_results FORCE ROW LEVEL SECURITY;
@@ -1552,6 +2284,384 @@ CREATE SEQUENCE public.provider_stats_id_seq
 --
 
 ALTER SEQUENCE public.provider_stats_id_seq OWNED BY public.provider_stats.id;
+
+--
+-- Name: record_external_identities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.record_external_identities (
+    workspace_id character varying NOT NULL,
+    source text NOT NULL,
+    record_type text NOT NULL,
+    external_id text NOT NULL,
+    record_id text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT record_external_identities_record_type_check CHECK ((record_type = ANY (ARRAY['company'::text, 'person'::text])))
+);
+
+ALTER TABLE ONLY public.record_external_identities FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: record_field_owners; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.record_field_owners (
+    workspace_id character varying NOT NULL,
+    record_type text NOT NULL,
+    record_id text NOT NULL,
+    field_name text NOT NULL,
+    source text NOT NULL,
+    priority integer NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.record_field_owners FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: record_imports; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.record_imports (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    workspace_id character varying NOT NULL,
+    idempotency_key text NOT NULL,
+    payload_hash text NOT NULL,
+    source text NOT NULL,
+    result jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.record_imports FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: record_leads; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.record_leads WITH (security_invoker='true') AS
+ SELECT r.id,
+    r.workspace_id,
+        CASE
+            WHEN (f.fields ? 'company'::text) THEN ((f.fields ->> 'company'::text))::character varying
+            ELSE r.company
+        END AS company,
+        CASE
+            WHEN (f.fields ? 'website'::text) THEN ((f.fields ->> 'website'::text))::character varying
+            ELSE r.website
+        END AS website,
+        CASE
+            WHEN (f.fields ? 'email'::text) THEN ((f.fields ->> 'email'::text))::character varying
+            ELSE r.email
+        END AS email,
+        CASE
+            WHEN (f.fields ? 'email_confidence'::text) THEN ((f.fields ->> 'email_confidence'::text))::character varying
+            ELSE r.email_confidence
+        END AS email_confidence,
+        CASE
+            WHEN (f.fields ? 'email_provider'::text) THEN ((f.fields ->> 'email_provider'::text))::character varying
+            ELSE r.email_provider
+        END AS email_provider,
+        CASE
+            WHEN (f.fields ? 'phone'::text) THEN ((f.fields ->> 'phone'::text))::character varying
+            ELSE r.phone
+        END AS phone,
+        CASE
+            WHEN (f.fields ? 'phone_provider'::text) THEN ((f.fields ->> 'phone_provider'::text))::character varying
+            ELSE r.phone_provider
+        END AS phone_provider,
+        CASE
+            WHEN (f.fields ? 'contact_person'::text) THEN ((f.fields ->> 'contact_person'::text))::character varying
+            ELSE r.contact_person
+        END AS contact_person,
+        CASE
+            WHEN (f.fields ? 'contact_title'::text) THEN ((f.fields ->> 'contact_title'::text))::character varying
+            ELSE r.contact_title
+        END AS contact_title,
+        CASE
+            WHEN (f.fields ? 'city'::text) THEN ((f.fields ->> 'city'::text))::character varying
+            ELSE r.city
+        END AS city,
+        CASE
+            WHEN (f.fields ? 'state'::text) THEN ((f.fields ->> 'state'::text))::character varying
+            ELSE r.state
+        END AS state,
+        CASE
+            WHEN (f.fields ? 'address'::text) THEN ((f.fields ->> 'address'::text))::character varying
+            ELSE r.address
+        END AS address,
+        CASE
+            WHEN (f.fields ? 'specialization'::text) THEN ((f.fields ->> 'specialization'::text))::character varying
+            ELSE r.specialization
+        END AS specialization,
+        CASE
+            WHEN (f.fields ? 'company_size'::text) THEN ((f.fields ->> 'company_size'::text))::character varying
+            ELSE r.company_size
+        END AS company_size,
+        CASE
+            WHEN (f.fields ? 'employee_count_exact'::text) THEN ((f.fields ->> 'employee_count_exact'::text))::integer
+            ELSE r.employee_count_exact
+        END AS employee_count_exact,
+        CASE
+            WHEN (f.fields ? 'description'::text) THEN (f.fields ->> 'description'::text)
+            ELSE r.description
+        END AS description,
+        CASE
+            WHEN (f.fields ? 'revenue_range'::text) THEN ((f.fields ->> 'revenue_range'::text))::character varying
+            ELSE r.revenue_range
+        END AS revenue_range,
+        CASE
+            WHEN (f.fields ? 'founded_year'::text) THEN ((f.fields ->> 'founded_year'::text))::character varying
+            ELSE r.founded_year
+        END AS founded_year,
+        CASE
+            WHEN (f.fields ? 'founding_year'::text) THEN ((f.fields ->> 'founding_year'::text))::character varying
+            ELSE r.founding_year
+        END AS founding_year,
+        CASE
+            WHEN (f.fields ? 'industry_tags'::text) THEN (f.fields ->> 'industry_tags'::text)
+            ELSE r.industry_tags
+        END AS industry_tags,
+        CASE
+            WHEN (f.fields ? 'technologies'::text) THEN (f.fields ->> 'technologies'::text)
+            ELSE r.technologies
+        END AS technologies,
+        CASE
+            WHEN (f.fields ? 'funding_stage'::text) THEN ((f.fields ->> 'funding_stage'::text))::character varying
+            ELSE r.funding_stage
+        END AS funding_stage,
+        CASE
+            WHEN (f.fields ? 'linkedin_url'::text) THEN ((f.fields ->> 'linkedin_url'::text))::character varying
+            ELSE r.linkedin_url
+        END AS linkedin_url,
+        CASE
+            WHEN (f.fields ? 'twitter_url'::text) THEN ((f.fields ->> 'twitter_url'::text))::character varying
+            ELSE r.twitter_url
+        END AS twitter_url,
+        CASE
+            WHEN (f.fields ? 'facebook_url'::text) THEN ((f.fields ->> 'facebook_url'::text))::character varying
+            ELSE r.facebook_url
+        END AS facebook_url,
+        CASE
+            WHEN (f.fields ? 'secondary_emails'::text) THEN (f.fields ->> 'secondary_emails'::text)
+            ELSE r.secondary_emails
+        END AS secondary_emails,
+        CASE
+            WHEN (f.fields ? 'secondary_phones'::text) THEN (f.fields ->> 'secondary_phones'::text)
+            ELSE r.secondary_phones
+        END AS secondary_phones,
+        CASE
+            WHEN (f.fields ? 'decision_makers'::text) THEN (f.fields ->> 'decision_makers'::text)
+            ELSE r.decision_makers
+        END AS decision_makers,
+        CASE
+            WHEN (f.fields ? 'glassdoor_rating'::text) THEN ((f.fields ->> 'glassdoor_rating'::text))::character varying
+            ELSE r.glassdoor_rating
+        END AS glassdoor_rating,
+        CASE
+            WHEN (f.fields ? 'hiring_signals'::text) THEN (f.fields ->> 'hiring_signals'::text)
+            ELSE r.hiring_signals
+        END AS hiring_signals,
+    r.enrichment_attempts,
+    r.enrichment_waterfall,
+        CASE
+            WHEN (f.fields ? 'last_funding_amount'::text) THEN ((f.fields ->> 'last_funding_amount'::text))::character varying
+            ELSE r.last_funding_amount
+        END AS last_funding_amount,
+        CASE
+            WHEN (f.fields ? 'investors'::text) THEN (f.fields ->> 'investors'::text)
+            ELSE r.investors
+        END AS investors,
+        CASE
+            WHEN (f.fields ? 'recent_news'::text) THEN (f.fields ->> 'recent_news'::text)
+            ELSE r.recent_news
+        END AS recent_news,
+        CASE
+            WHEN (f.fields ? 'google_rating'::text) THEN ((f.fields ->> 'google_rating'::text))::character varying
+            ELSE r.google_rating
+        END AS google_rating,
+        CASE
+            WHEN (f.fields ? 'revenue_estimate'::text) THEN ((f.fields ->> 'revenue_estimate'::text))::character varying
+            ELSE r.revenue_estimate
+        END AS revenue_estimate,
+        CASE
+            WHEN (f.fields ? 'email_verify'::text) THEN ((f.fields ->> 'email_verify'::text))::character varying
+            ELSE r.email_verify
+        END AS email_verify,
+        CASE
+            WHEN (f.fields ? 'email_presence'::text) THEN ((f.fields ->> 'email_presence'::text))::character varying
+            ELSE r.email_presence
+        END AS email_presence,
+    r.source,
+        CASE
+            WHEN (f.fields ? 'score'::text) THEN ((f.fields ->> 'score'::text))::integer
+            ELSE r.score
+        END AS score,
+        CASE
+            WHEN (f.fields ? 'score_tier'::text) THEN ((f.fields ->> 'score_tier'::text))::character varying
+            ELSE r.score_tier
+        END AS score_tier,
+        CASE
+            WHEN (f.fields ? 'status'::text) THEN ((f.fields ->> 'status'::text))::character varying
+            ELSE r.status
+        END AS status,
+        CASE
+            WHEN (f.fields ? 'yupcha_value_prop'::text) THEN (f.fields ->> 'yupcha_value_prop'::text)
+            ELSE r.yupcha_value_prop
+        END AS yupcha_value_prop,
+        CASE
+            WHEN (f.fields ? 'company_need'::text) THEN (f.fields ->> 'company_need'::text)
+            ELSE r.company_need
+        END AS company_need,
+        CASE
+            WHEN (f.fields ? 'notes'::text) THEN (f.fields ->> 'notes'::text)
+            ELSE r.notes
+        END AS notes,
+    r.created_at,
+    r.updated_at,
+        CASE
+            WHEN (f.fields ? 'last_enriched_at'::text) THEN ((f.fields ->> 'last_enriched_at'::text))::character varying
+            ELSE r.last_enriched_at
+        END AS last_enriched_at,
+        CASE
+            WHEN (f.fields ? 'search_tsv'::text) THEN ((f.fields ->> 'search_tsv'::text))::tsvector
+            ELSE r.search_tsv
+        END AS search_tsv,
+        CASE
+            WHEN (f.fields ? 'company_size_basis'::text) THEN ((f.fields ->> 'company_size_basis'::text))::character varying
+            ELSE r.company_size_basis
+        END AS company_size_basis,
+    r.field_provenance,
+        CASE
+            WHEN (f.fields ? 'technographics'::text) THEN (f.fields ->> 'technographics'::text)
+            ELSE r.technographics
+        END AS technographics,
+    r.source_url,
+    r.collection_job_id,
+        CASE
+            WHEN (f.fields ? 'company_entity_id'::text) THEN ((f.fields ->> 'company_entity_id'::text))::character varying
+            ELSE r.company_entity_id
+        END AS company_entity_id,
+        CASE
+            WHEN (f.fields ? 'person_entity_id'::text) THEN ((f.fields ->> 'person_entity_id'::text))::character varying
+            ELSE r.person_entity_id
+        END AS person_entity_id,
+        CASE
+            WHEN (f.fields ? 'employment_id'::text) THEN ((f.fields ->> 'employment_id'::text))::integer
+            ELSE r.employment_id
+        END AS employment_id
+   FROM (public.leads r
+     CROSS JOIN LATERAL ( SELECT public.opengtm_record_flat((r.workspace_id)::text, (r.company_entity_id)::text, (r.person_entity_id)::text, r.employment_id) AS fields
+         OFFSET 0) f);
+
+--
+-- Name: record_observations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.record_observations (
+    id bigint NOT NULL,
+    workspace_id character varying NOT NULL,
+    record_type text NOT NULL,
+    record_id text NOT NULL,
+    field_name text NOT NULL,
+    value jsonb,
+    source text NOT NULL,
+    observed_at timestamp with time zone DEFAULT now() NOT NULL,
+    accepted boolean NOT NULL,
+    reason text DEFAULT ''::text NOT NULL,
+    CONSTRAINT record_observations_record_type_check CHECK ((record_type = ANY (ARRAY['company'::text, 'person'::text, 'employment'::text])))
+);
+
+ALTER TABLE ONLY public.record_observations FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: record_observations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.record_observations ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.record_observations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+--
+-- Name: workbook_rows; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.workbook_rows (
+    id integer NOT NULL,
+    workbook_id character varying NOT NULL,
+    "position" integer,
+    data json,
+    enrichments json,
+    lead_id integer,
+    canonical_entity_id character varying,
+    corroboration_count integer,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    workspace_id character varying NOT NULL,
+    source_provider character varying(100),
+    source_record_id character varying(255),
+    source_rank integer,
+    source_fetched_at timestamp with time zone,
+    company_entity_id character varying,
+    person_entity_id character varying,
+    employment_id integer
+);
+
+ALTER TABLE ONLY public.workbook_rows FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: record_workbook_rows; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.record_workbook_rows WITH (security_invoker='true') AS
+ SELECT r.id,
+    r.workbook_id,
+    r."position",
+    (public.opengtm_record_row_data((r.workspace_id)::text, (r.workbook_id)::text, (r.data)::jsonb, (r.company_entity_id)::text, (r.person_entity_id)::text, r.employment_id, f.fields))::json AS data,
+    (public.opengtm_record_overlays((r.workspace_id)::text, (r.workbook_id)::text, (r.enrichments)::jsonb, f.fields))::json AS enrichments,
+    r.lead_id,
+    r.canonical_entity_id,
+    r.corroboration_count,
+    r.created_at,
+    r.updated_at,
+    r.workspace_id,
+    r.source_provider,
+    r.source_record_id,
+    r.source_rank,
+    r.source_fetched_at,
+        CASE
+            WHEN (f.fields ? 'company_entity_id'::text) THEN ((f.fields ->> 'company_entity_id'::text))::character varying
+            ELSE r.company_entity_id
+        END AS company_entity_id,
+        CASE
+            WHEN (f.fields ? 'person_entity_id'::text) THEN ((f.fields ->> 'person_entity_id'::text))::character varying
+            ELSE r.person_entity_id
+        END AS person_entity_id,
+        CASE
+            WHEN (f.fields ? 'employment_id'::text) THEN ((f.fields ->> 'employment_id'::text))::integer
+            ELSE r.employment_id
+        END AS employment_id
+   FROM (public.workbook_rows r
+     CROSS JOIN LATERAL ( SELECT public.opengtm_record_flat((r.workspace_id)::text, (r.company_entity_id)::text, (r.person_entity_id)::text, r.employment_id) AS fields
+         OFFSET 0) f);
+
+--
+-- Name: record_workflows; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.record_workflows (
+    workspace_id character varying NOT NULL,
+    record_type text NOT NULL,
+    name text DEFAULT 'Default enrichment'::text NOT NULL,
+    columns_config jsonb DEFAULT '[]'::jsonb NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT record_workflows_record_type_check CHECK ((record_type = ANY (ARRAY['company'::text, 'person'::text])))
+);
+
+ALTER TABLE ONLY public.record_workflows FORCE ROW LEVEL SECURITY;
 
 --
 -- Name: research_playbooks; Type: TABLE; Schema: public; Owner: -
@@ -1685,7 +2795,9 @@ CREATE TABLE public.signals (
     source_url character varying,
     weight integer,
     created_at double precision,
-    read boolean
+    read boolean,
+    company_entity_id character varying,
+    person_entity_id character varying
 );
 
 ALTER TABLE ONLY public.signals FORCE ROW LEVEL SECURITY;
@@ -1975,7 +3087,9 @@ CREATE TABLE public.watch_subscriptions (
     consecutive_failures integer DEFAULT 0,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now(),
-    config json
+    config json,
+    company_entity_id character varying,
+    person_entity_id character varying
 );
 
 ALTER TABLE ONLY public.watch_subscriptions FORCE ROW LEVEL SECURITY;
@@ -2099,30 +3213,6 @@ CREATE TABLE public.workbook_ingest_tokens (
 );
 
 --
--- Name: workbook_rows; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.workbook_rows (
-    id integer NOT NULL,
-    workbook_id character varying NOT NULL,
-    "position" integer,
-    data json,
-    enrichments json,
-    lead_id integer,
-    canonical_entity_id character varying,
-    corroboration_count integer,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    workspace_id character varying NOT NULL,
-    source_provider character varying(100),
-    source_record_id character varying(255),
-    source_rank integer,
-    source_fetched_at timestamp with time zone
-);
-
-ALTER TABLE ONLY public.workbook_rows FORCE ROW LEVEL SECURITY;
-
---
 -- Name: workbook_rows_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -2207,7 +3297,9 @@ CREATE TABLE public.workbooks (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     last_run_at timestamp without time zone,
-    action_idempotency_key character varying(255)
+    action_idempotency_key character varying(255),
+    record_type text,
+    CONSTRAINT workbooks_record_type_check CHECK ((record_type = ANY (ARRAY['company'::text, 'person'::text])))
 );
 
 ALTER TABLE ONLY public.workbooks FORCE ROW LEVEL SECURITY;
@@ -2778,6 +3870,13 @@ ALTER TABLE ONLY public.leads
     ADD CONSTRAINT leads_pkey PRIMARY KEY (id);
 
 --
+-- Name: legacy_record_links legacy_record_links_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.legacy_record_links
+    ADD CONSTRAINT legacy_record_links_pkey PRIMARY KEY (workspace_id, lead_id);
+
+--
 -- Name: links links_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2923,6 +4022,48 @@ ALTER TABLE ONLY public.poll_budget_ledger
 
 ALTER TABLE ONLY public.provider_stats
     ADD CONSTRAINT provider_stats_pkey PRIMARY KEY (id);
+
+--
+-- Name: record_external_identities record_external_identities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.record_external_identities
+    ADD CONSTRAINT record_external_identities_pkey PRIMARY KEY (workspace_id, source, record_type, external_id);
+
+--
+-- Name: record_field_owners record_field_owners_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.record_field_owners
+    ADD CONSTRAINT record_field_owners_pkey PRIMARY KEY (workspace_id, record_type, record_id, field_name);
+
+--
+-- Name: record_imports record_imports_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.record_imports
+    ADD CONSTRAINT record_imports_pkey PRIMARY KEY (id);
+
+--
+-- Name: record_imports record_imports_workspace_id_idempotency_key_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.record_imports
+    ADD CONSTRAINT record_imports_workspace_id_idempotency_key_key UNIQUE (workspace_id, idempotency_key);
+
+--
+-- Name: record_observations record_observations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.record_observations
+    ADD CONSTRAINT record_observations_pkey PRIMARY KEY (id);
+
+--
+-- Name: record_workflows record_workflows_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.record_workflows
+    ADD CONSTRAINT record_workflows_pkey PRIMARY KEY (workspace_id, record_type);
 
 --
 -- Name: research_playbooks research_playbooks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -3105,13 +4246,6 @@ ALTER TABLE ONLY public.outreach_inbound_messages
 
 ALTER TABLE ONLY public.outreach_inbound_messages
     ADD CONSTRAINT uq_inbound_ws_uid UNIQUE (workspace_id, uidvalidity, imap_uid);
-
---
--- Name: leads uq_leads_ws_company_city; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.leads
-    ADD CONSTRAINT uq_leads_ws_company_city UNIQUE (workspace_id, company, city);
 
 --
 -- Name: credit_ledger_entries uq_ledger_idempotency_key; Type: CONSTRAINT; Schema: public; Owner: -
@@ -3422,6 +4556,18 @@ ALTER TABLE ONLY public.workspaces
     ADD CONSTRAINT workspaces_slug_key UNIQUE (slug);
 
 --
+-- Name: audience_company_subject; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX audience_company_subject ON public.audience_members USING btree (audience_id, company_entity_id) WHERE ((lead_id IS NULL) AND (person_entity_id IS NULL) AND (company_entity_id IS NOT NULL));
+
+--
+-- Name: audience_person_subject; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX audience_person_subject ON public.audience_members USING btree (audience_id, person_entity_id) WHERE ((lead_id IS NULL) AND (person_entity_id IS NOT NULL));
+
+--
 -- Name: idx_chat_conv_tenant; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3612,12 +4758,6 @@ CREATE INDEX ix_company_entities_corroboration_count ON public.company_entities 
 --
 
 CREATE INDEX ix_company_entities_primary_domain ON public.company_entities USING btree (primary_domain);
-
---
--- Name: ix_company_entities_workspace_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ix_company_entities_workspace_id ON public.company_entities USING btree (workspace_id);
 
 --
 -- Name: ix_company_identifiers_entity_id; Type: INDEX; Schema: public; Owner: -
@@ -4622,6 +5762,36 @@ CREATE INDEX ix_workbook_views_workspace_id ON public.workbook_views USING btree
 CREATE INDEX ix_workbooks_workspace_id ON public.workbooks USING btree (workspace_id);
 
 --
+-- Name: outreach_person_enrollment; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX outreach_person_enrollment ON public.outreach_enrollments USING btree (workspace_id, sequence_id, person_entity_id) WHERE ((lead_id IS NULL) AND (person_entity_id IS NOT NULL));
+
+--
+-- Name: playbook_record_subject; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX playbook_record_subject ON public.playbook_results USING btree (workspace_id, run_id, subject_key);
+
+--
+-- Name: record_company_name_lookup; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX record_company_name_lookup ON public.company_entities USING btree (workspace_id, record_name_key);
+
+--
+-- Name: record_external_subject; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX record_external_subject ON public.record_external_identities USING btree (workspace_id, record_type, record_id);
+
+--
+-- Name: record_observations_subject; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX record_observations_subject ON public.record_observations USING btree (workspace_id, record_type, record_id, id DESC);
+
+--
 -- Name: uq_connector_runs_active; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4634,10 +5804,298 @@ CREATE UNIQUE INDEX uq_connector_runs_active ON public.connector_runs USING btre
 CREATE UNIQUE INDEX uq_jobs_fire_key_active ON public.jobs USING btree (fire_key) WHERE ((status)::text = ANY (ARRAY[('pending'::character varying)::text, ('processing'::character varying)::text]));
 
 --
+-- Name: uq_leads_ws_company_city; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_leads_ws_company_city ON public.leads USING btree (workspace_id, company, city) WHERE (person_entity_id IS NULL);
+
+--
+-- Name: uq_leads_ws_person; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_leads_ws_person ON public.leads USING btree (workspace_id, company, city, person_entity_id) WHERE (person_entity_id IS NOT NULL);
+
+--
+-- Name: workbook_enrichments a_cell_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER a_cell_record_scope AFTER INSERT OR UPDATE ON public.workbook_enrichments DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: audience_members a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.audience_members FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: audience_membership_events a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.audience_membership_events FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: company_entities a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.company_entities FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: destination_deliveries a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.destination_deliveries FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: destination_inbound_receipts a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.destination_inbound_receipts FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: leads a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.leads FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: outreach_enrollments a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.outreach_enrollments FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: outreach_sends a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.outreach_sends FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: person_employments a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.person_employments FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: person_entities a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.person_entities FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: playbook_results a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.playbook_results FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: signals a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.signals FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: watch_subscriptions a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.watch_subscriptions FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: workbook_enrichments a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.workbook_enrichments FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
+-- Name: workbook_rows a_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER a_record_scope BEFORE INSERT OR UPDATE ON public.workbook_rows FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_enter();
+
+--
 -- Name: leads leads_search_tsv_update; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER leads_search_tsv_update BEFORE INSERT OR UPDATE ON public.leads FOR EACH ROW EXECUTE FUNCTION public.leads_search_tsv_trigger();
+
+--
+-- Name: workbook_enrichments record_cell_write; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_cell_write AFTER INSERT OR UPDATE ON public.workbook_enrichments DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_cell_write();
+
+--
+-- Name: company_entities record_graph_observation; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER record_graph_observation AFTER INSERT OR UPDATE ON public.company_entities FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_graph_observation();
+
+--
+-- Name: leads record_lead_link; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER record_lead_link AFTER INSERT OR UPDATE ON public.leads FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_lead_link();
+
+--
+-- Name: leads record_lead_write; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER record_lead_write BEFORE INSERT OR UPDATE ON public.leads FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_lead_write();
+
+--
+-- Name: audience_members record_subject_write; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER record_subject_write BEFORE INSERT OR UPDATE ON public.audience_members FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_subject_write();
+
+--
+-- Name: audience_membership_events record_subject_write; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER record_subject_write BEFORE INSERT OR UPDATE ON public.audience_membership_events FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_subject_write();
+
+--
+-- Name: destination_deliveries record_subject_write; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER record_subject_write BEFORE INSERT OR UPDATE ON public.destination_deliveries FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_subject_write();
+
+--
+-- Name: destination_inbound_receipts record_subject_write; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER record_subject_write BEFORE INSERT OR UPDATE ON public.destination_inbound_receipts FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_subject_write();
+
+--
+-- Name: outreach_enrollments record_subject_write; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER record_subject_write BEFORE INSERT OR UPDATE ON public.outreach_enrollments FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_subject_write();
+
+--
+-- Name: outreach_sends record_subject_write; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER record_subject_write BEFORE INSERT OR UPDATE ON public.outreach_sends FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_subject_write();
+
+--
+-- Name: playbook_results record_subject_write; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER record_subject_write BEFORE INSERT OR UPDATE ON public.playbook_results FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_subject_write();
+
+--
+-- Name: signals record_subject_write; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER record_subject_write BEFORE INSERT OR UPDATE ON public.signals FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_subject_write();
+
+--
+-- Name: watch_subscriptions record_subject_write; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER record_subject_write BEFORE INSERT OR UPDATE ON public.watch_subscriptions FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_subject_write();
+
+--
+-- Name: workbook_rows record_workbook_write; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER record_workbook_write BEFORE INSERT OR UPDATE ON public.workbook_rows FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_workbook_write();
+
+--
+-- Name: workbook_enrichments zz_cell_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER zz_cell_record_scope AFTER INSERT OR UPDATE ON public.workbook_enrichments DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: audience_members zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.audience_members FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: audience_membership_events zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.audience_membership_events FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: company_entities zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.company_entities FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: destination_deliveries zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.destination_deliveries FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: destination_inbound_receipts zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.destination_inbound_receipts FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: leads zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.leads FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: outreach_enrollments zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.outreach_enrollments FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: outreach_sends zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.outreach_sends FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: person_employments zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.person_employments FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: person_entities zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.person_entities FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: playbook_results zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.playbook_results FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: signals zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.signals FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: watch_subscriptions zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.watch_subscriptions FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: workbook_enrichments zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.workbook_enrichments FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
+
+--
+-- Name: workbook_rows zz_record_scope; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER zz_record_scope AFTER INSERT OR UPDATE ON public.workbook_rows FOR EACH ROW EXECUTE FUNCTION public.opengtm_record_scope_exit();
 
 --
 -- Name: audience_destinations audience_destinations_audience_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -4654,11 +6112,39 @@ ALTER TABLE ONLY public.audience_members
     ADD CONSTRAINT audience_members_audience_id_fkey FOREIGN KEY (audience_id) REFERENCES public.audiences(id) ON DELETE CASCADE;
 
 --
+-- Name: audience_members audience_members_company_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.audience_members
+    ADD CONSTRAINT audience_members_company_entity_id_fkey FOREIGN KEY (company_entity_id) REFERENCES public.company_entities(id);
+
+--
+-- Name: audience_members audience_members_person_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.audience_members
+    ADD CONSTRAINT audience_members_person_entity_id_fkey FOREIGN KEY (person_entity_id) REFERENCES public.person_entities(id);
+
+--
 -- Name: audience_membership_events audience_membership_events_audience_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.audience_membership_events
     ADD CONSTRAINT audience_membership_events_audience_id_fkey FOREIGN KEY (audience_id) REFERENCES public.audiences(id) ON DELETE CASCADE;
+
+--
+-- Name: audience_membership_events audience_membership_events_company_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.audience_membership_events
+    ADD CONSTRAINT audience_membership_events_company_entity_id_fkey FOREIGN KEY (company_entity_id) REFERENCES public.company_entities(id);
+
+--
+-- Name: audience_membership_events audience_membership_events_person_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.audience_membership_events
+    ADD CONSTRAINT audience_membership_events_person_entity_id_fkey FOREIGN KEY (person_entity_id) REFERENCES public.person_entities(id);
 
 --
 -- Name: chat_messages chat_messages_conversation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -4689,6 +6175,13 @@ ALTER TABLE ONLY public.connector_runs
     ADD CONSTRAINT connector_runs_workbook_id_fkey FOREIGN KEY (workbook_id) REFERENCES public.workbooks(id) ON DELETE CASCADE;
 
 --
+-- Name: destination_deliveries destination_deliveries_company_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.destination_deliveries
+    ADD CONSTRAINT destination_deliveries_company_entity_id_fkey FOREIGN KEY (company_entity_id) REFERENCES public.company_entities(id);
+
+--
 -- Name: destination_deliveries destination_deliveries_destination_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4696,11 +6189,32 @@ ALTER TABLE ONLY public.destination_deliveries
     ADD CONSTRAINT destination_deliveries_destination_id_fkey FOREIGN KEY (destination_id) REFERENCES public.audience_destinations(id) ON DELETE CASCADE;
 
 --
+-- Name: destination_deliveries destination_deliveries_person_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.destination_deliveries
+    ADD CONSTRAINT destination_deliveries_person_entity_id_fkey FOREIGN KEY (person_entity_id) REFERENCES public.person_entities(id);
+
+--
 -- Name: destination_deliveries destination_deliveries_run_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.destination_deliveries
     ADD CONSTRAINT destination_deliveries_run_id_fkey FOREIGN KEY (run_id) REFERENCES public.destination_runs(id) ON DELETE CASCADE;
+
+--
+-- Name: destination_inbound_receipts destination_inbound_receipts_company_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.destination_inbound_receipts
+    ADD CONSTRAINT destination_inbound_receipts_company_entity_id_fkey FOREIGN KEY (company_entity_id) REFERENCES public.company_entities(id);
+
+--
+-- Name: destination_inbound_receipts destination_inbound_receipts_person_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.destination_inbound_receipts
+    ADD CONSTRAINT destination_inbound_receipts_person_entity_id_fkey FOREIGN KEY (person_entity_id) REFERENCES public.person_entities(id);
 
 --
 -- Name: destination_runs destination_runs_destination_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -4722,6 +6236,83 @@ ALTER TABLE ONLY public.entity_blocking_keys
 
 ALTER TABLE ONLY public.research_playbooks
     ADD CONSTRAINT fk_research_playbooks_schedule_audience FOREIGN KEY (schedule_audience_id) REFERENCES public.audiences(id) ON DELETE SET NULL;
+
+--
+-- Name: leads leads_company_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.leads
+    ADD CONSTRAINT leads_company_entity_id_fkey FOREIGN KEY (company_entity_id) REFERENCES public.company_entities(id);
+
+--
+-- Name: leads leads_employment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.leads
+    ADD CONSTRAINT leads_employment_id_fkey FOREIGN KEY (employment_id) REFERENCES public.person_employments(id);
+
+--
+-- Name: leads leads_person_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.leads
+    ADD CONSTRAINT leads_person_entity_id_fkey FOREIGN KEY (person_entity_id) REFERENCES public.person_entities(id);
+
+--
+-- Name: legacy_record_links legacy_record_links_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.legacy_record_links
+    ADD CONSTRAINT legacy_record_links_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.company_entities(id);
+
+--
+-- Name: legacy_record_links legacy_record_links_employment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.legacy_record_links
+    ADD CONSTRAINT legacy_record_links_employment_id_fkey FOREIGN KEY (employment_id) REFERENCES public.person_employments(id);
+
+--
+-- Name: legacy_record_links legacy_record_links_lead_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.legacy_record_links
+    ADD CONSTRAINT legacy_record_links_lead_id_fkey FOREIGN KEY (lead_id) REFERENCES public.leads(id) ON DELETE CASCADE;
+
+--
+-- Name: legacy_record_links legacy_record_links_person_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.legacy_record_links
+    ADD CONSTRAINT legacy_record_links_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.person_entities(id);
+
+--
+-- Name: outreach_enrollments outreach_enrollments_company_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.outreach_enrollments
+    ADD CONSTRAINT outreach_enrollments_company_entity_id_fkey FOREIGN KEY (company_entity_id) REFERENCES public.company_entities(id);
+
+--
+-- Name: outreach_enrollments outreach_enrollments_person_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.outreach_enrollments
+    ADD CONSTRAINT outreach_enrollments_person_entity_id_fkey FOREIGN KEY (person_entity_id) REFERENCES public.person_entities(id);
+
+--
+-- Name: outreach_sends outreach_sends_company_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.outreach_sends
+    ADD CONSTRAINT outreach_sends_company_entity_id_fkey FOREIGN KEY (company_entity_id) REFERENCES public.company_entities(id);
+
+--
+-- Name: outreach_sends outreach_sends_person_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.outreach_sends
+    ADD CONSTRAINT outreach_sends_person_entity_id_fkey FOREIGN KEY (person_entity_id) REFERENCES public.person_entities(id);
 
 --
 -- Name: person_employments person_employments_company_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -4752,6 +6343,20 @@ ALTER TABLE ONLY public.person_identifiers
     ADD CONSTRAINT person_identifiers_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.person_entities(id) ON DELETE CASCADE;
 
 --
+-- Name: playbook_results playbook_results_company_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.playbook_results
+    ADD CONSTRAINT playbook_results_company_entity_id_fkey FOREIGN KEY (company_entity_id) REFERENCES public.company_entities(id);
+
+--
+-- Name: playbook_results playbook_results_person_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.playbook_results
+    ADD CONSTRAINT playbook_results_person_entity_id_fkey FOREIGN KEY (person_entity_id) REFERENCES public.person_entities(id);
+
+--
 -- Name: playbook_results playbook_results_run_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4773,11 +6378,60 @@ ALTER TABLE ONLY public.playbook_runs
     ADD CONSTRAINT playbook_runs_playbook_id_fkey FOREIGN KEY (playbook_id) REFERENCES public.research_playbooks(id) ON DELETE CASCADE;
 
 --
+-- Name: signals signals_company_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.signals
+    ADD CONSTRAINT signals_company_entity_id_fkey FOREIGN KEY (company_entity_id) REFERENCES public.company_entities(id);
+
+--
+-- Name: signals signals_person_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.signals
+    ADD CONSTRAINT signals_person_entity_id_fkey FOREIGN KEY (person_entity_id) REFERENCES public.person_entities(id);
+
+--
+-- Name: watch_subscriptions watch_subscriptions_company_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.watch_subscriptions
+    ADD CONSTRAINT watch_subscriptions_company_entity_id_fkey FOREIGN KEY (company_entity_id) REFERENCES public.company_entities(id);
+
+--
+-- Name: watch_subscriptions watch_subscriptions_person_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.watch_subscriptions
+    ADD CONSTRAINT watch_subscriptions_person_entity_id_fkey FOREIGN KEY (person_entity_id) REFERENCES public.person_entities(id);
+
+--
 -- Name: workbook_enrichments workbook_enrichments_workbook_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.workbook_enrichments
     ADD CONSTRAINT workbook_enrichments_workbook_id_fkey FOREIGN KEY (workbook_id) REFERENCES public.workbooks(id) ON DELETE CASCADE;
+
+--
+-- Name: workbook_rows workbook_rows_company_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workbook_rows
+    ADD CONSTRAINT workbook_rows_company_entity_id_fkey FOREIGN KEY (company_entity_id) REFERENCES public.company_entities(id);
+
+--
+-- Name: workbook_rows workbook_rows_employment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workbook_rows
+    ADD CONSTRAINT workbook_rows_employment_id_fkey FOREIGN KEY (employment_id) REFERENCES public.person_employments(id);
+
+--
+-- Name: workbook_rows workbook_rows_person_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workbook_rows
+    ADD CONSTRAINT workbook_rows_person_entity_id_fkey FOREIGN KEY (person_entity_id) REFERENCES public.person_entities(id);
 
 --
 -- Name: workbook_rows workbook_rows_workbook_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -4994,6 +6648,12 @@ ALTER TABLE public.governance_audit_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: legacy_record_links; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.legacy_record_links ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: llm_usage_daily; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -5082,6 +6742,36 @@ ALTER TABLE public.playbook_runs ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.poll_budget_ledger ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: record_external_identities; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.record_external_identities ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: record_field_owners; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.record_field_owners ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: record_imports; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.record_imports ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: record_observations; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.record_observations ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: record_workflows; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.record_workflows ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: research_playbooks; Type: ROW SECURITY; Schema: public; Owner: -
@@ -5336,6 +7026,12 @@ CREATE POLICY workspace_isolation ON public.governance_audit_events USING (((wor
 CREATE POLICY workspace_isolation ON public.leads USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
 
 --
+-- Name: legacy_record_links workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.legacy_record_links USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
 -- Name: llm_usage_daily workspace_isolation; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -5412,6 +7108,36 @@ CREATE POLICY workspace_isolation ON public.playbook_runs USING (((workspace_id)
 --
 
 CREATE POLICY workspace_isolation ON public.poll_budget_ledger USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: record_external_identities workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.record_external_identities USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: record_field_owners workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.record_field_owners USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: record_imports workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.record_imports USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: record_observations workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.record_observations USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: record_workflows workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.record_workflows USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
 
 --
 -- Name: research_playbooks workspace_isolation; Type: POLICY; Schema: public; Owner: -

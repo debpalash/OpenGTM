@@ -20,6 +20,7 @@ import SetupPage from "@/pages/setup"
 
 // Pages
 const ChatPage = lazy(() => import("@/pages/chat"))
+const RecordsPage = lazy(() => import("@/pages/records"))
 const LeadsPage = lazy(() => import("@/pages/leads"))
 const AudiencesPage = lazy(() => import("@/pages/audiences"))
 const LeadDetailPage = lazy(() => import("@/pages/lead-detail"))
@@ -165,6 +166,8 @@ function AppContent() {
             <Route path="/chat/*" element={<ChatPage />} />
             <Route path="/leads/:id" element={<LeadDetailPage />} />
             <Route path="/leads" element={<LeadsPage />} />
+            <Route path="/companies" element={<RecordsPage key="company" kind="company" />} />
+            <Route path="/people" element={<RecordsPage key="person" kind="person" />} />
             <Route path="/audiences" element={<AudiencesPage />} />
             <Route path="/workbooks/:id" element={<div className="h-full overflow-hidden"><WorkbookEditorPage /></div>} />
             <Route path="/workbooks" element={<WorkbooksPage />} />

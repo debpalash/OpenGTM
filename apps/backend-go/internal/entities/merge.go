@@ -89,6 +89,11 @@ func mergeTx(ctx context.Context, q *gen.Queries, ws, keptID, mergedID, reason s
 		pairs[i] = []any{id.Kind, id.Value}
 	}
 	snap.Set("identifiers", pairs)
+	shared, err := q.MergeSharedCompanyRecords(ctx, gen.MergeSharedCompanyRecordsParams{WorkspaceID: ws, KeptID: keptID, MergedID: mergedID})
+	if err != nil {
+		return MergeResult{}, err
+	}
+	snap.Set("shared_records", parseOr(shared, nil))
 	refs, err := repointAccounts(ctx, q, ws, mergedID, keptID)
 	if err != nil {
 		return MergeResult{}, err

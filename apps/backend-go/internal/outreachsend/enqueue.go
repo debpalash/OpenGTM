@@ -2,6 +2,7 @@ package outreachsend
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -17,6 +18,8 @@ import (
 // fire_key). Subject, BodyHTML and Variables are omitted when empty, as Python's
 // due-step payload does not carry them.
 type SendPayload struct {
+	CompanyID      string         `json:"company_id,omitempty"`
+	PersonID       string         `json:"person_id,omitempty"`
 	WorkspaceID    string         `json:"workspace_id"`
 	SequenceID     string         `json:"sequence_id"`
 	EnrollmentID   int            `json:"enrollment_id"`
@@ -82,8 +85,19 @@ func EnqueueDue(ctx context.Context, tx pgx.Tx, wsID, seqID string, limit int, e
 	n := 0
 	for _, enr := range due {
 		step := enr.CurrentStep
+		var variables map[string]any
+		if enr.LeadID == 0 && enr.PersonID != "" {
+			var raw []byte
+			if err = tx.QueryRow(ctx, `SELECT opengtm_record_flat($1,nullif($2,''),$3)`, wsID, enr.CompanyID, enr.PersonID).Scan(&raw); err != nil {
+				return n, err
+			}
+			if err = json.Unmarshal(raw, &variables); err != nil {
+				return n, err
+			}
+			variables["email"] = enr.ToEmailSnapshot
+		}
 		ok, err := EnqueueSend(ctx, tx, wsID, SendPayload{
-			WorkspaceID: wsID, SequenceID: seqID, EnrollmentID: enr.ID, LeadID: enr.LeadID,
+			CompanyID: enr.CompanyID, PersonID: enr.PersonID, Variables: variables, WorkspaceID: wsID, SequenceID: seqID, EnrollmentID: enr.ID, LeadID: enr.LeadID,
 			StepNumber: step, ToEmail: enr.ToEmailSnapshot,
 			IdempotencyKey: SequenceStepIdem(wsID, seqID, enr.ID, step),
 		}, executor)

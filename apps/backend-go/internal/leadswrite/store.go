@@ -61,7 +61,8 @@ func Create(ctx context.Context, tx pgx.Tx, workspaceID string, n NewLead) (int6
 	if !errors.Is(err, pgx.ErrNoRows) {
 		return 0, fmt.Errorf("leadswrite: insert: %w", err)
 	}
-	winner, err := q.LeadIDByKey(ctx, gen.LeadIDByKeyParams{WorkspaceID: workspaceID, Company: n.Company, City: n.City})
+	var winner int32
+	err = tx.QueryRow(ctx, `SELECT id FROM leads WHERE workspace_id=$1 AND company=$2 AND city=$3 AND (($4<>'' AND lower(email)=lower($4)) OR ($5<>'' AND lower(linkedin_url)=lower($5)) OR ($4='' AND $5='' AND person_entity_id IS NULL)) ORDER BY id LIMIT 1`, workspaceID, n.Company, n.City, n.Email, n.LinkedinURL).Scan(&winner)
 	if err != nil {
 		return 0, fmt.Errorf("leadswrite: select winner: %w", err)
 	}

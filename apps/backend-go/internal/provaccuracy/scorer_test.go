@@ -2,6 +2,7 @@ package provaccuracy
 
 import (
 	"encoding/json"
+	"math"
 	"os"
 	"strings"
 	"testing"
@@ -84,7 +85,8 @@ func TestNormalizeMatchFreshness(t *testing.T) {
 	}
 	today := day(t, "2026-10-28")
 	for _, c := range v.Freshness {
-		if got := Freshness(val(t, c.AsOf), today); got != c.Fresh {
+		// libm may differ by one ULP on arm64; the scoring contract is numerical.
+		if got := Freshness(val(t, c.AsOf), today); math.Abs(got-c.Fresh) > 1e-15 {
 			t.Errorf("Freshness(%s) = %v, want %v", c.AsOf, got, c.Fresh)
 		}
 	}

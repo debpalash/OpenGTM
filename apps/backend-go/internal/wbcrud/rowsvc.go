@@ -384,8 +384,8 @@ func (s *Service) PatchRow(ctx context.Context, tx pgx.Tx, ws string, w Workbook
 	data := rowDataObj(rows[0].Data)
 	changed := ChangedRowFields(data, updates)
 	if changed.Len() > 0 {
-		n, err := gen.New(tx).PatchWorkbookRowsData(ctx, gen.PatchWorkbookRowsDataParams{
-			WorkbookID: w.ID, RowIds: []int64{rowID}, Datas: []string{PyDumps(mergeRowData(data, changed), false)},
+		n, err := patchWorkbookRows(ctx, tx, gen.PatchWorkbookRowsDataParams{
+			WorkbookID: w.ID, RowIds: []int64{rowID}, Datas: []string{PyDumps(changed, false)},
 		})
 		if err != nil {
 			return RowPatch{}, nil, err
@@ -474,11 +474,11 @@ func (s *Service) BulkPatchRows(ctx context.Context, tx pgx.Tx, ws string, w Wor
 	for _, p := range work {
 		if p.changed.Len() > 0 {
 			writeIDs = append(writeIDs, p.id)
-			writeDatas = append(writeDatas, PyDumps(mergeRowData(p.data, p.changed), false))
+			writeDatas = append(writeDatas, PyDumps(p.changed, false))
 		}
 	}
 	if len(writeIDs) > 0 {
-		n, err := gen.New(tx).PatchWorkbookRowsData(ctx, gen.PatchWorkbookRowsDataParams{WorkbookID: w.ID, RowIds: writeIDs, Datas: writeDatas})
+		n, err := patchWorkbookRows(ctx, tx, gen.PatchWorkbookRowsDataParams{WorkbookID: w.ID, RowIds: writeIDs, Datas: writeDatas})
 		if err != nil {
 			return BulkPatch{}, nil, err
 		}
@@ -512,4 +512,30 @@ func (s *Service) BulkPatchRows(ctx context.Context, tx pgx.Tx, ws string, w Wor
 		}
 	}
 	return res, nil, nil
+}
+
+// Carry the exact user delta to the canonical adapter. Comparing stored snapshots
+// cannot detect a deliberate revert to a value that survives in an old snapshot.
+func patchWorkbookRows(ctx context.Context, tx pgx.Tx, p gen.PatchWorkbookRowsDataParams) (int64, error) {
+	patches := make(map[string]json.RawMessage, len(p.RowIds))
+	for i, id := range p.RowIds {
+		patches[strconv.FormatInt(id, 10)] = json.RawMessage(p.Datas[i])
+	}
+	raw, err := json.Marshal(patches)
+	if err != nil {
+		return 0, err
+	}
+	var prior string
+	if err = tx.QueryRow(ctx, `SELECT coalesce(current_setting('opengtm.record_patches',true),'')`).Scan(&prior); err != nil {
+		return 0, err
+	}
+	if _, err = tx.Exec(ctx, `SELECT set_config('opengtm.record_patches',$1,true)`, string(raw)); err != nil {
+		return 0, err
+	}
+	n, err := gen.New(tx).PatchWorkbookRowsData(ctx, p)
+	if err != nil {
+		return n, err
+	}
+	_, err = tx.Exec(ctx, `SELECT set_config('opengtm.record_patches',$1,true)`, prior)
+	return n, err
 }
