@@ -16,7 +16,17 @@ type CopilotSettings struct {
 	MaxAnonStreams     int  // COPILOT_MAX_ANON_STREAMS (default 4): concurrent anonymous chat streams in total
 	TurnTimeoutSeconds int  // COPILOT_TURN_TIMEOUT_SECONDS (default 900)
 	ToolTimeoutSeconds int  // COPILOT_TOOL_TIMEOUT_SECONDS (default 120)
+	// Abuse and spend limits (final security M3). Chat turns per minute per user and per workspace
+	// (COPILOT_CHAT_PER_USER_PER_MINUTE default 20, COPILOT_CHAT_PER_WORKSPACE_PER_MINUTE default 60), and the
+	// workspace's daily LLM budget in USD for chat rounds (COPILOT_LLM_DAILY_BUDGET_USD default 20; 0 disables).
+	// A zero rate (only a hand-built struct) means no limit.
+	ChatPerUserPerMinute      int
+	ChatPerWorkspacePerMinute int
+	LLMDailyBudgetUSD         float64
 }
+
+// defaultLLMDailyBudgetUSD is the per-workspace daily copilot LLM budget when COPILOT_LLM_DAILY_BUDGET_USD is unset.
+const defaultLLMDailyBudgetUSD = 20
 
 func loadCopilot(get func(string) string, pgLeadStore bool) (CopilotSettings, error) {
 	var c CopilotSettings
@@ -49,8 +59,16 @@ func loadCopilot(get func(string) string, pgLeadStore bool) (CopilotSettings, er
 		{&c.MaxAnonStreams, "COPILOT_MAX_ANON_STREAMS", 4, 1000},
 		{&c.TurnTimeoutSeconds, "COPILOT_TURN_TIMEOUT_SECONDS", 900, 86400},
 		{&c.ToolTimeoutSeconds, "COPILOT_TOOL_TIMEOUT_SECONDS", 120, 86400},
+		{&c.ChatPerUserPerMinute, "COPILOT_CHAT_PER_USER_PER_MINUTE", 20, 100000},
+		{&c.ChatPerWorkspacePerMinute, "COPILOT_CHAT_PER_WORKSPACE_PER_MINUTE", 60, 100000},
 	} {
 		if *v.dst, err = intVar(get, v.key, v.def, 1, v.max); err != nil {
+			return c, err
+		}
+	}
+	c.LLMDailyBudgetUSD = defaultLLMDailyBudgetUSD
+	if strings.TrimSpace(get("COPILOT_LLM_DAILY_BUDGET_USD")) != "" {
+		if c.LLMDailyBudgetUSD, err = usdVar(get, "COPILOT_LLM_DAILY_BUDGET_USD"); err != nil {
 			return c, err
 		}
 	}

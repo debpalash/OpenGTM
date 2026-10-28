@@ -8,6 +8,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -25,6 +26,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/spend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
@@ -69,6 +71,11 @@ type chatHandler struct {
 	llmCfg  config.LLMSettings
 	ab      copilot.AmbitionClient
 	tools   *copilotTools // plan 15 WP-COPILOT-TOOLS collaborators (people, autopilot)
+
+	// Abuse and spend limits (final security M3): turns per minute per user and per workspace (nil: no limiter
+	// wired), and the daily LLM budget every round is reserved against (nil: COPILOT_LLM_DAILY_BUDGET_USD=0).
+	userLimit, wsLimit func(w http.ResponseWriter, key string) bool
+	budget             copilot.RoundBudget
 }
 
 func newChatHandler(d Deps) *chatHandler {
@@ -98,6 +105,21 @@ func newChatHandler(d Deps) *chatHandler {
 		h.caps = ssestream.NewCaps(global, perUser)
 	}
 	h.caps.SetAnonLimit(cs.MaxAnonStreams)
+	if d.Limiter != nil {
+		if cs.ChatPerUserPerMinute > 0 {
+			h.userLimit = d.Limiter.Keyed(strconv.Itoa(cs.ChatPerUserPerMinute) + "/minute")
+		}
+		if cs.ChatPerWorkspacePerMinute > 0 {
+			h.wsLimit = d.Limiter.Keyed(strconv.Itoa(cs.ChatPerWorkspacePerMinute) + "/minute")
+		}
+	}
+	if cs.LLMDailyBudgetUSD > 0 && d.Pool != nil {
+		capMicro, err := spend.ExposureFromUSD(cs.LLMDailyBudgetUSD)
+		if err != nil || capMicro <= 0 {
+			capMicro = 1 // an unusable budget refuses every round (fail closed), never unlimited
+		}
+		h.budget = &copilot.LedgerBudget{Pool: d.Pool, DailyCapMicroUSD: capMicro}
+	}
 	if d.Registry != nil && d.Envelope != nil && d.Pool != nil {
 		h.settings = &settings.App{Store: secrets.NewPgStore(d.Pool), Env: d.Envelope, Secret: d.Registry.SecretSet(), Getenv: d.getenv()}
 	}
@@ -411,6 +433,13 @@ func (h *chatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		aerr.Write(w)
 		return
 	}
+	// Turns per minute, per user then per workspace, before any side effect (429 with Retry-After).
+	if h.userLimit != nil && res.UserID != nil && !h.userLimit(w, "copilot-user:"+strconv.Itoa(int(*res.UserID))) {
+		return
+	}
+	if h.wsLimit != nil && !h.wsLimit(w, "copilot-ws:"+res.WorkspaceID) {
+		return
+	}
 	if r.ContentLength > h.maxBody {
 		httpx.Detail(w, http.StatusRequestEntityTooLarge, "Request body too large")
 		return
@@ -456,7 +485,7 @@ func (h *chatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	tn := &copilot.Turn{
 		Deps: copilot.Deps{Pool: h.d.Pool, Settings: h.settings, ToolTimeout: h.toolTimeout,
-			TurnTimeout: h.turnTimeout, Log: h.log},
+			TurnTimeout: h.turnTimeout, Log: h.log, Budget: h.budget},
 		WS: res.WorkspaceID, Slug: res.Slug, UID: res.UserID, ConvID: convID, Auth: res,
 		OpenFault: func() bool { return !lazy.Started() },
 	}

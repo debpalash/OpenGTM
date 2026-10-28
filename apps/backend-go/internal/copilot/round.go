@@ -41,8 +41,12 @@ type roundResult struct {
 // frame ends the round with the calls and the provider cursor. A stream that ends without a terminal
 // frame, or any protocol fault, becomes a turnErr (one fixed error frame and [DONE]).
 func (t *Turn) round(ctx context.Context, w *ssestream.Writer, rq RoundRequest) (roundResult, error) {
-	st, err := t.openRound(ctx, rq)
+	st, err := t.meteredRound(ctx, rq)
 	if err != nil {
+		var te *turnErr
+		if errors.As(err, &te) && ctx.Err() == nil {
+			return roundResult{}, te // the budget's own error frame
+		}
 		return roundResult{}, t.streamErr(ctx, err)
 	}
 	defer st.Close()

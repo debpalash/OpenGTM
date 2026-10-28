@@ -56,6 +56,8 @@ type Deps struct {
 	Engine *Engine
 	// Rounds overrides how llm rounds run (tests); nil runs them on Engine.LLM.
 	Rounds RoundFunc
+	// Budget admits every llm round against the workspace's daily LLM budget (final security M3); nil: no budget.
+	Budget RoundBudget
 	// Native, when set, is consulted first for every tool (tests); handled=false continues with the Go
 	// implementations (ExecNative, then the engine tools).
 	Native NativeFunc
