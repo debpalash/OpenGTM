@@ -120,3 +120,34 @@ func TestCopilotMaxAnonStreams(t *testing.T) {
 		}
 	}
 }
+
+// Final security M3: chat rate limits per user and per workspace, and a daily LLM budget per workspace.
+func TestCopilotChatLimitsAndBudget(t *testing.T) {
+	c, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	f := c.Flags.Copilot
+	if f.ChatPerUserPerMinute != 20 || f.ChatPerWorkspacePerMinute != 60 || f.LLMDailyBudgetUSD != 20 {
+		t.Fatalf("defaults: %+v", f)
+	}
+	c, err = loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "COPILOT_CHAT_PER_USER_PER_MINUTE": "5",
+		"COPILOT_CHAT_PER_WORKSPACE_PER_MINUTE": "9", "COPILOT_LLM_DAILY_BUDGET_USD": "2.5"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	f = c.Flags.Copilot
+	if f.ChatPerUserPerMinute != 5 || f.ChatPerWorkspacePerMinute != 9 || f.LLMDailyBudgetUSD != 2.5 {
+		t.Fatalf("parsed: %+v", f)
+	}
+	// 0 explicitly disables the budget.
+	if c, err = loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "COPILOT_LLM_DAILY_BUDGET_USD": "0"})); err != nil || c.Flags.Copilot.LLMDailyBudgetUSD != 0 {
+		t.Fatalf("zero budget: %v %+v", err, c.Flags.Copilot)
+	}
+	for k, bad := range map[string]string{"COPILOT_CHAT_PER_USER_PER_MINUTE": "0", "COPILOT_CHAT_PER_WORKSPACE_PER_MINUTE": "abc",
+		"COPILOT_LLM_DAILY_BUDGET_USD": "-1"} {
+		if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", k: bad})); err == nil {
+			t.Errorf("%s=%q accepted", k, bad)
+		}
+	}
+}

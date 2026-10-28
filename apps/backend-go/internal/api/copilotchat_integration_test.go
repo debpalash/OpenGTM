@@ -28,6 +28,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/copilot"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
@@ -213,6 +214,10 @@ type chatOpts struct {
 	configure  func(*copilot.Turn)
 	rounds3    bool
 	maxStreams int
+	// final security M3
+	limiter                *ratelimit.Limiter
+	perUserRate, perWSRate int
+	budgetUSD              float64
 }
 
 func newChatEnv(t *testing.T, o chatOpts) *chatEnv {
@@ -232,12 +237,13 @@ func newChatEnv(t *testing.T, o chatOpts) *chatEnv {
 	if o.maxBody > 0 {
 		cs.MaxBodyBytes = o.maxBody
 	}
+	cs.ChatPerUserPerMinute, cs.ChatPerWorkspacePerMinute, cs.LLMDailyBudgetUSD = o.perUserRate, o.perWSRate, o.budgetUSD
 	env, err := secrets.NewEnvelope(secrets.Config{MasterKey: "copilot-chat-master", AppEnv: "dev"}, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	d := Deps{Pool: le.pool, Signer: testSigner, Identity: le.st, Flags: config.Flags{PGLeadStore: true, Copilot: cs},
-		ChatStreams: caps, Registry: testRegistry(t), Envelope: env,
+		ChatStreams: caps, Registry: testRegistry(t), Envelope: env, Limiter: o.limiter,
 		Log: slog.New(slog.NewTextHandler(logs, &slog.HandlerOptions{Level: slog.LevelDebug}))}
 	h := newChatHandler(d)
 	if !h.native {
