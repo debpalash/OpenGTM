@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -145,11 +146,67 @@ func sameURL(a, b string) bool {
 	return ua.Scheme == ub.Scheme && ua.Host == ub.Host && ua.EscapedPath() == ub.EscapedPath() && reflect.DeepEqual(ua.Query(), ub.Query())
 }
 
+// searchFailDeviation rewrites the expected side of a recorded HubSpot/Salesforce scenario in which an email
+// search answered non-200 and Python went on to create. Go fails that member at the search (commit 092a609d: no
+// duplicate create): the create request and its scripted response are dropped and the delivery error is the
+// search failure. Python's behaviour (duplicate create) is not mirrored.
+func searchFailDeviation(sc *adapterScenario) {
+	typ := sc.Input.Destination.Type
+	prefix, isSearch := "", func(r recReq) bool { return false }
+	switch typ {
+	case "hubspot":
+		prefix = "HubSpot contact search failed (retryable): "
+		isSearch = func(r recReq) bool { return strings.HasSuffix(r.URL, "/contacts/search") }
+	case "salesforce":
+		prefix = "Salesforce Lead search failed (retryable): "
+		isSearch = func(r recReq) bool { return r.Method == "GET" && strings.Contains(r.URL, "/query") }
+	default:
+		return
+	}
+	reqs, script := sc.Output.Requests, sc.Input.HTTP
+	var keepReq []recReq
+	var keepScript []httpItem
+	for i := 0; i < len(reqs); i++ {
+		keepReq = append(keepReq, reqs[i])
+		if i < len(script) {
+			keepScript = append(keepScript, script[i])
+		}
+		if !isSearch(reqs[i]) || i >= len(script) || script[i].Status == 200 || i+1 >= len(reqs) {
+			continue
+		}
+		body := ""
+		if script[i].Text != nil {
+			body = *script[i].Text
+		} else if len(script[i].JSON) > 0 {
+			body = string(script[i].JSON)
+		}
+		msg := prefix + "HTTP " + strconv.Itoa(script[i].Status) + ": " + body
+		// the search request names the lead's email; the delivery of that member carries the error
+		for _, m := range sc.Input.Members {
+			var snap struct {
+				Email string `json:"email"`
+			}
+			_ = json.Unmarshal(m.Snapshot, &snap)
+			if snap.Email == "" || !strings.Contains(string(reqs[i].JSON), `"`+snap.Email+`"`) && !strings.Contains(reqs[i].URL, url.QueryEscape(snap.Email)) {
+				continue
+			}
+			for d := range sc.Output.Deliveries {
+				if sc.Output.Deliveries[d].LeadID == m.LeadID {
+					sc.Output.Deliveries[d].Error = &msg
+				}
+			}
+		}
+		i++ // the create that followed the failed search is never sent
+	}
+	sc.Output.Requests, sc.Input.HTTP = keepReq, keepScript
+}
+
 func TestAdapterSyncMatchesPythonTranscripts(t *testing.T) {
 	scs := loadAdapterScenarios(t)
 	seen := map[string]bool{}
 	for _, sc := range scs {
 		sc := sc
+		searchFailDeviation(&sc)
 		seen[sc.Input.Destination.Type] = true
 		t.Run(sc.Name, func(t *testing.T) {
 			in := sc.Input

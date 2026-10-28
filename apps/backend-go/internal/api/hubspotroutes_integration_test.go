@@ -251,9 +251,46 @@ var hubspotLimitDeviations = map[string]string{
 	"sync_limit_100000": "body", "sync_limit_negative": "body", "contacts_limit_100000": "query",
 }
 
+// Fixtures recorded when a failed email search fell through to a create. Go fails the member at the
+// search (commit 092a609d: no duplicate create), so each per-lead error gains the search-failed prefix.
+var hubspotSearchFailDeviations = map[string]bool{"sync_revoked_token_all_fail": true}
+
+const hubspotSearchFailPrefix = "HubSpot contact search failed (retryable): "
+
+// applySearchFailDeviation rewrites the expected side of a recorded sync response: "Lead N: HTTP ..." becomes
+// "Lead N: HubSpot contact search failed (retryable): HTTP ...".
+func applySearchFailDeviation(t *testing.T, fx *contract.Fixture) {
+	t.Helper()
+	var body struct {
+		Created     int      `json:"created"`
+		Updated     int      `json:"updated"`
+		Failed      int      `json:"failed"`
+		TotalSynced int      `json:"total_synced"`
+		Errors      []string `json:"errors"`
+	}
+	if err := json.Unmarshal(fx.Response.Body, &body); err != nil {
+		t.Fatal(err)
+	}
+	for i, e := range body.Errors {
+		head, rest, ok := strings.Cut(e, ": ")
+		if !ok {
+			t.Fatalf("unexpected recorded error %q", e)
+		}
+		body.Errors[i] = head + ": " + hubspotSearchFailPrefix + rest
+	}
+	b, err := json.Marshal(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fx.Response.Body = b
+}
+
 func (e hubspotEnv) replay(t *testing.T, name string) {
 	t.Helper()
 	fx := contract.Load(t, "hubspot/"+name)
+	if hubspotSearchFailDeviations[name] {
+		applySearchFailDeviation(t, &fx)
+	}
 	who, ws := hubspotActor(name)
 	_, got := e.call(who, ws, fx.Request.Method, fx.Request.Path, fixtureBody(fx))
 	if loc, dev := hubspotLimitDeviations[name]; dev {
