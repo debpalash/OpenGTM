@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -83,7 +84,9 @@ func (r *replay) RoundTrip(req *http.Request) (*http.Response, error) {
 	out := []byte{}
 	ct := "text/plain; charset=utf-8"
 	if len(item.JSON) > 0 {
-		out, ct = item.JSON, "application/json"
+		var b bytes.Buffer
+		_ = json.Compact(&b, item.JSON) // httpx's json= body is compact
+		out, ct = b.Bytes(), "application/json"
 	} else if item.Text != nil {
 		out = []byte(*item.Text)
 	}
@@ -209,6 +212,9 @@ func TestAdapterSyncMatchesPythonTranscripts(t *testing.T) {
 			}
 			for i, w := range out.Requests {
 				g := rp.reqs[i]
+				// Deviation (Python bug): sheets.py put spreadsheet_id into the path unquoted, so a "/" or ".." in an
+				// editor-supplied id addressed another API path. Go quotes it like every other path segment.
+				w.URL = strings.Replace(w.URL, "/spreadsheets/sheet/2/", "/spreadsheets/sheet%2F2/", 1)
 				if g.Method != w.Method || !sameURL(g.URL, w.URL) {
 					t.Errorf("request %d: %s %s, want %s %s", i, g.Method, g.URL, w.Method, w.URL)
 				}
