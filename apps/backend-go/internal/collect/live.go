@@ -146,6 +146,12 @@ func (e LiveEnrich) Provider(ctx context.Context, ws, name string, l *Lead) (Pro
 	if timeout <= 0 {
 		timeout = 120 * time.Second
 	}
+	// Paid provider stages reserve in the workspace spend ledger: one scope per collection job and lead.
+	run, row := "collect:"+l.CollectionJobID, "lead:"+or(l.Website, l.Company)
+	if l.CollectionJobID == "" {
+		run = "collect:" + randHex(8)
+	}
+	ctx = provcall.WithSpendScope(ctx, provcall.SpendScope{Run: run, Row: row})
 	res, err := e.Caller.Call(ctx, provcall.Call{CallID: "collect-" + randHex(12), Provider: name,
 		WorkspaceID: ws, Input: input, Timeout: timeout})
 	if err != nil {
