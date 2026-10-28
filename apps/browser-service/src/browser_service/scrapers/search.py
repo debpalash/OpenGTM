@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
 from ..egress import UpstreamProxy
@@ -192,6 +194,14 @@ def classify_search_error(exc: BaseException) -> str:
     return "failed"
 
 
+# ddgs threads cannot be cancelled: after a timeout the worker keeps running until
+# ddgs' own socket timeout. A dedicated pool plus a slot counter released only when
+# the thread really finishes bounds the total, however many requests time out.
+MAX_DDGS_WORKERS = 4
+_ddgs_pool = ThreadPoolExecutor(max_workers=MAX_DDGS_WORKERS, thread_name_prefix="ddgs")
+_ddgs_slots = threading.BoundedSemaphore(MAX_DDGS_WORKERS)
+
+
 async def ddgs_search(
     deps: Deps,
     method: str,
@@ -207,12 +217,24 @@ async def ddgs_search(
 ) -> list[dict]:
     """One ddgs query over the egress proxy (chained to ``upstream`` when the
     caller picked one). Raises on failure (see _classify)."""
-    session = deps.proxy.open_session(deps.settings.max_download_bytes, upstream=upstream)
+    if not _ddgs_slots.acquire(blocking=False):
+        raise ServiceError("busy")
+    try:
+        session = deps.proxy.open_session(deps.settings.max_download_bytes, upstream=upstream)
+    except BaseException:
+        _ddgs_slots.release()
+        raise
     proxy_url = deps.proxy.proxy_url(session)
     timeout = max(1, min(deps.settings.search_timeout_s, int(deadline.left())))
     backends = deps.settings.search_backends.strip() if backend is _UNSET else backend
 
     def run() -> list[dict]:
+        try:
+            return _run()
+        finally:
+            _ddgs_slots.release()
+
+    def _run() -> list[dict]:
         from ddgs import DDGS
 
         kwargs: dict = {"max_results": max_results}
@@ -228,8 +250,10 @@ async def ddgs_search(
         return list(getattr(d, method)(search, **kwargs))
 
     try:
-        # The worker thread cannot be cancelled; ddgs' own timeout bounds it.
-        return await asyncio.wait_for(asyncio.to_thread(run), timeout=max(1.0, deadline.left()))
+        # The worker thread cannot be cancelled; ddgs' own timeout bounds it and
+        # the slot stays held until it exits.
+        fut = asyncio.get_running_loop().run_in_executor(_ddgs_pool, run)
+        return await asyncio.wait_for(fut, timeout=max(1.0, deadline.left()))
     finally:
         deps.proxy.close_session(session)
 

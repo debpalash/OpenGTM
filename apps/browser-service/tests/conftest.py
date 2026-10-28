@@ -52,7 +52,7 @@ class FakePage:
 
     async def evaluate(self, js):
         self.pool.calls.append(("evaluate", js))
-        return 1000
+        return getattr(self.pool, "scroll_height", 1000)
 
     def locator(self, selector):
         self.pool.calls.append(("locator", selector))

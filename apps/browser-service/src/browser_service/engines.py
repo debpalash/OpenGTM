@@ -26,7 +26,7 @@ import logging
 import time
 from dataclasses import dataclass
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 
 from .browser import BrowserUnavailable
 from .config import Settings
@@ -214,6 +214,13 @@ async def screenshot(deps: Deps, req: ScreenshotRequest, deadline: Deadline) -> 
             if req.wait_ms:
                 await page.wait_for_timeout(min(req.wait_ms, deadline.left() * 1000))
             kw: dict[str, Any] = {"type": req.format, "full_page": req.full_page, "timeout": deadline.ms()}
+            if req.full_page:
+                try:
+                    height = int(await page.evaluate(_SCROLL_HEIGHT_JS))
+                except Exception:
+                    height = MAX_SCREENSHOT_HEIGHT
+                if height > MAX_SCREENSHOT_HEIGHT:
+                    kw["clip"] = {"x": 0, "y": 0, "width": req.viewport_width, "height": MAX_SCREENSHOT_HEIGHT}
             if req.format == "jpeg":
                 kw["quality"] = req.quality
             try:
@@ -236,6 +243,28 @@ async def screenshot(deps: Deps, req: ScreenshotRequest, deadline: Deadline) -> 
         bytes=len(img),
         elapsed_ms=deadline.elapsed_ms(),
     )
+
+
+# Full-page captures are clipped to this many CSS pixels of height; the encoded
+# image is also bounded by max_response_bytes.
+MAX_SCREENSHOT_HEIGHT = 16384
+MAX_REDIRECTS = 6
+_SCROLL_HEIGHT_JS = "Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0)"
+_CROSS_HOST_STRIP = ("cookie", "authorization", "proxy-authorization")
+
+
+def _hop_headers(prev: dict[str, str], cookies: list[Cookie], prev_host: str, host: str) -> dict[str, str]:
+    """Headers for one redirect hop. Credentials never survive a host change;
+    cookies are recomputed from the per-domain jar for the new host."""
+    out = dict(prev)
+    if host != prev_host:
+        out = {k: v for k, v in out.items() if k.lower() not in _CROSS_HOST_STRIP}
+    if cookies:
+        out.pop("Cookie", None)
+        cookie = _cookie_header(cookies, host)
+        if cookie:
+            out["Cookie"] = cookie
+    return out
 
 
 def _cookie_header(cookies: list[Cookie], host: str) -> str:
@@ -262,27 +291,38 @@ async def render_impersonate(deps: Deps, req: RenderRequest, deadline: Deadline)
         headers["Cookie"] = cookie
     try:
         async with AsyncSession(impersonate="chrome", trust_env=False) as s:
-            async with s.stream(
-                "GET",
-                req.url,
-                headers=headers,
-                proxy=deps.proxy.proxy_url(session),
-                allow_redirects=True,
-                max_redirects=6,
-                timeout=max(1.0, deadline.left()),
-            ) as r:
-                marker = r.headers.get(EGRESS_HEADER) or ""
-                if marker == "blocked":
-                    raise ServiceError("egress_blocked")
-                if marker in UPSTREAM_MARKERS:
-                    raise ServiceError("upstream_error")
-                buf = bytearray()
-                async for chunk in r.aiter_content():
-                    buf += chunk
-                    if len(buf) > raw_cap:
-                        break
-                status, final_url = r.status_code, str(r.url)
-                enc = r.charset or r.encoding or "utf-8"
+            cur_url, cur_host = req.url, host
+            for hop in range(MAX_REDIRECTS + 1):
+                async with s.stream(
+                    "GET",
+                    cur_url,
+                    headers=headers,
+                    proxy=deps.proxy.proxy_url(session),
+                    allow_redirects=False,
+                    timeout=max(1.0, deadline.left()),
+                ) as r:
+                    marker = r.headers.get(EGRESS_HEADER) or ""
+                    if marker == "blocked":
+                        raise ServiceError("egress_blocked")
+                    if marker in UPSTREAM_MARKERS:
+                        raise ServiceError("upstream_error")
+                    location = r.headers.get("location")
+                    if r.status_code in (301, 302, 303, 307, 308) and location:
+                        if hop == MAX_REDIRECTS:
+                            raise ServiceError("navigation_failed")
+                        nxt = urljoin(cur_url, location)
+                        nxt_host, _ = _check(deps, nxt)
+                        headers = _hop_headers(headers, req.cookies, cur_host, nxt_host)
+                        cur_url, cur_host = nxt, nxt_host
+                        continue
+                    buf = bytearray()
+                    async for chunk in r.aiter_content():
+                        buf += chunk
+                        if len(buf) > raw_cap:
+                            break
+                    status, final_url = r.status_code, str(r.url) or cur_url
+                    enc = r.charset or r.encoding or "utf-8"
+                    break
         try:
             html = bytes(buf).decode(enc, errors="replace")
         except LookupError:
