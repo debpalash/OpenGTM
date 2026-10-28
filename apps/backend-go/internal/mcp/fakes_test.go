@@ -7,6 +7,8 @@ import (
 	"sync"
 
 	"github.com/jackc/pgx/v5"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 )
 
 // In-memory fakes of the ports for tool and pipeline tests. Zero values work;
@@ -82,13 +84,16 @@ type fakeEnrich struct {
 	PyOut  map[string]json.RawMessage // by provider
 	Err    error
 	Calls  []string
+	Scopes []provcall.SpendScope // the ledger scope each Py call carried
 }
 
 func (f *fakeEnrich) VerifyEmail(_ context.Context, _, email string) (VerifyResult, error) {
 	f.Calls = append(f.Calls, "verify:"+email)
 	return f.Verify, f.Err
 }
-func (f *fakeEnrich) Py(_ context.Context, _, provider string, _ any) (json.RawMessage, error) {
+func (f *fakeEnrich) Py(ctx context.Context, _, provider string, _ any) (json.RawMessage, error) {
+	sc, _ := provcall.SpendScopeFrom(ctx)
+	f.Scopes = append(f.Scopes, sc)
 	f.Calls = append(f.Calls, "py:"+provider)
 	return f.PyOut[provider], f.Err
 }

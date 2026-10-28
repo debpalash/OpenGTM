@@ -490,3 +490,28 @@ func TestEnrichLogsNeverCarryProviderErrorText(t *testing.T) {
 		t.Fatalf("error kind not logged: %s", logs)
 	}
 }
+
+// enrich_company's provider calls are paid work of the workspace spend ledger: they carry one scope per tool call
+// and lead.
+func TestEnrichCompanyProviderCallsCarryASpendScope(t *testing.T) {
+	r := newEnrichRig(t, Config{})
+	site := "acme.example.com"
+	r.leads.Rows[1].Website = &site
+	r.pyOut("website_scraper", `{}`)
+	r.pyOut("ddg_email", `{}`)
+	if _, err := r.call(t, "enrich_company", Args{"lead_id": 1.0}); err != nil {
+		t.Fatal(err)
+	}
+	if len(r.enrich.Scopes) < 2 {
+		t.Fatalf("calls %v", r.enrich.Calls)
+	}
+	first := r.enrich.Scopes[0]
+	if !strings.HasPrefix(first.Run, "mcp:enrich_company:") || first.Row != "lead:1" {
+		t.Fatalf("scope %+v", first)
+	}
+	for _, s := range r.enrich.Scopes {
+		if s != first {
+			t.Fatalf("one tool call must share one scope: %+v vs %+v", s, first)
+		}
+	}
+}
