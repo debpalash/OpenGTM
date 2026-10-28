@@ -88,8 +88,9 @@ func TestLatestVersionCoversRequired(t *testing.T) {
 	if v < BaselineVersion {
 		t.Fatalf("latest %d < baseline", v)
 	}
-	if config.RequiredGoSchemaVersion < BaselineVersion || config.RequiredGoSchemaVersion > v {
-		t.Fatalf("config.RequiredGoSchemaVersion %d outside [%d, %d]", config.RequiredGoSchemaVersion, BaselineVersion, v)
+	// Final correctness I6: the startup gate is always the latest migration (add a migration, bump the constant).
+	if config.RequiredGoSchemaVersion != v {
+		t.Fatalf("config.RequiredGoSchemaVersion %d != latest embedded migration %d", config.RequiredGoSchemaVersion, v)
 	}
 	if config.RequiredGoSchemaRevision != BaselineAlembicRevision {
 		t.Fatalf("config.RequiredGoSchemaRevision %q != baseline Alembic revision %q", config.RequiredGoSchemaRevision, BaselineAlembicRevision)
