@@ -462,6 +462,7 @@ func TestTokenResolvedPerWorkspace(t *testing.T) {
 }
 
 func TestGlobalFallbackMatchesGetSecret(t *testing.T) {
+	t.Setenv("ALLOW_GLOBAL_CREDENTIAL_FALLBACK", "true") // the opt-in single-tenant chain (final security Low 5)
 	// workspace secret > global app setting > environment, exactly secrets.Resolver.Get
 	ctx := context.Background()
 	st := newStore()

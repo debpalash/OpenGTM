@@ -307,6 +307,7 @@ func TestTenantCredentialsIsolated(t *testing.T) {
 }
 
 func TestSalesforceGlobalFallbackMatchesGetSecret(t *testing.T) {
+	t.Setenv("ALLOW_GLOBAL_CREDENTIAL_FALLBACK", "true") // the opt-in single-tenant chain (final security Low 5)
 	ctx := context.Background()
 	st := newStore()
 	res, env := newResolver(t, st, map[string]string{
