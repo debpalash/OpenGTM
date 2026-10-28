@@ -215,6 +215,7 @@ func (e *env) seedBasic(t *testing.T) {
 	t.Helper()
 	e.exec(t, `INSERT INTO outreach_sequences (id,workspace_id,name,description,steps,status,daily_limit,send_window_start,send_window_end,send_window_tz,consent_basis)
 	  VALUES ('seq-1',$1,'Seq','',$2::json,'active',50,0,24,'UTC','legit')`, e.ws, defSteps)
+	testpg.FreeIDs(t, "outreach_enrollments", 1) // literal id, below testpg.SeqFloor
 	e.exec(t, `INSERT INTO outreach_enrollments (id,workspace_id,sequence_id,lead_id,to_email_snapshot,current_step,status,next_send_at,sent_count,soft_bounce_count,error)
 	  VALUES (1,$1,'seq-1',1,'ann@example.com',0,'pending',$2,0,0,'')`, e.ws, fixedNow)
 }
@@ -349,6 +350,7 @@ func (e *env) seedFlow(t *testing.T, s flowSetup, now time.Time) {
 			next = *p
 		}
 		id := intv(r, "id", 1)
+		testpg.FreeIDs(t, "outreach_enrollments", int64(id)) // recorded id, below testpg.SeqFloor
 		e.exec(t, `INSERT INTO outreach_enrollments (id,workspace_id,sequence_id,lead_id,to_email_snapshot,current_step,status,next_send_at,sent_count,soft_bounce_count,error)
 		  VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, id, e.ws, r["sequence_id"], intv(r, "lead_id", id), r["to_email"], intv(r, "current_step", 0),
 			str(r, "status", "pending"), next, intv(r, "sent_count", 0), intv(r, "soft_bounce_count", 0), str(r, "error", ""))

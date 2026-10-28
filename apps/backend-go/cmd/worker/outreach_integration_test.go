@@ -136,6 +136,7 @@ func newOutEnv(t *testing.T, cfg config.Config, noCaps bool) *outEnv {
 func (e *outEnv) seedSend(t *testing.T) string {
 	t.Helper()
 	idem := outreachsend.SequenceStepIdem(wsOut, "seq-1", 1, 0)
+	testpg.FreeIDs(t, "outreach_enrollments", 1) // literal id, below testpg.SeqFloor
 	if err := tenancy.InWorkspace(e.ctx, e.pool, wsOut, func(tx pgx.Tx) error {
 		if _, err := tx.Exec(e.ctx, `INSERT INTO outreach_sequences (id,workspace_id,name,description,steps,status,daily_limit,send_window_start,send_window_end,send_window_tz,consent_basis)
 		  VALUES ('seq-1',$1,'Seq','',$2::json,'active',50,0,24,'UTC','legit')`, wsOut,

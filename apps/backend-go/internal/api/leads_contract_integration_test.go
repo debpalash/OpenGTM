@@ -38,11 +38,9 @@ func newLeadsEnv(t *testing.T) leadsEnv {
 	e := leadsEnv{mcpEnv{env: env{h: r.Handler(), st: st}, pool: pool}}
 	e.purge()
 	t.Cleanup(e.purge)
+	// seedLeads inserts the recorded ids 1-18 explicitly. They are below testpg.SeqFloor, where the leads sequence
+	// never returns, so default-id inserts cannot collide and the sequence is never moved.
 	e.seedLeads(t)
-	// seedLeads inserts ids 1-18 explicitly and other test files leave rows with explicit ids:
-	// move the serial above every existing id (never backwards) so default-id inserts cannot collide.
-	ownerExec(t, `SELECT setval(pg_get_serial_sequence('leads','id'),
-		GREATEST(1000, (SELECT COALESCE(max(id), 0) FROM leads), (SELECT last_value FROM leads_id_seq)))`)
 	return e
 }
 
@@ -76,6 +74,11 @@ func (e leadsEnv) seedLeads(t *testing.T) {
 	if err := json.Unmarshal(raw, &rows); err != nil {
 		t.Fatal(err)
 	}
+	var ids []int64
+	for _, r := range rows {
+		ids = append(ids, int64(r["id"].(float64)))
+	}
+	testpg.FreeIDs(t, "leads", ids...) // rows another test left on the recorded ids
 	byWS := map[string][]map[string]any{}
 	for _, r := range rows {
 		ws := r["workspace_id"].(string)
@@ -274,9 +277,10 @@ func leftoverLead(t *testing.T, id int) {
 }
 
 // The leads id serial must never hand out an id that already exists (seedLeads inserts ids 1-18
-// explicitly and other test files leave rows with explicit ids), whatever order tests run in.
+// explicitly and other test files leave rows with explicit ids), whatever order tests run in: explicit literal
+// ids sit below testpg.SeqFloor and the sequence (raised by NewAppPool, never lowered) stays above them.
 func TestLeadsEnvSequenceClearsExistingIds(t *testing.T) {
-	ownerExec(t, `SELECT setval(pg_get_serial_sequence('leads','id'), 1, false)`)
+	testpg.FreeIDs(t, "leads", 1001, 5000)
 	leftoverLead(t, 1001)
 	leftoverLead2 := func() {
 		ownerExec(t, `INSERT INTO leads (id, workspace_id, company) VALUES (5000, 'ws-leftover-p05', 'leftover2')`)

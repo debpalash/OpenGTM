@@ -96,24 +96,14 @@ func audLoadSeed(t *testing.T) {
 			}
 			rows, _ := json.Marshal(td.Rows)
 			list := strings.Join(td.Columns, ", ")
+			freeSeedIDs(t, tbl, td.Columns, rows)
 			if _, err := c.Exec(ctx, fmt.Sprintf(`INSERT INTO %[1]s (%[2]s) SELECT %[2]s FROM json_populate_recordset(null::%[1]s, $1::json)`, tbl, list), string(rows)); err != nil {
 				t.Fatalf("seed %s/%s: %v", ws, tbl, err)
 			}
 		}
 	}
-	// The seed inserts explicit serial ids: move every sequence past them so generated ids never collide.
-	for _, tbl := range audSeedTables {
-		var seq *string
-		if err := c.QueryRow(ctx, `SELECT CASE WHEN EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = $1 AND column_name = 'id' AND table_schema = 'public') THEN pg_get_serial_sequence($1, 'id') END`, tbl).Scan(&seq); err != nil {
-			t.Fatal(err)
-		}
-		if seq == nil {
-			continue
-		}
-		if _, err := c.Exec(ctx, fmt.Sprintf(`SELECT setval($1, GREATEST(1000, (SELECT coalesce(max(id), 0) FROM %s)))`, tbl), *seq); err != nil {
-			t.Fatalf("setval %s: %v", tbl, err)
-		}
-	}
+	// The seed's explicit serial ids are recorded ids below testpg.SeqFloor (freeSeedIDs checks), where no sequence
+	// returns: generated ids never collide and no sequence is moved.
 }
 
 func newAudEnv(t *testing.T, vars ...map[string]string) audEnv {

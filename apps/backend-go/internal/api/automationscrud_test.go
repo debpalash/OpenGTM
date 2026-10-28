@@ -183,9 +183,6 @@ func (e autoEnv) seedAuto(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	for _, tbl := range []string{"workbook_rows", "triggers", "trigger_runs", "trigger_action_results"} {
-		advanceSeedSeq(t, tbl)
-	}
 	if err := secrets.NewPgStore(e.pool).SetWorkspaceSetting(ctx, "ws-alpha", autoSecretName, "test-only-not-a-secret"); err != nil {
 		t.Fatal(err)
 	}

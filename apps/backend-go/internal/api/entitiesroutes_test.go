@@ -85,6 +85,7 @@ func TestCompanyJSONMatchesToAPI(t *testing.T) {
 	e.entDomain(t, "ws-alpha", "ent-alpha-1", "Acme Corporation", "acme01.example.com", 1)
 	e.entDomain(t, "ws-alpha", "ent-alpha-2", "Acme Corp", "acme-corp.example.com", 1)
 	// The recorded review pair has id 1; pin it so the fixture compares byte for byte.
+	testpg.FreeIDs(t, "entity_review_pairs", 1)
 	ctx := context.Background()
 	if err := tenancy.InWorkspace(ctx, e.pool, "ws-alpha", func(tx pgx.Tx) error {
 		_, err := tx.Exec(ctx, `INSERT INTO entity_review_pairs (id, entity_id, candidate, score, reason, status, created_at, workspace_id)

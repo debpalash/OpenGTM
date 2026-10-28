@@ -20,6 +20,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachstore"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
 type pubEnv struct {
@@ -45,6 +46,9 @@ func newPubEnv(t *testing.T, opt pubOpts) pubEnv {
 	e.member(t, "ws-alpha", e.mustUserByName(t, "erin").ID, "editor")
 	pubPurge()
 	t.Cleanup(pubPurge)
+	// Recorded ids sit below testpg.SeqFloor, where no sequence returns; free them from rows other tests left.
+	testpg.FreeIDs(t, "outreach_enrollments", 1, 11, 12, 13)
+	testpg.FreeIDs(t, "outreach_sends", 1, 2, 12, 13, 14, 15, 16, 17)
 	ownerExec(t, `INSERT INTO outreach_sequences (id, workspace_id, name, description, steps, status, daily_limit, send_window_start,
 		send_window_end, send_window_tz, consent_basis, bounce_count, complaint_count, auto_paused, created_at, updated_at) VALUES
 		('seq-out-a-01','ws-alpha','Three step cold outreach','primary contract sequence',CAST($1 AS json),'draft',50,9,18,'UTC','legitimate_interest',0,0,false,'2026-08-29 08:00:00+00','2026-08-29 08:00:00+00'),
@@ -74,8 +78,6 @@ func newPubEnv(t *testing.T, opt pubOpts) pubEnv {
 	}
 	ownerExec(t, `INSERT INTO outreach_inbound_messages (workspace_id, imap_uid, uidvalidity, source_message_id, matched_send_id, kind, recipient, diagnostic, processed_at)
 		VALUES ('ws-beta','hard|<hook-dup-b@contract.example.com>','webhook','hard|<hook-dup-b@contract.example.com>',17,'hard','beta@zenithrobotics.example.com','webhook','2026-08-29 08:58:00+00')`)
-	ownerExec(t, `SELECT setval(pg_get_serial_sequence('outreach_sends','id'), GREATEST(1000, (SELECT max(id) FROM outreach_sends)))`)
-	ownerExec(t, `SELECT setval(pg_get_serial_sequence('outreach_enrollments','id'), GREATEST(1000, (SELECT max(id) FROM outreach_enrollments)))`)
 
 	d := pubDeps(opt)
 	d.Pool, d.Signer, d.Identity = e.pool, testSigner, e.st

@@ -51,8 +51,6 @@ func newWatchPollEnv(t *testing.T, flags config.Flags) watchPollEnv {
 	e.purge()
 	t.Cleanup(e.purge)
 	e.seedLeads(t)
-	ownerExec(t, `SELECT setval(pg_get_serial_sequence('leads','id'),
-		GREATEST(1000, (SELECT COALESCE(max(id), 0) FROM leads), (SELECT last_value FROM leads_id_seq)))`)
 	e.seed(t, "erin", pythonHash, true, "user", false)
 	e.member(t, "ws-alpha", e.mustUserByName(t, "erin").ID, "editor")
 	seedActiveWorkspace(t, e.leadsEnv, "bob", "ws-beta")

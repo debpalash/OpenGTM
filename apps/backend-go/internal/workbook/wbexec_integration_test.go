@@ -18,6 +18,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -26,6 +27,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/crmpush"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
@@ -352,10 +354,12 @@ func runWbScenario(t *testing.T, ws string, now time.Time, sc wbScenario) {
 	if sc.Row.LeadID != nil {
 		var id int64
 		fp := sc.LeadFP[fmt.Sprint(*sc.Row.LeadID)]
+		// A literal id below testpg.SeqFloor keeps the lead apart from the row serials (above it) in the id remap.
+		leadID := 9_000_000 + wbexecLeadSeq.Add(1)
+		testpg.FreeIDs(e.t, "leads", leadID)
 		e.inWS(ws, func(tx pgx.Tx) error {
-			// An id far from the row serials keeps the row and lead remaps apart.
 			return tx.QueryRow(e.ctx, `INSERT INTO leads (id, workspace_id, company, field_provenance)
-			  VALUES (900000000 + (random() * 1000000)::int, $1, 'Acme', NULLIF($2, '')) RETURNING id`, ws, fp).Scan(&id)
+			  VALUES ($1, $2, 'Acme', NULLIF($3, '')) RETURNING id`, leadID, ws, fp).Scan(&id)
 		})
 		goLead = &id
 		ids[float64(id)] = pyRowLead
@@ -599,3 +603,6 @@ func checkEmitted(t *testing.T, sc wbScenario, ids idMap, em *memEmitter) {
 	}
 	sameJSON(t, "on_rows_changed", got, want)
 }
+
+// wbexecLeadSeq numbers the scenario leads (literal ids 9_000_001.., below testpg.SeqFloor).
+var wbexecLeadSeq atomic.Int64

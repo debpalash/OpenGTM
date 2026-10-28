@@ -116,13 +116,9 @@ func TestStoreRowCRMIDVectors(t *testing.T) {
 		t.Fatalf("only %d vectors", len(v.RowID))
 	}
 	// StoreRowCRMID matches lead_id OR row id (as Python does), and the vectors
-	// use lead_id 7 for rows that must NOT match. On a fresh schema the
-	// workbook_rows sequence hands out id 7 to one of them, so move the
-	// sequence well past every literal lead id the vectors use.
-	if _, err := e.owner.Exec(context.Background(),
-		`SELECT setval(pg_get_serial_sequence('workbook_rows','id'), GREATEST((SELECT last_value FROM workbook_rows_id_seq), 100000))`); err != nil {
-		t.Fatal(err)
-	}
+	// use lead_id 7 for rows that must NOT match. Row ids come from the
+	// workbook_rows sequence, which testpg keeps at or above testpg.SeqFloor,
+	// well past every literal lead id the vectors use.
 	for _, c := range v.RowID {
 		t.Run(c.Name, func(t *testing.T) {
 			e.clear()

@@ -27,6 +27,10 @@ const (
 func setupPool(t *testing.T) (*pgxpool.Pool, context.Context) {
 	t.Helper()
 	pool := testpg.NewAppPool(t, 8)
+	// The tests insert literal row ids 1..500 (the recorded vectors, the job tests' rows) and job 701; free them from
+	// rows another test left in another workspace, out of this workspace's sight.
+	testpg.FreeIDs(t, "workbook_rows", testpg.Span(1, 500)...)
+	testpg.FreeIDs(t, "jobs", 701)
 	ctx := context.Background()
 	clean := func() {
 		for _, w := range []string{wsA, wsB} {

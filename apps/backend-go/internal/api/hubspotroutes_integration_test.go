@@ -191,8 +191,6 @@ func newHubspotEnv(t *testing.T) hubspotEnv {
 	t.Cleanup(e.purgeSecrets)
 	t.Cleanup(e.purge)
 	e.seed(t, "erin", pythonHash, true, "user", false)
-	ownerExec(t, `SELECT setval(pg_get_serial_sequence('leads','id'),
-		GREATEST(1000, (SELECT COALESCE(max(id), 0) FROM leads), (SELECT last_value FROM leads_id_seq)))`)
 	return e
 }
 

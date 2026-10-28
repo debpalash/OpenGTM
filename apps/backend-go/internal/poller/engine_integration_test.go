@@ -109,6 +109,7 @@ func (w eWatch) insert(t *testing.T, ctx context.Context, pool *pgxpool.Pool) {
 
 func eLead(t *testing.T, ctx context.Context, pool *pgxpool.Pool, ws string, id int, company string) {
 	t.Helper()
+	testpg.FreeIDs(t, "leads", int64(8_000_000+id)) // literal id, below testpg.SeqFloor
 	if err := tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
 		_, err := tx.Exec(ctx, `INSERT INTO leads (id, workspace_id, company) VALUES ($1,$2,$3)`, 8_000_000+id, ws, company)
 		return err

@@ -264,6 +264,12 @@ func TestEngineToolsMatchPython(t *testing.T) {
 	clean()
 	t.Cleanup(clean)
 	exec(`INSERT INTO workspaces (id, name, slug) VALUES ($1::varchar, $1::text, $2::text)`, ws, f.Slug)
+	// The recorded lead ids (lead_id_base+n) sit below testpg.SeqFloor; free them from rows other tests left.
+	var leadIDs []int64
+	for _, l := range f.Leads {
+		leadIDs = append(leadIDs, f.Base+int64(l[0].(float64)))
+	}
+	testpg.FreeIDs(t, "leads", leadIDs...)
 	for _, l := range f.Leads {
 		vals := []any{f.Base + int64(l[0].(float64)), ws}
 		for _, v := range l[1:] {

@@ -27,6 +27,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
 // Plan 10 Task 21: the public CRM inbound callback POST /api/audience-destinations/inbound/{destination_id}. Authenticated only
@@ -497,6 +498,25 @@ func TestInboundReplayIndependentOfSequences(t *testing.T) {
 	v := newInbEnv(t)
 	body := `{"external_event_id":"evt-seq","lead_id":5,"fields":{"city":"Bergen"}}`
 	first := v.do("dst-act-hubspot", v.bearer("hub_active"), body)
+	// The shared sequence is rewound only while this test holds the cross-package lock, and put back (never below
+	// where it was, nor below testpg.SeqFloor) even when the test fails.
+	var saved int64
+	if err := wcrudOwnerQueryRow(t, `SELECT last_value FROM leads_id_seq`).Scan(&saved); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		ctx := context.Background()
+		c, err := pgx.Connect(ctx, os.Getenv("TEST_DATABASE_URL"))
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		defer c.Close(ctx)
+		if _, err := c.Exec(ctx, `SELECT setval(pg_get_serial_sequence('leads','id'), GREATEST($1::bigint, (SELECT coalesce(max(id), 0) FROM leads), $2::bigint))`,
+			saved, int64(testpg.SeqFloor)); err != nil {
+			t.Error(err)
+		}
+	})
 	ownerExecT(t, `SELECT setval(pg_get_serial_sequence('leads','id'), 1, false)`)
 	ownerExecT(t, `UPDATE leads SET city = 'Elsewhere' WHERE id = 5 AND workspace_id = 'ws-alpha'`)
 	again := v.do("dst-act-hubspot", v.bearer("hub_active"), body)
@@ -513,7 +533,6 @@ func TestInboundReplayIndependentOfSequences(t *testing.T) {
 	if err := wcrudOwnerQueryRow(t, `SELECT city FROM leads WHERE id = 5 AND workspace_id = 'ws-alpha'`).Scan(&city); err != nil || city != "Elsewhere" {
 		t.Fatalf("replay rewrote the lead: %q %v", city, err)
 	}
-	ownerExecT(t, `SELECT setval(pg_get_serial_sequence('leads','id'), GREATEST(1000, (SELECT max(id) FROM leads)))`)
 }
 
 // TestInboundWorkspaceFromTokenNotHeader: the workspace is the token row's. A forged X-Workspace-Id, a workspace_id in the body

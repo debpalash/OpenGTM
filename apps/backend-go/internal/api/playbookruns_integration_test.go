@@ -16,6 +16,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/playbooks"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
 // newPBRunEnv is the T16 world plus the run routes, the audit middleware and the recorded run and result rows
@@ -125,13 +126,13 @@ func (e pbEnv) seedRuns(t *testing.T) {
 			if strings.HasPrefix(r.RunID, "run-gov-b") {
 				ws = "ws-beta"
 			}
+			testpg.FreeIDs(t, "playbook_results", int64(r.ID)) // recorded id, below testpg.SeqFloor
 			e.exec(t, `INSERT INTO playbook_results (id, workspace_id, run_id, lead_id, status, value, result_metadata, error, attempts, created_at, updated_at)
 				VALUES ($1,$2,$3,$4,$5,$6,$7::json,$8,$9,$10::timestamp,$11::timestamp)`,
 				r.ID, ws, r.RunID, r.LeadID, r.Status, r.Value, string(r.Metadata), r.Error, r.Attempts, r.CreatedAt, r.UpdatedAt)
 		}
 	}
-	// the explicit ids above must not collide with what the engine inserts later
-	e.exec(t, `SELECT setval(pg_get_serial_sequence('playbook_results','id'), GREATEST(1000, (SELECT last_value FROM playbook_results_id_seq), (SELECT coalesce(max(id), 0) FROM playbook_results)))`)
+	// the explicit ids above sit below testpg.SeqFloor: what the engine inserts later takes sequence ids above it
 }
 
 type runCase struct{ name, who, ws string }

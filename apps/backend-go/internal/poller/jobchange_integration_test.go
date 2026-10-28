@@ -53,6 +53,7 @@ func TestMaterializeContactsVectors(t *testing.T) {
 		{17, jcWS, "No Person", nil, sp("https://linkedin.com/in/handle-only")},
 	}
 	for _, s := range seed {
+		testpg.FreeIDs(t, "leads", int64(jcOffset+s.id)) // literal id, below testpg.SeqFloor
 		if err := tenancy.InWorkspace(ctx, pool, s.ws, func(tx pgx.Tx) error {
 			_, err := tx.Exec(ctx, `INSERT INTO leads (id, workspace_id, company, contact_person, linkedin_url) VALUES ($1,$2,$3,$4,$5)`,
 				jcOffset+s.id, s.ws, s.company, s.person, s.li)

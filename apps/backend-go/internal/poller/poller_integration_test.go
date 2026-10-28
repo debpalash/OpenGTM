@@ -708,6 +708,7 @@ func TestReconcileRetryVsFinal(t *testing.T) {
 		}
 		jobNext, _ := time.Parse(time.RFC3339, c.JobNext)
 		if !noJob {
+			testpg.FreeIDs(t, "jobs", 7) // literal id, below testpg.SeqFloor
 			_, err := pool.Exec(ctx, `INSERT INTO jobs (id, executor, type, payload, workspace_id, status, priority, fire_key, next_run_at, max_retries)
 				VALUES (7,'python','watch_poll','{}'::json,$1,$2,1,'watch:p08t9-job7',$3,3)`, wsA, c.JobBefore, jobNext.UTC())
 			if err != nil {

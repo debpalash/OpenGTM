@@ -123,6 +123,7 @@ func (e *utilsEnv) seedLeads(t *testing.T) {
 		id                                                                       int
 		ws, company, city, site, mail, phone, person, spec, size, desc, linkedin string
 	}
+	testpg.FreeIDs(t, "leads", 1, 5, 8, 14, 101, 106) // recorded ids, below testpg.SeqFloor
 	for _, r := range []l{
 		{1, "ws-alpha", "Acme 01", "Austin", "https://acme01.example.com", "info@acme01.example.com", "", "", "", "", "", ""},
 		{5, "ws-alpha", "Nordlicht GmbH", "", "https://nordlicht.example.com", "kontakt@nordlicht.example.com", "", "", "Lighting", "51-200", "Empty city is a real key", ""},
@@ -135,7 +136,6 @@ func (e *utilsEnv) seedLeads(t *testing.T) {
 			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'new','contract','2026-08-29T10:00:00','2026-08-29T10:00:00')`,
 			r.id, r.ws, r.company, r.city, r.site, r.mail, r.phone, r.person, r.spec, r.size, r.desc, r.linkedin)
 	}
-	advanceSeq(t, "leads")
 }
 
 func (e *utilsEnv) post(who, ws, path, body string) *httptest.ResponseRecorder {

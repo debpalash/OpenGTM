@@ -34,6 +34,9 @@ var errRollback = errors.New("rollback")
 func inTx(t *testing.T, fn func(ctx context.Context, tx pgx.Tx)) {
 	t.Helper()
 	pool := testpg.NewAppPool(t, 4)
+	// The seeds insert the recorded row ids the run fixtures name (101..106, 1001..1250, 5001); free them from
+	// rows another test left in another workspace, out of this workspace's sight.
+	testpg.FreeIDs(t, "workbook_rows", append(append(testpg.Span(101, 106), testpg.Span(1001, 1250)...), 5001)...)
 	ctx := context.Background()
 	err := tenancy.InWorkspace(ctx, pool, testWS, func(tx pgx.Tx) error {
 		fn(ctx, tx)

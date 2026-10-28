@@ -78,6 +78,7 @@ func (e *llmEnv) call(method, who, ws, path, body string) *httptest.ResponseReco
 
 func (e *llmEnv) lead(t *testing.T, id int, ws, company, email string) {
 	t.Helper()
+	testpg.FreeIDs(t, "leads", int64(id)) // literal ids sit below testpg.SeqFloor
 	ownerExec(t, `INSERT INTO leads (id, workspace_id, company, city, email, status, source, created_at, updated_at)
 		VALUES ($1,$2,$3,'Pune',$4,'new','llmroutes','2026-08-29T10:00:00','2026-08-29T10:00:00')`, id, ws, company, email)
 }

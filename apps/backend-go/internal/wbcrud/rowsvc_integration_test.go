@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 	"reflect"
 	"regexp"
 	"strings"
@@ -700,6 +701,7 @@ func TestBulkPatchThousandRowsOneTransaction(t *testing.T) {
 }
 
 func (e rowsEnv) lead(ws string, id int, company, city string) {
+	testpg.FreeIDs(e.t, "leads", int64(id)) // literal id, below testpg.SeqFloor
 	e.exec(ws, `INSERT INTO leads (id, workspace_id, company, city, updated_at) VALUES ($1,$2,$3,$4,'2026-01-01T00:00:00')`, id, ws, company, city)
 }
 

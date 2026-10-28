@@ -44,6 +44,9 @@ func seedVec(t *testing.T, pool *pgxpool.Pool, v vectors) {
 	ctx := context.Background()
 	clean(t, pool, vecWS)
 	t.Cleanup(func() { clean(t, pool, vecWS) })
+	for _, tbl := range v.SeedOrder { // recorded serial ids sit below testpg.SeqFloor
+		testpg.FreeRecordIDs(t, tbl, v.Seed[tbl]...)
+	}
 	err := tenancy.InWorkspace(ctx, pool, vecWS, func(tx pgx.Tx) error {
 		for _, tbl := range v.SeedOrder {
 			for _, row := range v.Seed[tbl] {

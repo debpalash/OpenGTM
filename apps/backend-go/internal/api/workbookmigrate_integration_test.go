@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -91,11 +92,12 @@ func (e *migrateEnv) seedWorkbooks(t *testing.T) {
 	ownerExec(t, ins, "wb-enrich-1", "ws-alpha", "manual", "{}", string(seed["columns"]), staleStamp)
 	ownerExec(t, ins, "wb-alpha-1", "ws-alpha", "manual", "{}", `[{"id":"c1","name":"Company","type":"text","lead_field":"company"}]`, staleStamp)
 	ownerExec(t, ins, "wb-beta-1", "ws-beta", "manual", "{}", "[]", staleStamp)
+	// Recorded row ids 101..106 stay below testpg.SeqFloor, where no sequence returns: migrated rows take sequence ids
+	// and never collide, so the sequence is never moved. FreeIDs removes a row another test left on one of the ids.
+	testpg.FreeIDs(t, "workbook_rows", testpg.Span(101, 106)...)
 	for k := 0; k < 6; k++ {
 		ownerExec(t, `INSERT INTO workbook_rows (id, workbook_id, "position", data, enrichments, workspace_id) VALUES ($1,'wb-enrich-1',$2,'{"company":"x"}'::json,'{}'::json,'ws-alpha')`, 101+k, k)
 	}
-	// Explicit ids do not advance the sequence; move it past them so migrated rows don't collide.
-	ownerExec(t, `SELECT setval(pg_get_serial_sequence('workbook_rows','id'), GREATEST(1000, (SELECT max(id) FROM workbook_rows)))`)
 }
 
 func migActor(name string) (who, ws string) {
@@ -345,8 +347,9 @@ func TestMigrateTenantIsolation(t *testing.T) {
 func TestMigrateLargeWorkbookBatches(t *testing.T) {
 	fl := &failingLeads{LeadReader: wbcrud.PGLeads{}}
 	e := newMigrateEnv(t, func(s *wbcrud.Service) { s.Leads = fl })
+	leadBase := testpg.ReserveIDs(t, "leads", 10000)
 	ownerExec(t, `INSERT INTO leads (id, workspace_id, company, source, score, status, created_at, updated_at)
-		SELECT 100000 + g, 'ws-alpha', 'Bulk ' || g, 'mig-large', g % 100, 'new', now(), now() FROM generate_series(1, 10000) g`)
+		SELECT $1::bigint + g, 'ws-alpha', 'Bulk ' || g, 'mig-large', g % 100, 'new', now(), now() FROM generate_series(1, 10000) g`, leadBase)
 	ownerExec(t, `UPDATE workbooks SET filter_criteria='{"source":"mig-large"}'::json WHERE id='wb-alpha-1'`)
 	code, body := e.migrate("alice", "ws-alpha", "wb-alpha-1")
 	if code != 200 || strings.TrimSpace(body) != `{"status":"migrated","rows":10000,"enrichments_migrated":0}` {
@@ -363,7 +366,7 @@ func TestMigrateLargeWorkbookBatches(t *testing.T) {
 		t.Fatalf("rows/distinct positions/min/max = %s", s)
 	}
 	// score DESC, id DESC: the first row is the highest score with the highest id.
-	if s := dbString(t, `SELECT lead_id::text FROM workbook_rows WHERE workbook_id='wb-alpha-1' AND position=0`); s != "109999" {
+	if s := dbString(t, `SELECT lead_id::text FROM workbook_rows WHERE workbook_id='wb-alpha-1' AND position=0`); s != fmt.Sprint(leadBase+9999) {
 		t.Fatalf("first row lead %s", s)
 	}
 }

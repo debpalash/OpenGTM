@@ -138,9 +138,6 @@ func (e jobsEnv) seedAll(t *testing.T) {
 		}
 	}
 
-	// Never reset a shared sequence (other packages generate stage ids from it in parallel): move it past
-	// the explicit fixture ids first, then insert those ids explicitly.
-	advanceSeq(t, "collection_job_stages")
 	ts := func(d, h, m, s, us int) string {
 		out := fmt.Sprintf("2026-08-%02d %02d:%02d:%02d", d, h, m, s)
 		out = strings.Replace(out, " ", "T", 1)
@@ -190,9 +187,12 @@ func (e jobsEnv) seedAll(t *testing.T) {
 			stage{id, "ws-beta", "validate", "done", 5, 4, 1, `{"reasons": {"no_email": 1}}`, ts(27, 7, 0, 5, 0), ts(27, 7, 1, 5, 0)},
 			stage{id, "ws-beta", "dedup", st2, 4, out2, 0, `{}`, ts(27, 7, 2, 5, 0), end2})
 	}
+	// The fixtures pin stage ids 1..N in insertion order and lead ids 101..106: recorded ids below testpg.SeqFloor,
+	// where no sequence returns (a shared sequence is never reset or moved).
+	testpg.FreeIDs(t, "collection_job_stages", testpg.Span(1, int64(len(stages)))...)
+	testpg.FreeIDs(t, "leads", testpg.Span(101, 106)...)
 	for i, s := range stages {
 		err := tenancy.InWorkspace(ctx, e.pool, s.ws, func(tx pgx.Tx) error {
-			// the fixtures pin stage ids 1..N in insertion order (below the advanced sequence)
 			_, err := tx.Exec(ctx, `INSERT INTO collection_job_stages (id, job_id, workspace_id, stage, status, input_count, output_count, rejected_count, details, started_at, completed_at)
 				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, i+1, s.job, s.ws, s.name, s.status, s.in, s.out, s.rej, s.details, s.start, s.end)
 			return err
@@ -226,15 +226,6 @@ func (e jobsEnv) seedAll(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	advanceSeq(t, "leads")
-}
-
-// advanceSeq moves <table>.id's sequence to GREATEST(1000, max(id), current): never backwards, so tests that
-// seed explicit low ids cannot collide with ids other tests (or packages) draw from the sequence.
-func advanceSeq(t *testing.T, table string) {
-	t.Helper()
-	ownerExec(t, fmt.Sprintf(`SELECT setval(pg_get_serial_sequence('%[1]s','id'),
-		GREATEST(1000, (SELECT COALESCE(max(id), 0) FROM %[1]s), (SELECT last_value FROM %[1]s_id_seq)))`, table))
 }
 
 // seedProgress writes the Redis history of _seed_leadgen_progress (LPUSH, newest first).
@@ -452,6 +443,7 @@ func TestJobLeadsCrossWorkspaceEmpty(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
+	testpg.FreeIDs(t, "leads", 7001, 7002, 7003, 7004)
 	insert("ws-beta", 7001, jA3, "x")
 	insert("ws-beta", 7002, "", "job:"+jA3)
 	insert("ws-alpha", 7003, jB1, "x")

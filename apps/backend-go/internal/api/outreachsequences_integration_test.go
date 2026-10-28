@@ -14,6 +14,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
 // oseqOrder is the recorded order of the sequence CRUD fixtures (contract_cases/outreach.yaml). State mutates
@@ -68,6 +69,8 @@ func newOseqEnv(t *testing.T) oseqEnv {
 	e.member(t, "ws-alpha", e.mustUserByName(t, "erin").ID, "editor")
 	oseqPurge()
 	t.Cleanup(oseqPurge)
+	// Literal enrollment ids sit below testpg.SeqFloor, where no sequence returns; free them from rows other tests left.
+	testpg.FreeIDs(t, "outreach_enrollments", append(testpg.Span(900000, 900009), testpg.Span(910000, 910002)...)...)
 	ownerExec(t, `INSERT INTO outreach_sequences (id, workspace_id, name, description, steps, status, daily_limit, send_window_start,
 		send_window_end, send_window_tz, consent_basis, bounce_count, complaint_count, auto_paused, created_at, updated_at) VALUES
 		('seq-out-a-01','ws-alpha','Three step cold outreach','primary contract sequence',CAST($1 AS json),'draft',50,9,18,'UTC','legitimate_interest',2,0,false,'2026-08-29 08:00:00+00','2026-08-29 08:00:00+00'),

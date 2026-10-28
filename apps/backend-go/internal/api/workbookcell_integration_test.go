@@ -158,6 +158,7 @@ func (e *cellEnv) seedWorkbooks(t *testing.T) {
 		`[{"id":"c1","type":"waterfall","name":"C1","target_field":"founded_year","waterfall":["hunter_io"]}]`, 10.0)
 	sites := []string{"https://globex.example.com", "https://initech.example.com", "", "https://umbrella.example.com", "https://hooli.example.com", "https://stark.example.com"}
 	companies := []string{"Globex", "Initech", "Soylent", "Umbrella", "Hooli", "Stark Industries"}
+	testpg.FreeIDs(t, "workbook_rows", 101, 102, 103, 104, 105, 106, 1001, 2001)
 	for k := 0; k < 6; k++ {
 		email := fmt.Sprintf("hello@%s.example.com", strings.ToLower(strings.Fields(companies[k])[0]))
 		if k%2 == 1 {
@@ -175,11 +176,12 @@ func (e *cellEnv) seedWorkbooks(t *testing.T) {
 	e.row(t, 2001, "wb-paid", 0, `{"company":"Paid Co","website":"paid.example.com"}`, `{}`)
 }
 
+// row seeds a row at a recorded id (the cellrun fixtures name it in their paths). Recorded ids stay below
+// testpg.SeqFloor, where no sequence returns, so the sequence is never moved; seedWorkbooks frees the ids first.
 func (e *cellEnv) row(t *testing.T, id int, wb string, pos int, data, enr string) {
 	t.Helper()
 	ownerExec(t, `INSERT INTO workbook_rows (id, workbook_id, "position", data, enrichments, workspace_id) VALUES ($1,$2,$3,$4::json,$5::json,'ws-alpha')`,
 		id, wb, pos, data, enr)
-	ownerExec(t, `SELECT setval(pg_get_serial_sequence('workbook_rows','id'), GREATEST((SELECT max(id) FROM workbook_rows), 1))`)
 }
 
 func cellActor(name string) (who, ws string) {

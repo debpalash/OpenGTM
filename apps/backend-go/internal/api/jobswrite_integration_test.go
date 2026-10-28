@@ -19,6 +19,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
 // Plan 14 Task 16: the jobs write routes (cancel, delete, retry) against the recorded Python fixtures
@@ -399,6 +400,7 @@ func (e jwEnv) betaLeadFor(t *testing.T) {
 	t.Helper()
 	// a beta lead that references the alpha job id in both attachment forms: a delete in alpha must not touch it
 	ctx := context.Background()
+	testpg.FreeIDs(t, "leads", 107)
 	err := tenancy.InWorkspace(ctx, e.pool, "ws-beta", func(tx pgx.Tx) error {
 		_, err := tx.Exec(ctx, `INSERT INTO leads (id, workspace_id, collection_job_id, company, source, created_at, updated_at)
 			VALUES (107, 'ws-beta', $1::text, 'Beta Lookalike', 'job:'||$1::text, '2026-08-28T07:05:00', '2026-08-28T07:05:00')`, jA3)
@@ -407,7 +409,6 @@ func (e jwEnv) betaLeadFor(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	advanceSeq(t, "leads")
 }
 
 func TestDeleteKeepLeadsFalseRemovesLeads(t *testing.T) {

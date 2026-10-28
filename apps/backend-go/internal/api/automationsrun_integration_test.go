@@ -123,9 +123,6 @@ func (e arunEnv) seedAutomations(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	for _, tbl := range []string{"workbook_rows", "triggers", "trigger_runs", "trigger_action_results"} {
-		advanceSeedSeq(t, tbl)
-	}
 }
 
 // arunActor says who sent a recorded request (fixtures keep Authorization and X-Workspace-Id redacted;

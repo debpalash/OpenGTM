@@ -13,6 +13,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
 // oactEnv is the contract seed of scripts/contract_seed.py (_seed_outreach) behind the sequence CRUD and action routes.
@@ -107,6 +108,10 @@ func newOactEnv(t *testing.T, getenv map[string]string, outreach config.Outreach
 	e.member(t, "ws-alpha", e.mustUserByName(t, "erin").ID, "editor")
 	oactPurge()
 	t.Cleanup(oactPurge)
+	// Recorded ids sit below testpg.SeqFloor, where no sequence returns; free them from rows other tests left.
+	testpg.FreeIDs(t, "leads", 19, 20)
+	testpg.FreeIDs(t, "outreach_enrollments", testpg.Span(1, int64(len(oactEnrollments)))...)
+	testpg.FreeIDs(t, "outreach_sends", testpg.Span(1, int64(len(oactSends)))...)
 	for i, c := range [][]string{{"Gmail Dot Plus Co", "Pat.Lee+Sales@Gmail.com", "Pat Lee"}, {"Mixed Case Co", "Mixed.Case@Example.COM", "Mia Case"}} {
 		ownerExec(t, `INSERT INTO leads (id, workspace_id, company, city, website, email, phone, contact_person, source, score, score_tier, status, created_at, updated_at)
 			VALUES ($1,'ws-alpha',$2,'Austin','',$3,'',$4,'contract',10,'cold','new','2026-08-24T09:00:00','2026-08-24T09:00:00')`, 19+i, c[0], c[1], c[2])
@@ -130,8 +135,6 @@ func newOactEnv(t *testing.T, getenv map[string]string, outreach config.Outreach
 	for _, r := range oactSuppress {
 		ownerExec(t, `INSERT INTO outreach_suppressions (workspace_id, email, reason, source, locked, created_at) VALUES ($1,$2,$3,$4,$5,$6::timestamptz)`, r...)
 	}
-	ownerExec(t, `SELECT setval(pg_get_serial_sequence('outreach_enrollments','id'), GREATEST(1000, (SELECT max(id) FROM outreach_enrollments)))`)
-	ownerExec(t, `SELECT setval(pg_get_serial_sequence('outreach_sends','id'), GREATEST(1000, (SELECT max(id) FROM outreach_sends)))`)
 
 	env, err := secrets.NewEnvelope(secrets.Config{MasterKey: "oact-test-key", AppEnv: "dev"}, nil)
 	if err != nil {

@@ -12,6 +12,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
 func exportActor(name string) (who, ws string) {
@@ -68,6 +69,7 @@ func (e leadsEnv) exec(t *testing.T, ws, sql string, args ...any) {
 
 func TestExportFormulaCellsNeutralised(t *testing.T) {
 	e := newLeadsEnv(t)
+	testpg.FreeIDs(t, "leads", 9001)
 	e.exec(t, "ws-alpha", `INSERT INTO leads (id, workspace_id, company, city, phone, notes, score, status, source)
 		VALUES (9001, 'ws-alpha', '=HYPERLINK("http://x")', 'c', '+91 (22) 123-4567', '@SUM(A1)', 999, 'new', 'x')`)
 	body := e.get("alice", "ws-alpha", "/api/export/csv").Body.String()

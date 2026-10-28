@@ -13,6 +13,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
 const wsObs = "2026-08-29T10:00:00+00:00"
@@ -57,6 +58,7 @@ func (e entEnv) seedWriteEntities(t *testing.T) {
 		{2, "ent-w-3", `{"id":"ent-w-4","new_entity_id":"ent-w-4","canonical_name":"Orbit Laboratories"}`, 0.8},
 		{3, "ent-w-1", `{"id":"ent-w-2","canonical_name":"Zenith Corporation Ltd"}`, 0.8},
 	}
+	testpg.FreeIDs(t, "entity_review_pairs", 1, 2, 3) // recorded ids
 	if err := tenancy.InWorkspace(ctx, e.pool, "ws-alpha", func(tx pgx.Tx) error {
 		for _, p := range pairs {
 			if _, err := tx.Exec(ctx, `INSERT INTO entity_review_pairs (id, entity_id, candidate, score, reason, status, created_at, workspace_id)
@@ -90,9 +92,12 @@ func (e entEnv) seedWriteEntities(t *testing.T) {
 	}
 }
 
-// resetMergeLogSeq makes the next merge log id 1, like the freshly seeded recording database.
+// resetMergeLogSeq makes the next merge log id 1, like the freshly seeded recording database. The recorded ids are
+// below testpg.SeqFloor; rows another test left on them are freed first, and the next NewAppPool raises the sequence
+// back to the floor.
 func resetMergeLogSeq(t *testing.T) {
 	t.Helper()
+	testpg.FreeIDs(t, "entity_merge_log", testpg.Span(1, 100)...)
 	url := os.Getenv("TEST_DATABASE_URL")
 	owner, err := pgxpool.New(context.Background(), url)
 	if err != nil {

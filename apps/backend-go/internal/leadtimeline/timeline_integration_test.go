@@ -140,6 +140,7 @@ func (e *env) seedHot(t *testing.T) leadsread.Lead {
 				e.ex(t, `INSERT INTO signals (id, workspace_id, lead_id, company, signal_type, title, description, source, source_url, weight, created_at, read) VALUES ($1,$2,$3,'c',$4,$5,$6,$7,$8,$9,$10,false)`,
 					parts[1], w, lid, it.Status, title, it.Description, it.Metadata["source"], it.Metadata["source_url"], int32(it.Metadata["weight"].(float64)), it.OccurredAt)
 			case "audience":
+				testpg.FreeIDs(t, "audience_membership_events", int64(rid)) // recorded id, below testpg.SeqFloor
 				e.ex(t, `INSERT INTO audience_membership_events (id, workspace_id, audience_id, lead_id, event_type, snapshot, created_at) VALUES ($1,$2,$3,$4,$5,'{}',$6)`,
 					rid, w, suf("aud", w, e), lid, it.Status, ts)
 			case "activation":
@@ -153,6 +154,7 @@ func (e *env) seedHot(t *testing.T) leadsread.Lead {
 				if it.Status == "delivered" {
 					delivered = ts
 				}
+				testpg.FreeIDs(t, "destination_deliveries", int64(rid)) // recorded id, below testpg.SeqFloor
 				e.ex(t, `INSERT INTO destination_deliveries (id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, summary, error, delivered_at, created_at, updated_at) VALUES ($1,$2,$3,$4,$5,'upsert',$6,'0',$7,1,$8,$9,$10,$11,$11)`,
 					rid, w, suf("run", w, e), suf("dest", w, e), lid, "idem-"+it.ID+w, it.Status, summ, errm, delivered, ts)
 			case "outreach":
@@ -161,6 +163,7 @@ func (e *env) seedHot(t *testing.T) leadsread.Lead {
 					subj = nil
 				}
 				step := int32(it.Metadata["step_number"].(float64))
+				testpg.FreeIDs(t, "outreach_sends", int64(rid)) // recorded id, below testpg.SeqFloor
 				e.ex(t, `INSERT INTO outreach_sends (id, workspace_id, sequence_id, lead_id, step_number, to_email, subject, status, idempotency_key, created_at, updated_at) VALUES ($1,$2,$3,$4,$5,'a@b.c',$6,$7,$8,$9,$9)`,
 					rid, w, suf("seq", w, e), lid, step, subj, it.Status, "send-"+it.ID+w, ts+"+00")
 			}

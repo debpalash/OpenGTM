@@ -14,6 +14,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
 // newDedupEnv is the lead write env plus erin, an editor member of ws-alpha (the recorded merge persona).
@@ -346,6 +347,7 @@ func TestDedupRunAllowsViewer(t *testing.T) {
 // with that duplicate on uq_leads_ws_company_city when the master is updated first (Python 500s).
 func TestMergeCompanyCityCollisionWithDuplicate(t *testing.T) {
 	e := newDedupEnv(t)
+	testpg.FreeIDs(t, "leads", 9101, 9102)
 	e.exec(t, "ws-alpha", `INSERT INTO leads (id, workspace_id, company, city, score, status, source) VALUES
 		(9101, 'ws-alpha', 'Acme Collide', '', 1, 'new', 'x'), (9102, 'ws-alpha', 'Acme Collide', 'Pune', 2, 'new', 'x')`)
 	rec := e.send("alice", "ws-alpha", "POST", "/api/leads/dedup/merge", `{"master_id":9101,"duplicate_ids":[9102]}`)
@@ -362,6 +364,7 @@ func TestMergeCompanyCityCollisionWithDuplicate(t *testing.T) {
 // nothing is written (the transaction rolls back, the duplicate survives).
 func TestMergeCollisionWithThirdLead409(t *testing.T) {
 	e := newDedupEnv(t)
+	testpg.FreeIDs(t, "leads", 9111, 9112, 9113)
 	e.exec(t, "ws-alpha", `INSERT INTO leads (id, workspace_id, company, city, score, status, source) VALUES
 		(9111, 'ws-alpha', 'Beta Collide', '', 1, 'new', 'x'), (9112, 'ws-alpha', 'Other Collide', 'Pune', 2, 'new', 'x'),
 		(9113, 'ws-alpha', 'Beta Collide', 'Pune', 3, 'new', 'x')`)

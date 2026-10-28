@@ -100,9 +100,10 @@ func (e *ingestEnv) seedEnrich(t *testing.T) {
 	sites := []string{"https://globex.example.com", "https://initech.example.com", "", "https://umbrella.example.com",
 		"https://hooli.example.com", "https://stark.example.com"}
 	companies := []string{"Globex", "Initech", "Soylent", "Umbrella", "Hooli", "Stark Industries"}
+	rowBase := testpg.ReserveIDs(t, "workbook_rows", 9) // seed rows 101..106, 201..203 at rowBase+1..9
 	for k := 0; k < 6; k++ {
 		d, _ := json.Marshal(map[string]string{"company": companies[k], "website": sites[k]})
-		ownerExec(t, `INSERT INTO workbook_rows (id, workbook_id, "position", data, enrichments, workspace_id) VALUES ($1,'wb-enrich-1',$2,$3::json,'{}'::json,'ws-alpha')`, 101+k, k, string(d))
+		ownerExec(t, `INSERT INTO workbook_rows (id, workbook_id, "position", data, enrichments, workspace_id) VALUES ($1,'wb-enrich-1',$2,$3::json,'{}'::json,'ws-alpha')`, rowBase+1+int64(k), k, string(d))
 	}
 	ins := `INSERT INTO workbooks (id, name, description, status, workspace_id, source_type, source_config, filter_criteria,
 		columns_config, total_rows, completed_rows, sync_to_leads, budget_max_usd, budget_spent_usd, created_at, updated_at)
@@ -111,14 +112,13 @@ func (e *ingestEnv) seedEnrich(t *testing.T) {
 	ownerExec(t, ins, "wb-enrich-live", staleStamp)
 	for k := 1; k <= 3; k++ {
 		ownerExec(t, `INSERT INTO workbook_rows (id, workbook_id, "position", data, enrichments, workspace_id) VALUES ($1,'wb-enrich-live',$2,$3::json,'{}'::json,'ws-alpha')`,
-			200+k, k-1, fmt.Sprintf(`{"company":"Living %d","website":"https://living%d.example.com"}`, k, k))
+			rowBase+6+int64(k), k-1, fmt.Sprintf(`{"company":"Living %d","website":"https://living%d.example.com"}`, k, k))
 	}
 	ownerExec(t, `UPDATE workbooks SET total_rows = 3 WHERE id = 'wb-enrich-live'`)
 	ownerExec(t, ins, "wb-enrich-big", staleStamp)
 	ownerExec(t, ins, "wb-alpha-2", staleStamp)
 	ownerExec(t, `UPDATE workbooks SET total_rows = 6 WHERE id = 'wb-enrich-1'`)
 	e.insertToken(t, "ingest-tok-1", "ws-alpha", "wb-enrich-1", seedIngestToken)
-	ownerExec(t, `SELECT setval(pg_get_serial_sequence('workbook_rows','id'), 1250)`)
 }
 
 func (e *ingestEnv) insertToken(t *testing.T, id, ws, wb, plain string) {

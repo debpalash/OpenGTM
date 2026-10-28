@@ -122,6 +122,7 @@ func TestPollSourceVectors(t *testing.T) {
 			if v.LeadID != nil {
 				lead = leadOff + *v.LeadID
 			}
+			testpg.FreeIDs(t, "leads", leadOff+14) // literal id, below testpg.SeqFloor
 			if err := tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
 				if _, err := tx.Exec(ctx, `INSERT INTO watch_subscriptions (id, workspace_id, kind, target, resolved_cik, signal_types, "interval",
 					config, enabled, cursor, consecutive_failures) VALUES ($1,$2,$3,$4,$5,$6::json,'daily',$7::json,true,$8::json,0)`,

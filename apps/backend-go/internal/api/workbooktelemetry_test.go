@@ -124,6 +124,7 @@ func (e telEnv) seedTelemetry(t *testing.T) {
 			t.Fatalf("seed %s: %v", ws, err)
 		}
 	}
+	testpg.FreeIDs(t, "jobs", testpg.Span(1, 12)...) // recorded job ids (here and in telemetry_extra.sql), below testpg.SeqFloor
 	run("ws-alpha", telemetryBase)
 	raw, err := os.ReadFile("../../testdata/wbcrud/telemetry_extra.sql")
 	if err != nil {

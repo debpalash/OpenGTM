@@ -409,6 +409,7 @@ func TestSourceScenarioVectors(t *testing.T) {
 				}
 			}
 			for _, tb := range seedOrder {
+				testpg.FreeRecordIDs(t, tb, sc.Seed[tb]...) // recorded serial ids sit below testpg.SeqFloor
 				for _, r := range sc.Seed[tb] {
 					if _, err := owner.Exec(ctx, "INSERT INTO "+tb+" SELECT * FROM json_populate_record(NULL::"+tb+", $1::json)", string(r)); err != nil {
 						t.Fatalf("seed %s: %v", tb, err)

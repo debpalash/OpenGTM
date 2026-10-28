@@ -75,6 +75,10 @@ func newEnv(t *testing.T) *env {
 	e := &env{app: app, owner: owner}
 	e.clean()
 	t.Cleanup(e.clean)
+	// The tests seed literal lead ids (1..7, 99, 501, 502) and delivery ids (1..5, 100), all below testpg.SeqFloor where
+	// no sequence returns; free them from rows other tests left.
+	testpg.FreeIDs(t, "leads", testpg.Span(1, 600)...)
+	testpg.FreeIDs(t, "destination_deliveries", testpg.Span(1, 100)...)
 	for _, w := range []string{wsA, wsB} {
 		mustExec(t, owner, `INSERT INTO workspaces (id, name, slug, created_at, updated_at) VALUES ($1::text,$1::text,$1::text, extract(epoch from clock_timestamp()), extract(epoch from now()))`, w)
 	}
@@ -421,15 +425,6 @@ func (e *env) lead(t *testing.T, id int, ws string, vals map[string]any) {
 		ph += fmt.Sprintf(", $%d", len(args))
 	}
 	mustExec(t, e.owner, `INSERT INTO leads (`+cols+`) VALUES (`+ph+`)`, args...)
-	advanceSeq(t, e.owner, "leads")
-}
-
-// advanceSeq moves the table's id sequence past the explicit ids seeded above (never backwards), so a package running in
-// parallel that inserts through the sequence cannot collide with them.
-func advanceSeq(t *testing.T, pool *pgxpool.Pool, table string) {
-	t.Helper()
-	mustExec(t, pool, `DO $$ DECLARE s text := pg_get_serial_sequence('`+table+`','id'); BEGIN
-		EXECUTE format('SELECT setval(%L, GREATEST((SELECT coalesce(max(id),1) FROM `+table+`), (SELECT last_value FROM %s)))', s, s); END $$`)
 }
 
 func (e *env) leadRow(t *testing.T, id int) map[string]any {
@@ -556,7 +551,6 @@ func TestReconcileMatchesFixtures(t *testing.T) {
 			}
 			mustExec(t, e.owner, `INSERT INTO destination_deliveries (id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, delivered_at)
 				VALUES (100,$1,$2,$3,1,'upsert','idem-100','f','success',1,'ext-other-dest','2026-08-09')`, wsA, runA, destA2)
-			advanceSeq(t, e.owner, "destination_deliveries")
 			mustExec(t, e.owner, `UPDATE audience_destinations SET destination_type=$2, config=$3::json, field_map=$4::json WHERE id=$1`,
 				destA, c.Destination.Type, string(c.Destination.Config), string(c.Destination.FieldMap))
 			if c.Name == "prior_receipt_replay" { // the recorded harness pre-seeds this receipt

@@ -23,6 +23,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadpeople"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
 // Vectors: testdata/tools_{people,outreach,plan,preroute}.json, recorded by testdata/record_tools.py with
@@ -308,8 +309,7 @@ func TestOutreachToolsMatchPython(t *testing.T) {
 	loadTools(t, "tools_outreach.json", &f)
 	e := toolsSetup(t)
 	ctx := context.Background()
-	base := int64(9300000)
-	_, _ = e.owner.Exec(ctx, `DELETE FROM leads WHERE id BETWEEN $1 AND $2`, base, base+10)
+	base := testpg.ReserveIDs(t, "leads", 11) + 1 // recorded lead ids 0..10 map to base+0..base+10, a reserved block
 	t.Cleanup(func() { _, _ = e.owner.Exec(ctx, `DELETE FROM leads WHERE id BETWEEN $1 AND $2`, base, base+10) })
 	for k, l := range f.Leads {
 		var id int64

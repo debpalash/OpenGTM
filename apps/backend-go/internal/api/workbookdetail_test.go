@@ -103,9 +103,6 @@ func (e detailEnv) seedDetail(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	for _, tbl := range []string{"leads", "workbook_rows", "workbook_views", "workbook_enrichments", "connector_runs"} {
-		advanceSeedSeq(t, tbl)
-	}
 }
 
 // actor says who sent a recorded request (fixtures keep Authorization and X-Workspace-Id redacted).

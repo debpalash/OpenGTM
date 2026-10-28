@@ -112,6 +112,7 @@ func seedDelivery(t *testing.T, ctx context.Context, pool *pgxpool.Pool, ws stri
 	if d.Err != "" {
 		errText = &d.Err
 	}
+	testpg.FreeIDs(t, "destination_deliveries", int64(d.ID)) // literal ids sit below testpg.SeqFloor
 	mustTx(t, ctx, pool, ws, func(tx pgx.Tx) error {
 		_, err := tx.Exec(ctx, `INSERT INTO destination_deliveries (id, workspace_id, run_id, destination_id, lead_id, operation,
 			idempotency_key, payload_fingerprint, status, attempts, summary, error, created_at, updated_at)

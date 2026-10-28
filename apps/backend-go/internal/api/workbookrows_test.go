@@ -128,6 +128,10 @@ func (e rowsEnv) seed(t *testing.T) (idBase int64) {
 			VALUES ($1,$2,$3,'idle',$4,'manual','{}'::json,'{}'::json,$5::json,$6,0,false,0,'2026-08-29 10:00:00','2026-08-29 10:00:00')`,
 			w.id, w.name, w.desc, w.ws, w.cols, w.total)
 	}
+	// Recorded ids (rows 1..25, leads 1..3) stay below testpg.SeqFloor, where no sequence returns; FreeIDs removes
+	// rows another test left on them.
+	testpg.FreeIDs(t, "workbook_rows", testpg.Span(1, 25)...)
+	testpg.FreeIDs(t, "leads", testpg.Span(1, 3)...)
 	cities := []string{"Berlin", "Austin", "Pune", "Lyon", "Oslo"}
 	for i := 1; i <= 25; i++ {
 		var email, city any = "info@acme" + two(i) + ".example.com", cities[i%5]
@@ -158,11 +162,9 @@ func (e rowsEnv) seed(t *testing.T) (idBase int64) {
 			VALUES ($1,'wb-alpha-2',$2,$3::json,$4::json,'2026-08-29 10:00:00','2026-08-29 10:00:00',$5)`,
 			i, i-1, wbcrud.PyDumps(data, false), wbcrud.PyDumps(enr, false), rowsWsAlpha)
 	}
-	// never rewind the shared sequence (other tests' rows keep their ids); new rows then get
-	// ids idBase+1.., which stateOf maps back to FastAPI's 26.. for the comparison
-	if err := e.owner.QueryRow(ctx, `SELECT setval(pg_get_serial_sequence('workbook_rows','id'), greatest(25, (SELECT last_value FROM workbook_rows_id_seq)))`).Scan(&idBase); err != nil {
-		t.Fatal(err)
-	}
+	// never rewind the shared sequence (other tests' rows keep their ids): reserve a one-id block, which leaves the
+	// sequence on it, so new rows get ids idBase+1.., which stateOf maps back to FastAPI's 26.. for the comparison
+	idBase = testpg.ReserveIDs(t, "workbook_rows", 1) + 1
 	for _, v := range [][3]string{
 		{"view-alpha-1", "Berlin only", `{"filters": [{"column": "city", "op": "equals", "value": "Berlin"}], "hidden_columns": []}`},
 		{"view-alpha-2", "Sorted by company", `{"sort": [{"column": "company", "dir": "asc"}], "hidden_columns": ["phone"]}`},
