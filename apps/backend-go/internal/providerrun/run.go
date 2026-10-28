@@ -1,8 +1,9 @@
 // Package providerrun runs one enrichment provider call: a Go-native provider
-// in a bounded, abandonable goroutine (any other name is ErrUnavailable since
-// the plan 15 cutover). It resolves credentials per workspace, fills
+// in a bounded, abandonable goroutine, or else a signature-verified
+// declarative manifest of the connector index (any other name is
+// ErrUnavailable). It resolves credentials per workspace, fills
 // provider settings from global operator config only, reads and fills the
-// workspace-scoped enrichment cache, and writes the provider_stats ledger the
+// workspace-scoped enrichment cache (Go providers), and writes the provider_stats ledger the
 // way Python's planner.record_attempt does.
 package providerrun
 
@@ -23,6 +24,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/enrichcache"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/contact"
@@ -74,14 +76,25 @@ type Deps struct {
 	Log           *slog.Logger
 	Cost          func(provider string) float64 // default vendorcatalog.BaseCost
 	Now           func() time.Time
+	// Manifests is the signature-verified connector index (credentials.ConnectorIndex): a provider
+	// with no Go implementation runs from its declarative manifest. nil uses this process's index
+	// over the connector settings (built-ins unless overridden).
+	Manifests func() map[string]manifest.Entry
+	// ManifestHTTP is the egress-guarded client of declarative providers (the worker passes its
+	// env-aware client); nil uses HTTP.
+	ManifestHTTP *http.Client
+	// URLCheck vets a rendered manifest URL before any I/O (egress.CheckURLFor bound to the app env
+	// and allowlist); nil is egress.CheckURL(url, true).
+	URLCheck func(rawURL string) error
 }
 
 // Runner runs provider calls. Safe for concurrent use.
 type Runner struct {
-	d        Deps
-	http     *http.Client
-	operator *http.Client
-	sem      chan struct{}
+	d            Deps
+	http         *http.Client
+	operator     *http.Client
+	manifestHTTP *http.Client
+	sem          chan struct{}
 }
 
 // New builds a Runner.
@@ -98,6 +111,9 @@ func New(d Deps) *Runner {
 	if d.Now == nil {
 		d.Now = time.Now
 	}
+	if d.Manifests == nil {
+		d.Manifests = processConnectorIndex
+	}
 	r := &Runner{d: d, http: d.HTTP, sem: make(chan struct{}, d.Workers)}
 	if r.http == nil {
 		r.http = egress.NewClient(nil)
@@ -105,6 +121,10 @@ func New(d Deps) *Runner {
 	r.operator = r.http
 	if len(d.OperatorAllow) > 0 {
 		r.operator = egress.NewOperatorClient(d.OperatorAllow)
+	}
+	r.manifestHTTP = d.ManifestHTTP
+	if r.manifestHTTP == nil {
+		r.manifestHTTP = r.http
 	}
 	return r
 }
@@ -147,12 +167,28 @@ func (r *Runner) run(ctx context.Context, workspaceID, provider string, in provi
 	if timeout > maxTimeout {
 		timeout = maxTimeout
 	}
-	p, native := providers.Get(provider)
 	// A gated provider (providers/scrape) runs in Go only when GO_LOCAL_PROVIDERS lists it.
-	native = native && (local || providers.InProcess(p))
+	p, native := nativeFor(provider, local)
+	var m manifest.Manifest
+	if !native {
+		_, registered := providers.Get(provider)
+		var declarative bool
+		if !registered {
+			m, declarative = r.declarative(provider)
+		}
+		if !declarative {
+			// Neither a Go provider nor a verified manifest (the Python provider RPC is gone):
+			// nothing runs, nothing is read from the cache.
+			return providers.Output{}, ErrUnavailable
+		}
+	}
 
-	if out, ok := r.cacheGet(ctx, workspaceID, provider, in); ok {
-		return out, nil
+	// The enrichment cache serves Go providers only: declarative manifests ran uncached in the
+	// executor, and their fields (mobile_phone) are not all keyed per person by the cache.
+	if native {
+		if out, ok := r.cacheGet(ctx, workspaceID, provider, in); ok {
+			return out, nil
+		}
 	}
 
 	start := time.Now()
@@ -162,18 +198,18 @@ func (r *Runner) run(ctx context.Context, workspaceID, provider string, in provi
 		timedOut    bool
 		err         error
 	)
-	if !native {
-		// Only Go providers run (plan 15 cutover: the Python provider RPC is gone).
-		return providers.Output{}, ErrUnavailable
+	if native {
+		out, timedOut, err = r.runGo(ctx, workspaceID, p, in, timeout)
+	} else {
+		out, timedOut, err = r.runManifest(ctx, workspaceID, m, in, timeout)
 	}
-	out, timedOut, err = r.runGo(ctx, workspaceID, p, in, timeout)
 	if err != nil {
 		return providers.Output{}, err
 	}
 	success := out.Error == "" && out.Extra != nil && out.Extra.Len() > 0
 	r.record(ctx, workspaceID, provider, in.Field, success, out.Confidence,
 		float64(time.Since(start))/float64(time.Millisecond), rateLimited, timedOut)
-	if out.Error == "" {
+	if native && out.Error == "" {
 		r.cachePut(ctx, workspaceID, provider, in, out)
 	}
 	return out, nil
@@ -539,12 +575,18 @@ func (r *Runner) cachePut(ctx context.Context, ws, provider string, in providers
 
 // Configured reports whether a Go-native keyed provider has every credential it
 // needs in this workspace, so a paid call can be refused before any spend hold
-// (Python never reserved for a missing key). Providers that are not Go-native
-// or need no key are always configured; a lookup failure is returned, never
-// downgraded to "configured".
+// (Python never reserved for a missing key). A declarative provider needs its
+// auth credential; any other provider, or one that needs no key, is always
+// configured. A lookup failure is returned, never downgraded to "configured".
 func (r *Runner) Configured(ctx context.Context, workspaceID, provider string) (bool, error) {
 	p, native := providers.Get(provider)
-	if !native || !providers.InProcess(p) {
+	if !native {
+		if m, ok := r.declarative(provider); ok {
+			return r.manifestConfigured(ctx, workspaceID, m)
+		}
+		return true, nil
+	}
+	if !providers.InProcess(p) {
 		return true, nil
 	}
 	k, ok := p.(providers.Keyed)

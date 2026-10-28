@@ -283,15 +283,7 @@ func rowExecutionData(rowID int64, leadID *int64, dataRaw, enrRaw []byte, column
 
 // leadStrings extracts the Lead fields the declarative templates can read.
 // Lead.from_dict keeps values as-is and the compiler does `x or ""`.
-func leadStrings(row map[string]any) map[string]string {
-	out := make(map[string]string, 7)
-	for _, k := range []string{"company", "website", "email", "linkedin_url", "city", "contact_person", "phone"} {
-		if v, ok := row[k]; ok && manifest.PyTruthy(v) {
-			out[k] = manifest.PyStr(v)
-		}
-	}
-	return out
-}
+func leadStrings(row map[string]any) map[string]string { return manifest.LeadFromRow(row) }
 
 // intOf returns row["id"] style integer identities.
 func intOf(v any) int64 {

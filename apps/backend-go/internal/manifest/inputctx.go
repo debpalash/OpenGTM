@@ -52,3 +52,15 @@ func InputContext(lead map[string]string) map[string]any {
 		"phone":          lead["phone"],
 	}
 }
+
+// LeadFromRow is the lead a manifest renders from a row (workbook leadStrings): the truthy lead
+// fields a declarative provider may read, as Python str().
+func LeadFromRow(row map[string]any) map[string]string {
+	out := make(map[string]string, 7)
+	for _, k := range []string{"company", "website", "email", "linkedin_url", "city", "contact_person", "phone"} {
+		if v, ok := row[k]; ok && PyTruthy(v) {
+			out[k] = PyStr(v)
+		}
+	}
+	return out
+}
