@@ -24,6 +24,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/vendorcatalog"
 )
 
 // arunFrozen is the instant the fixtures were recorded at (the manual-run fire key embeds it).
@@ -48,8 +49,16 @@ func newArunEnv(t *testing.T, automations bool, getenv func(string) string) arun
 	old, oldVendor := autoRunNow, billing.ResearchVendorCost
 	autoRunNow = func() time.Time { return arunFrozen }
 	billing.ResearchVendorCost = func() bool { return true } // the recording profile ran with RESEARCH_VENDOR_COST=1
+	// Another test in the process may have installed the full vendor catalog as the cost source (runplan.Wire,
+	// billing.SetCostCatalog is never undone), which reads its own flag: pin it so the projection does not depend
+	// on test order.
+	vendorcatalog.SetResearchFlag(func() bool { return true })
 	e.purge()
-	t.Cleanup(func() { autoRunNow, billing.ResearchVendorCost = old, oldVendor; e.purge() })
+	t.Cleanup(func() {
+		autoRunNow, billing.ResearchVendorCost = old, oldVendor
+		vendorcatalog.SetResearchFlag(nil)
+		e.purge()
+	})
 	e.seedAutomations(t)
 	return e
 }
