@@ -117,3 +117,18 @@ func TestTTLTables(t *testing.T) {
 		t.Fatal("EmailTTL mismatch")
 	}
 }
+
+// Person-level fields are keyed per person, never per company: two people at one company get
+// their own entries, and no contact person means no key.
+func TestPersonLevelFieldsKeyPerPerson(t *testing.T) {
+	for _, f := range []string{"mobile_phone", "direct_phone", "personal_email", "linkedin_url", "email"} {
+		a, okA := CanonicalKey(f, Lead{Website: "acme.com", Company: "Acme", ContactPerson: "Ada Lovelace"})
+		b, okB := CanonicalKey(f, Lead{Website: "acme.com", Company: "Acme", ContactPerson: "Grace Hopper"})
+		if !okA || !okB || a == b {
+			t.Errorf("%s: two people at one company must not share a key (%q/%v %q/%v)", f, a, okA, b, okB)
+		}
+		if _, ok := CanonicalKey(f, Lead{Website: "acme.com", Company: "Acme"}); ok {
+			t.Errorf("%s: no contact person must not be cached", f)
+		}
+	}
+}
