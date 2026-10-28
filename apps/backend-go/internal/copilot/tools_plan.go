@@ -45,6 +45,10 @@ func (t *Turn) planner() *autopilot.Planner {
 	p := &autopilot.Planner{Settings: t.Settings, Memory: t.planMemory(), Log: t.Log}
 	if t.Engine != nil && t.Engine.LLM != nil {
 		p.LLM = t.Engine.LLM
+		if t.Budget != nil {
+			// The planner's llm call spends the same workspace daily budget as the chat rounds.
+			p.LLM = &meteredLLM{inner: t.Engine.LLM, budget: t.Budget, ws: t.WS, conv: t.ConvID}
+		}
 	}
 	return p
 }

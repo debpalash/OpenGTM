@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/autopilot"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/spend"
@@ -250,4 +251,50 @@ func (h *ledgerRoundHold) Settle(ctx context.Context, c RoundCharge) {
 			return e
 		})
 	}
+}
+
+// meteredLLM puts the non-chat llm call (the autopilot planner behind draft_plan) under the same workspace
+// budget as the chat rounds (final security M3 follow-up): the call is reserved before the provider is
+// dialled and settled from the reported usage, however it ends.
+type meteredLLM struct {
+	inner  autopilot.LLM
+	budget RoundBudget
+	ws     string
+	conv   string
+}
+
+func (m *meteredLLM) AnthropicProvider(ctx context.Context) (llm.Provider, bool) {
+	return m.inner.AnthropicProvider(ctx)
+}
+
+func (m *meteredLLM) AnthropicTurn(ctx context.Context, r llm.AnthropicRequest) (*llm.AnthropicResponse, error) {
+	model := ""
+	if p, ok := m.inner.AnthropicProvider(ctx); ok {
+		model = p.Model
+	}
+	in, out := llm.PriceForModel(model)
+	body, err := json.Marshal([]any{r.System, r.Messages})
+	if err != nil {
+		return nil, err
+	}
+	promptEst := tokensFor(len(body))
+	maxOut := r.MaxTokens
+	if maxOut <= 0 {
+		maxOut = roundMaxOutputTokens
+	}
+	hold, err := m.budget.Reserve(ctx, RoundBid{WorkspaceID: m.ws, ConvID: m.conv, ExposureMicroUSD: usdMicro(promptEst, maxOut, in, out)})
+	if err != nil {
+		return nil, err
+	}
+	resp, callErr := m.inner.AnthropicTurn(ctx, r)
+	c := RoundCharge{PromptTokens: promptEst, CompletionTokens: maxOut, Estimated: true} // a failed call may have run: charge the bid
+	if callErr == nil && resp != nil && (resp.Usage.InputTokens > 0 || resp.Usage.OutputTokens > 0) {
+		u := resp.Usage
+		c = RoundCharge{PromptTokens: u.InputTokens + u.CacheCreationInputTokens + u.CacheReadInputTokens, CompletionTokens: u.OutputTokens}
+	} else if callErr == nil && resp != nil {
+		c = RoundCharge{PromptTokens: promptEst, CompletionTokens: tokensFor(len(resp.Text())), Estimated: true}
+	}
+	c.MicroUSD = usdMicro(c.PromptTokens, c.CompletionTokens, in, out)
+	hold.Settle(ctx, c)
+	return resp, callErr
 }

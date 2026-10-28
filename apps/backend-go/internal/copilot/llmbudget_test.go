@@ -3,8 +3,11 @@ package copilot
 import (
 	"context"
 	"errors"
+	"net/http"
 	"sync"
 	"testing"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 )
 
 // fakeBudget admits `allow` rounds, then refuses; it records every bid and settlement.
@@ -92,5 +95,69 @@ func TestRoundBudgetErrorFailsClosed(t *testing.T) {
 	}
 	if len(f.llmReqs) != 0 {
 		t.Fatal("a provider round ran without an admission")
+	}
+}
+
+type fakePlannerLLM struct {
+	calls int
+	resp  *llm.AnthropicResponse
+	err   error
+}
+
+func (f *fakePlannerLLM) AnthropicProvider(context.Context) (llm.Provider, bool) {
+	return llm.Provider{ID: "anthropic", Model: "claude-sonnet-4-5"}, true
+}
+func (f *fakePlannerLLM) AnthropicTurn(context.Context, llm.AnthropicRequest) (*llm.AnthropicResponse, error) {
+	f.calls++
+	return f.resp, f.err
+}
+
+// Follow-up to final security M3: the non-chat llm call (the autopilot planner behind draft_plan) goes through
+// the same workspace budget: reserved before the provider is called, settled from the reported usage.
+func TestPlannerLLMReservesAndSettles(t *testing.T) {
+	inner := &fakePlannerLLM{resp: &llm.AnthropicResponse{Usage: llm.AnthropicUsage{InputTokens: 120, OutputTokens: 30}}}
+	b := &fakeBudget{allow: 5}
+	m := &meteredLLM{inner: inner, budget: b, ws: "ws-t13", conv: "c1"}
+	if _, err := m.AnthropicTurn(context.Background(), llm.AnthropicRequest{
+		Messages: []any{map[string]any{"role": "user", "content": "plan it"}}, MaxTokens: 1024}); err != nil {
+		t.Fatal(err)
+	}
+	if inner.calls != 1 || len(b.bids) != 1 || len(b.settled) != 1 {
+		t.Fatalf("calls=%d bids=%d settled=%d", inner.calls, len(b.bids), len(b.settled))
+	}
+	if b.bids[0].WorkspaceID != "ws-t13" || b.bids[0].ExposureMicroUSD <= 0 {
+		t.Fatalf("bid %+v", b.bids[0])
+	}
+	if c := b.settled[0]; c.PromptTokens != 120 || c.CompletionTokens != 30 || c.MicroUSD <= 0 || c.Estimated {
+		t.Fatalf("charge %+v", c)
+	}
+}
+
+func TestPlannerLLMRefusedBudgetCallsNoProvider(t *testing.T) {
+	inner := &fakePlannerLLM{resp: &llm.AnthropicResponse{}}
+	m := &meteredLLM{inner: inner, budget: &fakeBudget{allow: 0}, ws: "ws-t13"}
+	_, err := m.AnthropicTurn(context.Background(), llm.AnthropicRequest{MaxTokens: 1024})
+	var be *BudgetExceededError
+	if !errors.As(err, &be) || inner.calls != 0 {
+		t.Fatalf("err=%v calls=%d", err, inner.calls)
+	}
+}
+
+func TestPlannerLLMFailedCallStillSettles(t *testing.T) {
+	inner := &fakePlannerLLM{err: errors.New("boom")}
+	b := &fakeBudget{allow: 1}
+	m := &meteredLLM{inner: inner, budget: b, ws: "ws-t13"}
+	if _, err := m.AnthropicTurn(context.Background(), llm.AnthropicRequest{MaxTokens: 1024}); err == nil {
+		t.Fatal("want error")
+	}
+	if len(b.settled) != 1 {
+		t.Fatalf("settled %d: a failed call must release its hold", len(b.settled))
+	}
+}
+
+func TestTurnPlannerUsesBudgetedLLM(t *testing.T) {
+	tn := &Turn{Deps: Deps{Settings: settingsStub{}, Engine: &Engine{LLM: llm.New(llm.Options{Settings: mapSettings{}, HTTP: &http.Client{}})}, Budget: &fakeBudget{allow: 1}}, WS: "ws-t13", ConvID: "c1"}
+	if _, ok := tn.planner().LLM.(*meteredLLM); !ok {
+		t.Fatalf("planner LLM %T is not metered", tn.planner().LLM)
 	}
 }
