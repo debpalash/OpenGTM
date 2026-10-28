@@ -67,8 +67,7 @@ func RunHandler(d Deps, r Researcher) func(ctx context.Context, c *queue.Claim) 
 	}
 }
 
-// verifyScheduleJob admits a research_playbook_schedule job with an empty jobs.workspace_id
-// (what Python's enqueue_job_once writes). The job's own fire_key must be exactly
+// verifyScheduleJob checks a research_playbook_schedule job of the claim's workspace. The job's own fire_key must be exactly
 // playbook_schedule:<playbook id>:<iso time> for the payload's playbook, and the playbook
 // must exist in the payload's workspace (read in that tenant, so a forged workspace sees
 // nothing) with an active schedule; anything else is a permanent failure.
@@ -110,11 +109,11 @@ func ScheduleHandler(d Deps) func(ctx context.Context, c *queue.Claim) error {
 		if f[0] == "" || f[1] == "" {
 			return errors.New("playbook schedule requires workspace_id and playbook_id")
 		}
-		if c.WorkspaceID != "" {
-			if f[0] != c.WorkspaceID {
-				return foreign(c)
-			}
-		} else if err := verifyScheduleJob(ctx, d, c.ID, f[0], f[1]); err != nil {
+		// The tenant is the claim's only (final security Low 1): a job without jobs.workspace_id is refused.
+		if c.WorkspaceID == "" || f[0] != c.WorkspaceID {
+			return foreign(c)
+		}
+		if err := verifyScheduleJob(ctx, d, c.ID, f[0], f[1]); err != nil {
 			return &queue.PermanentError{Err: err}
 		}
 		return HandleSchedule(ctx, d, f[0], f[1])
