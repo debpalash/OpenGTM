@@ -1,5 +1,23 @@
-import ReactMarkdown from "react-markdown"
+import ReactMarkdown, { defaultUrlTransform } from "react-markdown"
 import remarkGfm from "remark-gfm"
+
+/**
+ * Images are an exfiltration channel when the text comes from an LLM or scraped
+ * content: only same-origin paths and data:image URLs may load.
+ */
+export function isSafeImageSrc(src: string | undefined): boolean {
+  if (!src) return false
+  const value = src.trim()
+  if (/^data:image\/[a-z0-9.+-]+[;,]/i.test(value)) return true
+  if (value.startsWith("//") || value.startsWith("\\")) return false
+  if (value.startsWith("/") || value.startsWith("./") || value.startsWith("../")) return true
+  try {
+    const base = typeof window !== "undefined" ? window.location.origin : "http://localhost"
+    return new URL(value, base).origin === base && !/^[a-z][a-z0-9+.-]*:/i.test(value)
+  } catch {
+    return false
+  }
+}
 
 /**
  * Shared markdown renderer for chat messages, AI research content,
@@ -12,6 +30,7 @@ export function MarkdownContent({ content, className = "" }: { content: string; 
     <div className={className}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
+        urlTransform={(url, key) => (key === "src" ? (isSafeImageSrc(url) ? url : "") : defaultUrlTransform(url))}
         components={{
           table: ({ children }) => (
             <div className="overflow-x-auto my-4 rounded-xl border border-border/40 bg-card/60 shadow-md backdrop-blur-sm">
@@ -40,11 +59,19 @@ export function MarkdownContent({ content, className = "" }: { content: string; 
             <em className="text-muted-foreground">{children}</em>
           ),
           a: ({ href, children }) => (
-            <a href={href} target="_blank" rel="noopener noreferrer"
+            <a href={href} target="_blank" rel="noopener noreferrer nofollow"
               className="text-primary underline underline-offset-2 decoration-primary/30 hover:decoration-primary transition-colors">
               {children}
             </a>
           ),
+          img: ({ src, alt }) => {
+            const url = typeof src === "string" ? src : undefined
+            return isSafeImageSrc(url) ? (
+              <img src={url} alt={alt ?? ""} className="max-w-full rounded-lg" />
+            ) : (
+              <span className="text-muted-foreground italic">[image: {alt || "blocked"}]</span>
+            )
+          },
           ul: ({ children }) => <ul className="list-disc list-outside pl-5 space-y-1 my-2">{children}</ul>,
           ol: ({ children }) => <ol className="list-decimal list-outside pl-5 space-y-1 my-2">{children}</ol>,
           li: ({ children }) => <li className="text-sm leading-relaxed">{children}</li>,
