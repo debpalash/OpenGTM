@@ -397,7 +397,7 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 	// Every provider runs in process (providerrun: settings, cache, stats ledger); there is no Python worker.
 	provRunner := providerrun.New(providerrun.Deps{Pool: pool, Secrets: sh.local, OperatorAllow: cfg.EgressAllowHosts, Log: log})
 	deps.Runner = provRunner
-	provRPC, err := providerRPC(cfg, log, sh.local, provRunner)
+	provRPC, err := providerRPC(cfg, pool, log, sh.local, provRunner)
 	if err != nil {
 		return nil, nil, err
 	}
