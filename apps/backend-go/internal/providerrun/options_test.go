@@ -14,7 +14,7 @@ import (
 func TestRunKeepsCallOptions(t *testing.T) {
 	var got map[string]any
 	name := "providerrun_test_opts"
-	providers.Register(&optsProv{name: name, got: &got})
+	providers.RegisterForTest(t, &optsProv{name: name, got: &got})
 	r := providerrun.New(providerrun.Deps{Secrets: noSecrets{}})
 	in := providers.Input{Lead: map[string]any{"company": "x"}, Field: "email",
 		Settings: map[string]any{"max_people": 3, "delay_ms": 1500, "REACHER_URL": "http://169.254.169.254"}}

@@ -29,7 +29,7 @@ func (g *gatedCL) FindPeopleByTitles(ctx context.Context, q PeopleQuery) (People
 // salted with the calling workspace.
 func TestResearchRespectsLocalGateAndWorkspace(t *testing.T) {
 	g := &gatedCL{fakeCL: fakeCL{found: PeopleFound{SearchesUsed: 1}}}
-	providers.Register(g)
+	providers.RegisterForTest(t, g)
 	t.Cleanup(func() { providers.SetLocalGate(nil) })
 	s := &Service{CrossLinkedName: "crosslinked-gated-test", Identity: &fakeID{res: map[string]any{"status": "not_found"}}}
 

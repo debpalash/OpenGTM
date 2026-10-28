@@ -143,7 +143,7 @@ func (*registered) Enrich(context.Context, *http.Client, func() (string, error),
 
 func TestResearchUsesRegistryProvider(t *testing.T) {
 	r := &registered{fakeCL{found: PeopleFound{SearchesUsed: 1}}}
-	providers.Register(r)
+	providers.RegisterForTest(t, r)
 	s := &Service{CrossLinkedName: "crosslinked-leadpeople-test", Identity: &fakeID{res: map[string]any{"status": "not_found"}}}
 	got, err := s.ResearchPeopleAtCompany(context.Background(), "Stripe", "Sales", ResearchOptions{})
 	if err != nil || got["ok"] != true || len(r.calls) != 1 || r.calls[0].Company != "Stripe" {
