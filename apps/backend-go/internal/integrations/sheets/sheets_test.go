@@ -202,3 +202,34 @@ func TestTenantTokenIsolation(t *testing.T) {
 		t.Fatal("c connected")
 	}
 }
+
+func TestUpsertRowAbsoluteRowFromRangeStart(t *testing.T) {
+	cases := []struct {
+		name, rng, lookup, wantPath string
+	}{
+		{"A1 default", "", `{"values":[["h"],["k","x"]]}`, "/v4/spreadsheets/sid/values/Sheet1%21A2%3AC2"},
+		{"row offset", "Sheet1!A5:ZZ", `{"values":[["h"],["k","x"]]}`, "/v4/spreadsheets/sid/values/Sheet1%21A6%3AC6"},
+		{"row and column offset", "Data!C5:ZZ", `{"values":[["h"],["k","x"]]}`, "/v4/spreadsheets/sid/values/Data%21C6%3AE6"},
+		{"whole column", "Sheet1!B:ZZ", `{"values":[["k"]]}`, "/v4/spreadsheets/sid/values/Sheet1%21B1%3AD1"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			var put string
+			c := New(&http.Client{Transport: kittest.RoundTripFunc(func(r *http.Request) (*http.Response, error) {
+				if r.Method == http.MethodPut {
+					put = r.URL.EscapedPath()
+				}
+				if r.Method == http.MethodGet {
+					return kittest.Respond(r, 200, tc.lookup), nil
+				}
+				return kittest.Respond(r, 200, `{"updatedRange":"x"}`), nil
+			})}, kittest.Static{"w": {"GOOGLE_SHEETS_TOKEN": "tok"}})
+			if _, err := c.UpsertRow(context.Background(), "w", "sid", []any{"a", "b"}, "k", tc.rng); err != nil {
+				t.Fatal(err)
+			}
+			if put != tc.wantPath {
+				t.Fatalf("PUT path %q want %q", put, tc.wantPath)
+			}
+		})
+	}
+}
