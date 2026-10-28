@@ -23,7 +23,12 @@ func RegisterUsers(r *httpx.Router, d Deps) {
 	u := userRoutes{d}
 	mws := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.RequireGlobalAdmin()}
 	r.Handle("GET /admin/users", http.HandlerFunc(u.list), mws...)
-	r.Handle("POST /admin/users", http.HandlerFunc(u.create), mws...)
+	createMW := mws
+	if d.Limiter != nil {
+		// Account creation is throttled per authenticated admin (429 + Retry-After).
+		createMW = append(append([]httpx.Middleware(nil), mws...), d.Limiter.Limit(userCreateRate))
+	}
+	r.Handle("POST /admin/users", http.HandlerFunc(u.create), createMW...)
 	r.Handle("PUT /admin/users/{user_id}/password", http.HandlerFunc(u.resetPassword), mws...)
 	r.Handle("DELETE /admin/users/{user_id}", http.HandlerFunc(u.remove), mws...)
 	r.Handle("PATCH /admin/users/{user_id}/role", http.HandlerFunc(u.setRole), mws...)

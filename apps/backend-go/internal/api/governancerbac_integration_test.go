@@ -21,6 +21,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/govadmin"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
@@ -36,7 +37,10 @@ type rbEnv struct {
 // (activation.write deny). carol is a registered but inactive account that is a member of neither workspace.
 type rbOpt int
 
-const rbStaleGate rbOpt = 1
+const (
+	rbStaleGate rbOpt = 1
+	rbLimited   rbOpt = 2
+)
 
 func newRBEnv(t *testing.T, opts ...rbOpt) rbEnv {
 	t.Helper()
@@ -45,6 +49,9 @@ func newRBEnv(t *testing.T, opts ...rbOpt) rbEnv {
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
 	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Flags: config.Flags{PGLeadStore: true}}
+	if len(opts) > 0 && opts[0] == rbLimited {
+		d.Limiter = ratelimit.New(nil)
+	}
 	if len(opts) > 0 && opts[0] == rbStaleGate {
 		// A gate decision taken before the caller lost the right: every authenticated workspace member passes.
 		registerRBACRoutes(r, d, []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity)})

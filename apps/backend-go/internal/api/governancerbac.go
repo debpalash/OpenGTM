@@ -19,6 +19,14 @@ const maxRBACBody = 1 << 20
 
 type rbacRoutes struct{ d Deps }
 
+// Member-add throttle (per workspace) and /admin/users create throttle (per admin user).
+const (
+	memberAddBurst  = 20
+	memberAddRate   = "20/minute" // memberAddBurst
+	userCreateBurst = 10
+	userCreateRate  = "10/minute" // userCreateBurst
+)
+
 // registerGovernanceRBAC registers the rbac and members routes (Task 14). All need governance.manage (admin),
 // as Python's require_admin.
 func registerGovernanceRBAC(r *httpx.Router, d Deps) {
@@ -29,9 +37,15 @@ func registerGovernanceRBAC(r *httpx.Router, d Deps) {
 // before the write (the handlers re-check inside the write transaction).
 func registerRBACRoutes(r *httpx.Router, d Deps, mw []httpx.Middleware) {
 	h := rbacRoutes{d: d}
+	// Adding an account to a workspace is the invite path of this API: throttled per workspace
+	// (the limiter keys on the authenticated workspace), 429 + Retry-After, after the gate chain.
+	addMW := mw
+	if d.Limiter != nil {
+		addMW = append(append([]httpx.Middleware(nil), mw...), d.Limiter.Limit(memberAddRate))
+	}
 	r.Handle("GET /api/governance/rbac", http.HandlerFunc(h.get), mw...)
 	r.Handle("PUT /api/governance/rbac/{user_id}/{permission}", http.HandlerFunc(h.put), mw...)
-	r.Handle("POST /api/governance/members", http.HandlerFunc(h.add), mw...)
+	r.Handle("POST /api/governance/members", http.HandlerFunc(h.add), addMW...)
 	r.Handle("PATCH /api/governance/members/{user_id}", http.HandlerFunc(h.patch), mw...)
 	r.Handle("DELETE /api/governance/members/{user_id}", http.HandlerFunc(h.remove), mw...)
 }
