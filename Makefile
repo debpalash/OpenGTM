@@ -2,7 +2,7 @@
 #
 #   make build   clean, build the web UI, build bin/opengtm-{api,worker,mcp,scheduler,seed,migrate} + bin/suppressnorm
 #   make migrate build bin/opengtm-migrate and apply pending schema migrations (DATABASE_URL = owner)
-#   make run     build, then start api + worker in the background (pids/logs in .run/)
+#   make run     build, then start api + worker + scheduler in the background (pids/logs in .run/)
 #   make dev     vite dev server for apps/web (pid in .run/web.pid; proxies to VITE_API_TARGET)
 #   make kill    stop what run/dev started (pid file, verified against /proc; never by port or name)
 #   make up/down docker compose stack
@@ -49,14 +49,15 @@ clean:
 
 run:
 	@mkdir -p $(RUN)
-	@for s in api worker; do \
+	@for s in api worker scheduler; do \
 		if scripts/runctl.sh alive $$s; then \
 			echo "$$s already running (pid $$(cat $(RUN)/$$s.pid)); run 'make kill' first" >&2; exit 1; fi; \
 	done
 	@$(MAKE) --no-print-directory build
 	@nohup $(BIN)/opengtm-api    >$(RUN)/api.log    2>&1 & echo $$! >$(RUN)/api.pid
 	@nohup $(BIN)/opengtm-worker >$(RUN)/worker.log 2>&1 & echo $$! >$(RUN)/worker.pid
-	@echo "started api (pid $$(cat $(RUN)/api.pid)) and worker (pid $$(cat $(RUN)/worker.pid)); logs in $(RUN)/"
+	@nohup $(BIN)/opengtm-scheduler >$(RUN)/scheduler.log 2>&1 & echo $$! >$(RUN)/scheduler.pid
+	@echo "started api (pid $$(cat $(RUN)/api.pid)), worker (pid $$(cat $(RUN)/worker.pid)) and scheduler (pid $$(cat $(RUN)/scheduler.pid)); logs in $(RUN)/"
 
 # vite is started under setsid so its pid is a process-group leader: `make kill` verifies it and stops the whole group.
 dev:

@@ -57,3 +57,40 @@ func TestExecutorResolversAlwaysNameGo(t *testing.T) {
 		t.Error("the executor switches of the per-area settings must read as on")
 	}
 }
+
+// Final correctness I4: the route, scheduler and copilot switches are retired too. Without GO_ALL_NATIVE (make run,
+// a bare binary) and with a leftover explicit false from the canary period they still read as on.
+func TestRouteSchedulerCopilotFlagsAreRetired(t *testing.T) {
+	keys := []string{
+		"GO_AUDIENCE_ROUTES_ENABLED", "GO_AUTOMATION_ROUTES_ENABLED", "GO_CAPABILITY_ROUTES_ENABLED",
+		"GO_COLLECTION_ROUTES_ENABLED", "GO_CONNECTOR_ROUTES_ENABLED", "GO_DEST_ROUTES_ENABLED",
+		"GO_GOVERNANCE_ROUTES_ENABLED", "GO_LLM_ROUTES_ENABLED", "GO_OUTREACH_ROUTES_ENABLED",
+		"GO_PLAYBOOK_ROUTES_ENABLED", "GO_RUN_ROUTES_ENABLED", "GO_SCRAPE_ROUTES_ENABLED",
+		"GO_SOURCE_PREVIEW_ENABLED", "GO_SCHEDULER_ENABLED", "GO_COPILOT_NATIVE", "COPILOT_GO_ENABLED",
+	}
+	for _, env := range []map[string]string{{}, {"GO_SCHEDULER_ENABLED": "false", "GO_LLM_ROUTES_ENABLED": "0", "COPILOT_GO_ENABLED": "false"}} {
+		get := AllNative(envOf(env))
+		for _, k := range keys {
+			if got := get(k); got != "true" {
+				t.Errorf("%v: %s = %q, want true", env, k, got)
+			}
+		}
+	}
+	// True opt-ins keep their own defaults.
+	get := AllNative(envOf(nil))
+	for _, k := range []string{"GO_TRAILING_SLASH_COMPAT", "GO_AI_BATCH_ENABLED"} {
+		if get(k) != "" {
+			t.Errorf("%s must stay an opt-in, got %q", k, get(k))
+		}
+	}
+}
+
+func TestIgnoredRetiredFlags(t *testing.T) {
+	got := IgnoredRetiredFlags(envOf(map[string]string{
+		"GO_SCHEDULER_ENABLED": "false", "GO_EXECUTOR_COLLECT": " 0 ", "GO_LLM_ROUTES_ENABLED": "true", "GO_TRAILING_SLASH_COMPAT": "false",
+	}))
+	want := []string{"GO_EXECUTOR_COLLECT", "GO_SCHEDULER_ENABLED"}
+	if len(got) != len(want) || got[0] != want[0] || got[1] != want[1] {
+		t.Fatalf("got %v want %v", got, want)
+	}
+}

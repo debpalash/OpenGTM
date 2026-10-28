@@ -32,7 +32,7 @@ func TestCopilotSettingsDefaultsAndParse(t *testing.T) {
 		t.Fatal(err)
 	}
 	f := c.Flags.Copilot
-	if f.GoCopilotEnabled || f.MaxBodyBytes != 1048576 || f.MaxStreamsPerUser != 3 || f.TurnTimeoutSeconds != 900 || f.ToolTimeoutSeconds != 120 {
+	if !f.GoCopilotEnabled || f.MaxBodyBytes != 1048576 || f.MaxStreamsPerUser != 3 || f.TurnTimeoutSeconds != 900 || f.ToolTimeoutSeconds != 120 {
 		t.Fatalf("defaults wrong: %+v", f)
 	}
 	c, err = loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "COPILOT_GO_ENABLED": "true", "COPILOT_MAX_BODY_BYTES": "2048",
@@ -92,8 +92,9 @@ func TestAnonymousChatGuardScopedToGoCopilot(t *testing.T) {
 		env     map[string]string
 		refused bool
 	}{
-		{map[string]string{}, false}, // copilot off
-		{map[string]string{"COPILOT_GO_ENABLED": "true", "PG_LEAD_STORE": "false"}, false},
+		{map[string]string{}, true}, // the Go copilot is always served (COPILOT_GO_ENABLED is retired)
+		{map[string]string{"COPILOT_GO_ENABLED": "false"}, true},
+		{map[string]string{"PG_LEAD_STORE": "false"}, false},
 		{map[string]string{"COPILOT_GO_ENABLED": "true"}, true},
 		{map[string]string{"COPILOT_GO_ENABLED": "true", "COPILOT_ALLOW_ANONYMOUS_CHAT": "true"}, false},
 	} {

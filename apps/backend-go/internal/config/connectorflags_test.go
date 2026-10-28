@@ -15,7 +15,7 @@ func TestConnectorFlagsDefaultsAndEnv(t *testing.T) {
 		t.Fatal(err)
 	}
 	f := c.Flags
-	if f.GoConnectorRoutesEnabled || f.CRMImportEnabled ||
+	if !f.GoConnectorRoutesEnabled || f.CRMImportEnabled ||
 		f.CertificationPath != "" || f.CertificationKey.Reveal() != "" || f.BuildSHA != "" {
 		t.Fatalf("defaults wrong: %+v", f)
 	}
@@ -34,7 +34,7 @@ func TestConnectorFlagsDefaultsAndEnv(t *testing.T) {
 	if strings.Contains(c.String(), "cert-key-secret") {
 		t.Fatal("certification key leaked in String()")
 	}
-	if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "GO_CONNECTOR_ROUTES_ENABLED": "maybe"})); err == nil {
+	if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "CRM_IMPORT_ENABLED": "maybe"})); err == nil {
 		t.Fatal("invalid bool accepted")
 	}
 }

@@ -89,6 +89,9 @@ func TestEnrichRoutePatterns(t *testing.T) {
 	got := map[string]bool{}
 	for _, p := range r.Patterns() {
 		got[p] = true
+		if p == "GET /api/workbooks/{workbook_id}/sources/{col_id}/preview" {
+			continue // the source preview (GO_SOURCE_PREVIEW_ENABLED, retired: always on) is covered by TestEveryEnrichmentRouteIsPortedOrRetained
+		}
 		if !enrichPatterns[p] {
 			t.Errorf("unexpected pattern %s", p)
 		}

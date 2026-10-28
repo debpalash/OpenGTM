@@ -48,9 +48,8 @@ func registerWorkbookSources(r *httpx.Router, d Deps) {
 		run = append(run, d.Limiter.Limit("20/minute")) // @limiter.limit("20/minute"): after the auth dependencies
 	}
 	r.Handle("POST /api/workbooks/{workbook_id}/sources/{col_id}/run", http.HandlerFunc(h.run), run...)
-	if config.SourceWbFrom(d.getenv()).PreviewEnabled {
-		r.Handle("GET /api/workbooks/{workbook_id}/sources/{col_id}/preview", http.HandlerFunc(h.preview), authn, workspace)
-	}
+	// GO_SOURCE_PREVIEW_ENABLED is retired (permanently on), so the preview route always registers.
+	r.Handle("GET /api/workbooks/{workbook_id}/sources/{col_id}/preview", http.HandlerFunc(h.preview), authn, workspace)
 }
 
 type sourceRoutes struct {

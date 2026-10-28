@@ -5,7 +5,7 @@ import "testing"
 func TestLoadSourceWb(t *testing.T) {
 	get := func(m map[string]string) func(string) string { return func(k string) string { return m[k] } }
 	s, err := LoadSourceWb(get(nil))
-	if err != nil || s.PreviewEnabled || s.CRMImportEnabled || s.PeopleSearchEnabled {
+	if err != nil || !s.PreviewEnabled || s.CRMImportEnabled || s.PeopleSearchEnabled {
 		t.Fatalf("defaults: %+v %v", s, err)
 	}
 	s, err = LoadSourceWb(get(map[string]string{"GO_SOURCE_PREVIEW_ENABLED": "1",
@@ -17,7 +17,7 @@ func TestLoadSourceWb(t *testing.T) {
 		t.Fatal("a malformed flag must fail startup")
 	}
 	// The per-request reader never fails: a malformed value is off.
-	if s := SourceWbFrom(get(map[string]string{"GO_SOURCE_PREVIEW_ENABLED": "maybe"})); s.PreviewEnabled {
+	if s := SourceWbFrom(get(map[string]string{"CRM_IMPORT_ENABLED": "maybe"})); s.CRMImportEnabled {
 		t.Fatal("lenient read: malformed is off")
 	}
 }

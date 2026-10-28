@@ -12,7 +12,7 @@ func TestConfigDefaultsMatchPython(t *testing.T) {
 	}
 	a := c.Flags.Automations
 	want := AutomationsSettings{
-		GoRoutesEnabled: false, GoExecutorTriggerEval: true, GoExecutorWatchPoll: true, // retired: always on
+		GoRoutesEnabled: true, GoExecutorTriggerEval: true, GoExecutorWatchPoll: true, // retired: always on (final correctness I4: the routes flag too)
 		GlobalDailyUSD: 0, MaxRulesPerWS: 50, MaxActionsPerRule: 10, MaxRowsPerEval: 500,
 		WebhookDomainAllowlist:            nil,
 		PollerDefaultInterval:             "daily",

@@ -4,9 +4,9 @@
 // lock keeps exactly one scheduler active, so a second replica (or the Python scheduler, which must take
 // the same lock) idles.
 //
-// The scheduler only runs with GO_SCHEDULER_ENABLED=true (default false: it prints why and exits 0).
-// apps/api/scheduler.py does not take the lease, so WP-RETIRE-INFRA enables this binary and removes the Python
-// scheduler in one step; until then two reconcilers must never coexist.
+// GO_SCHEDULER_ENABLED is retired (internal/config/allnative.go): the scheduler always runs, whatever the
+// environment says; an explicit false is logged as ignored at startup. The gate below only matters for callers that
+// pass a raw getter.
 package main
 
 import (
@@ -41,8 +41,8 @@ func main() {
 	}
 }
 
-// errDisabled is returned while GO_SCHEDULER_ENABLED is not true.
-var errDisabled = errors.New("disabled: set GO_SCHEDULER_ENABLED=true to run the Go scheduler (it must be the only scheduler: stop the Python scheduler first)")
+// errDisabled is returned by gate for a raw getter that says false (run() resolves the retired flag to true first).
+var errDisabled = errors.New("disabled: GO_SCHEDULER_ENABLED=false (the flag is retired and ignored by the binary)")
 
 // gate refuses to run unless GO_SCHEDULER_ENABLED is a true boolean; an invalid value is a configuration error.
 func gate(get func(string) string) error {
@@ -89,6 +89,7 @@ func run() error {
 		return err
 	}
 	log := telemetry.NewLogger(os.Stdout)
+	config.LogIgnoredRetired(log, os.Getenv)
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer stop()
 

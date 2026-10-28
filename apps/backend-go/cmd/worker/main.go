@@ -67,6 +67,7 @@ func run() error {
 	}
 	log := telemetry.NewLogger(os.Stdout)
 	log.Info("starting worker", "config", cfg)
+	config.LogIgnoredRetired(log, os.Getenv)
 	logAutomationFlags(log, cfg)
 
 	rootCtx, stop := context.WithCancel(context.Background())

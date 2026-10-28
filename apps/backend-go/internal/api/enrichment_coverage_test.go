@@ -261,24 +261,11 @@ func TestEveryJobTypeHandledOrPython(t *testing.T) {
 // (beyond the always-on add and run routes).
 func sourcePreviewPatterns(t *testing.T) map[string]bool {
 	t.Helper()
-	base, on := httpx.NewRouter(), httpx.NewRouter()
-	d := enrichDepsWithPool(t)
-	d.Getenv = func(string) string { return "" }
-	registerWorkbookSources(base, d)
-	d.Getenv = func(k string) string {
-		if k == "GO_SOURCE_PREVIEW_ENABLED" {
-			return "true"
-		}
-		return ""
-	}
-	registerWorkbookSources(on, d)
-	had := map[string]bool{}
-	for _, p := range base.Patterns() {
-		had[p] = true
-	}
+	r := httpx.NewRouter()
+	registerWorkbookSources(r, enrichDepsWithPool(t))
 	out := map[string]bool{}
-	for _, p := range on.Patterns() {
-		if !had[p] {
+	for _, p := range r.Patterns() {
+		if strings.HasSuffix(p, "/preview") {
 			out[p] = true
 		}
 	}

@@ -52,9 +52,9 @@ func TestAllNativeTurnsEverythingOn(t *testing.T) {
 
 func TestAllNativeExplicitValueWins(t *testing.T) {
 	get := AllNative(envOf(map[string]string{
-		"GO_ALL_NATIVE": "yes", "GO_SCHEDULER_ENABLED": "false", "GO_LLM_ROUTES_ENABLED": "0",
+		"GO_ALL_NATIVE": "yes", "GO_TRAILING_SLASH_COMPAT": "false", "GO_AI_BATCH_ENABLED": "0",
 	}))
-	if get("GO_SCHEDULER_ENABLED") != "false" || get("GO_LLM_ROUTES_ENABLED") != "0" {
+	if get("GO_TRAILING_SLASH_COMPAT") != "false" || get("GO_AI_BATCH_ENABLED") != "0" {
 		t.Error("explicit false must stay false")
 	}
 	if get("GO_COPILOT_NATIVE") != "true" {

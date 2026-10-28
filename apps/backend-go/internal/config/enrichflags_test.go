@@ -9,7 +9,7 @@ func TestConfigEnrichmentFlags(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if c.Flags.GoRunRoutesEnabled || c.WSMaxMessageBytes != 65536 {
+	if !c.Flags.GoRunRoutesEnabled || c.WSMaxMessageBytes != 65536 {
 		t.Fatalf("defaults wrong: %+v", c)
 	}
 	c, err = loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "GO_RUN_ROUTES_ENABLED": "true",

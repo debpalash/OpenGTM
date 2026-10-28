@@ -69,6 +69,7 @@ func run() error {
 	}
 	log := telemetry.NewLogger(os.Stdout)
 	log.Info("starting api", "config", cfg)
+	config.LogIgnoredRetired(log, os.Getenv)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer stop()

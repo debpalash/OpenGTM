@@ -2,7 +2,7 @@
 # Process control for `make run` / `make dev` / `make kill` (state in .run/<name>.pid).
 #   runctl.sh alive <name>   exit 0 if .run/<name>.pid names a live process that is OURS
 #   runctl.sh kill           stop every verified process; stale or foreign pids are reported and never signalled
-# "Ours" means the pid's /proc entry proves it: api/worker -> exe is this repo's bin/opengtm-<name>;
+# "Ours" means the pid's /proc entry proves it: api/worker/scheduler -> exe is this repo's bin/opengtm-<name>;
 # web -> cwd is this repo's apps/web and the command is bun/node/vite. The web pid is a session/group leader
 # (started with setsid), so its whole group (bun -> vite -> esbuild) is signalled together.
 set -u
@@ -14,7 +14,7 @@ owned() { # name pid
   local name="$1" pid="$2" exe cwd cmd
   [[ "$pid" =~ ^[0-9]+$ ]] && [ "$pid" -gt 1 ] && [ -d "/proc/$pid" ] || return 1
   case "$name" in
-    api|worker)
+    api|worker|scheduler)
       exe="$(readlink "/proc/$pid/exe" 2>/dev/null)" || return 1
       exe="${exe% (deleted)}"
       [ "$exe" = "$BIN/opengtm-$name" ] ;;

@@ -1,7 +1,9 @@
 package config
 
 import (
+	"log/slog"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -50,7 +52,7 @@ var nativeFlags = append(on(
 	"GO_OUTREACH_ROUTES_ENABLED", "GO_PLAYBOOK_ROUTES_ENABLED", "GO_RUN_ROUTES_ENABLED", "GO_SCRAPE_ROUTES_ENABLED",
 	"GO_SOURCE_PREVIEW_ENABLED", "GO_TRAILING_SLASH_COMPAT",
 	// native subsystems
-	"GO_COPILOT_NATIVE", "GO_NATIVE_AI_COLUMNS", "GO_NATIVE_SOURCE_PROBE",
+	"GO_COPILOT_NATIVE", "GO_NATIVE_AI_COLUMNS", "GO_NATIVE_SOURCE_PROBE", "COPILOT_GO_ENABLED",
 ), []NativeFlag{
 	{"GO_EXECUTOR_WORKSPACES", "*"}, // cohort = every workspace; read it through InCohort
 	{"GO_LOCAL_PROVIDERS", "all"},
@@ -74,6 +76,37 @@ var retiredKeys = map[string]bool{
 	"GO_EXECUTOR_BULK_ENRICH": true, "GO_EXECUTOR_COLUMN_TYPES": true,
 	"GO_RUN_NATIVE_PROVIDERS": true, "GO_LOCAL_PROVIDERS": true, "GO_NATIVE_AI_COLUMNS": true,
 	"GO_NATIVE_SOURCE_PROBE": true, "GO_DEST_TYPES": true,
+	// Final correctness I4: the route, scheduler and copilot switches. "Off" only ever meant "Python serves this".
+	"GO_AUDIENCE_ROUTES_ENABLED": true, "GO_AUTOMATION_ROUTES_ENABLED": true, "GO_CAPABILITY_ROUTES_ENABLED": true,
+	"GO_COLLECTION_ROUTES_ENABLED": true, "GO_CONNECTOR_ROUTES_ENABLED": true, "GO_DEST_ROUTES_ENABLED": true,
+	"GO_GOVERNANCE_ROUTES_ENABLED": true, "GO_LLM_ROUTES_ENABLED": true, "GO_OUTREACH_ROUTES_ENABLED": true,
+	"GO_PLAYBOOK_ROUTES_ENABLED": true, "GO_RUN_ROUTES_ENABLED": true, "GO_SCRAPE_ROUTES_ENABLED": true,
+	"GO_SOURCE_PREVIEW_ENABLED": true, "GO_SCHEDULER_ENABLED": true, "GO_COPILOT_NATIVE": true, "COPILOT_GO_ENABLED": true,
+}
+
+// IgnoredRetiredFlags returns, sorted, the retired flags the operator set to an explicit false spelling in get (the
+// raw environment). They are ignored (the flag is permanently on); entry points log the list at startup.
+func IgnoredRetiredFlags(get func(string) string) []string {
+	var out []string
+	for k := range retiredKeys {
+		v := strings.TrimSpace(get(k))
+		if v == "" || truthyValue(v) {
+			continue
+		}
+		switch strings.ToLower(v) {
+		case "0", "false", "no", "off", "f", "n":
+			out = append(out, k)
+		}
+	}
+	sort.Strings(out)
+	return out
+}
+
+// LogIgnoredRetired logs one warning naming every retired flag the environment sets to false (it is ignored).
+func LogIgnoredRetired(log *slog.Logger, get func(string) string) {
+	if flags := IgnoredRetiredFlags(get); len(flags) > 0 && log != nil {
+		log.Warn("retired flags set to false are ignored (Python is gone, these are permanently on)", "flags", strings.Join(flags, ","))
+	}
 }
 
 func isRetired(key string) bool { return retiredKeys[key] }
