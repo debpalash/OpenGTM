@@ -248,7 +248,7 @@ rows:
 				if errors.Is(err, workbook.ErrLeaseLost) {
 					return err // the new lease owner owns the run row
 				}
-				e.closeRun(ctx, run, dry, matched, st) // cancelled or errored: close the run row now, the retry reopens it
+				e.closeRun(ctx, run, dry, matched, st) // cancelled or errored: close the run row before returning
 				return err
 			}
 			err := e.runAction(ctx, actionIn{run: run, cand: cand, action: action, idx: idx, dry: dry, cells: cells,
