@@ -442,3 +442,8 @@ func (noAutomation) CreateTrigger(context.Context, pgx.Tx, string, RuleInput) (j
 func (noAutomation) BootstrapSchedule(context.Context, string, string) error {
 	return ErrUnavailable
 }
+
+// withSpendScope marks the provider calls made under ctx as paid work of the workspace spend ledger.
+func withSpendScope(ctx context.Context, run, row string) context.Context {
+	return provcall.WithSpendScope(ctx, provcall.SpendScope{Run: run, Row: row})
+}

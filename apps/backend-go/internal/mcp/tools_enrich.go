@@ -2,8 +2,11 @@ package mcp
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"regexp"
 	"slices"
@@ -282,6 +285,8 @@ func enrichCompanyTool(ctx context.Context, d Deps, c Ctx, a Args) (string, erro
 	}
 	l := *lead
 	return runCost(ctx, d, c, "enrich_company", a, errShape(), func(ctx context.Context) (string, error) {
+		// Paid providers reserve in the workspace spend ledger: one scope per tool call and lead.
+		ctx = withSpendScope(ctx, "mcp:enrich_company:"+scopeNonce(), fmt.Sprintf("lead:%d", l.ID))
 		in := map[string]any{"id": l.ID, "company": l.Company, "website": leadStr(l.Website), "email": leadStr(l.Email),
 			"phone": leadStr(l.Phone), "city": leadStr(l.City), "contact_person": leadStr(l.ContactPerson),
 			"linkedin_url": leadStr(l.LinkedinURL)}
@@ -416,4 +421,11 @@ func (f rpcFields) get(k string) json.RawMessage { return f.m[k] }
 func isNotFound(f rpcFields) bool {
 	var nf bool
 	return json.Unmarshal(f.m["not_found"], &nf) == nil && nf
+}
+
+// scopeNonce makes the ledger scope of one tool call unique, so repeated calls on a lead do not share one limit.
+func scopeNonce() string {
+	var b [8]byte
+	_, _ = rand.Read(b[:])
+	return hex.EncodeToString(b[:])
 }
