@@ -8,7 +8,7 @@ import (
 
 // Reconcile is reconcile_ambitionbox_job_failure: after the queue persisted a
 // failed attempt, make the run and workbook agree (retrying vs failed). It is
-// a no-op for finished runs, for runs outside the payload's workspace and for
+// a no-op for finished runs, for jobs without a workspace or whose payload names another one, and for
 // malformed payloads.
 func Reconcile(ctx context.Context, d Deps, n queue.FailureNotice) error {
 	p, ok := payloadIDs(n.Payload)
@@ -16,7 +16,7 @@ func Reconcile(ctx context.Context, d Deps, n queue.FailureNotice) error {
 		d.log().Error("ambitionbox failure hook: invalid payload", "job_id", n.JobID)
 		return nil
 	}
-	if n.WorkspaceID != "" && n.WorkspaceID != p.ws {
+	if n.WorkspaceID == "" || n.WorkspaceID != p.ws { // the tenant is the job row's only
 		d.log().Error("ambitionbox failure hook: payload workspace differs from the job's", "job_id", n.JobID)
 		return nil
 	}
