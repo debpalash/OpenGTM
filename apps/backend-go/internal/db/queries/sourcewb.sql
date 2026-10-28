@@ -10,6 +10,13 @@ WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 UPDATE workbooks SET status = sqlc.arg(status)::text, updated_at = (now() at time zone 'utc')
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
+-- name: SWResetRunning :exec
+UPDATE workbooks SET status = 'draft', updated_at = (now() at time zone 'utc')
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text AND status = 'running';
+
+-- name: SWFireKeyUsed :one
+SELECT EXISTS (SELECT 1 FROM jobs WHERE fire_key = sqlc.arg(fire_key)::text AND workspace_id = sqlc.arg(workspace_id)::text)::bool AS used;
+
 -- name: SWLockWorkbook :one
 SELECT source_config FROM workbooks
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text

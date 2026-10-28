@@ -53,21 +53,38 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 	if raw, merr := res.MarshalJSON(); merr == nil {
 		d.log().Info("source_workbook done", "job_id", c.ID, "result", truncRunes(string(raw), 500))
 	}
-	if !truthy(p.EnrichAfter) || !truthy(get(res, "added")) {
+	if !truthy(p.EnrichAfter) || !shouldChainRun(res) {
 		return nil
 	}
-	err = tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {
-		if d.EnqueueRun != nil {
-			return d.EnqueueRun(ctx, tx, ws, p.WorkbookID)
-		}
-		_, err := queue.Enqueue(ctx, tx, queue.JobTypeRunWorkbook, ws,
-			runPayload{WorkbookID: p.WorkbookID, WorkspaceID: ws}, "")
-		return err
-	})
-	if err != nil { // Python logs and moves on: the sourcing itself succeeded
+	if err := d.chainRun(ctx, ws, p.WorkbookID, c.ID); err != nil { // Python logs and moves on: the sourcing itself succeeded
 		d.log().Warn("source_workbook: failed to chain run_workbook", "job_id", c.ID, "err", err)
 	}
 	return nil
+}
+
+// shouldChainRun: rows were added, or (a redelivery after an attempt that committed them and died before chaining)
+// they already exist and were skipped as duplicates.
+func shouldChainRun(res interface{ Get(string) (any, bool) }) bool {
+	return truthy(get(res, "added")) || truthy(get(res, "skipped"))
+}
+
+// chainRun enqueues the run_workbook follow-up of enrich_after exactly once per source job: the row carries the fire
+// key source_wb_run:<jobID>, and an existing row with that key (queued, running or finished) means a previous attempt
+// already chained, so a redelivered attempt never chains a second run.
+func (d Deps) chainRun(ctx context.Context, ws, wbID string, jobID int64) error {
+	return tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {
+		if d.EnqueueRun != nil {
+			return d.EnqueueRun(ctx, tx, ws, wbID)
+		}
+		key := fmt.Sprintf("source_wb_run:%d", jobID)
+		used, err := gen.New(tx).SWFireKeyUsed(ctx, gen.SWFireKeyUsedParams{FireKey: key, WorkspaceID: ws})
+		if err != nil || used {
+			return err
+		}
+		// The key goes on the jobs.fire_key column only, so the payload stays byte-equal to Python's.
+		_, err = queue.Enqueue(ctx, tx, queue.JobTypeRunWorkbook, ws, runPayload{WorkbookID: wbID, WorkspaceID: ws}, key)
+		return err
+	})
 }
 
 type runPayload struct {

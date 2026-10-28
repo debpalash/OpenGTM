@@ -104,6 +104,22 @@ func (q *Queries) SWFinishWorkbook(ctx context.Context, arg SWFinishWorkbookPara
 	return err
 }
 
+const sWFireKeyUsed = `-- name: SWFireKeyUsed :one
+SELECT EXISTS (SELECT 1 FROM jobs WHERE fire_key = $1::text AND workspace_id = $2::text)::bool AS used
+`
+
+type SWFireKeyUsedParams struct {
+	FireKey     string
+	WorkspaceID string
+}
+
+func (q *Queries) SWFireKeyUsed(ctx context.Context, arg SWFireKeyUsedParams) (bool, error) {
+	row := q.db.QueryRow(ctx, sWFireKeyUsed, arg.FireKey, arg.WorkspaceID)
+	var used bool
+	err := row.Scan(&used)
+	return used, err
+}
+
 const sWInsertRow = `-- name: SWInsertRow :one
 INSERT INTO workbook_rows (workbook_id, workspace_id, position, data, enrichments, lead_id, canonical_entity_id,
   corroboration_count, source_provider, source_record_id, created_at, updated_at)
@@ -185,6 +201,21 @@ func (q *Queries) SWLockWorkbook(ctx context.Context, arg SWLockWorkbookParams) 
 	var source_config []byte
 	err := row.Scan(&source_config)
 	return source_config, err
+}
+
+const sWResetRunning = `-- name: SWResetRunning :exec
+UPDATE workbooks SET status = 'draft', updated_at = (now() at time zone 'utc')
+WHERE id = $1::text AND workspace_id = $2::text AND status = 'running'
+`
+
+type SWResetRunningParams struct {
+	ID          string
+	WorkspaceID string
+}
+
+func (q *Queries) SWResetRunning(ctx context.Context, arg SWResetRunningParams) error {
+	_, err := q.db.Exec(ctx, sWResetRunning, arg.ID, arg.WorkspaceID)
+	return err
 }
 
 const sWRowStats = `-- name: SWRowStats :one

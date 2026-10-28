@@ -35,6 +35,7 @@ type sourcewbOpts struct {
 func sourcewbHandlers(pool *pgxpool.Pool, log *slog.Logger, prog progress.Publisher, hook automationhook.Hook,
 	local *secrets.Resolver, o sourcewbOpts) map[string]runner {
 	queue.AllowJobType(sourcewb.JobType)
+	sourcewb.RegisterFailureHook(pool) // a spent source_workbook job must not leave its workbook "running"
 	get := o.getenv
 	if get == nil {
 		get = config.Getenv

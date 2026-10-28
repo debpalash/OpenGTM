@@ -23,3 +23,15 @@ func TestHandleRefusesUntrustedTenant(t *testing.T) {
 		}
 	}
 }
+
+func TestShouldChainRun(t *testing.T) {
+	for _, c := range []struct {
+		added, skipped int
+		want           bool
+	}{{3, 0, true}, {0, 5, true}, {0, 0, false}} {
+		res := obj("added", c.added, "skipped", c.skipped)
+		if got := shouldChainRun(res); got != c.want {
+			t.Errorf("added=%d skipped=%d: %v", c.added, c.skipped, got)
+		}
+	}
+}
