@@ -46,3 +46,23 @@ func TestHandleTakesTenantFromClaimOnly(t *testing.T) {
 		t.Fatalf("victim run touched: %+v", run)
 	}
 }
+
+// Final security Low 1: the failure hook touches nothing for a job without a workspace.
+func TestReconcileIgnoresEmptyJobWorkspace(t *testing.T) {
+	e := newEnv(t)
+	e.seedWorkbook(wsB, "wb-victim2", "B", "ambitionbox", nil)
+	e.in(wsB, func(tx pgx.Tx) error {
+		_, err := tx.Exec(e.ctx, `INSERT INTO connector_runs (id, workspace_id, workbook_id, connector, status, query, cursor, requested_count,
+			fetched_count, added_count, updated_count, skipped_count, pages_fetched, target_met, exhausted, started_at)
+			VALUES ('run-victim2',$1,'wb-victim2','ambitionbox','running','{"max_pages": 1}'::json,'{}'::json,10,0,0,0,0,0,false,false,now())`, wsB)
+		return err
+	})
+	n := queue.FailureNotice{JobID: 1, Payload: json.RawMessage(`{"workspace_id":"` + wsB + `","workbook_id":"wb-victim2","run_id":"run-victim2"}`),
+		Reason: "forged", WillRetry: false}
+	if err := ambitionimport.Reconcile(e.ctx, e.d, n); err != nil {
+		t.Fatal(err)
+	}
+	if run := e.runView(wsB, "run-victim2"); run["status"] != "running" {
+		t.Fatalf("victim run touched: %+v", run)
+	}
+}
