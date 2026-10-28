@@ -64,6 +64,30 @@ func cell(v any) string {
 }
 
 // columnName is the A1 column letters of a 1-based index (_column_name).
+// rangeStart returns the 1-based column and row of the range's top-left cell;
+// a missing column or row component (A:ZZ, 5:9) defaults to 1.
+func rangeStart(sheetRange string) (col, row int) {
+	a1 := sheetRange
+	if i := strings.LastIndex(a1, "!"); i >= 0 {
+		a1 = a1[i+1:]
+	}
+	a1, _, _ = strings.Cut(a1, ":")
+	a1 = strings.ReplaceAll(a1, "$", "")
+	col, row = 1, 1
+	i := 0
+	n := 0
+	for ; i < len(a1) && (a1[i]|0x20) >= 'a' && (a1[i]|0x20) <= 'z'; i++ {
+		n = n*26 + int(a1[i]|0x20-'a') + 1
+	}
+	if n > 0 {
+		col = n
+	}
+	if r, err := strconv.Atoi(a1[i:]); err == nil && r > 0 {
+		row = r
+	}
+	return col, row
+}
+
 func columnName(n int) string {
 	out := ""
 	for n > 0 {
@@ -195,8 +219,14 @@ func (c *Client) UpsertRow(ctx context.Context, ws, spreadsheetID string, values
 		operation string
 	)
 	if existing > 0 {
-		sheet, _, _ := strings.Cut(sheetRange, "!")
-		target := sheet + "!A" + strconv.Itoa(existing) + ":" + columnName(len(row)) + strconv.Itoa(existing)
+		sheet := ""
+		if i := strings.LastIndex(sheetRange, "!"); i >= 0 {
+			sheet = sheetRange[:i]
+		}
+		startCol, startRow := rangeStart(sheetRange)
+		abs := startRow + existing - 1 // lookup values begin at the range's first row
+		target := sheet + "!" + columnName(startCol) + strconv.Itoa(abs) + ":" +
+			columnName(startCol+len(row)-1) + strconv.Itoa(abs)
 		resp, err = intkit.Send(ctx, c.http, providers.Req{
 			Method: http.MethodPut, URL: base + "/" + intkit.PyQuote(target),
 			Query: [][2]string{{"valueInputOption", "USER_ENTERED"}}, Header: intkit.JSONHeaders(token), Body: rowBody(row),
