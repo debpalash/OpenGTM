@@ -80,6 +80,7 @@ SELECT json_build_object(
 type fakeCollector struct {
 	sc    scenario
 	calls []map[string]any
+	wss   []string // the workspace each call was made for
 }
 
 func (f *fakeCollector) Submit(_ context.Context, ws, query string) (string, error) {
@@ -115,6 +116,7 @@ func (g fakeGate) AccountFit(lead, _ *wbcrud.Obj) (*wbcrud.Obj, error) {
 type fakePeople struct {
 	sc    scenario
 	calls []map[string]any
+	wss   []string // the workspace each call was made for
 }
 
 func (f *fakePeople) FindPeopleByTitles(_ context.Context, q PeopleQuery) (PeopleResult, error) {
@@ -122,6 +124,7 @@ func (f *fakePeople) FindPeopleByTitles(_ context.Context, q PeopleQuery) (Peopl
 	for i, t := range q.Titles {
 		titles[i] = t
 	}
+	f.wss = append(f.wss, q.Workspace)
 	f.calls = append(f.calls, map[string]any{"op": "find_people_by_titles", "company": q.Company, "titles": titles,
 		"geo": q.Geo, "seniority": q.Seniority, "max_people": float64(q.MaxPeople), "max_searches": float64(q.MaxSearches)})
 	var s struct {
@@ -437,6 +440,11 @@ func TestSourceScenarioVectors(t *testing.T) {
 				result = generic(t, res)
 			}
 
+			for _, got := range ppl.wss { // the shared search cache is salted per workspace
+				if got != ws {
+					t.Fatalf("people search ran for workspace %q, want %q", got, ws)
+				}
+			}
 			var dump string
 			if err := owner.QueryRow(ctx, dumpSQL, "wb-sourcewb", ws).Scan(&dump); err != nil {
 				t.Fatal(err)

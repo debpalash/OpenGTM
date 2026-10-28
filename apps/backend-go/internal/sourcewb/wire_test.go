@@ -7,13 +7,18 @@ import (
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadpeople"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
-type fakeCL struct{ got []leadpeople.PeopleQuery }
+type fakeCL struct {
+	got []leadpeople.PeopleQuery
+	ws  []string // the workspace salt each call carried
+}
 
-func (f *fakeCL) FindPeopleByTitles(_ context.Context, q leadpeople.PeopleQuery) (leadpeople.PeopleFound, error) {
+func (f *fakeCL) FindPeopleByTitles(ctx context.Context, q leadpeople.PeopleQuery) (leadpeople.PeopleFound, error) {
 	f.got = append(f.got, q)
+	f.ws = append(f.ws, providers.WorkspaceFrom(ctx))
 	return leadpeople.PeopleFound{People: []map[string]any{{"name": "Jane", "title": "CTO", "linkedin": "https://linkedin.com/in/j",
 		"evidence_url": "https://e"}}, SearchesUsed: 2, SearchFailures: 1}, nil
 }
@@ -57,6 +62,22 @@ func TestCrossLinkedFinderMapsTheQuery(t *testing.T) {
 		if cl.got[0].Geo != c.want {
 			t.Errorf("seniority %q geo %q -> %q", c.sen, c.geo, cl.got[0].Geo)
 		}
+	}
+}
+
+// The shared web search cache is salted with the workspace (review L8, as people research does): the finder
+// puts the query's workspace on the context.
+func TestCrossLinkedFinderSaltsSearchWithTheWorkspace(t *testing.T) {
+	cl := &fakeCL{}
+	f := CrossLinkedFinder{CL: cl}
+	if _, err := f.FindPeopleByTitles(context.Background(), PeopleQuery{Company: "Acme", Workspace: "ws-1"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.FindPeopleByTitles(context.Background(), PeopleQuery{Company: "Acme"}); err != nil {
+		t.Fatal(err)
+	}
+	if cl.ws[0] != "ws-1" || cl.ws[1] != "" {
+		t.Fatalf("workspace salts %q", cl.ws)
 	}
 }
 
