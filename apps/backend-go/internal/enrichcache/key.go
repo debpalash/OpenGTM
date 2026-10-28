@@ -62,6 +62,9 @@ func EmailTTL(status string) time.Duration {
 
 var personFields = map[string]bool{
 	"email": true, "phone": true, "linkedin_url": true, "contact_person": true, "contact_title": true,
+	// Not in the Python table (a Python bug: one person's number was served for the whole
+	// company): the paid person-level lookups key per person too.
+	"mobile_phone": true, "direct_phone": true, "personal_email": true,
 }
 
 // CanonicalKey is cache.canonical_key: ok=false when there is not enough

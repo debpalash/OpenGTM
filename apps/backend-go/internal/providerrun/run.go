@@ -183,12 +183,10 @@ func (r *Runner) run(ctx context.Context, workspaceID, provider string, in provi
 		}
 	}
 
-	// The enrichment cache serves Go providers only: declarative manifests ran uncached in the
-	// executor, and their fields (mobile_phone) are not all keyed per person by the cache.
-	if native {
-		if out, ok := r.cacheGet(ctx, workspaceID, provider, in); ok {
-			return out, nil
-		}
+	// Person-level fields (mobile_phone, ...) are keyed per person by enrichcache, so Go and
+	// declarative providers share the workspace cache.
+	if out, ok := r.cacheGet(ctx, workspaceID, provider, in); ok {
+		return out, nil
 	}
 
 	start := time.Now()
@@ -209,7 +207,7 @@ func (r *Runner) run(ctx context.Context, workspaceID, provider string, in provi
 	success := out.Error == "" && out.Extra != nil && out.Extra.Len() > 0
 	r.record(ctx, workspaceID, provider, in.Field, success, out.Confidence,
 		float64(time.Since(start))/float64(time.Millisecond), rateLimited, timedOut)
-	if native && out.Error == "" {
+	if out.Error == "" {
 		r.cachePut(ctx, workspaceID, provider, in, out)
 	}
 	return out, nil
