@@ -1,5 +1,6 @@
 // Command worker is the job executor: it claims executor='go' jobs (every job since the plan 15 cutover) from the
-// Postgres queue, heartbeats leases, and finalizes outcomes.
+// Postgres queue, heartbeats leases, and finalizes outcomes. Every replica also runs the stale-claim reaper
+// (queue.RunReaper), which recovers the claims of dead workers through the normal retry/failure path.
 package main
 
 import (
@@ -105,6 +106,16 @@ func run() error {
 		return err
 	}
 	defer closeDeps()
+	// Every replica runs the stale-claim reaper (queue.RunReaper: rows locked FOR UPDATE SKIP LOCKED, so replicas
+	// share the work). It lives here, not in the scheduler, because the failure hooks it calls are registered by
+	// buildRunner in this process; it starts after them and stops with claiming.
+	reaperDone := make(chan struct{})
+	go func() {
+		defer close(reaperDone)
+		queue.RunReaper(claimCtx, pool, log.With("component", "reaper"), queue.DefaultReapInterval,
+			queue.ReaperStaleAfter(cfg.HeartbeatInterval))
+	}()
+	defer func() { stopClaiming(); <-reaperDone }()
 	var wg sync.WaitGroup
 	for i := 0; i < cfg.WorkerConcurrency; i++ {
 		wg.Add(1)
@@ -123,7 +134,7 @@ func run() error {
 		select {
 		case <-done:
 		case <-time.After(cfg.ShutdownGrace):
-			log.Warn("shutdown grace expired; cancelling jobs, leaving rows for the reaper")
+			log.Warn("shutdown grace expired; cancelling jobs, leaving their rows for the stale-claim reaper (queue.RunReaper)")
 			cancelJobs()
 			<-done
 		}
@@ -344,7 +355,7 @@ func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log 
 	wg.Wait()
 
 	if ctx.Err() != nil {
-		log.Warn("shutdown: leaving claim for reaper")
+		log.Warn("shutdown: leaving claim for the stale-claim reaper (queue.RunReaper)")
 		return
 	}
 	if context.Cause(jctx) == errLeaseLost {
