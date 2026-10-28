@@ -228,6 +228,12 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 		rs.releaseBeforeDispatch(ctx, id)
 		return providerCall{}, err
 	}
+	// A provider no runner serves (neither Go-native nor a verified manifest) never leaves the
+	// process: give the hold back before dispatch rather than leaving an `uncertain` attempt.
+	if !rs.serves(name) {
+		rs.releaseBeforeDispatch(ctx, id)
+		return providerCall{}, fmt.Errorf("workbook: provider %q: %w", name, provcall.ErrUnavailable)
+	}
 	var dispatched bool
 	err = tenancy.InWorkspace(ctx, rs.deps.Pool, ws, func(tx pgx.Tx) error {
 		var e error
@@ -261,19 +267,25 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 		rs.markUncertain(ctx, id)
 		return providerCall{}, context.Cause(ctx)
 	}
-	unknown := false
+	unknown, unavailable := false, false
 	if rerr != nil {
-		if errors.Is(rerr, provcall.ErrUnknownProvider) {
+		switch {
+		case errors.Is(rerr, provcall.ErrUnknownProvider):
 			// The runner has no such provider: nothing can have reached a vendor,
 			// so the attempt settles at 0 (confirmed non-billable) below.
 			unknown = true
 			out = providers.Output{Error: "unknown_provider"}
-		} else {
+		case errors.Is(rerr, provcall.ErrUnavailable):
+			// No runner in this process serves it: the call never left the process, so the
+			// attempt settles at 0 below and the run then fails as unavailable.
+			unknown, unavailable = true, true
+			out = providers.Output{Error: "provider_unavailable"}
+		default:
 			// The call was dispatched: whatever the runner reports, it may have
 			// reached the vendor, so the attempt stays `uncertain`.
 			rs.markUncertain(ctx, id)
-			if errors.Is(rerr, provcall.ErrUnavailable) || errors.Is(rerr, provcall.ErrUnauthorized) {
-				return providerCall{}, fmt.Errorf("workbook: python worker: %w", rerr)
+			if errors.Is(rerr, provcall.ErrUnauthorized) {
+				return providerCall{}, fmt.Errorf("workbook: provider %q: %w", name, rerr)
 			}
 			return providerCall{kind: callException, text: truncRunes(rerr.Error(), maxErrorRunes)}, nil
 		}
@@ -284,7 +296,7 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 	}
 	resp := responseDict(name, out)
 	if unknown {
-		resp["billing_evidence"] = map[string]any{"charged_microusd": int64(0), "reference": "unknown_provider"}
+		resp["billing_evidence"] = map[string]any{"charged_microusd": int64(0), "reference": out.Error}
 	}
 	env, err := spend.AccountingEnvelope(name, spend.ProviderResponse(resp), exposure)
 	if err != nil {
@@ -315,6 +327,9 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 			}
 		}
 		return providerCall{kind: kind, text: text}, nil
+	}
+	if unavailable {
+		return providerCall{}, fmt.Errorf("workbook: provider %q: %w", name, provcall.ErrUnavailable)
 	}
 	if unknown {
 		return providerCall{kind: callUnknown}, nil
@@ -592,7 +607,7 @@ loop:
 			case errors.Is(rerr, provcall.ErrUnknownProvider):
 				call = providerCall{kind: callUnknown}
 			case errors.Is(rerr, provcall.ErrUnavailable), errors.Is(rerr, provcall.ErrUnauthorized):
-				return cellOutcome{}, fmt.Errorf("workbook: python worker: %w", rerr)
+				return cellOutcome{}, fmt.Errorf("workbook: provider %q: %w", name, rerr)
 			case rerr != nil:
 				call = providerCall{kind: callException, text: truncRunes(rerr.Error(), maxErrorRunes)}
 			case timedOut:

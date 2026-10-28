@@ -84,10 +84,38 @@ func (r manifestRunner) precheck(ctx context.Context, name string, lead map[stri
 	return perr
 }
 
+// runnerPrechecker is implemented by runners (providerrun.Runner) that can refuse a call before
+// any network I/O: a declarative manifest's Prepare refusal (missing key, blocked URL) or a
+// keyed Go provider without its key. An error is a credential lookup failure.
+type runnerPrechecker interface {
+	Precheck(ctx context.Context, workspaceID, provider string, lead map[string]any) (string, error)
+}
+
+// servesChecker is implemented by runners (providerrun.Runner) that know, without any I/O,
+// whether they execute a provider at all; one they do not serve is ErrUnavailable.
+type servesChecker interface {
+	Serves(provider string) bool
+}
+
+// serves reports whether the run's runner executes name (true when it cannot tell).
+func (rs *runState) serves(name string) bool {
+	if sc, ok := rs.runner.(servesChecker); ok {
+		return sc.Serves(name)
+	}
+	return true
+}
+
 // precheck refuses a call the runner can already tell will not reach the network.
 func (rs *runState) precheck(ctx context.Context, name string, lead map[string]any) string {
 	if pc, ok := rs.runner.(prechecker); ok {
 		return pc.precheck(ctx, name, lead)
+	}
+	if pc, ok := rs.runner.(runnerPrechecker); ok {
+		refusal, err := pc.Precheck(ctx, rs.p.WorkspaceID, name, lead)
+		if err != nil {
+			return "credential lookup failed" // fail closed: no hold, no call
+		}
+		return refusal
 	}
 	if cr, ok := rs.runner.(configurer); ok {
 		okc, err := cr.Configured(ctx, rs.p.WorkspaceID, name)

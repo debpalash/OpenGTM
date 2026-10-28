@@ -6,13 +6,11 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"sync"
 	"testing"
 
@@ -20,7 +18,6 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/credentials"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/runplan"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/vendorcatalog"
@@ -122,63 +119,76 @@ func (e *env) seedRows(ws, wb, columns string, rows ...string) {
 
 // TestDefaultMobileColumnRunsManifestProviders: the default mobile_phone waterfall is
 // {leadmagic_mobile, prospeo_mobile}, both built-in declarative manifests with no Go provider.
-// Through the production runner (providerrun), the run completes, with spend reserved and
-// settled like any paid provider, credentials from the run's workspace only.
+// Through the production runner (providerrun) the run completes, with spend reserved and settled
+// like any paid provider and credentials from the run's workspace only. Without the LeadMagic key
+// the first provider is refused before any reservation and the waterfall moves on to Prospeo.
 func TestDefaultMobileColumnRunsManifestProviders(t *testing.T) {
 	e := setup(t, wsA)
 	idx := credentials.ConnectorIndex(func(string) (string, bool) { return "", false }, nil)
 	vendor := newVendorTLS(t, func(host string, body map[string]any) string {
 		switch host {
 		case "api.leadmagic.io":
-			if body["profile_url"] == "https://www.linkedin.com/in/second" {
-				return `{"message":"found","mobile_number":"+15550002"}`
-			}
-			return `{"message":"not found","mobile_number":null}`
+			return `{"message":"found","mobile_number":"+15550009"}`
 		case "api.prospeo.io":
+			if body["url"] == "https://www.linkedin.com/in/second" {
+				return `{"error":false,"response":{"raw_format":"+15550002"}}`
+			}
 			return `{"error":false,"response":{"raw_format":"+15550001"}}`
 		}
 		return `{}`
 	})
-	e.seedRows(wsA, "wb-mobile", `[{"id":"mob","name":"Mobile","type":"enrichment","target_field":"mobile_phone"}]`,
+	const mobileCol = `[{"id":"mob","name":"Mobile","type":"enrichment","target_field":"mobile_phone"}]`
+	run := func(wb string, keys map[string]string) workbook.Result {
+		t.Helper()
+		deps := e.deps(newSim(t, nil), nil)
+		deps.Manifests = credentials.NewManifestAllow(credentials.NewLocalManifests(idx, runplan.ManifestJSON))
+		deps.Runner = providerrun.New(providerrun.Deps{Pool: e.pool, HTTP: vendor.client(), Secrets: keySecrets{ws: wsA, keys: keys},
+			Manifests: idx, URLCheck: func(string) error { return nil }})
+		res, err := workbook.Run(e.ctx, deps, e.claim(wsA, manifestPayload(t, wsA, wb, idx(), "leadmagic_mobile", "prospeo_mobile")))
+		if err != nil {
+			t.Fatalf("run %s: %v", wb, err)
+		}
+		if st := e.str(wsA, `SELECT status FROM workbooks WHERE id=$1`, wb); st != "complete" {
+			t.Fatalf("workbook %s status %s", wb, st)
+		}
+		return res
+	}
+
+	e.seedRows(wsA, "wb-mobile", mobileCol,
 		`{"company":"Acme","website":"acme-mobile-1.example.com","linkedin_url":"https://www.linkedin.com/in/first"}`,
 		`{"company":"Globex","website":"acme-mobile-2.example.com","linkedin_url":"https://www.linkedin.com/in/second"}`)
-	sec := keySecrets{ws: wsA, keys: map[string]string{"LEADMAGIC_API_KEY": "lm-key", "PROSPEO_API_KEY": "pr-key"}}
-	deps := e.deps(newSim(t, nil), nil)
-	deps.Manifests = credentials.NewManifestAllow(credentials.NewLocalManifests(idx, runplan.ManifestJSON))
-	deps.Runner = providerrun.New(providerrun.Deps{Pool: e.pool, HTTP: vendor.client(), Secrets: sec, Manifests: idx,
-		URLCheck: func(string) error { return nil }})
-
-	c := e.claim(wsA, manifestPayload(t, wsA, "wb-mobile", idx(), "leadmagic_mobile", "prospeo_mobile"))
-	res, err := workbook.Run(e.ctx, deps, c)
-	if err != nil {
-		t.Fatalf("run: %v", err)
-	}
-	if res.Completed != 2 || res.Errors != 0 {
+	if res := run("wb-mobile", map[string]string{"PROSPEO_API_KEY": "pr-key"}); res.Completed != 2 || res.Errors != 0 {
 		t.Fatalf("result %+v", res)
 	}
-	if got := e.str(wsA, `SELECT string_agg(provider || '=' || value, ',' ORDER BY value) FROM workbook_enrichments WHERE workbook_id='wb-mobile' AND status='complete'`); got != "prospeo_mobile=+15550001,leadmagic_mobile=+15550002" {
+	if got := e.str(wsA, `SELECT string_agg(provider || '=' || value, ',' ORDER BY value) FROM workbook_enrichments WHERE workbook_id='wb-mobile' AND status='complete'`); got != "prospeo_mobile=+15550001,prospeo_mobile=+15550002" {
 		t.Fatalf("cells %q", got)
 	}
-	if vendor.count("api.leadmagic.io") != 2 || vendor.count("api.prospeo.io") != 1 {
+	if vendor.count("api.leadmagic.io") != 0 || vendor.count("api.prospeo.io") != 2 {
 		t.Fatalf("vendor calls leadmagic=%d prospeo=%d", vendor.count("api.leadmagic.io"), vendor.count("api.prospeo.io"))
 	}
-	if n := e.one(wsA, `SELECT count(*) FROM workbook_spend_attempts WHERE workbook_id='wb-mobile' AND status='settled'`); n != 3 {
-		t.Fatalf("settled attempts %d", n)
+	if got := e.str(wsA, `SELECT string_agg(provider || ':' || status || ':' || settled_microusd, ',') FROM workbook_spend_attempts WHERE workbook_id='wb-mobile'`); got != "prospeo_mobile:settled:100000,prospeo_mobile:settled:100000" {
+		t.Fatalf("attempts %q (a refused provider must not reserve)", got)
 	}
-	if n := e.one(wsA, `SELECT count(*) FROM workbook_spend_attempts WHERE workbook_id='wb-mobile' AND status<>'settled'`); n != 0 {
-		t.Fatalf("unsettled attempts %d", n)
+
+	// With both keys the cheaper LeadMagic answers first.
+	e.seedRows(wsA, "wb-mobile2", mobileCol, `{"company":"Initech","website":"initech-mobile.example.com","linkedin_url":"https://www.linkedin.com/in/third"}`)
+	if res := run("wb-mobile2", map[string]string{"LEADMAGIC_API_KEY": "lm-key", "PROSPEO_API_KEY": "pr-key"}); res.Completed != 1 || res.Errors != 0 {
+		t.Fatalf("result %+v", res)
 	}
-	if h := e.one(wsA, `SELECT attempts*10+hits FROM provider_stats WHERE provider='leadmagic_mobile' AND field='mobile_phone'`); h != 21 {
-		t.Fatalf("leadmagic_mobile attempts/hits %d", h)
+	if got := e.str(wsA, `SELECT provider || '=' || value FROM workbook_enrichments WHERE workbook_id='wb-mobile2' AND status='complete'`); got != "leadmagic_mobile=+15550009" {
+		t.Fatalf("cell %q", got)
 	}
-	if st := e.str(wsA, `SELECT status FROM workbooks WHERE id='wb-mobile'`); st != "complete" {
-		t.Fatalf("workbook status %s", st)
+	if got := e.str(wsA, `SELECT string_agg(provider || ':' || status || ':' || settled_microusd, ',') FROM workbook_spend_attempts WHERE workbook_id='wb-mobile2'`); got != "leadmagic_mobile:settled:50000" {
+		t.Fatalf("attempts %q", got)
+	}
+	if h := e.one(wsA, `SELECT attempts*10+hits FROM provider_stats WHERE provider='prospeo_mobile' AND field='mobile_phone'`); h != 22 {
+		t.Fatalf("prospeo_mobile attempts/hits %d", h)
 	}
 }
 
 // TestUnknownPaidProviderIsUnavailableAndReleasesSpend: a provider neither Go-native nor
-// declarative still fails the run as unavailable, but the call never left the process, so its
-// spend attempt is released, never left uncertain, and no budget is held.
+// declarative is still unavailable (its cell fails), but the call never left the process, so its
+// spend attempt is released before dispatch, never left uncertain, and no budget is held.
 func TestUnknownPaidProviderIsUnavailableAndReleasesSpend(t *testing.T) {
 	e := setup(t, wsA)
 	e.seedRows(wsA, "wb-unknown", `[`+colJSON("c1", "no_such_vendor")+`]`, `{"company":"Acme","website":"acme-unknown.example.com"}`)
@@ -188,12 +198,13 @@ func TestUnknownPaidProviderIsUnavailableAndReleasesSpend(t *testing.T) {
 	payload := []byte(fmt.Sprintf(`{"workspace_id":%q,"workbook_id":"wb-unknown","retry_passes":0,"concurrency":1,
 	  "go":{"version":1,"manifests":{},"manifest_sha256":{},"costs":{"no_such_vendor":0.05},"default_concurrency":4}}`, wsA))
 	c := e.claim(wsA, payload)
-	_, err := workbook.Run(e.ctx, deps, c)
-	if !errors.Is(err, provcall.ErrUnavailable) {
-		t.Fatalf("run err %v", err)
+	// The runner reports ErrUnavailable; the cell fails (cell_execution_failed), the run goes on.
+	res, err := workbook.Run(e.ctx, deps, c)
+	if err != nil || res.Errors != 1 || res.Completed != 0 {
+		t.Fatalf("run %+v %v", res, err)
 	}
-	if strings.Contains(err.Error(), "python") {
-		t.Fatalf("stale python error text: %v", err)
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_spend_attempts WHERE workbook_id='wb-unknown' AND status='released'`); n != 1 {
+		t.Fatalf("released attempts %d", n)
 	}
 	if n := e.one(wsA, `SELECT count(*) FROM workbook_spend_attempts WHERE workbook_id='wb-unknown' AND status IN ('uncertain','dispatched','reserved')`); n != 0 {
 		t.Fatalf("held or uncertain attempts %d", n)
