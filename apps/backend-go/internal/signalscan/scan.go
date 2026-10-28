@@ -202,6 +202,7 @@ func detectHiring(ctx context.Context, d Deps, workspaceID string, leads []Lead,
 		leads = leads[:cap]
 	}
 	now := d.now()
+	run := fmt.Sprintf("signal_scan:%d", now.UnixNano()) // one scan: its calls share a ledger scope
 	var out []Detected
 	for i, lead := range leads {
 		if lead.Company == "" {
@@ -214,7 +215,8 @@ func detectHiring(ctx context.Context, d Deps, workspaceID string, leads []Lead,
 		if len(input) == 0 {
 			input, _ = json.Marshal(map[string]any{"id": lead.ID, "company": lead.Company})
 		}
-		res, err := d.Py.Call(ctx, provcall.Call{
+		cctx := provcall.WithSpendScope(ctx, provcall.SpendScope{Run: run, Row: fmt.Sprintf("lead:%d", lead.ID)})
+		res, err := d.Py.Call(cctx, provcall.Call{
 			CallID:      fmt.Sprintf("signal_scan:%s:%d:%d:%d", workspaceID, lead.ID, now.UnixNano(), i),
 			Provider:    hiringProvider,
 			WorkspaceID: workspaceID,
