@@ -323,17 +323,15 @@ func TestSourceForeignWorkbook404(t *testing.T) {
 	}
 }
 
-func TestPreviewNotRegisteredWhenFlagOff(t *testing.T) {
+// GO_SOURCE_PREVIEW_ENABLED is retired (final correctness I4): the preview route is always registered.
+func TestPreviewAlwaysRegistered(t *testing.T) {
 	e := newSrcEnv(t, nil)
 	for _, p := range e.router.Patterns() {
 		if strings.Contains(p, "/preview") {
-			t.Fatalf("preview stays on FastAPI unless GO_SOURCE_PREVIEW_ENABLED, registered: %s", p)
+			return
 		}
 	}
-	code, _ := e.call("GET", "/api/workbooks/wb-enrich-1/sources/src_icp/preview", "alice", "ws-alpha", "")
-	if code == 200 {
-		t.Fatalf("preview answered 200 in Go")
-	}
+	t.Fatal("the source preview route is not registered")
 }
 
 // TestAddSourceCanonicalizesNumbers: nested numbers are stored and returned as Python would (1e2 -> 100.0, 1.50 -> 1.5).
