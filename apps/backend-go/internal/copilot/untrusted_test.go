@@ -28,3 +28,16 @@ func TestToolResultFencedAsUntrustedInLLMContext(t *testing.T) {
 		t.Fatalf("tool message not fenced: %q", content)
 	}
 }
+
+// unfence checks a tool message's untrusted fence and returns the raw tool result inside it.
+func unfence(t *testing.T, content any) string {
+	t.Helper()
+	s, _ := content.(string)
+	rest, ok := strings.CutPrefix(s, UntrustedToolNotice+"\n<<<BEGIN_UNTRUSTED_")
+	i := strings.Index(rest, ">>>\n")
+	j := strings.LastIndex(rest, "\n<<<END_UNTRUSTED_")
+	if !ok || i < 0 || j < i+4 || !strings.HasSuffix(rest, ">>>") {
+		t.Fatalf("tool message not fenced: %q", s)
+	}
+	return rest[i+4 : j]
+}

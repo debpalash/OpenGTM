@@ -128,7 +128,7 @@ func (t *Turn) ResolveApproved(ctx context.Context, w *ssestream.Writer, message
 			if err != nil {
 				return err
 			}
-			*messages = append(*messages, map[string]any{"role": "tool", "tool_call_id": callID, "name": it.name, "content": content})
+			*messages = append(*messages, map[string]any{"role": "tool", "tool_call_id": callID, "name": it.name, "content": untrustedToolContent(it.name, content)})
 			continue
 		}
 		reason := "Tool is not an explicitly classified mutation."

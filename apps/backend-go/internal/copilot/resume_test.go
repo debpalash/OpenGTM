@@ -288,7 +288,7 @@ func TestFollowUpContentPerTool(t *testing.T) {
 			if json.Unmarshal([]byte(got), &gotObj) != nil || json.Unmarshal([]byte(exp), &expObj) != nil || gotObj["content"] != expObj["content"] {
 				t.Fatalf("%s: content frame %s\nwant %s", c.tool, got, exp)
 			}
-			if msgs[1]["content"] != res {
+			if unfence(t, msgs[1]["content"]) != res {
 				t.Fatalf("%s: tool message content %v", c.tool, msgs[1]["content"])
 			}
 		})
@@ -374,7 +374,7 @@ func TestMessageOrderMatchesLegacy(t *testing.T) {
 			t.Fatalf("msg %d %v", 2+i, m)
 		}
 	}
-	if msgs[2]["content"] != `{"workbook_id": "w", "url": "/u"}` {
+	if unfence(t, msgs[2]["content"]) != `{"workbook_id": "w", "url": "/u"}` {
 		t.Fatalf("content %v", msgs[2]["content"])
 	}
 	if msgs[3]["content"] != `{"denied": true, "reason": "`+invalidReason+`"}` {

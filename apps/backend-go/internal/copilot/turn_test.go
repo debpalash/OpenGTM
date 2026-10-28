@@ -176,7 +176,7 @@ func TestSafeToolCallRoundTrip(t *testing.T) {
 		t.Fatalf("assistant %v", as)
 	}
 	tm := m[3].(map[string]any)
-	if tm["role"] != "tool" || tm["tool_call_id"] != "c1" || tm["name"] != "search_leads" || tm["content"] != `{"leads": [{"id": 1, "x": "é"}], "count": 1}` {
+	if tm["role"] != "tool" || tm["tool_call_id"] != "c1" || tm["name"] != "search_leads" || unfence(t, tm["content"]) != `{"leads": [{"id": 1, "x": "é"}], "count": 1}` {
 		t.Fatalf("tool message %v", tm)
 	}
 }
@@ -317,7 +317,7 @@ func TestToolTimeoutBecomesToolErrorResult(t *testing.T) {
 		t.Fatalf("a timed-out tool must not be retried: %d", n.Load())
 	}
 	m := f.llmReq(1)["messages"].([]any)
-	if c := m[3].(map[string]any)["content"]; c != `{"error": "Tool 'find_similar_leads' failed: timed out"}` {
+	if c := unfence(t, m[3].(map[string]any)["content"]); c != `{"error": "Tool 'find_similar_leads' failed: timed out"}` {
 		t.Fatalf("content %v", c)
 	}
 }

@@ -386,6 +386,17 @@ func chatSameLLM(t *testing.T, name string, got []map[string]any, rec []chatReco
 	if len(got) != len(want) {
 		t.Fatalf("%s: %d llm rounds, recorded %d", name, len(got), len(want))
 	}
+	// Final security Low 8: every executed tool result reaches the model fenced as untrusted data (our own
+	// denial messages are not tool output and stay bare). The recorder's stubbed contents are compared below.
+	for _, g := range got {
+		for _, x := range g["messages"].([]any) {
+			mm := x.(map[string]any)
+			c, _ := mm["content"].(string)
+			if mm["role"] == "tool" && !strings.HasPrefix(c, `{"denied": true`) && !strings.HasPrefix(c, copilot.UntrustedToolNotice+"\n<<<BEGIN_UNTRUSTED_") {
+				t.Fatalf("%s: tool message not fenced: %.200q", name, c)
+			}
+		}
+	}
 	strip := func(m map[string]any) map[string]any {
 		out := map[string]any{}
 		for k, v := range m {

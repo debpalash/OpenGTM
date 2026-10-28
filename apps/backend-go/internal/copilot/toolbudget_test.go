@@ -33,7 +33,7 @@ func TestRunSafeCapsTotalToolResultBytes(t *testing.T) {
 	}
 	total, capped := 0, 0
 	for _, m := range msgs {
-		c := m["content"].(string)
+		c := unfence(t, m["content"]) // the budget counts the raw results; the fence is fixed overhead
 		total += len(c)
 		if strings.Contains(c, "tool results for this turn exceed") {
 			capped++
