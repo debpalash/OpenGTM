@@ -59,9 +59,8 @@ docker compose exec nginx nginx -t && docker compose exec nginx nginx -s reload
 Steps: 0 -> 5 -> 25 -> 100, soaking at each step.
 
 **Gate to promote** (every step): `make test-integration` and the contract tests green; Go-route error
-rate (5xx and 401/403 share, split by `X-Upstream`) <= Python baseline for 24 h; and
-`scripts/cross_token_check.sh` passes (Python-minted token works on Go and vice versa; refresh tokens
-rejected as access tokens).
+rate (5xx and 401/403 share, split by `X-Upstream`) <= Python baseline for 24 h. (The cross-token check
+script was removed with the Python API: there is no Python-minted token to compare against any more.)
 
 Dashboards to watch: nginx 5xx and 4xx by `X-Upstream` on the five routes, p95 latency per upstream,
 api-go `/healthz` and restarts, Postgres connection count and RLS/permission errors, login failure rate
@@ -87,8 +86,6 @@ Before the reload that routes `/auth/sso/` to Go:
 ```
 bash scripts/nginx-routing-check.sh            # throwaway nginx + stub upstreams, asserts 0% and 100%
 docker compose exec nginx nginx -t
-PY_URL=http://127.0.0.1:8000 GO_URL=http://127.0.0.1:8001 CHECK_EMAIL=... CHECK_PASSWORD=... \
-  scripts/cross_token_check.sh                 # live services; credentials via env only
 ```
 
 ## Rollback
