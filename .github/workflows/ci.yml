@@ -93,6 +93,8 @@ jobs:
       - run: uv run --frozen ruff format --check .
       # Chromium makes the real-browser egress tests run instead of skipping.
       - run: uv run --frozen playwright install --with-deps --only-shell chromium
+      # Ubuntu 24.04 runners block unprivileged user namespaces through AppArmor, and Chromium's sandbox needs them.
+      - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - run: uv run --frozen pytest -q
 
   frontend:
