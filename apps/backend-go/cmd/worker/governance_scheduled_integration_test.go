@@ -9,10 +9,11 @@ import (
 	"testing"
 )
 
-// The schedulers (Python enqueue_job_once and Go SchedulePolicy) write jobs with a NULL
-// jobs.workspace_id; the handlers must resolve the tenant from the payload.
+// The Go schedulers (SchedulePolicy, schedboot, EnqueueOnce) write jobs.workspace_id; the handlers take the
+// tenant from the claim only (final security Low 1). A job without one (Python's enqueue_job_once left it NULL)
+// is refused, whatever its payload and fire key say; schedboot re-enqueues the occurrence with a workspace.
 
-func TestWorkerRunsScheduledRetentionJobWithoutJobWorkspace(t *testing.T) {
+func TestWorkerRunsScheduledRetentionJob(t *testing.T) {
 	g := setupGov(t)
 	ctx := context.Background()
 	days, _ := json.Marshal(govDays)
@@ -22,8 +23,8 @@ func TestWorkerRunsScheduledRetentionJobWithoutJobWorkspace(t *testing.T) {
 	key := "retention:" + g.ws + ":2099-01-01"
 	payload, _ := json.Marshal(map[string]string{"workspace_id": g.ws, "fire_key": key})
 	var job int64
-	if err := g.owner.QueryRow(ctx, `INSERT INTO jobs (executor,type,payload,priority,fire_key,status,created_at,next_run_at,max_retries,retry_count)
-		VALUES ('go','retention_enforce',$1,1,$2,'pending',now() AT TIME ZONE 'UTC',now() AT TIME ZONE 'UTC',3,0) RETURNING id`, string(payload), key).Scan(&job); err != nil {
+	if err := g.owner.QueryRow(ctx, `INSERT INTO jobs (executor,type,payload,workspace_id,priority,fire_key,status,created_at,next_run_at,max_retries,retry_count)
+		VALUES ('go','retention_enforce',$1,$3,1,$2,'pending',now() AT TIME ZONE 'UTC',now() AT TIME ZONE 'UTC',3,0) RETURNING id`, string(payload), key, g.ws).Scan(&job); err != nil {
 		t.Fatal(err)
 	}
 	g.runGov(t, govConfig(g.ws), governanceOpts{})
@@ -56,7 +57,7 @@ func TestWorkerRejectsScheduledRetentionJobForeignWorkspace(t *testing.T) {
 	}
 }
 
-func TestWorkerRunsPythonScheduledPlaybookJobWithoutJobWorkspace(t *testing.T) {
+func TestWorkerRunsScheduledPlaybookJob(t *testing.T) {
 	g := setupGov(t)
 	pb, aud := g.playbookFixture(t)
 	ctx := context.Background()
@@ -66,8 +67,8 @@ func TestWorkerRunsPythonScheduledPlaybookJobWithoutJobWorkspace(t *testing.T) {
 	key := "playbook_schedule:" + pb.ID + ":2099-01-01T00:00:00+00:00"
 	payload, _ := json.Marshal(map[string]string{"workspace_id": g.ws, "playbook_id": pb.ID})
 	var job int64
-	if err := g.owner.QueryRow(ctx, `INSERT INTO jobs (executor,type,payload,priority,fire_key,status,created_at,next_run_at,max_retries,retry_count)
-		VALUES ('go','research_playbook_schedule',$1,1,$2,'pending',now() AT TIME ZONE 'UTC',now() AT TIME ZONE 'UTC',3,0) RETURNING id`, string(payload), key).Scan(&job); err != nil {
+	if err := g.owner.QueryRow(ctx, `INSERT INTO jobs (executor,type,payload,workspace_id,priority,fire_key,status,created_at,next_run_at,max_retries,retry_count)
+		VALUES ('go','research_playbook_schedule',$1,$3,1,$2,'pending',now() AT TIME ZONE 'UTC',now() AT TIME ZONE 'UTC',3,0) RETURNING id`, string(payload), key, g.ws).Scan(&job); err != nil {
 		t.Fatal(err)
 	}
 	g.runGov(t, govConfig(g.ws), governanceOpts{researcher: &govRes{}})
@@ -114,6 +115,46 @@ func (g *govEnv) emptyWSJob(t *testing.T, typ, payload string, key any) int64 {
 		t.Fatal(err)
 	}
 	return job
+}
+
+// wsJob is a scheduled job as the Go schedulers write it: jobs.workspace_id set.
+func (g *govEnv) wsJob(t *testing.T, typ, payload string, key any) int64 {
+	t.Helper()
+	var job int64
+	if err := g.owner.QueryRow(context.Background(), `INSERT INTO jobs (executor,type,payload,workspace_id,priority,fire_key,status,created_at,next_run_at,max_retries,retry_count)
+		VALUES ('go',$1,$2,$4,1,$3,'pending',now() AT TIME ZONE 'UTC',now() AT TIME ZONE 'UTC',0,0) RETURNING id`, typ, payload, key, g.ws).Scan(&job); err != nil {
+		t.Fatal(err)
+	}
+	return job
+}
+
+// Final security Low 1: a well-formed scheduled job (payload, fire key and policy all consistent) without
+// jobs.workspace_id is refused; nothing runs.
+func TestWorkerRefusesScheduledJobsWithoutJobWorkspace(t *testing.T) {
+	g := setupGov(t)
+	g.enabledPolicy(t, g.ws)
+	pb, aud := g.playbookFixture(t)
+	ctx := context.Background()
+	if _, err := g.owner.Exec(ctx, `UPDATE research_playbooks SET enabled=true, schedule_audience_id=$3, schedule_interval_minutes=60 WHERE workspace_id=$1 AND id=$2`, g.ws, pb.ID, aud); err != nil {
+		t.Fatal(err)
+	}
+	rkey := "retention:" + g.ws + ":2099-06-01"
+	rp, _ := json.Marshal(map[string]string{"workspace_id": g.ws, "fire_key": rkey})
+	pp, _ := json.Marshal(map[string]string{"workspace_id": g.ws, "playbook_id": pb.ID})
+	jobs := map[string]int64{
+		"retention": g.emptyWSJob(t, "retention_enforce", string(rp), rkey),
+		"playbook":  g.emptyWSJob(t, "research_playbook_schedule", string(pp), "playbook_schedule:"+pb.ID+":2099-06-01T00:00:00+00:00"),
+	}
+	g.runGov(t, govConfig(g.ws), governanceOpts{researcher: &govRes{}})
+	for name, id := range jobs {
+		if s, _ := g.jobStatus(t, id); s != "failed" {
+			t.Errorf("%s: job %s, want failed", name, s)
+		}
+	}
+	var runs int
+	if err := g.owner.QueryRow(ctx, `SELECT (SELECT count(*) FROM retention_runs WHERE workspace_id=$1) + (SELECT count(*) FROM playbook_runs WHERE workspace_id=$1)`, g.ws).Scan(&runs); err != nil || runs != 0 {
+		t.Fatalf("runs=%d err=%v", runs, err)
+	}
 }
 
 func TestWorkerRejectsForgedEmptyWorkspaceRetentionJobs(t *testing.T) {
@@ -192,7 +233,7 @@ func (g *govEnv) enabledPolicy(t *testing.T, ws string) {
 	}
 }
 
-// N1: the state after a failed attempt of a Python-scheduled job (empty jobs.workspace_id):
+// N1: the state after a failed attempt of a scheduled job:
 // reconcile created a scheduler run, set it pending for the retry and wrote its run_id into
 // the payload. The retry must complete the run and enqueue the next occurrence.
 func TestWorkerRetriesReconciledScheduledRetentionJob(t *testing.T) {
@@ -201,7 +242,7 @@ func TestWorkerRetriesReconciledScheduledRetentionJob(t *testing.T) {
 	run := g.schedulerRun(t, g.ws, "pending", "scheduler")
 	key := "retention:" + g.ws + ":2099-01-01"
 	payload, _ := json.Marshal(map[string]string{"workspace_id": g.ws, "fire_key": key, "run_id": run})
-	job := g.emptyWSJob(t, "retention_enforce", string(payload), key)
+	job := g.wsJob(t, "retention_enforce", string(payload), key)
 	g.runGov(t, govConfig(g.ws), governanceOpts{})
 	if s, e := g.jobStatus(t, job); s != "completed" {
 		t.Fatalf("job %s (%s)", s, e)
@@ -256,7 +297,7 @@ func TestWorkerCompletesScheduledRetentionJobWithoutEnabledPolicy(t *testing.T) 
 			}
 			key := "retention:" + g.ws + ":2099-03-01"
 			p, _ := json.Marshal(map[string]string{"workspace_id": g.ws, "fire_key": key})
-			job := g.emptyWSJob(t, "retention_enforce", string(p), key)
+			job := g.wsJob(t, "retention_enforce", string(p), key)
 			g.runGov(t, govConfig(g.ws), governanceOpts{})
 			if s, e := g.jobStatus(t, job); s != "completed" {
 				t.Fatalf("job %s (%s)", s, e)
@@ -275,8 +316,8 @@ func TestWorkerPlaybookScheduleJobInactiveAndBadTail(t *testing.T) {
 	g := setupGov(t)
 	pb, _ := g.playbookFixture(t) // enabled but no schedule audience: inactive
 	p, _ := json.Marshal(map[string]string{"workspace_id": g.ws, "playbook_id": pb.ID})
-	inactive := g.emptyWSJob(t, "research_playbook_schedule", string(p), "playbook_schedule:"+pb.ID+":2099-01-01T00:00:00+00:00")
-	badTail := g.emptyWSJob(t, "research_playbook_schedule", string(p), "playbook_schedule:"+pb.ID+":whatever")
+	inactive := g.wsJob(t, "research_playbook_schedule", string(p), "playbook_schedule:"+pb.ID+":2099-01-01T00:00:00+00:00")
+	badTail := g.wsJob(t, "research_playbook_schedule", string(p), "playbook_schedule:"+pb.ID+":whatever")
 	g.runGov(t, govConfig(g.ws), governanceOpts{researcher: &govRes{}})
 	if s, e := g.jobStatus(t, inactive); s != "completed" {
 		t.Errorf("inactive: %s (%s)", s, e)
@@ -324,7 +365,7 @@ func (g *govEnv) dueNow(t *testing.T, job int64) {
 	}
 }
 
-// N1 on the real path: a Python-shaped scheduled job (empty workspace) fails, the real failure
+// N1 on the real path: a scheduled job fails, the real failure
 // hook links a run, the retries fail again (Enforce marks the run failed itself), and the final
 // attempt exhausts the retries. The failure hook must still reconcile (run failed with the final
 // message) and enqueue the next occurrence, never reject the job.
@@ -335,8 +376,8 @@ func TestWorkerScheduledRetentionFailureRetryExhaustionReschedules(t *testing.T)
 	key := "retention:" + g.ws + ":2099-04-01"
 	p, _ := json.Marshal(map[string]string{"workspace_id": g.ws, "fire_key": key})
 	var job int64
-	if err := g.owner.QueryRow(context.Background(), `INSERT INTO jobs (executor,type,payload,priority,fire_key,status,created_at,next_run_at,max_retries,retry_count)
-		VALUES ('go','retention_enforce',$1,1,$2,'pending',now() AT TIME ZONE 'UTC',now() AT TIME ZONE 'UTC',2,0) RETURNING id`, string(p), key).Scan(&job); err != nil {
+	if err := g.owner.QueryRow(context.Background(), `INSERT INTO jobs (executor,type,payload,workspace_id,priority,fire_key,status,created_at,next_run_at,max_retries,retry_count)
+		VALUES ('go','retention_enforce',$1,$3,1,$2,'pending',now() AT TIME ZONE 'UTC',now() AT TIME ZONE 'UTC',2,0) RETURNING id`, string(p), key, g.ws).Scan(&job); err != nil {
 		t.Fatal(err)
 	}
 	for attempt := 1; attempt <= 3; attempt++ {
@@ -372,7 +413,7 @@ func TestWorkerRetriesScheduledRetentionJobWithFailedRun(t *testing.T) {
 	run := g.schedulerRun(t, g.ws, "failed", "scheduler")
 	key := "retention:" + g.ws + ":2099-05-01"
 	p, _ := json.Marshal(map[string]string{"workspace_id": g.ws, "fire_key": key, "run_id": run})
-	job := g.emptyWSJob(t, "retention_enforce", string(p), key)
+	job := g.wsJob(t, "retention_enforce", string(p), key)
 	g.runGov(t, govConfig(g.ws), governanceOpts{})
 	if s, e := g.jobStatus(t, job); s != "completed" {
 		t.Fatalf("job %s (%s)", s, e)

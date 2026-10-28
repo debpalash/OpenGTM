@@ -475,8 +475,10 @@ func TestWorkerRunsPlaybookScheduleJob(t *testing.T) {
 	}
 	payload, _ := json.Marshal(map[string]string{"workspace_id": g.ws, "playbook_id": pb.ID})
 	var job int64
-	if err := g.owner.QueryRow(ctx, `INSERT INTO jobs (type,payload,status,priority,created_at,retry_count,max_retries,workspace_id,executor)
-		VALUES ('research_playbook_schedule',$1,'pending',0,now() AT TIME ZONE 'UTC',0,3,$2,'go') RETURNING id`, string(payload), g.ws).Scan(&job); err != nil {
+	// The schedulers always write the occurrence's fire key (checked against the payload's playbook).
+	if err := g.owner.QueryRow(ctx, `INSERT INTO jobs (type,payload,status,priority,created_at,retry_count,max_retries,workspace_id,executor,fire_key)
+		VALUES ('research_playbook_schedule',$1,'pending',0,now() AT TIME ZONE 'UTC',0,3,$2,'go',$3) RETURNING id`, string(payload), g.ws,
+		"playbook_schedule:"+pb.ID+":bootstrap").Scan(&job); err != nil {
 		t.Fatal(err)
 	}
 	// Only the schedule job runs: the run job it enqueues is for the cohort's executor, and
