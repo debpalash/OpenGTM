@@ -801,7 +801,12 @@ func TestFailureReconcileMatchesPythonVectors(t *testing.T) {
 			}
 			pl, _ := json.Marshal(c.Payload)
 			errText, _ := c.Error.(string)
-			err := h.eng.OnFailure(h.ctx, h.pool, &queue.Claim{ID: 7, Type: deststore.JobType, Payload: pl}, errText, c.WillRetry)
+			// The job row carries the workspace the Go enqueuer wrote (the payload's); the hook refuses a row without one.
+			claimWS := ws
+			if v, ok := c.Payload["workspace_id"].(string); ok && strings.TrimSpace(v) != "" {
+				claimWS = strings.TrimSpace(v)
+			}
+			err := h.eng.OnFailure(h.ctx, h.pool, &queue.Claim{ID: 7, Type: deststore.JobType, Payload: pl, WorkspaceID: claimWS}, errText, c.WillRetry)
 			if c.Raises != nil {
 				if err == nil || err.Error() != c.Raises.Message {
 					t.Fatalf("error = %v, want %q", err, c.Raises.Message)

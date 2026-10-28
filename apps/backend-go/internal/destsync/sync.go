@@ -601,7 +601,7 @@ func syncPayload(raw []byte, claimWS string) (ws, run string, err error) {
 	if !ok || ws == "" || run == "" {
 		return "", "", &queue.PermanentError{Err: errors.New(errSyncPayload)}
 	}
-	if claimWS != "" && claimWS != ws {
+	if claimWS == "" || claimWS != ws { // the tenant is the job row's only (final security Low 1)
 		return "", "", &queue.PermanentError{Err: ErrWorkspaceMismatch}
 	}
 	return ws, run, nil
