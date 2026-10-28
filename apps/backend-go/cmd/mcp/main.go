@@ -19,12 +19,14 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/credentials"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/mcp"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rpclocal"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/runplan"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
@@ -136,6 +138,9 @@ func openRuntime(ctx context.Context, cfg config.MCP, get func(string) string) (
 	if err != nil {
 		return nil, err
 	}
+	// Connector manifests (served by rpc's provider runner) are priced by their declared cost_per_lookup, as in
+	// the API and the worker, so a paid one is reserved and settled like a Go provider.
+	runplan.Wire(runplan.WireDeps{Index: credentials.ConnectorIndex(os.LookupEnv, nil)})
 	verify := emailverify.NewLive(liveConfig(pool, get, rpc, resolver))
 	deps := mcp.NewProductionDeps(cfg, pool, rpc, verify)
 	var reg mcp.Registry

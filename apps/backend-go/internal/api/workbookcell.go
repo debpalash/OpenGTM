@@ -39,7 +39,14 @@ var newCellRunner = func(d Deps) workbook.ProviderRunner {
 			allow = append(allow, h)
 		}
 	}
-	return providerrun.New(providerrun.Deps{Pool: d.Pool, Secrets: sec, OperatorAllow: allow, Log: d.Log})
+	// Declarative providers (connector manifests) use the app env's egress client and URL guard, as in the worker.
+	appEnv := d.Config.AppEnv
+	if appEnv == "" {
+		appEnv = d.getenv()("APP_ENV")
+	}
+	return providerrun.New(providerrun.Deps{Pool: d.Pool, Secrets: sec, OperatorAllow: allow, Log: d.Log,
+		ManifestHTTP: egress.NewClientForEnv(appEnv, allow),
+		URLCheck:     func(raw string) error { return egress.CheckURLFor(appEnv, allow, raw, true) }})
 }
 
 type noSecrets struct{}

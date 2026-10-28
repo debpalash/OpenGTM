@@ -55,7 +55,8 @@ func newCopilotTools(d Deps, s autopilot.Settings) *copilotTools {
 			operatorAllow = append(operatorAllow, h)
 		}
 	}
-	runner := providerrun.New(providerrun.Deps{Pool: d.Pool, Secrets: sec, OperatorAllow: operatorAllow, Log: d.Log})
+	runner := providerrun.New(providerrun.Deps{Pool: d.Pool, Secrets: sec, OperatorAllow: operatorAllow, Log: d.Log,
+		ManifestHTTP: egress.NewClientForEnv(appEnv, allow), URLCheck: ct.urlCheck})
 	ct.people = &leadpeople.Service{
 		Identity: leadpeople.WikidataIdentity{Client: egress.NewOperatorClient(allow)},
 		Search:   web.Search,

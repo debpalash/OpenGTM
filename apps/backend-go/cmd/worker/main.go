@@ -29,7 +29,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachinbound"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachsend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/refresh"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/runplan"
@@ -405,8 +404,9 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 		return runplan.Config{ProvenanceTracking: config.LoadWbExec(config.Getenv).ProvenanceTracking,
 			AutomationsEnabled: cfg.Flags.AutomationsEnabled}
 	})
-	// Every provider runs in process (providerrun: settings, cache, stats ledger); there is no Python worker.
-	provRunner := providerrun.New(providerrun.Deps{Pool: pool, Secrets: sh.local, OperatorAllow: cfg.EgressAllowHosts, Log: log})
+	// Every provider runs in process (providerrun: settings, cache, stats ledger; declarative manifests from the
+	// connector index); there is no Python worker.
+	provRunner := workerProviderRunner(cfg, pool, sh.local, sh.app.Get, log)
 	deps.Runner = provRunner
 	provRPC, err := providerRPC(cfg, pool, log, sh.local, provRunner)
 	if err != nil {
