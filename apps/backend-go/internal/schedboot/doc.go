@@ -9,4 +9,9 @@
 //
 // One scheduler is active at a time: Lease holds a Postgres session advisory lock (LeaseKey). The Python
 // scheduler must take the same lock before its first reconcile for the guarantee to hold across both.
+//
+// The stale-claim reaper (Python's reap_dead_jobs_once) is deliberately not a subsystem here: it must call the
+// job types' failure hooks, which only the worker registers (with worker-only collaborators such as the
+// destination sync engine), so every worker replica runs queue.RunReaper instead. Replicas share it safely
+// (FOR UPDATE SKIP LOCKED), and it keeps working when the scheduler is down.
 package schedboot
