@@ -50,6 +50,9 @@ the Host/Origin loopback check is skipped too, so put a reverse proxy with TLS i
 | `AUTOMATIONS_ENABLED` | false | gate for `create_automation` |
 | `AUTOMATIONS_ALLOW_LEGACY_OUTREACH` | false | |
 | `AUTOMATIONS_MAX_RULES_PER_WS` | 50 | |
+| `AUTOMATIONS_MAX_ACTIONS_PER_RULE` | 10 | max actions in one `create_automation` rule (minimum 1) |
+| `AUTOMATIONS_WEBHOOK_DOMAIN_ALLOWLIST` | empty | JSON array or comma list; webhook actions in created rules must match |
+| `OUTBOUND_SECRET_REF_PREFIXES` | `WEBHOOK_,AUTOMATION_,DEST_,SLACK_` | allowed `header_secret_ref` prefixes for created rules |
 | `EGRESS_ALLOW_HOSTS` | empty | operator allow-list, comma separated `host` or `host:port`; the only way the email cascade may reach a private self-hosted Reacher |
 | `REACHER_URL`, `REACHER_TIMEOUT` | unset | global operator config only (`app_settings` then env), never per workspace; `REACHER_ENABLED` resolves per workspace |
 | `PY_WORKER_URL`, `PY_WORKER_TOKEN` | unset | Python worker RPC for `enrich_company`, `get_hiring_signals`, `score_lead` |
@@ -60,8 +63,7 @@ the Host/Origin loopback check is skipped too, so put a reverse proxy with TLS i
 
 - Plan 06 deployed and `PY_WORKER_URL` reachable: without it `enrich_company`, `get_hiring_signals` and
   `score_lead` answer an enrichment-backend error. `verify_email` runs in Go (cascade, optional Reacher).
-- Plans 08 (automations) and 09 (outreach) provide the adapters for `enroll_leads`, `send_email` and
-  `create_automation`. Until they land these three answer `{"error": "<tool> is not available in this build"}`.
+- `enroll_leads`, `send_email` and `create_automation` run in Go (outreach store and send queue; `internal/autosvc` rule validation). `send_email` only enqueues a `send` job for the Go worker's send handler.
   Deployments that use them must keep the Python MCP server (or at least those clients) until then.
 - Plans 04/05 (lead writes and reads) and the workbook CRUD (`create_workbook`, `delete_workbook`) are in Go.
 
@@ -74,7 +76,7 @@ the Host/Origin loopback check is skipped too, so put a reverse proxy with TLS i
 3. SSE service swap: replace the unit running `python -m apps.mcp.server --sse` with `opengtm-mcp --sse 3100`
    on the same host and port; clients keep their URL and bearer token.
 4. Watch `mcp_audit_log` (cost-bearing read tools are audited now: `ok`/`error`/`capped`) and stderr.
-5. Enable `MCP_WRITE_ENABLED=true` last, after read traffic has been clean; then `AUTOMATIONS_ENABLED` once plan 08
+5. Enable `MCP_WRITE_ENABLED=true` last, after read traffic has been clean; then `AUTOMATIONS_ENABLED`
    is in.
 
 ## Rollback

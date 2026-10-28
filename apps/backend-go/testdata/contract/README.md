@@ -457,7 +457,17 @@ writes nothing. No fixture; tests named in parentheses.
 - `enroll_leads`: `lead_ids` must be an array of integers, at most 1000 (`{"error": "lead_ids must contain at most 1000 ids"}`, `{"error": "lead_ids must be an array of integers"}`); `sequence_id` at most 255 characters. Python accepts anything and raises on a bad element.
 - `send_email`: `subject` at most 998 characters and must not contain CR, LF or NUL (`{"error": "subject must not contain line breaks"}`, header-injection hardening; Python accepts them, so the send adapter must still header-encode); `body_html` at most 204800 bytes; `sequence_id` and `idempotency_key` at most 255 characters; `step_number` a non-negative integer. Mistyped arguments answer `{"error": "<field> must be ..."}`.
 - `send_email` normalizes the lead email (NFKC, trim, lower, IDNA2003 domain via transitional mapping) before the send; an email containing CR/LF/NUL or empty after normalization is skipped as `no_email` without queueing. A lead with no email never reaches `QueueSend`.
-- Both tools answer `{"error": "<tool> is not available in this build"}` while the plan 08 outreach adapter is not wired (nil `OutreachPort`).
+
+## MCP enroll_leads, send_email, create_automation in Go: deviations
+
+Production adapters: `internal/mcp/production_outreach.go` (outreach store, send queue, shared `autoactions.QueueSend`) and `production_automation.go` (`internal/autosvc`). The tools answer "not available in this build" only when an `OutreachPort` / `AutomationPort` is nil.
+
+1. One transaction. Python's `_act_send_email` and `create_automation` used their own sessions, so a rolled-back MCP write could still leave a queued send or a stored rule. In Go the enrollment, the send job and the rule commit together with the cap settlement and the idempotency key, or not at all.
+2. Suppressed `send_email`: the result is `skipped/suppressed` and nothing is written. Python enrolled the address and queued the send, and the handler then refused it. Matches the Go automations action.
+3. The caller's idempotency key is namespaced: the send key becomes `mcp:<ws>:<key>` and the pending-job check is scoped to the workspace. Python used the raw key against the global `jobs` table, so another tenant's key could block a send and reveal that it exists. Without a caller key the send keeps `trig:<ws>:adhoc:<lead>:<step>`. The automations `send_email` action does the same (a key that is not `trig:<ws>:...` becomes `act:<ws>:<key>`; its pending check is workspace-scoped).
+4. `create_automation` with a legacy outreach action (`sequencer`, `send_email`) answers `409 legacy_outreach_unavailable`, the REST policy of `internal/autosvc` (automations D2). Python checked the sequence and SMTP and stored the rule. Two recorded fixtures are asserted with the Go answer: `writes__create_automation_sequencer_sequence_not_found` and `..._send_email_smtp_not_configured`.
+5. REST bounds on `create_automation`: name at most 200 characters, `max_actions_per_day` at most 2^31-1 and `AUTOMATIONS_MAX_ACTIONS_PER_RULE`. Python had only DB errors here (a 500 with the text leaked).
+6. A validation-time DB error answers a masked 500 instead of Python's leaked exception text.
 
 ## Plan 06 Task 10 deviations (formula and http columns, `internal/colcompute`)
 
