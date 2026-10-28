@@ -22,7 +22,7 @@ import (
 )
 
 // Person-level job-change detection (job_change.py). Detection is a
-// conservative DDG lookup through the Python worker (`ddgs_search`); the
+// conservative DDG lookup through the provider caller (`ddgs_search`); the
 // current employer is parsed only from high-confidence title/snippet patterns.
 // Every Python regex is compiled once here; where RE2 differs from Python's
 // Unicode-aware `re` the pattern is rewritten (explicit classes, manual \b) and

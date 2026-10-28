@@ -74,7 +74,7 @@ func RegisterLLMRoutes(r *httpx.Router, d Deps) {
 		if l == nil {
 			l = slog.Default()
 		}
-		l.Error("GO_LLM_ROUTES_ENABLED is invalid; LLM-backed routes stay on the Python path")
+		l.Error("GO_LLM_ROUTES_ENABLED is invalid; LLM-backed routes are not registered")
 		return
 	}
 	if !on {

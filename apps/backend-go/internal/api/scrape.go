@@ -98,7 +98,7 @@ func RegisterScrapeRoutes(r *httpx.Router, d Deps) {
 	}
 	on, err := config.ScrapeRoutesFrom(d.getenv())
 	if err != nil {
-		d.logger().Error("GO_SCRAPE_ROUTES_ENABLED is invalid; scrape routes stay on the Python path")
+		d.logger().Error("GO_SCRAPE_ROUTES_ENABLED is invalid; scrape routes are not registered")
 		return
 	}
 	if !on {

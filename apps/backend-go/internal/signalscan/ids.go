@@ -1,7 +1,7 @@
 // Package signalscan ports the Python signal scanner (services/signals/monitor.py
 // run_signal_scan, store.add_signal, workbook/refresh.py handle_signal_scan):
-// deterministic scan ids so a Go and a Python scan racing in one period insert
-// each signal once, the hiring detector (through the Python worker), score
+// deterministic scan ids so two scans racing in one period insert
+// each signal once, the hiring detector (through the provider caller), score
 // boosts and the workbook trigger pass.
 package signalscan
 

@@ -45,7 +45,7 @@ type bulkEnrichResult struct {
 }
 
 // registerBulk registers POST /api/leads/bulk-enrich (require_editor). It only enqueues a
-// bulk_enrich job for the Python worker; enrichment itself stays in Python. The route has no
+// bulk_enrich job for the Go worker. The route has no
 // @limiter in Python, so no rate limit here.
 func registerBulk(r *httpx.Router, d Deps) {
 	if d.Pool == nil {

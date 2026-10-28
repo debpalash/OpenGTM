@@ -131,7 +131,7 @@ func pcCallID(w PyWatch, source string, n int) string {
 	return id
 }
 
-// pcCall runs one provider on the Python worker and returns the output's
+// pcCall runs one provider through the provider caller and returns the output's
 // `fields`. Failures: provcall.ErrUnavailable/ErrUnauthorized/ErrUnknownProvider,
 // ErrPyTimeout, *PyCallError, or the context's error. Nothing is retried here
 // beyond the client's own single same-call-id retry of transport errors.

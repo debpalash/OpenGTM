@@ -32,7 +32,7 @@ func RegisterCapabilityRoutes(r *httpx.Router, d Deps) {
 	}
 	on, err := config.CapabilityRoutesFrom(d.getenv())
 	if err != nil {
-		d.Log.Error("GO_CAPABILITY_ROUTES_ENABLED is invalid; capability routes stay on the Python path")
+		d.Log.Error("GO_CAPABILITY_ROUTES_ENABLED is invalid; capability routes are not registered")
 		return
 	}
 	if !on {

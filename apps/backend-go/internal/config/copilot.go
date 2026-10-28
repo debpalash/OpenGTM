@@ -7,7 +7,7 @@ import (
 
 // CopilotSettings are the plan 12 (copilot chat and person intel) settings. COPILOT_GO_ENABLED is a
 // Go-only rollout switch (default false). ChatRequireAuth keeps Python's CHAT_REQUIRE_AUTH
-// semantics: unset defaults to PG_LEAD_STORE. LLM provider keys live only on the Python worker.
+// semantics: unset defaults to PG_LEAD_STORE. LLM provider keys are read in process from the settings registry.
 type CopilotSettings struct {
 	GoCopilotEnabled   bool // COPILOT_GO_ENABLED
 	ChatRequireAuth    bool // CHAT_REQUIRE_AUTH, default = PG_LEAD_STORE

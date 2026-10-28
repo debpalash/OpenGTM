@@ -7,9 +7,8 @@ import (
 )
 
 // LocalProviders is GO_LOCAL_PROVIDERS (plan 15 WP-PROVIDERS): the provider
-// and RPC names served in process before the Python worker. Empty (the
-// default) keeps every Python-only provider on the worker; "all" serves every
-// name that has a Go implementation.
+// and RPC names served in process. Empty (the default) serves
+// none of the gated providers; "all" serves every name that has a Go implementation.
 type LocalProviders struct {
 	all   bool
 	names map[string]bool

@@ -22,8 +22,8 @@ import (
 )
 
 // AIColumns runs ai_formula, research and agent cells and the ai_formula batch pre-pass in
-// process (GO_NATIVE_AI_COLUMNS, plan 15 WP-AICOLS) instead of on the Python worker. nil
-// keeps the Python worker path.
+// process (GO_NATIVE_AI_COLUMNS, plan 15 WP-AICOLS) instead of through the generic provider caller (Deps.Py). nil
+// keeps that path.
 type AIColumns struct {
 	// For returns the column collaborators of a workspace: an LLM client that accounts
 	// usage to the workspace, operator settings, search, page fetching and the URL guard.

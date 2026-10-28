@@ -22,9 +22,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/vendorcatalog"
 )
 
-// Python-executed column types: the cell is computed by the Python worker
-// (LLM, research agent, tool-picking agent) behind POST /internal/provider-call
-// as the pseudo-providers below. Go owns the cell: it writes the value, the
+// Python-executed column types: the cell is computed by the AI column runner
+// (LLM, research agent, tool-picking agent) behind the pseudo-providers below. Go owns the cell: it writes the value, the
 // overlay and the broadcast exactly like enrich_cell, fenced by the queue lease.
 const (
 	rpcAIFormula = "ai_formula"
@@ -127,7 +126,7 @@ func decodeColumnOutput(raw json.RawMessage) (pyOutput, error) {
 }
 
 // pyCall performs one RPC. A returned error means the whole run must unwind
-// (job cancelled) or the python worker is not usable; a cell-local failure is
+// (job cancelled) or the AI column runner is not usable; a cell-local failure is
 // reported through (status, output).
 func (rs *runState) pyCall(ctx context.Context, provider string, input map[string]any, timeout time.Duration) (provcall.Result, error) {
 	b, err := json.Marshal(input)
@@ -151,7 +150,7 @@ func (rs *runState) pyCall(ctx context.Context, provider string, input map[strin
 	return res, nil
 }
 
-// pyCell runs an ai_formula, research or agent cell on the Python worker.
+// pyCell runs an ai_formula, research or agent cell on the AI column runner.
 func (rs *runState) pyCell(ctx context.Context, lead map[string]any, col column, rowID, leadID int64) (cellOutcome, error) {
 	if col.Type != rpcAgent && !manifest.PyTruthy(col.cfg["prompt"]) {
 		return rs.failDependent(ctx, lead, col, "no_prompt")
@@ -272,7 +271,7 @@ func (rs *runState) batchEligible() map[string]bool {
 
 // aiBatchPrepass ports _run_ai_batch_prepass: eligible cells of many rows go out
 // as one batch request; every answered cell is persisted like a synchronous ai
-// cell. It returns the handled (row, column) pairs. Over the Python worker any
+// cell. It returns the handled (row, column) pairs. Over the generic caller any
 // failure is "nothing handled" so the synchronous loop runs those cells (no
 // durable attempt recovery). With Deps.AICols the batch runs on the Go LLM client
 // with the durable claim of batch_attempts.py (nativeBatch): once a queued job

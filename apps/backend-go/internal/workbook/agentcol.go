@@ -123,7 +123,7 @@ type agentResult struct {
 }
 
 // agentCell runs one agent cell. A returned error unwinds the run (lease lost, job
-// cancelled, Python worker gone) or is a configuration error the caller reports as
+// cancelled, provider runner gone) or is a configuration error the caller reports as
 // cell_execution_failed (abortErr tells them apart).
 func (rs *runState) agentCell(ctx context.Context, lead map[string]any, col column, rowID, leadID int64) (pyOutput, error) {
 	ws, wb := rs.p.WorkspaceID, rs.p.WorkbookID

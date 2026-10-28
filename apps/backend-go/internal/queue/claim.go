@@ -1,7 +1,7 @@
 // Package queue is the Go side of the shared Postgres job queue. It mirrors
 // legacy/python/apps/api/services/queue_service.py: every lease predicate is
-// (id, worker_id, locked_at, lease_token, status), so Python and Go fence each
-// other. ReapStale (reap.go) recovers the claims of dead workers; the Go worker runs it.
+// (id, worker_id, locked_at, lease_token, status), so every claimer, API and worker alike,
+// fences the same way. ReapStale (reap.go) recovers the claims of dead workers; the Go worker runs it.
 package queue
 
 import (

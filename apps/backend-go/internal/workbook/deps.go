@@ -50,11 +50,11 @@ type Deps struct {
 	Progress    progress.Publisher // nil = no broadcasts
 	Log         *slog.Logger
 	// Runner runs every enrichment provider call (providerrun.Runner: Go
-	// providers in process, others on the Python worker). nil runs only the
+	// providers and declarative manifests, all in process). nil runs only the
 	// payload's verified declarative manifests (tests, standalone use).
 	Runner ProviderRunner
-	// Py is the Python worker RPC for ai_formula, research and agent columns
-	// and the AI batch prepass. nil hands such jobs back to Python.
+	// Py is the provider-call seam for ai_formula, research and agent columns
+	// and the AI batch prepass. nil: such cells fail unavailable.
 	Py PyCaller
 	// AIBatch configures the ai_formula batch prepass (off by default).
 	AIBatch BatchConfig

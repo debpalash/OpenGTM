@@ -225,7 +225,7 @@ func Eligible(cols []colgraph.Col, idx map[string]manifest.Entry, cfg Config) (b
 			e, ok := idx[name]
 			if !ok {
 				if cfg.NativeProviders {
-					continue // providerrun runs it in process or through the Python worker
+					continue // providerrun runs it in process
 				}
 				return false, ReasonNonDeclarative
 			}

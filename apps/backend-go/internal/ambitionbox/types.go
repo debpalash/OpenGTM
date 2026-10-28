@@ -4,7 +4,7 @@
 //
 // Only the HTTP part lives here. The gateway needs no browser or scraper tier
 // in Python (plain JSON over aiohttp with fixed appid/systemid headers), so
-// nothing of this client stays on the Python worker; the import job that
+// nothing of this client needs the browser service; the import job that
 // drives it is ambitionimport.
 package ambitionbox
 

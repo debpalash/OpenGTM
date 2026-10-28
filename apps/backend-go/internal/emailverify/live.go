@@ -197,8 +197,7 @@ func (f *ProviderFinder) Find(ctx context.Context, workspaceID string, lead map[
 }
 
 // WebsiteProvider is the provider that scrapes a company website: Go
-// (providers/scrape over the browser service) when GO_LOCAL_PROVIDERS lists
-// it, else the Python worker.
+// (providers/scrape over the browser service).
 const WebsiteProvider = "website_scraper"
 
 // WebsiteFinder is the free first step: scrape the lead's website for a

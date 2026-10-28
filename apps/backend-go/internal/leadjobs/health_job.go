@@ -33,8 +33,8 @@ const (
 	chainLockKey = "source_health:chain"
 )
 
-// Prober is the Python worker RPC (source-list, source-probe): Go never opens a connection to a
-// scraped source itself, so the probes run behind the worker's own egress controls.
+// Prober lists and probes the scraped sources (internal/collect over leadweb and the browser service), so the
+// probes run behind the egress controls.
 type Prober interface {
 	SourceList(ctx context.Context, timeout time.Duration) ([]string, error)
 	// SourceProbe probes one batch; a nil yield is a probe that did not finish or raised.
@@ -140,7 +140,7 @@ func dedupe(in []string) []string {
 }
 
 // HandleSourceHealthCheck is handle_source_health_check. With SOURCE_HEALTH_ENABLED off it is a
-// no-op and does not reschedule. Probes go to the Python worker one batch of
+// no-op and does not reschedule. Probes go to the Prober one batch of
 // SOURCE_HEALTH_PROBE_CONCURRENCY at a time. A null yield or a failed RPC counts as yield 0 and
 // marks the whole run an outage (stricter than Python, so an unreachable worker can never
 // auto-disable a source). A cancelled context aborts the RPC and applies nothing.

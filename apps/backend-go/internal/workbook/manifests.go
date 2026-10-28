@@ -12,7 +12,7 @@ import (
 )
 
 // verifyManifests replaces every payload manifest with the copy served by the
-// Python API, after checking its sha256 against the one the enqueuer put in the
+// API's connector index, after checking its sha256 against the one the enqueuer put in the
 // payload. The payload's own manifest bodies are never executed: a tampered
 // payload (e.g. a redirected URL) is refused as manifest_mismatch.
 func verifyManifests(ctx context.Context, src ManifestSource, p *runPayload) error {

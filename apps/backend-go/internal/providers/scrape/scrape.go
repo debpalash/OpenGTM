@@ -1,13 +1,12 @@
 // Package scrape ports the Python-only enrichment providers (plan 15
 // WP-PROVIDERS, inventory B1-B19): the providers that searched the web,
-// scraped pages or ran a scraping library inside the Python worker. Page and
+// scraped pages or ran a scraping library inside the former Python worker. Page and
 // search work goes through internal/leadweb and the browser service; parsing,
 // ranking and result shaping run here.
 //
 // Every provider is a providers.Provider registered under its Python name.
 // They are gated (providers.LocalGated): providerrun and rpclocal run one in
-// process only when GO_LOCAL_PROVIDERS lists it; otherwise the call keeps going to the
-// Python worker. A direct caller (an LLM route action) may call Enrich itself.
+// process only when GO_LOCAL_PROVIDERS lists it; otherwise the call is unavailable. A direct caller (an LLM route action) may call Enrich itself.
 //
 // The I/O seams (Deps) are process-wide and set once at start-up by
 // Configure; a provider whose seam is missing answers a normal error Output.

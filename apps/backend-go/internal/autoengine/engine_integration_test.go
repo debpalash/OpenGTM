@@ -570,7 +570,7 @@ func TestCancelStopsBeforeNextAction(t *testing.T) {
 		t.Fatalf("%d actions ran after the cancel", n)
 	}
 	if r := e.runs(ws1)[0]; r.Status != "failed" || !r.Finished {
-		t.Fatalf("a cancelled run must be finalised (no reaper exists): %+v", r)
+		t.Fatalf("a cancelled run must be finalised (the run row is closed by the engine): %+v", r)
 	}
 	if _, st := e.job(c.ID); st != "cancelled" {
 		t.Fatalf("job %s", st)

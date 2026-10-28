@@ -46,8 +46,7 @@ type CellRequest struct {
 	WorkspaceID, WorkbookID string
 	RowID                   int64
 	ColumnID                string
-	// Force bypasses the output run-once guard (output columns run on Python; the guard is
-	// answered here only when Force is false).
+	// Force bypasses the output run-once guard (the guard is answered here only when Force is false).
 	Force bool
 	// ProviderTimeout bounds one provider call (Python _RUN_CONFIG provider_timeout, 10s).
 	ProviderTimeout time.Duration
@@ -423,7 +422,7 @@ func (rs *runState) runOneCell(ctx context.Context, lc loadedCell, force bool) (
 }
 
 // outputGuard answers the output run-once gate (a complete cell is never re-pushed without
-// force). answered=false means the output must really run, which only Python does.
+// force). answered=false means the output must really run, which the output column runner then does.
 func (rs *runState) outputGuard(ctx context.Context, lc loadedCell) (CellResult, bool, error) {
 	col := lc.col
 	var prior gen.GetEnrichmentForOutputGuardRow

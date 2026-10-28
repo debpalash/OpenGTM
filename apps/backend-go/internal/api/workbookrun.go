@@ -277,7 +277,7 @@ func (m *manifestIndexer) get() map[string]manifest.Entry {
 		}
 		idx, err := manifest.LoadIndex(dir, policy, manifest.LoadTrustStore(trust))
 		if err != nil {
-			slog.Default().Warn("run: manifest index unavailable, every run stays on python", "err_type", errTypeName(err))
+			slog.Default().Warn("run: manifest index unavailable, runs use only the built-in providers", "err_type", errTypeName(err))
 			idx = map[string]manifest.Entry{}
 		}
 		m.idx = idx
