@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/rowtmpl"
@@ -292,10 +293,11 @@ func (d Deps) checkURL(u string) (bool, string) {
 	if u == "" {
 		return false, "missing url"
 	}
-	if d.URLCheck == nil {
-		return true, ""
+	check := d.URLCheck
+	if check == nil {
+		check = func(s string) error { return egress.CheckURL(s, true) } // fail closed: never allow all
 	}
-	if err := d.URLCheck(u); err != nil {
+	if err := check(u); err != nil {
 		return false, err.Error()
 	}
 	return true, ""

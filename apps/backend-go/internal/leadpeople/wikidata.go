@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 )
 
@@ -92,7 +93,7 @@ func (w WikidataIdentity) get(ctx context.Context, params url.Values) (map[strin
 	req.Header.Set("User-Agent", wikidataUA)
 	c := w.Client
 	if c == nil {
-		c = http.DefaultClient
+		c = egress.NewClient(nil) // fail closed: never http.DefaultClient (loopback, HTTP_PROXY)
 	}
 	resp, err := c.Do(req)
 	if err != nil {

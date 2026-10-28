@@ -587,7 +587,7 @@ func (rs *runState) webhookURLProblem(raw string) string {
 func (rs *runState) webhookClient() *http.Client {
 	base := rs.deps.Client
 	if base == nil {
-		base = http.DefaultClient
+		base = egress.NewClient(nil) // fail closed: never http.DefaultClient (loopback, HTTP_PROXY)
 	}
 	c := *base
 	c.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
