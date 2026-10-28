@@ -61,8 +61,12 @@ func TestSyncPayloadRequiresWorkspaceAndRun(t *testing.T) {
 	if err != nil || ws != "ws-1" || run != "run-1" {
 		t.Fatalf("valid payload: %q %q %v", ws, run, err)
 	}
-	if _, _, err := syncPayload([]byte(`{"workspace_id":"ws-1","run_id":"run-1"}`), ""); err != nil {
-		t.Fatalf("job row without a workspace column is accepted: %v", err)
+	// Final security Low 1: the tenant is the claim's only; a job row without a workspace is refused.
+	if _, _, err := syncPayload([]byte(`{"workspace_id":"ws-1","run_id":"run-1"}`), ""); err == nil || !queue.IsPermanent(err) || !errors.Is(err, ErrWorkspaceMismatch) {
+		t.Fatalf("job row without a workspace: %v", err)
+	}
+	if _, _, err := failurePayload([]byte(`{"workspace_id":"ws-1","run_id":"run-1"}`), ""); !errors.Is(err, ErrWorkspaceMismatch) {
+		t.Fatalf("failure hook, job row without a workspace: %v", err)
 	}
 }
 
