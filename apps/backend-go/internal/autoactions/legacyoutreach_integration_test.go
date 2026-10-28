@@ -383,3 +383,45 @@ func TestLegacyOutreachNeverReusesEnrollmentOfAnotherEmail(t *testing.T) {
 		t.Fatalf("matching email: %+v", r)
 	}
 }
+
+const loWS2 = "ws-p15-autolegacy-b"
+
+// A key is global state (jobs.fire_key, the pending-job check): the same key in
+// two workspaces queues one send in each, and a pending send in another
+// workspace is neither reported nor blocking.
+func TestLegacySendEmailKeyIsScopedToWorkspace(t *testing.T) {
+	ctx := context.Background()
+	d := Deps{Pool: testpg.NewAppPool(t, 8)}
+	loClean(t, ctx, d)
+	clean2 := func() {
+		_ = tenancy.InWorkspace(ctx, d.Pool, loWS2, func(tx pgx.Tx) error {
+			_, err := tx.Exec(ctx, `DELETE FROM jobs WHERE type='send' AND workspace_id=$1`, loWS2)
+			return err
+		})
+	}
+	clean2()
+	t.Cleanup(clean2)
+	act := map[string]any{"type": "send_email", "config": map[string]any{"subject": "s", "body_html": "b"}}
+	lead := map[string]any{"email": "a@x.com"}
+	r1 := Execute(ctx, d, loWS, act, "wb", "1", ptr(7), lead, nil, "shared-key")
+	r2 := Execute(ctx, d, loWS2, act, "wb", "1", ptr(7), lead, nil, "shared-key")
+	if r1.Summary != "send enqueued" || r2.Summary != "send enqueued" {
+		t.Fatalf("same key in two workspaces: %+v / %+v (want both enqueued)", r1, r2)
+	}
+	// the same workspace still dedupes
+	if r := Execute(ctx, d, loWS, act, "wb", "1", ptr(7), lead, nil, "shared-key"); r.Summary != "already queued/sent" {
+		t.Fatalf("repeat in one workspace: %+v", r)
+	}
+	var n1, n2 int
+	loIn(t, ctx, d, func(tx pgx.Tx) error {
+		return tx.QueryRow(ctx, `SELECT count(*) FROM jobs WHERE type='send' AND workspace_id=$1`, loWS).Scan(&n1)
+	})
+	if err := tenancy.InWorkspace(ctx, d.Pool, loWS2, func(tx pgx.Tx) error {
+		return tx.QueryRow(ctx, `SELECT count(*) FROM jobs WHERE type='send' AND workspace_id=$1`, loWS2).Scan(&n2)
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if n1 != 1 || n2 != 1 {
+		t.Fatalf("jobs per workspace: %d, %d (want 1, 1)", n1, n2)
+	}
+}
