@@ -135,7 +135,8 @@ type step struct {
 }
 
 // Handle is handle_ambitionbox_import: resume the run from its committed page
-// cursor, one transaction per page. A nil claim skips lease checks.
+// cursor, one transaction per page. A nil claim (tests) skips lease and tenant checks; the worker always
+// passes its claim.
 func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 	var raw []byte
 	if c != nil {
@@ -144,6 +145,11 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 	p, ok := payloadIDs(raw)
 	if !ok {
 		return errors.New("ambitionbox_import requires workspace_id, workbook_id, run_id")
+	}
+	// The tenant is the claim's only (final security Low 1): a claim without a workspace, or a payload naming
+	// another one, is refused before anything is read.
+	if c != nil && (c.WorkspaceID == "" || c.WorkspaceID != p.ws) {
+		return &queue.PermanentError{Err: errors.New("ambitionbox_import payload workspace differs from the job's")}
 	}
 	err := pageLoop(ctx, d, c, p)
 	if err != nil {
