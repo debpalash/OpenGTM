@@ -313,6 +313,100 @@ func (q *Queries) MarkClaimed(ctx context.Context, arg MarkClaimedParams) (MarkC
 	return i, err
 }
 
+const reapCandidates = `-- name: ReapCandidates :many
+SELECT id, type, workspace_id, payload, retry_count, max_retries
+FROM jobs
+WHERE status = 'processing'
+  AND (last_heartbeat IS NULL
+       OR last_heartbeat < (now() AT TIME ZONE 'UTC') - make_interval(secs => $1::int))
+ORDER BY id
+FOR UPDATE SKIP LOCKED
+`
+
+type ReapCandidatesRow struct {
+	ID          int32
+	Type        pgtype.Text
+	WorkspaceID pgtype.Text
+	Payload     []byte
+	RetryCount  pgtype.Int4
+	MaxRetries  pgtype.Int4
+}
+
+// Dead claims: processing rows whose heartbeat is older than stale_secs (or was never written). The row locks are
+// held for the reaping transaction, so a concurrent heartbeat or finalize waits and then no longer matches.
+func (q *Queries) ReapCandidates(ctx context.Context, staleSecs int32) ([]ReapCandidatesRow, error) {
+	rows, err := q.db.Query(ctx, reapCandidates, staleSecs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ReapCandidatesRow
+	for rows.Next() {
+		var i ReapCandidatesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Type,
+			&i.WorkspaceID,
+			&i.Payload,
+			&i.RetryCount,
+			&i.MaxRetries,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const reapFail = `-- name: ReapFail :execrows
+UPDATE jobs SET status = 'failed', worker_id = NULL, locked_at = NULL, completed_at = (now() AT TIME ZONE 'UTC'),
+    error = $1::text
+WHERE id = $2 AND status = 'processing'
+`
+
+type ReapFailParams struct {
+	Error string
+	ID    int32
+}
+
+func (q *Queries) ReapFail(ctx context.Context, arg ReapFailParams) (int64, error) {
+	result, err := q.db.Exec(ctx, reapFail, arg.Error, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const reapRequeue = `-- name: ReapRequeue :execrows
+UPDATE jobs SET status = 'pending', retry_count = $1::int, worker_id = NULL, locked_at = NULL,
+    started_at = NULL, next_run_at = (now() AT TIME ZONE 'UTC') + make_interval(mins => $2::int),
+    error = $3::text
+WHERE id = $4 AND status = 'processing'
+`
+
+type ReapRequeueParams struct {
+	NewRetryCount  int32
+	BackoffMinutes int32
+	Error          string
+	ID             int32
+}
+
+func (q *Queries) ReapRequeue(ctx context.Context, arg ReapRequeueParams) (int64, error) {
+	result, err := q.db.Exec(ctx, reapRequeue,
+		arg.NewRetryCount,
+		arg.BackoffMinutes,
+		arg.Error,
+		arg.ID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const selectClaimCandidate = `-- name: SelectClaimCandidate :one
 
 SELECT j.id, j.workspace_id

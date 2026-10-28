@@ -60,31 +60,33 @@ func FinalizeAndNotify(ctx context.Context, pool *pgxpool.Pool, log *slog.Logger
 	if err != nil || !persisted || o.Status != "failed" {
 		return persisted, err
 	}
-	h := failureHook(c.Type)
-	if h == nil {
-		return persisted, nil
-	}
-	if log == nil {
-		log = slog.Default()
-	}
 	reason := o.Error
 	if reason == "" {
 		reason = "job attempt failed"
 	}
-	n := FailureNotice{JobID: c.ID, JobType: c.Type, WorkspaceID: c.WorkspaceID,
-		Payload: append([]byte(nil), c.Payload...), Reason: reason, WillRetry: willRetry}
-	// The hook gets its own context so a slow or timed-out Finalize cannot starve it.
+	notifyFailure(ctx, log, FailureNotice{JobID: c.ID, JobType: c.Type, WorkspaceID: c.WorkspaceID,
+		Payload: append([]byte(nil), c.Payload...), Reason: reason, WillRetry: willRetry})
+	return persisted, nil
+}
+
+// notifyFailure calls the hook registered for the notice's job type, if any. The hook gets its own context so a
+// slow or timed-out transition cannot starve it; its error or panic is logged and goes no further.
+func notifyFailure(ctx context.Context, log *slog.Logger, n FailureNotice) {
+	h := failureHook(n.JobType)
+	if h == nil {
+		return
+	}
+	if log == nil {
+		log = slog.Default()
+	}
 	hctx, hcancel := context.WithTimeout(context.WithoutCancel(ctx), hookTimeout)
 	defer hcancel()
-	func() {
-		defer func() {
-			if r := recover(); r != nil {
-				log.Error("failure hook panicked", "job_id", c.ID, "job_type", c.Type, "panic", fmt.Sprint(r))
-			}
-		}()
-		if herr := h(hctx, n); herr != nil {
-			log.Error("failure hook failed", "job_id", c.ID, "job_type", c.Type, "err", herr)
+	defer func() {
+		if r := recover(); r != nil {
+			log.Error("failure hook panicked", "job_id", n.JobID, "job_type", n.JobType, "panic", fmt.Sprint(r))
 		}
 	}()
-	return persisted, nil
+	if herr := h(hctx, n); herr != nil {
+		log.Error("failure hook failed", "job_id", n.JobID, "job_type", n.JobType, "err", herr)
+	}
 }

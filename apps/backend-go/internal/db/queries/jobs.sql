@@ -86,3 +86,25 @@ SELECT EXISTS (
   WHERE id = sqlc.arg(id) AND worker_id = sqlc.arg(worker_id)::text
     AND locked_at = sqlc.arg(locked_at) AND lease_token = sqlc.arg(lease_token)
     AND status = 'cancelled');
+
+-- name: ReapCandidates :many
+-- Dead claims: processing rows whose heartbeat is older than stale_secs (or was never written). The row locks are
+-- held for the reaping transaction, so a concurrent heartbeat or finalize waits and then no longer matches.
+SELECT id, type, workspace_id, payload, retry_count, max_retries
+FROM jobs
+WHERE status = 'processing'
+  AND (last_heartbeat IS NULL
+       OR last_heartbeat < (now() AT TIME ZONE 'UTC') - make_interval(secs => sqlc.arg(stale_secs)::int))
+ORDER BY id
+FOR UPDATE SKIP LOCKED;
+
+-- name: ReapRequeue :execrows
+UPDATE jobs SET status = 'pending', retry_count = sqlc.arg(new_retry_count)::int, worker_id = NULL, locked_at = NULL,
+    started_at = NULL, next_run_at = (now() AT TIME ZONE 'UTC') + make_interval(mins => sqlc.arg(backoff_minutes)::int),
+    error = sqlc.arg(error)::text
+WHERE id = sqlc.arg(id) AND status = 'processing';
+
+-- name: ReapFail :execrows
+UPDATE jobs SET status = 'failed', worker_id = NULL, locked_at = NULL, completed_at = (now() AT TIME ZONE 'UTC'),
+    error = sqlc.arg(error)::text
+WHERE id = sqlc.arg(id) AND status = 'processing';
