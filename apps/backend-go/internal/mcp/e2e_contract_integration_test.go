@@ -23,6 +23,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
 
@@ -63,6 +64,7 @@ type e2eEnv struct {
 	names map[string]string // fixture id (ws-alpha, wb-alpha-1) -> real id
 	ids   map[int64]int64   // fixture lead id -> real id
 	rev   map[int64]int64   // real lead id -> fixture id
+	users map[int32]int     // real user id -> fixture user id
 }
 
 var e2eRoles = map[int]string{1: "owner", 2: "editor", 3: "viewer", 6: "admin", 4: "owner", 5: "member"}
@@ -71,12 +73,14 @@ func newE2E(t *testing.T, flags map[string]any) *e2eEnv {
 	t.Helper()
 	a := newAuthEnv(t)
 	idx := loadE2EIndex(t)
-	e := &e2eEnv{authEnv: a, plain: map[string]string{}, names: map[string]string{}, ids: map[int64]int64{}, rev: map[int64]int64{}}
+	e := &e2eEnv{authEnv: a, plain: map[string]string{}, names: map[string]string{}, ids: map[int64]int64{}, rev: map[int64]int64{},
+		users: map[int32]int{}}
 	ctx := context.Background()
 
 	users := map[int]int32{}
 	for n := 1; n <= 6; n++ {
 		users[n] = a.user(t, fmt.Sprintf("u%d", n))
+		e.users[users[n]] = n
 	}
 	owner := map[string]int32{"ws-alpha": users[1], "ws-beta": users[4]}
 	for _, ws := range []string{"ws-alpha", "ws-beta"} {
@@ -144,10 +148,32 @@ func newE2E(t *testing.T, flags map[string]any) *e2eEnv {
 			t.Fatal(err)
 		}
 	}
+	// The outreach seed of mcp_seed.py: one active sequence per workspace and one suppressed alpha address.
+	for _, sq := range []struct{ id, ws string }{{"seq-alpha-1", "ws-alpha"}, {"seq-beta-1", "ws-beta"}} {
+		real := sq.id + "-" + a.sfx[len(a.sfx)-8:]
+		e.names[sq.id] = real
+		err := tenancy.InWorkspace(ctx, a.pool, e.names[sq.ws], func(tx pgx.Tx) error {
+			_, err := tx.Exec(ctx, `INSERT INTO outreach_sequences (id, workspace_id, name, description, steps, status, created_at, updated_at)
+				VALUES ($1,$2,'MCP sequence','','[{"subject": "Hi", "body": "x"}]'::json,'active',now(),now())`, real, e.names[sq.ws])
+			return err
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := tenancy.InWorkspace(ctx, a.pool, wss[0], func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx, `INSERT INTO outreach_suppressions (workspace_id, email, reason, source, locked, created_at)
+			VALUES ($1,'stop@sup.example.com','unsubscribe','seed',false,now())`, wss[0])
+		return err
+	}); err != nil {
+		t.Fatal(err)
+	}
 	t.Cleanup(func() {
 		for _, w := range wss {
 			_ = tenancy.InWorkspace(ctx, a.pool, w, func(tx pgx.Tx) error {
-				for _, q := range []string{`DELETE FROM leads`, `DELETE FROM workbooks`, `DELETE FROM mcp_audit_log`, `DELETE FROM trigger_cap_reservations`} {
+				for _, q := range []string{`DELETE FROM jobs`, `DELETE FROM outreach_enrollments`, `DELETE FROM outreach_suppressions`,
+					`DELETE FROM outreach_sequences`, `DELETE FROM triggers`,
+					`DELETE FROM leads`, `DELETE FROM workbooks`, `DELETE FROM mcp_audit_log`, `DELETE FROM trigger_cap_reservations`} {
 					_, _ = tx.Exec(ctx, q)
 				}
 				return nil
@@ -168,14 +194,20 @@ func newE2E(t *testing.T, flags map[string]any) *e2eEnv {
 	}
 	verify := emailverify.NewDeps()
 	verify.SMTPDisabled = true
-	d := NewProductionDeps(e.cfg, a.pool, nil, verify) // no provider caller: provider tools answer "backend unavailable"
+	// No provider caller: provider tools answer "backend unavailable". No workspace secrets are seeded
+	// (as in mcp_seed.py), so a webhook header_secret_ref is never available.
+	d := NewProductionDeps(e.cfg, a.pool, nil, verify, WriteAdapters{
+		Secrets:  fakeSecretChecker{},
+		Outbound: secrets.NewOutboundPolicy(nil, func(string) bool { return false }),
+	})
 	e.srv = NewServer(d, BuildRegistry(d))
 	e.d = d
 	return e
 }
 
 var (
-	uuidRe  = regexp.MustCompile(`[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}`)
+	createdByRe = regexp.MustCompile(`"created_by": "(\d+)"`)
+	uuidRe      = regexp.MustCompile(`[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}`)
 	keyRe   = regexp.MustCompile(`mcpw_[0-9a-f]{32}`)
 	e2eIDRe = regexp.MustCompile(`"(id|lead_id)": (\d+)`)
 )
@@ -197,7 +229,25 @@ func (e *e2eEnv) toFixture(s string) string {
 		}
 		return m
 	})
+	s = createdByRe.ReplaceAllStringFunc(s, func(m string) string {
+		n, _ := strconv.ParseInt(createdByRe.FindStringSubmatch(m)[1], 10, 32)
+		if fx, ok := e.users[int32(n)]; ok {
+			return `"created_by": "` + strconv.Itoa(fx) + `"`
+		}
+		return m
+	})
 	return mask(s)
+}
+
+// volatileText replaces the clock-derived string values the recording stored as
+// "<volatile>" (fixture paths like $.automation.created_at; null stays null).
+func volatileText(s string, paths []string) string {
+	for _, p := range paths {
+		key := p[strings.LastIndex(p, ".")+1:]
+		re := regexp.MustCompile(`"` + regexp.QuoteMeta(key) + `": "[^"]*"`)
+		s = re.ReplaceAllString(s, `"`+key+`": "<volatile>"`)
+	}
+	return s
 }
 
 // learn pairs the ids in a real and a recorded text (in order) and records the
@@ -227,6 +277,15 @@ func (e *e2eEnv) fwd(req map[string]any) {
 			args["lead_id"] = real
 		}
 	}
+	if l, ok := args["lead_ids"].([]any); ok {
+		for i, v := range l {
+			if f, ok := v.(float64); ok {
+				if real, ok := e.ids[int64(f)]; ok {
+					l[i] = float64(real)
+				}
+			}
+		}
+	}
 	for _, k := range []string{"workbook_id", "sequence_id"} {
 		if v, ok := args[k].(string); ok {
 			if real, ok := e.names[v]; ok {
@@ -242,6 +301,16 @@ type e2eToolFixture struct {
 	Response  map[string]any `json:"response"`
 	Stubs     map[string]any `json:"stubs"`
 	Deviation string         `json:"deviation"`
+	Volatile  []string       `json:"volatile"`
+}
+
+func mustMap(t *testing.T, b []byte) map[string]any {
+	t.Helper()
+	var m map[string]any
+	if err := json.Unmarshal(b, &m); err != nil {
+		t.Fatalf("%v (%s)", err, b)
+	}
+	return m
 }
 
 func canonicalJSON(s string) string {
@@ -269,15 +338,27 @@ func setEnvelopeText(m map[string]any, s string) {
 	res["content"].([]any)[0].(map[string]any)["text"] = s
 }
 
-// Tools whose adapters (plans 08/09) are not part of this build.
-var portlessTools = map[string]bool{"enroll_leads": true, "send_email": true, "create_automation": true}
+// Tools that write outreach or automation state: a recorded case marked as a
+// deviation is still replayed (later cases depend on its state, e.g. an
+// idempotent replay of its key) but not compared.
+var stateTools = map[string]bool{"enroll_leads": true, "send_email": true, "create_automation": true}
+
+// goOnly are recorded cases where Go answers differently by design, with the Go
+// answer. create_automation validates through internal/autosvc, where a legacy
+// outreach action (sequencer, send_email) is 409 legacy_outreach_unavailable as
+// on the REST route (contract README, automations D2); Python checked the
+// sequence and SMTP and stored the rule.
+var goOnly = map[string]string{
+	"tools/writes__create_automation_sequencer_sequence_not_found.json":   `{"error": "legacy_outreach_unavailable", "status_code": 409}`,
+	"tools/writes__create_automation_send_email_smtp_not_configured.json": `{"error": "legacy_outreach_unavailable", "status_code": 409}`,
+}
 
 // TestEveryRecordedFixtureReplaysByteForByte replays every recorded rpc/ and
 // tools/ fixture, profile by profile in recording order, through Server.Handle
 // built by BuildRegistry over the production adapters. Cases that cannot match
 // by design are counted, not hidden: Go-deviation cases (asserted by their own
-// tests), enrichment cases that need provider stubs and tools whose adapters land
-// with plans 08/09 (must answer "not available in this build" or match). score_lead
+// tests), enrichment cases that need provider stubs and the documented
+// Go-only answers (goOnly). score_lead
 // is scored in Go (leadscore) and compared.
 func TestEveryRecordedFixtureReplaysByteForByte(t *testing.T) {
 	idx := loadE2EIndex(t)
@@ -286,7 +367,7 @@ func TestEveryRecordedFixtureReplaysByteForByte(t *testing.T) {
 		profiles = append(profiles, p)
 	}
 	sort.Strings(profiles)
-	var compared, skipped, portless int
+	var compared, skipped, goAnswers int
 	for _, p := range profiles {
 		prof := idx.Profiles[p]
 		t.Run(p, func(t *testing.T) {
@@ -305,7 +386,8 @@ func TestEveryRecordedFixtureReplaysByteForByte(t *testing.T) {
 				}
 				params, _ := fx.Request["params"].(map[string]any)
 				tool, _ := params["name"].(string)
-				if fx.Deviation != "" || len(fx.Stubs) > 0 {
+				replayOnly := fx.Deviation != "" && stateTools[tool]
+				if (fx.Deviation != "" && !replayOnly) || len(fx.Stubs) > 0 {
 					skipped++
 					continue
 				}
@@ -316,6 +398,20 @@ func TestEveryRecordedFixtureReplaysByteForByte(t *testing.T) {
 				e.fwd(fx.Request)
 				body, _ := json.Marshal(fx.Request)
 				resp, respond := e.srv.Handle(context.Background(), cx, body)
+				if replayOnly {
+					if gt, _ := envelopeText(mustMap(t, resp)); strings.Contains(gt, "not available") || strings.Contains(gt, `"error"`) {
+						t.Errorf("%s: replayed deviation case failed: %s", c, gt)
+					}
+					skipped++
+					continue
+				}
+				if want, ok := goOnly[c]; ok {
+					if gt, _ := envelopeText(mustMap(t, resp)); gt != want {
+						t.Errorf("%s: Go answer\n got %s\nwant %s", c, gt, want)
+					}
+					goAnswers++
+					continue
+				}
 				if fx.Response == nil {
 					if respond {
 						t.Errorf("%s: notification answered: %s", c, resp)
@@ -338,12 +434,8 @@ func TestEveryRecordedFixtureReplaysByteForByte(t *testing.T) {
 					continue
 				}
 				if gok {
-					if portlessTools[tool] && strings.Contains(gt, "not available in this build") {
-						portless++
-						continue
-					}
 					e.learn(gt, wt)
-					gt, wt = e.toFixture(gt), mask(wt)
+					gt, wt = volatileText(e.toFixture(gt), fx.Volatile), mask(wt)
 					if tool == "get_pipeline_stats" {
 						// Documented deviation: Python's bucket order is GROUP BY hash
 						// order; Go sorts (README, "MCP read tools"). Buckets compare as maps.
@@ -365,7 +457,7 @@ func TestEveryRecordedFixtureReplaysByteForByte(t *testing.T) {
 			}
 		})
 	}
-	t.Logf("compared=%d skipped(deviation/stubs)=%d portless=%d", compared, skipped, portless)
+	t.Logf("compared=%d skipped(deviation/stubs)=%d go-only=%d", compared, skipped, goAnswers)
 	if compared < 100 {
 		t.Fatalf("only %d fixtures compared; replay is vacuous", compared)
 	}
