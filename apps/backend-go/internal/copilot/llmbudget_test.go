@@ -41,10 +41,10 @@ func (h fakeHold) Settle(_ context.Context, c RoundCharge) {
 // called and settled after it; a refused round ends the turn with a clear error frame and calls no provider.
 func TestRoundBudgetReservesAndSettlesEveryRound(t *testing.T) {
 	f := newFakeLLM(t,
-		[]string{`{"t":"tool_calls","d":[{"id":"c1","type":"function","function":{"name":"list_workbooks","arguments":"{}"}}],"cursor":0}`},
+		[]string{`{"t":"tool_calls","d":[{"id":"c1","type":"function","function":{"name":"search_leads","arguments":"{\"query\": \"acme\"}"}}],"cursor":0}`},
 		[]string{`{"t":"content","d":"answer"}`, `{"t":"done","cursor":0}`})
 	b := &fakeBudget{allow: 10}
-	tn := newTurn(f, nativeConst(`{"workbooks": []}`))
+	tn := newTurn(f, nativeConst(`{"leads": [], "count": 0}`))
 	tn.Budget = b
 	if _, err := runTurn(t, tn, userMsgs()); err != nil {
 		t.Fatal(err)
