@@ -5,14 +5,18 @@ package e2e
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest/builtin"
 )
 
 const adminPW = "correct horse battery staple 42"
@@ -43,7 +47,16 @@ func skipIfNoRoute(t *testing.T, code int, raw json.RawMessage, what string) {
 }
 
 func TestNoPython(t *testing.T) {
-	s := startStack(t, nil)
+	// A user connector (unsigned, accepted under the default "optional" signature policy) next to the built-in
+	// manifests: the waterfall scenario runs it as a manifest-only provider (final review C2).
+	var vendorCalls atomic.Int32
+	vendor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vendorCalls.Add(1)
+		_, _ = w.Write([]byte(`{"email":"found@initech.example.com"}`))
+	}))
+	defer vendor.Close()
+	connDir, trust := connectorDir(t, vendor.URL)
+	s := startStack(t, map[string]string{"OPENGTM_CONNECTOR_MANIFESTS_DIR": connDir, "OPENGTM_CONNECTOR_TRUST_STORE": trust})
 	var ses *session
 	hook := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { // http column + webhook sink
 		s.recordHook(r)
@@ -123,7 +136,7 @@ func TestNoPython(t *testing.T) {
 		"formula":      {"id": "calc_len", "name": "Name length", "type": "formula", "formula": "len({company})"},
 		"http":         {"id": "size", "name": "Size", "type": "http", "http_url": hook.URL + "/size?c={company}", "http_method": "GET", "http_extract": "company_size"},
 		"email_verify": {"id": "verified", "name": "Verified email", "type": "waterfall", "waterfall": []string{"hunter_io"}, "target_field": "email", "verify": true},
-		"waterfall":    {"id": "wf", "name": "Waterfall", "type": "waterfall", "waterfall": []string{"hunter_io"}, "target_field": "email"},
+		"waterfall":    {"id": "wf", "name": "Waterfall", "type": "waterfall", "waterfall": []string{"hunter_io", "e2e_vendor_email"}, "target_field": "email"},
 		"enrichment":   {"id": "enr", "name": "Hunter", "type": "enrichment", "provider": "hunter_io", "target_field": "email"},
 		"output":       {"id": "push", "name": "Push", "type": "output", "destination": "webhook", "destination_config": map[string]any{"url": hook.URL + "/out", "method": "POST", "body": `{"company":"{company}"}`}},
 		"ai_formula":   {"id": "summary", "name": "Summary", "type": "ai_formula", "prompt": "Summarize {company}", "input_columns": []string{"company"}},
@@ -143,6 +156,9 @@ func TestNoPython(t *testing.T) {
 			runWB(t, "wb "+name, []map[string]any{cols[name]}, 20*time.Second)
 			if name == "output" && s.hookCount() == 0 {
 				t.Errorf("the output column never reached the sink")
+			}
+			if name == "waterfall" && vendorCalls.Load() == 0 {
+				t.Errorf("the manifest-only provider e2e_vendor_email never ran")
 			}
 		})
 	}
@@ -271,6 +287,53 @@ var (
 	hookMu   sync.Mutex
 	hookReqs []string
 )
+
+// connectorDir copies the built-in connector manifests into a fresh directory and adds the unsigned user connector
+// e2e_vendor_email, which posts to vendorURL. It returns the directory and the built-in trust store.
+func connectorDir(t *testing.T, vendorURL string) (string, string) {
+	t.Helper()
+	dir := t.TempDir()
+	err := fs.WalkDir(builtin.FS(), "manifests", func(p string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		b, err := fs.ReadFile(builtin.FS(), p)
+		if err != nil {
+			return err
+		}
+		out := filepath.Join(dir, filepath.FromSlash(strings.TrimPrefix(p, "manifests/")))
+		if err := os.MkdirAll(filepath.Dir(out), 0o700); err != nil {
+			return err
+		}
+		return os.WriteFile(out, b, 0o600)
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	conn := fmt.Sprintf(`manifest_version: "1"
+name: e2e_vendor_email
+capability: email
+default_confidence: 0.7
+auth:
+  type: none
+request:
+  method: POST
+  url: %s/find
+  body:
+    company: "{{input.company}}"
+response:
+  mappings:
+    email: "$.email"
+`, vendorURL)
+	if err := os.WriteFile(filepath.Join(dir, "e2e_vendor_email.yaml"), []byte(conn), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	_, trust, err := builtin.Paths()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return dir, trust
+}
 
 func (s *stack) recordHook(r *http.Request) {
 	hookMu.Lock()
