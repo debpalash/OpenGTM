@@ -84,6 +84,9 @@ func run() error {
 	if err := migrate.CheckSchema(rootCtx, pool, config.RequiredGoSchemaVersion); err != nil {
 		return err
 	}
+	if err := checkDBRole(rootCtx, pool, requireSafeRole(os.Getenv), log); err != nil {
+		return err
+	}
 	if _, err := telemetry.StartDebugServer(rootCtx, cfg.DebugAddr); err != nil {
 		return err
 	}
@@ -123,6 +126,30 @@ func run() error {
 			cancelJobs()
 			<-done
 		}
+	}
+	return nil
+}
+
+// requireSafeRole reads PG_RLS_REQUIRE_SAFE_ROLE (default true; only an
+// explicit false value downgrades, anything else stays strict).
+func requireSafeRole(get func(string) string) bool {
+	switch strings.ToLower(strings.TrimSpace(get("PG_RLS_REQUIRE_SAFE_ROLE"))) {
+	case "false", "0", "no", "off", "f", "n":
+		return false
+	}
+	return true
+}
+
+// checkDBRole refuses a superuser/BYPASSRLS role (RLS would be silently inert
+// for every job handler), like api/mcp/scheduler/seed; strict=false
+// (PG_RLS_REQUIRE_SAFE_ROLE=false) downgrades the refusal to a CRITICAL log.
+func checkDBRole(ctx context.Context, pool *pgxpool.Pool, strict bool, log *slog.Logger) error {
+	safe, err := queue.AssertSafeRole(ctx, pool, strict)
+	if err != nil {
+		return err
+	}
+	if !safe {
+		log.Error("CRITICAL: database role is superuser/BYPASSRLS; Row-Level Security is inert (PG_RLS_REQUIRE_SAFE_ROLE=false)")
 	}
 	return nil
 }
