@@ -262,7 +262,7 @@ loop:
 			case errors.Is(rerr, provcall.ErrUnknownProvider):
 				call = providerCall{kind: callUnknown}
 			case errors.Is(rerr, provcall.ErrUnavailable), errors.Is(rerr, provcall.ErrUnauthorized):
-				return pyOutput{}, fmt.Errorf("workbook: python worker: %w", rerr)
+				return pyOutput{}, fmt.Errorf("workbook: %w", rerr)
 			case rerr != nil:
 				call = providerCall{kind: callException, text: truncRunes(rerr.Error(), maxErrorRunes)}
 			case timedOut:

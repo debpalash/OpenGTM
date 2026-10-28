@@ -140,13 +140,13 @@ func (rs *runState) pyCall(ctx context.Context, provider string, input map[strin
 		if a := abortErr(ctx, err); a != nil {
 			return res, a
 		}
-		return res, fmt.Errorf("workbook: python worker: %w", err)
+		return res, fmt.Errorf("workbook: %w", err)
 	}
 	if ctx.Err() != nil {
 		return res, context.Cause(ctx) // a late answer never overwrites a cancelled run
 	}
 	if res.Err != nil {
-		return res, fmt.Errorf("workbook: python worker: %w", res.Err)
+		return res, fmt.Errorf("workbook: %w", res.Err)
 	}
 	return res, nil
 }

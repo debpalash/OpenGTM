@@ -669,7 +669,7 @@ func (g *engine) handBack(ctx context.Context, resID int32) error {
 			p.Status, p.StartedAt, p.Error = g.prev.Status, g.prev.StartedAt, g.prev.Error
 		} else {
 			p.Status, p.KeepStarted = "pending", true
-			p.Error = pgtype.Text{String: "Python worker unavailable; run will be retried", Valid: true}
+			p.Error = pgtype.Text{String: "Provider unavailable; run will be retried", Valid: true}
 		}
 		_, err := q.PbEngRestoreRun(ctx, p)
 		return err

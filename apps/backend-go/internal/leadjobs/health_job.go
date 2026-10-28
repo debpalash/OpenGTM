@@ -150,7 +150,7 @@ func HandleSourceHealthCheck(ctx context.Context, d Deps, job *queue.Claim) erro
 		return nil
 	}
 	if d.Py == nil {
-		return errors.New("source_health_check: no python worker")
+		return errors.New("source_health_check: no source prober configured")
 	}
 	k := knobsFrom(d.get)
 	names, err := d.Py.SourceList(ctx, listTimeout)
