@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -23,7 +24,9 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destdeliver"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/deststore"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destsync"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/warehouse"
 )
@@ -45,12 +48,13 @@ type audienceOpts struct {
 	ports destdeliver.Ports                                 // replaces the delivery ports built from the worker's secrets
 	leads audiencerefresh.LeadSource                        // replaces the lead query of a refresh
 	lease func(context.Context, *queue.Claim) (bool, error) // replaces the sync engine's lease check
+	http  *http.Client                                      // replaces the egress client of the CRM/campaign/sheet/Airtable ports
 }
 
 // audienceHandlers returns the plan 10 job handlers keyed by job type: audience_refresh and
 // audience_destination_sync, registered unconditionally since the plan 15 cutover (GO_EXECUTOR_AUDIENCE_REFRESH and
 // GO_DEST_TYPES are retired). audience_refresh fails permanently without an audience emitter (membership events
-// would be dropped); a destination sync whose type has no Go delivery port fails permanently. Failure hooks mirror
+// would be dropped); every destination type the API accepts has a Go delivery port. Failure hooks mirror
 // the Python parent-worker callbacks.
 func audienceHandlers(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sec destdeliver.SecretResolver,
 	emitter audiencerefresh.Emitter, o audienceOpts) map[string]runner {
@@ -62,7 +66,7 @@ func audienceHandlers(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, s
 		handlers[audiencesched.JobType] = refuseJob(audiencesched.JobType, "no audience event emitter")
 		return handlers
 	}
-	queue.RegisterFailureHook(audiencesched.JobType, refreshFailureHook(pool, nil))
+	queue.RegisterFailureHook(audiencesched.JobType, refreshFailureHook(pool, nil, log))
 	handlers[audiencesched.JobType] = refreshHandler(pool, log, emitter, cfg.Flags.Audiences.RefreshPageSize, o.leads)
 	return handlers
 }
@@ -92,16 +96,22 @@ var (
 	errNoJobWorkspace   = errors.New("the job has no workspace_id; the tenant comes from the job row only")
 )
 
-// refreshFailureHook is reconcile_audience_refresh_failure after a persisted failed attempt. The
-// payload workspace must be the job row's own; the work then runs in that tenant.
-func refreshFailureHook(pool *pgxpool.Pool, execFor func(ws string) string) queue.FailureHook {
+// refreshFailureHook is reconcile_audience_refresh_failure after a persisted failed attempt. The tenant is the
+// claimed job row's workspace only: a job without one, or whose payload names another, is logged and left alone
+// (the payload workspace is never used as the tenant).
+func refreshFailureHook(pool *pgxpool.Pool, execFor func(ws string) string, log *slog.Logger) queue.FailureHook {
 	return func(ctx context.Context, n queue.FailureNotice) error {
 		p := idPayload(n.Payload)
 		if p == nil {
 			return errors.New("audience refresh failure payload requires workspace_id and audience_id")
 		}
-		if ws := payloadStr(p, "workspace_id"); n.WorkspaceID != "" && ws != n.WorkspaceID {
-			return errPayloadWorkspace
+		if n.WorkspaceID == "" {
+			log.Warn("audience_refresh failure not reconciled: the job has no workspace_id", "job", n.JobID)
+			return nil
+		}
+		if payloadStr(p, "workspace_id") != n.WorkspaceID {
+			log.Warn("audience_refresh failure not reconciled: payload workspace is not the job's", "job", n.JobID)
+			return nil
 		}
 		return audiencesched.ReconcileFailure(ctx, pool, execFor, n.JobID, p, n.Reason, n.WillRetry, time.Now())
 	}
@@ -183,23 +193,11 @@ func scheduleAfter(ctx context.Context, pool *pgxpool.Pool, ws, id string) error
 	})
 }
 
-// destSyncHandler wires the destination sync engine. A run whose destination type has no Go delivery port
-// (ports.Supports) fails permanently; the failure hook then reconciles the run.
+// destSyncHandler wires the destination sync engine. Every type the API accepts has a Go delivery port; a run whose
+// type has none (ports.Supports: an unknown stored type) fails permanently and the failure hook reconciles the run.
 func destSyncHandler(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sec destdeliver.SecretResolver, o audienceOpts) runner {
 	aud := cfg.Flags.Audiences
-	ports := o.ports
-	if ports.Secrets == nil && sec != nil {
-		ports.Secrets = sec
-	}
-	// Webhook and Slack deliver through the egress-pinned automation sender with the outbound secret-ref
-	// policy (S-M3, R2); the same policy gates the warehouse and Slack references at delivery.
-	wd := autoactions.NewWebhookDeps(cfg.AppEnv, cfg.EgressAllowHosts, cfg.Flags.Automations, sec, log)
-	if ports.Webhook == nil {
-		ports.Webhook = destdeliver.AutoWebhook{Deps: wd}
-	}
-	if ports.Outbound.Prefixes == nil && ports.Outbound.Registered == nil {
-		ports.Outbound = wd.Outbound
-	}
+	ports := destPorts(cfg, pool, log, sec, o)
 	get := adTokenGetter(sec, adTokensWorkspaceOnly())
 	dd := destsync.Deps{
 		Pool: pool, Deliverer: destdeliver.New(ports, aud.DestDeliveryTimeout),
@@ -230,6 +228,47 @@ func destSyncHandler(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, se
 		}
 		return eng.Handle(ctx, c)
 	}
+}
+
+// destPorts builds the delivery ports; a port set in o.ports wins. Webhook and Slack deliver through the
+// egress-pinned automation sender with the outbound secret-ref policy (S-M3, R2); the same policy gates the warehouse
+// and Slack references at delivery. HubSpot, Salesforce, Instantly, Smartlead, Google Sheets and Airtable deliver
+// through destdeliver.NewLivePorts over the egress client with the workspace's own credentials (sec must be the
+// local resolver; any other resolver resolves nothing for them, so they fail "not connected").
+func destPorts(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sec destdeliver.SecretResolver, o audienceOpts) destdeliver.Ports {
+	ports := o.ports
+	if ports.Secrets == nil && sec != nil {
+		ports.Secrets = sec
+	}
+	wd := autoactions.NewWebhookDeps(cfg.AppEnv, cfg.EgressAllowHosts, cfg.Flags.Automations, sec, log)
+	if ports.Webhook == nil {
+		ports.Webhook = destdeliver.AutoWebhook{Deps: wd}
+	}
+	if ports.Outbound.Prefixes == nil && ports.Outbound.Registered == nil {
+		ports.Outbound = wd.Outbound
+	}
+	hc := o.http
+	if hc == nil {
+		hc = egress.NewClientForEnv(cfg.AppEnv, cfg.EgressAllowHosts)
+	}
+	local, _ := sec.(*secrets.Resolver)
+	lp := destdeliver.NewLivePorts(destdeliver.LiveConfig{Pool: pool, Secrets: local, HTTP: hc, Log: log})
+	if ports.CRM == nil {
+		ports.CRM = lp.CRM
+	}
+	if ports.Instantly == nil {
+		ports.Instantly = lp.Instantly
+	}
+	if ports.Smartlead == nil {
+		ports.Smartlead = lp.Smartlead
+	}
+	if ports.Sheets == nil {
+		ports.Sheets = lp.Sheets
+	}
+	if ports.Airtable == nil {
+		ports.Airtable = lp.Airtable
+	}
+	return ports
 }
 
 // adTokensWorkspaceOnly is AD_TOKENS_WORKSPACE_ONLY (default off): with it on, ad-platform tokens resolve from

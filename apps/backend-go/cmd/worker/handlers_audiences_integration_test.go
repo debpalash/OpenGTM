@@ -299,11 +299,12 @@ func TestWorkerIgnoresPythonRows(t *testing.T) {
 	}
 }
 
-// A destination type without a Go delivery port fails permanently (plan 15 cutover: no hand-back; GO_DEST_TYPES is
-// permanently every type), and the failure hook reconciles the run.
+// A stored destination type without a Go delivery port fails permanently (plan 15 cutover: no hand-back), and the
+// failure hook reconciles the run. Every type the API accepts has a port (TestDestPortsCoverEveryAcceptedType), so
+// only a type outside that list (a legacy row) can get here.
 func TestWorkerFailsTypeWithoutPort(t *testing.T) {
 	g := setupAud(t)
-	run, mk := g.destRun(t, "hubspot", 1)
+	run, mk := g.destRun(t, "legacy_crm", 1)
 	job := mk(3, "go")
 	g.runAud(t, audConfig(g.ws, "webhook"), &nopEmitter{}, audienceOpts{ports: destdeliver.Ports{}})
 	if st, ex, _ := g.jobRow(t, job); st != "failed" || ex != "go" {

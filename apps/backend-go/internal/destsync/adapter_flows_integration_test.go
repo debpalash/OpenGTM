@@ -100,7 +100,9 @@ type memStore struct {
 	global map[string]string
 }
 
-func (m memStore) AppSetting(_ context.Context, key string) (string, error) { return m.global[key], nil }
+func (m memStore) AppSetting(_ context.Context, key string) (string, error) {
+	return m.global[key], nil
+}
 func (m memStore) WorkspaceSetting(_ context.Context, ws, key string) (string, bool, error) {
 	v, ok := m.ws[ws][key]
 	return v, ok, nil
