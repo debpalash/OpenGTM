@@ -21,7 +21,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/govadmin"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
@@ -50,7 +49,7 @@ func newRBEnv(t *testing.T, opts ...rbOpt) rbEnv {
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
 	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Flags: config.Flags{PGLeadStore: true}}
 	if len(opts) > 0 && opts[0] == rbLimited {
-		d.Limiter = ratelimit.New(nil)
+		d.Limiter = frozenLimiter()
 	}
 	if len(opts) > 0 && opts[0] == rbStaleGate {
 		// A gate decision taken before the caller lost the right: every authenticated workspace member passes.

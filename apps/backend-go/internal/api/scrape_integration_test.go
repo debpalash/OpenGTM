@@ -10,13 +10,11 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/unisearch"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
@@ -73,7 +71,7 @@ func newScrapeEnv(t *testing.T, render pageRenderer, search unifiedSearcher) (jo
 	}
 	clean()
 	t.Cleanup(clean)
-	d := Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Limiter: ratelimit.New(time.Now)}
+	d := Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Limiter: frozenLimiter()}
 	h := newScrapeRoutes(d)
 	h.render, h.search, h.guard = render, search, urlGuard{lookup: scrapePublicLookup}
 	r := httpx.NewRouter()

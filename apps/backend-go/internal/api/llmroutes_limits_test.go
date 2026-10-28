@@ -8,7 +8,6 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/nlcolumn"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
@@ -29,7 +28,7 @@ func TestCampaignGenerateCapsFreeText(t *testing.T) {
 
 func TestLLMRoutesAreRateLimitedPerWorkspace(t *testing.T) {
 	h := newTestRoutes(&fakeLeadStore{}, &scriptLLM{})
-	h.d.Limiter = ratelimit.New(nil)
+	h.d.Limiter = frozenLimiter()
 	next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(200) })
 	for _, spec := range []string{llmGenerateRate} {
 		lim := h.limit(spec, next)

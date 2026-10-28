@@ -9,7 +9,6 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
@@ -40,7 +39,7 @@ func TestAdminUserCreateRateLimitedPerUser(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
 	st := identity.NewStore(pool)
 	r := httpx.NewRouter()
-	RegisterUsers(r, Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: ratelimit.New(nil)})
+	RegisterUsers(r, Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: frozenLimiter()})
 	e := env{h: r.Handler(), st: st}
 	_, hdr := e.seedAdmin(t, "rl-admin")
 	for i := 0; i < userCreateBurst; i++ {

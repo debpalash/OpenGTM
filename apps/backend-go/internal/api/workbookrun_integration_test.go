@@ -373,7 +373,7 @@ func TestRunBillingOffNeverTouchesLedger(t *testing.T) {
 }
 
 func TestRunRateLimit20PerMinute(t *testing.T) {
-	e := newRunEnv(t, runOpts{limiter: ratelimit.New(nil)})
+	e := newRunEnv(t, runOpts{limiter: frozenLimiter()})
 	for i := 1; i <= 20; i++ {
 		if rec, _ := e.post("wb-alpha-1", `{"column_ids":["nope"]}`, e.users["alice"]); rec.Code != 200 {
 			t.Fatalf("request %d: %d %s", i, rec.Code, rec.Body)

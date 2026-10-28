@@ -10,7 +10,6 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
@@ -19,7 +18,7 @@ func newLimitedAuthEnv(t *testing.T) env {
 	pool := testpg.NewAppPool(t, 4)
 	st := identity.NewStore(pool)
 	r := httpx.NewRouter()
-	RegisterAuth(r, Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: ratelimit.New(nil)})
+	RegisterAuth(r, Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: frozenLimiter()})
 	return env{h: r.Handler(), st: st}
 }
 

@@ -13,14 +13,12 @@ import (
 	"strings"
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/unisearch"
 )
 
@@ -384,7 +382,7 @@ func scrapePost(h http.HandlerFunc, body string) *httptest.ResponseRecorder {
 
 func TestPublicScrapeHandler(t *testing.T) {
 	newH := func(r pageRenderer) *scrapeRoutes {
-		return &scrapeRoutes{d: Deps{Limiter: ratelimit.New(time.Now)}, log: Deps{}.logger(), render: r, guard: urlGuard{lookup: scrapePublicLookup}}
+		return &scrapeRoutes{d: Deps{Limiter: frozenLimiter()}, log: Deps{}.logger(), render: r, guard: urlGuard{lookup: scrapePublicLookup}}
 	}
 	type tc struct {
 		name, body string
@@ -420,7 +418,7 @@ func TestPublicScrapeHandler(t *testing.T) {
 }
 
 func TestPublicScrapeRateLimit(t *testing.T) {
-	h := &scrapeRoutes{d: Deps{Limiter: ratelimit.New(time.Now)}, log: Deps{}.logger(), render: scrapeOKRender(), guard: urlGuard{lookup: scrapePublicLookup}}
+	h := &scrapeRoutes{d: Deps{Limiter: frozenLimiter()}, log: Deps{}.logger(), render: scrapeOKRender(), guard: urlGuard{lookup: scrapePublicLookup}}
 	// 30/minute: invalid bodies (422) do not count, a 400 does
 	for i := 0; i < 50; i++ {
 		if rec := scrapePost(h.publicScrape, `{`); rec.Code != 422 {
@@ -439,7 +437,7 @@ func TestPublicScrapeRateLimit(t *testing.T) {
 func TestAdminScrapeHandler(t *testing.T) {
 	st := &scrapeMemStore{}
 	rr := scrapeOKRender()
-	h := &scrapeRoutes{d: Deps{Limiter: ratelimit.New(time.Now)}, log: Deps{}.logger(), render: rr, store: st, guard: urlGuard{lookup: scrapePublicLookup}}
+	h := &scrapeRoutes{d: Deps{Limiter: frozenLimiter()}, log: Deps{}.logger(), render: rr, store: st, guard: urlGuard{lookup: scrapePublicLookup}}
 	if rec := scrapePost(h.adminScrape, `{}`); rec.Code != 422 || !strings.Contains(rec.Body.String(), `"type":"missing","loc":["body","url"]`) {
 		t.Errorf("missing url: %d %s", rec.Code, rec.Body)
 	}
@@ -514,7 +512,7 @@ func TestUnifiedHandler(t *testing.T) {
 		{ID: "a1", Title: "T1", URL: "u1", Source: "arxiv", FileType: "pdf", Year: &year, Snippet: &snippet},
 		{ID: "b1", Title: "T2", URL: "u2", Source: "doaj", FileType: "other"},
 	}}}
-	h := &scrapeRoutes{d: Deps{Limiter: ratelimit.New(time.Now)}, log: Deps{}.logger(), search: fs}
+	h := &scrapeRoutes{d: Deps{Limiter: frozenLimiter()}, log: Deps{}.logger(), search: fs}
 
 	rec := scrapeGet(h.unified, "/api/v2/search/unified")
 	if rec.Code != 200 || rec.Body.String() != `{"query":"","total":0,"results":[]}` || len(fs.calls) != 0 {
@@ -557,7 +555,7 @@ func TestUnifiedHandler(t *testing.T) {
 
 func TestUnifiedRateLimit(t *testing.T) {
 	fs := &fakeUnified{}
-	h := &scrapeRoutes{d: Deps{Limiter: ratelimit.New(time.Now)}, log: Deps{}.logger(), search: fs}
+	h := &scrapeRoutes{d: Deps{Limiter: frozenLimiter()}, log: Deps{}.logger(), search: fs}
 	for i := 0; i < 40; i++ { // 422s do not count
 		scrapeGet(h.unified, "/api/v2/search/unified?limit=x")
 	}

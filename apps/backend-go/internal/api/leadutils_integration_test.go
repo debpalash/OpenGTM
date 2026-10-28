@@ -22,7 +22,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
@@ -80,7 +79,7 @@ func newUtilsEnv(t *testing.T, mut ...func(*Deps)) *utilsEnv {
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
 	e := &utilsEnv{}
-	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: ratelimit.New(nil),
+	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: frozenLimiter(),
 		Getenv: func(string) string { return "" },
 		Flags:  config.Flags{PGLeadStore: true, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: true}}}
 	for _, m := range mut {

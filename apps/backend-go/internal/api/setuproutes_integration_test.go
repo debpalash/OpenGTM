@@ -340,7 +340,7 @@ func TestSetupBackfillsExistingMainWorkspace(t *testing.T) {
 }
 
 func TestSetupIsRateLimited(t *testing.T) {
-	e := newSetupEnv(t, "tok", ratelimit.New(nil))
+	e := newSetupEnv(t, "tok", frozenLimiter())
 	for i := 0; i < 5; i++ {
 		if rec := e.post(setupBody("boss", goodPW, `"setup_token":"wrong"`)); rec.Code != 403 {
 			t.Fatalf("attempt %d: %d", i, rec.Code)

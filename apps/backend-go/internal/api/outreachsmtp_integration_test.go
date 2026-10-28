@@ -381,7 +381,7 @@ func TestSMTPTestErrorTextNeverLeaksPassword(t *testing.T) {
 
 func TestSMTPTestRateLimited(t *testing.T) {
 	srv := testsmtp.New(t, testsmtp.Options{})
-	e := newOsmtpEnv(t, srv, ratelimit.New(nil))
+	e := newOsmtpEnv(t, srv, frozenLimiter())
 	for i := 0; i < 10; i++ {
 		if code, _, body := e.as("alice", "ws-alpha", "POST", "/api/outreach/smtp/test", `{"to_email":"nope"}`); code != 400 {
 			t.Fatalf("request %d: %d %s", i, code, body)
@@ -458,7 +458,7 @@ func TestSMTPTestNeverSendsGlobalPasswordToWorkspaceHost(t *testing.T) {
 // omits the header (active workspace) shares the budget of the same workspace, and a spoofed header is refused, not a fresh bucket.
 func TestSMTPTestLimiterKeysOnAuthenticatedWorkspace(t *testing.T) {
 	srv := testsmtp.New(t, testsmtp.Options{})
-	e := newOsmtpEnv(t, srv, ratelimit.New(nil))
+	e := newOsmtpEnv(t, srv, frozenLimiter())
 	for i := 0; i < 10; i++ {
 		e.as("alice", "ws-alpha", "POST", "/api/outreach/smtp/test", `{"to_email":"nope"}`)
 	}

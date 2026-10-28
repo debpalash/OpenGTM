@@ -24,7 +24,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadprogress"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
@@ -36,7 +35,7 @@ func newCollectEnv(t *testing.T, mut ...func(*Deps)) collectEnv {
 	st := identity.NewStore(pool)
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
-	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: ratelimit.New(nil),
+	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: frozenLimiter(),
 		Flags: config.Flags{PGLeadStore: true, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: true, CollectQueryMaxChars: 1000}}}
 	for _, m := range mut {
 		m(&d)

@@ -18,7 +18,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provaccuracy"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
@@ -34,7 +33,7 @@ func newLLMEnv(t *testing.T) *llmEnv {
 	st := identity.NewStore(pool)
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
-	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: ratelimit.New(nil), Flags: config.Flags{PGLeadStore: true}}
+	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: frozenLimiter(), Flags: config.Flags{PGLeadStore: true}}
 	h := newLLMRoutes(d)
 	h.httpc = http.DefaultClient
 	fl := &scriptLLM{}

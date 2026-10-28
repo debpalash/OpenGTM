@@ -25,7 +25,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
@@ -97,7 +96,7 @@ func newCellEnvURL(t *testing.T, pyURL string) *cellEnv {
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
 	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Log: quietLog(),
 		Flags:   config.Flags{PGLeadStore: true, GoRunRoutesEnabled: true},
-		Limiter: ratelimit.New(nil),
+		Limiter: frozenLimiter(),
 		Getenv: func(k string) string {
 			if k == "PYTHON_API_URL" {
 				if ce.pyURL != "" {

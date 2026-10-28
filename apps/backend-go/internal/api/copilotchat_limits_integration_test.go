@@ -11,7 +11,6 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/copilot"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
 
@@ -34,7 +33,7 @@ func chatWant429(t *testing.T, e *chatEnv, who, ws, what string) {
 
 // Final security M3: copilot turns are rate limited per user.
 func TestChatRateLimitedPerUser(t *testing.T) {
-	e := newChatEnv(t, chatOpts{limiter: ratelimit.New(nil), perUserRate: 2, perWSRate: 100})
+	e := newChatEnv(t, chatOpts{limiter: frozenLimiter(), perUserRate: 2, perWSRate: 100})
 	for i := 0; i < 2; i++ {
 		if rec := e.post("alice", "ws-alpha", chatHi); rec.Code != 200 {
 			t.Fatalf("turn %d: %d %q", i, rec.Code, rec.Body.String())
@@ -45,7 +44,7 @@ func TestChatRateLimitedPerUser(t *testing.T) {
 
 // Final security M3: and per workspace, whoever sends them.
 func TestChatRateLimitedPerWorkspace(t *testing.T) {
-	e := newChatEnv(t, chatOpts{limiter: ratelimit.New(nil), perUserRate: 100, perWSRate: 1})
+	e := newChatEnv(t, chatOpts{limiter: frozenLimiter(), perUserRate: 100, perWSRate: 1})
 	if rec := e.post("alice", "ws-alpha", chatHi); rec.Code != 200 {
 		t.Fatalf("first: %d", rec.Code)
 	}

@@ -17,7 +17,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
@@ -41,7 +40,7 @@ func newSrcEnv(t *testing.T, getenv func(string) string) srcEnv {
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
 	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Flags: config.Flags{PGLeadStore: true},
-		Limiter: ratelimit.New(nil), Getenv: getenv}
+		Limiter: frozenLimiter(), Getenv: getenv}
 	registerWorkbookSources(r, d)
 	e := srcEnv{mcpEnv{env: env{h: r.Handler(), st: st}, pool: pool}, r}
 	e.purge()
