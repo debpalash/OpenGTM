@@ -69,7 +69,11 @@ func TestReapStaleRequeuesDeadClaim(t *testing.T) {
 	if len(r.ns) != 1 || r.ns[0].JobID != id || !r.ns[0].WillRetry || r.ns[0].Reason != "Heartbeat Timeout" || r.ns[0].WorkspaceID != "ws-1" {
 		t.Fatalf("hook notices %+v", r.ns)
 	}
-	// The dead worker coming back is fenced: it cannot overwrite the recovered row.
+	// The dead worker coming back is fenced: its heartbeat reports the lease lost and it cannot overwrite the
+	// recovered row.
+	if active, err := queue.Heartbeat(ctx, pool, c); err != nil || active {
+		t.Fatalf("stale heartbeat active=%v err=%v", active, err)
+	}
 	if persisted, err := queue.Finalize(ctx, pool, c, queue.Outcome{Status: "completed"}); err != nil || persisted {
 		t.Fatalf("stale finalize persisted=%v err=%v", persisted, err)
 	}
@@ -119,5 +123,78 @@ func TestReapStaleLeavesRecentHeartbeats(t *testing.T) {
 	}
 	if got := readJob(t, pool, id); got.Status != "processing" {
 		t.Fatalf("row %+v", got)
+	}
+}
+
+// The same fencing after a final failure: a late completion of an exhausted, reaped job is refused.
+func TestReapStaleFencesLateCompletionOfAFailedJob(t *testing.T) {
+	pool, ctx := setup(t)
+	c, id := staleClaim(t, pool, 3, 3, "6 minutes")
+	if n, err := queue.ReapStale(ctx, pool, quiet, 5*time.Minute); err != nil || n != 1 {
+		t.Fatalf("reaped %d, %v", n, err)
+	}
+	if persisted, err := queue.Finalize(ctx, pool, c, queue.Outcome{Status: "completed"}); err != nil || persisted {
+		t.Fatalf("late finalize persisted=%v err=%v", persisted, err)
+	}
+	if got := readJob(t, pool, id); got.Status != "failed" || got.Err != "Final Failure: Heartbeat Timeout" {
+		t.Fatalf("late finalize changed the row: %+v", got)
+	}
+}
+
+// A stale row that a live finalize or heartbeat holds locked is skipped, not waited on and not overwritten: the
+// owner's transition wins, and a later pass recovers the row only if it is still a dead claim.
+func TestReapStaleSkipsRowsLockedByALiveFinalize(t *testing.T) {
+	pool, ctx := setup(t)
+	_, id := staleClaim(t, pool, 0, 3, "10 minutes")
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+	if _, err := tx.Exec(ctx, `SELECT 1 FROM jobs WHERE id = $1 FOR UPDATE`, id); err != nil {
+		t.Fatal(err)
+	}
+	// The row is busy (a finalize or heartbeat in flight): the reaper skips it instead of waiting.
+	if n, err := queue.ReapStale(ctx, pool, quiet, 5*time.Minute); err != nil || n != 0 {
+		t.Fatalf("reaped a locked row: %d, %v", n, err)
+	}
+	_ = tx.Rollback(ctx)
+	if n, err := queue.ReapStale(ctx, pool, quiet, 5*time.Minute); err != nil || n != 1 {
+		t.Fatalf("reaped %d after the lock was released, %v", n, err)
+	}
+}
+
+// RunReaper recovers dead claims on every tick (the first one at once) until its context ends.
+func TestRunReaperRecoversUntilCancelled(t *testing.T) {
+	pool, ctx := setup(t)
+	r := hookFor(t, nil)
+	_, id := staleClaim(t, pool, 0, 3, "10 minutes")
+	rctx, cancel := context.WithCancel(ctx)
+	done := make(chan struct{})
+	go func() { queue.RunReaper(rctx, pool, quiet, 50*time.Millisecond, 5*time.Minute); close(done) }()
+	waitFor(t, func() bool { return readJob(t, pool, id).Status == "pending" })
+	_, id2 := staleClaim(t, pool, 3, 3, "10 minutes")
+	waitFor(t, func() bool { return readJob(t, pool, id2).Status == "failed" })
+	cancel()
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		t.Fatal("RunReaper did not stop")
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if len(r.ns) != 2 || !r.ns[0].WillRetry || r.ns[1].WillRetry {
+		t.Fatalf("hook notices %+v", r.ns)
+	}
+}
+
+func waitFor(t *testing.T, ok func() bool) {
+	t.Helper()
+	deadline := time.Now().Add(5 * time.Second)
+	for !ok() {
+		if time.Now().After(deadline) {
+			t.Fatal("condition not met in time")
+		}
+		time.Sleep(20 * time.Millisecond)
 	}
 }
