@@ -425,15 +425,17 @@ func TestFailureHooksRejectForeignPayloadWorkspace(t *testing.T) {
 	g := setupAud(t)
 	g.audience(t, "aud1", true)
 	run, _ := g.destRun(t, "webhook", 0)
-	hooks := map[string]queue.FailureHook{
-		"audience_refresh":          refreshFailureHook(g.pool, nil),
-		"audience_destination_sync": destFailureHook(destsync.New(destsync.Deps{Pool: g.pool}), g.pool),
+	p, _ := json.Marshal(map[string]any{"workspace_id": g.ws, "audience_id": "aud1", "run_id": run})
+	dest := destFailureHook(destsync.New(destsync.Deps{Pool: g.pool}), g.pool)
+	if err := dest(context.Background(), queue.FailureNotice{JobID: 1, JobType: "audience_destination_sync", WorkspaceID: "someone-else", Payload: p, Reason: "x"}); err == nil {
+		t.Errorf("destination hook accepted a payload workspace that is not the job's")
 	}
-	for typ, hook := range hooks {
-		p, _ := json.Marshal(map[string]any{"workspace_id": g.ws, "audience_id": "aud1", "run_id": run})
-		err := hook(context.Background(), queue.FailureNotice{JobID: 1, JobType: typ, WorkspaceID: "someone-else", Payload: p, Reason: "x"})
-		if err == nil {
-			t.Errorf("%s: hook accepted a payload workspace that is not the job's", typ)
+	// The refresh hook is claim-only: a job row without a workspace, or a payload naming another one, does
+	// nothing (logged); the payload workspace is never used as the tenant.
+	refresh := refreshFailureHook(g.pool, nil, telemetry.NewLogger(io.Discard))
+	for _, claimWS := range []string{"", "someone-else"} {
+		if err := refresh(context.Background(), queue.FailureNotice{JobID: 1, JobType: "audience_refresh", WorkspaceID: claimWS, Payload: p, Reason: "x"}); err != nil {
+			t.Errorf("refresh hook, claim workspace %q: %v", claimWS, err)
 		}
 	}
 	if h := audienceHealth(t, g); h != "unverified" {
