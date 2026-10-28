@@ -43,8 +43,8 @@ var leadgenSourcePatterns = []string{
 	"PUT /api/settings/sources/{source_id}",
 }
 
-func leadgenDeps(pg, on bool, backend string) Deps {
-	return Deps{Log: slog.New(slog.NewTextHandler(io.Discard, nil)), CollectionLedgerBackend: backend,
+func leadgenDeps(pg, on bool) Deps {
+	return Deps{Log: slog.New(slog.NewTextHandler(io.Discard, nil)),
 		Flags: config.Flags{PGLeadStore: pg, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: on}}}
 }
 
@@ -57,10 +57,9 @@ func registerLeadgen(r *httpx.Router, d Deps) {
 
 func TestLeadgenRoutesNotRegisteredWithoutFlags(t *testing.T) {
 	for name, d := range map[string]Deps{
-		"flag off":      leadgenDeps(true, false, "postgres"),
-		"pg store off":  leadgenDeps(false, true, "postgres"),
-		"both off":      leadgenDeps(false, false, "postgres"),
-		"marker absent": leadgenDeps(true, true, ""),
+		"flag off":     leadgenDeps(true, false),
+		"pg store off": leadgenDeps(false, true),
+		"both off":     leadgenDeps(false, false),
 	} {
 		r := httpx.NewRouter()
 		registerLeadgen(r, d)
@@ -71,23 +70,18 @@ func TestLeadgenRoutesNotRegisteredWithoutFlags(t *testing.T) {
 	}
 }
 
-func TestLedgerMarkerRequired(t *testing.T) {
-	for _, m := range []string{"", "sqlite", "Postgres", "postgres "} {
-		r := httpx.NewRouter()
-		registerLeadgen(r, leadgenDeps(true, true, m))
-		if n := len(r.Patterns()); n != 0 {
-			t.Errorf("marker %q registered %d routes", m, n)
-		}
-	}
+// Final correctness I3: Go always uses the Postgres collection ledger, so the leadgen surface never depends on the
+// app_settings marker (Deps carries none any more).
+func TestLeadgenRoutesDoNotDependOnLedgerMarker(t *testing.T) {
 	r := httpx.NewRouter()
-	registerLeadgen(r, leadgenDeps(true, true, "postgres"))
+	registerLeadgen(r, leadgenDeps(true, true))
 	if len(r.Patterns()) == 0 {
-		t.Error("marker postgres must register")
+		t.Error("leadgen routes must register without any ledger marker")
 	}
 }
 
 func TestLeadgenRoutePatterns(t *testing.T) {
-	d := leadgenDeps(true, true, "postgres")
+	d := leadgenDeps(true, true)
 	for name, c := range map[string]struct {
 		reg  func(*httpx.Router, Deps)
 		want []string
@@ -108,13 +102,4 @@ func TestLeadgenRoutePatterns(t *testing.T) {
 	}
 	// Whole group at once: no duplicate pattern panic against the other registered groups.
 	registerLeadgen(httpx.NewRouter(), d)
-}
-
-// The Python side reads the same marker with strip().lower(); both stacks must agree on the value.
-func TestNormalizeLedgerMarkerMatchesPython(t *testing.T) {
-	for in, want := range map[string]string{"postgres": "postgres", " Postgres\n": "postgres", "POSTGRES": "postgres", "sqlite": "sqlite", "": ""} {
-		if got := normalizeLedgerMarker(in); got != want {
-			t.Errorf("normalizeLedgerMarker(%q) = %q, want %q", in, got, want)
-		}
-	}
 }

@@ -71,7 +71,7 @@ func pythonLeadgenRoutes(t *testing.T) []string {
 func leadgenGoPatterns(t *testing.T) map[string]bool {
 	t.Helper()
 	r := httpx.NewRouter()
-	registerLeadgen(r, leadgenDeps(true, true, "postgres"))
+	registerLeadgen(r, leadgenDeps(true, true))
 	out := map[string]bool{}
 	for _, p := range r.Patterns() {
 		out[p] = true

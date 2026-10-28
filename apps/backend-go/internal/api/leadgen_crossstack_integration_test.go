@@ -43,7 +43,7 @@ func newCrossEnv(t *testing.T) crossEnv {
 	st := identity.NewStore(pool)
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
-	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: ratelimit.New(nil), CollectionLedgerBackend: "postgres",
+	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: ratelimit.New(nil),
 		Flags: config.Flags{PGLeadStore: true, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: true, CollectQueryMaxChars: 1000}}}
 	RegisterCollect(r, d)
 	RegisterJobs(r, d)

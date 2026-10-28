@@ -16,7 +16,6 @@ func TestEngineToolsFallThroughOnUnmirroredArgs(t *testing.T) {
 		{"set_workbook_refresh", map[string]any{"workbook_id": 5}},
 		{"add_agent_column", map[string]any{"workbook_id": "w", "max_cost_usd": []any{}}},
 		{"add_signal_trigger", map[string]any{"workbook_id": 1}},
-		{"start_collection", map[string]any{"query": "x"}},                                   // SQLite collection ledger
 		{"create_source_workbook", map[string]any{"icp_description": "x", "name": []any{1}}}, // non-string name
 		{"create_source_workbook", map[string]any{"icp_description": "x", "target_rows": "ten"}},
 		{"ambitionbox_search", map[string]any{}}, // no client configured

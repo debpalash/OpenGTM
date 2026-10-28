@@ -27,8 +27,6 @@ type Engine struct {
 	Ambition AmbitionClient
 	// AmbitionImportExecutor picks the ambitionbox_import job executor (ambitionimport.ExecutorFor).
 	AmbitionImportExecutor func(workspaceID string) string
-	// CollectionLedgerPG is __collection_ledger_backend == "postgres"; start_collection needs it in Go.
-	CollectionLedgerPG bool
 	// Progress receives start_collection's job_created event (nil: none).
 	Progress ProgressEmitter
 

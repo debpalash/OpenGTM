@@ -305,7 +305,7 @@ func TestEngineToolsMatchPython(t *testing.T) {
 	}
 
 	ab := &fakeAB{}
-	tn := &Turn{Deps: Deps{Pool: pool, Engine: &Engine{Ambition: ab, CollectionLedgerPG: true, IntentPollerEnabled: true, PGLeadStore: true}}, WS: ws, Slug: f.Slug,
+	tn := &Turn{Deps: Deps{Pool: pool, Engine: &Engine{Ambition: ab, IntentPollerEnabled: true, PGLeadStore: true}}, WS: ws, Slug: f.Slug,
 		Auth: copilotauth.Resolved{WorkspaceID: ws, Slug: f.Slug}}
 	for i, c := range f.Cases {
 		name := fmt.Sprintf("%02d_%s", i, c.Name)

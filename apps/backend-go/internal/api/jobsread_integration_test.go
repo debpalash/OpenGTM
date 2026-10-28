@@ -68,8 +68,8 @@ func newJobsEnv(t *testing.T, rdb *redis.Client) jobsEnv {
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
 	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Redis: rdb,
-		Flags:                   config.Flags{PGLeadStore: true, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: true}},
-		CollectionLedgerBackend: "postgres"}
+		Flags: config.Flags{PGLeadStore: true, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: true}},
+	}
 	// the shared progress bus (collectroute.go) is process-wide: point it at this env's Redis
 	bus := leadprogress.NewBus(rdb)
 	collectBus = func(Deps) *leadprogress.Bus { return bus }

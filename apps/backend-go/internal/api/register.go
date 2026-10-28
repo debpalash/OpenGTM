@@ -89,11 +89,6 @@ type Deps struct {
 	// with ChatStreams). Nil: the events route makes its own, sized by SSEMaxStreams.
 	SSEStreamSem chan struct{}
 
-	// CollectionLedgerBackend is the app_settings marker __collection_ledger_backend (plan 14),
-	// read by cmd/api at startup via LoadCollectionLedgerBackend. Leadgen routes register only
-	// when it is exactly "postgres" (the cutover migrated the SQLite ledger).
-	CollectionLedgerBackend string
-
 	// SetupToken is the first-admin setup token (ResolveSetupToken at API start). Empty: setup needs no token.
 	SetupToken string
 }

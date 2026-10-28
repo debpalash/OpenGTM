@@ -1,38 +1,12 @@
 package api
 
 import (
-	"context"
-	"errors"
-	"strings"
-
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
-
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 )
 
-// collectionLedgerMarkerKey is the app_settings row written last by
-// legacy/python/scripts/migrate_collection_ledger.py cutover.
-const collectionLedgerMarkerKey = "__collection_ledger_backend"
-
-// LoadCollectionLedgerBackend reads the cutover marker ("" when absent). cmd/api stores the result
-// in Deps.CollectionLedgerBackend. app_settings has no RLS, so a plain pool query is correct.
-func LoadCollectionLedgerBackend(ctx context.Context, pool *pgxpool.Pool) (string, error) {
-	var v string
-	err := pool.QueryRow(ctx, `SELECT value FROM app_settings WHERE key = $1`, collectionLedgerMarkerKey).Scan(&v)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return "", nil
-	}
-	return normalizeLedgerMarker(v), err
-}
-
-// normalizeLedgerMarker mirrors Python's job_ledger._ledger_marker (strip + lower), so both
-// stacks read the same marker value the same way.
-func normalizeLedgerMarker(v string) string { return strings.ToLower(strings.TrimSpace(v)) }
-
-// leadgenRoutesEnabled reports whether the leadgen routes may register: GO_COLLECTION_ROUTES_ENABLED
-// and PG_LEAD_STORE on and the ledger marker "postgres". Otherwise nothing registers (Go answers 404; nginx keeps
-// these paths on Python at 0%) and the reason is logged, so a canary cannot be enabled by mistake.
+// leadgenRoutesEnabled reports whether the leadgen routes may register: GO_COLLECTION_ROUTES_ENABLED (retired:
+// always on) and PG_LEAD_STORE. Go always uses the Postgres collection ledger (final correctness I3): the
+// __collection_ledger_backend marker is not consulted, so a missing, odd or unreadable marker cannot remove the surface.
 func (d Deps) leadgenRoutesEnabled(area string) bool {
 	if !d.Flags.Leadgen.GoCollectionRoutesEnabled {
 		d.logger().Warn("leadgen routes not registered: GO_COLLECTION_ROUTES_ENABLED is false", "area", area)
@@ -40,10 +14,6 @@ func (d Deps) leadgenRoutesEnabled(area string) bool {
 	}
 	if !d.Flags.PGLeadStore {
 		d.logger().Warn("leadgen routes not registered: PG_LEAD_STORE is false (Go supports the Postgres lead store only)", "area", area)
-		return false
-	}
-	if d.CollectionLedgerBackend != "postgres" {
-		d.logger().Warn("leadgen routes not registered: collection ledger marker is not postgres (run the ledger cutover)", "area", area)
 		return false
 	}
 	return true

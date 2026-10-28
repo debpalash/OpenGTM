@@ -334,9 +334,6 @@ type collectPayload struct {
 
 func (t *Turn) startCollection(ctx context.Context, a map[string]any) (string, bool, error) {
 	e := t.Engine
-	if !e.CollectionLedgerPG {
-		return "", false, nil // the SQLite collection ledger is Python's
-	}
 	raw, present := a["query"]
 	if !present {
 		return keyErr("start_collection", "query"), true, nil

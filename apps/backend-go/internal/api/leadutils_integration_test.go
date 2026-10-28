@@ -80,7 +80,7 @@ func newUtilsEnv(t *testing.T, mut ...func(*Deps)) *utilsEnv {
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
 	e := &utilsEnv{}
-	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: ratelimit.New(nil), CollectionLedgerBackend: "postgres",
+	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Limiter: ratelimit.New(nil),
 		Getenv: func(string) string { return "" },
 		Flags:  config.Flags{PGLeadStore: true, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: true}}}
 	for _, m := range mut {

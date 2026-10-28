@@ -132,7 +132,7 @@ func (h *chatHandler) engine(ws string) *copilot.Engine {
 	e := &copilot.Engine{
 		LLM: cl, IntentPollerEnabled: h.d.Flags.IntentPollerEnabled, PGLeadStore: h.d.Flags.PGLeadStore,
 		Ambition: h.ab, AmbitionImportExecutor: ambitionimport.ExecutorFor(getenv),
-		CollectionLedgerPG: h.d.CollectionLedgerBackend == "postgres", Progress: progressBus(h.d),
+		Progress: progressBus(h.d),
 	}
 	h.tools.apply(e, ws)
 	return e

@@ -22,7 +22,7 @@ func TestStartCollectionEnqueuesGoExecutor(t *testing.T) {
 	t.Cleanup(clean)
 	tn := e.turn()
 	tn.UID = i32(2)
-	tn.Engine = &Engine{CollectionLedgerPG: true}
+	tn.Engine = &Engine{}
 	res, handled, err := tn.engineTool(ctx, parsedCall{Name: "start_collection", Args: map[string]any{"query": "IT staffing companies in Pune"}})
 	if err != nil || !handled {
 		t.Fatalf("handled=%v err=%v", handled, err)

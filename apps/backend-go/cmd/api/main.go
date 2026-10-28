@@ -233,19 +233,6 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool, str
 	if caller != nil {
 		deps.Providers = caller
 	}
-	// Leadgen routes (plan 14) register only when the ledger cutover marker is "postgres". Fail closed: a
-	// missing marker or a failed read leaves it empty, so the routes stay unregistered (Go answers 404 for these paths; nothing falls
-	// through to Python). The marker is read once at startup: restart the API after the cutover.
-	if pool != nil && cfg.Flags.Leadgen.GoCollectionRoutesEnabled {
-		rctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		marker, err := api.LoadCollectionLedgerBackend(rctx, pool)
-		cancel()
-		if err != nil {
-			log.Error("collection ledger marker unreadable: leadgen routes stay off", "err_type", fmt.Sprintf("%T", err))
-			marker = ""
-		}
-		deps.CollectionLedgerBackend = marker
-	}
 	// First-admin setup token (random + logged once while setup is open, unless configured or disabled).
 	if pool != nil {
 		sctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

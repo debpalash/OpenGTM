@@ -42,7 +42,7 @@ func newSSEnv(t *testing.T, mut ...func(*Deps)) ssEnv {
 	}
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
-	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Envelope: envl, CollectionLedgerBackend: "postgres",
+	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Envelope: envl,
 		Getenv: func(string) string { return "" },
 		Flags:  config.Flags{PGLeadStore: true, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: true}}}
 	for _, m := range mut {

@@ -32,8 +32,8 @@ func newStatsEnv(t *testing.T, st leadweb.SystemStats) jobsEnv {
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(e.pool, nil))
 	d := Deps{Pool: e.pool, Signer: testSigner, Identity: e.st, Config: config.APIConfig{},
-		Flags:                   config.Flags{PGLeadStore: true, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: true}},
-		CollectionLedgerBackend: "postgres"}
+		Flags: config.Flags{PGLeadStore: true, Leadgen: config.LeadgenSettings{GoCollectionRoutesEnabled: true}},
+	}
 	RegisterJobs(r, d)
 	e.h = r.Handler()
 	return e
