@@ -69,7 +69,7 @@ jobs:
         run: |
           mkdir -p internal/webui/dist && touch internal/webui/dist/index.html
           go build -tags webui -o /dev/null ./cmd/api
-          go build -o /dev/null ./cmd/worker ./cmd/mcp ./cmd/migrate ./cmd/scheduler ./cmd/seed
+          go build -o /dev/null ./cmd/worker ./cmd/mcp ./cmd/migrate ./cmd/scheduler ./cmd/seed ./cmd/suppressnorm
 
   browser-service:
     name: Browser service lint and tests
