@@ -28,8 +28,9 @@ type Obj = wbcrud.Obj
 // httpx; the plan pins 10 s).
 const Timeout = 10 * time.Second
 
-// Secrets resolves one credential: workspace secret, then global settings,
-// then process environment (secrets.Resolver.Get). An empty value is "unset".
+// Secrets resolves one credential: the workspace secret only, or workspace,
+// global settings, then process environment with ALLOW_GLOBAL_CREDENTIAL_FALLBACK=true
+// (secrets.Resolver.Credential; final security Low 5). An empty value is "unset".
 type Secrets interface {
 	Get(ctx context.Context, ws, key string) (string, error)
 }
@@ -38,8 +39,7 @@ type Secrets interface {
 type ResolverSecrets struct{ R *secrets.Resolver }
 
 func (r ResolverSecrets) Get(ctx context.Context, ws, key string) (string, error) {
-	v, _, err := r.R.Get(ctx, ws, key)
-	return v, err
+	return r.R.Credential(ctx, ws, key)
 }
 
 // Key looks up a credential. A lookup failure is an infrastructure error.

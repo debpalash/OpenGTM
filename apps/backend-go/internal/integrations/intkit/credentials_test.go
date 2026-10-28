@@ -9,7 +9,9 @@ import (
 
 type appOnlyStore struct{ app map[string]string }
 
-func (s appOnlyStore) AppSetting(_ context.Context, key string) (string, error) { return s.app[key], nil }
+func (s appOnlyStore) AppSetting(_ context.Context, key string) (string, error) {
+	return s.app[key], nil
+}
 func (s appOnlyStore) WorkspaceSetting(context.Context, string, string) (string, bool, error) {
 	return "", false, nil
 }

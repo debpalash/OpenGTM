@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"path"
 	"regexp"
 	"strconv"
@@ -74,7 +73,7 @@ var ContactUpdateFieldMap = FieldMap{
 // HTTP client re-checks the resolved address at dial time.
 type Salesforce struct {
 	HTTP    *http.Client      // nil: the SSRF-guarded egress client
-	Secrets *secrets.Resolver // nil: environment only
+	Secrets *secrets.Resolver // nil: environment, only with ALLOW_GLOBAL_CREDENTIAL_FALLBACK
 	// Sleep waits between 429 retries; nil honours ctx.
 	Sleep func(ctx context.Context, d time.Duration) error
 }
@@ -99,12 +98,12 @@ func SOQLEscape(value string) string {
 
 func (s *Salesforce) secret(ctx context.Context, ws, key string) string {
 	if s.Secrets == nil {
-		return os.Getenv(key)
+		return secrets.EnvCredential(key)
 	}
-	// The resolver itself walks workspace -> global -> operator env and reports
-	// not-found as ("", false, nil). Any error (DB outage, decrypt failure) fails
-	// closed: no process-env fallback, so no cross-tenant credential use.
-	v, _, err := s.Secrets.Get(ctx, ws, key)
+	// The workspace's own secret only; workspace -> global -> operator env only with
+	// ALLOW_GLOBAL_CREDENTIAL_FALLBACK=true (final security Low 5). Any error (DB outage,
+	// decrypt failure) fails closed: no process-env fallback, so no cross-tenant credential use.
+	v, err := s.Secrets.Credential(ctx, ws, key)
 	if err != nil {
 		return ""
 	}

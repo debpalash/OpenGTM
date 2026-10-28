@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -66,7 +65,7 @@ type Lead interface {
 // the workspace (then global, then env) and never stored on the client.
 type HubSpot struct {
 	HTTP    *http.Client      // nil: the SSRF-guarded egress client
-	Secrets *secrets.Resolver // nil: HUBSPOT_TOKEN from the environment only
+	Secrets *secrets.Resolver // nil: HUBSPOT_TOKEN from the environment, only with ALLOW_GLOBAL_CREDENTIAL_FALLBACK
 	BaseURL string            // "" = DefaultBaseURL
 	// Sleep waits between 429 retries and between batch pushes; nil honours ctx.
 	Sleep func(ctx context.Context, d time.Duration) error
@@ -88,15 +87,16 @@ func (h *HubSpot) sleep() func(context.Context, time.Duration) error {
 	return ctxSleep
 }
 
-// token is _get_token: workspace secret, then global settings, then env (the
-// resolver walks that chain itself). A resolver error is not "not found": it
+// token is _get_token: the workspace secret only; the global settings and env chain
+// only with ALLOW_GLOBAL_CREDENTIAL_FALLBACK=true (final security Low 5: Python
+// fell back to the operator's token). A resolver error is not "not found": it
 // fails closed (no token, no request) instead of falling back to the process
 // environment as the Python except branch does (security deviation).
 func (h *HubSpot) token(ctx context.Context, ws string) string {
 	if h.Secrets == nil {
-		return os.Getenv("HUBSPOT_TOKEN")
+		return secrets.EnvCredential("HUBSPOT_TOKEN")
 	}
-	v, _, err := h.Secrets.Get(ctx, ws, "HUBSPOT_TOKEN")
+	v, err := h.Secrets.Credential(ctx, ws, "HUBSPOT_TOKEN")
 	if err != nil {
 		return ""
 	}
