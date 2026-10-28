@@ -69,18 +69,17 @@ func TestAutomationRoutesNotRegisteredWithoutFlags(t *testing.T) {
 	RegisterAll(httpx.NewRouter(), autoDeps(true, false, false)) // must not panic
 }
 
-func TestAutomationRoutesRefusedWithLegacyOutreach(t *testing.T) {
+// Final correctness I2: a leftover AUTOMATIONS_ALLOW_LEGACY_OUTREACH=true must never drop the automations routes.
+func TestAutomationRoutesSurviveLegacyOutreachFlag(t *testing.T) {
 	d := autoDeps(true, true, true)
-	if d.automationRoutesEnabled("x") {
-		t.Fatal("automation routes must refuse when AUTOMATIONS_ALLOW_LEGACY_OUTREACH is true (D2)")
+	if !d.automationRoutesEnabled("x") || !d.watchRoutesEnabled("x") {
+		t.Fatal("AUTOMATIONS_ALLOW_LEGACY_OUTREACH must not disable the automation or watch routes")
 	}
-	r := httpx.NewRouter()
-	RegisterAutomations(r, d)
-	if n := len(r.Patterns()); n != 0 {
-		t.Fatalf("%d automation routes registered with legacy outreach: %v", n, r.Patterns())
-	}
-	if !d.watchRoutesEnabled("x") {
-		t.Fatal("watch routes do not depend on legacy outreach")
+	on, off := httpx.NewRouter(), httpx.NewRouter()
+	RegisterAutomations(on, d)
+	RegisterAutomations(off, autoDeps(true, true, false))
+	if n := len(on.Patterns()); n == 0 || n != len(off.Patterns()) {
+		t.Fatalf("%d automation routes registered with legacy outreach on, want %d", n, len(off.Patterns()))
 	}
 }
 

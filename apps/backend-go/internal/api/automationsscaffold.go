@@ -14,16 +14,12 @@ func (d Deps) logger() *slog.Logger {
 }
 
 // automationRoutesEnabled reports whether the automations routes may register:
-// GO_AUTOMATION_ROUTES_ENABLED must be on and AUTOMATIONS_ALLOW_LEGACY_OUTREACH off
-// (D2: legacy outreach actions stay on Python, which keeps the whole surface).
+// GO_AUTOMATION_ROUTES_ENABLED must be on (retired: always on). AUTOMATIONS_ALLOW_LEGACY_OUTREACH never unregisters
+// the routes (final correctness I2): legacy outreach actions are Go-native, so a leftover flag changes nothing here.
 // Otherwise nothing registers and the reason is logged.
 func (d Deps) automationRoutesEnabled(area string) bool {
 	if !d.Flags.Automations.GoRoutesEnabled {
 		d.logger().Warn("automation routes not registered: GO_AUTOMATION_ROUTES_ENABLED is false", "area", area)
-		return false
-	}
-	if d.Flags.AutomationsAllowLegacyOutreach {
-		d.logger().Warn("automation routes not registered: AUTOMATIONS_ALLOW_LEGACY_OUTREACH is true (legacy outreach actions stay on Python)", "area", area)
 		return false
 	}
 	return true
