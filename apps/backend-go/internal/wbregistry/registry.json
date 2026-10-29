@@ -883,6 +883,23 @@
       "certification": null
     },
     {
+      "name": "precleared_compliance",
+      "capabilities": [
+        "compliance"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
       "name": "leadmagic_email",
       "capabilities": [
         "email"

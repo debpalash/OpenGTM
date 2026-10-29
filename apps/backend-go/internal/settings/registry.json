@@ -309,6 +309,38 @@
           "placeholder": "AQX..."
         }
       ]
+    },
+    {
+      "id": "precleared",
+      "name": "Precleared",
+      "icon": "shield",
+      "description": "Per-recipient cold-email compliance check for enrichment columns (decision support, not legal advice). Uses each workspace's own key; global values apply only with ALLOW_GLOBAL_CREDENTIAL_FALLBACK.",
+      "fields": [
+        {
+          "key": "PRECLEARED_API_KEY",
+          "label": "API key",
+          "secret": true,
+          "placeholder": "pc_live_..."
+        },
+        {
+          "key": "PRECLEARED_SENDER_COUNTRY",
+          "label": "Sender country: GB, US or AE",
+          "secret": false,
+          "placeholder": "GB"
+        },
+        {
+          "key": "PRECLEARED_ADDRESS_SOURCE",
+          "label": "Where your addresses come from: published, bought, scraped, given or unknown",
+          "secret": false,
+          "placeholder": "unknown"
+        },
+        {
+          "key": "PRECLEARED_PITCH",
+          "label": "What your emails offer",
+          "secret": false,
+          "placeholder": "Bookkeeping software for small firms"
+        }
+      ]
     }
   ],
   "enrichment_defaults": {
@@ -655,6 +687,7 @@
     "NUMVERIFY_API_KEY",
     "NVIDIA_API_KEY",
     "OPENROUTER_API_KEY",
+    "PRECLEARED_API_KEY",
     "SALESFORCE_ACCESS_TOKEN",
     "SAMBANOVA_API_KEY",
     "SILICONFLOW_API_KEY"

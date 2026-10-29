@@ -1,0 +1,33 @@
+{
+ "scenario": "auth_invalid_key",
+ "lead": {
+  "email": "jane.smith@example.co.uk",
+  "company": "Example Trading Ltd"
+ },
+ "credentials": {
+  "PRECLEARED_API_KEY": "pc_live_fixture_0001"
+ },
+ "request": {
+  "method": "POST",
+  "url": "https://precleared.dev/api/v1/check?src=opengtm",
+  "headers": {
+   "authorization": "Bearer {{secret:PRECLEARED_API_KEY}}",
+   "content-type": "application/json"
+  },
+  "body": "{\"address_source\":\"\",\"company_name\":\"Example Trading Ltd\",\"pitch\":\"\",\"recipient_email\":\"jane.smith@example.co.uk\",\"sender_country\":\"\"}"
+ },
+ "response": {
+  "status": 401,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": "{\"error\": \"invalid_key\", \"message\": \"Invalid or revoked key.\"}"
+ },
+ "result": {
+  "success": false,
+  "error": "http_401",
+  "http_status": 401,
+  "confidence": 0,
+  "fields": {}
+ }
+}

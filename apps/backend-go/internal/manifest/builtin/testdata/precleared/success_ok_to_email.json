@@ -1,0 +1,51 @@
+{
+ "scenario": "success_ok_to_email",
+ "lead": {
+  "email": "jane.smith@example.co.uk",
+  "company": "Example Trading Ltd"
+ },
+ "credentials": {
+  "PRECLEARED_API_KEY": "pc_live_fixture_0001",
+  "PRECLEARED_SENDER_COUNTRY": "GB",
+  "PRECLEARED_ADDRESS_SOURCE": "published",
+  "PRECLEARED_PITCH": "Bookkeeping software for small firms"
+ },
+ "request": {
+  "method": "POST",
+  "url": "https://precleared.dev/api/v1/check?src=opengtm",
+  "headers": {
+   "authorization": "Bearer {{secret:PRECLEARED_API_KEY}}",
+   "content-type": "application/json"
+  },
+  "body": "{\"address_source\":\"published\",\"company_name\":\"Example Trading Ltd\",\"pitch\":\"Bookkeeping software for small firms\",\"recipient_email\":\"jane.smith@example.co.uk\",\"sender_country\":\"GB\"}"
+ },
+ "response": {
+  "status": 200,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": "{\"check_id\": \"00000000-0000-4000-8000-000000000001\", \"verdict\": \"ok_to_email\", \"confidence\": \"high\", \"reasons\": [{\"rule_key\": \"gb_corporate_ok\", \"text\": \"Under PECR the consent rule for marketing email applies to individual subscribers only. This recipient is a corporate subscriber (a company, LLP, Scottish partnership or public body), so no prior consent is needed. Where the address names a person, UK GDPR still applies to their name: rely on legitimate interests, say who you are, and make it easy to object.\", \"source_title\": \"PECR 2003 regulation 22(1) and ICO Guide to PECR, electronic mail marketing\", \"source_url\": \"https://www.legislation.gov.uk/uksi/2003/2426/regulation/22\"}, {\"note\": \"Named work address: UK GDPR applies to the person's name; rely on legitimate interests and make it easy to object\"}], \"rules_applied\": [\"gb_corporate_ok\"], \"footer_text\": \"Say who is sending, give a postal address and include a working way to opt out.\", \"next_step\": \"Send. Log the receipt against the lead.\", \"facts\": {\"recipient_email_masked\": \"j***@example.co.uk\", \"recipient_domain\": \"example.co.uk\", \"recipient_country\": \"GB\", \"country_source\": \"domain\", \"legal_form\": \"corporate\", \"legal_form_source\": \"website\", \"company_number\": \"01234567\", \"company_name\": \"EXAMPLE TRADING LTD\", \"company_status\": \"active\", \"director_first_name\": null, \"address_type\": \"named\", \"syntax_ok\": true, \"mx_ok\": true, \"disposable\": false, \"suppressed\": null}, \"receipt\": {\"id\": \"cc_rcpt_0000000000000001\", \"created_at\": \"2026-10-29T12:00:01.000Z\", \"request_hash\": \"0000000000000000000000000000000000000000000000000000000000000001\", \"response_hash\": \"0000000000000000000000000000000000000000000000000000000000000065\", \"signature\": \"c2lnbmF0dXJlLWZpeHR1cmU=\", \"algorithm\": \"ed25519\", \"key_version\": \"v1\", \"verify_url\": \"https://precleared.dev/api/v1/receipt?id=cc_rcpt_0000000000000001\"}, \"rules_version\": \"v1\", \"usage\": {\"free_remaining_today\": 24, \"credits_remaining\": 0}, \"disclaimer\": \"Decision support with sources, not legal advice. The receipt proves what was asked and answered, not that an email was sent. Terms: https://precleared.dev/terms\"}"
+ },
+ "result": {
+  "success": true,
+  "error": "",
+  "http_status": 200,
+  "confidence": 0.8,
+  "fields": {
+   "compliance": "ok_to_email",
+   "compliance_confidence": "high",
+   "compliance_rule": "gb_corporate_ok",
+   "compliance_rule_source": "https://www.legislation.gov.uk/uksi/2003/2426/regulation/22",
+   "compliance_reason": "Under PECR the consent rule for marketing email applies to individual subscribers only. This recipient is a corporate subscriber (a company, LLP, Scottish partnership or public body), so no prior consent is needed. Where the address names a person, UK GDPR still applies to their name: rely on legitimate interests, say who you are, and make it easy to object.",
+   "compliance_note": "Named work address: UK GDPR applies to the person's name; rely on legitimate interests and make it easy to object",
+   "compliance_next_step": "Send. Log the receipt against the lead.",
+   "compliance_footer": "Say who is sending, give a postal address and include a working way to opt out.",
+   "compliance_recipient_country": "GB",
+   "compliance_receipt_id": "cc_rcpt_0000000000000001",
+   "compliance_receipt_url": "https://precleared.dev/api/v1/receipt?id=cc_rcpt_0000000000000001",
+   "compliance_checked_at": "2026-10-29T12:00:01.000Z",
+   "compliance_rules_version": "v1",
+   "compliance_disclaimer": "Decision support with sources, not legal advice. The receipt proves what was asked and answered, not that an email was sent. Terms: https://precleared.dev/terms"
+  }
+ }
+}
