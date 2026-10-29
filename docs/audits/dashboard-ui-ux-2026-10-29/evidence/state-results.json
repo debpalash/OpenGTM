@@ -1,0 +1,38 @@
+{
+  "reduced_motion": {
+    "reduce": true,
+    "animations": [
+      {
+        "name": "row-stagger",
+        "animationName": "row-fade-in",
+        "animationDuration": "0.25s"
+      },
+      {
+        "name": "cell-updated",
+        "animationName": "cell-flash-light",
+        "animationDuration": "1.4s"
+      },
+      {
+        "name": "col-running",
+        "animationName": "col-pulse",
+        "animationDuration": "2s"
+      },
+      {
+        "name": "skeleton-cell",
+        "animationName": "skeleton-wave",
+        "animationDuration": "1.8s"
+      }
+    ]
+  },
+  "analytics_503": {
+    "alerts": [],
+    "retry_buttons": 0,
+    "text": "Toggle Sidebar\nAnalytics\nConnected\n0\nAnalytics Dashboard\n0 leads\nLive \u00b7 Oct 29\nTOTAL LEADS\n0\n\n0 this month\n\nAVG SCORE\n0\n\n0 hot \u00b7 0 warm\n\nEMAIL RATE\n0%\n\n0 verified\n\nCONVERSION\n0%\n\n0 qualified\n\nDATA QUALITY\n0%\n\nemail+contact+linkedin\n\nJOB SUCCESS\n0%\n\n0/0 done\n\nEnrichment Coverage\n0% avg\nNo data available\nPipeline Funnel\n0 stages\nNo data available\nScore Tiers\nNo data available\nLead Collection (30d)\nNo data available\nScore Distribution\nNo data available\nTop Cities\nNo data available\nSource Quality\nNo data available\nLLM Token Usage (30d)\nNo data available\nLLM Providers\nNo data available"
+  },
+  "records_503": {
+    "alerts": [
+      "Audit: records temporarily unavailableTry again"
+    ],
+    "retry_buttons": 1
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "tabs": [
+    {
+      "name": "Import file",
+      "tag": "INPUT",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "",
+      "tag": "INPUT",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "Cancel",
+      "tag": "BUTTON",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "Close",
+      "tag": "BUTTON",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "Import file",
+      "tag": "INPUT",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "",
+      "tag": "INPUT",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "Cancel",
+      "tag": "BUTTON",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "Close",
+      "tag": "BUTTON",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "Import file",
+      "tag": "INPUT",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "",
+      "tag": "INPUT",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "Cancel",
+      "tag": "BUTTON",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "Close",
+      "tag": "BUTTON",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "Import file",
+      "tag": "INPUT",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "",
+      "tag": "INPUT",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "Cancel",
+      "tag": "BUTTON",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "Close",
+      "tag": "BUTTON",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "Import file",
+      "tag": "INPUT",
+      "inside": true,
+      "dialogOpen": true
+    },
+    {
+      "name": "",
+      "tag": "INPUT",
+      "inside": true,
+      "dialogOpen": true
+    }
+  ],
+  "returns_focus": true
+}

@@ -1,0 +1,6185 @@
+{
+  "summary": {
+    "literal_colors": {
+      "occurrences": 215,
+      "files": 14
+    },
+    "tailwind_palette": {
+      "occurrences": 385,
+      "files": 26
+    },
+    "arbitrary_type": {
+      "occurrences": 335,
+      "files": 41
+    },
+    "important": {
+      "occurrences": 20,
+      "files": 7
+    },
+    "direct_twenty_import": {
+      "occurrences": 5,
+      "files": 4
+    },
+    "ui_imports": {
+      "occurrences": 242,
+      "files": 65
+    },
+    "primitive_imports": {
+      "occurrences": 12,
+      "files": 12
+    },
+    "source_files": 162,
+    "largest_tsx": [
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "lines": 2709
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "lines": 1776
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "lines": 1218
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "lines": 1008
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "lines": 897
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "lines": 796
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "lines": 775
+      },
+      {
+        "file": "apps/web/src/components/ui/sidebar.tsx",
+        "lines": 721
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "lines": 700
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "lines": 564
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "lines": 539
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "lines": 516
+      }
+    ],
+    "arbitrary_type_values": {
+      "text-[11px]": 123,
+      "text-[10px]": 145,
+      "text-[13px]": 11,
+      "text-[15px]": 9,
+      "text-[9px]": 31,
+      "text-[12px]": 8,
+      "text-[8px]": 2,
+      "text-[28px]": 1,
+      "text-[32px]": 1,
+      "text-[14px]": 2,
+      "text-[22px]": 2
+    },
+    "literal_colors_outside_tokens": 141,
+    "literal_color_files_outside_tokens": 13,
+    "declared_gtm_tokens": 51
+  },
+  "matches": {
+    "literal_colors": [
+      {
+        "file": "apps/web/src/index.css",
+        "line": 229,
+        "value": "oklch(0.25 0.12 160)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 233,
+        "value": "oklch(0.88 0.10 160)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 270,
+        "value": "oklch(0.16 0 0)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 274,
+        "value": "oklch(0.92 0.006 85)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 280,
+        "value": "oklch(0.60 0.18 250)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 283,
+        "value": "oklch(0.50 0.16 250)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 301,
+        "value": "oklch(1 0 0 / 0.08) 50%, transparent 70%)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 312,
+        "value": "oklch(0.14 0 0) 25%, oklch(0.18 0 0) 50%, oklch(0.14 0 0) 75%)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 318,
+        "value": "oklch(0.93 0.005 85) 25%, oklch(0.90 0.008 85) 50%, oklch(0.93 0.005 85) 75%)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 409,
+        "value": "oklch(0.55 0.22 27 / 0.15)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 410,
+        "value": "oklch(0.65 0.20 25)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 548,
+        "value": "oklch(0.70 0.14 160)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 558,
+        "value": "oklch(0.65 0.20 25)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 569,
+        "value": "oklch(0.55 0.22 27 / 0.06)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 572,
+        "value": "oklch(0.55 0.22 27 / 0.10)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 619,
+        "value": "oklch(0.60 0.18 160)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 628,
+        "value": "oklch(0.55 0.20 25)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 668,
+        "value": "oklch(0.40 0.14 160)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 671,
+        "value": "oklch(0.45 0.20 25)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 674,
+        "value": "oklch(0.50 0.18 160)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 677,
+        "value": "oklch(0.50 0.20 25)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 680,
+        "value": "oklch(0.55 0.22 27 / 0.10)"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 681,
+        "value": "oklch(0.50 0.22 25)"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 427,
+        "value": "hsl(142, 76%, 36%)\" : job.status === \"failed\" ? \"var(--destructive)"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 5,
+        "value": "#fff"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 6,
+        "value": "rgb(255 255 255 / 0.9)"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 7,
+        "value": "rgb(255 255 255 / 0.6)"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 11,
+        "value": "rgb(15 23 42 / 0.05)"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 12,
+        "value": "rgb(15 23 42 / 0.05), 0 12px 32px -12px rgb(30 64 110 / 0.22)"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 15,
+        "value": "rgb(148 180 220 / 0.1)"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 16,
+        "value": "rgb(148 180 220 / 0.12)"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 17,
+        "value": "rgb(255 255 255 / 0.06)"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 18,
+        "value": "rgb(0 0 0 / 0.3), 0 16px 40px -16px rgb(0 0 0 / 0.6)"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 54,
+        "value": "rgb(31 122 224 / 0.2))"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 68,
+        "value": "rgb(31 122 224 / 0.3))"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 69,
+        "value": "#1f7ae0"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 70,
+        "value": "#d97706"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 71,
+        "value": "#7c3aed"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 72,
+        "value": "#059669"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 73,
+        "value": "#e11d48"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 74,
+        "value": "#64748b"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 86,
+        "value": "#000"
+      },
+      {
+        "file": "apps/web/src/components/login-scene/ink.css",
+        "line": 3,
+        "value": "#1b1b1f"
+      },
+      {
+        "file": "apps/web/src/components/login-scene/ink.css",
+        "line": 4,
+        "value": "#f3f6fa"
+      },
+      {
+        "file": "apps/web/src/components/login-scene/ink.css",
+        "line": 5,
+        "value": "#dce7f5"
+      },
+      {
+        "file": "apps/web/src/components/login-scene/ink.css",
+        "line": 6,
+        "value": "#5f6368"
+      },
+      {
+        "file": "apps/web/src/components/login-scene/ink.css",
+        "line": 7,
+        "value": "#1f7ae0"
+      },
+      {
+        "file": "apps/web/src/components/login-scene/ink.css",
+        "line": 19,
+        "value": "#fff"
+      },
+      {
+        "file": "apps/web/src/components/login-scene/login-scene.tsx",
+        "line": 249,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/shell.css",
+        "line": 11,
+        "value": "#16181d"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/shell.css",
+        "line": 12,
+        "value": "rgb(255 255 255 / 0.08), 0 1px 2px rgb(0 0 0 / 0.18)"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/shell.css",
+        "line": 18,
+        "value": "rgb(255 255 255 / 0.04)"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/shell.css",
+        "line": 50,
+        "value": "rgb(0 0 0 / 0.08)"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/shell.css",
+        "line": 88,
+        "value": "#e11d48"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/shell.css",
+        "line": 88,
+        "value": "#fff"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/shell.css",
+        "line": 89,
+        "value": "#d97706"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/shell.css",
+        "line": 89,
+        "value": "#fff"
+      },
+      {
+        "file": "apps/web/src/components/notifications/notifications.css",
+        "line": 2,
+        "value": "#ad3334"
+      },
+      {
+        "file": "apps/web/src/components/notifications/notifications.css",
+        "line": 3,
+        "value": "rgb(173 51 52 / 0.09)"
+      },
+      {
+        "file": "apps/web/src/components/notifications/notifications.css",
+        "line": 4,
+        "value": "#926016"
+      },
+      {
+        "file": "apps/web/src/components/notifications/notifications.css",
+        "line": 5,
+        "value": "rgb(166 106 19 / 0.1)"
+      },
+      {
+        "file": "apps/web/src/components/notifications/notifications.css",
+        "line": 13,
+        "value": "#ff8888"
+      },
+      {
+        "file": "apps/web/src/components/notifications/notifications.css",
+        "line": 14,
+        "value": "rgb(255 113 113 / 0.13)"
+      },
+      {
+        "file": "apps/web/src/components/notifications/notifications.css",
+        "line": 15,
+        "value": "#f4bf6d"
+      },
+      {
+        "file": "apps/web/src/components/notifications/notifications.css",
+        "line": 16,
+        "value": "rgb(244 191 109 / 0.12)"
+      },
+      {
+        "file": "apps/web/src/components/notifications/notifications.css",
+        "line": 85,
+        "value": "#ad3334"
+      },
+      {
+        "file": "apps/web/src/components/notifications/notifications.css",
+        "line": 86,
+        "value": "rgb(173 51 52 / 0.09)"
+      },
+      {
+        "file": "apps/web/src/components/notifications/notifications.css",
+        "line": 87,
+        "value": "#926016"
+      },
+      {
+        "file": "apps/web/src/components/notifications/notifications.css",
+        "line": 88,
+        "value": "rgb(166 106 19 / 0.1)"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 47,
+        "value": "#ef4444"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 48,
+        "value": "#f59e0b"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 49,
+        "value": "#3b82f6"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 50,
+        "value": "#6b7280"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 54,
+        "value": "#6b7280"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 81,
+        "value": "#6b7280"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 484,
+        "value": "#3b82f6"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 484,
+        "value": "#10b981"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 484,
+        "value": "#f59e0b"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 484,
+        "value": "#ef4444"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 484,
+        "value": "#8b5cf6"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 484,
+        "value": "#ec4899"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 484,
+        "value": "#6366f1"
+      },
+      {
+        "file": "apps/web/src/lib/openui-library.tsx",
+        "line": 559,
+        "value": "#4CAF50"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 121,
+        "value": "#eef2f6"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 123,
+        "value": "#e8edf2"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 218,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 221,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 226,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 229,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 233,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 245,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 302,
+        "value": "#3a3a3e"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 302,
+        "value": "#161618"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 340,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 346,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 348,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 350,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 6,
+        "value": "#86c5ec"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 7,
+        "value": "#b8def4"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 8,
+        "value": "#e7f3fa"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 9,
+        "value": "rgb(255 255 255 / 0.92)"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 10,
+        "value": "rgb(255 255 255 / 0.55)"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 11,
+        "value": "rgb(255 255 255 / 0.55)"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 13,
+        "value": "#ffffff"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 44,
+        "value": "rgb(210 243 255 / 0.95) 0%, rgb(255 255 255 / 0.97) 42%)"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 51,
+        "value": "rgb(0 0 0 / 0.045) 1px, transparent 1px)"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 82,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 83,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 84,
+        "value": "#eef2f6"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 89,
+        "value": "#ffffff"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 21,
+        "value": "#ef4444"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 21,
+        "value": "#f59e0b"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 21,
+        "value": "#3b82f6"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 21,
+        "value": "#6b7280"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 22,
+        "value": "#8b5cf6"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 22,
+        "value": "#3b82f6"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 22,
+        "value": "#10b981"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 22,
+        "value": "#f59e0b"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 22,
+        "value": "#22c55e"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 22,
+        "value": "#6b7280"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 23,
+        "value": "rgba(0,0,0,.15)"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 128,
+        "value": "#6b7280"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 133,
+        "value": "#6b7280"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 195,
+        "value": "#10b981"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 196,
+        "value": "#3b82f6"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 197,
+        "value": "#8b5cf6"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 278,
+        "value": "#8b5cf6"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 278,
+        "value": "#8b5cf6"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 283,
+        "value": "#8b5cf6"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 297,
+        "value": "#10b981"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 356,
+        "value": "#06b6d4"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 356,
+        "value": "#06b6d4"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 361,
+        "value": "#06b6d4"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 391,
+        "value": "#8b5cf6"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 392,
+        "value": "#10b981"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 27,
+        "value": "#ef4444"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 27,
+        "value": "#f97316"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 27,
+        "value": "#3b82f6"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 27,
+        "value": "#71717a"
+      },
+      {
+        "file": "apps/web/src/design-system/primitives/styles.css",
+        "line": 24,
+        "value": "rgb(0 0 0 / 0.18), inset 0 0.5px 0 rgb(255 255 255 / 0.18)"
+      },
+      {
+        "file": "apps/web/src/design-system/primitives/styles.css",
+        "line": 42,
+        "value": "rgb(0 0 0 / 0.06)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 107,
+        "value": "#007aff"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 108,
+        "value": "#0068d9"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 110,
+        "value": "#ffffff"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 112,
+        "value": "#ffffff"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 113,
+        "value": "#f5f5f7"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 114,
+        "value": "#f0f0f2"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 115,
+        "value": "#e8e8ed"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 116,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 117,
+        "value": "rgb(0 0 0 / 0.025)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 118,
+        "value": "rgb(0 0 0 / 0.05)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 119,
+        "value": "rgb(0 0 0 / 0.08)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 121,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 122,
+        "value": "#6e6e73"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 123,
+        "value": "#8e8e93"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 124,
+        "value": "#aeaeb2"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 125,
+        "value": "#ffffff"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 127,
+        "value": "rgb(0 0 0 / 0.06)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 128,
+        "value": "rgb(0 0 0 / 0.1)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 129,
+        "value": "rgb(0 0 0 / 0.16)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 132,
+        "value": "rgb(246 246 248 / 0.82)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 133,
+        "value": "rgb(255 255 255 / 0.78)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 134,
+        "value": "rgb(250 250 252 / 0.86)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 136,
+        "value": "#9fd0ef"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 137,
+        "value": "#cbe6f6"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 138,
+        "value": "rgb(159 208 239 / 0.28)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 139,
+        "value": "rgb(255 255 255 / 0.78)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 140,
+        "value": "rgb(255 255 255 / 0.94)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 141,
+        "value": "rgb(15 23 42 / 0.08)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 142,
+        "value": "rgb(15 23 42 / 0.05), 0 8px 24px -12px rgb(30 64 110 / 0.25)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 145,
+        "value": "rgb(0 122 255 / 0.5)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 146,
+        "value": "rgb(0 122 255 / 0.2)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 147,
+        "value": "#ffffff"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 148,
+        "value": "rgb(0 0 0 / 0.14), 0 0.5px 1.5px rgb(0 0 0 / 0.12)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 149,
+        "value": "rgb(0 0 0 / 0.12), 0 10px 30px rgb(0 0 0 / 0.16)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 150,
+        "value": "rgb(0 0 0 / 0.08)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 151,
+        "value": "rgb(0 0 0 / 0.12), 0 22px 70px rgb(0 0 0 / 0.26)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 152,
+        "value": "rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.04)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 157,
+        "value": "#0a84ff"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 158,
+        "value": "#409cff"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 160,
+        "value": "#ffffff"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 162,
+        "value": "#1e1e1e"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 163,
+        "value": "#262626"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 164,
+        "value": "#2c2c2e"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 165,
+        "value": "#3a3a3c"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 166,
+        "value": "#f5f5f7"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 167,
+        "value": "rgb(255 255 255 / 0.03)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 168,
+        "value": "rgb(255 255 255 / 0.07)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 169,
+        "value": "rgb(255 255 255 / 0.11)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 171,
+        "value": "#f5f5f7"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 172,
+        "value": "#a1a1a6"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 173,
+        "value": "#7c7c80"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 174,
+        "value": "#5b5b5f"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 175,
+        "value": "#1d1d1f"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 177,
+        "value": "rgb(255 255 255 / 0.06)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 178,
+        "value": "rgb(255 255 255 / 0.1)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 179,
+        "value": "rgb(255 255 255 / 0.16)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 181,
+        "value": "rgb(21 25 33 / 0.94)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 182,
+        "value": "rgb(30 30 30 / 0.78)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 183,
+        "value": "rgb(44 44 46 / 0.86)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 184,
+        "value": "#10223a"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 185,
+        "value": "#13253b"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 186,
+        "value": "rgb(40 80 130 / 0.18)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 187,
+        "value": "rgb(30 34 42 / 0.72)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 188,
+        "value": "rgb(38 42 50 / 0.94)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 189,
+        "value": "rgb(255 255 255 / 0.09)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 190,
+        "value": "rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.6)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 193,
+        "value": "rgb(10 132 255 / 0.55)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 194,
+        "value": "rgb(10 132 255 / 0.3)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 195,
+        "value": "#3a3a3c"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 196,
+        "value": "rgb(255 255 255 / 0.08), 0 0.5px 1px rgb(0 0 0 / 0.4)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 197,
+        "value": "rgb(255 255 255 / 0.1), 0 10px 30px rgb(0 0 0 / 0.5)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 198,
+        "value": "rgb(0 0 0 / 0.3)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 199,
+        "value": "rgb(255 255 255 / 0.1), 0 22px 70px rgb(0 0 0 / 0.6)"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/tokens.css",
+        "line": 200,
+        "value": "rgb(255 255 255 / 0.08)"
+      }
+    ],
+    "tailwind_palette": [
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 71,
+        "value": "bg-rose-500"
+      },
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 71,
+        "value": "text-rose-600"
+      },
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 71,
+        "value": "text-rose-300"
+      },
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 72,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 72,
+        "value": "text-amber-700"
+      },
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 72,
+        "value": "text-amber-300"
+      },
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 114,
+        "value": "bg-yellow-500"
+      },
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 138,
+        "value": "text-green-500"
+      },
+      {
+        "file": "apps/web/src/components/autopilot-plan-card.tsx",
+        "line": 24,
+        "value": "border-rose-500"
+      },
+      {
+        "file": "apps/web/src/components/autopilot-plan-card.tsx",
+        "line": 24,
+        "value": "bg-rose-500"
+      },
+      {
+        "file": "apps/web/src/components/autopilot-plan-card.tsx",
+        "line": 25,
+        "value": "border-rose-500"
+      },
+      {
+        "file": "apps/web/src/components/autopilot-plan-card.tsx",
+        "line": 26,
+        "value": "text-rose-400"
+      },
+      {
+        "file": "apps/web/src/components/autopilot-plan-card.tsx",
+        "line": 27,
+        "value": "text-rose-300"
+      },
+      {
+        "file": "apps/web/src/components/autopilot-plan-card.tsx",
+        "line": 38,
+        "value": "bg-rose-500"
+      },
+      {
+        "file": "apps/web/src/components/autopilot-plan-card.tsx",
+        "line": 38,
+        "value": "text-rose-300"
+      },
+      {
+        "file": "apps/web/src/components/autopilot-plan-card.tsx",
+        "line": 43,
+        "value": "text-rose-400"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 77,
+        "value": "text-green-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 78,
+        "value": "text-blue-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 81,
+        "value": "text-orange-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 85,
+        "value": "text-red-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 86,
+        "value": "text-blue-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 87,
+        "value": "text-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 88,
+        "value": "text-sky-600"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 89,
+        "value": "text-emerald-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 90,
+        "value": "text-yellow-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 91,
+        "value": "text-lime-600"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 92,
+        "value": "text-violet-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 93,
+        "value": "text-violet-600"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 94,
+        "value": "text-orange-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 95,
+        "value": "text-purple-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 96,
+        "value": "text-cyan-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 97,
+        "value": "text-pink-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 98,
+        "value": "text-teal-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 99,
+        "value": "text-teal-600"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 100,
+        "value": "text-blue-600"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 101,
+        "value": "text-green-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 102,
+        "value": "text-indigo-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 103,
+        "value": "text-indigo-600"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 104,
+        "value": "text-green-600"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 105,
+        "value": "text-slate-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 181,
+        "value": "text-amber-600"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 186,
+        "value": "text-amber-600"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 244,
+        "value": "bg-green-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 245,
+        "value": "bg-green-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 586,
+        "value": "border-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 586,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 586,
+        "value": "text-amber-700"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 586,
+        "value": "text-amber-300"
+      },
+      {
+        "file": "apps/web/src/components/csv-import-dialog.tsx",
+        "line": 149,
+        "value": "border-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/csv-import-dialog.tsx",
+        "line": 149,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/csv-import-dialog.tsx",
+        "line": 149,
+        "value": "text-amber-700"
+      },
+      {
+        "file": "apps/web/src/components/csv-import-dialog.tsx",
+        "line": 149,
+        "value": "text-amber-300"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 24,
+        "value": "bg-zinc-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 29,
+        "value": "bg-zinc-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 30,
+        "value": "bg-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 31,
+        "value": "bg-amber-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 32,
+        "value": "bg-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 34,
+        "value": "bg-zinc-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 35,
+        "value": "bg-sky-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 36,
+        "value": "bg-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 37,
+        "value": "bg-rose-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 38,
+        "value": "bg-zinc-500"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 40,
+        "value": "bg-zinc-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 41,
+        "value": "bg-sky-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 42,
+        "value": "bg-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 43,
+        "value": "bg-violet-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 44,
+        "value": "bg-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 45,
+        "value": "bg-rose-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 46,
+        "value": "bg-rose-500"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 48,
+        "value": "bg-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 49,
+        "value": "bg-zinc-400"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 85,
+        "value": "bg-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 85,
+        "value": "bg-zinc-600"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 95,
+        "value": "border-blue-500"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 95,
+        "value": "bg-blue-500"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 95,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 111,
+        "value": "border-emerald-500"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 111,
+        "value": "bg-emerald-500"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 111,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 126,
+        "value": "bg-emerald-500"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 162,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 163,
+        "value": "text-red-400"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 178,
+        "value": "bg-yellow-400"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 179,
+        "value": "bg-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 180,
+        "value": "bg-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 181,
+        "value": "bg-red-400"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 183,
+        "value": "bg-zinc-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 18,
+        "value": "bg-red-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 18,
+        "value": "text-red-400"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 18,
+        "value": "border-red-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 19,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 19,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 19,
+        "value": "border-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 20,
+        "value": "bg-blue-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 20,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 20,
+        "value": "border-blue-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 25,
+        "value": "bg-indigo-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 25,
+        "value": "text-indigo-400"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 25,
+        "value": "border-indigo-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 26,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 26,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 26,
+        "value": "border-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 27,
+        "value": "bg-emerald-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 27,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 27,
+        "value": "border-emerald-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 28,
+        "value": "bg-purple-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 28,
+        "value": "text-purple-400"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 28,
+        "value": "border-purple-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 29,
+        "value": "bg-emerald-500"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 29,
+        "value": "text-emerald-300"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 29,
+        "value": "border-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 18,
+        "value": "bg-red-500"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 18,
+        "value": "text-red-400"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 19,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 19,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 20,
+        "value": "bg-blue-500"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 20,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 25,
+        "value": "bg-indigo-500"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 25,
+        "value": "text-indigo-400"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 25,
+        "value": "border-indigo-500"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 26,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 26,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 26,
+        "value": "border-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 27,
+        "value": "bg-emerald-500"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 27,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 27,
+        "value": "border-emerald-500"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 28,
+        "value": "bg-purple-500"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 28,
+        "value": "text-purple-400"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 28,
+        "value": "border-purple-500"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 29,
+        "value": "bg-emerald-500"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 29,
+        "value": "text-emerald-300"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 29,
+        "value": "border-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/activity-drawer.tsx",
+        "line": 324,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/activity-drawer.tsx",
+        "line": 325,
+        "value": "text-red-400"
+      },
+      {
+        "file": "apps/web/src/components/activity-drawer.tsx",
+        "line": 326,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/activity-drawer.tsx",
+        "line": 327,
+        "value": "text-zinc-500"
+      },
+      {
+        "file": "apps/web/src/components/activity-drawer.tsx",
+        "line": 367,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/activity-drawer.tsx",
+        "line": 382,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/activity-drawer.tsx",
+        "line": 386,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/components/activity-drawer.tsx",
+        "line": 391,
+        "value": "text-red-400"
+      },
+      {
+        "file": "apps/web/src/components/activity-drawer.tsx",
+        "line": 414,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/activity-drawer.tsx",
+        "line": 428,
+        "value": "text-red-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 38,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 38,
+        "value": "bg-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 39,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 39,
+        "value": "bg-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 40,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 40,
+        "value": "bg-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 41,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 41,
+        "value": "bg-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 42,
+        "value": "text-violet-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 42,
+        "value": "bg-violet-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 43,
+        "value": "text-purple-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 43,
+        "value": "bg-purple-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 44,
+        "value": "text-purple-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 44,
+        "value": "bg-purple-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 45,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 45,
+        "value": "bg-amber-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 46,
+        "value": "text-rose-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 46,
+        "value": "bg-rose-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 47,
+        "value": "text-sky-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 47,
+        "value": "bg-sky-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 48,
+        "value": "text-indigo-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 48,
+        "value": "bg-indigo-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 82,
+        "value": "bg-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 113,
+        "value": "bg-amber-400"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 9,
+        "value": "text-red-400"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 9,
+        "value": "bg-red-500"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 9,
+        "value": "border-red-500"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 10,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 10,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 10,
+        "value": "border-amber-500"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 11,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 11,
+        "value": "bg-blue-500"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 11,
+        "value": "border-blue-500"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 12,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 13,
+        "value": "text-violet-400"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 14,
+        "value": "text-sky-400"
+      },
+      {
+        "file": "apps/web/src/components/records/import-dialog.tsx",
+        "line": 57,
+        "value": "text-emerald-600"
+      },
+      {
+        "file": "apps/web/src/components/records/record-editor.tsx",
+        "line": 42,
+        "value": "text-emerald-600"
+      },
+      {
+        "file": "apps/web/src/components/records/record-editor.tsx",
+        "line": 43,
+        "value": "text-emerald-600"
+      },
+      {
+        "file": "apps/web/src/components/records/record-editor.tsx",
+        "line": 43,
+        "value": "text-amber-600"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 121,
+        "value": "text-green-600"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 121,
+        "value": "border-green-600"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 260,
+        "value": "border-gray-300"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 414,
+        "value": "border-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 414,
+        "value": "bg-amber-50"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 414,
+        "value": "text-amber-950"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 701,
+        "value": "text-green-600"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 701,
+        "value": "border-green-600"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 311,
+        "value": "text-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 642,
+        "value": "text-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 761,
+        "value": "text-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 822,
+        "value": "border-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 822,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 822,
+        "value": "text-amber-600"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 822,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/campaigns.tsx",
+        "line": 191,
+        "value": "text-green-500"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 224,
+        "value": "text-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 224,
+        "value": "text-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 253,
+        "value": "text-amber-700"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 253,
+        "value": "text-amber-300"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 264,
+        "value": "border-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 264,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 264,
+        "value": "text-amber-700"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 264,
+        "value": "text-amber-300"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 28,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 28,
+        "value": "bg-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 29,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 29,
+        "value": "bg-emerald-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 30,
+        "value": "text-purple-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 30,
+        "value": "bg-purple-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 31,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 31,
+        "value": "bg-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 32,
+        "value": "text-rose-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 32,
+        "value": "bg-rose-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 33,
+        "value": "text-sky-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 33,
+        "value": "bg-sky-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 34,
+        "value": "text-indigo-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 34,
+        "value": "bg-indigo-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 246,
+        "value": "bg-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 276,
+        "value": "bg-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 82,
+        "value": "text-zinc-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 83,
+        "value": "text-zinc-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 86,
+        "value": "text-violet-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 86,
+        "value": "bg-violet-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 87,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 87,
+        "value": "bg-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 88,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 88,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 89,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 89,
+        "value": "bg-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 90,
+        "value": "text-rose-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 90,
+        "value": "bg-rose-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 91,
+        "value": "text-cyan-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 91,
+        "value": "bg-cyan-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 92,
+        "value": "text-teal-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 92,
+        "value": "bg-teal-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 93,
+        "value": "text-orange-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 93,
+        "value": "bg-orange-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 103,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 146,
+        "value": "text-green-600"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 146,
+        "value": "bg-green-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 146,
+        "value": "border-green-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 147,
+        "value": "text-green-600"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 147,
+        "value": "bg-green-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 147,
+        "value": "border-green-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 148,
+        "value": "text-amber-600"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 148,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 148,
+        "value": "border-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 149,
+        "value": "text-amber-600"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 149,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 149,
+        "value": "border-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 150,
+        "value": "text-red-600"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 150,
+        "value": "bg-red-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 150,
+        "value": "border-red-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 200,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 366,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 366,
+        "value": "text-blue-300"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 378,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 378,
+        "value": "text-blue-300"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 388,
+        "value": "bg-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 388,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 388,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 388,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 388,
+        "value": "bg-zinc-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 388,
+        "value": "text-zinc-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 392,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 392,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 392,
+        "value": "text-zinc-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 398,
+        "value": "bg-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 398,
+        "value": "bg-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 398,
+        "value": "bg-emerald-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 398,
+        "value": "bg-red-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 398,
+        "value": "bg-zinc-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2255,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2255,
+        "value": "bg-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2262,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2262,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2652,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2653,
+        "value": "bg-emerald-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2662,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2668,
+        "value": "bg-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2679,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2682,
+        "value": "text-red-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2684,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2687,
+        "value": "bg-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 64,
+        "value": "text-green-500"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 65,
+        "value": "text-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 68,
+        "value": "text-orange-500"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 212,
+        "value": "bg-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 41,
+        "value": "text-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 41,
+        "value": "text-red-400"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 172,
+        "value": "text-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 172,
+        "value": "fill-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 180,
+        "value": "text-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 181,
+        "value": "text-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 182,
+        "value": "text-violet-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 183,
+        "value": "text-cyan-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 184,
+        "value": "text-orange-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 200,
+        "value": "bg-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 201,
+        "value": "bg-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 202,
+        "value": "bg-violet-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 203,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 204,
+        "value": "bg-cyan-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 314,
+        "value": "bg-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 335,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/pipeline.tsx",
+        "line": 25,
+        "value": "text-green-500"
+      },
+      {
+        "file": "apps/web/src/pages/pipeline.tsx",
+        "line": 26,
+        "value": "text-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 36,
+        "value": "text-red-400"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 37,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 38,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 39,
+        "value": "text-zinc-500"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 43,
+        "value": "bg-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 44,
+        "value": "bg-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 45,
+        "value": "bg-emerald-400"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 46,
+        "value": "bg-red-400"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 295,
+        "value": "text-sky-500"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 295,
+        "value": "text-sky-400"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 310,
+        "value": "text-red-400"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 428,
+        "value": "text-red-500"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 429,
+        "value": "text-orange-400"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 430,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 434,
+        "value": "text-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 435,
+        "value": "text-sky-500"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 717,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 766,
+        "value": "text-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 74,
+        "value": "border-red-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 74,
+        "value": "bg-red-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 74,
+        "value": "text-red-400"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 75,
+        "value": "border-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 75,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 75,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 76,
+        "value": "border-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 76,
+        "value": "bg-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 76,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 93,
+        "value": "bg-red-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 93,
+        "value": "text-red-300"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 94,
+        "value": "bg-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 94,
+        "value": "text-amber-300"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 95,
+        "value": "bg-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 95,
+        "value": "text-blue-300"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 204,
+        "value": "text-red-400"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 205,
+        "value": "text-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 256,
+        "value": "text-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 716,
+        "value": "text-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 716,
+        "value": "ring-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 756,
+        "value": "text-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 756,
+        "value": "ring-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 772,
+        "value": "text-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 772,
+        "value": "ring-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 110,
+        "value": "border-emerald-400"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 110,
+        "value": "bg-emerald-400"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 110,
+        "value": "text-emerald-400"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 111,
+        "value": "border-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 111,
+        "value": "bg-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 111,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 141,
+        "value": "border-sky-400"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 141,
+        "value": "bg-sky-400"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 141,
+        "value": "text-sky-300"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 438,
+        "value": "text-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 891,
+        "value": "border-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 891,
+        "value": "bg-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 891,
+        "value": "text-amber-300"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 999,
+        "value": "border-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 999,
+        "value": "bg-amber-400"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 999,
+        "value": "text-amber-300"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 30,
+        "value": "bg-red-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 30,
+        "value": "text-red-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 30,
+        "value": "border-red-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 31,
+        "value": "bg-orange-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 31,
+        "value": "text-orange-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 31,
+        "value": "border-orange-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 32,
+        "value": "bg-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 32,
+        "value": "text-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 32,
+        "value": "border-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 344,
+        "value": "text-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 357,
+        "value": "text-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 437,
+        "value": "text-blue-400"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 462,
+        "value": "text-green-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 491,
+        "value": "text-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 526,
+        "value": "text-amber-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 526,
+        "value": "text-blue-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 526,
+        "value": "text-emerald-500"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 526,
+        "value": "text-purple-500"
+      }
+    ],
+    "arbitrary_type": [
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 66,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 70,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 121,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 141,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/markdown-content.tsx",
+        "line": 44,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/markdown-content.tsx",
+        "line": 53,
+        "value": "text-[13px]"
+      },
+      {
+        "file": "apps/web/src/components/markdown-content.tsx",
+        "line": 110,
+        "value": "text-[15px]"
+      },
+      {
+        "file": "apps/web/src/components/autopilot-plan-card.tsx",
+        "line": 29,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/autopilot-plan-card.tsx",
+        "line": 38,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/autopilot-plan-card.tsx",
+        "line": 43,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/autopilot-plan-card.tsx",
+        "line": 52,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 138,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 149,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 170,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 252,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 438,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 490,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 493,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 502,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 510,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 520,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 530,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 543,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 551,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 673,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 695,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/add-lead-dialog.tsx",
+        "line": 19,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/add-lead-dialog.tsx",
+        "line": 26,
+        "value": "text-[12px]"
+      },
+      {
+        "file": "apps/web/src/components/add-lead-dialog.tsx",
+        "line": 59,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/add-lead-dialog.tsx",
+        "line": 69,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/add-lead-dialog.tsx",
+        "line": 78,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/add-lead-dialog.tsx",
+        "line": 89,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/add-lead-dialog.tsx",
+        "line": 107,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/add-lead-dialog.tsx",
+        "line": 115,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/csv-import-dialog.tsx",
+        "line": 114,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/csv-import-dialog.tsx",
+        "line": 124,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/csv-import-dialog.tsx",
+        "line": 132,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/csv-import-dialog.tsx",
+        "line": 162,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/status-dot.tsx",
+        "line": 58,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 90,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 95,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 106,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 108,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 111,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 123,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 126,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 137,
+        "value": "text-[8px]"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 153,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 157,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 158,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 85,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 89,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 92,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 111,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 155,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 156,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 190,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 194,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 199,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 217,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 233,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 249,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 256,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 257,
+        "value": "text-[12px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 276,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 277,
+        "value": "text-[12px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 285,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 301,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 93,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 94,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 95,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 96,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 97,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 98,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 99,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 100,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 101,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 102,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 103,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 150,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 159,
+        "value": "text-[12px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 162,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 165,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 177,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 205,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 211,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 219,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 225,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 233,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/activity-drawer.tsx",
+        "line": 311,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/activity-drawer.tsx",
+        "line": 416,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-picker.tsx",
+        "line": 133,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-picker.tsx",
+        "line": 163,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/lead-picker.tsx",
+        "line": 168,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 60,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 69,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 77,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 89,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 95,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 98,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 115,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 129,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 133,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 145,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 158,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 170,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 184,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 86,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/signal-feed.tsx",
+        "line": 90,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 49,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 53,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 68,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 71,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 82,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 88,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 102,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 103,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 106,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 24,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/metric-cards.tsx",
+        "line": 28,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/workbook-view-bar.tsx",
+        "line": 227,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/workbook-view-bar.tsx",
+        "line": 279,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/ui/sidebar.tsx",
+        "line": 401,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/records/record-editor.tsx",
+        "line": 43,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.tsx",
+        "line": 37,
+        "value": "text-[28px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.tsx",
+        "line": 37,
+        "value": "text-[32px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.tsx",
+        "line": 40,
+        "value": "text-[15px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.tsx",
+        "line": 58,
+        "value": "text-[14px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.tsx",
+        "line": 62,
+        "value": "text-[13px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.tsx",
+        "line": 70,
+        "value": "text-[12px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.tsx",
+        "line": 74,
+        "value": "text-[13px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/composer.tsx",
+        "line": 95,
+        "value": "text-[13px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/composer.tsx",
+        "line": 111,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/composer.tsx",
+        "line": 119,
+        "value": "text-[14px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/composer.tsx",
+        "line": 123,
+        "value": "text-[12px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/composer.tsx",
+        "line": 149,
+        "value": "text-[15px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/composer.tsx",
+        "line": 154,
+        "value": "text-[12px]"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/composer.tsx",
+        "line": 157,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/quick-look/quick-look.tsx",
+        "line": 193,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/app-sidebar.tsx",
+        "line": 107,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/keyboard/keyboard-layer.tsx",
+        "line": 169,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/components/keyboard/keyboard-layer.tsx",
+        "line": 177,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 402,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 466,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 466,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 535,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 604,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 832,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 1001,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/templates.tsx",
+        "line": 219,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/templates.tsx",
+        "line": 231,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/templates.tsx",
+        "line": 237,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/sources.tsx",
+        "line": 157,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/sources.tsx",
+        "line": 177,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 238,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 298,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 301,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 305,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 311,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 546,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 569,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 590,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 603,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 630,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 635,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 642,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 745,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 750,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 822,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 889,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 891,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 121,
+        "value": "text-[15px]"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 221,
+        "value": "text-[22px]"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 226,
+        "value": "text-[13px]"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 229,
+        "value": "text-[12px]"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 248,
+        "value": "text-[22px]"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 292,
+        "value": "text-[13px]"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 298,
+        "value": "text-[13px]"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 299,
+        "value": "text-[13px]"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 302,
+        "value": "text-[15px]"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 325,
+        "value": "text-[13px]"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 332,
+        "value": "text-[13px]"
+      },
+      {
+        "file": "apps/web/src/pages/login.tsx",
+        "line": 346,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 161,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 203,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 203,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 203,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 203,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 203,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 203,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 264,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 264,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 264,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 264,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 264,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 171,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 174,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 177,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 182,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 250,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 254,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 106,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 188,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 192,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 342,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 378,
+        "value": "text-[13px]"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 389,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 861,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 1512,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 1559,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 1567,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2224,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 2614,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 169,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 178,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 179,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 179,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 179,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 181,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 181,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 181,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 181,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 181,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 181,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 224,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 300,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 448,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/workspaces-manager.tsx",
+        "line": 172,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/workspaces-manager.tsx",
+        "line": 177,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/workspaces-manager.tsx",
+        "line": 184,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 304,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 307,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 355,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 796,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 865,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 869,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 892,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 944,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 1073,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 1082,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 1086,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 1123,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 1142,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 1246,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 1258,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 1294,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 1585,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 1698,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 1770,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 33,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 41,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 47,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 59,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 62,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 74,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 103,
+        "value": "text-[8px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 106,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 169,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 171,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 209,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 253,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 310,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 318,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 331,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 339,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 371,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 374,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 407,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 176,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 235,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 310,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 494,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 694,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 717,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 719,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 762,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 92,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 657,
+        "value": "text-[15px]"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 672,
+        "value": "text-[15px]"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 696,
+        "value": "text-[15px]"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 741,
+        "value": "text-[15px]"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 789,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 108,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 141,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 237,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 335,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 354,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 438,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 443,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 673,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 680,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 689,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 710,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 722,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 903,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 921,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 937,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 999,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 1007,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 1024,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 1033,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 1038,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 1069,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 1087,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 1099,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 1103,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 1115,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 1144,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 1178,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 1194,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/scraper.tsx",
+        "line": 60,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/scraper.tsx",
+        "line": 101,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/scraper.tsx",
+        "line": 105,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/scraper.tsx",
+        "line": 112,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/scraper.tsx",
+        "line": 181,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/scraper.tsx",
+        "line": 187,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 55,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 71,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 86,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 103,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 127,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 210,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 328,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 356,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 379,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 408,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 435,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 454,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 463,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 471,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 478,
+        "value": "text-[10px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 492,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 528,
+        "value": "text-[9px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 528,
+        "value": "text-[11px]"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 528,
+        "value": "text-[10px]"
+      }
+    ],
+    "important": [
+      {
+        "file": "apps/web/src/index.css",
+        "line": 153,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 158,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/index.css",
+        "line": 224,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 96,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/components/chat-home/chat-home.css",
+        "line": 96,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/shell.css",
+        "line": 21,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/shell.css",
+        "line": 28,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/shell.css",
+        "line": 93,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/components/workbooks/workbooks.css",
+        "line": 15,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/pages/login.css",
+        "line": 81,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/motion.css",
+        "line": 68,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/motion.css",
+        "line": 69,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/motion.css",
+        "line": 118,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/motion.css",
+        "line": 119,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/motion.css",
+        "line": 122,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/motion.css",
+        "line": 123,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/motion.css",
+        "line": 124,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/motion.css",
+        "line": 128,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/design-system/preview/preview.css",
+        "line": 48,
+        "value": "!important"
+      },
+      {
+        "file": "apps/web/src/design-system/preview/preview.css",
+        "line": 48,
+        "value": "!important"
+      }
+    ],
+    "direct_twenty_import": [
+      {
+        "file": "apps/web/src/design-system/primitives/index.ts",
+        "line": 3,
+        "value": "from \"twenty-ui/primitives/input"
+      },
+      {
+        "file": "apps/web/src/design-system/primitives/index.ts",
+        "line": 5,
+        "value": "from \"twenty-ui/primitives/surfaces"
+      },
+      {
+        "file": "apps/web/src/design-system/primitives/input.tsx",
+        "line": 2,
+        "value": "from \"twenty-ui/primitives/input"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/theme-provider.tsx",
+        "line": 2,
+        "value": "from \"twenty-ui/theme-constants"
+      },
+      {
+        "file": "apps/web/src/design-system/preview/main.tsx",
+        "line": 4,
+        "value": "from \"twenty-ui/primitives/navigation"
+      }
+    ],
+    "ui_imports": [
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/sonner"
+      },
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/tooltip"
+      },
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/sidebar"
+      },
+      {
+        "file": "apps/web/src/App.tsx",
+        "line": 15,
+        "value": "from \"@/components/ui/popover"
+      },
+      {
+        "file": "apps/web/src/components/builder-primitives.tsx",
+        "line": 12,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/builder-primitives.tsx",
+        "line": 18,
+        "value": "from \"@/components/ui/dropdown-menu"
+      },
+      {
+        "file": "apps/web/src/components/confirm-dialog.tsx",
+        "line": 12,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/confirm-dialog.tsx",
+        "line": 13,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/states.tsx",
+        "line": 6,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/states.tsx",
+        "line": 7,
+        "value": "from \"@/components/ui/skeleton"
+      },
+      {
+        "file": "apps/web/src/components/gate.tsx",
+        "line": 20,
+        "value": "from \"@/components/ui/tooltip"
+      },
+      {
+        "file": "apps/web/src/components/data-table.tsx",
+        "line": 27,
+        "value": "from \"@/components/ui/table"
+      },
+      {
+        "file": "apps/web/src/components/data-table.tsx",
+        "line": 28,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/data-table.tsx",
+        "line": 29,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/data-table.tsx",
+        "line": 33,
+        "value": "from \"@/components/ui/dropdown-menu"
+      },
+      {
+        "file": "apps/web/src/components/data-table.tsx",
+        "line": 34,
+        "value": "from \"@/components/ui/checkbox"
+      },
+      {
+        "file": "apps/web/src/components/command-menu-content.tsx",
+        "line": 6,
+        "value": "from \"@/components/ui/command"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 11,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 13,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 14,
+        "value": "from \"@/components/ui/card"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 15,
+        "value": "from \"@/components/ui/collapsible"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 16,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 17,
+        "value": "from \"@/components/ui/skeleton"
+      },
+      {
+        "file": "apps/web/src/components/task-detail-card.tsx",
+        "line": 18,
+        "value": "from \"@/components/ui/scroll-area"
+      },
+      {
+        "file": "apps/web/src/components/add-lead-dialog.tsx",
+        "line": 2,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/add-lead-dialog.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/add-lead-dialog.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/add-lead-dialog.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/components/csv-import-dialog.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/native-select"
+      },
+      {
+        "file": "apps/web/src/components/csv-import-dialog.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/collect-panel.tsx",
+        "line": 2,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/components/collect-panel.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/collect-panel.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/source-engine-panel.tsx",
+        "line": 17,
+        "value": "from \"@/components/ui/sheet"
+      },
+      {
+        "file": "apps/web/src/components/source-engine-panel.tsx",
+        "line": 18,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/source-engine-panel.tsx",
+        "line": 19,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/source-engine-panel.tsx",
+        "line": 21,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/components/source-engine-panel.tsx",
+        "line": 22,
+        "value": "from \"@/components/ui/tabs"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 2,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/components/live-feed.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/scroll-area"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 1,
+        "value": "from \"@/components/ui/sheet"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 2,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/components/lead-detail-sheet.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/tooltip"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 2,
+        "value": "from \"@/components/ui/table"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/tooltip"
+      },
+      {
+        "file": "apps/web/src/components/leads-table.tsx",
+        "line": 11,
+        "value": "from \"@/components/ui/dropdown-menu"
+      },
+      {
+        "file": "apps/web/src/components/stats-strip.tsx",
+        "line": 2,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/components/stats-strip.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/components/stats-strip.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/tooltip"
+      },
+      {
+        "file": "apps/web/src/components/lead-picker.tsx",
+        "line": 18,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/lead-picker.tsx",
+        "line": 19,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/lead-picker.tsx",
+        "line": 20,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/lead-picker.tsx",
+        "line": 21,
+        "value": "from \"@/components/ui/label"
+      },
+      {
+        "file": "apps/web/src/components/lead-picker.tsx",
+        "line": 22,
+        "value": "from \"@/components/ui/checkbox"
+      },
+      {
+        "file": "apps/web/src/components/lead-picker.tsx",
+        "line": 23,
+        "value": "from \"@/components/ui/scroll-area"
+      },
+      {
+        "file": "apps/web/src/components/lead-picker.tsx",
+        "line": 30,
+        "value": "from \"@/components/ui/select"
+      },
+      {
+        "file": "apps/web/src/components/leads-filters.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/leads-filters.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/select"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 6,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/components/command-bar.tsx",
+        "line": 7,
+        "value": "from \"@/components/ui/select"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 6,
+        "value": "from \"@/components/ui/scroll-area"
+      },
+      {
+        "file": "apps/web/src/components/workspace-panel.tsx",
+        "line": 7,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/components/collection-intent-dialog.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/collection-intent-dialog.tsx",
+        "line": 12,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/command-menu.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/command-menu.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/editable-cell.tsx",
+        "line": 2,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/workbook-view-bar.tsx",
+        "line": 15,
+        "value": "from \"@/components/ui/native-select"
+      },
+      {
+        "file": "apps/web/src/components/ui/pagination.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/ui/input-group.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/ui/input-group.tsx",
+        "line": 6,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/ui/input-group.tsx",
+        "line": 7,
+        "value": "from \"@/components/ui/textarea"
+      },
+      {
+        "file": "apps/web/src/components/ui/sheet.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/ui/command.tsx",
+        "line": 13,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/ui/command.tsx",
+        "line": 17,
+        "value": "from \"@/components/ui/input-group"
+      },
+      {
+        "file": "apps/web/src/components/ui/toggle-group.tsx",
+        "line": 9,
+        "value": "from \"@/components/ui/toggle"
+      },
+      {
+        "file": "apps/web/src/components/ui/dialog.tsx",
+        "line": 7,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/ui/sidebar.tsx",
+        "line": 8,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/ui/sidebar.tsx",
+        "line": 9,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/ui/sidebar.tsx",
+        "line": 10,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/components/ui/sidebar.tsx",
+        "line": 17,
+        "value": "from \"@/components/ui/sheet"
+      },
+      {
+        "file": "apps/web/src/components/ui/sidebar.tsx",
+        "line": 18,
+        "value": "from \"@/components/ui/skeleton"
+      },
+      {
+        "file": "apps/web/src/components/ui/sidebar.tsx",
+        "line": 23,
+        "value": "from \"@/components/ui/tooltip"
+      },
+      {
+        "file": "apps/web/src/components/records/enroll-dialog.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/records/enroll-dialog.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/records/enroll-dialog.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/records/workflow-dialog.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/records/workflow-dialog.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/records/workflow-dialog.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/records/import-dialog.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/records/import-dialog.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/records/import-dialog.tsx",
+        "line": 6,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/records/find-people-dialog.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/records/find-people-dialog.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/records/find-people-dialog.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/records/snapshot-dialog.tsx",
+        "line": 2,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/records/snapshot-dialog.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/records/snapshot-dialog.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/records/record-editor.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/records/record-editor.tsx",
+        "line": 6,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/components/records/record-editor.tsx",
+        "line": 7,
+        "value": "from \"@/components/ui/textarea"
+      },
+      {
+        "file": "apps/web/src/components/records/record-editor.tsx",
+        "line": 8,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/quick-look/quick-look.tsx",
+        "line": 15,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/components/quick-look/quick-look.tsx",
+        "line": 16,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/quick-look/quick-look.tsx",
+        "line": 17,
+        "value": "from \"@/components/ui/kbd"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/app-sidebar.tsx",
+        "line": 12,
+        "value": "from \"@/components/ui/sidebar"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/app-sidebar.tsx",
+        "line": 16,
+        "value": "from \"@/components/ui/dropdown-menu"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/app-sidebar.tsx",
+        "line": 17,
+        "value": "from \"@/components/ui/avatar"
+      },
+      {
+        "file": "apps/web/src/components/app-shell/app-sidebar.tsx",
+        "line": 18,
+        "value": "from \"@/components/ui/kbd"
+      },
+      {
+        "file": "apps/web/src/components/keyboard/keyboard-layer.tsx",
+        "line": 12,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/components/keyboard/keyboard-layer.tsx",
+        "line": 13,
+        "value": "from \"@/components/ui/kbd"
+      },
+      {
+        "file": "apps/web/src/components/keyboard/keyboard-layer.tsx",
+        "line": 14,
+        "value": "from \"@/components/ui/sidebar"
+      },
+      {
+        "file": "apps/web/src/components/workbooks/template-gallery.tsx",
+        "line": 8,
+        "value": "from \"@/components/ui/native-select"
+      },
+      {
+        "file": "apps/web/src/components/workbooks/create-workbook-dialog.tsx",
+        "line": 7,
+        "value": "from \"@/components/ui/native-select"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 10,
+        "value": "from \"@/components/ui/tabs"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 11,
+        "value": "from \"@/components/ui/card"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 12,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 13,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 14,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 15,
+        "value": "from \"@/components/ui/label"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 16,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 17,
+        "value": "from \"@/components/ui/skeleton"
+      },
+      {
+        "file": "apps/web/src/pages/settings.tsx",
+        "line": 18,
+        "value": "from \"@/components/ui/native-select"
+      },
+      {
+        "file": "apps/web/src/pages/templates.tsx",
+        "line": 18,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/sources.tsx",
+        "line": 2,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/sources.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/pages/sources.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/switch"
+      },
+      {
+        "file": "apps/web/src/pages/records.tsx",
+        "line": 6,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/records.tsx",
+        "line": 7,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 31,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 32,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 33,
+        "value": "from \"@/components/ui/label"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 34,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 35,
+        "value": "from \"@/components/ui/checkbox"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 36,
+        "value": "from \"@/components/ui/switch"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 37,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 44,
+        "value": "from \"@/components/ui/select"
+      },
+      {
+        "file": "apps/web/src/pages/watches.tsx",
+        "line": 51,
+        "value": "from \"@/components/ui/dropdown-menu"
+      },
+      {
+        "file": "apps/web/src/pages/campaigns.tsx",
+        "line": 7,
+        "value": "from \"@/components/ui/card"
+      },
+      {
+        "file": "apps/web/src/pages/campaigns.tsx",
+        "line": 8,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/campaigns.tsx",
+        "line": 9,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/campaigns.tsx",
+        "line": 10,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/pages/campaigns.tsx",
+        "line": 11,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/pages/campaigns.tsx",
+        "line": 12,
+        "value": "from \"@/components/ui/textarea"
+      },
+      {
+        "file": "apps/web/src/pages/campaigns.tsx",
+        "line": 16,
+        "value": "from \"@/components/ui/select"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 6,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 7,
+        "value": "from \"@/components/ui/card"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 8,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 9,
+        "value": "from \"@/components/ui/skeleton"
+      },
+      {
+        "file": "apps/web/src/pages/audiences.tsx",
+        "line": 12,
+        "value": "from \"@/components/ui/native-select"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 8,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 9,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 10,
+        "value": "from \"@/components/ui/card"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 11,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/pages/signals.tsx",
+        "line": 15,
+        "value": "from \"@/components/ui/select"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 43,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 44,
+        "value": "from \"@/components/ui/native-select"
+      },
+      {
+        "file": "apps/web/src/pages/search.tsx",
+        "line": 8,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/search.tsx",
+        "line": 9,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/pages/search.tsx",
+        "line": 10,
+        "value": "from \"@/components/ui/tabs"
+      },
+      {
+        "file": "apps/web/src/pages/search.tsx",
+        "line": 11,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 10,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 11,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 12,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 13,
+        "value": "from \"@/components/ui/textarea"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 14,
+        "value": "from \"@/components/ui/card"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 15,
+        "value": "from \"@/components/ui/skeleton"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 16,
+        "value": "from \"@/components/ui/scroll-area"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 17,
+        "value": "from \"@/components/ui/toggle-group"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 21,
+        "value": "from \"@/components/ui/dropdown-menu"
+      },
+      {
+        "file": "apps/web/src/pages/agents.tsx",
+        "line": 27,
+        "value": "from \"@/components/ui/native-select"
+      },
+      {
+        "file": "apps/web/src/pages/workspaces-manager.tsx",
+        "line": 7,
+        "value": "from \"@/components/ui/card"
+      },
+      {
+        "file": "apps/web/src/pages/workspaces-manager.tsx",
+        "line": 8,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/workspaces-manager.tsx",
+        "line": 9,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/pages/workspaces-manager.tsx",
+        "line": 10,
+        "value": "from \"@/components/ui/label"
+      },
+      {
+        "file": "apps/web/src/pages/workspaces-manager.tsx",
+        "line": 11,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 43,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 44,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 45,
+        "value": "from \"@/components/ui/card"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 46,
+        "value": "from \"@/components/ui/checkbox"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 53,
+        "value": "from \"@/components/ui/dropdown-menu"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 54,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 55,
+        "value": "from \"@/components/ui/label"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 62,
+        "value": "from \"@/components/ui/select"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 63,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 64,
+        "value": "from \"@/components/ui/switch"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 72,
+        "value": "from \"@/components/ui/table"
+      },
+      {
+        "file": "apps/web/src/pages/automations.tsx",
+        "line": 73,
+        "value": "from \"@/components/ui/textarea"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 8,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/analytics.tsx",
+        "line": 9,
+        "value": "from \"@/components/ui/skeleton"
+      },
+      {
+        "file": "apps/web/src/pages/pipeline.tsx",
+        "line": 7,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/pipeline.tsx",
+        "line": 8,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/pipeline.tsx",
+        "line": 9,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/pages/pipeline.tsx",
+        "line": 10,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/pages/pipeline.tsx",
+        "line": 11,
+        "value": "from \"@/components/ui/skeleton"
+      },
+      {
+        "file": "apps/web/src/pages/pipeline.tsx",
+        "line": 12,
+        "value": "from \"@/components/ui/collapsible"
+      },
+      {
+        "file": "apps/web/src/pages/pipeline.tsx",
+        "line": 13,
+        "value": "from \"@/components/ui/scroll-area"
+      },
+      {
+        "file": "apps/web/src/pages/task-detail.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 9,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 10,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 13,
+        "value": "from \"@/components/ui/select"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 16,
+        "value": "from \"@/components/ui/popover"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 19,
+        "value": "from \"@/components/ui/dialog"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 23,
+        "value": "from \"@/components/ui/dropdown-menu"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 24,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 25,
+        "value": "from \"@/components/ui/skeleton"
+      },
+      {
+        "file": "apps/web/src/pages/leads.tsx",
+        "line": 26,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 8,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/chat.tsx",
+        "line": 9,
+        "value": "from \"@/components/ui/textarea"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 23,
+        "value": "from \"@/components/ui/card"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 24,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 25,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 26,
+        "value": "from \"@/components/ui/label"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 27,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 28,
+        "value": "from \"@/components/ui/textarea"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 29,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 33,
+        "value": "from \"@/components/ui/dropdown-menu"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 36,
+        "value": "from \"@/components/ui/select"
+      },
+      {
+        "file": "apps/web/src/pages/outreach.tsx",
+        "line": 37,
+        "value": "from \"@/components/ui/tabs"
+      },
+      {
+        "file": "apps/web/src/pages/scraper.tsx",
+        "line": 3,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/scraper.tsx",
+        "line": 4,
+        "value": "from \"@/components/ui/input"
+      },
+      {
+        "file": "apps/web/src/pages/scraper.tsx",
+        "line": 5,
+        "value": "from \"@/components/ui/card"
+      },
+      {
+        "file": "apps/web/src/pages/scraper.tsx",
+        "line": 6,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/scraper.tsx",
+        "line": 7,
+        "value": "from \"@/components/ui/scroll-area"
+      },
+      {
+        "file": "apps/web/src/pages/workbooks.tsx",
+        "line": 12,
+        "value": "from \"@/components/ui/native-select"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 11,
+        "value": "from \"@/components/ui/button"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 12,
+        "value": "from \"@/components/ui/badge"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 13,
+        "value": "from \"@/components/ui/separator"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 14,
+        "value": "from \"@/components/ui/skeleton"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 15,
+        "value": "from \"@/components/ui/tabs"
+      },
+      {
+        "file": "apps/web/src/pages/lead-detail.tsx",
+        "line": 18,
+        "value": "from \"@/components/ui/select"
+      },
+      {
+        "file": "apps/web/src/design-system/theme/theme-select.tsx",
+        "line": 1,
+        "value": "from \"@/components/ui/native-select"
+      }
+    ],
+    "primitive_imports": [
+      {
+        "file": "apps/web/src/components/source-engine-panel.tsx",
+        "line": 20,
+        "value": "from \"@/design-system/primitives"
+      },
+      {
+        "file": "apps/web/src/components/workbook-view-bar.tsx",
+        "line": 11,
+        "value": "from \"@/design-system/primitives"
+      },
+      {
+        "file": "apps/web/src/components/workbooks/delete-column-dialog.tsx",
+        "line": 2,
+        "value": "from \"@/design-system/primitives"
+      },
+      {
+        "file": "apps/web/src/components/workbooks/template-gallery.tsx",
+        "line": 5,
+        "value": "from \"@/design-system/primitives"
+      },
+      {
+        "file": "apps/web/src/components/workbooks/create-workbook-dialog.tsx",
+        "line": 5,
+        "value": "from \"@/design-system/primitives"
+      },
+      {
+        "file": "apps/web/src/components/workbooks/selection-bar.tsx",
+        "line": 3,
+        "value": "from \"@/design-system/primitives"
+      },
+      {
+        "file": "apps/web/src/components/workbooks/run-review.tsx",
+        "line": 5,
+        "value": "from \"@/design-system/primitives"
+      },
+      {
+        "file": "apps/web/src/components/workbooks/run-history.tsx",
+        "line": 4,
+        "value": "from \"@/design-system/primitives"
+      },
+      {
+        "file": "apps/web/src/components/workbooks/research-evidence.tsx",
+        "line": 1,
+        "value": "from \"@/design-system/primitives"
+      },
+      {
+        "file": "apps/web/src/components/workbooks/column-width-editor.tsx",
+        "line": 2,
+        "value": "from \"@/design-system/primitives"
+      },
+      {
+        "file": "apps/web/src/pages/workbook-editor.tsx",
+        "line": 51,
+        "value": "from \"@/design-system/primitives"
+      },
+      {
+        "file": "apps/web/src/pages/workbooks.tsx",
+        "line": 5,
+        "value": "from \"@/design-system/primitives"
+      }
+    ]
+  }
+}

@@ -1,0 +1,651 @@
+{
+  "scanCount": 28,
+  "nodeOccurrences": {
+    "aria-allowed-role": 3,
+    "color-contrast": 89,
+    "label-content-name-mismatch": 72,
+    "region": 24,
+    "target-size": 33,
+    "empty-table-header": 5,
+    "button-name": 46,
+    "nested-interactive": 6,
+    "landmark-main-is-top-level": 2,
+    "landmark-no-duplicate-main": 2,
+    "landmark-unique": 2,
+    "heading-order": 3,
+    "aria-toggle-field-name": 192,
+    "aria-prohibited-attr": 4
+  },
+  "impacts": {
+    "minor": 8,
+    "serious": 396,
+    "moderate": 33,
+    "critical": 46
+  },
+  "rules": {
+    "aria-allowed-role": {
+      "help": "ARIA role should be appropriate for the element",
+      "impact": "minor",
+      "examples": [
+        {
+          "page": "chat-light",
+          "nodes": [
+            {
+              "target": [
+                "textarea"
+              ],
+              "html": "<textarea rows=\"1\" placeholder=\"Ask for a list, a pe...\" aria-label=\"Message OpenGTM\" role=\"combobox\" aria-expanded=\"false\" aria-autocomplete=\"list\" class=\"w-full resize-none b...\" style=\"height: 76px;\">",
+              "failureSummary": "Fix any of the following:\n  ARIA role combobox is not allowed for given element"
+            }
+          ]
+        },
+        {
+          "page": "chat-dark",
+          "nodes": [
+            {
+              "target": [
+                "textarea"
+              ],
+              "html": "<textarea rows=\"1\" placeholder=\"Ask for a list, a pe...\" aria-label=\"Message OpenGTM\" role=\"combobox\" aria-expanded=\"false\" aria-autocomplete=\"list\" class=\"w-full resize-none b...\" style=\"height: 76px;\">",
+              "failureSummary": "Fix any of the following:\n  ARIA role combobox is not allowed for given element"
+            }
+          ]
+        },
+        {
+          "page": "chat-mobile",
+          "nodes": [
+            {
+              "target": [
+                "textarea"
+              ],
+              "html": "<textarea rows=\"1\" placeholder=\"Ask for a list, a pe...\" aria-label=\"Message OpenGTM\" role=\"combobox\" aria-expanded=\"false\" aria-autocomplete=\"list\" class=\"w-full resize-none b...\" style=\"height: 76px;\">",
+              "failureSummary": "Fix any of the following:\n  ARIA role combobox is not allowed for given element"
+            }
+          ]
+        }
+      ]
+    },
+    "color-contrast": {
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "impact": "serious",
+      "examples": [
+        {
+          "page": "chat-light",
+          "nodes": [
+            {
+              "target": [
+                ".h-5"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "page": "companies-light",
+          "nodes": [
+            {
+              "target": [
+                "kbd"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".bg-primary"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.01 (foreground color: #ffffff, background color: #007aff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "page": "people-light",
+          "nodes": [
+            {
+              "target": [
+                "kbd"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".bg-primary"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.01 (foreground color: #ffffff, background color: #007aff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ]
+    },
+    "label-content-name-mismatch": {
+      "help": "Elements must have their visible text as part of their accessible name",
+      "impact": "serious",
+      "examples": [
+        {
+          "page": "chat-light",
+          "nodes": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "page": "companies-light",
+          "nodes": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "page": "people-light",
+          "nodes": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        }
+      ]
+    },
+    "region": {
+      "help": "All page content should be contained by landmarks",
+      "impact": "moderate",
+      "examples": [
+        {
+          "page": "chat-light",
+          "nodes": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "page": "companies-light",
+          "nodes": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "page": "people-light",
+          "nodes": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        }
+      ]
+    },
+    "target-size": {
+      "help": "All touch targets must be 24px large, or leave sufficient space",
+      "impact": "serious",
+      "examples": [
+        {
+          "page": "chat-light",
+          "nodes": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        },
+        {
+          "page": "companies-light",
+          "nodes": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        },
+        {
+          "page": "people-light",
+          "nodes": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    "empty-table-header": {
+      "help": "Table header text should not be empty",
+      "impact": "minor",
+      "examples": [
+        {
+          "page": "companies-light",
+          "nodes": [
+            {
+              "target": [
+                ".w-10:nth-child(7)"
+              ],
+              "html": "<th class=\"w-10\"></th>",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers"
+            }
+          ]
+        },
+        {
+          "page": "people-light",
+          "nodes": [
+            {
+              "target": [
+                ".w-10:nth-child(7)"
+              ],
+              "html": "<th class=\"w-10\"></th>",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers"
+            }
+          ]
+        },
+        {
+          "page": "companies-dark",
+          "nodes": [
+            {
+              "target": [
+                ".w-10:nth-child(7)"
+              ],
+              "html": "<th class=\"w-10\"></th>",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers"
+            }
+          ]
+        }
+      ]
+    },
+    "button-name": {
+      "help": "Buttons must have discernible text",
+      "impact": "critical",
+      "examples": [
+        {
+          "page": "workbook-light",
+          "nodes": [
+            {
+              "target": [
+                ".p-1\\.5"
+              ],
+              "html": "<button class=\"p-1.5 rounded-md hover:bg-muted transition-colors\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        },
+        {
+          "page": "signals-light",
+          "nodes": [
+            {
+              "target": [
+                "#base-ui-_r_25_"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" id=\"base-ui-_r_25_\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" data-slot=\"select-trigger\" data-size=\"default\" class=\"flex items-center ju...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            },
+            {
+              "target": [
+                "#base-ui-_r_22_"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" id=\"base-ui-_r_22_\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" data-slot=\"select-trigger\" data-size=\"default\" class=\"flex items-center ju...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        },
+        {
+          "page": "settings-light",
+          "nodes": [
+            {
+              "target": [
+                ".group\\/card.rounded-\\[var\\(--t-border-radius-lg\\)\\].bg-card:nth-child(1) > .space-y-3.group-data-\\[size\\=sm\\]\\/card\\:px-3[data-slot=\"card-content\"] > .space-y-1\\.5:nth-child(1) > .gap-1.flex > .hover\\:bg-accent.aria-expanded\\:text-foreground.hover\\:text-foreground"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            },
+            {
+              "target": [
+                ".group\\/card.rounded-\\[var\\(--t-border-radius-lg\\)\\].bg-card:nth-child(2) > .space-y-3.group-data-\\[size\\=sm\\]\\/card\\:px-3[data-slot=\"card-content\"] > .space-y-1\\.5:nth-child(1) > .gap-1.flex > .hover\\:bg-accent.aria-expanded\\:text-foreground.hover\\:text-foreground"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        }
+      ]
+    },
+    "nested-interactive": {
+      "help": "Interactive controls must not be nested",
+      "impact": "serious",
+      "examples": [
+        {
+          "page": "workbook-light",
+          "nodes": [
+            {
+              "target": [
+                ".group\\/th[role=\"button\"][aria-roledescription=\"sortable\"]:nth-child(3)"
+              ],
+              "html": "<th class=\"text-left font-norma...\" role=\"button\" tabindex=\"0\" aria-disabled=\"false\" aria-roledescription=\"sortable\" aria-describedby=\"DndDescribedBy-0\" data-col-id=\"score\" style=\"opacity: 1; width: 1...\">",
+              "failureSummary": "Fix any of the following:\n  Element has focusable descendants. Move them outside of the element, or remove them."
+            },
+            {
+              "target": [
+                ".group\\/th[role=\"button\"][aria-roledescription=\"sortable\"]:nth-child(4)"
+              ],
+              "html": "<th class=\"text-left font-norma...\" role=\"button\" tabindex=\"0\" aria-disabled=\"false\" aria-roledescription=\"sortable\" aria-describedby=\"DndDescribedBy-0\" data-col-id=\"tier\" style=\"opacity: 1; width: 1...\">",
+              "failureSummary": "Fix any of the following:\n  Element has focusable descendants. Move them outside of the element, or remove them."
+            }
+          ]
+        },
+        {
+          "page": "workbook-dark",
+          "nodes": [
+            {
+              "target": [
+                ".group\\/th[role=\"button\"][aria-roledescription=\"sortable\"]:nth-child(3)"
+              ],
+              "html": "<th class=\"text-left font-norma...\" role=\"button\" tabindex=\"0\" aria-disabled=\"false\" aria-roledescription=\"sortable\" aria-describedby=\"DndDescribedBy-0\" data-col-id=\"score\" style=\"opacity: 1; width: 1...\">",
+              "failureSummary": "Fix any of the following:\n  Element has focusable descendants. Move them outside of the element, or remove them."
+            },
+            {
+              "target": [
+                ".group\\/th[role=\"button\"][aria-roledescription=\"sortable\"]:nth-child(4)"
+              ],
+              "html": "<th class=\"text-left font-norma...\" role=\"button\" tabindex=\"0\" aria-disabled=\"false\" aria-roledescription=\"sortable\" aria-describedby=\"DndDescribedBy-0\" data-col-id=\"tier\" style=\"opacity: 1; width: 1...\">",
+              "failureSummary": "Fix any of the following:\n  Element has focusable descendants. Move them outside of the element, or remove them."
+            }
+          ]
+        },
+        {
+          "page": "workbook-mobile",
+          "nodes": [
+            {
+              "target": [
+                ".group\\/th[role=\"button\"][aria-roledescription=\"sortable\"]:nth-child(3)"
+              ],
+              "html": "<th class=\"text-left font-norma...\" role=\"button\" tabindex=\"0\" aria-disabled=\"false\" aria-roledescription=\"sortable\" aria-describedby=\"DndDescribedBy-0\" data-col-id=\"score\" style=\"opacity: 1; width: 1...\">",
+              "failureSummary": "Fix any of the following:\n  Element has focusable descendants. Move them outside of the element, or remove them."
+            },
+            {
+              "target": [
+                ".group\\/th[role=\"button\"][aria-roledescription=\"sortable\"]:nth-child(4)"
+              ],
+              "html": "<th class=\"text-left font-norma...\" role=\"button\" tabindex=\"0\" aria-disabled=\"false\" aria-roledescription=\"sortable\" aria-describedby=\"DndDescribedBy-0\" data-col-id=\"tier\" style=\"opacity: 1; width: 1...\">",
+              "failureSummary": "Fix any of the following:\n  Element has focusable descendants. Move them outside of the element, or remove them."
+            }
+          ]
+        }
+      ]
+    },
+    "landmark-main-is-top-level": {
+      "help": "Main landmark should not be contained in another landmark",
+      "impact": "moderate",
+      "examples": [
+        {
+          "page": "audiences-light",
+          "nodes": [
+            {
+              "target": [
+                ".gap-4.p-4.h-full > main"
+              ],
+              "html": "<main class=\"min-w-0 flex-1 overflow-y-auto\">",
+              "failureSummary": "Fix any of the following:\n  The main landmark is contained in another landmark."
+            }
+          ]
+        },
+        {
+          "page": "audiences-dark",
+          "nodes": [
+            {
+              "target": [
+                ".gap-4.p-4.h-full > main"
+              ],
+              "html": "<main class=\"min-w-0 flex-1 overflow-y-auto\">",
+              "failureSummary": "Fix any of the following:\n  The main landmark is contained in another landmark."
+            }
+          ]
+        }
+      ]
+    },
+    "landmark-no-duplicate-main": {
+      "help": "Document should not have more than one main landmark",
+      "impact": "moderate",
+      "examples": [
+        {
+          "page": "audiences-light",
+          "nodes": [
+            {
+              "target": [
+                ".md\\:peer-data-\\[variant\\=inset\\]\\:m-2"
+              ],
+              "html": "<main data-slot=\"sidebar-inset\" class=\"relative w-full flex...\">",
+              "failureSummary": "Fix any of the following:\n  Document has more than one main landmark"
+            }
+          ]
+        },
+        {
+          "page": "audiences-dark",
+          "nodes": [
+            {
+              "target": [
+                ".md\\:peer-data-\\[variant\\=inset\\]\\:m-2"
+              ],
+              "html": "<main data-slot=\"sidebar-inset\" class=\"relative w-full flex...\">",
+              "failureSummary": "Fix any of the following:\n  Document has more than one main landmark"
+            }
+          ]
+        }
+      ]
+    },
+    "landmark-unique": {
+      "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+      "impact": "moderate",
+      "examples": [
+        {
+          "page": "audiences-light",
+          "nodes": [
+            {
+              "target": [
+                ".md\\:peer-data-\\[variant\\=inset\\]\\:m-2"
+              ],
+              "html": "<main data-slot=\"sidebar-inset\" class=\"relative w-full flex...\">",
+              "failureSummary": "Fix any of the following:\n  The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable"
+            }
+          ]
+        },
+        {
+          "page": "audiences-dark",
+          "nodes": [
+            {
+              "target": [
+                ".md\\:peer-data-\\[variant\\=inset\\]\\:m-2"
+              ],
+              "html": "<main data-slot=\"sidebar-inset\" class=\"relative w-full flex...\">",
+              "failureSummary": "Fix any of the following:\n  The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable"
+            }
+          ]
+        }
+      ]
+    },
+    "heading-order": {
+      "help": "Heading levels should only increase by one",
+      "impact": "moderate",
+      "examples": [
+        {
+          "page": "settings-light",
+          "nodes": [
+            {
+              "target": [
+                "h3"
+              ],
+              "html": "<h3 class=\"text-sm font-medium\">LLM Providers</h3>",
+              "failureSummary": "Fix any of the following:\n  Heading order invalid"
+            }
+          ]
+        },
+        {
+          "page": "settings-dark",
+          "nodes": [
+            {
+              "target": [
+                "h3"
+              ],
+              "html": "<h3 class=\"text-sm font-medium\">LLM Providers</h3>",
+              "failureSummary": "Fix any of the following:\n  Heading order invalid"
+            }
+          ]
+        },
+        {
+          "page": "settings-mobile",
+          "nodes": [
+            {
+              "target": [
+                "h3"
+              ],
+              "html": "<h3 class=\"text-sm font-medium\">LLM Providers</h3>",
+              "failureSummary": "Fix any of the following:\n  Heading order invalid"
+            }
+          ]
+        }
+      ]
+    },
+    "aria-toggle-field-name": {
+      "help": "ARIA toggle fields must have an accessible name",
+      "impact": "serious",
+      "examples": [
+        {
+          "page": "sources-light",
+          "nodes": [
+            {
+              "target": [
+                "#base-ui-_r_1p_"
+              ],
+              "html": "<span data-checked=\"\" role=\"switch\" tabindex=\"0\" id=\"base-ui-_r_1p_\" aria-checked=\"true\" data-slot=\"switch\" data-size=\"default\" class=\"peer group/switch re...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1s_"
+              ],
+              "html": "<span data-checked=\"\" role=\"switch\" tabindex=\"0\" id=\"base-ui-_r_1s_\" aria-checked=\"true\" data-slot=\"switch\" data-size=\"default\" class=\"peer group/switch re...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+            }
+          ]
+        },
+        {
+          "page": "sources-dark",
+          "nodes": [
+            {
+              "target": [
+                "#base-ui-_r_1p_"
+              ],
+              "html": "<span data-checked=\"\" role=\"switch\" tabindex=\"0\" id=\"base-ui-_r_1p_\" aria-checked=\"true\" data-slot=\"switch\" data-size=\"default\" class=\"peer group/switch re...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1s_"
+              ],
+              "html": "<span data-checked=\"\" role=\"switch\" tabindex=\"0\" id=\"base-ui-_r_1s_\" aria-checked=\"true\" data-slot=\"switch\" data-size=\"default\" class=\"peer group/switch re...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+            }
+          ]
+        }
+      ]
+    },
+    "aria-prohibited-attr": {
+      "help": "Elements must only use permitted ARIA attributes",
+      "impact": "serious",
+      "examples": [
+        {
+          "page": "chat-mobile",
+          "nodes": [
+            {
+              "target": [
+                ".gtm-topbar-chip"
+              ],
+              "html": "<div class=\"gtm-topbar-chip\" title=\"SSE connected\" aria-label=\"Connected\">",
+              "failureSummary": "Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute."
+            }
+          ]
+        },
+        {
+          "page": "companies-mobile",
+          "nodes": [
+            {
+              "target": [
+                ".gtm-topbar-chip"
+              ],
+              "html": "<div class=\"gtm-topbar-chip\" title=\"SSE connected\" aria-label=\"Connected\">",
+              "failureSummary": "Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute."
+            }
+          ]
+        },
+        {
+          "page": "workbook-mobile",
+          "nodes": [
+            {
+              "target": [
+                ".gtm-topbar-chip"
+              ],
+              "html": "<div class=\"gtm-topbar-chip\" title=\"SSE connected\" aria-label=\"Connected\">",
+              "failureSummary": "Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,3809 @@
+{
+  "baselineCommit": "4375bbdc",
+  "url": "http://localhost:8002",
+  "date": "2026-10-29",
+  "engine": {
+    "name": "axe-core",
+    "version": "4.14.0"
+  },
+  "browser": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+    "windowWidth": 1440,
+    "windowHeight": 1000,
+    "orientationAngle": 0,
+    "orientationType": "landscape-primary"
+  },
+  "desktopDimensions": [
+    1440,
+    1000
+  ],
+  "mobileDimensions": [
+    390,
+    844
+  ],
+  "screenReaderTested": false,
+  "syntheticData": true,
+  "scanCount": 28,
+  "violationNodeOccurrences": 483,
+  "countsAreRepeatedOccurrencesNotUniqueDefects": true,
+  "pageErrors": [],
+  "scans": [
+    {
+      "label": "chat-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Chat"
+        },
+        {
+          "level": "H1",
+          "text": "Good morning. What should we go after?"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 27,
+        "12px": 6,
+        "11px": 4,
+        "15px": 2,
+        "10px": 1,
+        "32px": 1,
+        "10.5px": 3
+      },
+      "visibleControls": 42,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#007aff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#007aff80",
+        "--t-font-color-primary": "#1d1d1f",
+        "--t-font-color-secondary": "#6e6e73",
+        "--t-font-color-tertiary": "#8e8e93",
+        "--t-font-color-light": "#aeaeb2",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f5f5f7",
+        "--t-border-color-strong": "#00000029",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 2,
+      "axe": [
+        {
+          "id": "aria-allowed-role",
+          "impact": "minor",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "textarea"
+              ],
+              "html": "<textarea rows=\"1\" placeholder=\"Ask for a list, a pe...\" aria-label=\"Message OpenGTM\" role=\"combobox\" aria-expanded=\"false\" aria-autocomplete=\"list\" class=\"w-full resize-none b...\" style=\"height: 76px;\">",
+              "failureSummary": "Fix any of the following:\n  ARIA role combobox is not allowed for given element"
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".h-5"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "companies-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Companies"
+        },
+        {
+          "level": "H1",
+          "text": "Companies"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 25,
+        "12px": 97,
+        "11px": 4,
+        "15px": 1,
+        "10px": 1,
+        "17px": 1
+      },
+      "visibleControls": 85,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#007aff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#007aff80",
+        "--t-font-color-primary": "#1d1d1f",
+        "--t-font-color-secondary": "#6e6e73",
+        "--t-font-color-tertiary": "#8e8e93",
+        "--t-font-color-light": "#aeaeb2",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f5f5f7",
+        "--t-border-color-strong": "#00000029",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 35,
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 8,
+          "examples": [
+            {
+              "target": [
+                "kbd"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".bg-primary"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.01 (foreground color: #ffffff, background color: #007aff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "empty-table-header",
+          "impact": "minor",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".w-10:nth-child(7)"
+              ],
+              "html": "<th class=\"w-10\"></th>",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "people-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "People"
+        },
+        {
+          "level": "H1",
+          "text": "People"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 25,
+        "12px": 27,
+        "11px": 4,
+        "15px": 1,
+        "10px": 1,
+        "17px": 1
+      },
+      "visibleControls": 43,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#007aff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#007aff80",
+        "--t-font-color-primary": "#1d1d1f",
+        "--t-font-color-secondary": "#6e6e73",
+        "--t-font-color-tertiary": "#8e8e93",
+        "--t-font-color-light": "#aeaeb2",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f5f5f7",
+        "--t-border-color-strong": "#00000029",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 7,
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 8,
+          "examples": [
+            {
+              "target": [
+                "kbd"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".bg-primary"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.01 (foreground color: #ffffff, background color: #007aff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "empty-table-header",
+          "impact": "minor",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".w-10:nth-child(7)"
+              ],
+              "html": "<th class=\"w-10\"></th>",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "workbooks-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Workbooks"
+        },
+        {
+          "level": "H1",
+          "text": "Workbooks"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 34,
+        "12px": 17,
+        "11px": 4,
+        "15px": 1,
+        "10px": 1,
+        "22px": 1
+      },
+      "visibleControls": 34,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#007aff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#007aff80",
+        "--t-font-color-primary": "#1d1d1f",
+        "--t-font-color-secondary": "#6e6e73",
+        "--t-font-color-tertiary": "#8e8e93",
+        "--t-font-color-light": "#aeaeb2",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f5f5f7",
+        "--t-border-color-strong": "#00000029",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 4,
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 4,
+          "examples": [
+            {
+              "target": [
+                "kbd"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "#base-ui-_r_22_ > ._content_1kjmt_161 > ._label_1kjmt_170"
+              ],
+              "html": "<span class=\"_label_1kjmt_170\">New workbook</span>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.01 (foreground color: #ffffff, background color: #007aff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "workbook-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Workbooks"
+        },
+        {
+          "level": "H2",
+          "text": "Same company, independent people"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 30,
+        "12px": 10,
+        "11px": 13,
+        "15px": 1,
+        "10px": 3
+      },
+      "visibleControls": 44,
+      "grids": [
+        {
+          "name": "Workbook data grid",
+          "rowcount": null,
+          "colcount": null
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#007aff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#007aff80",
+        "--t-font-color-primary": "#1d1d1f",
+        "--t-font-color-secondary": "#6e6e73",
+        "--t-font-color-tertiary": "#8e8e93",
+        "--t-font-color-light": "#aeaeb2",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f5f5f7",
+        "--t-border-color-strong": "#00000029",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 9,
+      "axe": [
+        {
+          "id": "button-name",
+          "impact": "critical",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".p-1\\.5"
+              ],
+              "html": "<button class=\"p-1.5 rounded-md hover:bg-muted transition-colors\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "kbd"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "button[data-variant=\"solid\"] > ._content_1kjmt_161 > ._label_1kjmt_170"
+              ],
+              "html": "<span class=\"_label_1kjmt_170\">Review run</span>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.01 (foreground color: #ffffff, background color: #007aff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "nested-interactive",
+          "impact": "serious",
+          "affectedNodes": 2,
+          "examples": [
+            {
+              "target": [
+                ".group\\/th[role=\"button\"][aria-roledescription=\"sortable\"]:nth-child(3)"
+              ],
+              "html": "<th class=\"text-left font-norma...\" role=\"button\" tabindex=\"0\" aria-disabled=\"false\" aria-roledescription=\"sortable\" aria-describedby=\"DndDescribedBy-0\" data-col-id=\"score\" style=\"opacity: 1; width: 1...\">",
+              "failureSummary": "Fix any of the following:\n  Element has focusable descendants. Move them outside of the element, or remove them."
+            },
+            {
+              "target": [
+                ".group\\/th[role=\"button\"][aria-roledescription=\"sortable\"]:nth-child(4)"
+              ],
+              "html": "<th class=\"text-left font-norma...\" role=\"button\" tabindex=\"0\" aria-disabled=\"false\" aria-roledescription=\"sortable\" aria-describedby=\"DndDescribedBy-0\" data-col-id=\"tier\" style=\"opacity: 1; width: 1...\">",
+              "failureSummary": "Fix any of the following:\n  Element has focusable descendants. Move them outside of the element, or remove them."
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 4,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            },
+            {
+              "target": [
+                "button[aria-label=\"Configure Score column\"]"
+              ],
+              "html": "<button type=\"button\" data-column-settings-trigger=\"true\" aria-label=\"Configure Score column\" class=\"shrink-0 p-1 rounded hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "audiences-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Audiences"
+        },
+        {
+          "level": "H1",
+          "text": "Audiences"
+        }
+      ],
+      "mainCount": 2,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 21,
+        "12px": 8,
+        "11px": 4,
+        "15px": 1,
+        "10px": 1,
+        "22px": 1
+      },
+      "visibleControls": 25,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#007aff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#007aff80",
+        "--t-font-color-primary": "#1d1d1f",
+        "--t-font-color-secondary": "#6e6e73",
+        "--t-font-color-tertiary": "#8e8e93",
+        "--t-font-color-light": "#aeaeb2",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f5f5f7",
+        "--t-border-color-strong": "#00000029",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 2,
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "kbd"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "landmark-main-is-top-level",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".gap-4.p-4.h-full > main"
+              ],
+              "html": "<main class=\"min-w-0 flex-1 overflow-y-auto\">",
+              "failureSummary": "Fix any of the following:\n  The main landmark is contained in another landmark."
+            }
+          ]
+        },
+        {
+          "id": "landmark-no-duplicate-main",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".md\\:peer-data-\\[variant\\=inset\\]\\:m-2"
+              ],
+              "html": "<main data-slot=\"sidebar-inset\" class=\"relative w-full flex...\">",
+              "failureSummary": "Fix any of the following:\n  Document has more than one main landmark"
+            }
+          ]
+        },
+        {
+          "id": "landmark-unique",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".md\\:peer-data-\\[variant\\=inset\\]\\:m-2"
+              ],
+              "html": "<main data-slot=\"sidebar-inset\" class=\"relative w-full flex...\">",
+              "failureSummary": "Fix any of the following:\n  The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "signals-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Signals"
+        },
+        {
+          "level": "H2",
+          "text": "Signal Monitor"
+        },
+        {
+          "level": "H3",
+          "text": "Signal momentum"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 23,
+        "12px": 19,
+        "11px": 6,
+        "15px": 1,
+        "10px": 20,
+        "22px": 4
+      },
+      "visibleControls": 32,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#007aff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#007aff80",
+        "--t-font-color-primary": "#1d1d1f",
+        "--t-font-color-secondary": "#6e6e73",
+        "--t-font-color-tertiary": "#8e8e93",
+        "--t-font-color-light": "#aeaeb2",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f5f5f7",
+        "--t-border-color-strong": "#00000029",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 4,
+      "axe": [
+        {
+          "id": "button-name",
+          "impact": "critical",
+          "affectedNodes": 2,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_25_"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" id=\"base-ui-_r_25_\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" data-slot=\"select-trigger\" data-size=\"default\" class=\"flex items-center ju...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            },
+            {
+              "target": [
+                "#base-ui-_r_22_"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" id=\"base-ui-_r_22_\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" data-slot=\"select-trigger\" data-size=\"default\" class=\"flex items-center ju...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 4,
+          "examples": [
+            {
+              "target": [
+                "kbd"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".gap-2.items-center.flex > .bg-primary.text-primary-foreground.shadow-\\[0_0\\.5px_1px_rgb\\(0_0_0\\/0\\.18\\)\\,inset_0_0\\.5px_0_rgb\\(255_255_255\\/0\\.18\\)\\]"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.01 (foreground color: #ffffff, background color: #007aff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "outreach-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Outreach"
+        },
+        {
+          "level": "H2",
+          "text": "Outreach"
+        },
+        {
+          "level": "H3",
+          "text": "Sequences"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 23,
+        "12px": 9,
+        "11px": 4,
+        "15px": 1,
+        "10px": 1
+      },
+      "visibleControls": 27,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#007aff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#007aff80",
+        "--t-font-color-primary": "#1d1d1f",
+        "--t-font-color-secondary": "#6e6e73",
+        "--t-font-color-tertiary": "#8e8e93",
+        "--t-font-color-light": "#aeaeb2",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f5f5f7",
+        "--t-border-color-strong": "#00000029",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 2,
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "kbd"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".border-amber-400\\/20"
+              ],
+              "html": "<span class=\"inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] border-amber-400/20 bg-amber-400/5 text-amber-400\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.67 (foreground color: #ffb900, background color: #fffcf2, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "analytics-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Analytics"
+        },
+        {
+          "level": "H2",
+          "text": "Analytics Dashboard"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 25,
+        "12px": 6,
+        "11px": 19,
+        "15px": 1,
+        "10px": 24,
+        "9px": 5,
+        "22px": 6,
+        "8px": 3
+      },
+      "visibleControls": 25,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#007aff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#007aff80",
+        "--t-font-color-primary": "#1d1d1f",
+        "--t-font-color-secondary": "#6e6e73",
+        "--t-font-color-tertiary": "#8e8e93",
+        "--t-font-color-light": "#aeaeb2",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f5f5f7",
+        "--t-border-color-strong": "#00000029",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 2,
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 9,
+          "examples": [
+            {
+              "target": [
+                "kbd"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".lg\\:col-span-5 > .p-3 > .h-20.gap-1.justify-center > .text-muted-foreground\\/40.text-\\[10px\\]"
+              ],
+              "html": "<span class=\"text-[10px] text-muted-foreground/40\">No data available</span>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.72 (foreground color: #c5c5c7, background color: #ffffff, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "settings-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Settings"
+        },
+        {
+          "level": "H3",
+          "text": "LLM Providers"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 35,
+        "12px": 19,
+        "11px": 4,
+        "15px": 1,
+        "10px": 1
+      },
+      "visibleControls": 68,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#007aff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#007aff80",
+        "--t-font-color-primary": "#1d1d1f",
+        "--t-font-color-secondary": "#6e6e73",
+        "--t-font-color-tertiary": "#8e8e93",
+        "--t-font-color-light": "#aeaeb2",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f5f5f7",
+        "--t-border-color-strong": "#00000029",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 8,
+      "axe": [
+        {
+          "id": "button-name",
+          "impact": "critical",
+          "affectedNodes": 13,
+          "examples": [
+            {
+              "target": [
+                ".group\\/card.rounded-\\[var\\(--t-border-radius-lg\\)\\].bg-card:nth-child(1) > .space-y-3.group-data-\\[size\\=sm\\]\\/card\\:px-3[data-slot=\"card-content\"] > .space-y-1\\.5:nth-child(1) > .gap-1.flex > .hover\\:bg-accent.aria-expanded\\:text-foreground.hover\\:text-foreground"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            },
+            {
+              "target": [
+                ".group\\/card.rounded-\\[var\\(--t-border-radius-lg\\)\\].bg-card:nth-child(2) > .space-y-3.group-data-\\[size\\=sm\\]\\/card\\:px-3[data-slot=\"card-content\"] > .space-y-1\\.5:nth-child(1) > .gap-1.flex > .hover\\:bg-accent.aria-expanded\\:text-foreground.hover\\:text-foreground"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 8,
+          "examples": [
+            {
+              "target": [
+                "kbd"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "#base-ui-_r_2m_"
+              ],
+              "html": "<button type=\"button\" data-orientation=\"horizontal\" data-activation-dire...=\"none\" aria-disabled=\"false\" tabindex=\"-1\" role=\"tab\" aria-selected=\"false\" id=\"base-ui-_r_2m_\" data-slot=\"tabs-trigger\" class=\"relative inline-flex...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.25 (foreground color: #6e6e73, background color: #ebebeb, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "heading-order",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "h3"
+              ],
+              "html": "<h3 class=\"text-sm font-medium\">LLM Providers</h3>",
+              "failureSummary": "Fix any of the following:\n  Heading order invalid"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "sources-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Sources"
+        },
+        {
+          "level": "H2",
+          "text": "Data Sources"
+        },
+        {
+          "level": "H3",
+          "text": "Core Search Engines"
+        },
+        {
+          "level": "H3",
+          "text": "India \u2014 B2B Marketplaces"
+        },
+        {
+          "level": "H3",
+          "text": "India \u2014 Review & Rating Sites"
+        },
+        {
+          "level": "H3",
+          "text": "India \u2014 Job Portals"
+        },
+        {
+          "level": "H3",
+          "text": "India \u2014 Government & Registry"
+        },
+        {
+          "level": "H3",
+          "text": "India \u2014 Startup Ecosystem"
+        },
+        {
+          "level": "H3",
+          "text": "India \u2014 More Directories"
+        },
+        {
+          "level": "H3",
+          "text": "Global \u2014 IT/Tech Directories"
+        },
+        {
+          "level": "H3",
+          "text": "Global \u2014 Business Directories"
+        },
+        {
+          "level": "H3",
+          "text": "Global \u2014 Startup & Funding"
+        },
+        {
+          "level": "H3",
+          "text": "Global \u2014 Job Boards"
+        },
+        {
+          "level": "H3",
+          "text": "Product / SaaS Directories"
+        },
+        {
+          "level": "H3",
+          "text": "Trust & Review Platforms"
+        },
+        {
+          "level": "H3",
+          "text": "Freelance & Service Marketplaces"
+        },
+        {
+          "level": "H3",
+          "text": "Developer & Tech Communities"
+        },
+        {
+          "level": "H3",
+          "text": "News & Media Sources"
+        },
+        {
+          "level": "H3",
+          "text": "Social & Professional Networks"
+        },
+        {
+          "level": "H3",
+          "text": "E-Commerce & Marketplace Sellers"
+        },
+        {
+          "level": "H3",
+          "text": "Europe \u2014 Directories"
+        },
+        {
+          "level": "H3",
+          "text": "Generic Search Patterns"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 55,
+        "12px": 7,
+        "11px": 4,
+        "15px": 1,
+        "10px": 34,
+        "17px": 1
+      },
+      "visibleControls": 122,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#007aff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#007aff80",
+        "--t-font-color-primary": "#1d1d1f",
+        "--t-font-color-secondary": "#6e6e73",
+        "--t-font-color-tertiary": "#8e8e93",
+        "--t-font-color-light": "#aeaeb2",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f5f5f7",
+        "--t-border-color-strong": "#00000029",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 98,
+      "axe": [
+        {
+          "id": "aria-toggle-field-name",
+          "impact": "serious",
+          "affectedNodes": 96,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_1p_"
+              ],
+              "html": "<span data-checked=\"\" role=\"switch\" tabindex=\"0\" id=\"base-ui-_r_1p_\" aria-checked=\"true\" data-slot=\"switch\" data-size=\"default\" class=\"peer group/switch re...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1s_"
+              ],
+              "html": "<span data-checked=\"\" role=\"switch\" tabindex=\"0\" id=\"base-ui-_r_1s_\" aria-checked=\"true\" data-slot=\"switch\" data-size=\"default\" class=\"peer group/switch re...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 2,
+          "examples": [
+            {
+              "target": [
+                "kbd"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".py-1\\.5"
+              ],
+              "html": "<button class=\"px-3 py-1.5 rounded-md text-xs bg-primary text-primary-foreground hover:bg-primary/90 transition-colors\">Enable All</button>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.01 (foreground color: #ffffff, background color: #007aff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "automations-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Automations"
+        },
+        {
+          "level": "H1",
+          "text": "Automations"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 22,
+        "12px": 8,
+        "11px": 4,
+        "15px": 2,
+        "10px": 1
+      },
+      "visibleControls": 27,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#007aff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#007aff80",
+        "--t-font-color-primary": "#1d1d1f",
+        "--t-font-color-secondary": "#6e6e73",
+        "--t-font-color-tertiary": "#8e8e93",
+        "--t-font-color-light": "#aeaeb2",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f5f5f7",
+        "--t-border-color-strong": "#00000029",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 2,
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "kbd"
+              ],
+              "html": "<kbd data-slot=\"kbd\" class=\"pointer-events-none ...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #6e6e73, background color: #f0f0f2, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".items-start > .bg-primary.text-primary-foreground.shadow-\\[0_0\\.5px_1px_rgb\\(0_0_0\\/0\\.18\\)\\,inset_0_0\\.5px_0_rgb\\(255_255_255\\/0\\.18\\)\\]"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.01 (foreground color: #ffffff, background color: #007aff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "chat-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Chat"
+        },
+        {
+          "level": "H1",
+          "text": "Good morning. What should we go after?"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 27,
+        "12px": 6,
+        "11px": 4,
+        "15px": 2,
+        "10px": 1,
+        "32px": 1,
+        "10.5px": 3
+      },
+      "visibleControls": 42,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 2,
+      "axe": [
+        {
+          "id": "aria-allowed-role",
+          "impact": "minor",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "textarea"
+              ],
+              "html": "<textarea rows=\"1\" placeholder=\"Ask for a list, a pe...\" aria-label=\"Message OpenGTM\" role=\"combobox\" aria-expanded=\"false\" aria-autocomplete=\"list\" class=\"w-full resize-none b...\" style=\"height: 76px;\">",
+              "failureSummary": "Fix any of the following:\n  ARIA role combobox is not allowed for given element"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "companies-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Companies"
+        },
+        {
+          "level": "H1",
+          "text": "Companies"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 25,
+        "12px": 97,
+        "11px": 4,
+        "15px": 1,
+        "10px": 1,
+        "17px": 1
+      },
+      "visibleControls": 85,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 35,
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 2,
+          "examples": [
+            {
+              "target": [
+                ".bg-primary"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.64 (foreground color: #ffffff, background color: #0a84ff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".bg-primary\\/10"
+              ],
+              "html": "<a class=\"rounded px-3 py-1.5 bg-primary/10 font-semibold text-primary\" href=\"/companies\" data-discover=\"true\">Companies</a>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.09 (foreground color: #0a84ff, background color: #1c2835, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "empty-table-header",
+          "impact": "minor",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".w-10:nth-child(7)"
+              ],
+              "html": "<th class=\"w-10\"></th>",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "people-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "People"
+        },
+        {
+          "level": "H1",
+          "text": "People"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 25,
+        "12px": 27,
+        "11px": 4,
+        "15px": 1,
+        "10px": 1,
+        "17px": 1
+      },
+      "visibleControls": 43,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 7,
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 2,
+          "examples": [
+            {
+              "target": [
+                ".bg-primary"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.64 (foreground color: #ffffff, background color: #0a84ff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".bg-primary\\/10"
+              ],
+              "html": "<a class=\"rounded px-3 py-1.5 bg-primary/10 font-semibold text-primary\" href=\"/people\" data-discover=\"true\">People</a>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.09 (foreground color: #0a84ff, background color: #1c2835, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "empty-table-header",
+          "impact": "minor",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".w-10:nth-child(7)"
+              ],
+              "html": "<th class=\"w-10\"></th>",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "workbooks-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Workbooks"
+        },
+        {
+          "level": "H1",
+          "text": "Workbooks"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 34,
+        "12px": 17,
+        "11px": 4,
+        "15px": 1,
+        "10px": 1,
+        "22px": 1
+      },
+      "visibleControls": 34,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 4,
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_26_ > ._content_1kjmt_161 > ._label_1kjmt_170"
+              ],
+              "html": "<span class=\"_label_1kjmt_170\">New workbook</span>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.64 (foreground color: #ffffff, background color: #0a84ff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "workbook-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Workbooks"
+        },
+        {
+          "level": "H2",
+          "text": "Same company, independent people"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 30,
+        "12px": 10,
+        "11px": 13,
+        "15px": 1,
+        "10px": 3
+      },
+      "visibleControls": 44,
+      "grids": [
+        {
+          "name": "Workbook data grid",
+          "rowcount": null,
+          "colcount": null
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 9,
+      "axe": [
+        {
+          "id": "button-name",
+          "impact": "critical",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".p-1\\.5"
+              ],
+              "html": "<button class=\"p-1.5 rounded-md hover:bg-muted transition-colors\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "button[data-variant=\"solid\"] > ._content_1kjmt_161 > ._label_1kjmt_170"
+              ],
+              "html": "<span class=\"_label_1kjmt_170\">Review run</span>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.64 (foreground color: #ffffff, background color: #0a84ff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "nested-interactive",
+          "impact": "serious",
+          "affectedNodes": 2,
+          "examples": [
+            {
+              "target": [
+                ".group\\/th[role=\"button\"][aria-roledescription=\"sortable\"]:nth-child(3)"
+              ],
+              "html": "<th class=\"text-left font-norma...\" role=\"button\" tabindex=\"0\" aria-disabled=\"false\" aria-roledescription=\"sortable\" aria-describedby=\"DndDescribedBy-0\" data-col-id=\"score\" style=\"opacity: 1; width: 1...\">",
+              "failureSummary": "Fix any of the following:\n  Element has focusable descendants. Move them outside of the element, or remove them."
+            },
+            {
+              "target": [
+                ".group\\/th[role=\"button\"][aria-roledescription=\"sortable\"]:nth-child(4)"
+              ],
+              "html": "<th class=\"text-left font-norma...\" role=\"button\" tabindex=\"0\" aria-disabled=\"false\" aria-roledescription=\"sortable\" aria-describedby=\"DndDescribedBy-0\" data-col-id=\"tier\" style=\"opacity: 1; width: 1...\">",
+              "failureSummary": "Fix any of the following:\n  Element has focusable descendants. Move them outside of the element, or remove them."
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 4,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            },
+            {
+              "target": [
+                "button[aria-label=\"Configure Score column\"]"
+              ],
+              "html": "<button type=\"button\" data-column-settings-trigger=\"true\" aria-label=\"Configure Score column\" class=\"shrink-0 p-1 rounded hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "audiences-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Audiences"
+        },
+        {
+          "level": "H1",
+          "text": "Audiences"
+        }
+      ],
+      "mainCount": 2,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 21,
+        "12px": 8,
+        "11px": 4,
+        "15px": 1,
+        "10px": 1,
+        "22px": 1
+      },
+      "visibleControls": 25,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 2,
+      "axe": [
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "landmark-main-is-top-level",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".gap-4.p-4.h-full > main"
+              ],
+              "html": "<main class=\"min-w-0 flex-1 overflow-y-auto\">",
+              "failureSummary": "Fix any of the following:\n  The main landmark is contained in another landmark."
+            }
+          ]
+        },
+        {
+          "id": "landmark-no-duplicate-main",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".md\\:peer-data-\\[variant\\=inset\\]\\:m-2"
+              ],
+              "html": "<main data-slot=\"sidebar-inset\" class=\"relative w-full flex...\">",
+              "failureSummary": "Fix any of the following:\n  Document has more than one main landmark"
+            }
+          ]
+        },
+        {
+          "id": "landmark-unique",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".md\\:peer-data-\\[variant\\=inset\\]\\:m-2"
+              ],
+              "html": "<main data-slot=\"sidebar-inset\" class=\"relative w-full flex...\">",
+              "failureSummary": "Fix any of the following:\n  The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "signals-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Signals"
+        },
+        {
+          "level": "H2",
+          "text": "Signal Monitor"
+        },
+        {
+          "level": "H3",
+          "text": "Signal momentum"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 23,
+        "12px": 19,
+        "11px": 6,
+        "15px": 1,
+        "10px": 20,
+        "22px": 4
+      },
+      "visibleControls": 32,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 4,
+      "axe": [
+        {
+          "id": "button-name",
+          "impact": "critical",
+          "affectedNodes": 2,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_25_"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" id=\"base-ui-_r_25_\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" data-slot=\"select-trigger\" data-size=\"default\" class=\"flex items-center ju...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            },
+            {
+              "target": [
+                "#base-ui-_r_22_"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" id=\"base-ui-_r_22_\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" data-slot=\"select-trigger\" data-size=\"default\" class=\"flex items-center ju...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 8,
+          "examples": [
+            {
+              "target": [
+                ".gap-2.items-center.flex > .bg-primary.text-primary-foreground.shadow-\\[0_0\\.5px_1px_rgb\\(0_0_0\\/0\\.18\\)\\,inset_0_0\\.5px_0_rgb\\(255_255_255\\/0\\.18\\)\\]"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.64 (foreground color: #ffffff, background color: #0a84ff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "span[title=\"hiring, partnership_hiring\"]"
+              ],
+              "html": "<span data-slot=\"badge\" data-variant=\"secondary\" class=\"group/badge inline-f...\" title=\"hiring, partnership_...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.41 (foreground color: #a1a1a6, background color: #3a3a3c, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "outreach-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Outreach"
+        },
+        {
+          "level": "H2",
+          "text": "Outreach"
+        },
+        {
+          "level": "H3",
+          "text": "Sequences"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 23,
+        "12px": 9,
+        "11px": 4,
+        "15px": 1,
+        "10px": 1
+      },
+      "visibleControls": 27,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 2,
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".bg-primary"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.64 (foreground color: #ffffff, background color: #0a84ff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "analytics-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Analytics"
+        },
+        {
+          "level": "H2",
+          "text": "Analytics Dashboard"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 25,
+        "12px": 6,
+        "11px": 19,
+        "15px": 1,
+        "10px": 24,
+        "9px": 5,
+        "22px": 6,
+        "8px": 3
+      },
+      "visibleControls": 25,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 2,
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 12,
+          "examples": [
+            {
+              "target": [
+                ".lg\\:col-span-3 > .px-3.py-1\\.5.bg-muted\\/20 > .bg-secondary.\\[a\\]\\:hover\\:bg-accent.py-0"
+              ],
+              "html": "<span data-slot=\"badge\" data-variant=\"secondary\" class=\"group/badge inline-f...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.41 (foreground color: #a1a1a6, background color: #3a3a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".lg\\:col-span-5 > .px-3.py-1\\.5.bg-muted\\/20 > .bg-secondary.\\[a\\]\\:hover\\:bg-accent.py-0"
+              ],
+              "html": "<span data-slot=\"badge\" data-variant=\"secondary\" class=\"group/badge inline-f...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.41 (foreground color: #a1a1a6, background color: #3a3a3c, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "settings-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Settings"
+        },
+        {
+          "level": "H3",
+          "text": "LLM Providers"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 35,
+        "12px": 19,
+        "11px": 4,
+        "15px": 1,
+        "10px": 1
+      },
+      "visibleControls": 68,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 8,
+      "axe": [
+        {
+          "id": "button-name",
+          "impact": "critical",
+          "affectedNodes": 13,
+          "examples": [
+            {
+              "target": [
+                ".group\\/card.rounded-\\[var\\(--t-border-radius-lg\\)\\].bg-card:nth-child(1) > .space-y-3.group-data-\\[size\\=sm\\]\\/card\\:px-3[data-slot=\"card-content\"] > .space-y-1\\.5:nth-child(1) > .gap-1.flex > .hover\\:bg-accent.aria-expanded\\:text-foreground.hover\\:text-foreground"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            },
+            {
+              "target": [
+                ".group\\/card.rounded-\\[var\\(--t-border-radius-lg\\)\\].bg-card:nth-child(2) > .space-y-3.group-data-\\[size\\=sm\\]\\/card\\:px-3[data-slot=\"card-content\"] > .space-y-1\\.5:nth-child(1) > .gap-1.flex > .hover\\:bg-accent.aria-expanded\\:text-foreground.hover\\:text-foreground"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".\\[a\\]\\:hover\\:bg-primary\\/80"
+              ],
+              "html": "<span data-slot=\"badge\" data-variant=\"default\" class=\"group/badge inline-f...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.64 (foreground color: #ffffff, background color: #0a84ff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "heading-order",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "h3"
+              ],
+              "html": "<h3 class=\"text-sm font-medium\">LLM Providers</h3>",
+              "failureSummary": "Fix any of the following:\n  Heading order invalid"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "sources-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Sources"
+        },
+        {
+          "level": "H2",
+          "text": "Data Sources"
+        },
+        {
+          "level": "H3",
+          "text": "Core Search Engines"
+        },
+        {
+          "level": "H3",
+          "text": "India \u2014 B2B Marketplaces"
+        },
+        {
+          "level": "H3",
+          "text": "India \u2014 Review & Rating Sites"
+        },
+        {
+          "level": "H3",
+          "text": "India \u2014 Job Portals"
+        },
+        {
+          "level": "H3",
+          "text": "India \u2014 Government & Registry"
+        },
+        {
+          "level": "H3",
+          "text": "India \u2014 Startup Ecosystem"
+        },
+        {
+          "level": "H3",
+          "text": "India \u2014 More Directories"
+        },
+        {
+          "level": "H3",
+          "text": "Global \u2014 IT/Tech Directories"
+        },
+        {
+          "level": "H3",
+          "text": "Global \u2014 Business Directories"
+        },
+        {
+          "level": "H3",
+          "text": "Global \u2014 Startup & Funding"
+        },
+        {
+          "level": "H3",
+          "text": "Global \u2014 Job Boards"
+        },
+        {
+          "level": "H3",
+          "text": "Product / SaaS Directories"
+        },
+        {
+          "level": "H3",
+          "text": "Trust & Review Platforms"
+        },
+        {
+          "level": "H3",
+          "text": "Freelance & Service Marketplaces"
+        },
+        {
+          "level": "H3",
+          "text": "Developer & Tech Communities"
+        },
+        {
+          "level": "H3",
+          "text": "News & Media Sources"
+        },
+        {
+          "level": "H3",
+          "text": "Social & Professional Networks"
+        },
+        {
+          "level": "H3",
+          "text": "E-Commerce & Marketplace Sellers"
+        },
+        {
+          "level": "H3",
+          "text": "Europe \u2014 Directories"
+        },
+        {
+          "level": "H3",
+          "text": "Generic Search Patterns"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 55,
+        "12px": 7,
+        "11px": 4,
+        "15px": 1,
+        "10px": 34,
+        "17px": 1
+      },
+      "visibleControls": 122,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 98,
+      "axe": [
+        {
+          "id": "aria-toggle-field-name",
+          "impact": "serious",
+          "affectedNodes": 96,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_1p_"
+              ],
+              "html": "<span data-checked=\"\" role=\"switch\" tabindex=\"0\" id=\"base-ui-_r_1p_\" aria-checked=\"true\" data-slot=\"switch\" data-size=\"default\" class=\"peer group/switch re...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1s_"
+              ],
+              "html": "<span data-checked=\"\" role=\"switch\" tabindex=\"0\" id=\"base-ui-_r_1s_\" aria-checked=\"true\" data-slot=\"switch\" data-size=\"default\" class=\"peer group/switch re...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".py-1\\.5"
+              ],
+              "html": "<button class=\"px-3 py-1.5 rounded-md text-xs bg-primary text-primary-foreground hover:bg-primary/90 transition-colors\">Enable All</button>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.64 (foreground color: #ffffff, background color: #0a84ff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "automations-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Automations"
+        },
+        {
+          "level": "H1",
+          "text": "Automations"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 22,
+        "12px": 8,
+        "11px": 4,
+        "15px": 2,
+        "10px": 1
+      },
+      "visibleControls": 27,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 2,
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 2,
+          "examples": [
+            {
+              "target": [
+                ".items-start > .bg-primary.text-primary-foreground.shadow-\\[0_0\\.5px_1px_rgb\\(0_0_0\\/0\\.18\\)\\,inset_0_0\\.5px_0_rgb\\(255_255_255\\/0\\.18\\)\\]"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.64 (foreground color: #ffffff, background color: #0a84ff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".mt-1 > .bg-primary.text-primary-foreground.shadow-\\[0_0\\.5px_1px_rgb\\(0_0_0\\/0\\.18\\)\\,inset_0_0\\.5px_0_rgb\\(255_255_255\\/0\\.18\\)\\]"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.64 (foreground color: #ffffff, background color: #0a84ff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "#base-ui-_r_3_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_3_\" aria-label=\"Switch workspace\" aria-busy=\"false\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#base-ui-_r_1c_"
+              ],
+              "html": "<button type=\"button\" data-slot=\"dropdown-menu-trigge...\" data-sidebar=\"menu-button\" data-size=\"lg\" class=\"peer/menu-button gro...\" tabindex=\"0\" aria-haspopup=\"menu\" aria-expanded=\"false\" id=\"base-ui-_r_1c_\" aria-label=\"Account menu\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "#recent-chat-list"
+              ],
+              "html": "<div data-slot=\"sidebar-group-content\" data-sidebar=\"group-content\" class=\"w-full text-sm\" id=\"recent-chat-list\"><ul data-slot=\"sidebar-menu\" data-sidebar=\"menu\" class=\"flex w-full min-w-0 flex-col gap-0\"></ul><p class=\"px-2 py-2 text-xs text-sidebar-foreground/60\">No recent chats</p></div>",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".top-1\\.5"
+              ],
+              "html": "<button type=\"button\" data-slot=\"sidebar-menu-action\" data-sidebar=\"menu-action\" class=\"absolute top-1.5 rig...\" aria-label=\"New chat\" aria-expanded=\"false\" aria-controls=\"sidebar-new-chat\" title=\"New chat\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "chat-mobile",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Chat"
+        },
+        {
+          "level": "H1",
+          "text": "Good morning. What should we go after?"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 4,
+        "15px": 2,
+        "10px": 1,
+        "28px": 1
+      },
+      "visibleControls": 12,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 0,
+      "axe": [
+        {
+          "id": "aria-allowed-role",
+          "impact": "minor",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "textarea"
+              ],
+              "html": "<textarea rows=\"1\" placeholder=\"Ask for a list, a pe...\" aria-label=\"Message OpenGTM\" role=\"combobox\" aria-expanded=\"false\" aria-autocomplete=\"list\" class=\"w-full resize-none b...\" style=\"height: 76px;\">",
+              "failureSummary": "Fix any of the following:\n  ARIA role combobox is not allowed for given element"
+            }
+          ]
+        },
+        {
+          "id": "aria-prohibited-attr",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".gtm-topbar-chip"
+              ],
+              "html": "<div class=\"gtm-topbar-chip\" title=\"SSE connected\" aria-label=\"Connected\">",
+              "failureSummary": "Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "companies-mobile",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Companies"
+        },
+        {
+          "level": "H1",
+          "text": "Companies"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 5,
+        "15px": 1,
+        "10px": 1,
+        "17px": 1,
+        "12px": 28
+      },
+      "visibleControls": 34,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 21,
+      "axe": [
+        {
+          "id": "aria-prohibited-attr",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".gtm-topbar-chip"
+              ],
+              "html": "<div class=\"gtm-topbar-chip\" title=\"SSE connected\" aria-label=\"Connected\">",
+              "failureSummary": "Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute."
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 2,
+          "examples": [
+            {
+              "target": [
+                ".bg-primary"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.64 (foreground color: #ffffff, background color: #0a84ff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".bg-primary\\/10"
+              ],
+              "html": "<a class=\"rounded px-3 py-1.5 bg-primary/10 font-semibold text-primary\" href=\"/companies\" data-discover=\"true\">Companies</a>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.09 (foreground color: #0a84ff, background color: #1c2835, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "empty-table-header",
+          "impact": "minor",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".w-10:nth-child(7)"
+              ],
+              "html": "<th class=\"w-10\"></th>",
+              "failureSummary": "Fix any of the following:\n  Element does not have text that is visible to screen readers"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "workbook-mobile",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Workbooks"
+        },
+        {
+          "level": "H2",
+          "text": "Same company, independent people"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 10,
+        "15px": 1,
+        "10px": 3,
+        "11px": 9,
+        "12px": 4
+      },
+      "visibleControls": 19,
+      "grids": [
+        {
+          "name": "Workbook data grid",
+          "rowcount": null,
+          "colcount": null
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 5,
+      "axe": [
+        {
+          "id": "aria-prohibited-attr",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".gtm-topbar-chip"
+              ],
+              "html": "<div class=\"gtm-topbar-chip\" title=\"SSE connected\" aria-label=\"Connected\">",
+              "failureSummary": "Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute."
+            }
+          ]
+        },
+        {
+          "id": "button-name",
+          "impact": "critical",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".p-1\\.5"
+              ],
+              "html": "<button class=\"p-1.5 rounded-md hover:bg-muted transition-colors\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "button[data-variant=\"solid\"] > ._content_1kjmt_161 > ._label_1kjmt_170"
+              ],
+              "html": "<span class=\"_label_1kjmt_170\">Review run</span>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.64 (foreground color: #ffffff, background color: #0a84ff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "nested-interactive",
+          "impact": "serious",
+          "affectedNodes": 2,
+          "examples": [
+            {
+              "target": [
+                ".group\\/th[role=\"button\"][aria-roledescription=\"sortable\"]:nth-child(3)"
+              ],
+              "html": "<th class=\"text-left font-norma...\" role=\"button\" tabindex=\"0\" aria-disabled=\"false\" aria-roledescription=\"sortable\" aria-describedby=\"DndDescribedBy-0\" data-col-id=\"score\" style=\"opacity: 1; width: 1...\">",
+              "failureSummary": "Fix any of the following:\n  Element has focusable descendants. Move them outside of the element, or remove them."
+            },
+            {
+              "target": [
+                ".group\\/th[role=\"button\"][aria-roledescription=\"sortable\"]:nth-child(4)"
+              ],
+              "html": "<th class=\"text-left font-norma...\" role=\"button\" tabindex=\"0\" aria-disabled=\"false\" aria-roledescription=\"sortable\" aria-describedby=\"DndDescribedBy-0\" data-col-id=\"tier\" style=\"opacity: 1; width: 1...\">",
+              "failureSummary": "Fix any of the following:\n  Element has focusable descendants. Move them outside of the element, or remove them."
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "affectedNodes": 3,
+          "examples": [
+            {
+              "target": [
+                "button[aria-label=\"Configure Score column\"]"
+              ],
+              "html": "<button type=\"button\" data-column-settings-trigger=\"true\" aria-label=\"Configure Score column\" class=\"shrink-0 p-1 rounded hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            },
+            {
+              "target": [
+                ".bg-primary\\/\\[0\\.04\\]"
+              ],
+              "html": "<td data-col-id=\"_select\" data-grid-row=\"0\" data-grid-column=\"0\" tabindex=\"0\" class=\"border-b border-r last:border-r-0 h-9 p-0 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset bg-primary/[0.04]\" style=\"width: 180px; max-width: 180px;\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 11.3px by 36px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 0.8px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "settings-mobile",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Settings"
+        },
+        {
+          "level": "H3",
+          "text": "LLM Providers"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 0,
+      "visibleTextSizeCounts": {
+        "13px": 9,
+        "15px": 1,
+        "10px": 1,
+        "12px": 5
+      },
+      "visibleControls": 20,
+      "grids": [],
+      "tokens": {
+        "--gtm-accent": "#0a84ff",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "28px",
+        "--gtm-focus-ring": "#0a84ff8c",
+        "--t-font-color-primary": "#f5f5f7",
+        "--t-font-color-secondary": "#a1a1a6",
+        "--t-font-color-tertiary": "#7c7c80",
+        "--t-font-color-light": "#5b5b5f",
+        "--t-background-primary": "#1e1e1e",
+        "--t-background-secondary": "#262626",
+        "--t-border-color-strong": "#ffffff29",
+        "--t-border-radius-md": "12px",
+        "--gtm-font-sans": "-apple-system, BlinkMacSystemFont, \"Inter\", sans-serif"
+      },
+      "under24CandidateCount": 3,
+      "axe": [
+        {
+          "id": "aria-prohibited-attr",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".gtm-topbar-chip"
+              ],
+              "html": "<div class=\"gtm-topbar-chip\" title=\"SSE connected\" aria-label=\"Connected\">",
+              "failureSummary": "Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute."
+            }
+          ]
+        },
+        {
+          "id": "button-name",
+          "impact": "critical",
+          "affectedNodes": 13,
+          "examples": [
+            {
+              "target": [
+                ".group\\/card.rounded-\\[var\\(--t-border-radius-lg\\)\\].bg-card:nth-child(1) > .space-y-3.group-data-\\[size\\=sm\\]\\/card\\:px-3[data-slot=\"card-content\"] > .space-y-1\\.5:nth-child(1) > .gap-1.flex > .hover\\:bg-accent.aria-expanded\\:text-foreground.hover\\:text-foreground"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            },
+            {
+              "target": [
+                ".group\\/card.rounded-\\[var\\(--t-border-radius-lg\\)\\].bg-card:nth-child(2) > .space-y-3.group-data-\\[size\\=sm\\]\\/card\\:px-3[data-slot=\"card-content\"] > .space-y-1\\.5:nth-child(1) > .gap-1.flex > .hover\\:bg-accent.aria-expanded\\:text-foreground.hover\\:text-foreground"
+              ],
+              "html": "<button type=\"button\" tabindex=\"0\" data-slot=\"button\" class=\"group/button inline-...\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                ".\\[a\\]\\:hover\\:bg-primary\\/80"
+              ],
+              "html": "<span data-slot=\"badge\" data-variant=\"default\" class=\"group/badge inline-f...\">",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.64 (foreground color: #ffffff, background color: #0a84ff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "heading-order",
+          "impact": "moderate",
+          "affectedNodes": 1,
+          "examples": [
+            {
+              "target": [
+                "h3"
+              ],
+              "html": "<h3 class=\"text-sm font-medium\">LLM Providers</h3>",
+              "failureSummary": "Fix any of the following:\n  Heading order invalid"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

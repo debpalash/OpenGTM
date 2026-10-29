@@ -1,0 +1,138 @@
+[
+  {
+    "name": "current.light.primary_label",
+    "foreground": "#ffffff",
+    "background": "#007aff",
+    "contrast": 4.017,
+    "normalTextPass": false,
+    "nonTextPass": true
+  },
+  {
+    "name": "current.dark.primary_label",
+    "foreground": "#ffffff",
+    "background": "#0a84ff",
+    "contrast": 3.647,
+    "normalTextPass": false,
+    "nonTextPass": true
+  },
+  {
+    "name": "current.light.tertiary",
+    "foreground": "#8e8e93",
+    "background": "#ffffff",
+    "contrast": 3.261,
+    "normalTextPass": false,
+    "nonTextPass": true
+  },
+  {
+    "name": "current.dark.tertiary",
+    "foreground": "#7c7c80",
+    "background": "#1e1e1e",
+    "contrast": 4.01,
+    "normalTextPass": false,
+    "nonTextPass": true
+  },
+  {
+    "name": "current.light.faint",
+    "foreground": "#aeaeb2",
+    "background": "#ffffff",
+    "contrast": 2.211,
+    "normalTextPass": false,
+    "nonTextPass": false
+  },
+  {
+    "name": "current.dark.faint",
+    "foreground": "#5b5b5f",
+    "background": "#1e1e1e",
+    "contrast": 2.466,
+    "normalTextPass": false,
+    "nonTextPass": false
+  },
+  {
+    "name": "proposed.light.primary_label",
+    "foreground": "#ffffff",
+    "background": "#315be8",
+    "contrast": 5.538,
+    "normalTextPass": true,
+    "nonTextPass": true
+  },
+  {
+    "name": "proposed.light.body",
+    "foreground": "#15233b",
+    "background": "#ffffff",
+    "contrast": 15.725,
+    "normalTextPass": true,
+    "nonTextPass": true
+  },
+  {
+    "name": "proposed.light.secondary",
+    "foreground": "#52627a",
+    "background": "#f6f8fb",
+    "contrast": 5.828,
+    "normalTextPass": true,
+    "nonTextPass": true
+  },
+  {
+    "name": "proposed.light.control_border",
+    "foreground": "#7b879c",
+    "background": "#ffffff",
+    "contrast": 3.628,
+    "normalTextPass": false,
+    "nonTextPass": true
+  },
+  {
+    "name": "proposed.dark.primary_label",
+    "foreground": "#102044",
+    "background": "#9bb4ff",
+    "contrast": 7.9,
+    "normalTextPass": true,
+    "nonTextPass": true
+  },
+  {
+    "name": "proposed.dark.body",
+    "foreground": "#eff3fa",
+    "background": "#181f2b",
+    "contrast": 14.862,
+    "normalTextPass": true,
+    "nonTextPass": true
+  },
+  {
+    "name": "proposed.dark.secondary",
+    "foreground": "#afbdd1",
+    "background": "#181f2b",
+    "contrast": 8.681,
+    "normalTextPass": true,
+    "nonTextPass": true
+  },
+  {
+    "name": "proposed.dark.control_border",
+    "foreground": "#72829b",
+    "background": "#181f2b",
+    "contrast": 4.239,
+    "normalTextPass": false,
+    "nonTextPass": true
+  },
+  {
+    "name": "proposed.light.success",
+    "foreground": "#157347",
+    "background": "#eaf7f0",
+    "contrast": 5.332,
+    "normalTextPass": true,
+    "nonTextPass": true
+  },
+  {
+    "name": "proposed.light.warning",
+    "foreground": "#8a4b06",
+    "background": "#fff4dc",
+    "contrast": 6.222,
+    "normalTextPass": true,
+    "nonTextPass": true
+  },
+  {
+    "name": "proposed.light.danger",
+    "foreground": "#b42337",
+    "background": "#fff0f2",
+    "contrast": 5.87,
+    "normalTextPass": true,
+    "nonTextPass": true
+  }
+]
