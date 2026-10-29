@@ -1,0 +1,584 @@
+{
+  "tested_commit": "3f98524becfcfeee8fe242f20a57efaa08a1b478",
+  "date": "2026-10-29",
+  "runtime": "Go API and embedded production web build on 127.0.0.1:8002",
+  "frontend": {
+    "tests": 92,
+    "failures": 0,
+    "lint": "passed",
+    "typecheck_and_build": "passed"
+  },
+  "go": {
+    "changed_package_tests": "passed",
+    "vet": "passed",
+    "focused_race_integration_tests": 4,
+    "integration": "passed"
+  },
+  "browser": {
+    "engine": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+    "axe_version": "4.14.0",
+    "route_theme_viewport_scans": 42,
+    "journey_state_scans": 10,
+    "violations": [],
+    "javascript_errors": [],
+    "matrix": [
+      {
+        "state": "overview-light",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "chat-light",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "companies-light",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "people-light",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "workbooks-light",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "workbook-light",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "audiences-light",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "signals-light",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "outreach-light",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "analytics-light",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "settings-light",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "sources-light",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "automations-light",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "overview-dark",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "chat-dark",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "companies-dark",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "people-dark",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "workbooks-dark",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "workbook-dark",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "audiences-dark",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "signals-dark",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "outreach-dark",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "analytics-dark",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "settings-dark",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "sources-dark",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "automations-dark",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 1440,
+        "rules_failed": 0
+      },
+      {
+        "state": "companies-light-320",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 320,
+        "rules_failed": 0
+      },
+      {
+        "state": "people-light-320",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 320,
+        "rules_failed": 0
+      },
+      {
+        "state": "overview-light-320",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 320,
+        "rules_failed": 0
+      },
+      {
+        "state": "workbook-light-320",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 320,
+        "rules_failed": 0
+      },
+      {
+        "state": "companies-light-390",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 390,
+        "rules_failed": 0
+      },
+      {
+        "state": "people-light-390",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 390,
+        "rules_failed": 0
+      },
+      {
+        "state": "overview-light-390",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 390,
+        "rules_failed": 0
+      },
+      {
+        "state": "workbook-light-390",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 390,
+        "rules_failed": 0
+      },
+      {
+        "state": "companies-dark-320",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 320,
+        "rules_failed": 0
+      },
+      {
+        "state": "people-dark-320",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 320,
+        "rules_failed": 0
+      },
+      {
+        "state": "overview-dark-320",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 320,
+        "rules_failed": 0
+      },
+      {
+        "state": "workbook-dark-320",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 320,
+        "rules_failed": 0
+      },
+      {
+        "state": "companies-dark-390",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 390,
+        "rules_failed": 0
+      },
+      {
+        "state": "people-dark-390",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 390,
+        "rules_failed": 0
+      },
+      {
+        "state": "overview-dark-390",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 390,
+        "rules_failed": 0
+      },
+      {
+        "state": "workbook-dark-390",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "main_count": 1,
+        "h1_count": 1,
+        "document_width": 390,
+        "rules_failed": 0
+      }
+    ]
+  },
+  "journeys": {
+    "workspace_id": "df9630b4-b099-48a6-883b-a8558df1a3b6",
+    "import-upload-axe": [],
+    "import-review-axe": [],
+    "guided_csv_import": "pass",
+    "rapid_search_input": "pass",
+    "company-inspector-axe": [],
+    "company-provenance-axe": [],
+    "inspector_edit_and_provenance": "pass",
+    "dirty_draft_and_focus_return": "pass",
+    "partial_rejection_and_lost_response_recovery": "pass",
+    "person-employment-axe": [],
+    "large_identifier_display_and_edit_precision": "pass",
+    "workflow_configuration": "pass",
+    "enrichment-review-axe": [],
+    "workbook-identity-axe": [],
+    "reviewed_native_enrichment_and_grid_identity": "b00a6272-e71f-4229-a421-ab2280206038",
+    "csv_export_precision": "pass",
+    "backup_precision": "pass",
+    "overview-populated-axe": [],
+    "canonical_overview_counts": "pass",
+    "inspector-mobile-390-axe": [],
+    "inspector-mobile-320-axe": [],
+    "mobile_320_390_reflow": "pass",
+    "page_errors": []
+  },
+  "interaction_and_layout": {
+    "overview_stale_data_after_503": "pass",
+    "malformed_summary_and_retry": "pass",
+    "analytics_503_and_retry": "pass",
+    "record_view_only_state": "pass",
+    "grid_keyboard_roving_and_checkbox": "pass",
+    "pinned_column_widths": [
+      36,
+      50,
+      240
+    ],
+    "keyboard_column_resize": "pass",
+    "keyboard_column_reorder": "pass",
+    "import_keyboard_trap_and_escape": "pass",
+    "responsive_geometry": [
+      {
+        "width": 320,
+        "document": 320,
+        "header": 73,
+        "toolbar": 101
+      },
+      {
+        "width": 390,
+        "document": 390,
+        "header": 73,
+        "toolbar": 101
+      },
+      {
+        "width": 768,
+        "document": 768,
+        "header": 73,
+        "toolbar": 109
+      },
+      {
+        "width": 1024,
+        "document": 1024,
+        "header": 108,
+        "toolbar": 61
+      },
+      {
+        "width": 1280,
+        "document": 1280,
+        "header": 108,
+        "toolbar": 61
+      },
+      {
+        "width": 1440,
+        "document": 1440,
+        "header": 108,
+        "toolbar": 61
+      },
+      {
+        "width": 1920,
+        "document": 1920,
+        "header": 108,
+        "toolbar": 61
+      }
+    ],
+    "overview_text_zoom_200": "pass",
+    "forced_colors_rendered": "pass",
+    "reduced_motion": 0,
+    "page_errors": []
+  },
+  "remaining_release_acceptance": [
+    "VoiceOver/NVDA journeys",
+    "Safari/Firefox verification",
+    "operator pilot",
+    "production field performance and staging cutover/rollback"
+  ]
+}

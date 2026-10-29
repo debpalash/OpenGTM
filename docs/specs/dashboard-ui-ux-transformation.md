@@ -392,3 +392,11 @@ Roll out per route family behind an application flag or staged deployment. Keep 
 ## 12. Definition of done
 
 The dashboard transformation is complete when the core journeys look and behave like one system, the measured P0/P1 issues for the release scope are resolved, accessibility/manual checks are recorded, metrics remain trustworthy during failure, and design/code references are maintained together. A palette change, a new landing hero, or a passing screenshot alone does not meet that bar.
+
+## Implementation checkpoint — 2026-10-29
+
+The core workbench is implemented on `feat/dashboard-workbench`. [Repeatable checks and release scope](../testing/dashboard-workbench/README.md) describe the delivered changes and remaining acceptance. This is a core-workbench increment, not a claim that the entire UI-00–UI-14 product program or operator rollout has finished.
+
+The implemented APIs are `GET /api/records/summary`, `GET /api/records/access`, filtered/sorted record listing, detailed current field ownership, and `GET /api/record-imports/{key}` for committed receipts. An absent receipt means unknown/not completed; it is never presented as proof that a batch failed. No new database migration is needed for this UI increment.
+
+The shell preserves existing routes and `g h` for the assistant; `g d` opens Overview. Record search/filter/sort/pagination remain in the URL. The old Twenty compound surface API remains behind the application boundary; its Button/Input adapters now use the same application-owned controls as other routes. Remaining P2 route-specific workflow redesign and further extraction of the legacy workbook module are follow-up scope. Manual screen-reader/browser signoff and the operator pilot remain release requirements.
