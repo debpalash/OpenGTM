@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -19,7 +20,7 @@ type LeadwebSettings struct {
 	DDGSTimeout        time.Duration // DDGS_TIMEOUT seconds (default 10): the service-side search deadline
 
 	// keyed fallback engines, called from Go directly (keys never reach the browser service)
-	FallbackOrder []string      // SEARCH_FALLBACK_ORDER (default serpapi,bing,google_cse,brave,serpingapi,serply; "none" = no keyed engines)
+	FallbackOrder []string      // SEARCH_FALLBACK_ORDER (default serpapi,bing,google_cse,brave,serpingapi,serply,firecrawl; "none" = no keyed engines)
 	EngineTimeout time.Duration // SEARCH_ENGINE_TIMEOUT seconds (default 10)
 	SerpAPIKey    Secret        // SERPAPI_KEY
 	BingKey       Secret        // BING_SEARCH_KEY
@@ -28,6 +29,7 @@ type LeadwebSettings struct {
 	BraveKey      Secret        // BRAVE_SEARCH_KEY
 	SerpingAPIKey Secret        // SERPINGAPI_API_KEY
 	SerplyKey     Secret        // SERPLY_API_KEY
+	FirecrawlKey  Secret        // FIRECRAWL_API_KEY
 
 	// result cache and per-host backoff (process-local, as legacy)
 	CacheEnabled    bool          // SEARCH_CACHE_ENABLED (default true)
@@ -55,7 +57,7 @@ type LeadwebSettings struct {
 
 const (
 	defaultSearchBackends = "duckduckgo, google, bing, brave, mojeek, yahoo"
-	defaultFallbackOrder  = "serpapi,bing,google_cse,brave,serpingapi,serply"
+	defaultFallbackOrder  = "serpapi,bing,google_cse,brave,serpingapi,serply,firecrawl"
 )
 
 // LeadwebFrom reads the leadweb settings. Unlike the Python readers (which
@@ -134,6 +136,7 @@ func LeadwebFrom(get func(string) string) (LeadwebSettings, error) {
 		{"SERPAPI_KEY", &s.SerpAPIKey}, {"BING_SEARCH_KEY", &s.BingKey}, {"GOOGLE_CSE_ID", &s.GoogleCSEID},
 		{"GOOGLE_CSE_KEY", &s.GoogleCSEKey}, {"BRAVE_SEARCH_KEY", &s.BraveKey},
 		{"SERPINGAPI_API_KEY", &s.SerpingAPIKey}, {"SERPLY_API_KEY", &s.SerplyKey},
+		{"FIRECRAWL_API_KEY", &s.FirecrawlKey},
 	} {
 		*k.dst = Secret(strings.TrimSpace(get(k.key)))
 	}
@@ -181,7 +184,7 @@ func secondsVar(get func(string) string, key string, minV float64, dst *time.Dur
 		return nil
 	}
 	f, err := strconv.ParseFloat(v, 64)
-	if err != nil || f < minV || f > 86400 {
+	if err != nil || math.IsNaN(f) || math.IsInf(f, 0) || f < minV || f > 86400 {
 		return fmt.Errorf("config: %s=%q: want seconds in [%g, 86400]", key, v, minV)
 	}
 	*dst = time.Duration(f * float64(time.Second))

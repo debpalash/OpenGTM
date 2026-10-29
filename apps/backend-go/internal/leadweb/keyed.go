@@ -3,6 +3,7 @@ package leadweb
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -33,6 +34,8 @@ type keyedEngine struct {
 	configured func(*KeyedEngines) bool
 	request    func(e *KeyedEngines, q string, n int) (endpoint string, ps []param, hdr map[string]string)
 	parse      func(data map[string]any, n int) []Hit
+	// search handles APIs with a different wire contract from the legacy GET adapters.
+	search func(context.Context, *KeyedEngines, string, int) []Hit
 }
 
 // KeyedEngines is the fallback chain behind keyless search.
@@ -42,6 +45,10 @@ type KeyedEngines struct {
 	backoff *Backoff
 	// Endpoints overrides the API URLs (tests); keys are engine names.
 	Endpoints map[string]string
+}
+
+func (KeyedEngines) Format(state fmt.State, _ rune) {
+	_, _ = state.Write([]byte("KeyedEngines{credentials:[redacted]}"))
 }
 
 var keyedRegistry = []keyedEngine{
@@ -112,6 +119,11 @@ var keyedRegistry = []keyedEngine{
 			return pick(jlist(d, "results"), "link", "title", "description", n, true)
 		},
 	},
+	{
+		name:       "firecrawl",
+		configured: func(e *KeyedEngines) bool { return e.cfg.FirecrawlKey != "" },
+		search:     firecrawlSearch,
+	},
 }
 
 func obj(d map[string]any, k string) map[string]any {
@@ -173,6 +185,9 @@ func (e *KeyedEngines) Configured() []string {
 // the first non-empty result set, or nil.
 func (e *KeyedEngines) Search(ctx context.Context, query string, maxResults int) []Hit {
 	for _, name := range e.Configured() {
+		if ctx.Err() != nil {
+			return nil
+		}
 		if e.backoff != nil && e.backoff.Blocked(name) {
 			continue
 		}
@@ -200,6 +215,9 @@ func (e *KeyedEngines) run(ctx context.Context, name, query string, n int) []Hit
 	k := e.engine(name)
 	if k == nil || !k.configured(e) {
 		return nil
+	}
+	if k.search != nil {
+		return k.search(ctx, e, query, n)
 	}
 	endpoint, ps, hdr := k.request(e, query, n)
 	if o := e.Endpoints[name]; o != "" {

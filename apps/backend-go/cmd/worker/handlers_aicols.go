@@ -9,10 +9,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/aicol"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/playbooks"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
@@ -49,17 +47,14 @@ func aiColsDeps(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sh *wor
 	}
 	app, reg, llmCfg := sh.app, sh.reg, sh.llmCfg
 	httpc := egress.NewOperatorClient(cfg.EgressAllowHosts)
-	var web *leadweb.Web
-	var bc *browserclient.Client
-	if sc := config.ScrapeFrom(os.Getenv); sc.BrowserURL != "" {
-		// The worker's one leadweb (shared rate limits, breaker and search cache).
-		sw, err := workerLeadweb(cfg, os.Getenv)
-		if err != nil {
-			return nil, err
-		}
-		bc, web = sw.Browser, sw.Web
-	} else {
-		log.Warn("BROWSER_SERVICE_URL is not set: research columns run without web search and page fetch")
+	// API-backed search also work without the optional browser sidecar.
+	sw, err := workerLeadweb(cfg, os.Getenv)
+	if err != nil {
+		return nil, err
+	}
+	bc, web := sw.Browser, sw.Web
+	if !bc.Configured() {
+		log.Warn("BROWSER_SERVICE_URL is not set: browser rendering is unavailable; configured web API providers remain available")
 	}
 	appEnv, allow := cfg.AppEnv, cfg.EgressAllowHosts
 	return func(_ context.Context, ws string) aicol.Deps {
@@ -70,8 +65,12 @@ func aiColsDeps(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sh *wor
 			URLCheck: func(u string) error { return egress.CheckURLFor(appEnv, allow, u, true) },
 		}
 		if web != nil {
-			d.Search = aicol.WebSearch{Searcher: web.Search, Workspace: ws}
-			d.Pages = aicol.WebPages{Fetcher: web.Fetch, Extractor: bc}
+			if bc.Configured() || web.Search.KeyedConfigured() {
+				d.Search = aicol.WebSearch{Searcher: web.Search, Workspace: ws}
+			}
+			if bc.Configured() {
+				d.Pages = aicol.WebPages{Fetcher: web.Fetch, Extractor: bc}
+			}
 		}
 		return d
 	}, nil

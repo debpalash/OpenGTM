@@ -12,7 +12,7 @@ func TestLeadwebDefaults(t *testing.T) {
 		t.Fatal(err)
 	}
 	if s.SearchBackends != "duckduckgo, google, bing, brave, mojeek, yahoo" || !slices.Equal(s.SearchAttemptOrder, []string{"direct", "proxy"}) ||
-		!slices.Equal(s.FallbackOrder, []string{"serpapi", "bing", "google_cse", "brave", "serpingapi", "serply"}) ||
+		!slices.Equal(s.FallbackOrder, []string{"serpapi", "bing", "google_cse", "brave", "serpingapi", "serply", "firecrawl"}) ||
 		s.DDGSTimeout != 10*time.Second || s.EngineTimeout != 10*time.Second || !s.CacheEnabled || s.CacheTTL != 600*time.Second ||
 		s.CacheEmptyTTL != 60*time.Second || s.CacheMaxEntries != 2000 || !s.BackoffEnabled || s.BackoffBase != 15*time.Second ||
 		s.BackoffCap != 900*time.Second || s.ProxyManagerURL.Reveal() != "http://localhost:3050" || s.ProxyList != "" ||
@@ -41,6 +41,19 @@ func TestLeadwebOverrides(t *testing.T) {
 	for _, bad := range []map[string]string{{"DDGS_TIMEOUT": "x"}, {"SEARCH_CACHE_MAX_ENTRIES": "1.5"}, {"SEARCH_CACHE_ENABLED": "maybe"}, {"SEARCH_ENGINE_TIMEOUT": "-1"}} {
 		if _, err := LeadwebFrom(func(k string) string { return bad[k] }); err == nil {
 			t.Errorf("%v accepted", bad)
+		}
+	}
+}
+
+func TestSearchEngineTimeoutMustBeFiniteAndBounded(t *testing.T) {
+	for _, value := range []string{"NaN", "+Inf", "-Inf", "-1", "86401", "invalid"} {
+		if _, err := LeadwebFrom(func(k string) string {
+			if k == "SEARCH_ENGINE_TIMEOUT" {
+				return value
+			}
+			return ""
+		}); err == nil {
+			t.Errorf("invalid search engine timeout %q accepted", value)
 		}
 	}
 }
