@@ -1,0 +1,140 @@
+bun test v1.4.3 (c6da4a4d3)
+
+tests/navigation.test.ts:
+3 |
+4 | describe("shared application navigation", () => {
+5 |   test("retains every top-level product route once", () => {
+6 |     const routes = ALL_NAVIGATION.map(item => item.to)
+7 |     expect(new Set(routes).size).toBe(routes.length)
+8 |     expect([...routes].sort()).toEqual([
+                                   ^
+error: expect(received).toEqual(expected)
+
+  [
+    "/agency",
+    "/agents",
+    "/analytics",
+    "/audiences",
+    "/automations",
+    "/campaigns",
+    "/chat",
++   "/companies",
+    "/leads",
+    "/notifications",
+    "/outreach",
++   "/people",
+    "/search",
+    "/settings",
+    "/signals",
+    "/sources",
+    "/templates",
+    "/watches",
+    "/workbooks",
+  ]
+
+- Expected  - 0
++ Received  + 2
+
+      at <anonymous> (/Users/user4/Desktop/github/OpenGTM-entities/apps/web/tests/navigation.test.ts:8:32)
+(fail) shared application navigation > retains every top-level product route once [4.45ms]
+(pass) shared application navigation > groups routes without renaming backend concepts [0.08ms]
+(pass) shared application navigation > matches route boundaries rather than similarly prefixed paths [0.02ms]
+
+tests/markdown-content.test.ts:
+(pass) markdown image policy > external images become a placeholder with alt text and no request [8.33ms]
+(pass) markdown image policy > protocol-relative and tracking-pixel forms are blocked [1.43ms]
+(pass) markdown image policy > data images and same-origin paths render [1.24ms]
+(pass) markdown image policy > non-image data urls are blocked [0.02ms]
+(pass) markdown links and html > links open in a new tab with noopener noreferrer nofollow [1.21ms]
+(pass) markdown links and html > raw html is not rendered [1.07ms]
+(pass) markdown links and html > javascript: links are not emitted [0.42ms]
+
+tests/workbook-client.test.ts:
+(pass) column deletion requires exact confirmation and validates removal receipt [0.38ms]
+(pass) column settings send only changed/expected fields and validate the receipt [0.27ms]
+(pass) run estimate distinguishes missing, incomplete and invalid price coverage [0.39ms]
+(pass) budget balances reject malformed exposure but allow over-cap headroom [0.16ms]
+(pass) budget save rejects invalid amounts and mismatched receipts [0.12ms]
+(pass) column order sends only identities and requires an exact receipt [0.17ms]
+(pass) saved views reject malformed or mismatched success responses [0.24ms]
+(pass) width persistence requires an exact server receipt [0.07ms]
+(pass) run review contracts > does not claim stop success on HTTP errors [0.04ms]
+(pass) run review contracts > network failures warn of an unknown run outcome [0.08ms]
+(pass) run review contracts > does not reinterpret an estimate failure as a free run [0.02ms]
+(pass) run review contracts > rejects malformed and inverted estimates [0.05ms]
+(pass) run review contracts > forwards the exact view/search to the estimate [0.07ms]
+(pass) run review contracts > preserves actionable structured billing errors [0.02ms]
+(pass) run review contracts > rejects missing run receipts without claiming success [0.02ms]
+(pass) run review contracts > sends the reviewed count and query without implicit force or selected IDs [0.04ms]
+(pass) workbook list and creation contracts > rejects an invalid list rather than rendering it as empty [0.04ms]
+(pass) workbook list and creation contracts > rejects malformed rows [0.43ms]
+(pass) workbook list and creation contracts > accepts an empty list [0.02ms]
+(pass) workbook list and creation contracts > does not navigate to an undefined created workbook [0.04ms]
+(pass) workbook list and creation contracts > template creation rejects HTTP errors and preserves the reason [0.08ms]
+(pass) workbook list and creation contracts > template creation requires a real ID [0.02ms]
+(pass) workbook list and creation contracts > encodes a template ID and sends one POST [0.05ms]
+(pass) workbook list and creation contracts > template list validates its response [0.07ms]
+
+tests/workbook-selection.test.ts:
+(pass) workbook selection identity > keeps exact IDs independent of display order and current page [0.08ms]
+(pass) workbook selection identity > empty selection has no targets
+(pass) workbook selection identity > rejects an entire mixed selection instead of silently dropping or globally deleting leads [0.01ms]
+(pass) workbook selection identity > rejects invalid identity row:NaN [0.01ms]
+(pass) workbook selection identity > rejects invalid identity row:-1
+(pass) workbook selection identity > rejects invalid identity row:1.2
+(pass) workbook selection identity > rejects invalid identity row:9007199254740992
+(pass) workbook selection identity > rejects invalid identity 0
+(pass) workbook selection identity > rejects invalid identity lead:null
+
+tests/workbook-progress.test.ts:
+(pass) loaded progress includes all execution types and separates skipped from failed [0.06ms]
+
+tests/api.lead-create.test.ts:
+(pass) lead creation refuses the API collision response with its actionable message [0.13ms]
+(pass) a successful lead creation still returns the created identifier [0.05ms]
+
+tests/workbook-columns.test.ts:
+(pass) workbook column identities > does not turn executable or unknown types into editable inputs [0.05ms]
+(pass) workbook column identities > retains legacy keys and defaults only absent types [0.01ms]
+
+tests/workbook-column-window.test.ts:
+(pass) wide windows preserve total width and absolute indexes with retained focus [0.17ms]
+(pass) resized and hidden-column projections keep exact viewport boundaries [0.04ms]
+
+tests/workbook-clipboard.test.ts:
+(pass) spreadsheet clipboard cells > round trips notes containing record separators and quotes [0.11ms]
+(pass) spreadsheet clipboard cells > reads Excel TSV with quoted multiline cells and trailing record separator [0.03ms]
+(pass) spreadsheet clipboard cells > keeps ordinary paste, blank columns and interior blank rows [0.02ms]
+(pass) spreadsheet clipboard cells > refuses malformed quoted cells before any mutations [0.02ms]
+
+tests/theme.test.ts:
+(pass) shared theme boot store > preserves default dark for %s [0.44ms]
+(pass) shared theme boot store > preserves default dark for invalid [0.14ms]
+(pass) shared theme boot store > preserves default dark for dark [0.10ms]
+(pass) shared theme boot store > honors legacy light preference before React mounts [0.10ms]
+(pass) shared theme boot store > follows system changes only in system mode [0.13ms]
+(pass) shared theme boot store > persists, notifies, and unsubscribes [0.13ms]
+(pass) shared theme boot store > updates across tabs and handles cleared preferences [0.11ms]
+(pass) shared theme boot store > storage denial does not prevent theme selection [0.16ms]
+
+tests/research-evidence.test.ts:
+(pass) only explicit web citations without credentials become links [0.06ms]
+
+tests/workbook-runs.test.ts:
+(pass) output receipt counts reject malformed and inconsistent summaries [0.27ms]
+(pass) queue completion is not represented as verified data [0.04ms]
+(pass) history API errors are not empty histories [0.04ms]
+(pass) invalid pagination and receipt identities are rejected [0.08ms]
+(pass) history cursor and workbook ID are encoded [0.04ms]
+
+tests/api.jobs.test.ts:
+(pass) fetchJobs > rejects an API error payload instead of returning it as a job list [0.10ms]
+(pass) fetchJobs > rejects a successful response whose payload is not an array [0.03ms]
+
+1 tests failed:
+(fail) shared application navigation > retains every top-level product route once [4.45ms]
+
+ 69 pass
+ 1 fail
+ 176 expect() calls
+Ran 70 tests across 13 files. [174.00ms]

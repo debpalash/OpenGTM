@@ -52,6 +52,6 @@ The settled import-dialog keyboard test kept focus inside for 18 samples, closed
 | Workbook | [Desktop](evidence/workbook-dark.png), [390px](evidence/workbook-mobile.png) |
 | Home and analytics | [Chat entry](evidence/chat-light.png), [analytics](evidence/analytics-light.png), [analytics with 503s](evidence/analytics-503-light.png) |
 | Secondary surfaces | [Settings](evidence/settings-light.png), [sources](evidence/sources-dark.png), [import dialog](evidence/import-dialog-dark.png) |
-| Machine evidence | [Scan matrix](evidence/baseline.json), [axe summary](evidence/axe-summary.json), [token inventory](evidence/token-inventory.json), [contrast calculations](evidence/contrast.json), [state checks](evidence/state-results.json), [focus confirmation](evidence/focus-confirmation.json), [test output](evidence/frontend-tests.log) |
+| Machine evidence | [Scan matrix](evidence/baseline.json), [axe summary](evidence/axe-summary.json), [token inventory](evidence/token-inventory.json), [contrast calculations](evidence/contrast.json), [state checks](evidence/state-results.json), [focus confirmation](evidence/focus-confirmation.json), [test output](evidence/frontend-test-results.txt) |
 
 The inventory is a source-text scan, including comments/string literals where matched. Contrast calculations use flat sRGB foreground/background pairs; actual layered, hover, focus, and disabled combinations still require component-state tests. The proposed control-border colors are non-text colors and should not be used for normal text.

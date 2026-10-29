@@ -1,8 +1,11 @@
 # OpenGTM dashboard transformation work spec
 
-**Status:** implementation-ready proposal; audit complete; application redesign not yet implemented.  
-**Baseline:** `4375bbdc`, Go-backed local dashboard on port 8002, audited 29 October 2026.  
-**Audience:** GTM operators and growth teams importing account lists, discovering people, enriching records, and activating qualified audiences.  
+**Status:** implementation-ready proposal; audit complete; application redesign not yet implemented.
+
+**Baseline:** `4375bbdc`, Go-backed local dashboard on port 8002, audited 29 October 2026.
+
+**Audience:** GTM operators and growth teams importing account lists, discovering people, enriching records, and activating qualified audiences.
+
 **Primary job:** move a trustworthy company/person dataset from import to reviewed activation with clear progress, ownership, and cost.
 
 The [evidence-backed audit](../audits/dashboard-ui-ux-2026-10-29/README.md) is the source of current-state findings. This spec defines the target experience and the work required to reach it. “Premium” means coherent, readable, fast, accessible, and dependable at the moment an operator makes a decision. Revenue or valuation is not a design acceptance criterion.
