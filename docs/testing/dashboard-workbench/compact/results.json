@@ -1,0 +1,6169 @@
+{
+  "source_revision": "a56cc92766dc33bd6db7695d495bb9a300923e92",
+  "date": "2026-10-29",
+  "serving": "Go API with embedded production UI at http://127.0.0.1:8002",
+  "viewport_comparison": {
+    "width": 1440,
+    "height": 1000,
+    "baseline": {
+      "rowHeight": 45,
+      "fullyVisibleRows": 15,
+      "topbar": 56,
+      "header": 108,
+      "toolbar": 61,
+      "sidebar": 240,
+      "documentWidth": 1440
+    },
+    "current": {
+      "chromium": {
+        "rowHeight": 34,
+        "fullyVisibleRows": 22,
+        "topbar": 44,
+        "header": 64,
+        "toolbar": 45,
+        "sidebar": 208,
+        "documentWidth": 1440
+      },
+      "webkit": {
+        "rowHeight": 34,
+        "fullyVisibleRows": 22,
+        "topbar": 44,
+        "header": 64,
+        "toolbar": 45,
+        "sidebar": 208,
+        "documentWidth": 1440
+      }
+    },
+    "more_complete_rows_percent": 46.7
+  },
+  "code_checks": {
+    "frontend_tests": 98,
+    "failures": 0,
+    "lint": "pass",
+    "typecheck_and_production_build": "pass",
+    "embedded_go_api_build": "pass",
+    "clean_frozen_install_with_dependency_patch": "pass"
+  },
+  "axe": {
+    "total_scans": 82,
+    "violations": 0,
+    "chromium_route_matrix": 42,
+    "chromium_journey": 10,
+    "chromium_density": 10,
+    "webkit_density": 10,
+    "chromium_gallery": 5,
+    "chromium_canonical_audiences": 5
+  },
+  "route_matrix": [
+    {
+      "label": "overview-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Workspace overview"
+        },
+        {
+          "level": "H2",
+          "text": "Add your next company list."
+        },
+        {
+          "level": "H2",
+          "text": "Recent workbooks"
+        },
+        {
+          "level": "H2",
+          "text": "Needs attention"
+        },
+        {
+          "level": "H2",
+          "text": "Workspace tools"
+        },
+        {
+          "level": "H2",
+          "text": "Recently brought into your workspace"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 7,
+        "12px": 22,
+        "13px": 37,
+        "18px": 2,
+        "24px": 4
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "chat-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Good morning. What should we go after?"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 3,
+        "12px": 8,
+        "13px": 26,
+        "32px": 1,
+        "15px": 1,
+        "10.5px": 3
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "DIV",
+          "role": null,
+          "class": "gtm-chat-sky pointer-events-none absolute inset-0 overflow-hidden",
+          "width": 1232,
+          "scrollWidth": 1355,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Companies"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 6,
+        "12px": 65,
+        "13px": 142,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select all records on this page",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 0",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 1",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 10",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 100",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 101",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 102",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 103",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 104",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 105",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 106",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 107",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 108",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 109",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 11",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 110",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 111",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 112",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 113",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 114",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 115",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 116",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 117",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 118",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 119",
+          "width": 16,
+          "height": 16
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 100,
+      "axe_violations": []
+    },
+    {
+      "label": "people-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "People"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 6,
+        "12px": 21,
+        "13px": 32,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select all records on this page",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Rich contact",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Benchmark Company 0",
+          "width": 220,
+          "height": 14
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Sparse contact",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Benchmark Company 0",
+          "width": 220,
+          "height": 14
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 2,
+      "axe_violations": []
+    },
+    {
+      "label": "workbooks-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Workbooks"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 4,
+        "12px": 19,
+        "13px": 31,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "A",
+          "name": "Same company, independent people",
+          "width": 360,
+          "height": 19.5
+        },
+        {
+          "tag": "A",
+          "name": "1000 shared companies \u00b7 qualification",
+          "width": 360,
+          "height": 19.5
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 2,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Same company, independent people"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 10,
+        "12px": 25,
+        "13px": 22,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Activity",
+          "width": 73,
+          "height": 14.7
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 3,
+      "axe_violations": []
+    },
+    {
+      "label": "audiences-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Audiences"
+        },
+        {
+          "level": "H2",
+          "text": "Choose an audience"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 7,
+        "12px": 9,
+        "13px": 21,
+        "18px": 2
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "signals-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Signal Monitor"
+        },
+        {
+          "level": "H2",
+          "text": "Signal momentum"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 5,
+        "12px": 27,
+        "13px": 20,
+        "24px": 4,
+        "10px": 15
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "outreach-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Outreach"
+        },
+        {
+          "level": "H2",
+          "text": "Sequences"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 5,
+        "12px": 11,
+        "13px": 20
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "analytics-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Analytics"
+        },
+        {
+          "level": "H2",
+          "text": "Pipeline stages"
+        },
+        {
+          "level": "H2",
+          "text": "Score tiers"
+        },
+        {
+          "level": "H2",
+          "text": "Leads collected by day"
+        },
+        {
+          "level": "H2",
+          "text": "Score distribution"
+        },
+        {
+          "level": "H2",
+          "text": "Jobs and leads by day"
+        },
+        {
+          "level": "H2",
+          "text": "LLM usage by day"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 12,
+        "12px": 55,
+        "13px": 29,
+        "18px": 1,
+        "24px": 6
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "settings-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Settings"
+        },
+        {
+          "level": "H2",
+          "text": "LLM Providers"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 18,
+        "12px": 21,
+        "13px": 20,
+        "24px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "A",
+          "name": "Docs",
+          "width": 43,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Docs",
+          "width": 43,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Docs",
+          "width": 43,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Docs",
+          "width": 43,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Docs",
+          "width": 43,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Docs",
+          "width": 43,
+          "height": 16
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "sources-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Data sources"
+        },
+        {
+          "level": "H2",
+          "text": "Core Search Engines"
+        },
+        {
+          "level": "H2",
+          "text": "India \u2014 B2B Marketplaces"
+        },
+        {
+          "level": "H2",
+          "text": "India \u2014 Review & Rating Sites"
+        },
+        {
+          "level": "H2",
+          "text": "India \u2014 Job Portals"
+        },
+        {
+          "level": "H2",
+          "text": "India \u2014 Government & Registry"
+        },
+        {
+          "level": "H2",
+          "text": "India \u2014 Startup Ecosystem"
+        },
+        {
+          "level": "H2",
+          "text": "India \u2014 More Directories"
+        },
+        {
+          "level": "H2",
+          "text": "Global \u2014 IT/Tech Directories"
+        },
+        {
+          "level": "H2",
+          "text": "Global \u2014 Business Directories"
+        },
+        {
+          "level": "H2",
+          "text": "Global \u2014 Startup & Funding"
+        },
+        {
+          "level": "H2",
+          "text": "Global \u2014 Job Boards"
+        },
+        {
+          "level": "H2",
+          "text": "Product / SaaS Directories"
+        },
+        {
+          "level": "H2",
+          "text": "Trust & Review Platforms"
+        },
+        {
+          "level": "H2",
+          "text": "Freelance & Service Marketplaces"
+        },
+        {
+          "level": "H2",
+          "text": "Developer & Tech Communities"
+        },
+        {
+          "level": "H2",
+          "text": "News & Media Sources"
+        },
+        {
+          "level": "H2",
+          "text": "Social & Professional Networks"
+        },
+        {
+          "level": "H2",
+          "text": "E-Commerce & Marketplace Sellers"
+        },
+        {
+          "level": "H2",
+          "text": "Europe \u2014 Directories"
+        },
+        {
+          "level": "H2",
+          "text": "Generic Search Patterns"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 34,
+        "12px": 39,
+        "13px": 21,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "DIV",
+          "role": null,
+          "class": "text-xs text-muted-foreground truncate",
+          "width": 289,
+          "scrollWidth": 400,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "DIV",
+          "role": null,
+          "class": "text-xs text-muted-foreground truncate",
+          "width": 289,
+          "scrollWidth": 308,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "DIV",
+          "role": null,
+          "class": "text-xs text-muted-foreground truncate",
+          "width": 289,
+          "scrollWidth": 303,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "automations-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Automations"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 4,
+        "12px": 10,
+        "13px": 20,
+        "16px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Workspace overview"
+        },
+        {
+          "level": "H2",
+          "text": "Add your next company list."
+        },
+        {
+          "level": "H2",
+          "text": "Recent workbooks"
+        },
+        {
+          "level": "H2",
+          "text": "Needs attention"
+        },
+        {
+          "level": "H2",
+          "text": "Workspace tools"
+        },
+        {
+          "level": "H2",
+          "text": "Recently brought into your workspace"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 7,
+        "12px": 22,
+        "13px": 37,
+        "18px": 2,
+        "24px": 4
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "chat-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Good morning. What should we go after?"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 3,
+        "12px": 8,
+        "13px": 26,
+        "32px": 1,
+        "15px": 1,
+        "10.5px": 3
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "DIV",
+          "role": null,
+          "class": "gtm-chat-sky pointer-events-none absolute inset-0 overflow-hidden",
+          "width": 1232,
+          "scrollWidth": 1355,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Companies"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 6,
+        "12px": 65,
+        "13px": 142,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select all records on this page",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 0",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 1",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 10",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 100",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 101",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 102",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 103",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 104",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 105",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 106",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 107",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 108",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 109",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 11",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 110",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 111",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 112",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 113",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 114",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 115",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 116",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 117",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 118",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 119",
+          "width": 16,
+          "height": 16
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 100,
+      "axe_violations": []
+    },
+    {
+      "label": "people-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "People"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 6,
+        "12px": 21,
+        "13px": 32,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select all records on this page",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Rich contact",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Benchmark Company 0",
+          "width": 220,
+          "height": 14
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Sparse contact",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Benchmark Company 0",
+          "width": 220,
+          "height": 14
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 2,
+      "axe_violations": []
+    },
+    {
+      "label": "workbooks-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Workbooks"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 4,
+        "12px": 19,
+        "13px": 31,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "A",
+          "name": "Same company, independent people",
+          "width": 360,
+          "height": 19.5
+        },
+        {
+          "tag": "A",
+          "name": "1000 shared companies \u00b7 qualification",
+          "width": 360,
+          "height": 19.5
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 2,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Same company, independent people"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 10,
+        "12px": 25,
+        "13px": 22,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Activity",
+          "width": 73,
+          "height": 14.7
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 3,
+      "axe_violations": []
+    },
+    {
+      "label": "audiences-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Audiences"
+        },
+        {
+          "level": "H2",
+          "text": "Choose an audience"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 7,
+        "12px": 9,
+        "13px": 21,
+        "18px": 2
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "signals-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Signal Monitor"
+        },
+        {
+          "level": "H2",
+          "text": "Signal momentum"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 5,
+        "12px": 27,
+        "13px": 20,
+        "24px": 4,
+        "10px": 15
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "outreach-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Outreach"
+        },
+        {
+          "level": "H2",
+          "text": "Sequences"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 5,
+        "12px": 11,
+        "13px": 20
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "analytics-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Analytics"
+        },
+        {
+          "level": "H2",
+          "text": "Pipeline stages"
+        },
+        {
+          "level": "H2",
+          "text": "Score tiers"
+        },
+        {
+          "level": "H2",
+          "text": "Leads collected by day"
+        },
+        {
+          "level": "H2",
+          "text": "Score distribution"
+        },
+        {
+          "level": "H2",
+          "text": "Jobs and leads by day"
+        },
+        {
+          "level": "H2",
+          "text": "LLM usage by day"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 12,
+        "12px": 55,
+        "13px": 29,
+        "18px": 1,
+        "24px": 6
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "settings-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Settings"
+        },
+        {
+          "level": "H2",
+          "text": "LLM Providers"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 18,
+        "12px": 21,
+        "13px": 20,
+        "24px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "A",
+          "name": "Docs",
+          "width": 43,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Docs",
+          "width": 43,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Docs",
+          "width": 43,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Docs",
+          "width": 43,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Docs",
+          "width": 43,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Docs",
+          "width": 43,
+          "height": 16
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "sources-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Data sources"
+        },
+        {
+          "level": "H2",
+          "text": "Core Search Engines"
+        },
+        {
+          "level": "H2",
+          "text": "India \u2014 B2B Marketplaces"
+        },
+        {
+          "level": "H2",
+          "text": "India \u2014 Review & Rating Sites"
+        },
+        {
+          "level": "H2",
+          "text": "India \u2014 Job Portals"
+        },
+        {
+          "level": "H2",
+          "text": "India \u2014 Government & Registry"
+        },
+        {
+          "level": "H2",
+          "text": "India \u2014 Startup Ecosystem"
+        },
+        {
+          "level": "H2",
+          "text": "India \u2014 More Directories"
+        },
+        {
+          "level": "H2",
+          "text": "Global \u2014 IT/Tech Directories"
+        },
+        {
+          "level": "H2",
+          "text": "Global \u2014 Business Directories"
+        },
+        {
+          "level": "H2",
+          "text": "Global \u2014 Startup & Funding"
+        },
+        {
+          "level": "H2",
+          "text": "Global \u2014 Job Boards"
+        },
+        {
+          "level": "H2",
+          "text": "Product / SaaS Directories"
+        },
+        {
+          "level": "H2",
+          "text": "Trust & Review Platforms"
+        },
+        {
+          "level": "H2",
+          "text": "Freelance & Service Marketplaces"
+        },
+        {
+          "level": "H2",
+          "text": "Developer & Tech Communities"
+        },
+        {
+          "level": "H2",
+          "text": "News & Media Sources"
+        },
+        {
+          "level": "H2",
+          "text": "Social & Professional Networks"
+        },
+        {
+          "level": "H2",
+          "text": "E-Commerce & Marketplace Sellers"
+        },
+        {
+          "level": "H2",
+          "text": "Europe \u2014 Directories"
+        },
+        {
+          "level": "H2",
+          "text": "Generic Search Patterns"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 34,
+        "12px": 39,
+        "13px": 21,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        },
+        {
+          "tag": "INPUT",
+          "name": "",
+          "width": 1,
+          "height": 1
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "DIV",
+          "role": null,
+          "class": "text-xs text-muted-foreground truncate",
+          "width": 289,
+          "scrollWidth": 400,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "DIV",
+          "role": null,
+          "class": "text-xs text-muted-foreground truncate",
+          "width": 289,
+          "scrollWidth": 308,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "DIV",
+          "role": null,
+          "class": "text-xs text-muted-foreground truncate",
+          "width": 289,
+          "scrollWidth": 303,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "automations-dark",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "documentWidth": 1440,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Automations"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 4,
+        "12px": 10,
+        "13px": 20,
+        "16px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Toggle Sidebar",
+          "width": 16,
+          "height": 1000
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "truncate text-xs text-muted-foreground",
+          "width": 107,
+          "scrollWidth": 222,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-light-320",
+      "theme": "light",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "documentWidth": 320,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Companies"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 4,
+        "13px": 39,
+        "12px": 23,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "INPUT",
+          "name": "Select all records on this page",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 0",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 1",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 10",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 100",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 101",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 102",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 103",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 104",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 105",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 106",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 107",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 108",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 109",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 11",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 110",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 111",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 112",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 113",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 114",
+          "width": 16,
+          "height": 16
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "DIV",
+          "role": "region",
+          "class": "records-table-scroll",
+          "width": 320,
+          "scrollWidth": 726,
+          "overflowX": "auto"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 146,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 146,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 154,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 154,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 100,
+      "axe_violations": []
+    },
+    {
+      "label": "people-light-320",
+      "theme": "light",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "documentWidth": 320,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "People"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 4,
+        "13px": 5,
+        "12px": 6,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "INPUT",
+          "name": "Select all records on this page",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Rich contact",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Benchmark Company 0",
+          "width": 144.1,
+          "height": 14
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Sparse contact",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Benchmark Company 0",
+          "width": 144.1,
+          "height": 14
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "DIV",
+          "role": "region",
+          "class": "records-table-scroll",
+          "width": 320,
+          "scrollWidth": 851,
+          "overflowX": "auto"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 2,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-light-320",
+      "theme": "light",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "documentWidth": 320,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Workspace overview"
+        },
+        {
+          "level": "H2",
+          "text": "Add your next company list."
+        },
+        {
+          "level": "H2",
+          "text": "Recent workbooks"
+        },
+        {
+          "level": "H2",
+          "text": "Needs attention"
+        },
+        {
+          "level": "H2",
+          "text": "Workspace tools"
+        },
+        {
+          "level": "H2",
+          "text": "Recently brought into your workspace"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 2,
+        "13px": 8,
+        "12px": 7,
+        "18px": 2,
+        "24px": 4
+      },
+      "under24Candidates": [],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 201,
+          "scrollWidth": 233,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "STRONG",
+          "role": null,
+          "class": "",
+          "width": 131,
+          "scrollWidth": 227,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-light-320",
+      "theme": "light",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "documentWidth": 320,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Same company, independent people"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 5,
+        "13px": 3,
+        "12px": 17,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Activity",
+          "width": 73,
+          "height": 14.7
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "H1",
+          "role": null,
+          "class": "text-lg font-semibold truncate",
+          "width": 252,
+          "scrollWidth": 298,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "DIV",
+          "role": null,
+          "class": "flex-1 overflow-auto",
+          "width": 320,
+          "scrollWidth": 646,
+          "overflowX": "auto"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 3,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-light-390",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Companies"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 4,
+        "13px": 58,
+        "12px": 24,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "INPUT",
+          "name": "Select all records on this page",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 0",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 1",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 10",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 100",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 101",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 102",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 103",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 104",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 105",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 106",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 107",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 108",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 109",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 11",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 110",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 111",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 112",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 113",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 114",
+          "width": 16,
+          "height": 16
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "DIV",
+          "role": "region",
+          "class": "records-table-scroll",
+          "width": 390,
+          "scrollWidth": 726,
+          "overflowX": "auto"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 146,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 146,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 154,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 154,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 100,
+      "axe_violations": []
+    },
+    {
+      "label": "people-light-390",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "People"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 4,
+        "13px": 5,
+        "12px": 6,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "INPUT",
+          "name": "Select all records on this page",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Rich contact",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Benchmark Company 0",
+          "width": 144.1,
+          "height": 14
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Sparse contact",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Benchmark Company 0",
+          "width": 144.1,
+          "height": 14
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "DIV",
+          "role": "region",
+          "class": "records-table-scroll",
+          "width": 390,
+          "scrollWidth": 851,
+          "overflowX": "auto"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 2,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-light-390",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Workspace overview"
+        },
+        {
+          "level": "H2",
+          "text": "Add your next company list."
+        },
+        {
+          "level": "H2",
+          "text": "Recent workbooks"
+        },
+        {
+          "level": "H2",
+          "text": "Needs attention"
+        },
+        {
+          "level": "H2",
+          "text": "Workspace tools"
+        },
+        {
+          "level": "H2",
+          "text": "Recently brought into your workspace"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 3,
+        "13px": 9,
+        "12px": 8,
+        "18px": 2,
+        "24px": 4
+      },
+      "under24Candidates": [],
+      "horizontalRegions": [
+        {
+          "tag": "STRONG",
+          "role": null,
+          "class": "",
+          "width": 201,
+          "scrollWidth": 227,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "STRONG",
+          "role": null,
+          "class": "",
+          "width": 201,
+          "scrollWidth": 236,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-light-390",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Same company, independent people"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 5,
+        "13px": 3,
+        "12px": 17,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Activity",
+          "width": 73,
+          "height": 14.7
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "H1",
+          "role": null,
+          "class": "text-lg font-semibold truncate",
+          "width": 204,
+          "scrollWidth": 298,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "DIV",
+          "role": null,
+          "class": "flex-1 overflow-auto",
+          "width": 390,
+          "scrollWidth": 646,
+          "overflowX": "auto"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#315be8",
+        "--gtm-accent-foreground": "#fff",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#315be8",
+        "--t-font-color-primary": "#15233b",
+        "--t-font-color-secondary": "#52627a",
+        "--t-font-color-tertiary": "#52627a",
+        "--t-font-color-light": "#52627a",
+        "--t-background-primary": "#fff",
+        "--t-background-secondary": "#f6f8fb",
+        "--t-border-color-strong": "#7b879c",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 3,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-dark-320",
+      "theme": "dark",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "documentWidth": 320,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Companies"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 4,
+        "13px": 39,
+        "12px": 23,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "INPUT",
+          "name": "Select all records on this page",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 0",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 1",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 10",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 100",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 101",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 102",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 103",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 104",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 105",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 106",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 107",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 108",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 109",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 11",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 110",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 111",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 112",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 113",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 114",
+          "width": 16,
+          "height": 16
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "DIV",
+          "role": "region",
+          "class": "records-table-scroll",
+          "width": 320,
+          "scrollWidth": 726,
+          "overflowX": "auto"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 146,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 146,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 154,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 154,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 100,
+      "axe_violations": []
+    },
+    {
+      "label": "people-dark-320",
+      "theme": "dark",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "documentWidth": 320,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "People"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 4,
+        "13px": 5,
+        "12px": 6,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "INPUT",
+          "name": "Select all records on this page",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Rich contact",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Benchmark Company 0",
+          "width": 144.1,
+          "height": 14
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Sparse contact",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Benchmark Company 0",
+          "width": 144.1,
+          "height": 14
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "DIV",
+          "role": "region",
+          "class": "records-table-scroll",
+          "width": 320,
+          "scrollWidth": 851,
+          "overflowX": "auto"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 2,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-dark-320",
+      "theme": "dark",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "documentWidth": 320,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Workspace overview"
+        },
+        {
+          "level": "H2",
+          "text": "Add your next company list."
+        },
+        {
+          "level": "H2",
+          "text": "Recent workbooks"
+        },
+        {
+          "level": "H2",
+          "text": "Needs attention"
+        },
+        {
+          "level": "H2",
+          "text": "Workspace tools"
+        },
+        {
+          "level": "H2",
+          "text": "Recently brought into your workspace"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 2,
+        "13px": 8,
+        "12px": 7,
+        "18px": 2,
+        "24px": 4
+      },
+      "under24Candidates": [],
+      "horizontalRegions": [
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 201,
+          "scrollWidth": 233,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "STRONG",
+          "role": null,
+          "class": "",
+          "width": 131,
+          "scrollWidth": 227,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-dark-320",
+      "theme": "dark",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "documentWidth": 320,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Same company, independent people"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 5,
+        "13px": 3,
+        "12px": 17,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Activity",
+          "width": 73,
+          "height": 14.7
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "H1",
+          "role": null,
+          "class": "text-lg font-semibold truncate",
+          "width": 252,
+          "scrollWidth": 298,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "DIV",
+          "role": null,
+          "class": "flex-1 overflow-auto",
+          "width": 320,
+          "scrollWidth": 646,
+          "overflowX": "auto"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 3,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-dark-390",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Companies"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 4,
+        "13px": 58,
+        "12px": 24,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "INPUT",
+          "name": "Select all records on this page",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 0",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 1",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 10",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 100",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 101",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 102",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 103",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 104",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 105",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 106",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 107",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 108",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 109",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 11",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 110",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 111",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 112",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 113",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Benchmark Company 114",
+          "width": 16,
+          "height": 16
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "DIV",
+          "role": "region",
+          "class": "records-table-scroll",
+          "width": 390,
+          "scrollWidth": 726,
+          "overflowX": "auto"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 146,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 146,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 154,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 154,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "class": "",
+          "width": 122,
+          "scrollWidth": 163,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 100,
+      "axe_violations": []
+    },
+    {
+      "label": "people-dark-390",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "People"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 4,
+        "13px": 5,
+        "12px": 6,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "INPUT",
+          "name": "Select all records on this page",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Rich contact",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Benchmark Company 0",
+          "width": 144.1,
+          "height": 14
+        },
+        {
+          "tag": "INPUT",
+          "name": "Select Sparse contact",
+          "width": 16,
+          "height": 16
+        },
+        {
+          "tag": "A",
+          "name": "Benchmark Company 0",
+          "width": 144.1,
+          "height": 14
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "DIV",
+          "role": "region",
+          "class": "records-table-scroll",
+          "width": 390,
+          "scrollWidth": 851,
+          "overflowX": "auto"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 2,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-dark-390",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Workspace overview"
+        },
+        {
+          "level": "H2",
+          "text": "Add your next company list."
+        },
+        {
+          "level": "H2",
+          "text": "Recent workbooks"
+        },
+        {
+          "level": "H2",
+          "text": "Needs attention"
+        },
+        {
+          "level": "H2",
+          "text": "Workspace tools"
+        },
+        {
+          "level": "H2",
+          "text": "Recently brought into your workspace"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 3,
+        "13px": 9,
+        "12px": 8,
+        "18px": 2,
+        "24px": 4
+      },
+      "under24Candidates": [],
+      "horizontalRegions": [
+        {
+          "tag": "STRONG",
+          "role": null,
+          "class": "",
+          "width": 201,
+          "scrollWidth": 227,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "STRONG",
+          "role": null,
+          "class": "",
+          "width": 201,
+          "scrollWidth": 236,
+          "overflowX": "hidden"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 0,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-dark-390",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "headings": [
+        {
+          "level": "H1",
+          "text": "Same company, independent people"
+        }
+      ],
+      "mainCount": 1,
+      "skipLinkCount": 1,
+      "visibleTextSizeCounts": {
+        "14px": 5,
+        "13px": 3,
+        "12px": 17,
+        "18px": 1
+      },
+      "under24Candidates": [
+        {
+          "tag": "BUTTON",
+          "name": "Activity",
+          "width": 73,
+          "height": 14.7
+        }
+      ],
+      "horizontalRegions": [
+        {
+          "tag": "H1",
+          "role": null,
+          "class": "text-lg font-semibold truncate",
+          "width": 204,
+          "scrollWidth": 298,
+          "overflowX": "hidden"
+        },
+        {
+          "tag": "DIV",
+          "role": null,
+          "class": "flex-1 overflow-auto",
+          "width": 390,
+          "scrollWidth": 646,
+          "overflowX": "auto"
+        }
+      ],
+      "tokens": {
+        "--gtm-accent": "#9bb4ff",
+        "--gtm-accent-foreground": "#102044",
+        "--gtm-control-md": "32px",
+        "--gtm-focus-ring": "#afc3ff",
+        "--t-font-color-primary": "#eff3fa",
+        "--t-font-color-secondary": "#afbdd1",
+        "--t-font-color-tertiary": "#afbdd1",
+        "--t-font-color-light": "#afbdd1",
+        "--t-background-primary": "#181f2b",
+        "--t-background-secondary": "#11151c",
+        "--t-border-color-strong": "#72829b",
+        "--t-border-radius-md": "8px",
+        "--gtm-font-sans": "\"Inter\", \"Segoe UI\", sans-serif"
+      },
+      "tableRows": 3,
+      "axe_violations": []
+    }
+  ],
+  "journey": {
+    "workspace_id": "654e1239-b918-4bfe-a66e-c7c23b08113e",
+    "import-upload-axe": [],
+    "import-review-axe": [],
+    "guided_csv_import": "pass",
+    "rapid_search_input": "pass",
+    "company-inspector-axe": [],
+    "company-provenance-axe": [],
+    "inspector_edit_and_provenance": "pass",
+    "dirty_draft_and_focus_return": "pass",
+    "partial_rejection_and_lost_response_recovery": "pass",
+    "person-employment-axe": [],
+    "large_identifier_display_and_edit_precision": "pass",
+    "workflow_configuration": "pass",
+    "enrichment-review-axe": [],
+    "workbook-identity-axe": [],
+    "reviewed_native_enrichment_and_grid_identity": "ecac6082-dab6-4265-bd2b-b228b0efd954",
+    "csv_export_precision": "pass",
+    "backup_precision": "pass",
+    "overview-populated-axe": [],
+    "canonical_overview_counts": "pass",
+    "inspector-mobile-390-axe": [],
+    "inspector-mobile-320-axe": [],
+    "mobile_320_390_reflow": "pass",
+    "page_errors": []
+  },
+  "state_probes": {
+    "overview_stale_data_after_503": "pass",
+    "malformed_summary_and_retry": "pass",
+    "analytics_503_and_retry": "pass",
+    "record_view_only_state": "pass",
+    "grid_keyboard_roving_and_checkbox": "pass",
+    "pinned_column_widths": [
+      36,
+      50,
+      240
+    ],
+    "keyboard_column_resize": "pass",
+    "keyboard_column_reorder": "pass",
+    "import_keyboard_trap_and_escape": "pass",
+    "responsive_geometry": [
+      {
+        "width": 320,
+        "document": 320,
+        "header": 56,
+        "toolbar": 85
+      },
+      {
+        "width": 390,
+        "document": 390,
+        "header": 56,
+        "toolbar": 85
+      },
+      {
+        "width": 768,
+        "document": 768,
+        "header": 56,
+        "toolbar": 85
+      },
+      {
+        "width": 1024,
+        "document": 1024,
+        "header": 64,
+        "toolbar": 45
+      },
+      {
+        "width": 1280,
+        "document": 1280,
+        "header": 64,
+        "toolbar": 45
+      },
+      {
+        "width": 1440,
+        "document": 1440,
+        "header": 64,
+        "toolbar": 45
+      },
+      {
+        "width": 1920,
+        "document": 1920,
+        "header": 64,
+        "toolbar": 45
+      }
+    ],
+    "overview_text_zoom_200": "pass",
+    "forced_colors_rendered": "pass",
+    "reduced_motion": 0,
+    "page_errors": []
+  },
+  "density": {
+    "chromium": {
+      "engine": "chromium",
+      "measurements": {
+        "compact": {
+          "rowHeight": 34,
+          "fullyVisibleRows": 22,
+          "topbar": 44,
+          "header": 64,
+          "toolbar": 45,
+          "sidebar": 208,
+          "documentWidth": 1440
+        }
+      },
+      "checks": [
+        {
+          "name": "compact",
+          "violations": []
+        },
+        {
+          "name": "light-menu-default",
+          "violations": []
+        },
+        {
+          "name": "light-menu-comfortable",
+          "violations": []
+        },
+        {
+          "name": "light-menu-compact",
+          "violations": []
+        },
+        {
+          "name": "dark-menu-default",
+          "violations": []
+        },
+        {
+          "name": "dark-menu-comfortable",
+          "violations": []
+        },
+        {
+          "name": "dark-menu-compact",
+          "violations": []
+        },
+        {
+          "name": "touch-320",
+          "violations": []
+        },
+        {
+          "name": "touch-390",
+          "violations": []
+        },
+        {
+          "name": "touch-768",
+          "violations": []
+        }
+      ],
+      "page_errors": []
+    },
+    "webkit": {
+      "engine": "webkit",
+      "measurements": {
+        "compact": {
+          "rowHeight": 34,
+          "fullyVisibleRows": 22,
+          "topbar": 44,
+          "header": 64,
+          "toolbar": 45,
+          "sidebar": 208,
+          "documentWidth": 1440
+        }
+      },
+      "checks": [
+        {
+          "name": "compact",
+          "violations": []
+        },
+        {
+          "name": "light-menu-default",
+          "violations": []
+        },
+        {
+          "name": "light-menu-comfortable",
+          "violations": []
+        },
+        {
+          "name": "light-menu-compact",
+          "violations": []
+        },
+        {
+          "name": "dark-menu-default",
+          "violations": []
+        },
+        {
+          "name": "dark-menu-comfortable",
+          "violations": []
+        },
+        {
+          "name": "dark-menu-compact",
+          "violations": []
+        },
+        {
+          "name": "touch-320",
+          "violations": []
+        },
+        {
+          "name": "touch-390",
+          "violations": []
+        },
+        {
+          "name": "touch-768",
+          "violations": []
+        }
+      ],
+      "page_errors": []
+    }
+  },
+  "gallery": {
+    "checks": [
+      {
+        "name": "light",
+        "violations": []
+      },
+      {
+        "name": "light-invalid-dialog",
+        "violations": []
+      },
+      {
+        "name": "dark",
+        "violations": []
+      },
+      {
+        "name": "dark-invalid-dialog",
+        "violations": []
+      },
+      {
+        "name": "dark-320",
+        "violations": []
+      }
+    ],
+    "page_errors": []
+  },
+  "canonical_audiences": {
+    "workspace_id": "138d2fe7-136a-4abc-8518-2ace7fc33691",
+    "company_audience": "7becd08d-b8a1-4d5d-bb43-f23cd214b94e",
+    "people_audience": "bbed4d6e-fa97-44b7-8f03-27bdd2902613",
+    "company_id": "091b22cb-b27d-4c5b-b78c-e752cf3f4e91",
+    "person_id": "fb11aef0-4926-4455-98b0-c7c64f5d4ff8",
+    "canonical_identity_and_shareable_inspectors": "pass",
+    "refresh_receipt": {
+      "status": "pass",
+      "counts": {
+        "audience": {
+          "id": "bbed4d6e-fa97-44b7-8f03-27bdd2902613",
+          "name": "People ready for review",
+          "description": "",
+          "filters": {
+            "_record_type": "person",
+            "record_ids": [
+              "fb11aef0-4926-4455-98b0-c7c64f5d4ff8",
+              "2fb8fe58-0d11-4279-ab36-0eb465130453"
+            ]
+          },
+          "member_count": 2,
+          "created_at": "2026-10-29T05:37:09.009970",
+          "updated_at": "2026-10-29T05:37:16.135964",
+          "refreshed_at": "2026-10-29T05:37:16.135926",
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60,
+          "next_refresh_at": null,
+          "refresh_health": "healthy",
+          "last_refresh_error": null,
+          "consecutive_refresh_failures": 0
+        },
+        "entered": 0,
+        "exited": 0,
+        "unchanged": 0,
+        "changed": 2
+      }
+    },
+    "members_error_and_retry": "pass",
+    "scans": [
+      {
+        "state": "company",
+        "violations": []
+      },
+      {
+        "state": "person",
+        "violations": []
+      },
+      {
+        "state": "people-320",
+        "violations": []
+      },
+      {
+        "state": "people-390",
+        "violations": []
+      },
+      {
+        "state": "people-768",
+        "violations": []
+      }
+    ],
+    "page_errors": []
+  },
+  "served_index_sha256": "b35a9aa659305728a1a49be8f211a908b19f47e87630b41c1950b8de0c05dc4f",
+  "production_asset_sha256": {
+    ".vite/manifest.json": "6319f5a56b6d9459cfc00ae7144cb4e60d96c3a482c54797bb21e07214b9f8d5",
+    "assets/AreaChart-XpH0APuP.js": "f0e2778cc8dc711ed37df639d3c08f45dc1ec6c48a3f6d1dfde3e5ff19ca2ebd",
+    "assets/BarChart-B-MSg_DE.js": "b641075751e092d7e4dfba5de88a40c81f447b60234bf1a215f147a6ddfe3e7e",
+    "assets/PieChart-CNxD258S.js": "f0f982b823f2c51785300043b1c875556957fba6ffec3971ea5d9d6422ef412f",
+    "assets/agents-CY2nlRTP.js": "7a9c2d87fb3bbf07ef8a685b4dea669afd4b7bb4dafa1499c854a8a21f423b48",
+    "assets/analytics-0ipA66RQ.js": "a272ed6dffd754a77c0146f85026d2a116f23b28d825ee4456e09632fdb46e92",
+    "assets/app-D4Qy_Ko_.js": "ab089b6c7bb7a9ca15a85959ba2f361f045fe9a09c458f77dce970b7f617650e",
+    "assets/app-DNeJe654.css": "8c37ddb03c183d1ed6a0b05cf53f16a920297465849f06fd8bf566e33f191462",
+    "assets/audiences-bEYrCvIv.js": "482b00c309c3c2907d4d2e438726edfb60a8e0a225866aee7cd1d67975539e54",
+    "assets/audiences-h9I9NJAd.css": "0d4f7257a567f11001b44877679ad853efcb0c9a1841fdd2bcf475d087536e7e",
+    "assets/auth-CTwP6CC0.js": "9e50f283b69a19632782e29ec0597eab0d655c3a1a893df4eddf2b474a8e8fd9",
+    "assets/automations-DeD4Cjk9.js": "2ed003713c6a31dea674019c9167a19b157d5f3b6b1e10d3495b0216705caed4",
+    "assets/badge-CGkJooF1.js": "2ced3e271f57a929d26c069ded7dd7c273b29ea62c14f88c9404fbc5585ada23",
+    "assets/campaigns-BqDLU6I9.js": "e893b1cb5b5aeb8e2597259e086fa28c1fd12a28434521cc9fa304f76347e3d3",
+    "assets/card-B8v51rqg.js": "f3c3eca6d92ea59a4ade1fa34bcf629ca7e31a001f7f67da2e09903bf719023c",
+    "assets/chat-Bfc0Z677.css": "50407b87b5a5bf702f1e1e7d01c4b87b24dfdda3177149ca3d9ee95122ef34c8",
+    "assets/chat-Ck3bMdTu.js": "fe3ffda9daeb086696acd3e8e8575a29d558b00274c373dbdeb2c468e44af06e",
+    "assets/checkbox-Bqj7QCcC.js": "aa9e9a464898e8cbb2205a139d100bc820c29ae437d113066bd92558f6d52645",
+    "assets/command-menu-content-CE3Av3kn.js": "1a3987462df3c60c358dca95f2de3bd15aa19d90ed41d2c57bc61cf2bfe7746d",
+    "assets/dialog-CHkfq4zF.js": "92f96add2d11dde98408397406e8fc8bd5fa7b064f2e0b7d6f98f91977c96eb0",
+    "assets/editable-cell-XRI4ndaA.js": "f2f29c64915084b49fdd93f03ea5777766f4b34966d7ed366c7cac403ec1a18c",
+    "assets/feature-disabled-DFkdcqQu.js": "2512f3f61b5c9ef52b3ae52c8ac1fa0b49d70bd10411f2e7e342508b88d445ca",
+    "assets/gate-AH_l1SCD.js": "c084154072fe5695aa1e42f0e285b25356d3b7f697816e047d930115777c2e56",
+    "assets/inter-latin-400-normal-C38fXH4l.woff2": "8909904ab6c872eb994093482a88a28eca2cd95912d7b6fecd72103b0dc07edc",
+    "assets/inter-latin-400-normal-CyCys3Eg.woff": "e20fa0b4fd2dd26e4d14b3ac3cc922509c3a63fa5e910e90c614544aa042dd45",
+    "assets/inter-latin-500-normal-BL9OpVg8.woff": "9b42c108da48b5ed55a3072e815ffee2d271562e6c0dd6998910e8f9c09e0a3d",
+    "assets/inter-latin-500-normal-Cerq10X2.woff2": "f3779f1efccc4bdcdf9c0a02ab95bf6bd092ed09c48c08cedc725889edd1d19f",
+    "assets/inter-latin-600-normal-CiBQ2DWP.woff": "6a9cb3a509b4eeaf12b7dda6c4aacac3e85d07f4201bf4dd716e332e692b87bd",
+    "assets/inter-latin-600-normal-LgqL8muc.woff2": "f9a06e79cd3a2a20951c0f0e28f66dd0e6d3fda73911d640a2125c8fcb78f21a",
+    "assets/label-NvydMinQ.js": "499623b607bd13559a87b03cad115c1880e06c11b6a92319518987b9dc213539",
+    "assets/lead-detail-NyLXpwlo.js": "f94a615c14a1a10a9ccc1262324086db7044bb1eee2b80a24daf36585d83d560",
+    "assets/lead-detail-vh-t_kPv.css": "86d3d093fad979e1d185c8a93258f5f124d863fd13ca894c0b9f50bb68b66997",
+    "assets/leads-CDm3sp_6.js": "47b4b15d344f87cb1bb0ad134ecd1fdbfb75cb0e5822912fcb4b1cbae445bdbd",
+    "assets/manrope-latin-600-normal-4f0koTD-.woff2": "f7ac6258da20ab7541939b59851155753d1d24f1b30cbcb949077a3faa3d1593",
+    "assets/manrope-latin-600-normal-BqgrALkZ.woff": "8d1f509774bca963fa02faf674678ce9244474306361ca2798583fa600346df6",
+    "assets/markdown-content-DUTZePJ6.js": "4f7565a0aea4442f6748ee967fe5a6a5fd0353528624bb9226489ed44f3498a6",
+    "assets/native-select-BKw2x7IP.js": "4062c9738e8cc5e36a3b90932c93154e5082c58eba0528360c324c649862d777",
+    "assets/notifications-DzmZZmf_.js": "1726f5541e6585086cf24a6f326419eeca13bca837da211f590fe0bf265084b4",
+    "assets/outreach-CpQZ5_Xq.js": "26b61ff6e8ae3dfac1c1b3eb4f86fcd6e49bd9261fbcaba8de51e946c6a475af",
+    "assets/overview-CSqDCOaf.css": "fb3432e2ed4532f4b1809770d5daac47b7e73abc32e30df06ffa99b91b47705a",
+    "assets/overview-zlOZ3Nia.js": "bea0e983232db2ea0ef4f5b3a71122232265c03dc0c421310ce4f28f21dc32d0",
+    "assets/papaparse.min-CHENVd_W.js": "0dcaa223a85327f6faf3b9f264af1df336b19d5b10afe9d89f90f9c6723764dc",
+    "assets/primitives-CCxpJD_d.css": "f0552acfbc579fcdec6d8ca8a4eda45de0f63d1aadf8e8a11a4633565f7d89fb",
+    "assets/primitives-D0QFRl53.js": "452af4e3a1e5140e8a240909fb48cdbac543f459b62b38f6a14b9792077ee8b2",
+    "assets/query-client-CrpVWlWf.js": "fa4c90c6adc3f497ea80d47431e174dc96653bd90d7c9877a9823e4fa7a23a7f",
+    "assets/record-overview-BSiNH4wO.js": "0fa18bf7108fad2c0082aa09e3abb9a7c25c3cd98f86c455dbd9026b520346d3",
+    "assets/records-CLDjz_-Q.css": "16b2cb5ce4b51e89c23d46270559c00471e445caa99f98e8eb5173b8be823124",
+    "assets/records-Ckwcc_aX.js": "e69eb4bffdc29acd620ee94d0fa7287b0381ba922e95a39f0d70f1ccfc7e227e",
+    "assets/records-DpMR2SKi.js": "ec2299989f5ef34f78272ae6f2666d294f846d0d22dff34f5a89732673d7c120",
+    "assets/rolldown-runtime-XKyaHtl9.js": "548d1dbf321e7d2ae804fcc158b588706a7c52f8ca175de1490c6ccb4dbe55b7",
+    "assets/scene-motion-Bi7wPNvE.js": "5f7e94e59775d93c3325a9baf2f9c90b98be2881fa537e2de4f365f280578a2a",
+    "assets/scroll-area-3WJVrirl.js": "c33a1215ac57a2536f6955fd1fe0db36596ebd086a884ced720cd48c6a8c73df",
+    "assets/search-DJ94bz82.js": "e2c22877466ecfa15bf1201b59106583b11b8c00d58c3618fdb3d118f01a05b5",
+    "assets/select-CRQV1-Ns.js": "32ea96db2ed0c9be072373672495496a6a874e18a72abe052aec995bcd6316ec",
+    "assets/semantic-icons-CjJNpkQ-.js": "5f49ece55b3a84e24f10a9703cff4f5bce31edb31c6752e9436bd61942c34b77",
+    "assets/settings-BM89x6Gw.js": "469c0058290f161a23fbfd7b6bba8b294a7c8d8206d1d39aed5c6e98ec295e1a",
+    "assets/sheet-CTrupNCM.js": "463465fa0718bb70b1e4eb0acba9fee2598b61340ca6e16e96e22d38b2098ddd",
+    "assets/signals-DH4ypzhQ.js": "669e9ccb287ad4d5490c0994e92049c9c0130c7105fb6dfba04d18bc85bb3b02",
+    "assets/source-engine-panel-BvUuIAWs.js": "e7dc762f994bc6da8234bc89b15b9853dc5cab566212adb06448602e62ca4601",
+    "assets/sources-OT73qNJT.js": "d95b10196e00e7252b3ee76d5fcddd48cb1a5214905b1f877c1f4099488b1822",
+    "assets/src-3uWpwOmm.js": "dd5083a602322fb01cd92ad32223b23794d047ea2128873f4e40b8a817fb7db3",
+    "assets/src-DZ3qcpEY.css": "22f686a483567d009883d43ccb46f2dfd05ab506ad146d1ed2956d0c78bcd3ff",
+    "assets/status-dot-CDkL2bv1.js": "6d93ceb2295d2f21ac864e3b4ef307f5f2d2180466f98e38b0030367f0a347f0",
+    "assets/surfaces-CJtMfSRY-Bbw9gjhK.js": "e5a29e1c66be1f8e7301e600bd0de29bd88b53f4bd5aedc3fb3ec0a42ce9b8aa",
+    "assets/switch-DDu7RUKW.js": "5809f3ec62b5523c2ce5ee945a6ce24712d505cdda570cb35200f3e1c37607a0",
+    "assets/table-C5UQ6fwO.js": "b8f36a1dda7ad5baaef64e2ecdd98b8d07e8d043341a4f154a666bccb8a0518f",
+    "assets/tabs-CCsSkTVC.js": "3c297dae0dd15cac16e83cd11e672b6068d3eeb883eb8f0d95c3dd2d4a5743c5",
+    "assets/task-detail-DuCaIn8z.js": "f647aeb7a029579b8b252c389e98f3e50cbe8b5d66490ac3933030e3cf1819b3",
+    "assets/task-detail-card-CBQofcJj.js": "9ad479e6b9ca8b252834259b2ba4806148a6339a098f70c31d919607bf51c5e3",
+    "assets/templates-Dq28UlIp.js": "b4077b9f5132e2397ce5db0e5af83664ecf2f1273fe0d1178698d6b2205db441",
+    "assets/textarea-2PSr4rMJ.js": "b3b812440d76286edf6b96de0e1aa54828deb567e4017e4d87f23cdef4a6fd4c",
+    "assets/tooltip-DwjEx3xw.js": "10e8e922b9ec475de9d27c468d38da300dae7e68f39e95301ad4423ae55143be",
+    "assets/ui-preview-C1sTnO6N.css": "036ca60bf8ade9d0fd9d6f906e6c15faec954750b5df04badb722693aff859c5",
+    "assets/ui-preview-D5NblXMt.js": "1cb1e4fb191e0b8c267df7c070ef6eb6d18d70671d53a783ad2e9276a25afaa2",
+    "assets/utils-xCRtrKPW.js": "64dae385f4cdae381e375802bff7ddadd7570d65a25074d05a3b3fc8a3b3da46",
+    "assets/vendor-data-DHwHGRy5.js": "754d90f8e3ab02878db6a8f72c1ed7ac782f4e431e77a1127bcb3f82f3122a12",
+    "assets/vendor-react-Bt71-tLz.js": "3fd17a0582e044c45b542f3afd51858e734231f39adb3594c91bcd631c87bb94",
+    "assets/vendor-ui-DP3Pq_qM.js": "977e4173ab4f472ddd94b62202b6323f837e78ac294f0182d4962dca46737a6f",
+    "assets/watches-udhzBfiR.js": "3eff46126f9af75f31588bddae1ee4527abe7186b3afcdedfc57e56f8d470e3e",
+    "assets/workbench-Iceb6OLb.js": "68edd16320f9cb7773614f5fdfc4a106be61c3549ca556f746517f8c58527a4e",
+    "assets/workbook-editor-55AhMS3z.js": "98fffd6c89ad8fe16257b95bb2ee3b32b9125ec4cf831692cc32fba127bc032c",
+    "assets/workbook-editor-D1-3Rvf-.css": "382bff990992d72f9769da705a680ca9897011ae11437a4880423817c30ac742",
+    "assets/workbook-hooks-CRwr4Sno.js": "76517d998619d84b00fab81166d41b44ee50f5fe390103e1890837a39ba61d67",
+    "assets/workbooks-BP2XrrzQ.js": "89f5d01c2adaafa1872128a5fabfc0cd0e48d9332d1fbb29dd4613122753d51b",
+    "assets/workbooks-CEkeCq65.css": "bccdcff7174b6364f2bb6d01a2d1f6ed6c59cc20077e75a243b1e07154a97013",
+    "assets/workspaces-manager-uyxmvsKr.js": "2f579af9df308d1c24be15b274a1ae4502b5f009848bfbd5ed1fdd03d463e6f5",
+    "favicon.svg": "558c4e001c5b00854dcbd70c370c3d45c59bcf4a5fe43ec956827fd845aef7ef",
+    "icons.svg": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+    "index.html": "b35a9aa659305728a1a49be8f211a908b19f47e87630b41c1950b8de0c05dc4f",
+    "logo.svg": "c07e96dfa6d41068555277fc8f6d01f9535f0493c583e7090357f83679ad1fb2",
+    "opengtm-lockup.svg": "3300d1c2c22ba4b33cd37a490ede2b4f4554e55eab920989b4101ec0c2942185",
+    "opengtm-mark-v2.svg": "6019293fc2051d3fd9af5d063298c87384bf3aadfc1c631881eae432f89a6fb0",
+    "opengtm-mark-v3.svg": "69c3661ace6236653d81a92af4ff38e8d55580367f561ebf785d4effc0e8e141",
+    "opengtm-mark-v4.svg": "79b677a82421a386f693ce5f5005da9503b84b54fca417a743a29c06e98162e8",
+    "opengtm-mark-v5.svg": "54d476204d84d502e70fe7b6f5584d3b4d5ffd6ee9eda34b44c50f426d486a9e",
+    "opengtm-mark-v6.svg": "283df5eb76dbf7e96dbb7c7cf0d1e4473da961ed665362c96bcc035b2d22fa94",
+    "opengtm-mark-v7.svg": "1325218d81567342640a1bed9583193eeabda370d008968a02a0fe0f186f420e",
+    "opengtm-mark-v8.svg": "becffec1496f84862c59a6f60f7abd82f8372249a16b9564600e3e89460ed18b",
+    "opengtm-mark.png": "8ccd131dba68d75cd9a59678415196be85d8f6857df2ae3092729a01c1157ac0",
+    "theme.js": "4f557e0f50bb4b18a711ed2cc2eee5e716b271ae3d2e75bfa1b94f9994ed5351",
+    "ui-preview.html": "04dc40b333716f40807f45834b73b4699bdfb653757c3c4b276aaef9112f740a"
+  },
+  "manual_or_external_gates": "See ../completion-audit.md; no full transformation completion or screen-reader/production certification is claimed."
+}
