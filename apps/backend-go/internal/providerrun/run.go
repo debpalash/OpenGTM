@@ -9,6 +9,8 @@ package providerrun
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -438,6 +440,9 @@ func leadStr(lead map[string]any, k string) string {
 }
 
 func (r *Runner) mode(ctx context.Context, provider string, in providers.Input) (cacheMode, string, bool) {
+	if provider == "lead_scorer" {
+		return cacheNone, "", false
+	}
 	if r.d.Pool == nil || in.Operation != "" || in.Field == "" {
 		return cacheNone, "", false
 	}
@@ -451,6 +456,17 @@ func (r *Runner) mode(ctx context.Context, provider string, in providers.Input) 
 			return cacheEmail, email, true
 		}
 		return cacheNone, "", false
+	}
+	if leadStr(in.Lead, "person_id") != "" || leadStr(in.Lead, "company_id") != "" || leadStr(in.Lead, "contact_person") != "" {
+		raw, e := json.Marshal(struct {
+			Provider, Field string
+			Lead, Settings  map[string]any
+		}{provider, in.Field, in.Lead, in.Settings})
+		if e != nil {
+			return cacheNone, "", false
+		}
+		digest := sha256.Sum256(raw)
+		return cacheField, "record:" + hex.EncodeToString(digest[:]), true
 	}
 	key, ok := enrichcache.CanonicalKey(in.Field, enrichcache.Lead{
 		Website: leadStr(in.Lead, "website"), Company: leadStr(in.Lead, "company"),

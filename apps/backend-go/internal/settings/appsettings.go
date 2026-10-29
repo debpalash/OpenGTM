@@ -12,6 +12,11 @@ type AppWriter interface {
 	SetAppSetting(ctx context.Context, key, value string) error
 }
 
+// AppBatchWriter must commit all values together or leave all values unchanged.
+type AppBatchWriter interface {
+	SetAppSettings(ctx context.Context, values map[string]string) error
+}
+
 // App is the global settings store (routers/settings.py _db_get/_db_set).
 type App struct {
 	Store  secrets.Store
@@ -51,13 +56,38 @@ func (a *App) Set(ctx context.Context, key, value string) error {
 	if !ok {
 		return errors.New("settings: store is read-only")
 	}
-	stored := value
-	if value != "" && a.Secret != nil && a.Secret(key) {
-		ct, err := a.Env.Encrypt(ctx, value)
+	stored, err := a.encode(ctx, key, value)
+	if err != nil {
+		return err
+	}
+	return w.SetAppSetting(ctx, key, stored)
+}
+
+// SetMany encrypts every secret before starting an atomic store write. A store
+// without atomic writes is refused; falling back to individual writes would
+// leave a provider half-configured on failure.
+func (a *App) SetMany(ctx context.Context, values map[string]string) error {
+	if len(values) == 0 {
+		return nil
+	}
+	w, ok := a.Store.(AppBatchWriter)
+	if !ok {
+		return errors.New("settings: store does not support atomic writes")
+	}
+	encoded := make(map[string]string, len(values))
+	for key, value := range values {
+		stored, err := a.encode(ctx, key, value)
 		if err != nil {
 			return err
 		}
-		stored = ct
+		encoded[key] = stored
 	}
-	return w.SetAppSetting(ctx, key, stored)
+	return w.SetAppSettings(ctx, encoded)
+}
+
+func (a *App) encode(ctx context.Context, key, value string) (string, error) {
+	if value != "" && a.Secret != nil && a.Secret(key) {
+		return a.Env.Encrypt(ctx, value)
+	}
+	return value, nil
 }

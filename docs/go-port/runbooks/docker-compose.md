@@ -21,6 +21,15 @@ Plan 15 removed the Python services. The stack builds from a clean checkout: not
 The Go Dockerfile pins `golang:1.27.3` (matches `toolchain` in `apps/backend-go/go.mod`), builds with
 `CGO_ENABLED=0 -trimpath`, and runs as `nonroot` on `gcr.io/distroless/static-debian12`.
 
+## Release image names
+
+Published Go images use explicit service names: `ghcr.io/debpalash/opengtm-api`,
+`opengtm-worker`, `opengtm-mcp`, `opengtm-migrate`, `opengtm-scheduler` and `opengtm-browser`.
+Use a pinned release tag for cutover and retain the previous image digest for rollback.
+The plain `ghcr.io/debpalash/opengtm` legacy alias is not retagged by this release workflow.
+Existing deployments using that alias opt into Go by switching to the explicit `-api` image;
+merging the port does not silently change what the legacy alias resolves to.
+
 ## Required secrets
 
 `SECRET_KEY` (>= 32 bytes), `INTERNAL_SERVICE_TOKEN` (>= 32 chars) and `BROWSER_SERVICE_TOKEN` (>= 32 chars) in

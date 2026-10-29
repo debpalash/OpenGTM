@@ -98,9 +98,10 @@ func (q *Queries) DestGet(ctx context.Context, arg DestGetParams) (AudienceDesti
 
 const destInsert = `-- name: DestInsert :one
 
-INSERT INTO audience_destinations (id, workspace_id, audience_id, name, destination_type, enabled, config, field_map)
+INSERT INTO audience_destinations (id, workspace_id, audience_id, name, destination_type, enabled, config, field_map, created_at, updated_at)
 VALUES ($1::text, $2::text, $3::text, $4::text,
-        $5::text, $6::boolean, $7::json, $8::json)
+        $5::text, $6::boolean, $7::json, $8::json,
+        (now() AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'))
 RETURNING id, workspace_id, audience_id, name, destination_type, enabled, config, field_map, health_status, last_error, last_success_at, created_at, updated_at
 `
 
@@ -119,6 +120,8 @@ type DestInsertParams struct {
 // (callers run inside tenancy.InWorkspace); every statement also filters on the
 // explicit workspace id. destination_inbound_tokens is a non-RLS auth-plane table.
 // Timestamps are naive UTC columns.
+// Pin both naive timestamps to UTC, just like DestUpdate. The baseline defaults
+// use now(), whose cast to timestamp otherwise follows the session TimeZone.
 func (q *Queries) DestInsert(ctx context.Context, arg DestInsertParams) (AudienceDestination, error) {
 	row := q.db.QueryRow(ctx, destInsert,
 		arg.ID,

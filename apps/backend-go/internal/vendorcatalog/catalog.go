@@ -145,7 +145,7 @@ func HasKnownCost(name string) bool {
 		return true
 	}
 	_, ok := providerDeclaredCost(name)
-	return ok
+	return ok || nativeFreeProviders[name]
 }
 
 // IsBYOK reports BYOK billing (user key); unknown providers are BYOK.

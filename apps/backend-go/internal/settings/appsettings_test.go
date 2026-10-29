@@ -29,6 +29,13 @@ func (f *fakeStore) WorkspaceSetting(context.Context, string, string) (string, b
 }
 func (f *fakeStore) SetAppSetting(_ context.Context, k, v string) error { f.m[k] = v; return nil }
 
+func (f *fakeStore) SetAppSettings(_ context.Context, values map[string]string) error {
+	for key, value := range values {
+		f.m[key] = value
+	}
+	return nil
+}
+
 type vector struct {
 	Name, MasterKeyRaw, Plaintext, Token string
 }
@@ -140,5 +147,44 @@ func TestGetDecryptFailureIsErrorNotCiphertext(t *testing.T) {
 	got, err := a.Get(context.Background(), "X_API_KEY", "dflt")
 	if err == nil || got != "" || strings.Contains(err.Error(), "gAAAAAB") {
 		t.Fatalf("got %q, %v", got, err)
+	}
+}
+
+type singleWriteStore struct {
+	secrets.Store
+	writes int
+}
+
+func (s *singleWriteStore) SetAppSetting(context.Context, string, string) error {
+	s.writes++
+	return nil
+}
+
+func TestSetManyRefusesNonAtomicStoreWithoutIndividualWrites(t *testing.T) {
+	a, _ := testApp(t, newFake(), nil)
+	store := &singleWriteStore{Store: a.Store}
+	a.Store = store
+	if err := a.SetMany(context.Background(), map[string]string{"MODEL": "new", "X_API_KEY": "synthetic-key"}); err == nil {
+		t.Fatal("a store without atomic writes was accepted")
+	}
+	if store.writes != 0 {
+		t.Fatal("batch update fell back to individual writes")
+	}
+}
+
+func TestSetManyEncryptionFailureLeavesAllSettingsUnchanged(t *testing.T) {
+	store := newFake()
+	store.m["MODEL"] = "initial-model"
+	a, _ := testApp(t, store, nil)
+	envelope, err := secrets.NewEnvelope(secrets.Config{SecretKey: secrets.InsecureSecretKey, AppEnv: "prod"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a.Env = envelope
+	if err := a.SetMany(context.Background(), map[string]string{"MODEL": "replacement-model", "X_API_KEY": "synthetic-key"}); err == nil {
+		t.Fatal("encryption failure was not surfaced")
+	}
+	if store.m["MODEL"] != "initial-model" || len(store.m) != 1 {
+		t.Fatal("encryption failure left partially written settings")
 	}
 }

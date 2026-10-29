@@ -53,9 +53,9 @@ none of it: run `migrate up` and start the Go stack (`docker-compose.md`).
   `outreach_inbound_poll` and `send`. Python wrote some of them with a NULL `workspace_id`; step 3 backfills those.
 - **`run_workbook` payloads without a `go` block** are planned by the worker when it claims them, from the workbook's
   current columns. This covers Python-era rows as well as refresh, source-workbook and recompute enqueues.
-- **Destination types without a Go delivery port fail permanently.** Today that is `hubspot`, `salesforce`,
-  `instantly`, `smartlead`, `google_sheets` and `airtable`; webhook, slack, the ad platforms and `warehouse_http`
-  are served.
+- **Destination adapters run in Go.** HubSpot, Salesforce, Instantly, Smartlead, Google Sheets and Airtable
+  have native adapters alongside webhook, Slack, the ad platforms and `warehouse_http`. Configure their
+  workspace-only credentials before enabling delivery; missing credentials fail closed.
 - **`source_health_check` probes in process** over the browser service. Without `BROWSER_SERVICE_URL` /
   `BROWSER_SERVICE_TOKEN`, the source health, `collect`, `bulk_enrich` and collection-query source-workbook jobs
   fail with that reason.
