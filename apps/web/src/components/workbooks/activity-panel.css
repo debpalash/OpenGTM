@@ -1,0 +1,227 @@
+.workbook-activity {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 160px;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  background: var(--gtm-surface);
+  font-size: 0.8125rem;
+}
+.activity-drawer-resize {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  flex: none;
+  cursor: ns-resize;
+  touch-action: none;
+}
+.activity-drawer-resize:focus-visible {
+  outline-offset: -2px;
+  background: var(--gtm-selection);
+}
+.activity-drawer-resize-bar {
+  height: 3px;
+  width: 40px;
+  border-radius: 4px;
+  background: var(--gtm-border-control);
+}
+.activity-drawer-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 12px 6px;
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+.workbook-activity .activity-drawer-tab-list [role="tab"] {
+  font-size: 0.75rem;
+  padding-inline: 10px;
+}
+.activity-drawer-tab-actions,
+.activity-panel-feed-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.activity-drawer-tab-actions [data-slot="native-select"] {
+  width: 148px;
+}
+.activity-panel-context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding: 4px 12px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  flex: none;
+}
+.activity-panel-context input {
+  max-width: 160px;
+  height: 28px;
+  min-width: 0;
+  padding: 0 8px;
+  border: 1px solid var(--input);
+  border-radius: 6px;
+  background: var(--background);
+  color: var(--foreground);
+}
+.activity-drawer-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.activity-drawer-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px;
+  text-align: center;
+  color: var(--muted-foreground);
+}
+.activity-panel-note {
+  padding: 8px 12px 0;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+.activity-drawer-feed {
+  padding: 4px 8px;
+}
+.activity-event {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+.activity-event:hover {
+  background: var(--muted);
+}
+.activity-event-time {
+  color: var(--muted-foreground);
+  font-family: var(--gtm-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.activity-event-company {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.activity-event-column,
+.activity-event-provider,
+.activity-event-state {
+  color: var(--muted-foreground);
+}
+.activity-event-column {
+  background: var(--muted);
+  border-radius: 4px;
+  padding: 0 4px;
+}
+.activity-event-value {
+  color: var(--gtm-success);
+  overflow-wrap: anywhere;
+}
+.activity-event-error {
+  color: var(--gtm-danger);
+  overflow-wrap: anywhere;
+}
+.activity-event.enrich_error {
+  background: var(--gtm-danger-surface);
+}
+.activity-drawer-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 8px;
+  padding: 8px 12px;
+}
+.activity-col-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+}
+.activity-col-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  font-size: 0.75rem;
+}
+.activity-col-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.activity-col-provider {
+  color: var(--muted-foreground);
+  overflow-wrap: anywhere;
+}
+.activity-col-bar {
+  height: 4px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--muted);
+}
+.activity-col-bar-fill,
+.activity-col-bar-error {
+  height: 100%;
+  position: absolute;
+  top: 0;
+}
+.activity-col-bar-fill {
+  left: 0;
+  background: var(--gtm-success);
+}
+.activity-col-bar-error {
+  right: 0;
+  background: var(--gtm-danger);
+}
+.activity-col-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.activity-drawer-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  gap: 4px;
+  border-left: 1px solid var(--border);
+  padding-inline: 8px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+.activity-drawer-trigger:hover,
+.activity-drawer-trigger[aria-expanded="true"] {
+  background: var(--gtm-selection);
+  color: var(--gtm-link);
+}
+@media (pointer: coarse) {
+  .workbook-activity [role="tab"],
+  .workbook-activity input,
+  .activity-drawer-trigger {
+    min-height: 44px;
+  }
+  .workbook-activity .activity-drawer-tab-list {
+    height: 48px;
+  }
+}

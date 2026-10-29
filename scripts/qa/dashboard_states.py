@@ -194,8 +194,9 @@ try:
         resize = page.get_by_role("separator", name="Resize score column", exact=True)
         before = int(resize.get_attribute("aria-valuenow"))
         resize.focus()
-        page.keyboard.press("ArrowRight")
-        expect(resize).to_have_attribute("aria-valuenow", str(before + 10))
+        delta = -10 if before > 590 else 10
+        page.keyboard.press("ArrowLeft" if delta < 0 else "ArrowRight")
+        expect(resize).to_have_attribute("aria-valuenow", str(before + delta))
         log("keyboard_column_resize")
         before_order = page.locator("thead [data-col-id]").evaluate_all(
             "(nodes)=>nodes.slice(3).map(node=>node.dataset.colId)"
@@ -205,6 +206,9 @@ try:
         drag.focus()
         page.keyboard.press("Space")
         expect(drag).to_have_attribute("aria-pressed", "true")
+        # The keyboard sensor attaches its document listener on the next task.
+        # Pressed state alone does not prove that listener is installed yet.
+        page.evaluate("()=>new Promise(resolve=>setTimeout(resolve,0))")
         page.keyboard.press(
             "ArrowLeft" if before_order.index(score_id) > 0 else "ArrowRight"
         )

@@ -23,7 +23,6 @@ import {
   useDeleteWorkbookRows, useDeleteMatchingWorkbookRows, useWorkbookSocket, useProviders,
   useRunCell, useWorkbookViews, useConnectorRuns,
   useSaveWorkbookColumnWidth,
-  useSaveWorkbookColumnOrder,
   useSaveWorkbookColumnSettings,
   useAddWorkbookColumn,
 } from "@/lib/workbook-hooks"
@@ -47,6 +46,8 @@ import { WorkbookSelectionBar } from "@/components/workbooks/selection-bar"
 import { WorkbookRunReview } from "@/components/workbooks/run-review"
 import { WorkbookRunHistory } from "@/components/workbooks/run-history"
 import { ColumnWidthEditor } from "@/components/workbooks/column-width-editor"
+import { ColumnOrderEditor } from "@/components/workbooks/column-order-editor"
+import { useColumnMovement } from "@/features/workbooks/use-column-movement"
 import { DeleteColumnDialog } from "@/components/workbooks/delete-column-dialog"
 import { Dialog, Button as DesignButton, Input as DesignInput } from "@/design-system/primitives"
 import "@/components/workbooks/column-settings.css"
@@ -57,8 +58,7 @@ import type { SourceEnginePanel as SourceEnginePanelType } from "@/components/so
 import { CsvImportDialog, type CsvImportDraft } from "@/components/csv-import-dialog"
 import { toast } from "sonner"
 import {
-  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors,
-  type DragEndEvent,
+  DndContext, closestCenter,
 } from "@dnd-kit/core"
 import {
   SortableContext, horizontalListSortingStrategy, useSortable,
@@ -83,14 +83,14 @@ const COL_TYPE_META: Record<string, { icon: typeof Type; color: string; label: s
   input: { icon: Type, color: "text-[var(--muted-foreground)]", label: "Lead Field", headerBg: "" },  // Legacy alias
   source: { icon: Globe, color: "text-muted-foreground", label: "Source", headerBg: "" },
   agent: { icon: Brain, color: "text-muted-foreground", label: "Agent", headerBg: "" },
-  enrichment: { icon: Sparkles, color: "text-violet-400", label: "Enrichment", headerBg: "bg-violet-500/5" },
+  enrichment: { icon: Sparkles, color: "text-[var(--gtm-chart-purple)]", label: "Enrichment", headerBg: "bg-violet-500/5" },
   waterfall: { icon: Layers, color: "text-[var(--gtm-link)]", label: "Waterfall", headerBg: "bg-blue-500/5" },
   ai_formula: { icon: Brain, color: "text-[var(--gtm-warning)]", label: "AI Formula", headerBg: "bg-amber-500/5" },
   conditional: { icon: GitBranch, color: "text-[var(--gtm-success)]", label: "Conditional", headerBg: "bg-emerald-500/5" },
-  output: { icon: Send, color: "text-rose-400", label: "Output", headerBg: "bg-rose-500/5" },
-  research: { icon: Globe, color: "text-cyan-400", label: "Research", headerBg: "bg-cyan-500/5" },
-  http: { icon: Webhook, color: "text-teal-400", label: "HTTP API", headerBg: "bg-teal-500/5" },
-  formula: { icon: Calculator, color: "text-orange-400", label: "Formula", headerBg: "bg-orange-500/5" },
+  output: { icon: Send, color: "text-[var(--gtm-danger)]", label: "Output", headerBg: "bg-rose-500/5" },
+  research: { icon: Globe, color: "text-[var(--gtm-link)]", label: "Research", headerBg: "bg-cyan-500/5" },
+  http: { icon: Webhook, color: "text-[var(--gtm-chart-teal)]", label: "HTTP API", headerBg: "bg-teal-500/5" },
+  formula: { icon: Calculator, color: "text-[var(--gtm-warning)]", label: "Formula", headerBg: "bg-orange-500/5" },
 }
 
 // Fields that get type-aware rendering (module-level constant)
@@ -356,7 +356,7 @@ function TypedCellValue({ value, fieldName }: { value: string; fieldName: string
     try {
       const url = value.startsWith("http") ? value : `https://${value}`
       const domain = new URL(url).hostname.replace("www.", "")
-      const display = fieldName.includes("linkedin") ? domain.replace("linkedin.com/in/", "") 
+      const display = fieldName.includes("linkedin") ? domain.replace("linkedin.com/in/", "")
         : fieldName.includes("twitter") ? domain.replace("twitter.com/", "@")
         : domain
       return (
@@ -539,7 +539,6 @@ export default function WorkbookEditorPage() {
   const renameSubmitting = useRef(false)
   const renameFocus = useRef<{ columnId: string; name: string } | null>(null)
   const settingsSubmitting = useRef(false)
-  const saveColumnOrder = useSaveWorkbookColumnOrder(id!)
   const { mutate: updateLeadField } = useUpdateLeadField(id!)
   const { mutate: updateWorkbookRow } = useUpdateWorkbookRow(id!)
   const bulkUpdateWorkbookRows = useBulkUpdateWorkbookRows(id!)
@@ -623,6 +622,7 @@ export default function WorkbookEditorPage() {
   const [nlExplanation, setNlExplanation] = useState("")
   const [showColumnVisibility, setShowColumnVisibility] = useState(false)
   const [activityOpen, setActivityOpen] = useState(false)
+  const activityTriggerRef = useRef<HTMLButtonElement>(null)
   const [exportingCsv, setExportingCsv] = useState(false)
   const [activeCell, setActiveCell] = useState({ row: 0, column: 2 })
   const [selectionAnchor, setSelectionAnchor] = useState<{ row: number; column: number } | null>(null)
@@ -722,42 +722,7 @@ export default function WorkbookEditorPage() {
 
   const viewRows = rows
 
-  // ── DnD sensors for column reorder ──
-  const dndSensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: (event, args) => {
-      if (event.code !== "ArrowLeft" && event.code !== "ArrowRight") return undefined
-      event.preventDefault()
-      const { active, over, collisionRect, droppableRects } = args.context
-      if (!active || !collisionRect) return undefined
-      const visible = columns.filter(column => !hiddenColumns.has(column.id))
-      const index = visible.findIndex(column => column.id === (over?.id ?? active.id))
-      if (index < 0) return undefined
-      const target = visible[index + (event.code === "ArrowRight" ? 1 : -1)]
-      const rect = target && droppableRects.get(target.id)
-      if (!rect) return undefined
-      // Center-based collision needs center-aligned keyboard coordinates. The
-      // sortable default aligns edges and can stay over a much wider origin.
-      return { x: rect.left + (rect.width - collisionRect.width) / 2, y: collisionRect.top }
-    } }),
-  )
-
-  const handleColumnDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, over } = event
-    if (!over || active.id === over.id || saveColumnOrder.isPending) return
-
-    const oldIndex = columns.findIndex(c => c.id === active.id)
-    const newIndex = columns.findIndex(c => c.id === over.id)
-    if (oldIndex === -1 || newIndex === -1) return
-
-    const reordered = [...columns]
-    const [moved] = reordered.splice(oldIndex, 1)
-    reordered.splice(newIndex, 0, moved)
-
-    saveColumnOrder.mutate({ columnIds: reordered.map(column => column.id), expectedColumnIds: columns.map(column => column.id) }, {
-      onError: error => toast.error(error.message || "Column order was not saved. Refresh before retrying."),
-    })
-  }, [columns, saveColumnOrder])
+  const columnMovement = useColumnMovement(id!, columns, hiddenColumns)
 
   // Initialize column widths from config (once)
   useEffect(() => {
@@ -910,7 +875,9 @@ export default function WorkbookEditorPage() {
             const sort = column.getIsSorted()
             return (
               <div
-                className={`flex items-center gap-1 px-2 h-full cursor-pointer select-none ${meta.headerBg}`}
+                className={`workbook-column-head flex items-center gap-1 px-2 h-full select-none ${meta.headerBg}`}
+                data-narrow={getColWidth(col.id, col.width || 180) < 112}
+                title={col.name}
                 onContextMenu={(e) => {
                   e.preventDefault()
                   setCtxMenu({ x: e.clientX, y: e.clientY, colId: col.id })
@@ -1024,7 +991,7 @@ export default function WorkbookEditorPage() {
       }),
     ]
     return cols
-  }, [columns, hiddenColumns, updateLeadField, updateWorkbookRow, runCell, cellRunPending, cellRunVariables])
+  }, [columns, hiddenColumns, getColWidth, updateLeadField, updateWorkbookRow, runCell, cellRunPending, cellRunVariables])
 
   // Search and saved-view filters are applied server-side before pagination, so
   // the table registers no filtering feature; `globalFilter` stays page state.
@@ -1684,7 +1651,7 @@ export default function WorkbookEditorPage() {
       </div>
 
       {/* ── Table ───────────────────────────────────────────────────────── */}
-      <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleColumnDragEnd}>
+      <DndContext {...columnMovement} collisionDetection={closestCenter}>
         <SortableContext
           items={columns.filter(c => !hiddenColumns.has(c.id)).map(c => c.id)}
           strategy={horizontalListSortingStrategy}
@@ -2386,7 +2353,7 @@ export default function WorkbookEditorPage() {
                 <Dialog.Title className="text-sm font-semibold truncate">{col.name} column settings</Dialog.Title>
               </div>
               <button aria-label="Close column settings" onClick={() => setConfigPanelColId(null)}
-                className="p-1 rounded hover:bg-muted"><X className="size-4" /></button>
+                className="size-8 inline-flex items-center justify-center rounded hover:bg-muted"><X className="size-4" /></button>
             </div>
 
             {/* Body */}
@@ -2396,6 +2363,7 @@ export default function WorkbookEditorPage() {
                   columnWidthsRef.current[col.id] = width
                   forceResizeRender(n => n + 1)
                 }} />
+              <ColumnOrderEditor key={`order:${id}:${col.id}`} workbookId={id!} columnId={col.id} columns={columns} />
               {/* Type badge */}
               <div className="flex items-center gap-2">
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${meta.color} bg-muted/50`}>
@@ -2405,6 +2373,7 @@ export default function WorkbookEditorPage() {
               </div>
 
               {/* Column Name */}
+              {settingsSave.isSuccess && settingsSave.variables?.columnId === col.id && <p role="status" className="text-xs text-muted-foreground">Column settings saved.</p>}
               {settingsSave.isPending && <p role="status" className="text-xs text-muted-foreground">Saving column settings…</p>}
               {settingsSave.isError && <div className="space-y-2">
                 <p role="alert" className="text-xs text-destructive">{settingsSave.error.message} Submitted values for column {settingsSave.variables?.columnId} are retained for retry.</p>
@@ -2435,8 +2404,9 @@ export default function WorkbookEditorPage() {
               {/* Lead Field mapping */}
               {(col.type === "lead_field" || col.type === "input") && (
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground font-medium">Mapped Lead Field</label>
+                  <label htmlFor="column-settings-mapped-field" className="text-xs text-muted-foreground font-medium">Mapped Lead Field</label>
                   <NativeSelect
+                    id="column-settings-mapped-field"
                     defaultValue={col.lead_field || ""}
                     onChange={e => updateCol({ lead_field: e.target.value })}
                     className="w-full"
@@ -2455,8 +2425,9 @@ export default function WorkbookEditorPage() {
               {/* Provider (enrichment) */}
               {col.type === "enrichment" && (
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground font-medium">Provider</label>
+                  <label htmlFor="column-settings-provider" className="text-xs text-muted-foreground font-medium">Provider</label>
                   <NativeSelect
+                    id="column-settings-provider"
                     defaultValue={col.provider || ""}
                     onChange={e => updateCol({ provider: e.target.value })}
                     className="w-full"
@@ -2472,22 +2443,22 @@ export default function WorkbookEditorPage() {
               {/* Waterfall chain (waterfall) */}
               {col.type === "waterfall" && (
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground font-medium">
-                    Provider Chain <span className="text-muted-foreground/50">(first match wins)</span>
+                  <label htmlFor="column-settings-chain" className="text-xs text-muted-foreground font-medium">
+                    Provider Chain <span className="text-muted-foreground">(first match wins)</span>
                   </label>
                   <div className="space-y-1">
                     {(col.waterfall || []).map((pName: string, i: number) => (
                       <div key={pName} className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-muted/50 text-xs">
-                        <GripVertical className="size-3 text-muted-foreground/40 shrink-0" />
                         <span className="text-xs text-muted-foreground tabular-nums w-4">{i + 1}.</span>
                         <span className="flex-1 truncate">{pName}</span>
                         <button
+                          aria-label={`Remove ${pName} from provider chain`}
                           onClick={() => {
                             const chain = [...(col.waterfall || [])]
                             chain.splice(i, 1)
                             updateCol({ waterfall: chain })
                           }}
-                          className="p-0.5 rounded hover:bg-destructive/10 hover:text-destructive"
+                          className="min-h-7 min-w-7 inline-flex items-center justify-center rounded hover:bg-destructive/10 hover:text-destructive"
                         >
                           <X className="size-3" />
                         </button>
@@ -2495,6 +2466,7 @@ export default function WorkbookEditorPage() {
                     ))}
                   </div>
                   <NativeSelect
+                    id="column-settings-chain"
                     value=""
                     onChange={e => {
                       if (e.target.value) {
@@ -2516,8 +2488,9 @@ export default function WorkbookEditorPage() {
               {/* Target field (enrichment/waterfall) */}
               {(col.type === "enrichment" || col.type === "waterfall") && (
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground font-medium">Target Lead Field</label>
+                  <label htmlFor="column-settings-target-field" className="text-xs text-muted-foreground font-medium">Target Lead Field</label>
                   <NativeSelect
+                    id="column-settings-target-field"
                     defaultValue={col.target_field || ""}
                     onChange={e => updateCol({ target_field: e.target.value || undefined })}
                     className="w-full"
@@ -2536,10 +2509,11 @@ export default function WorkbookEditorPage() {
               {/* AI Prompt (ai_formula) */}
               {col.type === "ai_formula" && (
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground font-medium">
-                    AI Prompt <span className="text-muted-foreground/50">— use {"{column}"} placeholders</span>
+                  <label htmlFor="column-settings-prompt" className="text-xs text-muted-foreground font-medium">
+                    AI Prompt <span className="text-muted-foreground">— use {"{column}"} placeholders</span>
                   </label>
                   <textarea
+                    id="column-settings-prompt"
                     defaultValue={col.prompt || ""}
                     onBlur={e => updateCol({ prompt: e.target.value })}
                     placeholder="Summarize what {company} does based on {website}"
@@ -2552,14 +2526,16 @@ export default function WorkbookEditorPage() {
               {/* Condition (all non-lead_field) */}
               {col.type !== "lead_field" && col.type !== "input" && (
                 <div className="space-y-1.5">
-                  <label className="text-xs text-muted-foreground font-medium">Only Run If</label>
+                  <label htmlFor="column-settings-condition" className="text-xs text-muted-foreground font-medium">Only Run If</label>
                   <input
+                    id="column-settings-condition"
+                    aria-describedby="column-settings-condition-help"
                     defaultValue={col.condition || ""}
                     onBlur={e => updateCol({ condition: e.target.value || undefined })}
                     placeholder='{email} == "" AND {website} != ""'
                     className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/50"
                   />
-                  <p className="text-xs text-muted-foreground/50">
+                  <p id="column-settings-condition-help" className="text-xs text-muted-foreground">
                     Leave empty to always run. Supports ==, !=, &gt;, &lt;, AND, OR.
                   </p>
                 </div>
@@ -2571,13 +2547,14 @@ export default function WorkbookEditorPage() {
                   <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
                     <input
                       type="checkbox"
+                      aria-describedby="column-settings-reactive-help"
                       checked={col.reactive ?? col.type !== "output"}
                       onChange={e => updateCol({ reactive: e.target.checked })}
                       className="size-3.5 rounded border-muted-foreground/40 accent-primary"
                     />
                     Recompute after upstream edits
                   </label>
-                  <p className="text-xs leading-relaxed text-muted-foreground/60">
+                  <p id="column-settings-reactive-help" className="text-xs leading-relaxed text-muted-foreground">
                     Queues this column and its dependents when referenced input values change. Output columns default off to prevent unintended external actions.
                   </p>
                 </div>
@@ -2637,12 +2614,12 @@ export default function WorkbookEditorPage() {
 
       {/* ── Activity Drawer (slides up from status bar) ─────────────── */}
       <ActivityDrawer
+        key={id}
         rows={rows}
         columns={columns}
-        isRunning={workbook?.status === "running"}
         connected={connected}
         isOpen={activityOpen}
-        onToggle={() => setActivityOpen(!activityOpen)}
+        onToggle={() => { setActivityOpen(!activityOpen); if (activityOpen) activityTriggerRef.current?.focus() }}
       />
 
       {/* ── Status Bar ───────────────────────────────────────────────── */}
@@ -2730,6 +2707,9 @@ export default function WorkbookEditorPage() {
           {columns.some(c => isExecutableColumn(c.type)) && (
             <button
               className="activity-drawer-trigger"
+              ref={activityTriggerRef}
+              aria-expanded={activityOpen}
+              aria-controls={activityOpen ? "workbook-activity-panel" : undefined}
               onClick={() => setActivityOpen(!activityOpen)}
               title={activityOpen ? "Collapse activity panel" : "Expand activity panel"}
             >
