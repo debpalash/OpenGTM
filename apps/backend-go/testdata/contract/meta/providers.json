@@ -715,6 +715,23 @@
         },
         {
           "capabilities": [
+            "compliance"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "precleared_compliance",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
             "email"
           ],
           "certification": null,
