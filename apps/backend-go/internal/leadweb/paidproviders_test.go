@@ -3,10 +3,12 @@ package leadweb
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/netip"
 	"reflect"
 	"slices"
 	"strings"
@@ -22,19 +24,28 @@ const firecrawlGood = `{"success":true,"data":{"web":[{"title":"Acme","url":"htt
 
 func paidConfig() config.LeadwebSettings {
 	cfg, _ := config.LeadwebFrom(func(string) string { return "" })
-	cfg.FirecrawlKey = "fc-test-secret"
+	cfg.FirecrawlKey, cfg.SpicrawlKey = "fc-test-secret", "sp-test-secret"
 	return cfg
+}
+
+func testSpicrawl(cfg config.LeadwebSettings, server *httptest.Server) *Spicrawl {
+	s := NewSpicrawl(cfg, server.Client())
+	s.endpoint = server.URL
+	s.lookup = func(context.Context, string, string) ([]netip.Addr, error) {
+		return []netip.Addr{netip.MustParseAddr("93.184.216.34")}, nil
+	}
+	return s
 }
 
 func TestPaidProvidersAreOptInAndKeysStayRedacted(t *testing.T) {
 	cfg, _ := config.LeadwebFrom(func(string) string { return "" })
-	if len(NewKeyedEngines(cfg, nil, nil).Configured()) != 0 {
+	if NewSpicrawl(cfg, nil) != nil || len(NewKeyedEngines(cfg, nil, nil).Configured()) != 0 {
 		t.Fatal("unconfigured providers must be inert")
 	}
 	cfg, err := config.LeadwebFrom(func(k string) string {
-		return map[string]string{"FIRECRAWL_API_KEY": " fc-test-secret "}[k]
+		return map[string]string{"FIRECRAWL_API_KEY": " fc-test-secret ", "SPICRAWL_API_KEY": " sp-test-secret "}[k]
 	})
-	if err != nil || cfg.FirecrawlKey.Reveal() != "fc-test-secret" {
+	if err != nil || cfg.FirecrawlKey.Reveal() != "fc-test-secret" || cfg.SpicrawlKey.Reveal() != "sp-test-secret" {
 		t.Fatal("secret loading")
 	}
 	if got := NewKeyedEngines(cfg, nil, nil).Configured(); !slices.Equal(got, []string{"firecrawl"}) {
@@ -46,7 +57,7 @@ func TestPaidProvidersAreOptInAndKeysStayRedacted(t *testing.T) {
 			t.Fatal("key disclosed by formatting")
 		}
 	}
-	for _, client := range []any{NewKeyedEngines(cfg, nil, nil)} {
+	for _, client := range []any{NewSpicrawl(cfg, nil), *NewSpicrawl(cfg, nil), NewKeyedEngines(cfg, nil, nil)} {
 		if strings.Contains(fmt.Sprintf("%v %+v %#v %s %d", client, client, client, client, client), "test-secret") {
 			t.Fatal("provider client formatting disclosed credentials")
 		}
@@ -132,6 +143,9 @@ func TestPaidProviderRedirectsNeverReplayCredentialsOrBodies(t *testing.T) {
 		if len(e.Search(context.Background(), "secret query", 5)) != 0 {
 			t.Fatal("redirect followed")
 		}
+		if _, err := testSpicrawl(paidConfig(), srv).Fetch(context.Background(), "https://acme.example"); err == nil {
+			t.Fatal("redirect followed")
+		}
 		srv.Close()
 	}
 	if leaked.Load() != 0 {
@@ -204,5 +218,90 @@ func TestFirecrawlFallbackCacheAndWorkspaceIsolation(t *testing.T) {
 	s.keyed.Endpoints = map[string]string{"firecrawl": srv.URL}
 	if len(s.Text(context.Background(), "q", SearchOptions{NoProxy: true})) != 1 || calls.Load() != 2 {
 		t.Fatal("paid request before keyless results")
+	}
+}
+
+func TestSpicrawlMarkdownPDFOptionsAndCostCeiling(t *testing.T) {
+	var body map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" || r.URL.RawQuery != "" || r.Header.Get("Authorization") != "Bearer sp-test-secret" {
+			t.Error("request metadata")
+		}
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		w.Header().Set("Content-Type", "text/markdown; charset=utf-8")
+		w.Header().Set("X-Target-Status", "200")
+		w.Header().Set("X-Credits-Charged", "1")
+		_, _ = io.WriteString(w, "# Article\n\n"+strings.Repeat("é", 2100))
+	}))
+	defer srv.Close()
+	s := testSpicrawl(paidConfig(), srv)
+	r, err := s.Scrape(context.Background(), "https://acme.example/report.pdf#private-token", SpicrawlOptions{IncludeTags: []string{"article"}, ExcludeTags: []string{"aside"}})
+	if err != nil || r.CreditsCharged != 1 || !strings.HasPrefix(r.Markdown, "# Article") {
+		t.Fatal("valid markdown/PDF response rejected", err)
+	}
+	if body["url"] != "https://acme.example/report.pdf" || body["response_format"] != "markdown" || body["main_content_only"] != true ||
+		body["parse_pdf"] != true || body["links"] != false || body["js_render"] != false || body["max_cost"] != float64(1) {
+		t.Fatal(body)
+	}
+	if !reflect.DeepEqual(body["include_tags"], []any{"article"}) || !reflect.DeepEqual(body["exclude_tags"], []any{"aside"}) {
+		t.Fatal(body)
+	}
+	text, err := s.Fetch(context.Background(), "https://acme.example")
+	if err != nil || len([]rune(text)) != 2000 {
+		t.Fatal("research preview not bounded", err)
+	}
+	_, err = s.Scrape(context.Background(), "https://acme.example", SpicrawlOptions{JSRender: true})
+	if err != nil || body["max_cost"] != float64(3) || body["js_render"] != true {
+		t.Fatal("explicit JS request", err)
+	}
+}
+
+func TestSpicrawlRejectsFailedTargetsAndInvalidContent(t *testing.T) {
+	for _, c := range []struct {
+		target, credits, kind, body string
+		status                      int
+	}{
+		{"403", "0", "text/markdown", "Forbidden", 200}, {"404", "1", "text/markdown", "Not found", 200},
+		{"", "1", "text/markdown", "content", 200}, {"200", "", "text/markdown", "content", 200},
+		{"200", "2", "text/markdown", "content", 200}, {"200", "1", "application/json", `{"content":"article"}`, 200},
+		{"200", "1", "text/html", "<p>raw HTML</p>", 200}, {"200", "1", "text/markdown", " ", 200},
+		{"200", "1", "text/markdown", string([]byte{0xff}), 200}, {"200", "1", "text/markdown", strings.Repeat("x", spicrawlMaxBody+1), 200},
+		{"200", "1", "text/markdown", "content", 401},
+	} {
+		t.Run(fmt.Sprintf("%s-%s-%s-%d", c.target, c.credits, c.kind, len(c.body)), func(t *testing.T) {
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("X-Target-Status", c.target)
+				w.Header().Set("X-Credits-Charged", c.credits)
+				w.Header().Set("Content-Type", c.kind)
+				w.WriteHeader(c.status)
+				_, _ = io.WriteString(w, c.body)
+			}))
+			defer srv.Close()
+			if _, err := testSpicrawl(paidConfig(), srv).Fetch(context.Background(), "https://acme.example"); err == nil {
+				t.Fatal("invalid content accepted")
+			}
+		})
+	}
+}
+
+func TestSpicrawlRejectsPrivateTargetsBeforeSendingURL(t *testing.T) {
+	var requests atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) { requests.Add(1) }))
+	defer srv.Close()
+	s := testSpicrawl(paidConfig(), srv)
+	for _, u := range []string{"file:///etc/passwd", "http://localhost", "http://169.254.169.254/latest", "http://2130706433",
+		"http://[::ffff:127.0.0.1]", "https://user:pass@acme.example", "https://acme.example\\@127.0.0.1", "https://acme.example/\nheader"} {
+		if _, err := s.Fetch(context.Background(), u); !errors.Is(err, errSpicrawlURL) {
+			t.Fatal("private URL accepted")
+		}
+	}
+	s.lookup = func(context.Context, string, string) ([]netip.Addr, error) {
+		return []netip.Addr{netip.MustParseAddr("8.8.8.8"), netip.MustParseAddr("10.0.0.1")}, nil
+	}
+	if _, err := s.Fetch(context.Background(), "https://acme.example"); !errors.Is(err, errSpicrawlURL) {
+		t.Fatal("mixed private DNS accepted")
+	}
+	if requests.Load() != 0 {
+		t.Fatal("private target disclosed to provider")
 	}
 }

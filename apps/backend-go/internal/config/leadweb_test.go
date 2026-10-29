@@ -57,3 +57,26 @@ func TestSearchEngineTimeoutMustBeFiniteAndBounded(t *testing.T) {
 		}
 	}
 }
+
+func TestSpicrawlTimeoutMustBeFiniteAndBounded(t *testing.T) {
+	defaults, err := LeadwebFrom(func(string) string { return "" })
+	if err != nil || defaults.SpicrawlKey != "" || defaults.SpicrawlTimeout != 60*time.Second {
+		t.Fatal("Spicrawl must default to inactive with a bounded timeout", err)
+	}
+	overrides, err := LeadwebFrom(func(key string) string {
+		return map[string]string{"SPICRAWL_TIMEOUT": "12.5", "SPICRAWL_API_KEY": " sp-test "}[key]
+	})
+	if err != nil || overrides.SpicrawlKey.Reveal() != "sp-test" || overrides.SpicrawlTimeout != 12500*time.Millisecond {
+		t.Fatal("Spicrawl settings were not loaded", err)
+	}
+	for _, value := range []string{"NaN", "+Inf", "-Inf", "-1", "86401", "invalid"} {
+		if _, err := LeadwebFrom(func(k string) string {
+			if k == "SPICRAWL_TIMEOUT" {
+				return value
+			}
+			return ""
+		}); err == nil {
+			t.Errorf("invalid Spicrawl timeout %q accepted", value)
+		}
+	}
+}

@@ -46,3 +46,22 @@ func TestWorkerLeadwebSeparatesProviderCredentials(t *testing.T) {
 		t.Fatal("same credentials did not share the process client", err)
 	}
 }
+
+func TestWorkerLeadwebSeparatesSpicrawlCredentials(t *testing.T) {
+	env := map[string]string{"SPICRAWL_API_KEY": "sp-account-a"}
+	get := func(k string) string { return env[k] }
+	cfg := config.Config{AppEnv: "test"}
+	a, err := workerLeadweb(cfg, get)
+	if err != nil || a.Web.Spicrawl == nil {
+		t.Fatal("API-only markdown not configured", err)
+	}
+	env["SPICRAWL_API_KEY"] = "sp-account-b"
+	b, err := workerLeadweb(cfg, get)
+	if err != nil || b.Web == a.Web {
+		t.Fatal("different markdown credentials reused a cached client", err)
+	}
+	c, err := workerLeadweb(cfg, get)
+	if err != nil || c.Web != b.Web {
+		t.Fatal("same credentials did not share the process client", err)
+	}
+}

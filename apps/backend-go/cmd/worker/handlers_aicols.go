@@ -47,7 +47,7 @@ func aiColsDeps(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sh *wor
 	}
 	app, reg, llmCfg := sh.app, sh.reg, sh.llmCfg
 	httpc := egress.NewOperatorClient(cfg.EgressAllowHosts)
-	// API-backed search also work without the optional browser sidecar.
+	// API-backed search/markdown also work without the optional browser sidecar.
 	sw, err := workerLeadweb(cfg, os.Getenv)
 	if err != nil {
 		return nil, err
@@ -70,6 +70,9 @@ func aiColsDeps(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sh *wor
 			}
 			if bc.Configured() {
 				d.Pages = aicol.WebPages{Fetcher: web.Fetch, Extractor: bc}
+			}
+			if web.Spicrawl != nil {
+				d.Pages = web.Spicrawl
 			}
 		}
 		return d
